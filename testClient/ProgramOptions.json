@@ -1,0 +1,17 @@
+{
+  "FifoDirectoryName" : "/home/ilya/Fifos",
+  "SendId" : "Receive1",
+  "ReceiveId" : "Send1",
+  "SourceName" : "requests.log",
+  "OutputFileName" : "",
+  "InstrumentationFn" : "",
+  "Compression" : "LZ4",
+  "EnableHints" : true,
+  "TestCompression" : false,
+  "DYNAMIC_BUFFER_SIZE" : 180000,
+  "Timing" : true,
+  "MergePayload" : true,
+  "PrepareBatchOnce" : true,
+  "RunLoop" : true,
+  "MaxNumberIterations" : 150
+}

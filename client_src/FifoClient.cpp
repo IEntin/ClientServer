@@ -1,0 +1,159 @@
+#include "FifoClient.h"
+#include "Chronometer.h"
+#include "Compression.h"
+#include "Fifo.h"
+#include "MemoryPool.h"
+#include "ProgramOptions.h"
+#include "Utility.h"
+#include <fcntl.h>
+#include <poll.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+namespace fifo {
+
+bool receive(int fd, std::ostream* dataStream) {
+  unsigned count = 0;
+  unsigned maxCount = 0;
+  do {
+    auto [uncomprSize, comprSize, strCount, compressor, headerDone] = Fifo::readHeader(fd);
+    if (!headerDone) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      return false;
+    }
+    maxCount = strCount;
+    if (!readBatch(fd, uncomprSize, comprSize, compressor == LZ4, dataStream)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      return false;
+    }
+  } while(++count < maxCount);
+  return true;
+}
+
+bool readBatch(int fd, size_t uncomprSize, size_t comprSize, bool bcompressed, std::ostream* pstream) {
+  char* buffer = 0;
+  std::vector<char> safetyBuffer;
+  auto[ptr, bufferSize] = MemoryPool::getReceiveBuffer(comprSize);
+  if (bufferSize >= comprSize)
+    buffer = ptr;
+  else {
+    safetyBuffer.resize(comprSize + 1);
+    buffer = &safetyBuffer[0];
+  }
+  if (!Fifo::readString(fd, buffer, comprSize)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  std::string_view received(buffer, comprSize);
+  std::ostream& stream = pstream ? *pstream : std::cout;
+  if (bcompressed) {
+    std::string uncompressed; // may be unused if pooled buffer is big enough
+    std::string_view dstView = Compression::uncompress(received, uncomprSize, uncompressed);
+    if (dstView.empty()) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":failed to uncompress payload" << std::endl;
+      return false;
+    }
+    stream << dstView; 
+  }
+  else
+    stream << received;
+  return true;
+}
+
+bool preparePackage(const Batch& payload, Batch& modified) {
+  modified.clear();
+  static const bool merge = ProgramOptions::get("MergePayload", true);
+  // keep vector capacity
+  static Batch aggregated;
+  aggregated.clear();
+  if (merge && !utility::mergePayload(payload, aggregated)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  if (!(utility::buildMessage(aggregated, modified))) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool singleIteration(const Batch& payload, int fdWrite, int fdRead, std::ostream* dataStream) {
+  // keep vector capacity
+  static Batch modified;
+  // Simulate fast client to measure server performance accurately.
+  // used with "RunLoop" : true
+  static bool prepareOnce = ProgramOptions::get("PrepareBatchOnce", false);
+  if (prepareOnce) {
+    static bool done[[maybe_unused]] = preparePackage(payload, modified);
+    if (!done) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      return false;
+    }
+  }
+  else if (!preparePackage(payload, modified))
+    return false;
+  if (!Fifo::send(fdWrite, modified)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  unsigned rep = 0;
+  do {
+    errno = 0;
+    pollfd pfd{ fdRead, POLLIN, -1 };
+    if (poll(&pfd, 1, -1) <= 0) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< '-' << std::strerror(errno) << std::endl;
+      if (errno != EINTR) {
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << '-' << std::strerror(errno) << std::endl;
+	return false;
+      }
+    }
+  } while (errno == EINTR && rep++ < 3);
+  return receive(fdRead, dataStream);
+}
+
+// client fifo loop
+// to run a test infinite loop must keep payload unchanged.
+// in a real setup payload is used once and vector is mutable.
+bool run(const Batch& payload,
+	 bool runLoop,
+	 unsigned maxNumberIterations,
+	 std::ostream* dataStream,
+	 std::ostream* instrStream) {
+  static const bool timing = ProgramOptions::get("Timing", false);
+  static const std::string fifoDirName = ProgramOptions::get("FifoDirectoryName", std::string());
+  static const std::string sendId = ProgramOptions::get("SendId", std::string());
+  static const std::string sendFifoName = fifoDirName + '/' + sendId;
+  static const std::string receiveId = ProgramOptions::get("ReceiveId", std::string());
+  static const std::string receiveFifoName = fifoDirName + '/' + receiveId;
+  int fdWrite = open(sendFifoName.c_str(), O_WRONLY);
+  if (fdWrite == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
+    return false;
+  }
+  fifo::CloseFileDescriptor raiiw(fdWrite);
+  int fdRead = open(receiveFifoName.c_str(), O_RDONLY | O_NONBLOCK);
+  if (fdRead == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << '-' << receiveFifoName << '-' << std::strerror(errno) << std::endl;
+    return false;
+  }
+  fifo::CloseFileDescriptor raiir(fdRead);
+  unsigned numberIterations = 0;
+  do {
+    Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
+    if (!singleIteration(payload, fdWrite, fdRead, dataStream)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      return false;
+    }
+    // limit output file size
+    if (++numberIterations == maxNumberIterations)
+      break;
+  } while (runLoop);
+  return true;
+}
+
+} // end of namespace fifo

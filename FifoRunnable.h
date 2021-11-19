@@ -1,0 +1,37 @@
+#pragma once
+
+#include <condition_variable>
+#include <string>
+#include <thread>
+#include <vector>
+
+using Batch = std::vector<std::string>;
+
+namespace fifo {
+
+class FifoRunnable {
+  static std::vector<FifoRunnable> _runnables;
+  static std::vector<std::thread> _threads;
+  static const std::string _fifoDirectoryName;
+  static volatile std::atomic<bool> _finishFlag;
+  static std::mutex _stopMutex;
+  static std::condition_variable _stopCondition;
+  std::string _receiveFifoName;
+  std::string _sendFifoName;
+  int _fdRead = -1;
+  int _fdWrite = -1;
+  bool waitRequest();
+  bool receiveRequest(Batch& batch);
+  bool receiveRequest(std::vector<char>& received);
+  bool sendResponse(Batch& response);
+  bool reopenFD();
+public:
+  FifoRunnable(const std::string& receiveFifoName, std::string sendFifoName);
+  ~FifoRunnable() {}
+  void operator()() noexcept;
+  static bool startThreads();
+  static void joinThreads();
+  static void stop();
+};
+
+} // end of namespace fifo

@@ -1,0 +1,40 @@
+#pragma once
+
+#include "Utility.h"
+
+namespace fifo {
+
+struct CloseFileDescriptor {
+  CloseFileDescriptor(int fd);
+  ~CloseFileDescriptor();
+  int _fd = -1;
+};
+
+class Fifo {
+  Fifo() = delete;
+  ~Fifo() = delete;
+
+  static bool readBatch(int fd,
+			size_t uncomprSize,
+			size_t comprSize,
+			bool bcompressed,
+			Batch& batch);
+
+  static bool readVectorChar(int fd,
+			     size_t uncomprSize,
+			     size_t comprSize,
+			     bool bcompressed,
+			     std::vector<char>& uncompressed);
+
+  static ssize_t getDefaultPipeSize();
+  static ssize_t writeString(int fd, std::string_view str);
+  static const ssize_t _defaultPipeSize;
+public:
+  static HEADER readHeader(int fd);
+  static bool readString(int fd, char* received, size_t size);
+  static bool receive(int fd, Batch& batch);
+  static bool receive(int fd, std::vector<char>& received);
+  static bool send(int fd, const Batch& batch);
+};
+
+} // end of namespace fifo
