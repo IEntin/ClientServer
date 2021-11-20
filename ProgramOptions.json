@@ -9,7 +9,6 @@
   "EnableHints" : true,
   "TestCompression" : false,
   "DYNAMIC_BUFFER_SIZE" : 180000,
-  "MergePayload" : true,
   "Timing" : false,
   "ReceiveIds" : "Receive1 Receive2 Receive3 Receive4 Receive5",
   "SendIds" : "Send1 Send2 Send3 Send4 Send5"

@@ -33,19 +33,57 @@ HEADER Fifo::readHeader(int fd) {
       else {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << ':' << std::strerror(errno) << std::endl;
-	return std::make_tuple(-1, -1, 0, EMPTY_COMPRESSOR, false);
+	return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
       }
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< "-read(...) return 0,readSoFar=" << readSoFar
 		<< ",HEADER_SIZE=" << HEADER_SIZE << std::endl;
-      return std::make_tuple(-1, -1, 0, EMPTY_COMPRESSOR, false);
+      return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
     }
     else
       readSoFar += result;
   }
   return utility::decodeHeader(std::string_view(buffer, HEADER_SIZE), readSoFar == HEADER_SIZE);
+}
+
+bool Fifo::sendReply(int fd, Batch& batch) {
+  if (batch.empty())
+    return false;
+  static const auto[compressor, enabled] = Compression::isCompressionEnabled();
+  std::string uncompressed;
+  size_t uncomprSize = 0;
+  for (const auto& chunk : batch)
+    uncomprSize += chunk.size();
+  uncompressed.reserve(uncomprSize);
+  for (auto& chunk : batch)
+    uncompressed.append(std::move(chunk));
+  static const bool testCompression = ProgramOptions::get("TestCompression", false);
+  if (testCompression)
+    assert(Compression::testCompressionDecompression(uncompressed));
+  std::string message;
+  char array[HEADER_SIZE] = {};
+  if (enabled) {
+    std::string compressed; // may be unused if pooled buffer is big enough
+    std::string_view dstView = Compression::compress(uncompressed, compressed);
+    if (dstView.empty())
+      return false;
+    utility::encodeHeader(array, uncomprSize, dstView.size(), compressor);
+    message.assign(array, HEADER_SIZE);
+    message.append(dstView);
+  }
+  else {
+    utility::encodeHeader(array, uncompressed.size(), uncompressed.size(), EMPTY_COMPRESSOR);
+    message.reserve(HEADER_SIZE + uncompressed.size());
+    message.append(array, HEADER_SIZE);
+    message.append(std::move(uncompressed));
+  }
+  if (!writeString(fd, message)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  return true;
 }
 
 ssize_t Fifo::writeString(int fd, std::string_view str) {
@@ -176,47 +214,17 @@ bool Fifo::readVectorChar(int fd,
 }
 
 bool Fifo::receive(int fd, Batch& batch) {
-  unsigned count = 0;
-  unsigned maxCount = 0;
-  do {
-    auto [uncomprSize, comprSize, strCount, compressor, headerDone] = readHeader(fd);
-    if (!headerDone)
-      return false;
-    maxCount = strCount;
-    if (!readBatch(fd, uncomprSize, comprSize, compressor == LZ4, batch))
-      return false;
-  } while(++count < maxCount);
-  return true;
+  auto [uncomprSize, comprSize, compressor, headerDone] = readHeader(fd);
+  if (!headerDone)
+    return false;
+  return readBatch(fd, uncomprSize, comprSize, compressor == LZ4, batch);
 }
 
 bool Fifo::receive(int fd, std::vector<char>& received) {
-  unsigned count = 0;
-  unsigned maxCount = 0;
-  do {
-    auto [uncomprSize, comprSize, strCount, compressor, headerDone] = readHeader(fd);
-    if (!headerDone)
-      return false;
-    maxCount = strCount;
-    std::vector<char> partialReceived;
-    if (!readVectorChar(fd, uncomprSize, comprSize, compressor == LZ4, partialReceived))
-      return false;
-    received.insert(received.end(),
-		    std::make_move_iterator(partialReceived.begin()),
-		    std::make_move_iterator(partialReceived.end()));
-  } while(++count < maxCount);
-  return true;
-}
-
-bool Fifo::send(int fd, const Batch& batch) {
-  for (std::string_view str : batch) {
-    ssize_t result = writeString(fd, str);
-    if (result == -1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":error writeString" << std::endl;
-      return false;
-    }
-  }
-  return true;
+  auto [uncomprSize, comprSize, compressor, headerDone] = readHeader(fd);
+  if (!headerDone)
+    return false;
+  return readVectorChar(fd, uncomprSize, comprSize, compressor == LZ4, received);
 }
 
 ssize_t Fifo::getDefaultPipeSize() {

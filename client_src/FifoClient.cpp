@@ -13,20 +13,15 @@
 namespace fifo {
 
 bool receive(int fd, std::ostream* dataStream) {
-  unsigned count = 0;
-  unsigned maxCount = 0;
-  do {
-    auto [uncomprSize, comprSize, strCount, compressor, headerDone] = Fifo::readHeader(fd);
-    if (!headerDone) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      return false;
-    }
-    maxCount = strCount;
-    if (!readBatch(fd, uncomprSize, comprSize, compressor == LZ4, dataStream)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      return false;
-    }
-  } while(++count < maxCount);
+  auto [uncomprSize, comprSize, compressor, headerDone] = Fifo::readHeader(fd);
+  if (!headerDone) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  if (!readBatch(fd, uncomprSize, comprSize, compressor == LZ4, dataStream)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
   return true;
 }
 
@@ -93,25 +88,29 @@ bool singleIteration(const Batch& payload, int fdWrite, int fdRead, std::ostream
   }
   else if (!preparePackage(payload, modified))
     return false;
-  if (!Fifo::send(fdWrite, modified)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-    return false;
-  }
-  unsigned rep = 0;
-  do {
-    errno = 0;
-    pollfd pfd{ fdRead, POLLIN, -1 };
-    if (poll(&pfd, 1, -1) <= 0) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
-      if (errno != EINTR) {
+  for (const auto& chunk : modified) {
+    if (!Fifo::writeString(fdWrite, chunk)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      return false;
+    }
+    unsigned rep = 0;
+    do {
+      errno = 0;
+      pollfd pfd{ fdRead, POLLIN, -1 };
+      if (poll(&pfd, 1, -1) <= 0) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << '-' << std::strerror(errno) << std::endl;
-	return false;
+	if (errno != EINTR) {
+	  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		    << '-' << std::strerror(errno) << std::endl;
+	  return false;
+	}
       }
-    }
-  } while (errno == EINTR && rep++ < 3);
-  return receive(fdRead, dataStream);
+    } while (errno == EINTR && rep++ < 3);
+    if (!receive(fdRead, dataStream))
+      return false;
+  }
+  return true;
 }
 
 // client fifo loop

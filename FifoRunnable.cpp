@@ -133,15 +133,8 @@ bool FifoRunnable::sendResponse(Batch& response) {
 		<< std::strerror(errno) << '-' << _sendFifoName << std::endl;
       return false;
     }
-  }  
-  static const bool merge = ProgramOptions::get("MergePayload", true);
-  Batch aggregatedBatch;
-  if (merge && !utility::mergePayload(response, aggregatedBatch))
-    return false;
-  Batch message;
-  if (!utility::buildMessage(aggregatedBatch, message))
-    return false;
-  return Fifo::send(_fdWrite, message);
+  }
+  return Fifo::sendReply(_fdWrite, response);
 }
 
 bool FifoRunnable::reopenFD() {

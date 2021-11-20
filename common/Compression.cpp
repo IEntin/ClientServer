@@ -55,7 +55,7 @@ std::string_view Compression::compress(std::string_view origin, std::string& com
   static bool enableHints = ProgramOptions::get("EnableHints", true);
   if (enableHints)
     static auto& dummy[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__
-      << ' ' << __func__ << "-Server and some clients have different "
+      << ' ' << __func__ << "-server and some clients have different "
       "buffer sizes and memory pooling is disabled.Set \"EnableHints\" "
       "to false to disable this message." << std::endl;
   // buffer was not found in the pool. allocate here

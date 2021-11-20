@@ -37,38 +37,28 @@ bool extractLines(std::string_view input,
   return input.back() == delim;
 }
 
-void encodeHeader(char* buffer,
-		  size_t uncomprSz,
-		  size_t comprSz,
-		  unsigned strCount,
-		  std::string_view compressor) {
-  assert(toChars(uncomprSz, buffer, NUM_FIELD_SIZE));
-  assert(toChars(comprSz, buffer + NUM_FIELD_SIZE, NUM_FIELD_SIZE));
-  assert(toChars(strCount, buffer + NUM_FIELD_SIZE * 2, HALF_FIELD_SIZE));
-  std::strncpy(buffer + NUM_FIELD_SIZE * 2 + HALF_FIELD_SIZE,
-	       compressor.data(),
-	       COMPRESSOR_NAME_SIZE - 1);
+void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor) {
+  bool ok = toChars(uncomprSz, buffer, NUM_FIELD_SIZE);
+  assert(ok);
+  ok = toChars(comprSz, buffer + NUM_FIELD_SIZE, NUM_FIELD_SIZE);
+  assert(ok);
+  std::strncpy(buffer + NUM_FIELD_SIZE * 2, compressor.data(), COMPRESSOR_NAME_SIZE - 1);
 }
 
 HEADER decodeHeader(std::string_view buffer, bool done) {
   size_t uncomprSize = 0;
   std::string_view stru(buffer.data(), NUM_FIELD_SIZE);
   if (!fromChars(stru, uncomprSize)) {
-    return std::make_tuple(-1, -1, 0, EMPTY_COMPRESSOR, false);
+    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
   }
   size_t comprSize = 0;
   std::string_view strc(buffer.data() + NUM_FIELD_SIZE, NUM_FIELD_SIZE);
   if (!fromChars(strc, comprSize)) {
-    return std::make_tuple(-1, -1, 0, EMPTY_COMPRESSOR, false);
+    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
   }
-  unsigned strCount = 0;
-  std::string_view strn(buffer.data() + NUM_FIELD_SIZE * 2, HALF_FIELD_SIZE);
-  if (!fromChars(strn, strCount)) {
-    return std::make_tuple(-1, -1, 0, EMPTY_COMPRESSOR, false);
-  }
-  std::string_view compressor(buffer.data() + NUM_FIELD_SIZE * 2 + HALF_FIELD_SIZE, COMPRESSOR_NAME_SIZE);
+  std::string_view compressor(buffer.data() + NUM_FIELD_SIZE * 2, COMPRESSOR_NAME_SIZE);
   bool enabled = compressor.starts_with(LZ4);
-  return std::make_tuple(uncomprSize, comprSize, strCount, enabled ? LZ4 : EMPTY_COMPRESSOR, done);
+  return std::make_tuple(uncomprSize, comprSize, enabled ? LZ4 : EMPTY_COMPRESSOR, done);
 }
 
 // reduce number of write/read system calls.
@@ -111,12 +101,12 @@ bool buildMessage(const Batch& payload, Batch& message) {
       std::string_view dstView = Compression::compress(str, compressed);
       if (dstView.empty())
 	return false;
-      encodeHeader(array, uncomprSize, dstView.size(), payload.size(), compressor);
+      encodeHeader(array, uncomprSize, dstView.size(), compressor);
       message.back().reserve(HEADER_SIZE + dstView.size() + 1);
       message.back().append(array, HEADER_SIZE).append(dstView);
     }
     else {
-      encodeHeader(array, uncomprSize, uncomprSize, payload.size(), compressor);
+      encodeHeader(array, uncomprSize, uncomprSize, compressor);
       message.back().reserve(HEADER_SIZE + str.size() + 1);
       message.back().append(array, HEADER_SIZE).append(str);
     }

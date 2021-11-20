@@ -9,11 +9,10 @@
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 inline constexpr size_t NUM_FIELD_SIZE = 10;
-inline constexpr size_t HALF_FIELD_SIZE = 5;
 inline constexpr size_t COMPRESSOR_NAME_SIZE = 4;
-inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 +  HALF_FIELD_SIZE + COMPRESSOR_NAME_SIZE;
+inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE;
 
-using HEADER = std::tuple<ssize_t, ssize_t, unsigned, std::string_view, bool>;
+using HEADER = std::tuple<ssize_t, ssize_t, std::string_view, bool>;
 
 using Batch = std::vector<std::string>;
 
@@ -115,11 +114,7 @@ template <Integral T>
     return true;
 }
 
-void encodeHeader(char* buffer,
-		  size_t uncomprSz,
-		  size_t comprSz,
-		  unsigned strCount,
-		  std::string_view compressor);
+void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor);
 
 HEADER decodeHeader(std::string_view buffer, bool done);
 
