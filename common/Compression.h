@@ -24,5 +24,7 @@ class Compression {
 
   static bool uncompress(std::string_view compressed, std::vector<char>& uncompressed);
 
+  static size_t getCompressBound(size_t uncomprSize);
+
   static bool testCompressionDecompression(std::string_view input);
 };

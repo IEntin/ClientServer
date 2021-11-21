@@ -52,34 +52,35 @@ bool Fifo::sendReply(int fd, Batch& batch) {
   if (batch.empty())
     return false;
   static const auto[compressor, enabled] = Compression::isCompressionEnabled();
-  std::string uncompressed;
+  static thread_local std::vector<char> buffer;
   size_t uncomprSize = 0;
   for (const auto& chunk : batch)
     uncomprSize += chunk.size();
-  uncompressed.reserve(uncomprSize);
-  for (auto& chunk : batch)
-    uncompressed.append(std::move(chunk));
+  buffer.reserve(Compression::getCompressBound(uncomprSize) + HEADER_SIZE);
+  buffer.resize(uncomprSize + HEADER_SIZE);
+  std::memset(&buffer[0], '\0', HEADER_SIZE);
+  size_t pos = HEADER_SIZE;
+  for (const auto& chunk : batch) {
+    std::copy(chunk.cbegin(), chunk.cend(), buffer.begin() + pos);
+    pos += chunk.size();
+  }
+  std::string_view uncompressedView(buffer.data() + HEADER_SIZE, buffer.size() - HEADER_SIZE);
   static const bool testCompression = ProgramOptions::get("TestCompression", false);
   if (testCompression)
-    assert(Compression::testCompressionDecompression(uncompressed));
-  std::string message;
-  char array[HEADER_SIZE] = {};
+    assert(Compression::testCompressionDecompression(uncompressedView));
   if (enabled) {
     std::string compressed; // may be unused if pooled buffer is big enough
-    std::string_view dstView = Compression::compress(uncompressed, compressed);
+    std::string_view dstView = Compression::compress(uncompressedView, compressed);
     if (dstView.empty())
       return false;
-    utility::encodeHeader(array, uncomprSize, dstView.size(), compressor);
-    message.assign(array, HEADER_SIZE);
-    message.append(dstView);
+    buffer.resize(HEADER_SIZE + dstView.size());
+    utility::encodeHeader(&buffer[0], uncomprSize, dstView.size(), compressor);
+    std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
   }
-  else {
-    utility::encodeHeader(array, uncompressed.size(), uncompressed.size(), EMPTY_COMPRESSOR);
-    message.reserve(HEADER_SIZE + uncompressed.size());
-    message.append(array, HEADER_SIZE);
-    message.append(std::move(uncompressed));
-  }
-  if (!writeString(fd, message)) {
+  else
+    utility::encodeHeader(&buffer[0], uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
+  std::string_view sendView(&buffer[0], buffer.size());
+  if (!writeString(fd, sendView)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }

@@ -40,6 +40,10 @@ bool Compression::uncompressInternal(std::string_view compressed,
   return true;
 }
 
+size_t Compression::getCompressBound(size_t uncomprSize) {
+  return LZ4_compressBound(uncomprSize);
+}
+
 std::string_view Compression::compress(std::string_view origin, std::string& compressed) {
   size_t dstCapacity = LZ4_compressBound(origin.size());
   auto[buffer, size] = MemoryPool::getBuffer(dstCapacity);

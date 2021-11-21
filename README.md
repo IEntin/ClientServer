@@ -1,12 +1,12 @@
-### Fast lockless Clent-Server on Linux based on named pipes.
+### Fast Lockless Linux Clent-Server on Named Pipes.
 
-Transport layer based on named pipes (fifo, better performance and arguably stronger security than in a case of sockets).
+Transport layer is named pipes (fifo, better performance and arguably stronger security than in a case of sockets).
 
 Lockless. Processing batches of requests without locking.
 
 Memory Pooling. Business code and mostly compression/decompression are not allocating.
 
-Optional LZ4 compression is built in.
+Built in optional LZ4 compression.
 
 Business logic, compression, task multithreading, and transport layer are completely decoupled.
 
@@ -46,7 +46,7 @@ client #1:\
 Names of pipes should match on server and clients.
 
 FIFO files are created on server startup and removed on server shutdown with Ctrl-C.\
-Clients are not permitted to create or remove FIFO files.\
+Clients are not allowed to create or remove FIFO files.\
 ........
 
 To start:\
@@ -84,7 +84,7 @@ will not work on one or the other, showing lower performance.
 "Diagnostics" shows details of business calculations on all stages.
  
 =======
-### Client-Server on Linux
+### Linux Client-Server
 Transport layer based on named pipes.\
 Lockless. Processing batches of requests  without locking.\
 Business logic, tasks multithreading, and transport layer are completely decoupled.\

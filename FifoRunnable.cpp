@@ -111,8 +111,11 @@ bool FifoRunnable::waitRequest() {
 		<< '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    else if (pfd.revents & POLLHUP)
+    else if (pfd.revents & POLLHUP) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":POLLHUP detected " << _receiveFifoName << std::endl;
       return false;
+    }
   } while (errno == EINTR && rep++ < 3 && !_finishFlag);
   return !_finishFlag;
 }

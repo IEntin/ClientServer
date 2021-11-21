@@ -106,6 +106,17 @@ bool singleIteration(const Batch& payload, int fdWrite, int fdRead, std::ostream
 	  return false;
 	}
       }
+      else if (pfd.revents & POLLERR) {
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << '-' << std::strerror(errno) << std::endl;
+	return false;
+      }
+      else if (pfd.revents & POLLHUP) {
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << ":POLLHUP detected " << std::endl;
+	std::exit(1);
+	return false;
+      }
     } while (errno == EINTR && rep++ < 3);
     if (!receive(fdRead, dataStream))
       return false;
