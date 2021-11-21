@@ -1,6 +1,7 @@
 #include "Fifo.h"
 #include "Compression.h"
 #include "MemoryPool.h"
+#include "ProgramOptions.h"
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
@@ -52,13 +53,12 @@ bool Fifo::sendReply(int fd, Batch& batch) {
   if (batch.empty())
     return false;
   static const auto[compressor, enabled] = Compression::isCompressionEnabled();
-  static thread_local std::vector<char> buffer;
   size_t uncomprSize = 0;
   for (const auto& chunk : batch)
     uncomprSize += chunk.size();
-  buffer.reserve(Compression::getCompressBound(uncomprSize) + HEADER_SIZE);
+  size_t requestedSize = Compression::getCompressBound(uncomprSize) + HEADER_SIZE;
+  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(requestedSize);
   buffer.resize(uncomprSize + HEADER_SIZE);
-  std::memset(&buffer[0], '\0', HEADER_SIZE);
   size_t pos = HEADER_SIZE;
   for (const auto& chunk : batch) {
     std::copy(chunk.cbegin(), chunk.cend(), buffer.begin() + pos);
@@ -69,8 +69,7 @@ bool Fifo::sendReply(int fd, Batch& batch) {
   if (testCompression)
     assert(Compression::testCompressionDecompression(uncompressedView));
   if (enabled) {
-    std::string compressed; // may be unused if pooled buffer is big enough
-    std::string_view dstView = Compression::compress(uncompressedView, compressed);
+    std::string_view dstView = Compression::compress(uncompressedView);
     if (dstView.empty())
       return false;
     buffer.resize(HEADER_SIZE + dstView.size());
@@ -79,7 +78,7 @@ bool Fifo::sendReply(int fd, Batch& batch) {
   }
   else
     utility::encodeHeader(&buffer[0], uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
-  std::string_view sendView(&buffer[0], buffer.size());
+  std::string_view sendView(buffer.cbegin(), buffer.cend());
   if (!writeString(fd, sendView)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
@@ -154,21 +153,12 @@ bool Fifo::readBatch(int fd,
 		     size_t comprSize,
 		     bool bcompressed,
 		     Batch& batch) {
-  char* buffer = 0;
-  std::vector<char> safetyBuffer;
-  auto[ptr, bufferSize] = MemoryPool::getReceiveBuffer(comprSize);
-  if (bufferSize >= comprSize)
-    buffer = ptr;
-  else {
-    safetyBuffer.resize(comprSize + 1);
-    buffer = &safetyBuffer[0];
-  }
-  if (!readString(fd, buffer, comprSize))
+  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
+  if (!readString(fd, &buffer[0], comprSize))
     return false;
-  std::string_view received(buffer, comprSize);
+  std::string_view received(&buffer[0], comprSize);
   if (bcompressed) {
-    std::string uncompressed; // may be unused if pooled buffer is big enough
-    std::string_view uncompressedView = Compression::uncompress(received, uncomprSize, uncompressed);
+    std::string_view uncompressedView = Compression::uncompress(received, uncomprSize);
     if (uncompressedView.empty()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":failed to uncompress payload" << std::endl;
@@ -187,15 +177,7 @@ bool Fifo::readVectorChar(int fd,
 			  bool bcompressed,
 			  std::vector<char>& uncompressed) {
   if (bcompressed) {
-    char* buffer = 0;
-    std::vector<char> safetyBuffer;
-    auto[ptr, bufferSize] = MemoryPool::getBuffer(comprSize);
-    if (bufferSize >= comprSize)
-      buffer = ptr;
-    else {
-      safetyBuffer.resize(comprSize + 1);
-      buffer = &safetyBuffer[0];
-    }
+    auto[buffer, bufferSize] = MemoryPool::getPrimaryBuffer(comprSize);
     if (!readString(fd, buffer, comprSize))
       return false;
     std::string_view received(buffer, comprSize);

@@ -26,24 +26,15 @@ bool receive(int fd, std::ostream* dataStream) {
 }
 
 bool readBatch(int fd, size_t uncomprSize, size_t comprSize, bool bcompressed, std::ostream* pstream) {
-  char* buffer = 0;
-  std::vector<char> safetyBuffer;
-  auto[ptr, bufferSize] = MemoryPool::getReceiveBuffer(comprSize);
-  if (bufferSize >= comprSize)
-    buffer = ptr;
-  else {
-    safetyBuffer.resize(comprSize + 1);
-    buffer = &safetyBuffer[0];
-  }
-  if (!Fifo::readString(fd, buffer, comprSize)) {
+  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
+  if (!Fifo::readString(fd, &buffer[0], comprSize)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  std::string_view received(buffer, comprSize);
+  std::string_view received(&buffer[0], comprSize);
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
-    std::string uncompressed; // may be unused if pooled buffer is big enough
-    std::string_view dstView = Compression::uncompress(received, uncomprSize, uncompressed);
+    std::string_view dstView = Compression::uncompress(received, uncomprSize);
     if (dstView.empty()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":failed to uncompress payload" << std::endl;
@@ -62,11 +53,11 @@ bool preparePackage(const Batch& payload, Batch& modified) {
   // keep vector capacity
   static Batch aggregated;
   aggregated.clear();
-  if (merge && !utility::mergePayload(payload, aggregated)) {
+  if (merge && !mergePayload(payload, aggregated)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  if (!(utility::buildMessage(aggregated, modified))) {
+  if (!(buildMessage(aggregated, modified))) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -144,14 +135,14 @@ bool run(const Batch& payload,
 	      << '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
-  fifo::CloseFileDescriptor raiiw(fdWrite);
+  CloseFileDescriptor raiiw(fdWrite);
   int fdRead = open(receiveFifoName.c_str(), O_RDONLY | O_NONBLOCK);
   if (fdRead == -1) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << '-' << receiveFifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
-  fifo::CloseFileDescriptor raiir(fdRead);
+  CloseFileDescriptor raiir(fdRead);
   unsigned numberIterations = 0;
   do {
     Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
@@ -164,6 +155,72 @@ bool run(const Batch& payload,
       break;
   } while (runLoop);
   return true;
+}
+
+// reduce number of write/read system calls.
+bool mergePayload(const Batch& batch, Batch& aggregatedBatch) {
+  if (batch.empty())
+    return false;
+  static const size_t BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
+  std::string bigString;
+  size_t reserveSize = 0;
+  if (reserveSize)
+    bigString.reserve(reserveSize + 1);
+  for (std::string_view line : batch) {
+    if (bigString.size() + line.size() < BUFFER_SIZE || bigString.empty())
+      bigString.append(line);
+    else {
+      reserveSize = std::max(reserveSize, bigString.size());
+      aggregatedBatch.push_back(std::move(bigString));
+      bigString.clear();
+      bigString.assign(line);
+    }
+  }
+  if (!bigString.empty())
+    aggregatedBatch.push_back(std::move(bigString));
+  return true;
+}
+
+bool buildMessage(const Batch& payload, Batch& message) {
+  if (payload.empty())
+    return false;
+  for (std::string_view str : payload) {
+    static const bool testCompression = ProgramOptions::get("TestCompression", false);
+    if (testCompression)
+      assert(Compression::testCompressionDecompression(str));
+    char array[HEADER_SIZE] = {};
+    static const auto[compressor, enabled] = Compression::isCompressionEnabled();
+    size_t uncomprSize = str.size();
+    message.emplace_back();
+    if (enabled) {
+      std::string_view dstView = Compression::compress(str);
+      if (dstView.empty())
+	return false;
+      utility::encodeHeader(array, uncomprSize, dstView.size(), compressor);
+      message.back().reserve(HEADER_SIZE + dstView.size() + 1);
+      message.back().append(array, HEADER_SIZE).append(dstView);
+    }
+    else {
+      utility::encodeHeader(array, uncomprSize, uncomprSize, compressor);
+      message.back().reserve(HEADER_SIZE + str.size() + 1);
+      message.back().append(array, HEADER_SIZE).append(str);
+    }
+  }
+  return true;
+}
+
+std::string createIndexPrefix(size_t index) {
+  static const std::string error = "Error";
+  std::string indexStr;
+  char arr[CONV_BUFFER_SIZE] = {};
+  if (auto [ptr, ec] = std::to_chars(arr, arr + CONV_BUFFER_SIZE, index);
+      ec == std::errc())
+    return indexStr.append(1, '[').append(arr, ptr - arr).append(1, ']');
+  else {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-error translating number" << std::endl;
+    return error;
+  }
 }
 
 } // end of namespace fifo

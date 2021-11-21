@@ -44,67 +44,28 @@ size_t Compression::getCompressBound(size_t uncomprSize) {
   return LZ4_compressBound(uncomprSize);
 }
 
-std::string_view Compression::compress(std::string_view origin, std::string& compressed) {
+std::string_view Compression::compress(std::string_view origin) {
   size_t dstCapacity = LZ4_compressBound(origin.size());
-  auto[buffer, size] = MemoryPool::getBuffer(dstCapacity);
-  if (buffer) {
-    std::string_view dstView = compressInternal(origin, buffer, dstCapacity);
-    if (dstView.empty()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":failed to compress payload" << std::endl;
-      return { nullptr, 0 };
-    }
-    return dstView;
-  }
-  static bool enableHints = ProgramOptions::get("EnableHints", true);
-  if (enableHints)
-    static auto& dummy[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__
-      << ' ' << __func__ << "-server and some clients have different "
-      "buffer sizes and memory pooling is disabled.Set \"EnableHints\" "
-      "to false to disable this message." << std::endl;
-  // buffer was not found in the pool. allocate here
-  std::vector<char> localBuffer(dstCapacity);
-  std::string_view dstView = compressInternal(origin, &localBuffer[0], dstCapacity);
-  // save the result in caller space
-  compressed.assign(dstView);
-  if (compressed.empty()) {
+  auto[buffer, size] = MemoryPool::getPrimaryBuffer(dstCapacity);
+  assert(buffer);
+  std::string_view dstView = compressInternal(origin, buffer, dstCapacity);
+  if (dstView.empty()) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":failed to compress payload" << std::endl;
     return { nullptr, 0 };
   }
-  return { compressed.data(), compressed.size() };
+  return dstView;
 }
 
-std::string_view Compression::uncompress(std::string_view compressed,
-					 size_t uncomprSize,
-					 std::string& uncompressed) {
-  auto[buffer, size] = MemoryPool::getBuffer(uncomprSize);
-  if (buffer) {
-    if (!uncompressInternal(compressed, buffer, uncomprSize)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< " failed" << std::endl;
-      return { nullptr, 0 };
-    }
-    return { buffer, uncomprSize };
+std::string_view Compression::uncompress(std::string_view compressed, size_t uncomprSize) {
+  auto[buffer, size] = MemoryPool::getPrimaryBuffer(uncomprSize);
+  assert(buffer);
+  if (!uncompressInternal(compressed, buffer, uncomprSize)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " failed" << std::endl;
+    return { nullptr, 0 };
   }
-  else {
-    static bool enableHints = ProgramOptions::get("EnableHints", true);
-    if (enableHints)
-      static auto& dummy[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__
-	<< ' ' << __func__ << "-Server and some clients have different "
-	"buffer sizes and memory pooling is disabled.Set \"EnableHints\" "
-	"to false to disable this message." << std::endl;
-    // buffer was not found in the pool. allocate here
-    std::vector<char> buffer(uncomprSize);
-    if (!uncompressInternal(compressed, &buffer[0], uncomprSize)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< " failed" << std::endl;
-      return { nullptr, 0 };
-    }
-    // save the result in caller space
-    uncompressed.assign(&buffer[0], uncomprSize);
-    return { uncompressed.data(), uncomprSize };
-  }
+  return { buffer, uncomprSize };
 }
 
 bool Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
@@ -120,23 +81,21 @@ bool Compression::testCompressionDecompression(std::string_view input) {
   static const std::string stringTypeInTask = ProgramOptions::get("StringTypeInTask", std::string());
   static const bool useString = stringTypeInTask == "STRING";
   if (useString) {
-    std::string compressed;
-    std::string_view compressedView = compress(input, compressed);
+    std::string_view compressedView = compress(input);
     if (compressedView.empty())
       return false;
     // save in a string before buffer is reused in uncompress
+    std::string compressed;
     compressed.assign(compressedView.data(), compressedView.size());
-    std::string uncompressed;
-    // no saving here, it is the final step
-    std::string_view uncompressedView = uncompress(compressed, input.size(), uncompressed);
+    // saving not needed, it is the final step
+    std::string_view uncompressedView = uncompress(compressed, input.size());
     std::clog << "   input.size()=" << input.size() << " compressedView.size()="
 	      << compressedView.size() << " restored to original:" << std::boolalpha
 	      << (input == uncompressedView) << std::endl;
     return input == uncompressedView;
   }
   else {
-    std::string compressed;
-    std::string_view compressedView = compress(input, compressed);
+    std::string_view compressedView = compress(input);
     if (compressedView.empty())
       return false;
     std::vector<char> uncompressed(input.size());

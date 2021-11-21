@@ -1,27 +1,28 @@
 #include "MemoryPool.h"
-#include "lz4.h"
+#include "ProgramOptions.h"
+#include <iostream>
 
 const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
 
-const size_t fixedBufferSize = std::max(static_cast<size_t>(LZ4_compressBound(DYNAMIC_BUFFER_SIZE)), DYNAMIC_BUFFER_SIZE);
+thread_local std::vector<char> MemoryPool::_primaryBuffer(DYNAMIC_BUFFER_SIZE);
+thread_local std::vector<char> MemoryPool::_secondaryBuffer(DYNAMIC_BUFFER_SIZE);
 
-thread_local std::vector<char> MemoryPool::_buffer(fixedBufferSize);
-thread_local std::vector<char> MemoryPool::_receiveBuffer(fixedBufferSize);
-
-std::pair<char*, size_t> MemoryPool::getBuffer() {
-  return { &_buffer[0], _buffer.size() };
+std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
+  if (requested > _primaryBuffer.capacity()) {
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " increased _primaryBuffer from " << _primaryBuffer.capacity()
+	      << " to " << requested << std::endl;
+    _primaryBuffer.reserve(requested);
+  }
+  return { &_primaryBuffer[0], _primaryBuffer.capacity() };
 }
 
-std::pair<char*, size_t> MemoryPool::getBuffer(size_t capacity) {
-  if (capacity <= _buffer.size())
-    return { &_buffer[0], _buffer.size() };
-  else
-    return { nullptr, 0 };
-}
-
-std::pair<char*, size_t> MemoryPool::getReceiveBuffer(size_t capacity) {
-  if (capacity <= _receiveBuffer.size())
-    return { &_receiveBuffer[0], _receiveBuffer.size() };
-  else
-    return { nullptr, 0 };
+std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
+  if (requested > _secondaryBuffer.capacity()) {
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " increased _secondaryBuffer from " << _secondaryBuffer.capacity()
+	      << " to " << requested << std::endl;
+    _secondaryBuffer.reserve(requested);
+  }
+  return _secondaryBuffer;
 }

@@ -16,7 +16,7 @@ size_t createPayload(Batch& payload) {
   while (std::getline(input, line)) {
     if (line.empty())
       continue;
-    std::string modifiedLine(utility::createIndexPrefix(requestIndex++));
+    std::string modifiedLine(fifo::createIndexPrefix(requestIndex++));
     modifiedLine.append(line.append(1, '\n'));
     payload.emplace_back(std::move(modifiedLine));
   }

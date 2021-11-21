@@ -47,13 +47,6 @@ template <typename STRING1, typename STRING2>
     }
 }
 
-bool extractLines(std::string_view input,
-		  std::vector<std::string>& lines,
-		  bool lastDelim,
-		  char delim = '\n');
-
-std::string createIndexPrefix(size_t index);
-
 inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
@@ -117,9 +110,5 @@ template <Integral T>
 void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor);
 
 HEADER decodeHeader(std::string_view buffer, bool done);
-
-bool mergePayload(const Batch& batch, Batch& aggregatedBatch);
-
-bool buildMessage(const Batch& payload, Batch& message);
 
 } // end of namespace utility

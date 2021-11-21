@@ -28,4 +28,10 @@ bool singleIteration(const Batch& payload,
 
 bool preparePackage(const Batch& payload, Batch& modified);
 
+bool mergePayload(const Batch& batch, Batch& aggregatedBatch);
+
+bool buildMessage(const Batch& payload, Batch& message);
+
+std::string createIndexPrefix(size_t index);
+
 } // end of namespace fifo

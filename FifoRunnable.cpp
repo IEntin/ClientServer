@@ -1,5 +1,6 @@
 #include "FifoRunnable.h"
 #include "Fifo.h"
+#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "TaskTemplate.h"
 #include "Utility.h"
@@ -15,7 +16,7 @@ namespace fifo {
 std::vector<FifoRunnable> FifoRunnable::_runnables;
 std::vector<std::thread> FifoRunnable::_threads;
 const std::string FifoRunnable::_fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
-volatile std::atomic<bool> FifoRunnable::_finishFlag(false);
+volatile std::atomic<bool> FifoRunnable::_stopFlag(false);
 std::mutex FifoRunnable::_stopMutex;
 std::condition_variable FifoRunnable::_stopCondition;
 
@@ -58,13 +59,13 @@ bool FifoRunnable::startThreads() {
 
 void FifoRunnable::stop() {
   std::lock_guard lock(_stopMutex);
-  _finishFlag.store(true);
+  _stopFlag.store(true);
   _stopCondition.notify_one();
 }
 
 void FifoRunnable::joinThreads() {
   std::unique_lock lock(_stopMutex);
-  _stopCondition.wait(lock, []{ return _finishFlag.load(); });
+  _stopCondition.wait(lock, []{ return _stopFlag.load(); });
   for (auto& runnable : _runnables) {
     int fd = open(runnable._receiveFifoName.c_str(), O_WRONLY);
     if (fd == -1) {
@@ -112,12 +113,13 @@ bool FifoRunnable::waitRequest() {
       return false;
     }
     else if (pfd.revents & POLLHUP) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":POLLHUP detected " << _receiveFifoName << std::endl;
+      if (!_stopFlag)
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << ":POLLHUP detected " << _receiveFifoName << std::endl;
       return false;
     }
-  } while (errno == EINTR && rep++ < 3 && !_finishFlag);
-  return !_finishFlag;
+  } while (errno == EINTR && rep++ < 3 && !_stopFlag);
+  return !_stopFlag;
 }
 
 bool FifoRunnable::receiveRequest(Batch& batch) {
@@ -157,14 +159,15 @@ bool FifoRunnable::reopenFD() {
 
 void FifoRunnable::operator()() noexcept {
   static const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-  while (!_finishFlag) {
+  while (!_stopFlag) {
     if (!reopenFD())
       return;
     if (useStringView) {
-      while (!_finishFlag) {
+      while (!_stopFlag) {
 	if (!waitRequest())
 	  break;
-	std::vector<char> received;
+	const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
+	std::vector<char> received = MemoryPool::getSecondaryBuffer(DYNAMIC_BUFFER_SIZE);
 	if (!receiveRequest(received))
 	  break;
 	Batch response;
@@ -174,7 +177,7 @@ void FifoRunnable::operator()() noexcept {
       }
     }
     else {
-      while (!_finishFlag) {
+      while (!_stopFlag) {
 	if (!waitRequest())
 	  break;
 	Batch batch;

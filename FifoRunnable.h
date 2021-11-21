@@ -13,7 +13,7 @@ class FifoRunnable {
   static std::vector<FifoRunnable> _runnables;
   static std::vector<std::thread> _threads;
   static const std::string _fifoDirectoryName;
-  static volatile std::atomic<bool> _finishFlag;
+  static volatile std::atomic<bool> _stopFlag;
   static std::mutex _stopMutex;
   static std::condition_variable _stopCondition;
   std::string _receiveFifoName;
