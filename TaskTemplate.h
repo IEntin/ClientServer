@@ -26,7 +26,7 @@ class TaskTemplate {
   static std::queue<TaskTemplatePtr<T>> _queue;
   std::string _address;
   Requests<T> _storage;
-  std::vector<char> _rawInput;
+  static thread_local std::vector<char> _rawInput;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
   Batch& _response;
@@ -132,6 +132,7 @@ class TaskTemplate {
 template <typename T> std::mutex TaskTemplate<T>::_queueMutex;
 template <typename T> std::condition_variable TaskTemplate<T>::_queueCondition;
 template <typename T> std::queue<TaskTemplatePtr<T>> TaskTemplate<T>::_queue;
+template <typename T> thread_local std::vector<char> TaskTemplate<T>::_rawInput;
 template <typename T> Batch TaskTemplate<T>::_emptyBatch;
 template <typename T> std::vector<char> TaskTemplate<T>::_emptyCharVector;
 

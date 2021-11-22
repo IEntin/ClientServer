@@ -64,7 +64,7 @@ bool Fifo::sendReply(int fd, Batch& batch) {
     std::copy(chunk.cbegin(), chunk.cend(), buffer.begin() + pos);
     pos += chunk.size();
   }
-  std::string_view uncompressedView(buffer.data() + HEADER_SIZE, buffer.size() - HEADER_SIZE);
+  std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
   static const bool testCompression = ProgramOptions::get("TestCompression", false);
   if (testCompression)
     assert(Compression::testCompressionDecompression(uncompressedView));

@@ -1,6 +1,5 @@
 #include "FifoRunnable.h"
 #include "Fifo.h"
-#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "TaskTemplate.h"
 #include "Utility.h"
@@ -166,8 +165,11 @@ void FifoRunnable::operator()() noexcept {
       while (!_stopFlag) {
 	if (!waitRequest())
 	  break;
-	const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
-	std::vector<char> received = MemoryPool::getSecondaryBuffer(DYNAMIC_BUFFER_SIZE);
+	static const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
+	static thread_local std::vector<char> received(DYNAMIC_BUFFER_SIZE);
+	// Cannot use MemoryPool b/c this vector is swapped with Task::_rawInput,
+	// but making Task::_rawInput static thread_local as well we allocate only few times and
+	// later swap with the vector of close and eventually same capacity.
 	if (!receiveRequest(received))
 	  break;
 	Batch response;
