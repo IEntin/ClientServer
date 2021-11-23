@@ -4,6 +4,8 @@
 #gprof -b ./server gmon.out > profile.txt
 #valgrind --tool=callgrind ./server
 #kcachegrind callgrind.out.*
+#valgrind --tool=massif ./server
+#ms_print massif.out.*
 
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]

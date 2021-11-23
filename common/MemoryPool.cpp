@@ -14,7 +14,7 @@ std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
 	      << " to " << requested << std::endl;
     _primaryBuffer.reserve(requested);
   }
-  return { &_primaryBuffer[0], _primaryBuffer.capacity() };
+  return { _primaryBuffer.data(), _primaryBuffer.capacity() };
 }
 
 std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {

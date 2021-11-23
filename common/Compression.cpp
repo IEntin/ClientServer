@@ -69,7 +69,7 @@ std::string_view Compression::uncompress(std::string_view compressed, size_t unc
 }
 
 bool Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
-  if (!uncompressInternal(compressed, &uncompressed[0], uncompressed.size())) {
+  if (!uncompressInternal(compressed, uncompressed.data(), uncompressed.size())) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " failed" << std::endl;
     return false;

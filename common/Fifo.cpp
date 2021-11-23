@@ -73,11 +73,11 @@ bool Fifo::sendReply(int fd, Batch& batch) {
     if (dstView.empty())
       return false;
     buffer.resize(HEADER_SIZE + dstView.size());
-    utility::encodeHeader(&buffer[0], uncomprSize, dstView.size(), compressor);
+    utility::encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor);
     std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
   }
   else
-    utility::encodeHeader(&buffer[0], uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
+    utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   if (!writeString(fd, sendView)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
@@ -154,9 +154,9 @@ bool Fifo::readBatch(int fd,
 		     bool bcompressed,
 		     Batch& batch) {
   std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
-  if (!readString(fd, &buffer[0], comprSize))
+  if (!readString(fd, buffer.data(), comprSize))
     return false;
-  std::string_view received(&buffer[0], comprSize);
+  std::string_view received(buffer.data(), comprSize);
   if (bcompressed) {
     std::string_view uncompressedView = Compression::uncompress(received, uncomprSize);
     if (uncompressedView.empty()) {
@@ -190,7 +190,7 @@ bool Fifo::readVectorChar(int fd,
   }
   else {
     uncompressed.resize(uncomprSize);
-    if (!readString(fd, &uncompressed[0], uncomprSize))
+    if (!readString(fd, uncompressed.data(), uncomprSize))
       return false;
   }
   return true;

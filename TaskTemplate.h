@@ -31,7 +31,6 @@ class TaskTemplate {
   std::promise<void> _promise;
   Batch& _response;
   static Batch _emptyBatch;
-  static std::vector<char> _emptyCharVector;
  public:
   TaskTemplate() : _response(_emptyBatch) {}
 
@@ -98,9 +97,7 @@ class TaskTemplate {
     }
   }
 
-  static void process(std::string_view address,
-		      Requests<T>& input,
-		      Batch& response) {
+  static void process(std::string_view address, Requests<T>& input, Batch& response) {
     try {
       TaskTemplatePtr<T> task = std::make_shared<TaskTemplate>(address, input, response);
       std::future<void> future = task->_promise.get_future();
@@ -134,7 +131,6 @@ template <typename T> std::condition_variable TaskTemplate<T>::_queueCondition;
 template <typename T> std::queue<TaskTemplatePtr<T>> TaskTemplate<T>::_queue;
 template <typename T> thread_local std::vector<char> TaskTemplate<T>::_rawInput;
 template <typename T> Batch TaskTemplate<T>::_emptyBatch;
-template <typename T> std::vector<char> TaskTemplate<T>::_emptyCharVector;
 
 using TaskSV = TaskTemplate<std::string_view>;
 using TaskST = TaskTemplate<std::string>;
