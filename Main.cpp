@@ -35,6 +35,7 @@ int main() {
     return 1;
   fifo::FifoRunnable::joinThreads();
   TaskRunnable::joinThreads();
-  fcloseall();
+  int ret = fcloseall();
+  assert(ret == 0);
   return 0;
 }

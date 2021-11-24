@@ -22,6 +22,11 @@ std::condition_variable FifoRunnable::_stopCondition;
 FifoRunnable::FifoRunnable(const std::string& receiveFifoName, std::string sendFifoName) :
   _receiveFifoName(receiveFifoName), _sendFifoName(sendFifoName) {}
 
+FifoRunnable::~FifoRunnable() {
+  close(_fdRead);
+  close(_fdWrite);
+}
+
 // start threads - one for each client
 bool FifoRunnable::startThreads() {
   const std::string emptyString;
@@ -50,8 +55,10 @@ bool FifoRunnable::startThreads() {
 		<< std::strerror(errno) << '-' << sendFifoName << std::endl;
       return false;
     }
-    _runnables.emplace_back(FifoRunnable(receiveFifoName, sendFifoName));
-    _threads.emplace_back(FifoRunnable(receiveFifoName, sendFifoName));
+    _runnables.reserve(sendIdVector.size());
+    _threads.reserve(sendIdVector.size());
+    _runnables.emplace_back(receiveFifoName, sendFifoName);
+    _threads.emplace_back(_runnables.back());
   }
   return true;
 }
@@ -76,8 +83,8 @@ void FifoRunnable::joinThreads() {
     char c = 's';
     int result = write(fd, &c, 1);
     if (result != 1)
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-expected result == 1" << std::endl;
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
+		<< result << ":expected result == 1" << std::endl;
     close(fd);
   }
   for (auto& thread : _threads)
@@ -115,6 +122,10 @@ bool FifoRunnable::waitRequest() {
       if (!_stopFlag)
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << ":POLLHUP detected " << _receiveFifoName << std::endl;
+      close(_fdRead);
+      _fdRead = -1;
+      close(_fdWrite);
+      _fdWrite = -1;
       return false;
     }
   } while (errno == EINTR && rep++ < 3 && !_stopFlag);
@@ -144,7 +155,7 @@ bool FifoRunnable::sendResponse(Batch& response) {
 bool FifoRunnable::reopenFD() {
   if (_fdRead != -1)
     close(_fdRead);
-  _fdRead = open(_receiveFifoName.c_str(), O_RDONLY | O_NONBLOCK);
+  _fdRead = open(_receiveFifoName.c_str(), O_RDONLY);
   if (_fdRead == -1) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << '-' << std::strerror(errno) << std::endl;

@@ -27,7 +27,7 @@ class FifoRunnable {
   bool reopenFD();
 public:
   FifoRunnable(const std::string& receiveFifoName, std::string sendFifoName);
-  ~FifoRunnable() {}
+  ~FifoRunnable();
   void operator()() noexcept;
   static bool startThreads();
   static void joinThreads();
