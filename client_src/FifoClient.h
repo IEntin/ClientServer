@@ -21,10 +21,7 @@ bool run(const Batch& payload,
 	 std::ostream* dataStream,
 	 std::ostream* instrStream);
 
-bool singleIteration(const Batch& payload,
-		     int fdWrite,
-		     int fdRead,
-		     std::ostream* pstream);
+bool singleIteration(const Batch& payload, std::ostream* pstream);
 
 bool preparePackage(const Batch& payload, Batch& modified);
 

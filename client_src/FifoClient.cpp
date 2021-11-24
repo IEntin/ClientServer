@@ -64,7 +64,7 @@ bool preparePackage(const Batch& payload, Batch& modified) {
   return true;
 }
 
-bool singleIteration(const Batch& payload, int fdWrite, int fdRead, std::ostream* dataStream) {
+bool singleIteration(const Batch& payload, std::ostream* dataStream) {
   // keep vector capacity
   static Batch modified;
   // Simulate fast client to measure server performance accurately.
@@ -79,9 +79,26 @@ bool singleIteration(const Batch& payload, int fdWrite, int fdRead, std::ostream
   }
   else if (!preparePackage(payload, modified))
     return false;
+  static const std::string fifoDirName = ProgramOptions::get("FifoDirectoryName", std::string());
+  static const std::string sendId = ProgramOptions::get("SendId", std::string());
+  static const std::string sendFifoName = fifoDirName + '/' + sendId;
+  static int fdWrite = open(sendFifoName.c_str(), O_WRONLY);
+  if (fdWrite == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
+    return false;
+  }
   for (const auto& chunk : modified) {
     if (!Fifo::writeString(fdWrite, chunk)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      return false;
+    }
+    static const std::string receiveId = ProgramOptions::get("ReceiveId", std::string());
+    static const std::string receiveFifoName = fifoDirName + '/' + receiveId;
+    static int fdRead = open(receiveFifoName.c_str(), O_RDONLY);
+    if (fdRead == -1) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< '-' << receiveFifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
     unsigned rep = 0;
@@ -124,29 +141,10 @@ bool run(const Batch& payload,
 	 std::ostream* dataStream,
 	 std::ostream* instrStream) {
   static const bool timing = ProgramOptions::get("Timing", false);
-  static const std::string fifoDirName = ProgramOptions::get("FifoDirectoryName", std::string());
-  static const std::string sendId = ProgramOptions::get("SendId", std::string());
-  static const std::string sendFifoName = fifoDirName + '/' + sendId;
-  static const std::string receiveId = ProgramOptions::get("ReceiveId", std::string());
-  static const std::string receiveFifoName = fifoDirName + '/' + receiveId;
-  int fdWrite = open(sendFifoName.c_str(), O_WRONLY);
-  if (fdWrite == -1) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
-    return false;
-  }
-  CloseFileDescriptor raiiw(fdWrite);
-  int fdRead = open(receiveFifoName.c_str(), O_RDONLY | O_NONBLOCK);
-  if (fdRead == -1) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << '-' << receiveFifoName << '-' << std::strerror(errno) << std::endl;
-    return false;
-  }
-  CloseFileDescriptor raiir(fdRead);
   unsigned numberIterations = 0;
   do {
     Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
-    if (!singleIteration(payload, fdWrite, fdRead, dataStream)) {
+    if (!singleIteration(payload, dataStream)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
