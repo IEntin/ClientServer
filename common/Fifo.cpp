@@ -217,7 +217,7 @@ ssize_t Fifo::getDefaultPipeSize() {
 	      << std::strerror(errno) << '-' << testPipeName << std::endl;
     return -1;
   }
-  int fd = open(testPipeName.data(), O_RDWR);
+  int fd = open(testPipeName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	      << std::strerror(errno) << '-' << testPipeName << std::endl;

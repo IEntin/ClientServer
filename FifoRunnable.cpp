@@ -115,10 +115,6 @@ bool FifoRunnable::waitRequest() {
       if (!_stopFlag)
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << ":POLLHUP detected " << _receiveFifoName << std::endl;
-      close(_fdRead);
-      _fdRead = -1;
-      close(_fdWrite);
-      _fdWrite = -1;
       return false;
     }
   } while (errno == EINTR && rep++ < 3 && !_stopFlag);
@@ -148,7 +144,7 @@ bool FifoRunnable::sendResponse(Batch& response) {
 bool FifoRunnable::reopenFD() {
   if (_fdRead != -1)
     close(_fdRead);
-  _fdRead = open(_receiveFifoName.c_str(), O_RDONLY);
+  _fdRead = open(_receiveFifoName.c_str(), O_RDONLY | O_NONBLOCK);
   if (_fdRead == -1) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << '-' << std::strerror(errno) << std::endl;
