@@ -34,7 +34,7 @@ public:
   static ssize_t writeString(int fd, std::string_view str);
   static bool sendReply(int fd, Batch& batch);
   static bool receive(int fd, Batch& batch);
-  static bool receive(int fd, std::vector<char>& received);
+  static bool receive(int fd, std::vector<char>& uncompressed);
 };
 
 } // end of namespace fifo

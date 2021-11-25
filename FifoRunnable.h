@@ -22,7 +22,7 @@ class FifoRunnable {
   int _fdWrite = -1;
   bool waitRequest();
   bool receiveRequest(Batch& batch);
-  bool receiveRequest(std::vector<char>& received);
+  bool receiveRequest(std::vector<char>& uncompressed);
   bool sendResponse(Batch& response);
   bool reopenFD();
 public:

@@ -136,8 +136,8 @@ bool FifoRunnable::receiveRequest(Batch& batch) {
   return Fifo::receive(_fdRead, batch) && !batch.empty();
 }
 
-bool FifoRunnable::receiveRequest(std::vector<char>& received) {
-  return Fifo::receive(_fdRead, received) && !received.empty();
+bool FifoRunnable::receiveRequest(std::vector<char>& uncompressed) {
+  return Fifo::receive(_fdRead, uncompressed) && !uncompressed.empty();
 }
 
 bool FifoRunnable::sendResponse(Batch& response) {
@@ -176,17 +176,17 @@ void FifoRunnable::operator()() noexcept {
       while (!_stopFlag) {
 	if (!waitRequest())
 	  break;
-	// We cannot use MemoryPool because vector 'received' will be swapped with 'Task::_rawInput'.
+	// We cannot use MemoryPool because vector 'uncompressed' will be swapped with 'Task::_rawInput'.
 	// Instead we make this vector as well as 'Task::_rawInput' static thread_local.
 	// Then we allocate only few times and later swap with the vector of close and eventually
 	// the same maximum required capacity. No more allocations until input pattern changes.
 	// We need to clear this vector on every iteration which does not change its capacity.
-	static thread_local std::vector<char> received;
-	received.clear();
-	if (!receiveRequest(received))
+	static thread_local std::vector<char> uncompressed;
+	uncompressed.clear();
+	if (!receiveRequest(uncompressed))
 	  break;
 	Batch response;
-	TaskSV::process(_sendFifoName, received, response);
+	TaskSV::process(_sendFifoName, uncompressed, response);
 	if (!sendResponse(response))
 	  break;
       }

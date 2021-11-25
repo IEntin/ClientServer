@@ -157,6 +157,8 @@ bool Fifo::readBatch(int fd,
   if (!readString(fd, buffer.data(), comprSize))
     return false;
   std::string_view received(buffer.data(), comprSize);
+  static size_t maxNumberRequests = 1;
+  batch.reserve(maxNumberRequests);
   if (bcompressed) {
     std::string_view uncompressedView = Compression::uncompress(received, uncomprSize);
     if (uncompressedView.empty()) {
@@ -168,6 +170,8 @@ bool Fifo::readBatch(int fd,
   }
   else
     utility::split(received, batch);
+  if (batch.size() > maxNumberRequests)
+    maxNumberRequests = batch.size();
   return true;
 }
 
@@ -203,11 +207,11 @@ bool Fifo::receive(int fd, Batch& batch) {
   return readBatch(fd, uncomprSize, comprSize, compressor == LZ4, batch);
 }
 
-bool Fifo::receive(int fd, std::vector<char>& received) {
+bool Fifo::receive(int fd, std::vector<char>& uncompressed) {
   auto [uncomprSize, comprSize, compressor, headerDone] = readHeader(fd);
   if (!headerDone)
     return false;
-  return readVectorChar(fd, uncomprSize, comprSize, compressor == LZ4, received);
+  return readVectorChar(fd, uncomprSize, comprSize, compressor == LZ4, uncompressed);
 }
 
 ssize_t Fifo::getDefaultPipeSize() {
