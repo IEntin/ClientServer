@@ -12,7 +12,7 @@
 
 namespace fifo {
 
-CloseFileDescriptor::CloseFileDescriptor(int fd) : _fd(fd) {}
+CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)

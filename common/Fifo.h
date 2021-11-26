@@ -5,9 +5,9 @@
 namespace fifo {
 
 struct CloseFileDescriptor {
-  CloseFileDescriptor(int fd);
+  CloseFileDescriptor(int& fd);
   ~CloseFileDescriptor();
-  int _fd = -1;
+  int& _fd;
 };
 
 class Fifo {
