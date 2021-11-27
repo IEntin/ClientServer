@@ -39,8 +39,7 @@ HEADER Fifo::readHeader(int fd) {
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-read(...) return 0,readSoFar=" << readSoFar
-		<< ",HEADER_SIZE=" << HEADER_SIZE << std::endl;
+                << ":read(...) returns 0,EOF,another end closed connection." << std::endl;
       return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
     }
     else
@@ -133,8 +132,7 @@ bool Fifo::readString(int fd, char* received, size_t size) {
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-read(...) return 0,totalRead=" << totalRead
-		<< ",size=" << size << std::endl;
+		<< "-read(...) returns 0,EOF,another end closed connection." << std::endl;
       return false;
     }
     else

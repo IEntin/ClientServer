@@ -6,9 +6,6 @@
 #include "ProgramOptions.h"
 #include "Utility.h"
 #include <fcntl.h>
-#include <poll.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 namespace fifo {
 
@@ -105,31 +102,6 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
 	return false;
       }
     }
-    unsigned rep = 0;
-    do {
-      errno = 0;
-      pollfd pfd{ fdRead, POLLIN, -1 };
-      if (poll(&pfd, 1, -1) <= 0) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << '-' << std::strerror(errno) << std::endl;
-	if (errno != EINTR) {
-	  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		    << '-' << std::strerror(errno) << std::endl;
-	  return false;
-	}
-      }
-      else if (pfd.revents & POLLERR) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << '-' << std::strerror(errno) << std::endl;
-	return false;
-      }
-      else if (pfd.revents & POLLHUP) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << ":POLLHUP detected " << std::endl;
-	std::exit(1);
-	return false;
-      }
-    } while (errno == EINTR && rep++ < 3);
     if (!receive(fdRead, dataStream))
       return false;
   }

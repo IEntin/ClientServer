@@ -20,7 +20,6 @@ class FifoRunnable {
   std::string _sendFifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
-  bool waitRequest();
   bool receiveRequest(Batch& batch);
   bool receiveRequest(std::vector<char>& uncompressed);
   bool sendResponse(Batch& response);

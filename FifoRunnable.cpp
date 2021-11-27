@@ -6,7 +6,6 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <iostream>
-#include <poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -84,7 +83,7 @@ void FifoRunnable::joinThreads() {
     int result = write(fd, &c, 1);
     if (result != 1)
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
-		<< result << ":expected result == 1" << std::endl;
+		<< result << ":expected result == 1 " << std::strerror(errno) << std::endl;
     close(fd);
   }
   for (auto& thread : _threads)
@@ -98,38 +97,6 @@ void FifoRunnable::joinThreads() {
   // silence valgrind false positives.
   std::vector<std::thread>().swap(_threads);
   std::vector<FifoRunnable>().swap(FifoRunnable::_runnables);
-}
-
-bool FifoRunnable::waitRequest() {
-  unsigned rep = 0;
-  do {
-    errno = 0;
-    pollfd pfd{ _fdRead, POLLIN, -1 };
-    int presult = poll(&pfd, 1, -1);
-    if (presult <= 0) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
-      if (errno == EINTR)
-	continue;
-      return false;
-    }
-    else if (pfd.revents & POLLERR) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
-      return false;
-    }
-    else if (pfd.revents & POLLHUP) {
-      if (!_stopFlag)
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << ":POLLHUP detected " << _receiveFifoName << std::endl;
-      close(_fdRead);
-      _fdRead = -1;
-      close(_fdWrite);
-      _fdWrite = -1;
-      return false;
-    }
-  } while (errno == EINTR && rep++ < 3 && !_stopFlag);
-  return !_stopFlag;
 }
 
 bool FifoRunnable::receiveRequest(Batch& batch) {
@@ -174,8 +141,6 @@ void FifoRunnable::operator()() noexcept {
       return;
     if (useStringView) {
       while (!_stopFlag) {
-	if (!waitRequest())
-	  break;
 	// We cannot use MemoryPool because vector 'uncompressed' will be swapped with 'Task::_rawInput'.
 	// Instead we make this vector as well as 'Task::_rawInput' static thread_local.
 	// Then we allocate only few times and later swap with the vector of close and eventually
@@ -193,8 +158,6 @@ void FifoRunnable::operator()() noexcept {
     }
     else {
       while (!_stopFlag) {
-	if (!waitRequest())
-	  break;
 	Batch batch;
 	if (!receiveRequest(batch))
 	  break;
