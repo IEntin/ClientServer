@@ -78,14 +78,14 @@ bool Fifo::sendReply(int fd, Batch& batch) {
   else
     utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
-  if (writeString(fd, sendView) == -1) {
+  if (!writeString(fd, sendView)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   return true;
 }
 
-ssize_t Fifo::writeString(int fd, std::string_view str) {
+bool Fifo::writeString(int fd, std::string_view str) {
   static bool enableHints = ProgramOptions::get("EnableHints", true);
   if (enableHints)
     if (str.size() > static_cast<size_t>(_defaultPipeSize))
@@ -104,7 +104,7 @@ ssize_t Fifo::writeString(int fd, std::string_view str) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
 		  << strerror(errno) << ", written=" << written << " str.size()="
 		  << str.size() << std::endl;
-	return -1;
+	return false;
       }
     }
     else
@@ -113,8 +113,9 @@ ssize_t Fifo::writeString(int fd, std::string_view str) {
   if (str.size() != written) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":str.size()="
 	      << str.size() << "!=written=" << written << std::endl;
+    return false;
   }
-  return written;
+  return true;
 }
 
 bool Fifo::readString(int fd, char* received, size_t size) {

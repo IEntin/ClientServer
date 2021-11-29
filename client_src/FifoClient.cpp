@@ -88,7 +88,7 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
     }
   }
   for (const auto& chunk : modified) {
-    if (Fifo::writeString(fdWrite, chunk) == -1) {
+    if (!Fifo::writeString(fdWrite, chunk)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }

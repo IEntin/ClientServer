@@ -75,13 +75,17 @@ If this is empty or something different the compression is disabled.
 "TestCompression" - works with any other options. Asserts when original is not the same\
 as compressed and subsequently decompressed.
 
-"Timing" prints elapsed times.
+"Timing" prints elapsed times between selected expressions. Currently it shows client latency\
+for the batch of 10000 requests. See Chronometer class in the code.
 
 "DYNAMIC_BUFFER_SIZE" is the size of the memory pool entries.\
-This preferably should be the same on client and server, otherwise pooling\
-will not work on one or the other, showing lower performance.
+The BUFFER_SIZE is selected so that compressed payload does not exceed default\
+pipe size which is typically 65,532 bytes. Under this condition writing and reading\
+to/from fifo happens in one shot, or atomically as documentation states this. Buffer\
+can grow automatically if necessary, e.g. if reply is larger then request or compression is disabled,\
+breaking atomicity with small performance cost.
 
-"Diagnostics" shows details of business calculations on all stages.
+"Diagnostics" shows details of all stages of business calculations for each request.
  
 =======
 ### Linux Client-Server

@@ -31,7 +31,7 @@ class Fifo {
 public:
   static HEADER readHeader(int fd);
   static bool readString(int fd, char* received, size_t size);
-  static ssize_t writeString(int fd, std::string_view str);
+  static bool writeString(int fd, std::string_view str);
   static bool sendReply(int fd, Batch& batch);
   static bool receive(int fd, Batch& batch);
   static bool receive(int fd, std::vector<char>& uncompressed);
