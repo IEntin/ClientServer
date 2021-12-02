@@ -14,18 +14,9 @@ unsigned getNumberTaskThreads() {
 }
 
 const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
+
 TaskPtrSV taskSV;
 TaskPtrST taskST;
-
-bool createInstance() {
-  if (useStringView)
-    taskSV = TaskSV::instance();
-  else
-    taskST = TaskST::instance();
-  return true;
-}
-
-bool dummy[[maybe_unused]] = createInstance();
 
 } // end of anonimous namespace
 
@@ -35,53 +26,49 @@ std::vector<std::thread> TaskRunnable::_taskThreads;
 
 // Completion action is run by only one (any) blocked thread.
 // Here the "first" thread is selected.
+
+template<typename T>
+void finishTask(T& task) {
+  task->finish();
+  std::atomic_store(&task, task->get());
+}
+
 void TaskRunnable::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _taskThreads.front().get_id()) {
-    if (useStringView) {
-      taskSV->finish();
-      std::atomic_store(&taskSV, TaskSV::get());
-    }
-    else {
-      taskST->finish();
-      std::atomic_store(&taskST, TaskST::get());
-    }
+    if (useStringView)
+      finishTask(taskSV);
+    else
+      finishTask(taskST);
   }
 }
 // The goal is to start and finish current task by all threads.
 // Only one task is processed at any given time which guarantees thread safety
+
+template<typename T>
+void processTask(T& task, ProcessRequest function, std::barrier<CompletionFunction>& barrier) {
+  while (!stopFlag) {
+    if (!task)
+      task = task->instance();
+    auto [view, atEnd, index] = task->next();
+    if (!atEnd) {
+      task->updateResponse(index, function(view));
+      continue;
+    }
+    try {
+      barrier.arrive_and_wait();
+    }
+    catch (std::system_error& e) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< "-exception:" << e.what() << std::endl;
+    }
+  }
+}
+
 void TaskRunnable::operator()(std::string (function)(std::string_view)) noexcept {
-  if (useStringView) {
-    while (!stopFlag) {
-      auto [view, atEnd, index] = taskSV->next();
-      if (!atEnd) {
-	taskSV->updateResponse(index, function(view));
-	continue;
-      }
-      try {
-	_barrier.arrive_and_wait();
-      }
-      catch (std::system_error& e) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << "-exception:" << e.what() << std::endl;
-      }
-    }
-  }
-  else {
-    while (!stopFlag) {
-      auto [view, atEnd, index] = taskST->next();
-      if (!atEnd) {
-	taskST->updateResponse(index, function(view));
-	continue;
-      }
-      try {
-	_barrier.arrive_and_wait();
-      }
-      catch (std::system_error& e) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << "-exception:" << e.what() << std::endl;
-      }
-    }
-  }
+  if (useStringView)
+    processTask(taskSV, function, _barrier);
+  else
+    processTask(taskST, function, _barrier);
 }
 
 bool TaskRunnable::startThreads(ProcessRequest processRequest) {

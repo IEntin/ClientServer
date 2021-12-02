@@ -1,3 +1,5 @@
+Copyright (c) 2021 Ilya Entin.
+
 ### Fast Lockless Linux Clent-Server on Named Pipes.
 
 Transport layer is named pipes (fifo, better performance and arguably stronger security than in a case of sockets).
