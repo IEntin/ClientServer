@@ -82,7 +82,7 @@ class TaskTemplate {
     TaskTemplatePtr<T> task;
     std::unique_lock lock(_queueMutex);
     _queueCondition.wait(lock, [] { return !_queue.empty(); });
-    std::atomic_store(&task, _queue.front());
+    task = _queue.front();
     _queue.pop();
     return task;
   }

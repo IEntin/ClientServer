@@ -1,6 +1,5 @@
 #include "TaskRunnable.h"
 #include "ProgramOptions.h"
-#include "TaskTemplate.h"
 #include <cassert>
 #include <iostream>
 
@@ -13,19 +12,14 @@ unsigned getNumberTaskThreads() {
   return numberTaskThreadsConfig > 0 ? numberTaskThreadsConfig : std::thread::hardware_concurrency();
 }
 
-const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-
-TaskPtrSV taskSV;
-TaskPtrST taskST;
-
 } // end of anonimous namespace
 
+TaskPtrSV TaskRunnable::_taskSV;
+TaskPtrST TaskRunnable::_taskST;
+const bool TaskRunnable::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
 unsigned TaskRunnable::_numberTaskThreads = getNumberTaskThreads();
 std::barrier<CompletionFunction> TaskRunnable::_barrier(_numberTaskThreads, onTaskFinish);
 std::vector<std::thread> TaskRunnable::_taskThreads;
-
-// Completion action is run by only one (any) blocked thread.
-// Here the "first" thread is selected.
 
 template<typename T>
 void finishTask(T& task) {
@@ -33,12 +27,15 @@ void finishTask(T& task) {
   std::atomic_store(&task, task->get());
 }
 
+// Completion action is run by only one (any) blocked thread.
+// Here the "first" thread is selected.
+
 void TaskRunnable::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _taskThreads.front().get_id()) {
-    if (useStringView)
-      finishTask(taskSV);
+    if (_useStringView)
+      finishTask(_taskSV);
     else
-      finishTask(taskST);
+      finishTask(_taskST);
   }
 }
 // The goal is to start and finish current task by all threads.
@@ -46,9 +43,8 @@ void TaskRunnable::onTaskFinish() noexcept {
 
 template<typename T>
 void processTask(T& task, ProcessRequest function, std::barrier<CompletionFunction>& barrier) {
+  task = task->instance();
   while (!stopFlag) {
-    if (!task)
-      task = task->instance();
     auto [view, atEnd, index] = task->next();
     if (!atEnd) {
       task->updateResponse(index, function(view));
@@ -65,10 +61,10 @@ void processTask(T& task, ProcessRequest function, std::barrier<CompletionFuncti
 }
 
 void TaskRunnable::operator()(std::string (function)(std::string_view)) noexcept {
-  if (useStringView)
-    processTask(taskSV, function, _barrier);
+  if (_useStringView)
+    processTask(_taskSV, function, _barrier);
   else
-    processTask(taskST, function, _barrier);
+    processTask(_taskST, function, _barrier);
 }
 
 bool TaskRunnable::startThreads(ProcessRequest processRequest) {
@@ -79,7 +75,7 @@ bool TaskRunnable::startThreads(ProcessRequest processRequest) {
 
 void TaskRunnable::joinThreads() {
   stopFlag.store(true);
-  if (useStringView)
+  if (_useStringView)
     TaskSV::push(std::make_shared<TaskSV>());
   else
     TaskST::push(std::make_shared<TaskST>());

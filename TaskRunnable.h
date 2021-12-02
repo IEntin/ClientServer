@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TaskTemplate.h"
 #include <barrier>
 #include <vector>
 
@@ -16,6 +17,9 @@ public:
   static bool startThreads(ProcessRequest processRequest);
   static void joinThreads();
 private:
+  static TaskPtrSV _taskSV;
+  static TaskPtrST _taskST;
+  static const bool _useStringView;
   static unsigned _numberTaskThreads;
   static std::vector<std::thread> _taskThreads;
   static std::barrier<CompletionFunction> _barrier;
