@@ -4,8 +4,9 @@
 
 const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
 
-thread_local std::vector<char> MemoryPool::_primaryBuffer(DYNAMIC_BUFFER_SIZE);
-thread_local std::vector<char> MemoryPool::_secondaryBuffer(DYNAMIC_BUFFER_SIZE);
+// buffers increased by 1% for LZ4_compressBound.
+thread_local std::vector<char> MemoryPool::_primaryBuffer(DYNAMIC_BUFFER_SIZE * 1.01);
+thread_local std::vector<char> MemoryPool::_secondaryBuffer(DYNAMIC_BUFFER_SIZE * 1.01);
 
 std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
   if (requested > _primaryBuffer.capacity()) {

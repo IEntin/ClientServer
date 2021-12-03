@@ -50,13 +50,13 @@ BOOST_INCLUDE:=-I$(BOOSTDIR)
 WARNINGS = -Wall -pedantic-errors
 
 SERVERINCLUDES:=-I. -Icommon $(BOOST_INCLUDE) 
-SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp) $(wildcard common/*.c)
+SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp)
 
 server : $(SERVERSOURCES) *.h common/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
 
 CLIENTINCLUDES = -Iclient_src -Icommon $(BOOST_INCLUDE) 
-CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp) $(wildcard common/*.c)
+CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 
 $(TESTCLIENTDIR)/client : $(CLIENTSOURCES) common/*.h client_src/FifoClient.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@

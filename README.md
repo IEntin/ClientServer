@@ -45,19 +45,22 @@ client #1:\
   "SendId" : "Receive1",\
   "ReceiveId" : "Send1",
 
-Names of pipes should match on server and clients.
+Names of pipes should match on server and clients. ProgramOptions.json contains\
+lists for 5 clients, but this number can be increased, only performance can put the\
+limit. The server was tested with 5 clients.
 
 FIFO files are created on server startup and removed on server shutdown with Ctrl-C.\
-Clients are not allowed to create or remove FIFO files.\
+By design, the clients should not create or remove FIFO files. The code does not do\
+this, besides fifo directory permissions do not allow this.\
 ........
 
 To start:\
 on server side './server' in the project root\
-on client side './client' in the testClient subdirectory or another directory
+on client side './client' in the testClient or other directory.
 
 No special requirements for the hardware.\
-Using Lenovo laptop with 4 cores and 4GB RAM to run the server and up to 5 clients.\
-Running Linux Mint 20.2
+Using laptop with 4 cores and 4GB RAM to run the server and up to 5 clients.\
+Running Linux Mint 20.2.
 
 Multiple runtime options are in ProgramOptions.json files for the server and client
 in corresponding directories.
@@ -66,9 +69,9 @@ Some of these:
 
 "ProcessRequestMethod" : ["Log", "Echo", "Test"]\
 'Log' is a business logic.\
-'Echo' is self explanatory. To check the results save client output to the file\
-and diff this file with the source (default 'requests.log').\
-'Test' returns simple calculations of the string lengths. Result is absence of assertions.
+'Echo' allows to test multithreading, compression, and fifo. To check the results save client\
+output to the file and diff this file with the source (default is 'requests.log').\
+'Test' returns simple calculations of the string lengths. Result is the absence of assertions.
 
 To enable compression (default)\
 "Compression" : "LZ4"\
@@ -96,4 +99,4 @@ Lockless. Processing batches of requests  without locking.\
 Business logic, tasks multithreading, and transport layer are completely decoupled.\
 Memory pooling. Business logic and compression are not allocating.\
 Business logic here is an example I once worked on.\
-It can be replaced with any other batch processing from a different field, not necessarily financial.\
+It can be replaced with any other batch processing from a different field, not necessarily financial.
