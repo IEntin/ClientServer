@@ -17,9 +17,9 @@ public:
   static bool startThreads(ProcessRequest processRequest);
   static void joinThreads();
 private:
+  static const bool _useStringView;
   static TaskPtrSV _taskSV;
   static TaskPtrST _taskST;
-  static const bool _useStringView;
   static unsigned _numberTaskThreads;
   static std::vector<std::thread> _taskThreads;
   static std::barrier<CompletionFunction> _barrier;

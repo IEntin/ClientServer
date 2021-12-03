@@ -12,11 +12,25 @@ unsigned getNumberTaskThreads() {
   return numberTaskThreadsConfig > 0 ? numberTaskThreadsConfig : std::thread::hardware_concurrency();
 }
 
+TaskPtrSV initTaskSV(bool useStringView) {
+  if (useStringView)
+    return TaskSV::instance();
+  else
+    return TaskPtrSV();
+}
+
+TaskPtrST initTaskST(bool useStringView) {
+  if (useStringView)
+    return TaskPtrST();
+  else
+    return TaskST::instance();
+}
+
 } // end of anonimous namespace
 
-TaskPtrSV TaskRunnable::_taskSV;
-TaskPtrST TaskRunnable::_taskST;
 const bool TaskRunnable::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
+TaskPtrSV TaskRunnable::_taskSV(initTaskSV(_useStringView));
+TaskPtrST TaskRunnable::_taskST(initTaskST(_useStringView));
 unsigned TaskRunnable::_numberTaskThreads = getNumberTaskThreads();
 std::barrier<CompletionFunction> TaskRunnable::_barrier(_numberTaskThreads, onTaskFinish);
 std::vector<std::thread> TaskRunnable::_taskThreads;
@@ -43,7 +57,6 @@ void TaskRunnable::onTaskFinish() noexcept {
 
 template<typename T>
 void processTask(T& task, ProcessRequest function, std::barrier<CompletionFunction>& barrier) {
-  task = task->instance();
   while (!stopFlag) {
     auto [view, atEnd, index] = task->next();
     if (!atEnd) {
