@@ -17,7 +17,9 @@ class Compression {
 				 size_t uncomprSize);
  public:
   static std::pair<std::string_view, bool> isCompressionEnabled();
+
   static std::string_view compress(std::string_view origin);
+
   static std::string_view uncompress(std::string_view compressed, size_t uncomprSize);
 
   static bool uncompress(std::string_view compressed, std::vector<char>& uncompressed);

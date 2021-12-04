@@ -1,12 +1,15 @@
+#include "lz4.h"
 #include "MemoryPool.h"
 #include "ProgramOptions.h"
+#include "Utility.h"
 #include <iostream>
 
 const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
 
-// buffers increased by 1% for LZ4_compressBound.
-thread_local std::vector<char> MemoryPool::_primaryBuffer(DYNAMIC_BUFFER_SIZE * 1.01);
-thread_local std::vector<char> MemoryPool::_secondaryBuffer(DYNAMIC_BUFFER_SIZE * 1.01);
+thread_local std::vector<char>
+MemoryPool::_primaryBuffer(LZ4_compressBound(DYNAMIC_BUFFER_SIZE) + HEADER_SIZE);
+thread_local std::vector<char>
+MemoryPool::_secondaryBuffer(LZ4_compressBound(DYNAMIC_BUFFER_SIZE) + HEADER_SIZE);
 
 std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
   if (requested > _primaryBuffer.capacity()) {
