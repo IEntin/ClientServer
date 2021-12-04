@@ -6,7 +6,7 @@
 namespace utility {
 
 void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor) {
-  std::memset(buffer, '\0', HEADER_SIZE);
+  std::memset(buffer, 0, HEADER_SIZE);
   bool ok = toChars(uncomprSz, buffer, NUM_FIELD_SIZE);
   assert(ok);
   ok = toChars(comprSz, buffer + NUM_FIELD_SIZE, NUM_FIELD_SIZE);
