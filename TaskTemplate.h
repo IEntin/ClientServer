@@ -51,11 +51,6 @@ class TaskTemplate {
     _response.resize(_storage.size());
   }
 
-  static std::shared_ptr<TaskTemplate> instance() {
-    static std::shared_ptr<TaskTemplate> instance = std::make_shared<TaskTemplate>();
-    return instance;
-  }
-
   size_t size() const { return _storage.size(); }
 
   bool empty() const { return _storage.empty(); }
@@ -114,9 +109,7 @@ class TaskTemplate {
     }
   }
 
-  static void process(std::string_view address,
-		      std::vector<char>& received,
-		      Batch& response) {
+  static void process(std::string_view address, std::vector<char>& received, Batch& response) {
     try {
       TaskTemplatePtr<T> task = std::make_shared<TaskTemplate>(address, received, response);
       std::future<void> future = task->_promise.get_future();

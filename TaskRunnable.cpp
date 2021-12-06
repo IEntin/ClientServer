@@ -15,8 +15,8 @@ unsigned getNumberTaskThreads() {
 } // end of anonimous namespace
 
 const bool TaskRunnable::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-TaskPtrSV TaskRunnable::_taskSV(_useStringView ? TaskSV::instance() : TaskPtrSV());
-TaskPtrST TaskRunnable::_taskST(_useStringView ? TaskPtrST() : TaskST::instance());
+TaskPtrSV TaskRunnable::_taskSV(_useStringView ? std::make_shared<TaskSV>() : TaskPtrSV());
+TaskPtrST TaskRunnable::_taskST(_useStringView ? TaskPtrST() : std::make_shared<TaskST>());
 unsigned TaskRunnable::_numberTaskThreads = getNumberTaskThreads();
 std::barrier<CompletionFunction> TaskRunnable::_barrier(_numberTaskThreads, onTaskFinish);
 std::vector<std::thread> TaskRunnable::_taskThreads;

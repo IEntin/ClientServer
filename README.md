@@ -88,7 +88,7 @@ The BUFFER_SIZE is selected so that compressed payload does not exceed default\
 pipe size which is typically 65,532 bytes. Under this condition writing and reading\
 to/from fifo happens in one shot, or atomically as documentation states this. Buffer\
 can grow automatically if necessary, e.g. if reply is larger then request or compression is disabled,\
-breaking atomicity with small performance cost.
+breaking atomicity with some performance cost.
 
 "Diagnostics" shows details of all stages of business calculations for each request.
  
