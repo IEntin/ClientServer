@@ -79,21 +79,21 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
   static const std::string fifoDirName = ProgramOptions::get("FifoDirectoryName", std::string());
   static const std::string sendId = ProgramOptions::get("SendId", std::string());
   static const std::string sendFifoName = fifoDirName + '/' + sendId;
-  if (fdWrite == -1) {
-    fdWrite = open(sendFifoName.c_str(), O_WRONLY);
-    if (fdWrite == -1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
-      return false;
-    }
-  }
+  static const std::string receiveId = ProgramOptions::get("ReceiveId", std::string());
+  static const std::string receiveFifoName = fifoDirName + '/' + receiveId;
   for (const auto& chunk : modified) {
+    if (fdWrite == -1) {
+      fdWrite = open(sendFifoName.c_str(), O_WRONLY);
+      if (fdWrite == -1) {
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
+	return false;
+      }
+    }
     if (!Fifo::writeString(fdWrite, chunk)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
-    static const std::string receiveId = ProgramOptions::get("ReceiveId", std::string());
-    static const std::string receiveFifoName = fifoDirName + '/' + receiveId;
     if (fdRead == -1) {
       fdRead = open(receiveFifoName.c_str(), O_RDONLY);
       if (fdRead == -1) {

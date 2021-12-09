@@ -86,14 +86,6 @@ bool Fifo::sendReply(int fd, Batch& batch) {
 }
 
 bool Fifo::writeString(int fd, std::string_view str) {
-  static bool enableHints = ProgramOptions::get("EnableHints", true);
-  if (enableHints)
-    if (str.size() > static_cast<size_t>(_defaultPipeSize))
-      static auto& dummy[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__
-        << ' ' << __func__ << ":payload size=" << str.size() << " exceeds _defaultPipeSize="
-        << _defaultPipeSize << ".For optimal performance this should not happen frequently."
-        "The reason could be too large DYNAMIC_BUFFER_SIZE or disabled compression.\n"
-        << "To disable this message set \"EnableHints\" to false." << std::endl;
   size_t written = 0;
   while (written < str.size()) {
     ssize_t result = write(fd, str.data() + written, str.size() - written);
