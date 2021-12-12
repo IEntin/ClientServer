@@ -16,7 +16,7 @@ Business logic here is one of coding challenges I once had to work on. That exer
 
 A different transport layer, e.g. tcp, can be plugged in as well without changes in other parts of the software.
 
-In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once and then repeatedly sent to the server. Of course, the server was processing these batches from scratch in each iteration. Processing of one batch takes 26 to 28 milliseconds on a rather old laptop, the client command being './client > /dev/null' to exclude printing which is doubling the latency. It would be interesting to test this system on a more advanced computer with large number of cores.
+In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once and then repeatedly sent to the server. Of course, the server was processing these batches from scratch in each iteration. Processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > /dev/null' to exclude printing to the terminal which is doubling the latency.
 
 To test the code:
 
