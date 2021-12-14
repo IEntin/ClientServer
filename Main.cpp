@@ -1,5 +1,5 @@
-#include "FifoRunnable.h"
 #include "Echo.h"
+#include "FifoRunnable.h"
 #include "Log.h"
 #include "ProgramOptions.h"
 #include "TaskRunnable.h"

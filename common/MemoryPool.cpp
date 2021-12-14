@@ -1,5 +1,5 @@
-#include "lz4.h"
 #include "MemoryPool.h"
+#include "lz4.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
 #include <iostream>
