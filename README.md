@@ -42,11 +42,11 @@ see the makefile.
 Change settings for FIFO directories and file names on server and clients in ProgramOptions.json:
 
 server:\
-  "FifoDirectoryName" : <directory anywhere with appropriate permissions>,\
+  "FifoDirectoryName" : "directory anywhere with appropriate permissions",\
   "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
 
 client #1:\
-  "FifoDirectoryName" : <the same as for the server>,\
+  "FifoDirectoryName" : "the same as for the server",\
   "FifoBaseName" : "Client1",\
   ........
 
