@@ -3,10 +3,11 @@ Copyright (c) 2021 Ilya Entin.
 ### Fast Lockless Linux Clent-Server on Named Pipes.
 
 Transport layer is named pipes (fifo, better performance and arguably stronger security than in case of sockets).\
-Due to known order of reads and writes which are not happening at the same time, it is possible to make pipes\
-bidirectional (unlike something like chat). After write we close write file descriptor and open read fd for the\
-same end of the pipe, and so on. This significantly simplifies the setup - one fifo per client. See below an\
-example of configuration. Testing shows that performance impact of this switching is negligible for large batches.
+Due to predictable order of reads and writes which are not happening at the same time, pipes were made bidirectional.\
+This situation is unlike e.g. chat application or similar. After write we close write file descriptor and open read fd\
+for the same end of the pipe, and so on. This significantly simplified the setup - one fifo per client. See below\
+fragments of configuration in ProgramOptions.json for the server and clients. Testing showed that performance\
+impact of fd reopening is small for large batches.
 
 Lockless. Processing batches of requests without locking.
 
