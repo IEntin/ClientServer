@@ -16,16 +16,14 @@ class FifoRunnable {
   static volatile std::atomic<bool> _stopFlag;
   static std::mutex _stopMutex;
   static std::condition_variable _stopCondition;
-  std::string _receiveFifoName;
-  std::string _sendFifoName;
+  std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
   bool receiveRequest(Batch& batch);
   bool receiveRequest(std::vector<char>& uncompressed);
   bool sendResponse(Batch& response);
-  bool reopenFD();
 public:
-  FifoRunnable(const std::string& receiveFifoName, std::string sendFifoName);
+  FifoRunnable(const std::string& receiveFifoName);
   ~FifoRunnable();
   void operator()() noexcept;
   static bool startThreads();

@@ -1,7 +1,6 @@
 {
   "StringTypeInTask" : "STRINGVIEW",
   "AdsFileName" : "ads.txt",
-  "FifoDirectoryName" : "/home/ilya/Fifos",
   "ProcessRequestMethod" : "Log",
   "Diagnostics" : false,
   "NumberTaskThreads" : 0,
@@ -9,6 +8,6 @@
   "TestCompression" : false,
   "DYNAMIC_BUFFER_SIZE" : 3600000,
   "Timing" : false,
-  "ReceiveIds" : "Receive1 Receive2 Receive3 Receive4 Receive5",
-  "SendIds" : "Send1 Send2 Send3 Send4 Send5"
+  "FifoDirectoryName" : "/home/ilya/Fifos",
+  "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
 }

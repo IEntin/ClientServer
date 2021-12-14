@@ -5,6 +5,10 @@
 #include <csignal>
 #include <iostream>
 
+void signalHandler(int signal) {
+  fifo::stop();
+}
+
 size_t createPayload(Batch& payload) {
   std::string sourceName = ProgramOptions::get("SourceName", std::string());
   std::ifstream input(sourceName, std::ifstream::in | std::ifstream::binary);
@@ -38,6 +42,7 @@ int main() {
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
     signal(SIGPIPE, SIG_IGN);
+    std::signal(SIGINT, signalHandler);
     chronometer.start(__FILE__, __func__, __LINE__);
     Batch payload;
     createPayload(payload);

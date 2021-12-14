@@ -5,9 +5,16 @@
 #include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
+#include <atomic>
 #include <fcntl.h>
 
 namespace fifo {
+
+namespace {
+
+volatile std::atomic<bool> stopFlag = false;
+
+} // end of anonimous namespace
 
 bool receive(int fd, std::ostream* dataStream) {
   auto [uncomprSize, comprSize, compressor, headerDone] = Fifo::readHeader(fd);
@@ -76,17 +83,17 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
   }
   else if (!preparePackage(payload, modified))
     return false;
-  static const std::string fifoDirName = ProgramOptions::get("FifoDirectoryName", std::string());
-  static const std::string sendId = ProgramOptions::get("SendId", std::string());
-  static const std::string sendFifoName = fifoDirName + '/' + sendId;
-  static const std::string receiveId = ProgramOptions::get("ReceiveId", std::string());
-  static const std::string receiveFifoName = fifoDirName + '/' + receiveId;
+  static const std::string fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
+  static const std::string fifoBaseName = ProgramOptions::get("FifoBaseName", std::string());
+  static const std::string fifoName = fifoDirectoryName + '/' + fifoBaseName;
   for (const auto& chunk : modified) {
-    if (fdWrite == -1) {
-      fdWrite = open(sendFifoName.c_str(), O_WRONLY);
+    close(fdRead);
+    fdRead = -1;
+    if (!stopFlag) {
+      fdWrite = open(fifoName.c_str(), O_WRONLY);
       if (fdWrite == -1) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << '-' << sendFifoName << '-' << std::strerror(errno) << std::endl;
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		  << fifoName << '-' << std::strerror(errno) << std::endl;
 	return false;
       }
     }
@@ -94,11 +101,13 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
-    if (fdRead == -1) {
-      fdRead = open(receiveFifoName.c_str(), O_RDONLY);
+    close(fdWrite);
+    fdWrite = -1;
+    if (!stopFlag) {
+      fdRead = open(fifoName.c_str(), O_RDONLY);
       if (fdRead == -1) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << '-' << receiveFifoName << '-' << std::strerror(errno) << std::endl;
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		  << fifoName << '-' << std::strerror(errno) << std::endl;
 	return false;
       }
     }
@@ -199,6 +208,10 @@ std::string createIndexPrefix(size_t index) {
 	      << "-error translating number" << std::endl;
     return error;
   }
+}
+
+void stop() {
+  stopFlag.store(true);
 }
 
 } // end of namespace fifo

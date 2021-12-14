@@ -1,7 +1,6 @@
 {
   "FifoDirectoryName" : "/home/ilya/Fifos",
-  "SendId" : "Receive1",
-  "ReceiveId" : "Send1",
+  "FifoBaseName" : "Client1",
   "SourceName" : "requests.log",
   "OutputFileName" : "",
   "InstrumentationFn" : "",

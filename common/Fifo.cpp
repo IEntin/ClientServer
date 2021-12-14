@@ -39,7 +39,7 @@ HEADER Fifo::readHeader(int fd) {
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-                << ":read(...) returns 0,EOF,another end closed connection." << std::endl;
+                << ":read(...) returns 0,EOF." << std::endl;
       return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
     }
     else

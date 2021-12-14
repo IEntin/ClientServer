@@ -31,4 +31,6 @@ bool buildMessage(const Batch& payload, Batch& message);
 
 std::string createIndexPrefix(size_t index);
 
+void stop();
+
 } // end of namespace fifo

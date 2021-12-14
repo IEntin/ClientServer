@@ -2,7 +2,11 @@ Copyright (c) 2021 Ilya Entin.
 
 ### Fast Lockless Linux Clent-Server on Named Pipes.
 
-Transport layer is named pipes (fifo, better performance and arguably stronger security than in case of sockets).
+Transport layer is named pipes (fifo, better performance and arguably stronger security than in case of sockets).\
+Due to known order of reads and writes which are not happening at the same time, it is possible to make pipes\
+bidirectional (unlike something like chat). After write we close write file descriptor and open read fd for the\
+same end of the pipe, and so on. This significantly simplifies the setup - one fifo per client. See below an\
+example of configuration. Testing shows that performance impact of this switching is negligible for large batches.
 
 Lockless. Processing batches of requests without locking.
 
@@ -16,7 +20,7 @@ Business logic here is one of coding challenges I once had to work on. This logi
 
 A different transport layer, e.g. tcp, can be plugged in as well without changes in other parts of the software.
 
-In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. Processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > output.txt' to exclude printing to the terminal which is doubling the latency.
+In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. Processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal is doubling the latency.
 
 To test the code:
 
@@ -38,17 +42,16 @@ see the makefile.
 Change settings for FIFO directories and file names on server and clients in ProgramOptions.json:
 
 server:\
-  "FifoDirectoryName" : <created directory name, anywhere with appropriate permissions>,\
-  "ReceiveIds" : "Receive1 Receive2 Receive3 Receive4 Receive5",\
-  "SendIds" : "Send1 Send2 Send3 Send4 Send5"
+  "FifoDirectoryName" : <directory anywhere with appropriate permissions>,\
+  "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
 
 client #1:\
   "FifoDirectoryName" : <the same as for the server>,\
-  "SendId" : "Receive1",\
-  "ReceiveId" : "Send1",
+  "FifoBaseName" : "Client1",\
+  ........
 
-Names of pipes should match on server and clients. ProgramOptions.json contains\
-lists for 5 clients, but this number can be increased, only performance can put the\
+Names of pipes should match on server and clients. ProgramOptions.json contains the\
+list for 5 clients, but this number can be increased, only performance can put the\
 limit. The server was tested with 5 clients.
 
 FIFO files are created on server startup and removed on server shutdown with Ctrl-C.\
