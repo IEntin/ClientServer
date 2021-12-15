@@ -29,6 +29,7 @@ public:
   static bool startThreads();
   static void joinThreads();
   static void stop();
+  static void removeFifoFiles();
 };
 
 } // end of namespace fifo

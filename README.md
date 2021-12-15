@@ -21,7 +21,7 @@ Business logic here is one of coding challenges I once had to work on. This logi
 
 A different transport layer, e.g. tcp, can be plugged in as well without changes in other parts of the software.
 
-In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once (optional, "PrepareBatchOnce" in ProgramOptions.json on the client side) and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. Processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal is doubling the latency.
+In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once (optional, "PrepareBatchOnce" in ProgramOptions.json on the client side) and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal is doubling the latency.
 
 To test the code:
 

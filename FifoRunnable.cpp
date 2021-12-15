@@ -28,6 +28,8 @@ FifoRunnable::~FifoRunnable() {
 
 // start threads - one for each client
 bool FifoRunnable::startThreads() {
+  // in case there was no proper shudown.
+  removeFifoFiles();
   const std::string emptyString;
   std::string fifoBaseNamesStr = ProgramOptions::get("FifoBaseNames", emptyString);
   std::vector<std::string> fifoBaseNameVector;
@@ -76,9 +78,7 @@ void FifoRunnable::joinThreads() {
   for (auto& thread : _threads)
     if (thread.joinable())
       thread.join();
-  for(auto const& entry : std::filesystem::directory_iterator(_fifoDirectoryName))
-    if (entry.is_fifo())
-      std::filesystem::remove(entry);
+  removeFifoFiles();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... fifoThreads joined ..." << std::endl;
   // silence valgrind false positives.
@@ -158,6 +158,12 @@ void FifoRunnable::operator()() noexcept {
 	  break;
       }
     }
+}
+
+void FifoRunnable::removeFifoFiles() {
+  for(auto const& entry : std::filesystem::directory_iterator(_fifoDirectoryName))
+    if (entry.is_fifo())
+      std::filesystem::remove(entry);
 }
 
 } // end of namespace fifo
