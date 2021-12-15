@@ -18,10 +18,8 @@ volatile std::atomic<bool> stopFlag = false;
 
 bool receive(int fd, std::ostream* dataStream) {
   auto [uncomprSize, comprSize, compressor, headerDone] = Fifo::readHeader(fd);
-  if (!headerDone) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+  if (!headerDone)
     return false;
-  }
   if (!readBatch(fd, uncomprSize, comprSize, compressor == LZ4, dataStream)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
@@ -97,6 +95,8 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
 	return false;
       }
     }
+    if (fdWrite == -1)
+      return false;
     if (!Fifo::writeString(fdWrite, chunk)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
@@ -133,10 +133,8 @@ bool run(const Batch& payload,
   unsigned numberIterations = 0;
   do {
     Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
-    if (!singleIteration(payload, fdWrite, fdRead, dataStream)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    if (!singleIteration(payload, fdWrite, fdRead, dataStream))
       return false;
-    }
     // limit output file size
     if (++numberIterations == maxNumberIterations)
       break;

@@ -76,6 +76,8 @@ bool Fifo::sendReply(int fd, Batch& batch) {
   else
     utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
+  if (fd == -1)
+    return false;
   if (!writeString(fd, sendView)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;

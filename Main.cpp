@@ -1,3 +1,4 @@
+#include "Chronometer.h"
 #include "Echo.h"
 #include "FifoRunnable.h"
 #include "Log.h"
@@ -6,6 +7,9 @@
 #include "Test.h"
 #include <csignal>
 #include <iostream>
+
+const bool timing = ProgramOptions::get("Timing", false);
+Chronometer chronometer(timing, __FILE__, __LINE__);
 
 void signalHandler(int signal) {
   fifo::FifoRunnable::stop();
