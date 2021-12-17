@@ -3,11 +3,12 @@ Copyright (c) 2021 Ilya Entin.
 ### Fast Lockless Linux Clent-Server on Named Pipes.
 
 Transport layer is named pipes (fifo, better performance and arguably stronger security than in case of sockets).\
-Due to predictable order of reads and writes which are not happening at the same time, pipes were made bidirectional.\
-This situation is unlike e.g. chat application or similar. After write we close write file descriptor and open read fd\
-for the same end of the pipe, and so on. This significantly simplified the setup - one fifo per client. See below\
-fragments of configuration in ProgramOptions.json for the server and clients. Testing showed that performance\
-impact of fd reopening is small for large batches.
+Due to predictable sequence of reads and writes, pipes could be and were made bidirectional.\
+This situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
+After write we close write file descriptor and open read fd for the same end of the pipe, and so on.\
+This significantly simplified the setup - one fifo per client. See below fragments of configuration\
+in ProgramOptions.json for the server and clients. Testing showed that performance impact of fd reopening\
+is small for large batches when reopening is relatively rare.
 
 Lockless. Processing batches of requests without locking.
 
@@ -17,7 +18,7 @@ Built in optional LZ4 compression.
 
 Business logic, compression, task multithreading, and transport layer are completely decoupled.
 
-Business logic here is one of coding challenges I once had to work on. This logic finds keywords in a request and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The single feature of this code used in other parts of the application is a signature of the function taking request string_view as a parameter and returning the response string. Different business logic from a different field, not necessarily finance, can be plugged in. 
+Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded from other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in. 
 
 A different transport layer, e.g. tcp, can be plugged in as well without changes in other parts of the software.
 
@@ -97,9 +98,9 @@ memory footprint of the application. The latter is important for embedded system
 
 =======
 ### Linux Client-Server
-Transport layer based on named pipes.\
+Using bidirectional named pipes.\
 Lockless. Processing batches of requests  without locking.\
 Business logic, tasks multithreading, and transport layer are completely decoupled.\
 Memory pooling. Business logic, compression and most of fifo are not allocating.\
-Business logic here is a coding challenge I once worked on.\
+Business logic here is an example of financial calculations.\
 It can be replaced with any other batch processing from a different field, not necessarily financial.
