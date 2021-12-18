@@ -3,7 +3,7 @@ Copyright (c) 2021 Ilya Entin.
 ### Fast Lockless Linux Clent-Server on Named Pipes.
 
 Transport layer is named pipes (fifo, better performance and arguably stronger security than in case of sockets).\
-Due to predictable sequence of reads and writes, pipes could be and were made bidirectional.\
+Due to protocol and predictable sequence of reads and writes, it was possible to make pipes bidirectional.\
 This situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
 After write we close write file descriptor and open read fd for the same end of the pipe, and so on.\
 This significantly simplified the setup - one fifo per client. See below fragments of configuration\
@@ -18,11 +18,11 @@ Built in optional LZ4 compression.
 
 Business logic, compression, task multithreading, and transport layer are completely decoupled.
 
-Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded from other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in. 
+Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in. 
 
 A different transport layer, e.g. tcp, can be plugged in as well without changes in other parts of the software.
 
-In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once (optional, "PrepareBatchOnce" in ProgramOptions.json on the client side) and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal is doubling the latency.
+In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once (optional, "PrepareBatchOnce" in ProgramOptions.json on the client side) and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes 26 to 28 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal doubles the latency.
 
 To test the code:
 
@@ -101,6 +101,6 @@ memory footprint of the application. The latter is important for embedded system
 Using bidirectional named pipes.\
 Lockless. Processing batches of requests  without locking.\
 Business logic, tasks multithreading, and transport layer are completely decoupled.\
-Memory pooling. Business logic, compression and most of fifo are not allocating.\
+Memory pooling. Business logic, compression and most of fifo procrssing are not allocating.\
 Business logic here is an example of financial calculations.\
 It can be replaced with any other batch processing from a different field, not necessarily financial.
