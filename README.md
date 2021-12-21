@@ -74,6 +74,9 @@ in corresponding directories.
 
 Some of these:
 
+"StringTypeInTask" : [STRINGVIEW | STRING]\
+Algorithm selection. STRINGVIEW is slightly faster but with different memory allocation pattern.
+
 "ProcessRequestMethod" : ["Log", "Echo", "Test"]\
 'Log' is a business logic.\
 'Echo' allows to test multithreading, compression, and fifo. To check the results save client\
