@@ -19,8 +19,8 @@ class FifoRunnable {
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
-  bool receiveRequest(Batch& batch);
-  bool receiveRequest(std::vector<char>& uncompressed);
+  template <typename C>
+    bool receiveRequest(C& batch);
   bool sendResponse(Batch& response);
 public:
   FifoRunnable(const std::string& receiveFifoName);
