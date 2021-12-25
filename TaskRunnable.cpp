@@ -24,7 +24,7 @@ std::vector<std::thread> TaskRunnable::_taskThreads;
 template<typename T>
 void finishTask(T& task) {
   task->finish();
-  // note that for succinctness we call static method get() through an instance of class.
+  // It is convenient here to call static method get() through an instance of class:
   std::atomic_store(&task, task->get());
 }
 
@@ -39,8 +39,9 @@ void TaskRunnable::onTaskFinish() noexcept {
       finishTask(_taskST);
   }
 }
-// The goal is to process the current task (batch of requests) by all threads.
-// Only one task is processed at any given time which guarantees thread safety
+
+// Process the current task (batch of requests) by all threads.
+// Only one task is processed at any given time.
 
 template<typename T>
 void TaskRunnable::processTask(T& task, ProcessRequest function) {
@@ -84,6 +85,6 @@ void TaskRunnable::joinThreads() {
       thread.join();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... taskThreads joined ..." << std::endl;
-  // silence valgrind false positives.
+  // silence valgrind:
   std::vector<std::thread>().swap(_taskThreads);
 }

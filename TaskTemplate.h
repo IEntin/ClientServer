@@ -74,10 +74,9 @@ class TaskTemplate {
   }
 
   static TaskTemplatePtr<T> get() {
-    TaskTemplatePtr<T> task;
     std::unique_lock lock(_queueMutex);
     _queueCondition.wait(lock, [] { return !_queue.empty(); });
-    task = _queue.front();
+    TaskTemplatePtr<T> task = _queue.front();
     _queue.pop();
     return task;
   }
@@ -96,22 +95,10 @@ class TaskTemplate {
     }
   }
 
-  static void process(std::string_view address, Requests<T>& input, Batch& response) {
+  template<typename I>
+  static void process(std::string_view address, I& input, Batch& response) {
     try {
       TaskTemplatePtr<T> task = std::make_shared<TaskTemplate>(address, input, response);
-      std::future<void> future = task->_promise.get_future();
-      push(task);
-      future.get();
-    }
-    catch (std::future_error& e) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-exception:" << e.what() << std::endl;
-    }
-  }
-
-  static void process(std::string_view address, std::vector<char>& received, Batch& response) {
-    try {
-      TaskTemplatePtr<T> task = std::make_shared<TaskTemplate>(address, received, response);
       std::future<void> future = task->_promise.get_future();
       push(task);
       future.get();
