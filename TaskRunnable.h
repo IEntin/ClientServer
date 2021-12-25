@@ -13,6 +13,8 @@ public:
   TaskRunnable() = default;
   ~TaskRunnable() = default;
   void operator()(ProcessRequest processRequest) noexcept;
+  template<typename T>
+    void processTask(T& task, ProcessRequest function);
   static void onTaskFinish() noexcept;
   static bool startThreads(ProcessRequest processRequest);
   static void joinThreads();

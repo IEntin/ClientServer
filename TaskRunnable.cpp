@@ -43,7 +43,7 @@ void TaskRunnable::onTaskFinish() noexcept {
 // Only one task is processed at any given time which guarantees thread safety
 
 template<typename T>
-void processTask(T& task, ProcessRequest function, std::barrier<CompletionFunction>& barrier) {
+void TaskRunnable::processTask(T& task, ProcessRequest function) {
   while (!stopFlag) {
     auto [view, atEnd, index] = task->next();
     if (!atEnd) {
@@ -51,7 +51,7 @@ void processTask(T& task, ProcessRequest function, std::barrier<CompletionFuncti
       continue;
     }
     try {
-      barrier.arrive_and_wait();
+      _barrier.arrive_and_wait();
     }
     catch (std::system_error& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -62,9 +62,9 @@ void processTask(T& task, ProcessRequest function, std::barrier<CompletionFuncti
 
 void TaskRunnable::operator()(std::string (function)(std::string_view)) noexcept {
   if (_useStringView)
-    processTask(_taskSV, function, _barrier);
+    processTask(_taskSV, function);
   else
-    processTask(_taskST, function, _barrier);
+    processTask(_taskST, function);
 }
 
 bool TaskRunnable::startThreads(ProcessRequest processRequest) {
