@@ -58,7 +58,7 @@ class TaskTemplate {
   std::tuple<std::string_view, bool, size_t> next() {
     size_t pointer = _pointer.fetch_add(1);
     if (pointer < _storage.size()) {
-      typename Requests<T>::iterator it = std::next(_storage.begin(), pointer);
+      auto it = std::next(_storage.begin(), pointer);
       return std::make_tuple(std::string_view(it->data(), it->size()),
 			     false,
 			     std::distance(_storage.begin(), it));
@@ -76,7 +76,7 @@ class TaskTemplate {
   static TaskTemplatePtr<T> get() {
     std::unique_lock lock(_queueMutex);
     _queueCondition.wait(lock, [] { return !_queue.empty(); });
-    TaskTemplatePtr<T> task = _queue.front();
+    auto task = _queue.front();
     _queue.pop();
     return task;
   }
@@ -99,7 +99,7 @@ class TaskTemplate {
   static void process(std::string_view address, I& input, Batch& response) {
     try {
       TaskTemplatePtr<T> task = std::make_shared<TaskTemplate>(address, input, response);
-      std::future<void> future = task->_promise.get_future();
+      auto future = task->_promise.get_future();
       push(task);
       future.get();
     }

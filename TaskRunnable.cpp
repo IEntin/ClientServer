@@ -24,7 +24,7 @@ std::vector<std::thread> TaskRunnable::_taskThreads;
 template<typename T>
 void finishTask(T& task) {
   task->finish();
-  // It is convenient here to call static method get() through an instance of class:
+  // Call static method get() through an instance of class:
   std::atomic_store(&task, task->get());
 }
 
