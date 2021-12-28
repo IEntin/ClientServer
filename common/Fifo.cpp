@@ -6,7 +6,6 @@
 #include <fcntl.h>
 #include <iostream>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 namespace fifo {
 

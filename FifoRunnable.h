@@ -1,6 +1,6 @@
 #pragma once
 
-#include <condition_variable>
+#include <future>
 #include <string>
 #include <thread>
 #include <vector>
@@ -14,8 +14,7 @@ class FifoRunnable {
   static std::vector<std::thread> _threads;
   static const std::string _fifoDirectoryName;
   static volatile std::atomic<bool> _stopFlag;
-  static std::mutex _stopMutex;
-  static std::condition_variable _stopCondition;
+  static std::promise<void> _stopPromise;
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;

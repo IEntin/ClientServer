@@ -7,7 +7,6 @@
 #include <filesystem>
 #include <iostream>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 namespace fifo {
 
@@ -15,8 +14,7 @@ std::vector<FifoRunnable> FifoRunnable::_runnables;
 std::vector<std::thread> FifoRunnable::_threads;
 const std::string FifoRunnable::_fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
 volatile std::atomic<bool> FifoRunnable::_stopFlag(false);
-std::mutex FifoRunnable::_stopMutex;
-std::condition_variable FifoRunnable::_stopCondition;
+std::promise<void> FifoRunnable::_stopPromise;
 
 FifoRunnable::FifoRunnable(const std::string& fifoName) :
   _fifoName(fifoName) {}
@@ -30,8 +28,7 @@ FifoRunnable::~FifoRunnable() {
 bool FifoRunnable::startThreads() {
   // in case there was no proper shudown.
   removeFifoFiles();
-  const std::string emptyString;
-  std::string fifoBaseNamesStr = ProgramOptions::get("FifoBaseNames", emptyString);
+  std::string fifoBaseNamesStr = ProgramOptions::get("FifoBaseNames", std::string());
   std::vector<std::string> fifoBaseNameVector;
   utility::split(fifoBaseNamesStr, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
@@ -53,14 +50,19 @@ bool FifoRunnable::startThreads() {
 }
 
 void FifoRunnable::stop() {
-  std::lock_guard lock(_stopMutex);
   _stopFlag.store(true);
-  _stopCondition.notify_one();
+  try {
+    _stopPromise.set_value();
+  }
+  catch (std::future_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+  }
 }
 
 void FifoRunnable::joinThreads() {
-  std::unique_lock lock(_stopMutex);
-  _stopCondition.wait(lock, []{ return _stopFlag.load(); });
+  auto future = _stopPromise.get_future();
+  future.get();
   for (auto& runnable : _runnables) {
     int fd = open(runnable._fifoName.c_str(), O_WRONLY);
     if (fd == -1) {
@@ -81,7 +83,7 @@ void FifoRunnable::joinThreads() {
   removeFifoFiles();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... fifoThreads joined ..." << std::endl;
-  // silence valgrind false positives.
+  // silence valgrind.
   std::vector<std::thread>().swap(_threads);
   std::vector<FifoRunnable>().swap(FifoRunnable::_runnables);
 }
