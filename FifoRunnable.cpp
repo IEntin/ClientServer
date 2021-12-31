@@ -123,8 +123,8 @@ void FifoRunnable::operator()() noexcept {
     while (!_stopFlag) {
       // We cannot use MemoryPool because vector 'uncompressed' will be swapped with 'Task::_rawInput'.
       // Instead we make this vector as well as 'Task::_rawInput' static thread_local.
-      // Then we allocate only few times and later swap with the vector of close and eventually
-      // the same maximum required capacity. No more allocations until input pattern changes.
+      // With this we allocate only few times swapping with the vector of close and eventually
+      // the same maximum required capacity. No more allocations happen until input pattern changes.
       // We need to clear this vector on every iteration which does not change its capacity.
       static thread_local std::vector<char> uncompressed;
       uncompressed.clear();
