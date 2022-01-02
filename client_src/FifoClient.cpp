@@ -88,7 +88,7 @@ bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostre
     close(fdRead);
     fdRead = -1;
     if (!stopFlag) {
-      fdWrite = open(fifoName.c_str(), O_WRONLY | O_NONBLOCK);
+      fdWrite = open(fifoName.c_str(), O_WRONLY);
       if (fdWrite == -1) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		  << fifoName << '-' << std::strerror(errno) << std::endl;

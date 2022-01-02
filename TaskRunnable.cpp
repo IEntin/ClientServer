@@ -40,15 +40,15 @@ void TaskRunnable::onTaskFinish() noexcept {
   }
 }
 
-// Process the current task (batch of requests) by all threads.
+// Process current task (batch of requests) by all threads.
 // Only one task is processed at any given time.
 
 template<typename T>
-void TaskRunnable::processTask(T& task, ProcessRequest function) {
+void TaskRunnable::processTask(T& task, ProcessRequest processRequest) {
   while (!stopFlag) {
     auto [view, atEnd, index] = task->next();
     if (!atEnd) {
-      task->updateResponse(index, function(view));
+      task->updateResponse(index, processRequest(view));
       continue;
     }
     try {
@@ -57,20 +57,21 @@ void TaskRunnable::processTask(T& task, ProcessRequest function) {
     catch (std::system_error& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< "-exception:" << e.what() << std::endl;
+      std::exit(1);
     }
   }
 }
 
-void TaskRunnable::operator()(std::string (function)(std::string_view)) noexcept {
+void TaskRunnable::threadFunc(ProcessRequest processRequest) {
   if (_useStringView)
-    processTask(_taskSV, function);
+    processTask(_taskSV, processRequest);
   else
-    processTask(_taskST, function);
+    processTask(_taskST, processRequest);
 }
 
 bool TaskRunnable::startThreads(ProcessRequest processRequest) {
   for (unsigned i = 0; i < _numberTaskThreads; ++i)
-    _taskThreads.emplace_back(TaskRunnable(), processRequest);
+    _taskThreads.emplace_back(threadFunc, processRequest);
   return true;
 }
 

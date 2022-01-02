@@ -10,15 +10,15 @@ using CompletionFunction = void (*) () noexcept;
 
 class TaskRunnable {
 public:
-  TaskRunnable() = default;
-  ~TaskRunnable() = default;
-  void operator()(ProcessRequest processRequest) noexcept;
-  template<typename T>
-    void processTask(T& task, ProcessRequest function);
-  static void onTaskFinish() noexcept;
   static bool startThreads(ProcessRequest processRequest);
   static void joinThreads();
 private:
+  TaskRunnable() = delete;
+  ~TaskRunnable() = delete;
+  static void onTaskFinish() noexcept;
+  template<typename T>
+    static void processTask(T& task, ProcessRequest processRequest);
+  static void threadFunc(ProcessRequest processRequest);
   static const bool _useStringView;
   static TaskPtrSV _taskSV;
   static TaskPtrST _taskST;
