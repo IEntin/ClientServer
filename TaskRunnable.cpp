@@ -62,16 +62,13 @@ void TaskRunnable::processTask(T& task, ProcessRequest processRequest) {
   }
 }
 
-void TaskRunnable::threadFunc(ProcessRequest processRequest) {
-  if (_useStringView)
-    processTask(_taskSV, processRequest);
-  else
-    processTask(_taskST, processRequest);
-}
-
 bool TaskRunnable::startThreads(ProcessRequest processRequest) {
   for (unsigned i = 0; i < _numberTaskThreads; ++i)
-    _taskThreads.emplace_back(threadFunc, processRequest);
+    _taskThreads.emplace_back([processRequest] () {
+				if (_useStringView)
+				  processTask(_taskSV, processRequest);
+				else
+				  processTask(_taskST, processRequest); });
   return true;
 }
 
