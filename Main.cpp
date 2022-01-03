@@ -1,10 +1,10 @@
 #include "Chronometer.h"
 #include "Echo.h"
 #include "FifoRunnable.h"
-#include "Log.h"
 #include "ProgramOptions.h"
 #include "TaskRunnable.h"
 #include "Test.h"
+#include "Transaction.h"
 #include <csignal>
 #include <iostream>
 
@@ -20,10 +20,10 @@ int main() {
   std::signal(SIGINT, signalHandler);
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
-  if (method == "Log") {
-    if (!Log::init())
+  if (method == "Transaction") {
+    if (!Transaction::init())
 	return 1;
-    processRequest = Log::processRequest;
+    processRequest = Transaction::processRequest;
   }
   else if (method == "Test")
     processRequest = test::processRequest;

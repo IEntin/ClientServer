@@ -1,7 +1,7 @@
 {
   "StringTypeInTask" : "STRINGVIEW",
   "AdsFileName" : "ads.txt",
-  "ProcessRequestMethod" : "Log",
+  "ProcessRequestMethod" : "Transaction",
   "Diagnostics" : false,
   "NumberTaskThreads" : 0,
   "Compression" : "LZ4",

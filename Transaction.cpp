@@ -1,4 +1,4 @@
-#include "Log.h"
+#include "Transaction.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
 #include <cstring>
@@ -13,31 +13,31 @@ constexpr char KEYWORDS_END = '&';
 
 } // end of anonimous namespace
 
-std::ostream& operator <<(std::ostream& os, const Log& log) {
-  const auto& result = log._winningBid;
-  os << log._id << ' ';
-  if (Log::_diagnostics) {
-    os <<"Log size=" << log._size << " #matches=" << utility::Print(log._bids.size())
-       << '\n' << log._request << "\nrequest keywords:\n";
-    for (std::string_view keyword : log._keywords)
+std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
+  const auto& result = transaction._winningBid;
+  os << transaction._id << ' ';
+  if (Transaction::_diagnostics) {
+    os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
+       << '\n' << transaction._request << "\nrequest keywords:\n";
+    for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, adPtr, money] : log._bids)
+    for (const auto& [kw, adPtr, money] : transaction._bids)
       os << *adPtr << " match:" << kw << ' ' << utility::Print(money, 1) << '\n';
     os << "summary:";
-    if (log._noMatch)
-      os << Log::EMPTY_REPLY << "*****\n";
-    else if (log._invalid)
-      os << Log::INVALID_REQUEST << "*****\n";
+    if (transaction._noMatch)
+      os << Transaction::EMPTY_REPLY << "*****\n";
+    else if (transaction._invalid)
+      os << Transaction::INVALID_REQUEST << "*****\n";
     else
       os << std::get<1>(result)->getId() << ", " << std::get<0>(result) << ", "
 	 << utility::Print(std::get<2>(result), 1) << "\n*****\n";
   }
   else {
-    if (log._noMatch)
-      os << Log::EMPTY_REPLY;
-    else if (log._invalid)
-      os << Log::INVALID_REQUEST;
+    if (transaction._noMatch)
+      os << Transaction::EMPTY_REPLY;
+    else if (transaction._invalid)
+      os << Transaction::INVALID_REQUEST;
     else
       os << std::get<1>(result)->getId() << ", "
 	 << utility::Print(std::get<2>(result), 1) << '\n';
@@ -45,11 +45,11 @@ std::ostream& operator <<(std::ostream& os, const Log& log) {
   return os;
 }
 
-thread_local std::vector<AdBid> Log::_bids;
-thread_local std::vector<std::string_view> Log::_keywords;
-const bool Log::_diagnostics = ProgramOptions::get("Diagnostics", false);
+thread_local std::vector<AdBid> Transaction::_bids;
+thread_local std::vector<std::string_view> Transaction::_keywords;
+const bool Transaction::_diagnostics = ProgramOptions::get("Diagnostics", false);
 
-Log::Log(std::string_view input) {
+Transaction::Transaction(std::string_view input) {
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
@@ -62,30 +62,30 @@ Log::Log(std::string_view input) {
   }
 }
 
-Log::~Log() {
+Transaction::~Transaction() {
   _bids.clear();
   _keywords.clear();
 }
 
-bool Log::init() {
+bool Transaction::init() {
   return Ad::load();
 }
 
-std::string Log::processRequest(std::string_view view) noexcept {
+std::string Transaction::processRequest(std::string_view view) noexcept {
   std::string id("[unknown]");
   try {
-    Log log(view);
-    id.assign(log._id);
-    if (log._size.empty() || log._keywords.empty()) {
-      log._invalid = true;
+    Transaction transaction(view);
+    id.assign(transaction._id);
+    if (transaction._size.empty() || transaction._keywords.empty()) {
+      transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
-    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(log._size);
-    log.matchAds(adVector);
-    if (log._noMatch && !_diagnostics)
+    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._size);
+    transaction.matchAds(adVector);
+    if (transaction._noMatch && !_diagnostics)
       return id.append(1, ' ').append(EMPTY_REPLY);
     std::ostringstream os;
-    os << log;
+    os << transaction;
     return os.str();
   }
   catch(...) {
@@ -105,7 +105,7 @@ struct Comparator {
   }
 };
 
-void Log::matchAds(const std::vector<AdPtr>& adVector) {
+void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   for (const AdPtr& ad : adVector) {
     try {
       std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
@@ -127,14 +127,14 @@ void Log::matchAds(const std::vector<AdPtr>& adVector) {
 				    });
 }
 
-void Log::breakKeywords(std::string_view kwStr) {
+void Transaction::breakKeywords(std::string_view kwStr) {
   utility::split(kwStr, _keywords, KEYWORD_SEP);
   std::sort(_keywords.begin(), _keywords.end());
 }
 
 // format1 - kw=toy+longshoremen+recognize+jesbasementsystems+500loans, & - ending
 // format2 - keywords=cars+mazda, & - ending
-bool Log::parseKeywords(std::string_view start) {
+bool Transaction::parseKeywords(std::string_view start) {
   size_t beg = _request.find(start);
   if (beg == std::string::npos)
     return false;

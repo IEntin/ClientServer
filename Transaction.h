@@ -5,18 +5,18 @@
 #include <string_view>
 #include <vector>
 
-std::ostream& operator <<(std::ostream& os, const class Log& log);
+std::ostream& operator <<(std::ostream& os, const class Transaction& transaction);
 
-class Log {
-  friend std::ostream& operator <<(std::ostream& os, const Log& obj);
+class Transaction {
+  friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
 public:
   static std::string processRequest(std::string_view) noexcept;
   static bool init();
 private:
-  explicit Log(std::string_view input);
-  explicit Log(const Log& other) = delete;
-  ~Log();
-  Log& operator =(const Log& other) = delete;
+  explicit Transaction(std::string_view input);
+  explicit Transaction(const Transaction& other) = delete;
+  ~Transaction();
+  Transaction& operator =(const Transaction& other) = delete;
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<AdPtr>& adVector);
@@ -25,7 +25,7 @@ private:
   Size _size;
   // Made static to keep the capacity growing as needed.
   // thread_local makes it thread safe b/c single request
-  // is processed in one thread. Log destructor clears this
+  // is processed in one thread. Transaction destructor clears this
   // vector which keeps its capacity for further usage. Number
   // of matched bids is not exceeding 10, so additional memory
   // is negligible. callgrind shows improvement.
