@@ -77,11 +77,10 @@ Some of these:
 "StringTypeInTask" : [STRINGVIEW | STRING]\
 Algorithm selection. STRINGVIEW is slightly faster but with different memory allocation pattern.
 
-"ProcessRequestMethod" : ["Transaction", "Echo", "Test"]\
+"ProcessRequestMethod" : ["Transaction", "Echo"]\
 'Transaction' is a business logic.\
 'Echo' allows to test multithreading, compression, and fifo. To check the results save client\
 output to the file and diff this file with the source (default is 'requests.log').\
-'Test' returns simple calculations of the string lengths. The positive result is the absence of assertions.
 
 To enable compression (default)\
 "Compression" : "LZ4"\

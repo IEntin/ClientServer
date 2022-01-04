@@ -3,7 +3,6 @@
 #include "FifoRunnable.h"
 #include "ProgramOptions.h"
 #include "TaskRunnable.h"
-#include "Test.h"
 #include "Transaction.h"
 #include <csignal>
 #include <iostream>
@@ -25,8 +24,6 @@ int main() {
 	return 1;
     processRequest = Transaction::processRequest;
   }
-  else if (method == "Test")
-    processRequest = test::processRequest;
   else if (method == "Echo")
     processRequest = echo::processRequest;
   else {
