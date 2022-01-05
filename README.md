@@ -28,7 +28,8 @@ To test the code:
 
 1. clone the repository
 
-2. build the app\
+2. build the app
+
 google tests must be installed:\
 sudo apt-get install libgtest-dev\
 sudo apt-get install cmake\
