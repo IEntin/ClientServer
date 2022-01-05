@@ -105,6 +105,10 @@ memory footprint of the application. The latter is important for embedded system
 
 "Diagnostics" shows details of all stages of business calculations for each request.
 
+To run tests:\
+'tests/runtests'\
+in the project root directory.
+
 =======
 ### Linux Client-Server
 Using bidirectional named pipes.\
