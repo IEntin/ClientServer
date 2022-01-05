@@ -76,35 +76,3 @@ bool Compression::uncompress(std::string_view compressed, std::vector<char>& unc
   }
   return true;
 }
-
-bool Compression::testCompressionDecompression(std::string_view input) {
-  static const std::string stringTypeInTask = ProgramOptions::get("StringTypeInTask", std::string());
-  static const bool useString = stringTypeInTask == "STRING";
-  if (useString) {
-    std::string_view compressedView = compress(input);
-    if (compressedView.empty())
-      return false;
-    // save in a string before buffer is reused in uncompress
-    std::string compressed;
-    compressed.assign(compressedView.data(), compressedView.size());
-    // saving not needed, it is the final step
-    std::string_view uncompressedView = uncompress(compressed, input.size());
-    std::clog << "   input.size()=" << input.size() << " compressedView.size()="
-	      << compressedView.size() << " restored to original:" << std::boolalpha
-	      << (input == uncompressedView) << std::endl;
-    return input == uncompressedView;
-  }
-  else {
-    std::string_view compressedView = compress(input);
-    if (compressedView.empty())
-      return false;
-    std::vector<char> uncompressed(input.size());
-    if (!uncompress(compressedView, uncompressed))
-      return false;
-    std::string_view uncompressedView(uncompressed.begin(), uncompressed.end());
-    std::clog << "   input.size()=" << input.size() << " compressedView.size()="
-	      << compressedView.size() << " restored to original:" << std::boolalpha
-	      << (input == uncompressedView) << std::endl;
-    return input == uncompressedView;
-  }
-}

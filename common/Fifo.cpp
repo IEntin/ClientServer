@@ -1,11 +1,11 @@
 #include "Fifo.h"
 #include "Compression.h"
 #include "MemoryPool.h"
-#include "ProgramOptions.h"
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
 #include <sys/stat.h>
+#include <unistd.h>
 
 namespace fifo {
 
@@ -61,9 +61,6 @@ bool Fifo::sendReply(int fd, Batch& batch) {
     pos += chunk.size();
   }
   std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
-  static const bool testCompression = ProgramOptions::get("TestCompression", false);
-  if (testCompression)
-    assert(Compression::testCompressionDecompression(uncompressedView));
   if (enabled) {
     std::string_view dstView = Compression::compress(uncompressedView);
     if (dstView.empty())

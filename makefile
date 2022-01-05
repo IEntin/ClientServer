@@ -63,10 +63,11 @@ CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 $(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/FifoClient.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 
-TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp)
+TESTINCLUDES = -Iclient_src -Icommon $(BOOST_INCLUDE) 
+TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp)
 
 $(TESTDIR)/runtests : $(TESTSOURCES)
-	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
+	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 
 .PHONY: clean
 clean:

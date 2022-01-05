@@ -5,7 +5,6 @@
   "Diagnostics" : false,
   "NumberTaskThreads" : 0,
   "Compression" : "LZ4",
-  "TestCompression" : false,
   "DYNAMIC_BUFFER_SIZE" : 3600000,
   "Timing" : true,
   "FifoDirectoryName" : "/home/ilya/Fifos",

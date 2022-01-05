@@ -5,7 +5,6 @@
   "OutputFileName" : "",
   "InstrumentationFn" : "",
   "Compression" : "LZ4",
-  "TestCompression" : false,
   "DYNAMIC_BUFFER_SIZE" : 3600000,
   "Timing" : true,
   "MergePayload" : true,

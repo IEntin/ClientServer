@@ -96,9 +96,6 @@ To enable compression (default)\
 "Compression" : "LZ4"\
 If this is empty or something different the compression is disabled.
 
-"TestCompression" - works with any other options. Asserts when original is not the same\
-as compressed and subsequently decompressed.
-
 "Timing" prints elapsed times between selected lines of the code. Currently it shows client latency\
 for the batch of 10000 requests and the total run time for the server. See Chronometer class in the code.
 

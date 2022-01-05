@@ -170,9 +170,6 @@ bool buildMessage(const Batch& payload, Batch& message) {
   if (payload.empty())
     return false;
   for (std::string_view str : payload) {
-    static const bool testCompression = ProgramOptions::get("TestCompression", false);
-    if (testCompression)
-      assert(Compression::testCompressionDecompression(str));
     char array[HEADER_SIZE] = {};
     static const auto[compressor, enabled] = Compression::isCompressionEnabled();
     size_t uncomprSize = str.size();
