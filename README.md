@@ -30,6 +30,8 @@ To test the code:
 
 2. build the app
 
+boost libraries must be installed.
+
 google tests must be installed:\
 sudo apt-get install libgtest-dev\
 sudo apt-get install cmake\
@@ -41,9 +43,10 @@ sudo cp lib/*.a /usr/lib
 The compiler must support c++20\
 I use\
 gcc  11.1.0 and\
-clang 12.0.0
+clang 12.0.0\
+boost_1_78_0
 
-make -j3\
+make -j3
 
 g++ is used by default. To use clang add CMPLR=clang++ to the make command.\
 There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels.\

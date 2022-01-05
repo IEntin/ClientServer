@@ -45,7 +45,7 @@ ifeq ($(PROFILE), 1)
 	PROFBLD=-fno-omit-frame-pointer -pg
 endif
 
-BOOSTDIR:=/usr/local/boost_1_77_0
+BOOSTDIR:=/usr/local/boost_1_78_0
 BOOSTLIBDIR:=$(BOOSTDIR)/stage/lib/
 BOOST_INCLUDE:=-I$(BOOSTDIR)
 
@@ -67,7 +67,7 @@ TESTINCLUDES = -Iclient_src -Icommon $(BOOST_INCLUDE)
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp)
 
 $(TESTDIR)/runtests : $(TESTSOURCES)
-	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
+	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 
 .PHONY: clean
 clean:
