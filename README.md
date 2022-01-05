@@ -29,11 +29,20 @@ To test the code:
 1. clone the repository
 
 2. build the app\
-make -j2\
+google tests must be installed:\
+sudo apt-get install libgtest-dev\
+sudo apt-get install cmake\
+cd /usr/src/gtest\
+sudo cmake CMakeLists.txt\
+sudo make\
+sudo cp lib/*.a /usr/lib
+
 The compiler must support c++20\
 I use\
 gcc  11.1.0 and\
 clang 12.0.0
+
+make -j3\
 
 g++ is used by default. To use clang add CMPLR=clang++ to the make command.\
 There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels.\
@@ -63,7 +72,7 @@ this, besides fifo directory permissions do not allow this.\
 
 To start:\
 on server side './server' in the project root\
-on client side './client' in the testClient or any other directory.
+on client side './client' in the client_bin or any other directory.
 
 No special requirements for the hardware.\
 Using laptop with 4 cores and 4GB RAM to run the server and up to 5 clients.\

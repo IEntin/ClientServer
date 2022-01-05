@@ -18,9 +18,11 @@ else
 	CXX=$(CMPLR)
 endif
 
-TESTCLIENTDIR = testClient
+CLIENTBINDIR = client_bin
 
-all: server $(TESTCLIENTDIR)/client
+TESTDIR = tests
+
+all: server $(CLIENTBINDIR)/client $(TESTDIR)/runtests
 
 OPTIMIZE=
 ifeq ($(OPTIMIZE),)
@@ -58,10 +60,15 @@ server : $(SERVERSOURCES) *.h common/*.h
 CLIENTINCLUDES = -Iclient_src -Icommon $(BOOST_INCLUDE) 
 CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 
-$(TESTCLIENTDIR)/client : $(CLIENTSOURCES) common/*.h client_src/FifoClient.h
+$(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/FifoClient.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
+
+TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp)
+
+$(TESTDIR)/runtests : $(TESTSOURCES)
+	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 
 .PHONY: clean
 clean:
-	rm -f *.d server $(TESTCLIENTDIR)/client $(TESTCLIENTDIR)/*.d $(TESTCLIENTDIR)/gmon.out
+	rm -f *.d server $(CLIENTBINDIR)/client $(CLIENTBINDIR)/*.d $(CLIENTBINDIR)/gmon.out $(TESTDIR)/runtests $(TESTDIR)/*.d
 	rm -f gmon.out *.gcov *.gcno *.gcda
