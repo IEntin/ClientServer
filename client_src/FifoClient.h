@@ -17,11 +17,11 @@ bool readBatch(int fd,
 
 bool run(const Batch& payload,
 	 bool runLoop,
-	 unsigned maxNumberIterations,
+	 unsigned maxNumberTasks,
 	 std::ostream* dataStream,
 	 std::ostream* instrStream);
 
-bool singleIteration(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* pstream);
+bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* pstream);
 
 bool preparePackage(const Batch& payload, Batch& modified);
 

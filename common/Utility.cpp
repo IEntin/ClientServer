@@ -1,7 +1,7 @@
 #include "Utility.h"
 #include "Compression.h"
-#include "ProgramOptions.h"
 #include <cassert>
+#include <cstring>
 
 namespace utility {
 

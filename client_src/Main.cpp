@@ -51,15 +51,15 @@ int main() {
     const std::string outpuFileName = ProgramOptions::get("OutputFileName", std::string());
     std::ostream* dataStream = nullptr;
     std::ofstream dataFileStream;
-    unsigned maxNumberIterations = 0;
+    unsigned maxNumberTasks = 0;
     if (!outpuFileName.empty()) {
       dataFileStream.open(outpuFileName, std::ofstream::binary);
       dataStream = &dataFileStream;
-      maxNumberIterations = ProgramOptions::get("MaxNumberIterations", 100);
+      maxNumberTasks = ProgramOptions::get("MaxNumberTasks", 100);
     }
     else
-      maxNumberIterations = std::numeric_limits<unsigned int>::max();
-    if (!fifo::run(payload, runLoop, maxNumberIterations, dataStream, instrStream))
+      maxNumberTasks = std::numeric_limits<unsigned int>::max();
+    if (!fifo::run(payload, runLoop, maxNumberTasks, dataStream, instrStream))
       return 1;
   }
   catch (std::exception& e) {

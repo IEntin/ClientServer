@@ -125,7 +125,7 @@ void FifoRunnable::operator()() noexcept {
       // Instead we make this vector as well as 'Task::_rawInput' static thread_local.
       // With this we allocate only few times swapping with the vector of close and eventually
       // the same maximum required capacity. No more allocations happen until input pattern changes.
-      // We need to clear this vector on every iteration which does not change its capacity.
+      // We need to clear this vector on every task which does not change vector capacity.
       static thread_local std::vector<char> uncompressed;
       uncompressed.clear();
       if (!receiveRequest(uncompressed))

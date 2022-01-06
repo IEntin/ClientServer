@@ -7,8 +7,7 @@
   "Compression" : "LZ4",
   "DYNAMIC_BUFFER_SIZE" : 3600000,
   "Timing" : true,
-  "MergePayload" : true,
   "PrepareBatchOnce" : true,
   "RunLoop" : true,
-  "MaxNumberIterations" : 150
+  "MaxNumberTasks" : 150
 }

@@ -68,7 +68,7 @@ TEST(SplitTest, SplitTest1) {
   ASSERT_EQ(lines.size(), 10000);
 }
 
-TEST(FromCharsTest, FromCharsTest1) {
+TEST(FromCharsTest, Integral) {
   const std::string_view view = "123456789";
   int value = {};
   bool ok = utility::fromChars(view, value);
@@ -76,7 +76,7 @@ TEST(FromCharsTest, FromCharsTest1) {
   ASSERT_EQ(value, 123456789);
 }
 
-TEST(FromCharsTest, FromCharsTest2) {
+TEST(FromCharsTest, FloatingPoint) {
   const std::string_view view = "1234567.89";
   double value = {};
   bool ok = utility::fromChars(view, value);
