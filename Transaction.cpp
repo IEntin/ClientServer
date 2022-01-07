@@ -19,7 +19,6 @@ constexpr char KEYWORDS_END = '&';
 
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   const auto& winningBid = transaction._winningBid;
-  auto winningAdPtr = std::get<1>(winningBid).lock();
   os << transaction._id << ' ';
   if (Transaction::_diagnostics) {
     os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
@@ -38,6 +37,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
     else {
+      auto winningAdPtr = std::get<1>(winningBid).lock();
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << std::get<0>(winningBid) << ", "
 	 << utility::Print(std::get<2>(winningBid), 1) << "\n*****\n";
@@ -49,6 +49,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
     else {
+      auto winningAdPtr = std::get<1>(winningBid).lock();
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", "
 	 << utility::Print(std::get<2>(winningBid), 1) << '\n';
