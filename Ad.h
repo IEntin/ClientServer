@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #pragma once
 
 #include "Size.h"
@@ -6,8 +10,9 @@
 #include <vector>
 
 class Ad;
+using AdWeakPtr = std::weak_ptr<Ad>;
+using AdBid = std::tuple<std::string_view, AdWeakPtr, double>;
 using AdPtr = std::shared_ptr<Ad>;
-using AdBid = std::tuple<std::string_view, AdPtr, double>;
 using SizeMap = std::map<Size, std::vector<AdPtr>>;
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad);
@@ -19,7 +24,6 @@ public:
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load();
-  static void destroy();
   static const std::vector<AdPtr>& getAdsBySize(const Size& size);
 private:
   Ad(const Ad& other) = delete;

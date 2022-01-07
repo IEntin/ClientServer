@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Transaction.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
@@ -14,7 +18,8 @@ constexpr char KEYWORDS_END = '&';
 } // end of anonimous namespace
 
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
-  const auto& result = transaction._winningBid;
+  const auto& winningBid = transaction._winningBid;
+  auto winningAdPtr = std::get<1>(winningBid).lock();
   os << transaction._id << ' ';
   if (Transaction::_diagnostics) {
     os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
@@ -22,25 +27,32 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, adPtr, money] : transaction._bids)
+    for (const auto& [kw, adWeakPtr, money] : transaction._bids) {
+      AdPtr adPtr = adWeakPtr.lock();
+      assert(adPtr);
       os << *adPtr << " match:" << kw << ' ' << utility::Print(money, 1) << '\n';
+    }
     os << "summary:";
     if (transaction._noMatch)
       os << Transaction::EMPTY_REPLY << "*****\n";
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
-    else
-      os << std::get<1>(result)->getId() << ", " << std::get<0>(result) << ", "
-	 << utility::Print(std::get<2>(result), 1) << "\n*****\n";
+    else {
+      assert(winningAdPtr);
+      os << winningAdPtr->getId() << ", " << std::get<0>(winningBid) << ", "
+	 << utility::Print(std::get<2>(winningBid), 1) << "\n*****\n";
+    }
   }
   else {
     if (transaction._noMatch)
       os << Transaction::EMPTY_REPLY;
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
-    else
-      os << std::get<1>(result)->getId() << ", "
-	 << utility::Print(std::get<2>(result), 1) << '\n';
+    else {
+      assert(winningAdPtr);
+      os << winningAdPtr->getId() << ", "
+	 << utility::Print(std::get<2>(winningBid), 1) << '\n';
+    }
   }
   return os;
 }

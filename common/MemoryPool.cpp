@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "MemoryPool.h"
 #include "lz4.h"
 #include "ProgramOptions.h"

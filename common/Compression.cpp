@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Compression.h"
 #include "MemoryPool.h"
 #include "ProgramOptions.h"

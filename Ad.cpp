@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Ad.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
@@ -88,7 +92,7 @@ bool Ad::parseArray() {
       continue;
     if (money < EPSILON)
       money = _defaultBid;
-    _bids.push_back(std::make_tuple(vect[i], shared_from_this(), money));
+    _bids.push_back(std::make_tuple(vect[i], weak_from_this(), money));
   }
   std::sort(_bids.begin(), _bids.end(), [] (const AdBid& bid1, const AdBid& bid2) {
 	      return std::get<0>(bid1) < std::get<0>(bid2); });
@@ -136,10 +140,4 @@ bool Ad::load() {
     return false;
   }
   return true;
-}
-
-void Ad::destroy() {
-  for (auto& [key, value] : _mapBySize)
-    for (auto ptr : value)
-      ptr->_bids.clear();
 }

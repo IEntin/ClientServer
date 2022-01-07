@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Fifo.h"
 #include "Compression.h"
 #include "MemoryPool.h"
