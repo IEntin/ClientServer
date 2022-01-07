@@ -10,8 +10,7 @@
 #include <vector>
 
 class Ad;
-using AdWeakPtr = std::weak_ptr<Ad>;
-using AdBid = std::tuple<std::string_view, AdWeakPtr, double>;
+using AdBid = std::tuple<std::string_view, std::weak_ptr<Ad>, double>;
 using AdPtr = std::shared_ptr<Ad>;
 using SizeMap = std::map<Size, std::vector<AdPtr>>;
 
