@@ -1,4 +1,4 @@
-Copyright (c) 2021 Ilya Entin.
+Copyright (C) 2021 Ilya Entin.
 
 ### Fast Lockless Linux Clent-Server on Named Pipes.
 

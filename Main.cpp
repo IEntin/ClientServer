@@ -3,6 +3,11 @@
 #include "FifoRunnable.h"
 #include "ProgramOptions.h"
 #include "TaskRunnable.h"
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
+#include "Ad.h"
 #include "Transaction.h"
 #include <csignal>
 #include <iostream>
@@ -20,7 +25,7 @@ int main() {
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
   if (method == "Transaction") {
-    if (!Transaction::init())
+    if (!Ad::load())
 	return 1;
     processRequest = Transaction::processRequest;
   }
@@ -36,6 +41,7 @@ int main() {
     return 1;
   fifo::FifoRunnable::joinThreads();
   TaskRunnable::joinThreads();
+  Ad::destroy();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;

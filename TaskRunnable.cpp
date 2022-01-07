@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "TaskRunnable.h"
 #include "ProgramOptions.h"
 #include <cassert>

@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Size.h"
 #include "Utility.h"
 

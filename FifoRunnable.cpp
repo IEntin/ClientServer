@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "FifoRunnable.h"
 #include "Fifo.h"
 #include "ProgramOptions.h"

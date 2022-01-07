@@ -7,18 +7,19 @@
 
 class Ad;
 using AdPtr = std::shared_ptr<Ad>;
-using AdBid = std::tuple<std::string_view, Ad*, double>;
+using AdBid = std::tuple<std::string_view, AdPtr, double>;
 using SizeMap = std::map<Size, std::vector<AdPtr>>;
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad);
 
-class Ad {
+class Ad : public std::enable_shared_from_this<Ad> {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
 public:
   explicit Ad(std::string&& input) noexcept;
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load();
+  static void destroy();
   static const std::vector<AdPtr>& getAdsBySize(const Size& size);
 private:
   Ad(const Ad& other) = delete;

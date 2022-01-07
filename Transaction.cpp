@@ -67,10 +67,6 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-bool Transaction::init() {
-  return Ad::load();
-}
-
 std::string Transaction::processRequest(std::string_view view) noexcept {
   std::string id("[unknown]");
   try {

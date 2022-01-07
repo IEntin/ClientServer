@@ -11,7 +11,6 @@ class Transaction {
   friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
 public:
   static std::string processRequest(std::string_view) noexcept;
-  static bool init();
 private:
   explicit Transaction(std::string_view input);
   explicit Transaction(const Transaction& other) = delete;

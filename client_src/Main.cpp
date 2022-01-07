@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Chronometer.h"
 #include "FifoClient.h"
 #include "ProgramOptions.h"
