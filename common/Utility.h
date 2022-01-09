@@ -115,4 +115,12 @@ void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_vi
 
 HEADER decodeHeader(std::string_view buffer, bool done);
 
+std::string createRequestId(size_t index);
+
+bool preparePackage(const Batch& payload, Batch& modified);
+
+bool mergePayload(const Batch& batch, Batch& aggregatedBatch);
+
+bool buildMessage(const Batch& payload, Batch& message);
+
 } // end of namespace utility

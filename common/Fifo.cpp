@@ -166,6 +166,32 @@ bool Fifo::readBatch(int fd,
   return true;
 }
 
+bool Fifo::readBatch(int fd,
+		     size_t uncomprSize,
+		     size_t comprSize,
+		     bool bcompressed,
+		     std::ostream* pstream) {
+  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
+  if (!readString(fd, buffer.data(), comprSize)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  std::string_view received(buffer.data(), comprSize);
+  std::ostream& stream = pstream ? *pstream : std::cout;
+  if (bcompressed) {
+    std::string_view dstView = Compression::uncompress(received, uncomprSize);
+    if (dstView.empty()) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":failed to uncompress payload" << std::endl;
+      return false;
+    }
+    stream << dstView; 
+  }
+  else
+    stream << received;
+  return true;
+}
+
 bool Fifo::readVectorChar(int fd,
 			  size_t uncomprSize,
 			  size_t comprSize,
