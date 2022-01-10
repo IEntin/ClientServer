@@ -38,7 +38,7 @@ HEADER decodeHeader(std::string_view buffer, bool done) {
 std::string createRequestId(size_t index) {
   char arr[CONV_BUFFER_SIZE] = { '[' };
   auto [ptr, ec] = std::to_chars(arr + 1, arr + CONV_BUFFER_SIZE, index);
-  assert(ec == std::errc());
+  assert(ec == std::errc() && ptr - arr < CONV_BUFFER_SIZE);
   *ptr = ']';
   return arr;
 }
@@ -74,8 +74,7 @@ bool mergePayload(const Batch& batch, Batch& aggregatedBatch) {
     else {
       reserveSize = std::max(reserveSize, bigString.size());
       aggregatedBatch.push_back(std::move(bigString));
-      bigString.clear();
-      bigString.assign(line);
+      bigString.assign(std::move(line));
     }
   }
   if (!bigString.empty())
@@ -95,12 +94,12 @@ bool buildMessage(const Batch& payload, Batch& message) {
       std::string_view dstView = Compression::compress(str);
       if (dstView.empty())
 	return false;
-      utility::encodeHeader(array, uncomprSize, dstView.size(), compressor);
+      encodeHeader(array, uncomprSize, dstView.size(), compressor);
       message.back().reserve(HEADER_SIZE + dstView.size() + 1);
       message.back().append(array, HEADER_SIZE).append(dstView);
     }
     else {
-      utility::encodeHeader(array, uncomprSize, uncomprSize, compressor);
+      encodeHeader(array, uncomprSize, uncomprSize, compressor);
       message.back().reserve(HEADER_SIZE + str.size() + 1);
       message.back().append(array, HEADER_SIZE).append(str);
     }
