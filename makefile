@@ -45,25 +45,21 @@ ifeq ($(PROFILE), 1)
 	PROFBLD=-fno-omit-frame-pointer -pg
 endif
 
-BOOSTDIR:=/usr/local/boost_1_78_0
-BOOSTLIBDIR:=$(BOOSTDIR)/stage/lib/
-BOOST_INCLUDE:=-I$(BOOSTDIR)
-
 WARNINGS = -Wall -pedantic-errors
 
-SERVERINCLUDES:=-I. -Icommon $(BOOST_INCLUDE) 
+SERVERINCLUDES:=-I. -Icommon 
 SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp)
 
 server : $(SERVERSOURCES) *.h common/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
 
-CLIENTINCLUDES = -Iclient_src -Icommon $(BOOST_INCLUDE) 
+CLIENTINCLUDES = -Iclient_src -Icommon 
 CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 
 $(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/FifoClient.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 
-TESTINCLUDES = -Iclient_src -Icommon $(BOOST_INCLUDE) 
+TESTINCLUDES = -Iclient_src -Icommon 
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp)
 
 $(TESTDIR)/runtests : $(TESTSOURCES)
