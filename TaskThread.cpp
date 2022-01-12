@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "TaskRunnable.h"
+#include "TaskThread.h"
 #include "ProgramOptions.h"
 #include <cassert>
 #include <iostream>
@@ -18,12 +18,12 @@ unsigned getNumberTaskThreads() {
 
 } // end of anonimous namespace
 
-const bool TaskRunnable::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-TaskPtrSV TaskRunnable::_taskSV(_useStringView ? std::make_shared<TaskSV>() : TaskPtrSV());
-TaskPtrST TaskRunnable::_taskST(_useStringView ? TaskPtrST() : std::make_shared<TaskST>());
-unsigned TaskRunnable::_numberTaskThreads = getNumberTaskThreads();
-std::barrier<CompletionFunction> TaskRunnable::_barrier(_numberTaskThreads, onTaskFinish);
-std::vector<std::thread> TaskRunnable::_taskThreads;
+const bool TaskThread::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
+TaskPtrSV TaskThread::_taskSV(_useStringView ? std::make_shared<TaskSV>() : TaskPtrSV());
+TaskPtrST TaskThread::_taskST(_useStringView ? TaskPtrST() : std::make_shared<TaskST>());
+unsigned TaskThread::_numberTaskThreads = getNumberTaskThreads();
+std::barrier<CompletionFunction> TaskThread::_barrier(_numberTaskThreads, onTaskFinish);
+std::vector<std::thread> TaskThread::_taskThreads;
 
 template<typename T>
 void finishTask(T& task) {
@@ -35,7 +35,7 @@ void finishTask(T& task) {
 // Completion action is run by only one (any) blocked thread.
 // Here the "first" thread is selected.
 
-void TaskRunnable::onTaskFinish() noexcept {
+void TaskThread::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _taskThreads.front().get_id()) {
     if (_useStringView)
       finishTask(_taskSV);
@@ -48,7 +48,7 @@ void TaskRunnable::onTaskFinish() noexcept {
 // Only one task is processed at any given time.
 
 template<typename T>
-void TaskRunnable::processTask(T& task, ProcessRequest processRequest) {
+void TaskThread::processTask(T& task, ProcessRequest processRequest) {
   while (!stopFlag) {
     auto [view, atEnd, index] = task->next();
     if (!atEnd) {
@@ -66,7 +66,7 @@ void TaskRunnable::processTask(T& task, ProcessRequest processRequest) {
   }
 }
 
-bool TaskRunnable::startThreads(ProcessRequest processRequest) {
+bool TaskThread::startThreads(ProcessRequest processRequest) {
   for (unsigned i = 0; i < _numberTaskThreads; ++i)
     _taskThreads.emplace_back([processRequest] () {
 				if (_useStringView)
@@ -76,7 +76,7 @@ bool TaskRunnable::startThreads(ProcessRequest processRequest) {
   return true;
 }
 
-void TaskRunnable::joinThreads() {
+void TaskThread::joinThreads() {
   stopFlag.store(true);
   if (_useStringView)
     TaskSV::push(std::make_shared<TaskSV>());

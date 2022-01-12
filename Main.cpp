@@ -5,9 +5,9 @@
 #include "Ad.h"
 #include "Chronometer.h"
 #include "Echo.h"
-#include "FifoRunnable.h"
+#include "FifoServer.h"
 #include "ProgramOptions.h"
-#include "TaskRunnable.h"
+#include "TaskThread.h"
 #include "Transaction.h"
 #include <csignal>
 #include <iostream>
@@ -16,7 +16,7 @@ const bool timing = ProgramOptions::get("Timing", false);
 Chronometer chronometer(timing, __FILE__, __LINE__);
 
 void signalHandler(int signal) {
-  fifo::FifoRunnable::stop();
+  fifo::FifoServer::stop();
 }
 
 int main() {
@@ -35,12 +35,12 @@ int main() {
     std::cerr << "No valid processRequest definition provided" << std::endl;
     return 1;
   }
-  if (!fifo::FifoRunnable::startThreads())
+  if (!fifo::FifoServer::startThreads())
     return 1;
-  if (!TaskRunnable::startThreads(processRequest))
+  if (!TaskThread::startThreads(processRequest))
     return 1;
-  fifo::FifoRunnable::joinThreads();
-  TaskRunnable::joinThreads();
+  fifo::FifoServer::joinThreads();
+  TaskThread::joinThreads();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;

@@ -13,8 +13,8 @@ using Batch = std::vector<std::string>;
 
 namespace fifo {
 
-class FifoRunnable {
-  static std::vector<FifoRunnable> _runnables;
+class FifoServer {
+  static std::vector<FifoServer> _runnables;
   static std::vector<std::thread> _threads;
   static const std::string _fifoDirectoryName;
   static volatile std::atomic<bool> _stopFlag;
@@ -26,8 +26,8 @@ class FifoRunnable {
     bool receiveRequest(C& batch);
   bool sendResponse(Batch& response);
 public:
-  FifoRunnable(const std::string& receiveFifoName);
-  ~FifoRunnable();
+  FifoServer(const std::string& receiveFifoName);
+  ~FifoServer();
   void operator()() noexcept;
   static bool startThreads();
   static void joinThreads();

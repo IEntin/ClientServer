@@ -13,21 +13,21 @@
 using Batch = std::vector<std::string>;
 
 template<class T>
-class TaskTemplate;
+class Task;
 
 template<class T>
-using TaskTemplatePtr = std::shared_ptr<TaskTemplate<T>>;
+using TaskPtr = std::shared_ptr<Task<T>>;
 
 template <typename T>
 using Requests = std::vector<T>;
 
 template <typename T>
-class TaskTemplate {
-  TaskTemplate(const TaskTemplate& other) = delete;
-  TaskTemplate& operator =(const TaskTemplate& other) = delete;
+class Task {
+  Task(const Task& other) = delete;
+  Task& operator =(const Task& other) = delete;
   static std::mutex _queueMutex;
   static std::condition_variable _queueCondition;
-  static std::queue<TaskTemplatePtr<T>> _queue;
+  static std::queue<TaskPtr<T>> _queue;
   std::string _address;
   Requests<T> _storage;
   static thread_local std::vector<char> _rawInput;
@@ -36,15 +36,15 @@ class TaskTemplate {
   Batch& _response;
   static Batch _emptyBatch;
  public:
-  TaskTemplate() : _response(_emptyBatch) {}
+  Task() : _response(_emptyBatch) {}
 
-  TaskTemplate(std::string_view address, Batch& input, Batch& response) :
+  Task(std::string_view address, Batch& input, Batch& response) :
     _address(address), _response(response) {
     input.swap(_storage);
     _response.resize(_storage.size());
   }
 
-  TaskTemplate(std::string_view address, std::vector<char>& input, Batch& response) :
+  Task(std::string_view address, std::vector<char>& input, Batch& response) :
     _address(address), _response(response) {
     input.swap(_rawInput);
     static size_t maxNumberRequests = 1;
@@ -71,13 +71,13 @@ class TaskTemplate {
       return std::make_tuple(std::string_view(), true, 0);
   }
 
-  static void push(TaskTemplatePtr<T> task) {
+  static void push(TaskPtr<T> task) {
     std::lock_guard lock(_queueMutex);
     _queue.push(task);
     _queueCondition.notify_all();
   }
 
-  static TaskTemplatePtr<T> get() {
+  static TaskPtr<T> get() {
     std::unique_lock lock(_queueMutex);
     _queueCondition.wait(lock, [] { return !_queue.empty(); });
     auto task = _queue.front();
@@ -102,7 +102,7 @@ class TaskTemplate {
   template<typename I>
   static void process(std::string_view address, I& input, Batch& response) {
     try {
-      TaskTemplatePtr<T> task = std::make_shared<TaskTemplate>(address, input, response);
+      TaskPtr<T> task = std::make_shared<Task>(address, input, response);
       auto future = task->_promise.get_future();
       push(task);
       future.get();
@@ -114,13 +114,13 @@ class TaskTemplate {
   }
 };
 
-template <typename T> std::mutex TaskTemplate<T>::_queueMutex;
-template <typename T> std::condition_variable TaskTemplate<T>::_queueCondition;
-template <typename T> std::queue<TaskTemplatePtr<T>> TaskTemplate<T>::_queue;
-template <typename T> thread_local std::vector<char> TaskTemplate<T>::_rawInput;
-template <typename T> Batch TaskTemplate<T>::_emptyBatch;
+template <typename T> std::mutex Task<T>::_queueMutex;
+template <typename T> std::condition_variable Task<T>::_queueCondition;
+template <typename T> std::queue<TaskPtr<T>> Task<T>::_queue;
+template <typename T> thread_local std::vector<char> Task<T>::_rawInput;
+template <typename T> Batch Task<T>::_emptyBatch;
 
-using TaskSV = TaskTemplate<std::string_view>;
-using TaskST = TaskTemplate<std::string>;
+using TaskSV = Task<std::string_view>;
+using TaskST = Task<std::string>;
 using TaskPtrSV = std::shared_ptr<TaskSV>;
 using TaskPtrST = std::shared_ptr<TaskST>;

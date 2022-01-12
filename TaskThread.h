@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "TaskTemplate.h"
+#include "Task.h"
 #include <barrier>
 #include <vector>
 
@@ -12,13 +12,13 @@ using ProcessRequest = std::string (*)(std::string_view);
 
 using CompletionFunction = void (*) () noexcept;
 
-class TaskRunnable {
+class TaskThread {
 public:
   static bool startThreads(ProcessRequest processRequest);
   static void joinThreads();
 private:
-  TaskRunnable() = delete;
-  ~TaskRunnable() = delete;
+  TaskThread() = delete;
+  ~TaskThread() = delete;
   static void onTaskFinish() noexcept;
   template<typename T>
     static void processTask(T& task, ProcessRequest processRequest);

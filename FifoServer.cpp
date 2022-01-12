@@ -2,10 +2,10 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "FifoRunnable.h"
+#include "FifoServer.h"
 #include "Fifo.h"
 #include "ProgramOptions.h"
-#include "TaskTemplate.h"
+#include "Task.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -14,22 +14,22 @@
 
 namespace fifo {
 
-std::vector<FifoRunnable> FifoRunnable::_runnables;
-std::vector<std::thread> FifoRunnable::_threads;
-const std::string FifoRunnable::_fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
-volatile std::atomic<bool> FifoRunnable::_stopFlag(false);
-std::promise<void> FifoRunnable::_stopPromise;
+std::vector<FifoServer> FifoServer::_runnables;
+std::vector<std::thread> FifoServer::_threads;
+const std::string FifoServer::_fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
+volatile std::atomic<bool> FifoServer::_stopFlag(false);
+std::promise<void> FifoServer::_stopPromise;
 
-FifoRunnable::FifoRunnable(const std::string& fifoName) :
+FifoServer::FifoServer(const std::string& fifoName) :
   _fifoName(fifoName) {}
 
-FifoRunnable::~FifoRunnable() {
+FifoServer::~FifoServer() {
   close(_fdRead);
   close(_fdWrite);
 }
 
 // start threads - one for each client
-bool FifoRunnable::startThreads() {
+bool FifoServer::startThreads() {
   // in case there was no proper shudown.
   removeFifoFiles();
   std::string fifoBaseNamesStr = ProgramOptions::get("FifoBaseNames", std::string());
@@ -53,7 +53,7 @@ bool FifoRunnable::startThreads() {
   return true;
 }
 
-void FifoRunnable::stop() {
+void FifoServer::stop() {
   _stopFlag.store(true);
   try {
     _stopPromise.set_value();
@@ -64,7 +64,7 @@ void FifoRunnable::stop() {
   }
 }
 
-void FifoRunnable::joinThreads() {
+void FifoServer::joinThreads() {
   auto future = _stopPromise.get_future();
   future.get();
   for (auto& runnable : _runnables) {
@@ -89,11 +89,11 @@ void FifoRunnable::joinThreads() {
 	    << " ... fifoThreads joined ..." << std::endl;
   // silence valgrind.
   std::vector<std::thread>().swap(_threads);
-  std::vector<FifoRunnable>().swap(FifoRunnable::_runnables);
+  std::vector<FifoServer>().swap(FifoServer::_runnables);
 }
 
 template <typename C>
-bool FifoRunnable::receiveRequest(C& batch) {
+bool FifoServer::receiveRequest(C& batch) {
   close(_fdWrite);
   _fdWrite = -1;
   if (!_stopFlag) {
@@ -107,7 +107,7 @@ bool FifoRunnable::receiveRequest(C& batch) {
   return Fifo::receive(_fdRead, batch) && !batch.empty();
 }
 
-bool FifoRunnable::sendResponse(Batch& response) {
+bool FifoServer::sendResponse(Batch& response) {
   close(_fdRead);
   _fdRead = -1;
   if (!_stopFlag) {
@@ -121,7 +121,7 @@ bool FifoRunnable::sendResponse(Batch& response) {
   return Fifo::sendReply(_fdWrite, response);
 }
 
-void FifoRunnable::operator()() noexcept {
+void FifoServer::operator()() noexcept {
   static const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
   if (useStringView) {
     while (!_stopFlag) {
@@ -153,7 +153,7 @@ void FifoRunnable::operator()() noexcept {
   }
 }
 
-void FifoRunnable::removeFifoFiles() {
+void FifoServer::removeFifoFiles() {
   for(auto const& entry : std::filesystem::directory_iterator(_fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
