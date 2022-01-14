@@ -1,4 +1,5 @@
 {
+  "CommunicationType" : "FIFO",
   "StringTypeInTask" : "STRINGVIEW",
   "AdsFileName" : "ads.txt",
   "ProcessRequestMethod" : "Transaction",
@@ -8,5 +9,7 @@
   "DYNAMIC_BUFFER_SIZE" : 3600000,
   "Timing" : true,
   "FifoDirectoryName" : "/home/ilya/Fifos",
-  "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
+  "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5",
+  "TcpPorts" : "49152, 49153 49154 49155 49156",
+  "Timeout" : 5
 }

@@ -4,14 +4,11 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <boost/asio.hpp>
 
-namespace fifo {
+namespace tcp {
 
 using Batch = std::vector<std::string>;
-
-bool receive(int fd, std::ostream* dataStream);
 
 bool run(const Batch& payload,
 	 bool runLoop,
@@ -19,6 +16,9 @@ bool run(const Batch& payload,
 	 std::ostream* dataStream,
 	 std::ostream* instrStream);
 
-bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* pstream);
+bool processTask(const std::string& tcpPort,
+		 boost::asio::ip::tcp::socket& socket,
+		 const Batch& payload,
+		 std::ostream* dataStream);
 
-} // end of namespace fifo
+} // end of namespace tcp

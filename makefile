@@ -56,7 +56,7 @@ server : $(SERVERSOURCES) *.h common/*.h
 CLIENTINCLUDES = -Iclient_src -Icommon 
 CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 
-$(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/FifoClient.h
+$(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 
 TESTINCLUDES = -Iclient_src -Icommon 

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <future>
 #include <string>
 #include <thread>
 #include <vector>
@@ -17,8 +16,6 @@ class FifoServer {
   static std::vector<FifoServer> _runnables;
   static std::vector<std::thread> _threads;
   static const std::string _fifoDirectoryName;
-  static volatile std::atomic<bool> _stopFlag;
-  static std::promise<void> _stopPromise;
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
@@ -31,7 +28,6 @@ public:
   void operator()() noexcept;
   static bool startThreads();
   static void joinThreads();
-  static void stop();
   static void removeFifoFiles();
 };
 

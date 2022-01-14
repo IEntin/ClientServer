@@ -3,6 +3,7 @@
  */
 
 #include "Ad.h"
+#include "AsioServer.h"
 #include "Chronometer.h"
 #include "Echo.h"
 #include "FifoServer.h"
@@ -12,16 +13,37 @@
 #include <csignal>
 #include <iostream>
 
-const bool timing = ProgramOptions::get("Timing", false);
-Chronometer chronometer(timing, __FILE__, __LINE__);
+volatile std::atomic<bool> stopFlag = false;
+
+namespace {
+
+std::promise<void> stopPromise;
+
+} // end of anonimous namespace
+
+void stop() {
+  try {
+    stopPromise.set_value();
+  }
+  catch (std::future_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+  }
+}
 
 void signalHandler(int signal) {
-  fifo::FifoServer::stop();
+  stopFlag.store(true);
+  stop();
 }
 
 int main() {
   signal(SIGPIPE, SIG_IGN);
   std::signal(SIGINT, signalHandler);
+  const bool timing = ProgramOptions::get("Timing", false);
+  Chronometer chronometer(timing, __FILE__, __LINE__);
+  const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
+  const bool useFifo = communicationType == "FIFO";
+  const bool useTcp = communicationType == "TCP";
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
   if (method == "Transaction") {
@@ -35,11 +57,19 @@ int main() {
     std::cerr << "No valid processRequest definition provided" << std::endl;
     return 1;
   }
-  if (!fifo::FifoServer::startThreads())
-    return 1;
+  if (useFifo)
+    if (!fifo::FifoServer::startThreads())
+      return 1;
+  if (useTcp)
+    AsioServer::startServers();
   if (!TaskThread::startThreads(processRequest))
     return 1;
-  fifo::FifoServer::joinThreads();
+  auto future = stopPromise.get_future();
+  future.get();
+  if (useFifo)
+    fifo::FifoServer::joinThreads();
+  if (useTcp)
+    AsioServer::joinThread();
   TaskThread::joinThreads();
   int ret = fcloseall();
   assert(ret == 0);

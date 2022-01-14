@@ -12,13 +12,13 @@
 #include <iostream>
 #include <sys/stat.h>
 
+extern volatile std::atomic<bool> stopFlag;
+
 namespace fifo {
 
 std::vector<FifoServer> FifoServer::_runnables;
 std::vector<std::thread> FifoServer::_threads;
 const std::string FifoServer::_fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
-volatile std::atomic<bool> FifoServer::_stopFlag(false);
-std::promise<void> FifoServer::_stopPromise;
 
 FifoServer::FifoServer(const std::string& fifoName) :
   _fifoName(fifoName) {}
@@ -53,20 +53,7 @@ bool FifoServer::startThreads() {
   return true;
 }
 
-void FifoServer::stop() {
-  _stopFlag.store(true);
-  try {
-    _stopPromise.set_value();
-  }
-  catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
-  }
-}
-
 void FifoServer::joinThreads() {
-  auto future = _stopPromise.get_future();
-  future.get();
   for (auto& runnable : _runnables) {
     int fd = open(runnable._fifoName.c_str(), O_WRONLY);
     if (fd == -1) {
@@ -96,7 +83,7 @@ template <typename C>
 bool FifoServer::receiveRequest(C& batch) {
   close(_fdWrite);
   _fdWrite = -1;
-  if (!_stopFlag) {
+  if (!stopFlag) {
     _fdRead = open(_fifoName.c_str(), O_RDONLY);
     if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -110,7 +97,7 @@ bool FifoServer::receiveRequest(C& batch) {
 bool FifoServer::sendResponse(Batch& response) {
   close(_fdRead);
   _fdRead = -1;
-  if (!_stopFlag) {
+  if (!stopFlag) {
     _fdWrite = open(_fifoName.c_str(), O_WRONLY);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -124,7 +111,7 @@ bool FifoServer::sendResponse(Batch& response) {
 void FifoServer::operator()() noexcept {
   static const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
   if (useStringView) {
-    while (!_stopFlag) {
+    while (!stopFlag) {
       // We cannot use MemoryPool because vector 'uncompressed' will be swapped with 'Task::_rawInput'.
       // Instead we make this vector as well as 'Task::_rawInput' static thread_local.
       // With this we allocate only few times swapping with the vector of close and eventually
@@ -141,7 +128,7 @@ void FifoServer::operator()() noexcept {
     }
   }
   else {
-    while (!_stopFlag) {
+    while (!stopFlag) {
       Batch batch;
       if (!receiveRequest(batch))
 	break;

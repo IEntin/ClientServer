@@ -2,15 +2,19 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "AsioClient.h"
 #include "Chronometer.h"
 #include "FifoClient.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
+#include <atomic>
 #include <csignal>
 #include <iostream>
 
+volatile std::atomic<bool> stopFlag = false;
+
 void signalHandler(int signal) {
-  fifo::stop();
+  stopFlag.store(true);
 }
 
 size_t createPayload(Batch& payload) {
@@ -32,6 +36,9 @@ size_t createPayload(Batch& payload) {
 }
 
 int main() {
+  const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
+  const bool useFifo = communicationType == "FIFO";
+  const bool useTcp = communicationType == "TCP";
   try {
     const bool timing = ProgramOptions::get("Timing", false);
     const std::string instrumentationFn = ProgramOptions::get("InstrumentationFn", std::string());
@@ -63,8 +70,12 @@ int main() {
     }
     else
       maxNumberTasks = std::numeric_limits<unsigned int>::max();
-    if (!fifo::run(payload, runLoop, maxNumberTasks, dataStream, instrStream))
-      return 1;
+    if (useFifo)
+      if (!fifo::run(payload, runLoop, maxNumberTasks, dataStream, instrStream))
+	return 1;
+    if (useTcp)
+      if (!tcp::run(payload, runLoop, maxNumberTasks, dataStream, instrStream))
+	return 1;
   }
   catch (std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '

@@ -1,4 +1,5 @@
 {
+  "CommunicationType" : "FIFO",
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseName" : "Client1",
   "SourceName" : "requests.log",
@@ -9,5 +10,7 @@
   "Timing" : true,
   "PrepareBatchOnce" : true,
   "RunLoop" : true,
-  "MaxNumberTasks" : 150
+  "MaxNumberTasks" : 150,
+  "ServerHost" : "localhost",
+  "TcpPort" : "49152"
 }

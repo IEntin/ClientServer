@@ -11,13 +11,9 @@
 #include <atomic>
 #include <fcntl.h>
 
+extern volatile std::atomic<bool> stopFlag;
+
 namespace fifo {
-
-namespace {
-
-volatile std::atomic<bool> stopFlag = false;
-
-} // end of anonimous namespace
 
 bool receive(int fd, std::ostream* dataStream) {
   auto [uncomprSize, comprSize, compressor, headerDone] = Fifo::readHeader(fd);
@@ -81,8 +77,7 @@ bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* 
   return true;
 }
 
-// client fifo loop
-// to run a test infinite loop must keep payload unchanged.
+// To run a test infinite loop must keep payload unchanged.
 // in a real setup payload is used once and vector is mutable.
 bool run(const Batch& payload,
 	 bool runLoop,
@@ -104,10 +99,6 @@ bool run(const Batch& payload,
       break;
   } while (runLoop);
   return true;
-}
-
-void stop() {
-  stopFlag.store(true);
 }
 
 } // end of namespace fifo
