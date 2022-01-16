@@ -16,9 +16,14 @@ bool run(const Batch& payload,
 	 std::ostream* dataStream,
 	 std::ostream* instrStream);
 
-bool processTask(const std::string& tcpPort,
-		 boost::asio::ip::tcp::socket& socket,
+bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
 		 std::ostream* dataStream);
+
+bool readReply(boost::asio::ip::tcp::socket& socket,
+	       size_t uncomprSize,
+	       size_t comprSize,
+	       bool bcompressed,
+	       std::ostream* pstream);
 
 } // end of namespace tcp

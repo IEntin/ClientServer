@@ -2,9 +2,10 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "AsioClient.h"
+#include "TcpClient.h"
 #include "Chronometer.h"
 #include "Compression.h"
+#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
 #include <iostream>
@@ -13,8 +14,7 @@ extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
-bool processTask(const std::string& tcpPort,
-		 boost::asio::ip::tcp::socket& socket,
+bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
 		 std::ostream* dataStream) {
   // keep vector capacity
@@ -23,7 +23,7 @@ bool processTask(const std::string& tcpPort,
   // used with "RunLoop" : true
   static bool prepareOnce = ProgramOptions::get("PrepareBatchOnce", false);
   if (prepareOnce) {
-    static bool done[[maybe_unused]] = utility::preparePackage(payload, modified);
+    static bool done = utility::preparePackage(payload, modified);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
@@ -39,12 +39,11 @@ bool processTask(const std::string& tcpPort,
     char header[HEADER_SIZE + 1] = {};
     memset(header, 0, HEADER_SIZE);
     boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE));
-    HEADER t = utility::decodeHeader(std::string_view(header, HEADER_SIZE), true);
-    size_t replySize = std::get<1>(t);
-    std::vector<char> reply(replySize);
-    size_t transferred = boost::asio::read(socket, boost::asio::buffer(reply));
-    std::cout.write(reply.data(), transferred);
-    std::cout << std::endl;
+    auto [uncomprSize, comprSize, compressor, done] = utility::decodeHeader(std::string_view(header, HEADER_SIZE), true);
+    if (!done)
+      return false;
+    if (!readReply(socket, uncomprSize, comprSize, compressor == LZ4, dataStream))
+      return false;
   }
   return true;
 }
@@ -65,7 +64,7 @@ bool run(const Batch& payload,
     boost::asio::connect(socket, resolver.resolve(serverHost, tcpPort));
     do {
       Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
-      if (!processTask(tcpPort, socket, payload, dataStream))
+      if (!processTask(socket, payload, dataStream))
 	return false;
       // limit output file size
       if (++numberTasks == maxNumberTasks)
@@ -75,6 +74,33 @@ bool run(const Batch& payload,
   catch (std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
   }
+  return true;
+}
+
+bool readReply(boost::asio::ip::tcp::socket& socket,
+	       size_t uncomprSize,
+	       size_t comprSize,
+	       bool bcompressed,
+	       std::ostream* pstream) {
+  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize);
+  size_t transferred = boost::asio::read(socket, boost::asio::buffer(buffer, comprSize));
+  if (transferred != comprSize) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    return false;
+  }
+  std::string_view received(buffer.data(), comprSize);
+  std::ostream& stream = pstream ? *pstream : std::cout;
+  if (bcompressed) {
+    std::string_view dstView = Compression::uncompress(received, uncomprSize);
+    if (dstView.empty()) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":failed to uncompress payload" << std::endl;
+      return false;
+    }
+    stream << dstView; 
+  }
+  else
+    stream << received;
   return true;
 }
 

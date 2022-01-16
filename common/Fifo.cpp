@@ -3,6 +3,7 @@
  */
 
 #include "Fifo.h"
+#include "CommUtility.h"
 #include "Compression.h"
 #include "MemoryPool.h"
 #include <cstring>
@@ -50,32 +51,9 @@ HEADER Fifo::readHeader(int fd) {
 }
 
 bool Fifo::sendReply(int fd, Batch& batch) {
-  if (batch.empty())
+  std::string_view sendView = commutility::buildReply(batch);
+  if (sendView.empty())
     return false;
-  static const auto[compressor, enabled] = Compression::isCompressionEnabled();
-  size_t uncomprSize = 0;
-  for (const auto& chunk : batch)
-    uncomprSize += chunk.size();
-  size_t requestedSize = Compression::getCompressBound(uncomprSize) + HEADER_SIZE;
-  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(requestedSize);
-  buffer.resize(uncomprSize + HEADER_SIZE);
-  size_t pos = HEADER_SIZE;
-  for (const auto& chunk : batch) {
-    std::copy(chunk.cbegin(), chunk.cend(), buffer.begin() + pos);
-    pos += chunk.size();
-  }
-  std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
-  if (enabled) {
-    std::string_view dstView = Compression::compress(uncompressedView);
-    if (dstView.empty())
-      return false;
-    buffer.resize(HEADER_SIZE + dstView.size());
-    utility::encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor);
-    std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
-  }
-  else
-    utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
-  std::string_view sendView(buffer.cbegin(), buffer.cend());
   if (fd == -1)
     return false;
   if (!writeString(fd, sendView)) {

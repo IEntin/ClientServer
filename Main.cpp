@@ -3,12 +3,12 @@
  */
 
 #include "Ad.h"
-#include "AsioServer.h"
 #include "Chronometer.h"
 #include "Echo.h"
 #include "FifoServer.h"
 #include "ProgramOptions.h"
 #include "TaskThread.h"
+#include "TcpServer.h"
 #include "Transaction.h"
 #include <csignal>
 #include <iostream>
@@ -61,7 +61,7 @@ int main() {
     if (!fifo::FifoServer::startThreads())
       return 1;
   if (useTcp)
-    AsioServer::startServers();
+    TcpServer::startServers();
   if (!TaskThread::startThreads(processRequest))
     return 1;
   auto future = stopPromise.get_future();
@@ -69,7 +69,7 @@ int main() {
   if (useFifo)
     fifo::FifoServer::joinThreads();
   if (useTcp)
-    AsioServer::joinThread();
+    TcpServer::joinThread();
   TaskThread::joinThreads();
   int ret = fcloseall();
   assert(ret == 0);
