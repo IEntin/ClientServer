@@ -22,35 +22,33 @@ void Session::start() {
 }
 
 bool Session::onReceiveRequest() {
+  Batch response;
   if (_useStringView) {
-    static thread_local std::vector<char> uncompressed;
-    while (!stopFlag) {
-      Batch response;
-      auto [uncomprSize, comprSize, compressor, done] =
-	utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
-      bool bCompressed = compressor == LZ4;
-      if (bCompressed) {
-	if (!decompress(uncomprSize, uncompressed))
-	  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		    << ":decompression failed" << std::endl;
-	TaskSV::process(_port, uncompressed, response);
+    static std::vector<char> uncompressed;
+    uncompressed.clear();
+    auto [uncomprSize, comprSize, compressor, done] =
+      utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
+    bool bCompressed = compressor == LZ4;
+    if (bCompressed) {
+      if (!decompress(uncomprSize, uncompressed)) {
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << ":decompression failed" << std::endl;
+	return false;
       }
-      else
-	TaskSV::process(_port, _request, response);
-      if (!sendReply(response))
-	break;
+      TaskSV::process(_port, uncompressed, response);
     }
+    else
+      TaskSV::process(_port, _request, response);
+    if (!sendReply(response))
+      return false;
   }
   else {
-    while (!stopFlag) {
-      Batch batch;
-      //if (!receiveRequest(batch))
-      //break;
-      Batch response;
-      TaskST::process(_port, batch, response);
-      if (!sendReply(response))
-	break;
-    }
+    Batch batch;
+    //if (!receiveRequest(batch))
+    //break;
+    TaskST::process(_port, batch, response);
+    if (!sendReply(response))
+      return false;
   }
   return true;
 }
