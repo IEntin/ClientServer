@@ -9,6 +9,8 @@
 #include <memory>
 #include <boost/asio.hpp>
 
+namespace tcp {
+
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class Session : public std::enable_shared_from_this<Session> {
@@ -67,3 +69,5 @@ private:
 
   static std::list<TcpServer> _servers;
 };
+
+} // end of namespace tcp

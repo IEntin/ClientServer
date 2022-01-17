@@ -11,6 +11,8 @@
 
 extern volatile std::atomic<bool> stopFlag;
 
+namespace tcp {
+
 const bool Session::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
 
 Session::Session(const std::string& port, boost::asio::ip::tcp::socket socket)
@@ -211,3 +213,5 @@ void  TcpServer::joinThread() {
 	      << " ... _thread joined ..." << std::endl;
   }
 }
+
+} // end of namespace tcp

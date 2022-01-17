@@ -7,6 +7,6 @@ using Batch = std::vector<std::string>;
 
 namespace commutility {
 
-std::string_view buildReply(Batch& batch);
+std::string_view buildReply(const Batch& batch);
 
  } // end of namespace commutility

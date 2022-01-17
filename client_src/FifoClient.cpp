@@ -33,7 +33,7 @@ bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* 
   // used with "RunLoop" : true
   static bool prepareOnce = ProgramOptions::get("PrepareBatchOnce", false);
   if (prepareOnce) {
-    static bool done[[maybe_unused]] = utility::preparePackage(payload, modified);
+    static bool done = utility::preparePackage(payload, modified);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;

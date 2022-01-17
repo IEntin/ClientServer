@@ -5,7 +5,7 @@
 
 namespace commutility {
 
-std::string_view buildReply(Batch& batch) {
+std::string_view buildReply(const Batch& batch) {
   static std::string_view empty;
   if (batch.empty())
     return empty;

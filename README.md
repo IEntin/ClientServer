@@ -1,8 +1,9 @@
 Copyright (C) 2021 Ilya Entin.
 
-### Fast Linux Lockless Clent-Server with Named Pipes and TCP clients
+### Fast Linux Lockless Clent-Server with FIFO and TCP clients
 
-This server can work with both tcp and fifo clients at the same time.\
+This server can work with multiple mixed tcp and fifo clients.
+
 TCP communication layer is using boost Asio library.
 
 Fifo provides better performance and arguably stronger security than tcp.\
@@ -16,11 +17,11 @@ is small for large batches when reopening is relatively rare.
 
 Lockless. Processing batches of requests without locking.
 
-Memory Pooling. Business code and mostly compression/decompression are not allocating.
+Memory Pooling. Business code and compression/decompression are not allocating.
 
-Built in optional LZ4 compression.
+Builtin optional LZ4 compression.
 
-Business logic, compression, task multithreading, and communication layer are completely decoupled.
+Business logic, compression, task multithreading, and communication layers are completely decoupled.
 
 Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in. 
 
@@ -130,7 +131,7 @@ To run tests:\
 in the project root directory.
 
 =======
-### Fast Lockless Linux Client-Server with TCP and fifo clients
+### Fast Lockless Linux Client-Server with TCP and FIFO clients
 Using both bidirectional named pipes and tcp.\
 Lockless. Processing batches of requests  without locking.\
 Business logic, tasks multithreading, and communication layer are completely decoupled.\

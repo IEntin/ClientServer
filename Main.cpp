@@ -56,13 +56,13 @@ int main() {
   }
   if (!fifo::FifoServer::startThreads())
     return 1;
-  TcpServer::startServers();
+  tcp::TcpServer::startServers();
   if (!TaskThread::startThreads(processRequest))
     return 1;
   auto future = stopPromise.get_future();
   future.get();
   fifo::FifoServer::joinThreads();
-  TcpServer::joinThread();
+  tcp::TcpServer::joinThread();
   TaskThread::joinThreads();
   int ret = fcloseall();
   assert(ret == 0);
