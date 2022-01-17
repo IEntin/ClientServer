@@ -2,11 +2,10 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Task.h"
 #include "TcpServer.h"
+#include "Task.h"
 #include "CommUtility.h"
 #include "Compression.h"
-#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include <iostream>
 
@@ -23,22 +22,20 @@ void Session::start() {
 
 bool Session::onReceiveRequest() {
   Batch response;
+  auto [uncomprSize, comprSize, compressor, done] =
+    utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
+  bool bCompressed = compressor == LZ4;
   if (_useStringView) {
     static std::vector<char> uncompressed;
     uncompressed.clear();
-    auto [uncomprSize, comprSize, compressor, done] =
-      utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
-    bool bCompressed = compressor == LZ4;
     if (bCompressed) {
       if (!decompress(uncomprSize, uncompressed)) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << ":decompression failed" << std::endl;
 	return false;
       }
-      TaskSV::process(_port, uncompressed, response);
     }
-    else
-      TaskSV::process(_port, _request, response);
+    TaskSV::process(_port, (bCompressed ? uncompressed : _request), response);
     if (!sendReply(response))
       return false;
   }

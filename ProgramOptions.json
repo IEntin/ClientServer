@@ -1,5 +1,4 @@
 {
-  "CommunicationType" : "FIFO",
   "StringTypeInTask" : "STRINGVIEW",
   "AdsFileName" : "ads.txt",
   "ProcessRequestMethod" : "Transaction",

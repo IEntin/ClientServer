@@ -1,9 +1,13 @@
 Copyright (C) 2021 Ilya Entin.
 
-### Fast Lockless Linux Clent-Server on Named Pipes.
+### Fast Linux Lockless Linux Clent-Server with Named Pipes and TCP clients
 
-Communication layer is named pipes (fifo, better performance and arguably stronger security than in case of sockets).\
-Due to protocol and predictable sequence of reads and writes, it was possible to make pipes bidirectional.\
+This server can work with both tcp and fifo clients at the same time.\
+TCP communication layer is using boost Asio library.
+
+Fifo provides better performance and arguably stronger security than tcp.\
+If fifo is not an option tcp client can connect to the server without stopping it.\
+Due to protocol and predictable sequence of reads and writes, it is possible to make pipes bidirectional.\
 This situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
 After write we close write file descriptor and open read fd for the same end of the pipe, and so on.\
 This significantly simplified the setup - one fifo per client. See below fragments of configuration\
@@ -52,22 +56,37 @@ g++ is used by default. To use clang add CMPLR=clang++ to the make command.\
 There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels.\
 see the makefile.
 
-3. run
+3. run\
+server:
 
-Change settings for FIFO directories and file names on server and clients in ProgramOptions.json:
+Change settings for FIFO and tcp in ProgramOptions.json:
 
 server:\
+fifo:\
   "FifoDirectoryName" : "directory anywhere with appropriate permissions",\
   "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
 
+tcp:
+  "TcpPorts" : "49152, 49153 49154 49155 49156",
+  "Timeout" : 5
+
 client #1:\
+communication type:\
+  "CommunicationType" : "TCP" | "FIFO"
+
+fifo:\
   "FifoDirectoryName" : "the same as for the server",\
-  "FifoBaseName" : "Client1",\
+  "FifoBaseName" : "Client1",
+
+tcp:\
+  "ServerHost" : "localhost",\
+  "TcpPort" : "49152"
+
   ........
 
-Names of pipes should match on server and clients. ProgramOptions.json contains the\
+Names of pipes and tcp ports should match on server and clients. ProgramOptions.json contains the\
 list for 5 clients, but this number can be increased, only performance can put the\
-limit. The server was tested with 5 clients.
+limit. The server was tested with 5 clients with mixed client types.
 
 FIFO files are created on server startup and removed on server shutdown with Ctrl-C.\
 By design, the clients should not create or remove FIFO files. The code does not do\
@@ -113,8 +132,8 @@ To run tests:\
 in the project root directory.
 
 =======
-### Linux Client-Server
-Using bidirectional named pipes.\
+### Fast Lockless Linux Client-Server with TCP and fifo clients
+Using both bidirectional named pipes and tcp.\
 Lockless. Processing batches of requests  without locking.\
 Business logic, tasks multithreading, and communication layer are completely decoupled.\
 Memory pooling. Business logic, compression and most of fifo procrssing are not allocating.\

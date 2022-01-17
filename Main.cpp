@@ -41,9 +41,6 @@ int main() {
   std::signal(SIGINT, signalHandler);
   const bool timing = ProgramOptions::get("Timing", false);
   Chronometer chronometer(timing, __FILE__, __LINE__);
-  const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
-  const bool useFifo = communicationType == "FIFO";
-  const bool useTcp = communicationType == "TCP";
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
   if (method == "Transaction") {
@@ -57,19 +54,15 @@ int main() {
     std::cerr << "No valid processRequest definition provided" << std::endl;
     return 1;
   }
-  if (useFifo)
-    if (!fifo::FifoServer::startThreads())
-      return 1;
-  if (useTcp)
-    TcpServer::startServers();
+  if (!fifo::FifoServer::startThreads())
+    return 1;
+  TcpServer::startServers();
   if (!TaskThread::startThreads(processRequest))
     return 1;
   auto future = stopPromise.get_future();
   future.get();
-  if (useFifo)
-    fifo::FifoServer::joinThreads();
-  if (useTcp)
-    TcpServer::joinThread();
+  fifo::FifoServer::joinThreads();
+  TcpServer::joinThread();
   TaskThread::joinThreads();
   int ret = fcloseall();
   assert(ret == 0);
