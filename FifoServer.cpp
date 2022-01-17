@@ -129,7 +129,8 @@ void FifoServer::operator()() noexcept {
   }
   else {
     while (!stopFlag) {
-      Batch batch;
+      static thread_local Batch batch;
+      batch.clear();
       if (!receiveRequest(batch))
 	break;
       Batch response;

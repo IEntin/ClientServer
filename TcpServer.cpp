@@ -21,7 +21,8 @@ void Session::start() {
 }
 
 bool Session::onReceiveRequest() {
-  Batch response;
+  static Batch response;
+  response.clear();
   auto [uncomprSize, comprSize, compressor, done] =
     utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
   bool bCompressed = compressor == LZ4;

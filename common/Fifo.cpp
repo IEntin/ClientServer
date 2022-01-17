@@ -126,8 +126,6 @@ bool Fifo::readBatch(int fd,
   if (!readString(fd, buffer.data(), comprSize))
     return false;
   std::string_view received(buffer.data(), comprSize);
-  static size_t maxNumberRequests = 1;
-  batch.reserve(maxNumberRequests);
   if (bcompressed) {
     std::string_view uncompressedView = Compression::uncompress(received, uncomprSize);
     if (uncompressedView.empty()) {
@@ -139,8 +137,6 @@ bool Fifo::readBatch(int fd,
   }
   else
     utility::split(received, batch);
-  if (batch.size() > maxNumberRequests)
-    maxNumberRequests = batch.size();
   return true;
 }
 

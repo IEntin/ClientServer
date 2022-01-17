@@ -1,6 +1,6 @@
 Copyright (C) 2021 Ilya Entin.
 
-### Fast Linux Lockless Linux Clent-Server with Named Pipes and TCP clients
+### Fast Linux Lockless Clent-Server with Named Pipes and TCP clients
 
 This server can work with both tcp and fifo clients at the same time.\
 TCP communication layer is using boost Asio library.
@@ -70,14 +70,14 @@ tcp:
 
 client #1:\
 communication type:\
-  "CommunicationType" : "TCP" | "FIFO"
+  "CommunicationType" : ["TCP" | "FIFO"]
 
 fifo:\
   "FifoDirectoryName" : "the same as for the server",\
   "FifoBaseName" : "Client1",
 
 tcp:\
-  "ServerHost" : "localhost",\
+  "ServerHost" : "server hostname",\
   "TcpPort" : "49152"
 
   ........

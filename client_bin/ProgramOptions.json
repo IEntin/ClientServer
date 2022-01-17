@@ -1,5 +1,5 @@
 {
-  "CommunicationType" : "FIFO",
+  "CommunicationType" : "TCP",
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseName" : "Client1",
   "SourceName" : "requests.log",
@@ -11,6 +11,6 @@
   "PrepareBatchOnce" : true,
   "RunLoop" : true,
   "MaxNumberTasks" : 150,
-  "ServerHost" : "localhost",
+  "ServerHost" : "ilya-Lenovo-G570",
   "TcpPort" : "49152"
 }
