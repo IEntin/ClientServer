@@ -25,28 +25,28 @@ bool Session::onReceiveRequest() {
   auto [uncomprSize, comprSize, compressor, done] =
     utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
   bool bCompressed = compressor == LZ4;
-  if (_useStringView) {
-    static std::vector<char> uncompressed;
-    uncompressed.clear();
-    if (bCompressed) {
-      if (!decompress(uncomprSize, uncompressed)) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << ":decompression failed" << std::endl;
-	return false;
-      }
+  static std::vector<char> uncompressed;
+  uncompressed.clear();
+  if (bCompressed) {
+    if (!decompress(uncomprSize, uncompressed)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":decompression failed" << std::endl;
+      return false;
     }
+  }
+  if (_useStringView)
     TaskSV::process(_port, (bCompressed ? uncompressed : _request), response);
-    if (!sendReply(response))
-      return false;
-  }
   else {
-    Batch batch;
-    //if (!receiveRequest(batch))
-    //break;
+    static Batch batch;
+    batch.clear();
+    std::string_view input = bCompressed ?
+      std::string_view(uncompressed.data(), uncompressed.size()) :
+      std::string_view(_request.data(), _request.size());
+    utility::split(input, batch);
     TaskST::process(_port, batch, response);
-    if (!sendReply(response))
-      return false;
   }
+  if (!sendReply(response))
+    return false;
   return true;
 }
 
