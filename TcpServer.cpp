@@ -95,7 +95,7 @@ void Session::handleReadHeader(const boost::system::error_code& ec, size_t trans
   }
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << std::strerror(errno) << std::endl;
+	      << ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -122,12 +122,11 @@ void Session::write(std::string_view reply) {
 void Session::handleReadRequest(const boost::system::error_code& ec, size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!ec && _request.size() == transferred) {
+  if (!ec && _request.size() == transferred)
     onReceiveRequest();
-  }
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << std::strerror(errno) << std::endl;
+	      << ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -142,7 +141,7 @@ void Session::handleWriteReply(const boost::system::error_code& ec, size_t trans
   }
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << std::strerror(errno) << std::endl;
+	      << ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -157,9 +156,8 @@ void Session::asyncWait() {
   _timer.async_wait([self](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
-			//boost::system::error_code ignore;
-			//_socket.close(ignore);
-			//_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
+			boost::system::error_code ignore;
+			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
 		      }
 		    });
 }
@@ -184,7 +182,14 @@ void TcpServer::accept() {
 }
 
 void TcpServer::run() {
-  _ioContext.run();
+  boost::system::error_code ec;
+  while(!stopFlag) {
+    _ioContext.restart();
+    _ioContext.run(ec);
+    if (ec)
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ':' << ec.what() << std::endl;
+  }
 }
 
 bool TcpServer::startServers() {
@@ -199,7 +204,7 @@ bool TcpServer::startServers() {
     std::thread tmp(TcpServer::run);
     _thread.swap(tmp);
   }
-  catch (std::exception& e) {
+  catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << "\n";
   }
   return true;

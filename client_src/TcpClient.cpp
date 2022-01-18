@@ -32,14 +32,17 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
   else if (!utility::preparePackage(payload, modified))
     return false;
   for (const auto& chunk : modified) {
-    size_t result = boost::asio::write(socket, boost::asio::buffer(chunk));
-    if (result != chunk.size())
+    boost::system::error_code ec;
+    size_t result[[maybe_unused]] = boost::asio::write(socket, boost::asio::buffer(chunk), ec);
+    if (ec) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ':' << strerror(errno) << std::endl;
+		<< ':' << ec.what() << std::endl;
+      return false;
+    }
     char header[HEADER_SIZE + 1] = {};
     memset(header, 0, HEADER_SIZE);
-    boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE));
-    auto [uncomprSize, comprSize, compressor, done] = utility::decodeHeader(std::string_view(header, HEADER_SIZE), true);
+    boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE), ec);
+    auto [uncomprSize, comprSize, compressor, done] = utility::decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
     if (!readReply(socket, uncomprSize, comprSize, compressor == LZ4, dataStream))
@@ -71,8 +74,9 @@ bool run(const Batch& payload,
 	break;
     } while (runLoop && !stopFlag);
   }
-  catch (std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
+  catch (const std::exception& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":Exception:" << e.what() << std::endl;
   }
   return true;
 }
@@ -83,9 +87,10 @@ bool readReply(boost::asio::ip::tcp::socket& socket,
 	       bool bcompressed,
 	       std::ostream* pstream) {
   std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize);
-  size_t transferred = boost::asio::read(socket, boost::asio::buffer(buffer, comprSize));
-  if (transferred != comprSize) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+  boost::system::error_code ec;
+  size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(buffer, comprSize), ec);
+  if (ec) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   std::string_view received(buffer.data(), comprSize);
