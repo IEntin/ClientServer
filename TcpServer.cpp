@@ -153,7 +153,7 @@ void Session::asyncWait() {
   _timer.expires_from_now(std::chrono::seconds(timeout), ignore);
   auto self(shared_from_this());
   static const std::string function(__FUNCTION__);
-  _timer.async_wait([self](const boost::system::error_code& err) {
+  _timer.async_wait([this, self](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
 			boost::system::error_code ignore;
