@@ -23,40 +23,37 @@ void Session::start() {
 }
 
 bool Session::onReceiveRequest() {
-  static Batch response;
-  response.clear();
+  _response.clear();
   auto [uncomprSize, comprSize, compressor, done] =
     utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
   bool bCompressed = compressor == LZ4;
-  static std::vector<char> uncompressed;
-  uncompressed.clear();
+  _uncompressed.clear();
   if (bCompressed) {
-    if (!decompress(uncomprSize, uncompressed)) {
+    if (!decompress(uncomprSize)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":decompression failed" << std::endl;
       return false;
     }
   }
   if (_useStringView)
-    TaskSV::process(_port, (bCompressed ? uncompressed : _request), response);
+    TaskSV::process(_port, (bCompressed ? _uncompressed : _request), _response);
   else {
-    static Batch batch;
-    batch.clear();
     std::string_view input = bCompressed ?
-      std::string_view(uncompressed.data(), uncompressed.size()) :
+      std::string_view(_uncompressed.data(), _uncompressed.size()) :
       std::string_view(_request.data(), _request.size());
-    utility::split(input, batch);
-    TaskST::process(_port, batch, response);
+    _requestBatch.clear();
+    utility::split(input, _requestBatch);
+    TaskST::process(_port, _requestBatch, _response);
   }
-  if (!sendReply(response))
+  if (!sendReply(_response))
     return false;
   return true;
 }
 
-bool Session::decompress(size_t uncomprSize, std::vector<char>& uncompressed) {
+bool Session::decompress(size_t uncomprSize) {
   std::string_view received(_request.data(), _request.size());
-  uncompressed.resize(uncomprSize);
-  if (!Compression::uncompress(received, uncompressed)) {
+  _uncompressed.resize(uncomprSize);
+  if (!Compression::uncompress(received, _uncompressed)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":failed to uncompress payload" << std::endl;
     return false;
@@ -152,7 +149,6 @@ void Session::asyncWait() {
   boost::system::error_code ignore;
   _timer.expires_from_now(std::chrono::seconds(timeout), ignore);
   auto self(shared_from_this());
-  static const std::string function(__FUNCTION__);
   _timer.async_wait([this, self](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;

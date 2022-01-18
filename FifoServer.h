@@ -29,6 +29,9 @@ public:
   static bool startThreads();
   static void joinThreads();
   static void removeFifoFiles();
+  std::vector<char> _uncompressedRequest;
+  Batch _requestBatch;
+  Batch _response;
 };
 
 } // end of namespace fifo

@@ -33,7 +33,7 @@ private:
 
   void asyncWait();
 
-  bool decompress(size_t uncomprSize, std::vector<char>& uncompressed);
+  bool decompress(size_t uncomprSize);
 
   bool onReceiveRequest();
 
@@ -44,6 +44,9 @@ private:
   AsioTimer _timer;
   char _header[HEADER_SIZE] = {};
   std::vector<char> _request;
+  Batch _requestBatch;
+  std::vector<char> _uncompressed;
+  Batch _response;
   static const bool _useStringView;
 };
 

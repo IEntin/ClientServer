@@ -110,34 +110,22 @@ bool FifoServer::sendResponse(Batch& response) {
 
 void FifoServer::operator()() noexcept {
   static const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-  if (useStringView) {
-    while (!stopFlag) {
-      // We cannot use MemoryPool because vector 'uncompressed' will be swapped with 'Task::_rawInput'.
-      // Instead we make this vector as well as 'Task::_rawInput' static thread_local.
-      // With this we allocate only few times swapping with the vector of close and eventually
-      // the same maximum required capacity. No more allocations happen until input pattern changes.
-      // We need to clear this vector on every task which does not change vector capacity.
-      static thread_local std::vector<char> uncompressed;
-      uncompressed.clear();
-      if (!receiveRequest(uncompressed))
+  while (!stopFlag) {
+    _response.clear();
+    if (useStringView) {
+      _uncompressedRequest.clear();
+      if (!receiveRequest(_uncompressedRequest))
 	break;
-      Batch response;
-      TaskSV::process(_fifoName, uncompressed, response);
-      if (!sendResponse(response))
-	break;
+      TaskSV::process(_fifoName, _uncompressedRequest, _response);
     }
-  }
-  else {
-    while (!stopFlag) {
-      static thread_local Batch batch;
-      batch.clear();
-      if (!receiveRequest(batch))
+    else {
+      _requestBatch.clear();
+      if (!receiveRequest(_requestBatch))
 	break;
-      Batch response;
-      TaskST::process(_fifoName, batch, response);
-      if (!sendResponse(response))
-	break;
+      TaskST::process(_fifoName, _requestBatch, _response);
     }
+    if (!sendResponse(_response))
+      break;
   }
 }
 
