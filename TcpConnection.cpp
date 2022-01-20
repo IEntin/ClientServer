@@ -108,6 +108,8 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
+    boost::system::error_code ignore;
+    _timer.cancel(ignore);
   }
 }
 
@@ -137,6 +139,8 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
+    boost::system::error_code ignore;
+    _timer.cancel(ignore);
   }
 }
 
@@ -150,6 +154,8 @@ void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
+    boost::system::error_code ignore;
+    _timer.cancel(ignore);
   }
 }
 

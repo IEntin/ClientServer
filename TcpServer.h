@@ -11,21 +11,23 @@ namespace tcp {
 
 class TcpServer {
 public:
-  TcpServer(const boost::asio::ip::tcp::endpoint& endpoint);
+  TcpServer() = delete;
+  ~TcpServer() = delete;
   static bool startServer();
   static void stopServer();
 private:
-  void accept();
+  static void accept();
 
-  void handleAccept(std::shared_ptr<TcpConnection> connection,
-		    const boost::system::error_code& ec);
+  static void handleAccept(std::shared_ptr<TcpConnection> connection,
+			   const boost::system::error_code& ec);
   static void filterConnections();
 
   static void run() noexcept;
   static boost::asio::io_context _ioContext;
-  boost::asio::ip::tcp::acceptor _acceptor;
+  static std::string _tcpPort;
+  static boost::asio::ip::tcp::endpoint _endpoint;
+  static boost::asio::ip::tcp::acceptor _acceptor;
   static std::thread _thread;
-  static std::shared_ptr<TcpServer> _server;
   static std::set<std::shared_ptr<TcpConnection>> _connections;
 };
 

@@ -10,14 +10,11 @@ extern volatile std::atomic<bool> stopFlag;
 namespace tcp {
 
 boost::asio::io_context TcpServer::_ioContext;
+std::string TcpServer::_tcpPort = ProgramOptions::get("TcpPort", std::string());
+boost::asio::ip::tcp::endpoint TcpServer::_endpoint(boost::asio::ip::tcp::v4(), std::atoi(_tcpPort.c_str()));
+boost::asio::ip::tcp::acceptor TcpServer::_acceptor(_ioContext, _endpoint);
 std::thread TcpServer::_thread;
-std::shared_ptr<TcpServer> TcpServer::_server;
 std::set<std::shared_ptr<TcpConnection>> TcpServer::_connections;
-
-TcpServer::TcpServer(const boost::asio::ip::tcp::endpoint& endpoint)
-  : _acceptor(_ioContext, endpoint) {
-  accept();
-}
 
 void TcpServer::accept() {
   filterConnections();
@@ -25,7 +22,7 @@ void TcpServer::accept() {
   _connections.insert(connection);
   _acceptor.async_accept(connection->socket(),
 			 connection->remoteEndpoint(),
-			 [this, connection](boost::system::error_code ec) {
+			 [connection](boost::system::error_code ec) {
 			   handleAccept(connection, ec);
 			 });
 }
@@ -55,9 +52,7 @@ void TcpServer::run() noexcept {
 
 bool TcpServer::startServer() {
   try {
-    std::string tcpPort = ProgramOptions::get("TcpPort", std::string());
-    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(tcpPort.c_str()));
-    _server = std::make_shared<TcpServer>(endpoint);
+    accept();
     std::thread tmp(TcpServer::run);
     _thread.swap(tmp);
   }
