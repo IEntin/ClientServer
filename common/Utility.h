@@ -15,6 +15,7 @@ inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 inline constexpr size_t NUM_FIELD_SIZE = 10;
 inline constexpr size_t COMPRESSOR_NAME_SIZE = 4;
 inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE;
+inline  constexpr char DIAGNOSTICS_MARKER[] = "[[D]]";
 
 using HEADER = std::tuple<ssize_t, ssize_t, std::string_view, bool>;
 

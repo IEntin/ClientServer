@@ -24,6 +24,7 @@ private:
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<AdPtr>& adVector);
   std::string_view _id;
+  bool _requestDiagnostics = false;
   std::string_view _request;
   Size _size;
   // Made static to keep the capacity growing as needed.
@@ -38,7 +39,7 @@ private:
   AdBid _winningBid;
   bool _noMatch{ false };
   bool _invalid{ false };
-  static const bool _diagnostics;
+  static const bool _globalDiagnostics;
   static constexpr std::string_view EMPTY_REPLY{ "0, 0.0\n" };
   static constexpr std::string_view INVALID_REQUEST{ " Invalid request\n" };
   static constexpr std::string_view PROCESSING_ERROR{ " Processing error" };

@@ -1,5 +1,6 @@
 {
   "CommunicationType" : "TCP",
+  "Diagnostics" : false,
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseName" : "Client1",
   "SourceName" : "requests.log",

@@ -36,10 +36,14 @@ HEADER decodeHeader(std::string_view buffer, bool done) {
 }
 
 std::string createRequestId(size_t index) {
-  char arr[CONV_BUFFER_SIZE] = { '[' };
+  static const bool diagnostics = ProgramOptions::get("Diagnostics", false);
+  static constexpr size_t diagnosticsMarkerSize = strlen(DIAGNOSTICS_MARKER);
+  char arr[CONV_BUFFER_SIZE + diagnosticsMarkerSize + 1] = { '[' };
   auto [ptr, ec] = std::to_chars(arr + 1, arr + CONV_BUFFER_SIZE, index);
   assert(ec == std::errc() && ptr - arr < CONV_BUFFER_SIZE);
   *ptr = ']';
+  if (diagnostics)
+    strncpy(ptr + 1, DIAGNOSTICS_MARKER, diagnosticsMarkerSize + 1);
   return arr;
 }
 

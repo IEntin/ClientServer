@@ -20,7 +20,7 @@ constexpr char KEYWORDS_END = '&';
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   const auto& winningBid = transaction._winningBid;
   os << transaction._id << ' ';
-  if (Transaction::_diagnostics) {
+  if (Transaction::_globalDiagnostics || transaction._requestDiagnostics) {
     os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
        << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
@@ -60,13 +60,16 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
-const bool Transaction::_diagnostics = ProgramOptions::get("Diagnostics", false);
+const bool Transaction::_globalDiagnostics = ProgramOptions::get("Diagnostics", false);
 
 Transaction::Transaction(std::string_view input) {
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
     _request = input.substr(pos + 1);
+    if (_request.starts_with(DIAGNOSTICS_MARKER)) {
+      _requestDiagnostics = true;
+    }
     _size = Size::parseSizeFormat1(_request);
     if (_size.empty())
       _size = Size::parseSizeFormat2(_request);
@@ -91,7 +94,7 @@ std::string Transaction::processRequest(std::string_view view) noexcept {
     }
     const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._size);
     transaction.matchAds(adVector);
-    if (transaction._noMatch && !_diagnostics)
+    if (transaction._noMatch && !_globalDiagnostics)
       return id.append(1, ' ').append(EMPTY_REPLY);
     std::ostringstream os;
     os << transaction;
