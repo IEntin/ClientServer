@@ -3,181 +3,46 @@
  */
 
 #include "TcpServer.h"
-#include "Task.h"
-#include "CommUtility.h"
-#include "Compression.h"
 #include "ProgramOptions.h"
-#include <iostream>
 
 extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
-const bool Session::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-
-Session::Session(const std::string& port, boost::asio::ip::tcp::socket socket)
-  : _port(port), _socket(std::move(socket)), _timer(_socket.get_executor()) {}
-
-void Session::start() {
-  readHeader();
-}
-
-bool Session::onReceiveRequest() {
-  _response.clear();
-  auto [uncomprSize, comprSize, compressor, done] =
-    utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
-  bool bCompressed = compressor == LZ4;
-  _uncompressed.clear();
-  if (bCompressed) {
-    if (!decompress(uncomprSize)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":decompression failed" << std::endl;
-      return false;
-    }
-  }
-  if (_useStringView)
-    TaskSV::process(_port, (bCompressed ? _uncompressed : _request), _response);
-  else {
-    std::string_view input = bCompressed ?
-      std::string_view(_uncompressed.data(), _uncompressed.size()) :
-      std::string_view(_request.data(), _request.size());
-    _requestBatch.clear();
-    utility::split(input, _requestBatch);
-    TaskST::process(_port, _requestBatch, _response);
-  }
-  if (!sendReply(_response))
-    return false;
-  return true;
-}
-
-bool Session::decompress(size_t uncomprSize) {
-  std::string_view received(_request.data(), _request.size());
-  _uncompressed.resize(uncomprSize);
-  if (!Compression::uncompress(received, _uncompressed)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":failed to uncompress payload" << std::endl;
-    return false;
-  }
-  return true;
-}
-
-bool Session::sendReply(Batch& batch) {
-  std::string_view sendView = commutility::buildReply(batch);
-  if (sendView.empty())
-    return false;
-  write(sendView);
-  return true;
-}
-
-void Session::readHeader() {
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  std::memset(_header, 0, HEADER_SIZE);
-  auto self(shared_from_this());
-  boost::asio::async_read(_socket,
-			  boost::asio::buffer(_header),
-			  [this, self] (const boost::system::error_code& ec, size_t transferred) {
-			    handleReadHeader(ec, transferred);
-			  });
-}
-
-void Session::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
-  asyncWait();
-  if (!ec && HEADER_SIZE == transferred) {
-    HEADER t = utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
-    size_t requestSize = std::get<1>(t);
-    _request.clear();
-    _request.resize(requestSize);
-    readRequest();
-  }
-  else {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
-    boost::system::error_code ignore;
-    _timer.cancel(ignore);
-  }
-}
-
-void Session::readRequest() {
-  auto self(shared_from_this());
-  boost::asio::async_read(_socket,
-			  boost::asio::buffer(_request),
-			  [this, self] (const boost::system::error_code& ec, size_t transferred) {
-			    handleReadRequest(ec, transferred);
-			  });
-}
-
-void Session::write(std::string_view reply) {
-  auto self(shared_from_this());
-  boost::asio::async_write(_socket,
-			   boost::asio::buffer(reply.data(), reply.size()),
-			   [this, self](boost::system::error_code ec, size_t transferred) {
-			     handleWriteReply(ec, transferred);
-			   });
-}
-
-void Session::handleReadRequest(const boost::system::error_code& ec, size_t transferred) {
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  if (!ec && _request.size() == transferred)
-    onReceiveRequest();
-  else {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
-    boost::system::error_code ignore;
-    _timer.cancel(ignore);
-  }
-}
-
-void Session::handleWriteReply(const boost::system::error_code& ec, size_t transferred) {
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  if (!ec) {
-    if (!stopFlag)
-      readHeader();
-  }
-  else {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
-    boost::system::error_code ignore;
-    _timer.cancel(ignore);
-  }
-}
-
-void Session::asyncWait() {
-  const static unsigned timeout = ProgramOptions::get("Timeout", 1);
-  boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::seconds(timeout), ignore);
-  auto self(shared_from_this());
-  _timer.async_wait([this, self](const boost::system::error_code& err) {
-		      if (err != boost::asio::error::operation_aborted) {
-			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
-			boost::system::error_code ignore;
-			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
-		      }
-		    });
-}
-
 boost::asio::io_context TcpServer::_ioContext;
 std::thread TcpServer::_thread;
-std::list<TcpServer> TcpServer::_servers;
+std::shared_ptr<TcpServer> TcpServer::_server;
+std::set<std::shared_ptr<TcpConnection>> TcpServer::_connections;
 
-TcpServer::TcpServer(const std::string& port,
-		     boost::asio::io_context& ioContext,
-		     const boost::asio::ip::tcp::endpoint& endpoint)
-  : _port(port), _acceptor(ioContext, endpoint) {
+TcpServer::TcpServer(const boost::asio::ip::tcp::endpoint& endpoint)
+  : _acceptor(_ioContext, endpoint) {
   accept();
 }
 
 void TcpServer::accept() {
-  _acceptor.async_accept([this](boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
-			   if (!ec)
-			     std::make_shared<Session>(_port, std::move(socket))->start();
-			   accept();
+  filterConnections();
+  auto connection = std::make_shared<TcpConnection>(_ioContext);
+  _connections.insert(connection);
+  _acceptor.async_accept(connection->socket(),
+			 connection->remoteEndpoint(),
+			 [this, connection](boost::system::error_code ec) {
+			   handleAccept(connection, ec);
 			 });
 }
 
-void TcpServer::run() {
+void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
+			     const boost::system::error_code& ec) {
+  if (ec) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+	      << ec.what() << std::endl;
+  }
+  else {
+    connection->start();
+    accept();
+  }
+}
+
+void TcpServer::run() noexcept {
   boost::system::error_code ec;
   while(!stopFlag) {
     _ioContext.restart();
@@ -188,15 +53,11 @@ void TcpServer::run() {
   }
 }
 
-bool TcpServer::startServers() {
+bool TcpServer::startServer() {
   try {
-    std::string tcpPortsStr = ProgramOptions::get("TcpPorts", std::string());
-    std::vector<std::string> tcpPortsVector;
-    utility::split(tcpPortsStr, tcpPortsVector, ",\n ");
-    for (auto port : tcpPortsVector) {
-      boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(port.c_str()));
-      _servers.emplace_back(port, _ioContext, endpoint);
-    }
+    std::string tcpPort = ProgramOptions::get("TcpPort", std::string());
+    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), std::atoi(tcpPort.c_str()));
+    _server = std::make_shared<TcpServer>(endpoint);
     std::thread tmp(TcpServer::run);
     _thread.swap(tmp);
   }
@@ -206,13 +67,24 @@ bool TcpServer::startServers() {
   return true;
 }
 
-void  TcpServer::joinThread() {
+void  TcpServer::stopServer() {
   _ioContext.stop();
   if (_thread.joinable()) {
     _thread.join();
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ... _thread joined ..." << std::endl;
   }
+}
+
+void TcpServer::filterConnections() {
+  for (auto it = _connections.begin(); it != _connections.end();)
+    if ((*it)->isStopped()) {
+      it = _connections.erase(it);
+      std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":number connections=" << _connections.size() << std::endl;;
+    }
+    else
+      ++it;
 }
 
 } // end of namespace tcp

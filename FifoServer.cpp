@@ -116,13 +116,13 @@ void FifoServer::operator()() noexcept {
       _uncompressedRequest.clear();
       if (!receiveRequest(_uncompressedRequest))
 	break;
-      TaskSV::process(_fifoName, _uncompressedRequest, _response);
+      TaskSV::process(_uncompressedRequest, _response);
     }
     else {
       _requestBatch.clear();
       if (!receiveRequest(_requestBatch))
 	break;
-      TaskST::process(_fifoName, _requestBatch, _response);
+      TaskST::process(_requestBatch, _response);
     }
     if (!sendResponse(_response))
       break;

@@ -28,7 +28,6 @@ class Task {
   static std::mutex _queueMutex;
   static std::condition_variable _queueCondition;
   static std::queue<TaskPtr<T>> _queue;
-  std::string _address;
   Requests<T> _storage;
   static thread_local std::vector<char> _rawInput;
   std::atomic<size_t> _pointer = 0;
@@ -38,14 +37,12 @@ class Task {
  public:
   Task() : _response(_emptyBatch) {}
 
-  Task(std::string_view address, Batch& input, Batch& response) :
-    _address(address), _response(response) {
+  Task(Batch& input, Batch& response) : _response(response) {
     input.swap(_storage);
     _response.resize(_storage.size());
   }
 
-  Task(std::string_view address, std::vector<char>& input, Batch& response) :
-    _address(address), _response(response) {
+  Task(std::vector<char>& input, Batch& response) : _response(response) {
     input.swap(_rawInput);
     static size_t maxNumberRequests = 1;
     _storage.reserve(maxNumberRequests);
@@ -100,9 +97,9 @@ class Task {
   }
 
   template<typename I>
-  static void process(std::string_view address, I& input, Batch& response) {
+  static void process(I& input, Batch& response) {
     try {
-      TaskPtr<T> task = std::make_shared<Task>(address, input, response);
+      TaskPtr<T> task = std::make_shared<Task>(input, response);
       auto future = task->_promise.get_future();
       push(task);
       future.get();
