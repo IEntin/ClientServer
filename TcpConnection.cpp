@@ -21,8 +21,11 @@ TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
   _socket.close(ignore);
   _timer.cancel(ignore);
-  if (_thread.joinable())
-    _thread.detach();
+  if (_thread.joinable()) {
+    _thread.join();
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":thread joined" << std::endl;
+  }
 }
 
 void TcpConnection::start() {
@@ -34,6 +37,9 @@ void TcpConnection::run() noexcept {
   readHeader();
   boost::system::error_code ec;
   _ioContext.run(ec);
+  if (ec)
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ':' << ec.what() << std::endl;
   std::atomic_store(&_stopped, true);
 }
 

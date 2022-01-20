@@ -17,9 +17,7 @@ std::thread TcpServer::_thread;
 std::set<std::shared_ptr<TcpConnection>> TcpServer::_connections;
 
 void TcpServer::accept() {
-  filterConnections();
   auto connection = std::make_shared<TcpConnection>(_ioContext);
-  _connections.insert(connection);
   _acceptor.async_accept(connection->socket(),
 			 connection->remoteEndpoint(),
 			 [connection](boost::system::error_code ec) {
@@ -34,6 +32,10 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
 	      << ec.what() << std::endl;
   }
   else {
+    filterConnections();
+    _connections.insert(connection);
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":number connections=" << _connections.size() << std::endl;
     connection->start();
     accept();
   }
@@ -73,11 +75,8 @@ void  TcpServer::stopServer() {
 
 void TcpServer::filterConnections() {
   for (auto it = _connections.begin(); it != _connections.end();)
-    if ((*it)->isStopped()) {
+    if ((*it)->isStopped())
       it = _connections.erase(it);
-      std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":number connections=" << _connections.size() << std::endl;;
-    }
     else
       ++it;
 }

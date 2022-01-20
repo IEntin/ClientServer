@@ -23,7 +23,7 @@ class FifoServer {
     bool receiveRequest(C& batch);
   bool sendResponse(Batch& response);
 public:
-  FifoServer(const std::string& receiveFifoName);
+  explicit FifoServer(const std::string& receiveFifoName);
   ~FifoServer();
   void operator()() noexcept;
   static bool startThreads();

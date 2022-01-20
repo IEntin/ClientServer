@@ -14,7 +14,7 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
-  TcpConnection(boost::asio::io_context& io_context);
+  explicit TcpConnection(boost::asio::io_context& io_context);
   ~TcpConnection();
 
   void start();

@@ -111,7 +111,7 @@ Algorithm selection. STRINGVIEW is slightly faster but with different memory all
 "ProcessRequestMethod" : ["Transaction", "Echo"]\
 'Transaction' is a business logic.\
 'Echo' allows to test multithreading, compression, and fifo/tcp. To check the results save client\
-output to the file and diff this file with the source (default is 'requests.log').\
+output to the file and diff this file with the source (default is 'requests.log').
 
 To enable compression (default)\
 "Compression" : "LZ4"\
