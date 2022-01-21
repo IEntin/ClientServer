@@ -20,7 +20,8 @@ public:
   void start();
   auto& socket() { return _socket; }
   auto& remoteEndpoint() { return _remoteEndpoint; }
-  bool isStopped() const { return _stopped; }
+  void stop();
+  bool stopped() const { return _stopped; }
 private:
   void run() noexcept;
   void readHeader();

@@ -90,7 +90,7 @@ bool buildMessage(const Batch& payload, Batch& message) {
   if (payload.empty())
     return false;
   for (std::string_view str : payload) {
-    char array[HEADER_SIZE] = {};
+    char array[HEADER_SIZE + 1] = {};
     static const auto[compressor, enabled] = Compression::isCompressionEnabled();
     size_t uncomprSize = str.size();
     message.emplace_back();

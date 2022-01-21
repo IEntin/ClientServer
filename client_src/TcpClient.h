@@ -10,6 +10,12 @@ namespace tcp {
 
 using Batch = std::vector<std::string>;
 
+struct CloseSocket {
+  CloseSocket(boost::asio::ip::tcp::socket& socket);
+  ~CloseSocket();
+  boost::asio::ip::tcp::socket& _socket;
+};
+
 bool run(const Batch& payload,
 	 bool runLoop,
 	 unsigned maxNumberTasks,

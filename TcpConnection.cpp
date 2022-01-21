@@ -9,8 +9,6 @@
 #include "ProgramOptions.h"
 #include <iostream>
 
-extern volatile std::atomic<bool> stopFlag;
-
 namespace tcp {
 
 const bool TcpConnection::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
@@ -19,6 +17,7 @@ TcpConnection::TcpConnection(boost::asio::io_context& io_context) : _socket(_ioC
 
 TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
   if (_thread.joinable()) {
@@ -31,6 +30,10 @@ TcpConnection::~TcpConnection() {
 void TcpConnection::start() {
   std::thread tmp(&TcpConnection::run, this);
   _thread.swap(tmp);
+}
+
+void TcpConnection::stop() {
+  _ioContext.stop();
 }
 
 void TcpConnection::run() noexcept {
@@ -153,10 +156,8 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_
 void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!ec) {
-    if (!stopFlag)
-      readHeader();
-  }
+  if (!ec)
+    readHeader();
   else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;

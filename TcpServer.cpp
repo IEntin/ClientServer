@@ -27,15 +27,16 @@ void TcpServer::accept() {
 
 void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
 			     const boost::system::error_code& ec) {
-  if (ec) {
+  if (ec)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
-  }
   else {
     filterConnections();
     _connections.insert(connection);
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":number connections=" << _connections.size() << std::endl;
+    const auto& endpoint = connection->remoteEndpoint();
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":ip="
+	      << endpoint.address() << ",port=" << endpoint.port()
+	      << ",number connections=" << _connections.size() << std::endl;
     connection->start();
     accept();
   }
@@ -59,23 +60,28 @@ bool TcpServer::startServer() {
     _thread.swap(tmp);
   }
   catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << "\n";
+    std::cerr << "exception: " << e.what() << "\n";
   }
   return true;
 }
 
 void  TcpServer::stopServer() {
+  boost::system::error_code ignore;
+  _acceptor.close(ignore);
   _ioContext.stop();
   if (_thread.joinable()) {
     _thread.join();
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ... _thread joined ..." << std::endl;
   }
+  for (auto& connection : _connections)
+    connection->stop();
+  _connections.clear();
 }
 
 void TcpServer::filterConnections() {
   for (auto it = _connections.begin(); it != _connections.end();)
-    if ((*it)->isStopped())
+    if ((*it)->stopped())
       it = _connections.erase(it);
     else
       ++it;

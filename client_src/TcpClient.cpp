@@ -14,6 +14,14 @@ extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
+CloseSocket::CloseSocket(boost::asio::ip::tcp::socket& socket) : _socket(socket) {}
+
+CloseSocket::~CloseSocket() {
+  boost::system::error_code ignore;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+  _socket.close(ignore);
+}
+
 bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
 		 std::ostream* dataStream) {
@@ -61,6 +69,7 @@ bool run(const Batch& payload,
   try {
     boost::asio::io_context ioContext;
     boost::asio::ip::tcp::socket socket(ioContext);
+    CloseSocket closeSocket(socket);
     boost::asio::ip::tcp::resolver resolver(ioContext);
     const std::string serverHost = ProgramOptions::get("ServerHost", std::string());
     const std::string tcpPort = ProgramOptions::get("TcpPort", std::string());
