@@ -21,7 +21,7 @@ public:
   auto& socket() { return _socket; }
   auto& endpoint() { return _endpoint; }
   void stop();
-  bool stopped() const { return _stopped; }
+  bool stopped() const;
 private:
   void run() noexcept;
   void readHeader();
@@ -45,7 +45,6 @@ private:
   std::vector<char> _uncompressed;
   Batch _response;
   std::thread _thread;
-  std::atomic<bool> _stopped = false;
   static const bool _useStringView;
 };
 

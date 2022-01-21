@@ -48,7 +48,22 @@ void TcpConnection::run() noexcept {
   if (ec)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
-  std::atomic_store(&_stopped, true);
+  // Connection destruction is deferred until TcpServer::filterConnections() is called
+  // from a different thread (the destructor is calling _thread.join()). Still, here
+  // we can free memory and close the socket. Another option would be to call
+  // _thread.detach() in the destructor.
+  std::vector<char>().swap(_request);
+  Batch().swap(_requestBatch);
+  std::vector<char>().swap(_uncompressed);
+  Batch().swap(_response);
+  boost::system::error_code ignore;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+  _socket.close(ignore);
+  _timer.cancel(ignore);
+}
+
+bool TcpConnection::stopped() const {
+  return _ioContext.stopped();
 }
 
 bool TcpConnection::onReceiveRequest() {
