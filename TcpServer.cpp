@@ -33,10 +33,8 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
   else {
     filterConnections();
     _connections.insert(connection);
-    const auto& endpoint = connection->endpoint();
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":ip="
-	      << endpoint.address() << ",port=" << endpoint.port()
-	      << ",number connections=" << _connections.size() << std::endl;
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":connections#=" << _connections.size() << std::endl;
     connection->start();
     accept();
   }
@@ -56,8 +54,7 @@ void TcpServer::run() noexcept {
 bool TcpServer::startServer() {
   try {
     accept();
-    std::thread tmp(TcpServer::run);
-    _thread.swap(tmp);
+    _thread = std::move(std::thread(TcpServer::run));
   }
   catch (const std::exception& e) {
     std::cerr << "exception: " << e.what() << "\n";
@@ -65,7 +62,7 @@ bool TcpServer::startServer() {
   return true;
 }
 
-void  TcpServer::stopServer() {
+void TcpServer::stopServer() {
   boost::system::error_code ignore;
   _acceptor.close(ignore);
   _ioContext.stop();

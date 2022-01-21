@@ -28,8 +28,13 @@ TcpConnection::~TcpConnection() {
 }
 
 void TcpConnection::start() {
-  std::thread tmp(&TcpConnection::run, this);
-  _thread.swap(tmp);
+  const auto& local = _socket.local_endpoint();
+  const auto& remote = _socket.remote_endpoint();
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << "-local " << local.address() << ':' << local.port()
+	    << ",remote " << remote.address() << ':' << remote.port()
+	    << std::endl;
+  _thread = std::move(std::thread(&TcpConnection::run, this));
 }
 
 void TcpConnection::stop() {

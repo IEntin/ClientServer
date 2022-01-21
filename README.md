@@ -125,7 +125,7 @@ This parameter controls the task size(the number of requests in the batch) and\
 memory footprint of the application. The latter is important for embedded systems.
 
 '"Diagnostics" : true' shows details of all stages of business calculations for each request.\
-Alternative to this global setting is '"Diagnostics" : true' in the client ProgramOptions.json which enables diagnostics only for that client. No server restart is necessary in this case.
+Alternative to this global setting is '"Diagnostics" : true' in the client ProgramOptions.json which enables diagnostics only for that client. Server restart is not necessary in this case.
 
 To run tests:\
 'tests/runtests'\
