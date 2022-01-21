@@ -24,7 +24,7 @@ private:
 
   static void run() noexcept;
   static boost::asio::io_context _ioContext;
-  static std::string _tcpPort;
+  static unsigned _tcpPort;
   static boost::asio::ip::tcp::endpoint _endpoint;
   static boost::asio::ip::tcp::acceptor _acceptor;
   static std::thread _thread;

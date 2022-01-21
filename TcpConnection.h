@@ -19,7 +19,7 @@ public:
 
   void start();
   auto& socket() { return _socket; }
-  auto& remoteEndpoint() { return _remoteEndpoint; }
+  auto& endpoint() { return _endpoint; }
   void stop();
   bool stopped() const { return _stopped; }
 private:
@@ -36,7 +36,7 @@ private:
   bool sendReply(Batch& batch);
 
   boost::asio::io_context _ioContext;
-  boost::asio::ip::tcp::endpoint _remoteEndpoint;
+  boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timer;
   char _header[HEADER_SIZE] = {};

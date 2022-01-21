@@ -10,8 +10,8 @@ extern volatile std::atomic<bool> stopFlag;
 namespace tcp {
 
 boost::asio::io_context TcpServer::_ioContext;
-std::string TcpServer::_tcpPort = ProgramOptions::get("TcpPort", std::string());
-boost::asio::ip::tcp::endpoint TcpServer::_endpoint(boost::asio::ip::tcp::v4(), std::atoi(_tcpPort.c_str()));
+unsigned TcpServer::_tcpPort = ProgramOptions::get("TcpPort", 0);
+boost::asio::ip::tcp::endpoint TcpServer::_endpoint(boost::asio::ip::tcp::v4(), _tcpPort);
 boost::asio::ip::tcp::acceptor TcpServer::_acceptor(_ioContext, _endpoint);
 std::thread TcpServer::_thread;
 std::set<std::shared_ptr<TcpConnection>> TcpServer::_connections;
@@ -19,7 +19,7 @@ std::set<std::shared_ptr<TcpConnection>> TcpServer::_connections;
 void TcpServer::accept() {
   auto connection = std::make_shared<TcpConnection>(_ioContext);
   _acceptor.async_accept(connection->socket(),
-			 connection->remoteEndpoint(),
+			 connection->endpoint(),
 			 [connection](boost::system::error_code ec) {
 			   handleAccept(connection, ec);
 			 });
@@ -33,7 +33,7 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
   else {
     filterConnections();
     _connections.insert(connection);
-    const auto& endpoint = connection->remoteEndpoint();
+    const auto& endpoint = connection->endpoint();
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":ip="
 	      << endpoint.address() << ",port=" << endpoint.port()
 	      << ",number connections=" << _connections.size() << std::endl;

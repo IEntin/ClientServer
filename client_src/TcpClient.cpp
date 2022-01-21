@@ -27,7 +27,7 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
 		 std::ostream* dataStream) {
   // keep vector capacity
   static Batch modified;
-  // Simulate fast client to measure server performance accurately.
+  // Simulate fast client to measure server performance.
   // used with "RunLoop" : true
   static bool prepareOnce = ProgramOptions::get("PrepareBatchOnce", false);
   if (prepareOnce) {
@@ -50,7 +50,8 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
     char header[HEADER_SIZE + 1] = {};
     memset(header, 0, HEADER_SIZE);
     boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE), ec);
-    auto [uncomprSize, comprSize, compressor, done] = utility::decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
+    auto [uncomprSize, comprSize, compressor, done] =
+      utility::decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
     if (!readReply(socket, uncomprSize, comprSize, compressor == LZ4, dataStream))
@@ -73,7 +74,13 @@ bool run(const Batch& payload,
     boost::asio::ip::tcp::resolver resolver(ioContext);
     const std::string serverHost = ProgramOptions::get("ServerHost", std::string());
     const std::string tcpPort = ProgramOptions::get("TcpPort", std::string());
-    boost::asio::connect(socket, resolver.resolve(serverHost, tcpPort));
+    boost::system::error_code ec;
+    boost::asio::connect(socket, resolver.resolve(serverHost, tcpPort, ec));
+    if (ec) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ':' << ec.what() << std::endl;
+      return false;
+    }
     do {
       Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
       if (!processTask(socket, payload, dataStream))
@@ -85,7 +92,7 @@ bool run(const Batch& payload,
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":Exception:" << e.what() << std::endl;
+	      << ":exception:" << e.what() << std::endl;
   }
   return true;
 }
