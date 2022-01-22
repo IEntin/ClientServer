@@ -44,11 +44,7 @@ class Task {
 
   Task(std::vector<char>& input, Batch& response) : _response(response) {
     input.swap(_rawInput);
-    static size_t maxNumberRequests = 1;
-    _storage.reserve(maxNumberRequests);
     utility::split(_rawInput, _storage);
-    if (_storage.size() > maxNumberRequests)
-      maxNumberRequests = _storage.size();
     _response.resize(_storage.size());
   }
 

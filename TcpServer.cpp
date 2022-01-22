@@ -14,7 +14,6 @@ unsigned TcpServer::_tcpPort = ProgramOptions::get("TcpPort", 0);
 boost::asio::ip::tcp::endpoint TcpServer::_endpoint(boost::asio::ip::tcp::v4(), _tcpPort);
 boost::asio::ip::tcp::acceptor TcpServer::_acceptor(_ioContext, _endpoint);
 std::thread TcpServer::_thread;
-std::set<std::shared_ptr<TcpConnection>> TcpServer::_connections;
 
 void TcpServer::accept() {
   auto connection = std::make_shared<TcpConnection>(_ioContext);
@@ -31,10 +30,7 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
   else {
-    filterConnections();
-    _connections.insert(connection);
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":connections#=" << _connections.size() << std::endl;
+    TcpConnection::insert(connection);
     connection->start();
     accept();
   }
@@ -71,17 +67,7 @@ void TcpServer::stopServer() {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ... _thread joined ..." << std::endl;
   }
-  for (auto& connection : _connections)
-    connection->stop();
-  _connections.clear();
-}
-
-void TcpServer::filterConnections() {
-  for (auto it = _connections.begin(); it != _connections.end();)
-    if ((*it)->stopped())
-      it = _connections.erase(it);
-    else
-      ++it;
+  TcpConnection::destroy();
 }
 
 } // end of namespace tcp

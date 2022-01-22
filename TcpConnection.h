@@ -6,6 +6,7 @@
 
 #include "Utility.h"
 #include <memory>
+#include <set>
 #include <boost/asio.hpp>
 
 namespace tcp {
@@ -20,8 +21,8 @@ public:
   void start();
   auto& socket() { return _socket; }
   auto& endpoint() { return _endpoint; }
-  void stop();
-  bool stopped() const;
+  static void insert(std::shared_ptr<TcpConnection> connection);
+  static void destroy();
 private:
   void run() noexcept;
   void readHeader();
@@ -34,6 +35,7 @@ private:
   bool decompress(size_t uncomprSize);
   bool onReceiveRequest();
   bool sendReply(Batch& batch);
+  void stop();
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
@@ -45,7 +47,9 @@ private:
   std::vector<char> _uncompressed;
   Batch _response;
   std::thread _thread;
+  static std::set<std::shared_ptr<TcpConnection>> _connections;
   static const bool _useStringView;
+  static std::mutex _mutex;
 };
 
 } // end of namespace tcp

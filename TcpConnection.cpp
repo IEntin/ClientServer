@@ -9,9 +9,13 @@
 #include "ProgramOptions.h"
 #include <iostream>
 
+extern volatile std::atomic<bool> stopFlag;
+
 namespace tcp {
 
+std::set<std::shared_ptr<TcpConnection>> TcpConnection::_connections;
 const bool TcpConnection::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
+std::mutex TcpConnection::_mutex;
 
 TcpConnection::TcpConnection(boost::asio::io_context& io_context) : _socket(_ioContext), _timer(_ioContext) {}
 
@@ -21,9 +25,9 @@ TcpConnection::~TcpConnection() {
   _socket.close(ignore);
   _timer.cancel(ignore);
   if (_thread.joinable()) {
-    _thread.join();
+    _thread.detach();
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":thread joined" << std::endl;
+	      << ":thread detached" << std::endl;
   }
 }
 
@@ -48,22 +52,10 @@ void TcpConnection::run() noexcept {
   if (ec)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
-  // Connection destruction is deferred until TcpServer::filterConnections() is called
-  // from a different thread (the destructor is calling _thread.join()). Still, here
-  // we can free memory and close the socket. Another option would be to call
-  // _thread.detach() in the destructor.
-  std::vector<char>().swap(_request);
-  Batch().swap(_requestBatch);
-  std::vector<char>().swap(_uncompressed);
-  Batch().swap(_response);
-  boost::system::error_code ignore;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-  _socket.close(ignore);
-  _timer.cancel(ignore);
-}
-
-bool TcpConnection::stopped() const {
-  return _ioContext.stopped();
+  auto lastInstance = shared_from_this();
+  // this destroys connection after exit from run().
+  std::lock_guard lock(_mutex);
+  _connections.erase(lastInstance);
 }
 
 bool TcpConnection::onReceiveRequest() {
@@ -127,7 +119,7 @@ void TcpConnection::readHeader() {
 
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
   asyncWait();
-  if (!ec && HEADER_SIZE == transferred) {
+  if (!(ec || stopFlag)) {
     HEADER t = utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
     size_t requestSize = std::get<1>(t);
     _request.clear();
@@ -135,8 +127,9 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
     readRequest();
   }
   else {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
+    if (ec)
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+		<< ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -163,11 +156,12 @@ void TcpConnection::write(std::string_view reply) {
 void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!ec && _request.size() == transferred)
+  if (!(ec || stopFlag))
     onReceiveRequest();
   else {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
+    if (ec)
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+		<< ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -176,11 +170,12 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_
 void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!ec)
+  if (!(ec || stopFlag))
     readHeader();
   else {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
+    if (ec)
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+		<< ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -198,6 +193,20 @@ void TcpConnection::asyncWait() {
 			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
 		      }
 		    });
+}
+
+void TcpConnection::insert(std::shared_ptr<TcpConnection> connection) {
+  std::lock_guard lock(_mutex);
+  _connections.insert(connection);
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << ":connections#=" << _connections.size() << std::endl;
+}
+
+void TcpConnection::destroy() {
+  std::lock_guard lock(_mutex);
+  for (auto& connection : _connections)
+    connection->stop();
+  _connections.clear();
 }
 
 } // end of namespace tcp
