@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Ad.h"
 #include "Chronometer.h"
 #include "Echo.h"
 #include "FifoServer.h"
@@ -43,11 +42,8 @@ int main() {
   Chronometer chronometer(timing, __FILE__, __LINE__);
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
-  if (method == "Transaction") {
-    if (!Ad::load())
-      return 1;
+  if (method == "Transaction")
     processRequest = Transaction::processRequest;
-  }
   else if (method == "Echo")
     processRequest = echo::processRequest;
   else {

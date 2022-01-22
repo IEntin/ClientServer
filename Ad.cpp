@@ -27,6 +27,7 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
 }
 
 SizeMap Ad::_mapBySize;
+bool Ad::_loaded = Ad::load();
 
 Ad::Ad(std::string&& input) noexcept : _input(std::move(input)) {}
 
@@ -108,6 +109,9 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const Size& size) {
 }
 
 bool Ad::load() {
+  const std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
+  if (method != "Transaction")
+    return false;
   const std::string adsFileName = ProgramOptions::get("AdsFileName", std::string());
   try {
     std::ifstream ifs(adsFileName, std::ifstream::in);

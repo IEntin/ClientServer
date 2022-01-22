@@ -35,4 +35,5 @@ private:
   std::vector<AdBid> _bids;
   std::string_view _id;
   static SizeMap _mapBySize;
+  static bool _loaded;
 };
