@@ -49,9 +49,9 @@ bool TcpConnection::onReceiveRequest() {
   _response.clear();
   auto [uncomprSize, comprSize, compressor, done] =
     utility::decodeHeader(std::string_view(_header, HEADER_SIZE), true);
-  bool bCompressed = compressor == LZ4;
+  bool bcompressed = compressor == LZ4;
   _uncompressed.clear();
-  if (bCompressed) {
+  if (bcompressed) {
     if (!decompress(uncomprSize)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":decompression failed" << std::endl;
@@ -59,9 +59,9 @@ bool TcpConnection::onReceiveRequest() {
     }
   }
   if (_useStringView)
-    TaskSV::process((bCompressed ? _uncompressed : _request), _response);
+    TaskSV::process((bcompressed ? _uncompressed : _request), _response);
   else {
-    std::string_view input = bCompressed ?
+    std::string_view input = bcompressed ?
       std::string_view(_uncompressed.data(), _uncompressed.size()) :
       std::string_view(_request.data(), _request.size());
     _requestBatch.clear();
@@ -96,10 +96,9 @@ void TcpConnection::readHeader() {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   std::memset(_header, 0, HEADER_SIZE);
-  auto self(shared_from_this());
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_header),
-			  [this, self] (const boost::system::error_code& ec, size_t transferred) {
+			  [this] (const boost::system::error_code& ec, size_t transferred) {
 			    handleReadHeader(ec, transferred);
 			  });
 }
@@ -123,19 +122,17 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
 }
 
 void TcpConnection::readRequest() {
-  auto self(shared_from_this());
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_request),
-			  [this, self] (const boost::system::error_code& ec, size_t transferred) {
+			  [this] (const boost::system::error_code& ec, size_t transferred) {
 			    handleReadRequest(ec, transferred);
 			  });
 }
 
 void TcpConnection::write(std::string_view reply) {
-  auto self(shared_from_this());
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
-			   [this, self](boost::system::error_code ec, size_t transferred) {
+			   [this](boost::system::error_code ec, size_t transferred) {
 			     handleWriteReply(ec, transferred);
 			   });
 }
@@ -172,8 +169,7 @@ void TcpConnection::asyncWait() {
   const static unsigned timeout = ProgramOptions::get("Timeout", 1);
   boost::system::error_code ignore;
   _timer.expires_from_now(std::chrono::seconds(timeout), ignore);
-  auto self(shared_from_this());
-  _timer.async_wait([this, self](const boost::system::error_code& err) {
+  _timer.async_wait([this](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
 			boost::system::error_code ignore;
