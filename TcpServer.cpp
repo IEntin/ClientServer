@@ -5,8 +5,6 @@
 #include "TcpServer.h"
 #include "ProgramOptions.h"
 
-extern volatile std::atomic<bool> stopFlag;
-
 namespace tcp {
 
 boost::asio::io_context TcpServer::_ioContext;
@@ -30,7 +28,6 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
   else {
-    TcpConnection::insert(connection);
     connection->start();
     accept();
   }
@@ -38,13 +35,10 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
 
 void TcpServer::run() noexcept {
   boost::system::error_code ec;
-  while(!stopFlag) {
-    _ioContext.restart();
-    _ioContext.run(ec);
-    if (ec)
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ':' << ec.what() << std::endl;
-  }
+  _ioContext.run(ec);
+  if (ec)
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ':' << ec.what() << std::endl;
 }
 
 bool TcpServer::startServer() {
@@ -67,7 +61,6 @@ void TcpServer::stopServer() {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ... _thread joined ..." << std::endl;
   }
-  TcpConnection::destroy();
 }
 
 } // end of namespace tcp

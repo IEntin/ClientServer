@@ -13,9 +13,7 @@ extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
-std::set<std::shared_ptr<TcpConnection>> TcpConnection::_connections;
 const bool TcpConnection::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-std::mutex TcpConnection::_mutex;
 
 TcpConnection::TcpConnection(boost::asio::io_context& io_context) : _socket(_ioContext), _timer(_ioContext) {}
 
@@ -24,11 +22,8 @@ TcpConnection::~TcpConnection() {
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
-  if (_thread.joinable()) {
+  if (_thread.joinable())
     _thread.detach();
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":thread detached" << std::endl;
-  }
 }
 
 void TcpConnection::start() {
@@ -38,11 +33,7 @@ void TcpConnection::start() {
 	    << "-local " << local.address() << ':' << local.port()
 	    << ",remote " << remote.address() << ':' << remote.port()
 	    << std::endl;
-  _thread = std::move(std::thread(&TcpConnection::run, this));
-}
-
-void TcpConnection::stop() {
-  _ioContext.stop();
+  _thread = std::move(std::thread(&TcpConnection::run, shared_from_this()));
 }
 
 void TcpConnection::run() noexcept {
@@ -52,10 +43,6 @@ void TcpConnection::run() noexcept {
   if (ec)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
-  auto lastInstance = shared_from_this();
-  // this destroys connection after exit from run().
-  std::lock_guard lock(_mutex);
-  _connections.erase(lastInstance);
 }
 
 bool TcpConnection::onReceiveRequest() {
@@ -193,20 +180,6 @@ void TcpConnection::asyncWait() {
 			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
 		      }
 		    });
-}
-
-void TcpConnection::insert(std::shared_ptr<TcpConnection> connection) {
-  std::lock_guard lock(_mutex);
-  _connections.insert(connection);
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ":connections#=" << _connections.size() << std::endl;
-}
-
-void TcpConnection::destroy() {
-  std::lock_guard lock(_mutex);
-  for (auto& connection : _connections)
-    connection->stop();
-  _connections.clear();
 }
 
 } // end of namespace tcp

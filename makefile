@@ -2,6 +2,7 @@
 #LD_PRELOAD=$LD_PRELOAD:/usr/local/jemalloc-dev/lib/libjemalloc.so ./client
 #use clang++ (CMPLR=clang++) for sanitized build if use jemalloc
 #gprof -b ./server gmon.out > profile.txt
+#valgrind --leak-check=yes ./server
 #valgrind --tool=callgrind ./server
 #kcachegrind callgrind.out.*
 #valgrind --tool=massif ./server

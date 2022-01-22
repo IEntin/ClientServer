@@ -24,8 +24,10 @@ FifoServer::FifoServer(const std::string& fifoName) :
   _fifoName(fifoName) {}
 
 FifoServer::~FifoServer() {
-  close(_fdRead);
-  close(_fdWrite);
+  if (_fdRead != -1)
+    close(_fdRead);
+  if (_fdWrite != -1)
+    close(_fdWrite);
 }
 
 // start threads - one for each client
@@ -66,7 +68,8 @@ void FifoServer::joinThreads() {
     if (result != 1)
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
 		<< result << ":expected result == 1 " << std::strerror(errno) << std::endl;
-    close(fd);
+    if (fd != -1)
+      close(fd);
   }
   for (auto& thread : _threads)
     if (thread.joinable())
@@ -81,8 +84,10 @@ void FifoServer::joinThreads() {
 
 template <typename C>
 bool FifoServer::receiveRequest(C& batch) {
-  close(_fdWrite);
-  _fdWrite = -1;
+  if (_fdWrite != -1) {
+    close(_fdWrite);
+    _fdWrite = -1;
+  }
   if (!stopFlag) {
     _fdRead = open(_fifoName.c_str(), O_RDONLY);
     if (_fdRead == -1) {
@@ -95,8 +100,10 @@ bool FifoServer::receiveRequest(C& batch) {
 }
 
 bool FifoServer::sendResponse(Batch& response) {
-  close(_fdRead);
-  _fdRead = -1;
+  if (_fdRead != -1) {
+    close(_fdRead);
+    _fdRead = -1;
+  }
   if (!stopFlag) {
     _fdWrite = open(_fifoName.c_str(), O_WRONLY);
     if (_fdWrite == -1) {
