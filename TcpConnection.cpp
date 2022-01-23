@@ -173,6 +173,7 @@ void TcpConnection::asyncWait() {
 		      if (err != boost::asio::error::operation_aborted) {
 			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
 			boost::system::error_code ignore;
+			_socket.close(ignore);
 			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
 		      }
 		    });
