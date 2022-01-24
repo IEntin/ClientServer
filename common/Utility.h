@@ -14,10 +14,14 @@
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 inline constexpr size_t NUM_FIELD_SIZE = 10;
 inline constexpr size_t COMPRESSOR_NAME_SIZE = 4;
-inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE;
-inline  constexpr char DIAGNOSTICS_MARKER[] = "[[D]]";
+inline constexpr size_t DIAGNOSTICS_SIZE = 2;
+inline constexpr size_t UNUSED_SIZE = 4;
+inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE + DIAGNOSTICS_SIZE + UNUSED_SIZE;
 
-using HEADER = std::tuple<ssize_t, ssize_t, std::string_view, bool>;
+inline constexpr char DIAGNOSTICS_CHAR = 'D';
+inline constexpr char NDIAGNOSTICS_CHAR = 'N';
+
+using HEADER = std::tuple<ssize_t, ssize_t, std::string_view, bool, bool>;
 
 using Batch = std::vector<std::string>;
 
@@ -112,9 +116,9 @@ template <Integral T>
     return true;
 }
 
-void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor);
+void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor, bool diagnostics);
 
-HEADER decodeHeader(std::string_view buffer, bool done);
+HEADER decodeHeader(std::string_view buffer, bool done = true);
 
 std::string createRequestId(size_t index);
 
@@ -122,6 +126,6 @@ bool preparePackage(const Batch& payload, Batch& modified);
 
 bool mergePayload(const Batch& batch, Batch& aggregatedBatch);
 
-bool buildMessage(const Batch& payload, Batch& message);
+bool buildMessage(const Batch& payload, Batch& message, bool diagnostics);
 
 } // end of namespace utility

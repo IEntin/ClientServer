@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Utility.h"
+#include "TaskContext.h"
 #include <atomic>
 #include <future>
 #include <iostream>
@@ -30,6 +31,7 @@ class Task {
   static std::queue<TaskPtr<T>> _queue;
   Requests<T> _storage;
   static thread_local std::vector<char> _rawInput;
+  TaskContext _context;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
   Batch& _response;
@@ -37,12 +39,14 @@ class Task {
  public:
   Task() : _response(_emptyBatch) {}
 
-  Task(Batch& input, Batch& response) : _response(response) {
+    Task(const TaskContext& context, Batch& input, Batch& response) :
+      _context(context), _response(response) {
     input.swap(_storage);
     _response.resize(_storage.size());
   }
 
-  Task(std::vector<char>& input, Batch& response) : _response(response) {
+  Task(const TaskContext& context, std::vector<char>& input, Batch& response) :
+    _context(context), _response(response)  {
     input.swap(_rawInput);
     utility::split(_rawInput, _storage);
     _response.resize(_storage.size());
@@ -52,16 +56,17 @@ class Task {
 
   bool empty() const { return _storage.empty(); }
 
-  std::tuple<std::string_view, bool, size_t> next() {
+  std::tuple<std::string_view, bool, size_t, bool> next() {
     size_t pointer = _pointer.fetch_add(1);
     if (pointer < _storage.size()) {
       auto it = std::next(_storage.begin(), pointer);
       return std::make_tuple(std::string_view(it->data(), it->size()),
 			     false,
-			     std::distance(_storage.begin(), it));
+			     std::distance(_storage.begin(), it),
+			     _context._diagnostics);
     }
     else
-      return std::make_tuple(std::string_view(), true, 0);
+      return std::make_tuple(std::string_view(), true, 0, false);
   }
 
   static void push(TaskPtr<T> task) {
@@ -93,9 +98,9 @@ class Task {
   }
 
   template<typename I>
-  static void process(I& input, Batch& response) {
+    static void process(const TaskContext& context, I& input, Batch& response) {
     try {
-      TaskPtr<T> task = std::make_shared<Task>(input, response);
+      TaskPtr<T> task = std::make_shared<Task>(context, input, response);
       auto future = task->_promise.get_future();
       push(task);
       future.get();

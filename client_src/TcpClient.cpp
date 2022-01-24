@@ -50,7 +50,7 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
     char header[HEADER_SIZE + 1] = {};
     memset(header, 0, HEADER_SIZE);
     boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE), ec);
-    auto [uncomprSize, comprSize, compressor, done] =
+    auto [uncomprSize, comprSize, compressor, diagnostics, done] =
       utility::decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;

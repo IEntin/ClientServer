@@ -50,9 +50,9 @@ void TaskThread::onTaskFinish() noexcept {
 template<typename T>
 void TaskThread::processTask(T& task, ProcessRequest processRequest) {
   while (!stopFlag) {
-    auto [view, atEnd, index] = task->next();
+    auto [view, atEnd, index, diagnostics] = task->next();
     if (!atEnd) {
-      task->updateResponse(index, processRequest(view));
+      task->updateResponse(index, processRequest(view, diagnostics));
       continue;
     }
     try {

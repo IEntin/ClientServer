@@ -62,14 +62,12 @@ thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 const bool Transaction::_globalDiagnostics = ProgramOptions::get("Diagnostics", false);
 
-Transaction::Transaction(std::string_view input) {
+Transaction::Transaction(std::string_view input, bool diagnostics) :
+  _requestDiagnostics(diagnostics) {
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
     _request = input.substr(pos + 1);
-    if (_request.starts_with(DIAGNOSTICS_MARKER)) {
-      _requestDiagnostics = true;
-    }
     _size = Size::parseSizeFormat1(_request);
     if (_size.empty())
       _size = Size::parseSizeFormat2(_request);
@@ -83,10 +81,10 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-std::string Transaction::processRequest(std::string_view view) noexcept {
+std::string Transaction::processRequest(std::string_view view, bool diagnostics) noexcept {
   std::string id("[unknown]");
   try {
-    Transaction transaction(view);
+    Transaction transaction(view, diagnostics);
     id.assign(transaction._id);
     if (transaction._size.empty() || transaction._keywords.empty()) {
       transaction._invalid = true;

@@ -36,13 +36,13 @@ HEADER Fifo::readHeader(int fd) {
       else {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << ':' << std::strerror(errno) << std::endl;
-	return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
+	return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
       }
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
                 << ":read(...) returns 0,EOF." << std::endl;
-      return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
+      return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
     }
     else
       readSoFar += result;
@@ -191,15 +191,17 @@ bool Fifo::readVectorChar(int fd,
   return true;
 }
 
-bool Fifo::receive(int fd, Batch& batch) {
-  auto [uncomprSize, comprSize, compressor, headerDone] = readHeader(fd);
+bool Fifo::receive(int fd, Batch& batch, HEADER& header) {
+  header = readHeader(fd);
+  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
     return false;
   return readBatch(fd, uncomprSize, comprSize, compressor == LZ4, batch);
 }
 
-bool Fifo::receive(int fd, std::vector<char>& uncompressed) {
-  auto [uncomprSize, comprSize, compressor, headerDone] = readHeader(fd);
+bool Fifo::receive(int fd, std::vector<char>& uncompressed, HEADER& header) {
+  header = readHeader(fd);
+  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
     return false;
   return readVectorChar(fd, uncomprSize, comprSize, compressor == LZ4, uncompressed);

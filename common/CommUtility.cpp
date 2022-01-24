@@ -27,11 +27,11 @@ std::string_view buildReply(const Batch& batch) {
     if (dstView.empty())
       return empty;
     buffer.resize(HEADER_SIZE + dstView.size());
-    utility::encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor);
+    utility::encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
     std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
   }
   else
-    utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR);
+    utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR, false);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }

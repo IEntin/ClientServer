@@ -48,9 +48,9 @@ public:
 
   static bool sendReply(int fd, Batch& batch);
 
-  static bool receive(int fd, Batch& batch);
+  static bool receive(int fd, Batch& batch, HEADER& header);
 
-  static bool receive(int fd, std::vector<char>& uncompressed);
+  static bool receive(int fd, std::vector<char>& uncompressed, HEADER& header);
 };
 
 } // end of namespace fifo

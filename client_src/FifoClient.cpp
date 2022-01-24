@@ -16,7 +16,7 @@ extern volatile std::atomic<bool> stopFlag;
 namespace fifo {
 
 bool receive(int fd, std::ostream* dataStream) {
-  auto [uncomprSize, comprSize, compressor, headerDone] = Fifo::readHeader(fd);
+  auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] = Fifo::readHeader(fd);
   if (!headerDone)
     return false;
   if (!Fifo::readBatch(fd, uncomprSize, comprSize, compressor == LZ4, dataStream)) {

@@ -6,7 +6,6 @@
 #include "Fifo.h"
 #include "ProgramOptions.h"
 #include "Task.h"
-#include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
 #include <iostream>
@@ -83,7 +82,7 @@ void FifoServer::joinThreads() {
 }
 
 template <typename C>
-bool FifoServer::receiveRequest(C& batch) {
+bool FifoServer::receiveRequest(C& batch, HEADER& header) {
   if (_fdWrite != -1) {
     close(_fdWrite);
     _fdWrite = -1;
@@ -96,7 +95,7 @@ bool FifoServer::receiveRequest(C& batch) {
       return false;
     }
   }
-  return Fifo::receive(_fdRead, batch) && !batch.empty();
+  return Fifo::receive(_fdRead, batch, header) && !batch.empty();
 }
 
 bool FifoServer::sendResponse(Batch& response) {
@@ -119,17 +118,20 @@ void FifoServer::operator()() noexcept {
   static const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
   while (!stopFlag) {
     _response.clear();
+    HEADER header;
     if (useStringView) {
       _uncompressedRequest.clear();
-      if (!receiveRequest(_uncompressedRequest))
+      if (!receiveRequest(_uncompressedRequest, header))
 	break;
-      TaskSV::process(_uncompressedRequest, _response);
+      TaskContext context(header);
+      TaskSV::process(context, _uncompressedRequest, _response);
     }
     else {
       _requestBatch.clear();
-      if (!receiveRequest(_requestBatch))
+      if (!receiveRequest(_requestBatch, header))
 	break;
-      TaskST::process(_requestBatch, _response);
+      TaskContext context(header);
+      TaskST::process(context, _requestBatch, _response);
     }
     if (!sendResponse(_response))
       break;

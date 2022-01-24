@@ -10,44 +10,51 @@
 
 namespace utility {
 
-void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor) {
+void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor, bool diagnostics) {
   std::memset(buffer, 0, HEADER_SIZE);
-  bool ok = toChars(uncomprSz, buffer, NUM_FIELD_SIZE);
+  size_t offset = 0;
+  bool ok = toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
   assert(ok);
-  ok = toChars(comprSz, buffer + NUM_FIELD_SIZE, NUM_FIELD_SIZE);
+  offset += NUM_FIELD_SIZE;
+  ok = toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
   assert(ok);
-  std::strncpy(buffer + NUM_FIELD_SIZE * 2, compressor.data(), COMPRESSOR_NAME_SIZE - 1);
+  offset +=  NUM_FIELD_SIZE;
+  std::strncpy(buffer + offset, compressor.data(), COMPRESSOR_NAME_SIZE - 1);
+  offset += COMPRESSOR_NAME_SIZE;
+  buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
 }
 
 HEADER decodeHeader(std::string_view buffer, bool done) {
+  size_t offset = 0;
   size_t uncomprSize = 0;
   std::string_view stru(buffer.data(), NUM_FIELD_SIZE);
   if (!fromChars(stru, uncomprSize)) {
-    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
+    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
   }
+  offset +=  NUM_FIELD_SIZE;
   size_t comprSize = 0;
-  std::string_view strc(buffer.data() + NUM_FIELD_SIZE, NUM_FIELD_SIZE);
+  std::string_view strc(buffer.data() + offset, NUM_FIELD_SIZE);
   if (!fromChars(strc, comprSize)) {
-    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false);
+    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
   }
-  std::string_view compressor(buffer.data() + NUM_FIELD_SIZE * 2, COMPRESSOR_NAME_SIZE);
+  offset += NUM_FIELD_SIZE;
+  std::string_view compressor(buffer.data() + offset, COMPRESSOR_NAME_SIZE);
   bool enabled = compressor.starts_with(LZ4);
-  return std::make_tuple(uncomprSize, comprSize, enabled ? LZ4 : EMPTY_COMPRESSOR, done);
+  offset += COMPRESSOR_NAME_SIZE;
+  bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
+  return std::make_tuple(uncomprSize, comprSize, enabled ? LZ4 : EMPTY_COMPRESSOR, diagnostics, done);
 }
 
 std::string createRequestId(size_t index) {
-  static const bool diagnostics = ProgramOptions::get("Diagnostics", false);
-  static constexpr size_t diagnosticsMarkerSize = strlen(DIAGNOSTICS_MARKER);
-  char arr[CONV_BUFFER_SIZE + diagnosticsMarkerSize + 1] = { '[' };
+  char arr[CONV_BUFFER_SIZE + 1] = { '[' };
   auto [ptr, ec] = std::to_chars(arr + 1, arr + CONV_BUFFER_SIZE, index);
   assert(ec == std::errc() && ptr - arr < CONV_BUFFER_SIZE);
   *ptr = ']';
-  if (diagnostics)
-    strncpy(ptr + 1, DIAGNOSTICS_MARKER, diagnosticsMarkerSize + 1);
   return arr;
 }
 
 bool preparePackage(const Batch& payload, Batch& modified) {
+  static const bool diagnostics = ProgramOptions::get("Diagnostics", false);
   modified.clear();
   // keep vector capacity
   static Batch aggregated;
@@ -56,7 +63,7 @@ bool preparePackage(const Batch& payload, Batch& modified) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  if (!(buildMessage(aggregated, modified))) {
+  if (!(buildMessage(aggregated, modified, diagnostics))) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -86,7 +93,7 @@ bool mergePayload(const Batch& batch, Batch& aggregatedBatch) {
   return true;
 }
 
-bool buildMessage(const Batch& payload, Batch& message) {
+bool buildMessage(const Batch& payload, Batch& message, bool diagnostics) {
   if (payload.empty())
     return false;
   for (std::string_view str : payload) {
@@ -98,12 +105,12 @@ bool buildMessage(const Batch& payload, Batch& message) {
       std::string_view dstView = Compression::compress(str);
       if (dstView.empty())
 	return false;
-      encodeHeader(array, uncomprSize, dstView.size(), compressor);
+      encodeHeader(array, uncomprSize, dstView.size(), compressor, diagnostics);
       message.back().reserve(HEADER_SIZE + dstView.size() + 1);
       message.back().append(array, HEADER_SIZE).append(dstView);
     }
     else {
-      encodeHeader(array, uncomprSize, uncomprSize, compressor);
+      encodeHeader(array, uncomprSize, uncomprSize, compressor, diagnostics);
       message.back().reserve(HEADER_SIZE + str.size() + 1);
       message.back().append(array, HEADER_SIZE).append(str);
     }

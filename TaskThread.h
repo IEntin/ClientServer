@@ -8,7 +8,7 @@
 #include <barrier>
 #include <vector>
 
-using ProcessRequest = std::string (*)(std::string_view);
+using ProcessRequest = std::string (*)(std::string_view, bool diagnostics);
 
 using CompletionFunction = void (*) () noexcept;
 

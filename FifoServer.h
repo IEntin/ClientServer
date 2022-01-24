@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <string>
+#include "Utility.h"
 #include <thread>
-#include <vector>
 
 using Batch = std::vector<std::string>;
 
@@ -20,7 +19,7 @@ class FifoServer {
   int _fdRead = -1;
   int _fdWrite = -1;
   template <typename C>
-    bool receiveRequest(C& batch);
+    bool receiveRequest(C& batch, HEADER& header);
   bool sendResponse(Batch& response);
 public:
   explicit FifoServer(const std::string& receiveFifoName);
