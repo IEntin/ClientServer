@@ -18,37 +18,26 @@ unsigned getNumberTaskThreads() {
 
 } // end of anonimous namespace
 
-const bool TaskThread::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
-TaskPtrSV TaskThread::_taskSV(_useStringView ? std::make_shared<TaskSV>() : TaskPtrSV());
-TaskPtrST TaskThread::_taskST(_useStringView ? TaskPtrST() : std::make_shared<TaskST>());
+TaskPtr TaskThread::_task(std::make_shared<Task>());
 unsigned TaskThread::_numberTaskThreads = getNumberTaskThreads();
 std::barrier<CompletionFunction> TaskThread::_barrier(_numberTaskThreads, onTaskFinish);
 std::vector<std::thread> TaskThread::_taskThreads;
-
-template<typename T>
-void finishTask(T& task) {
-  task->finish();
-  // Call static method get() through an instance of class:
-  std::atomic_store(&task, task->get());
-}
 
 // Completion action is run by only one (any) blocked thread.
 // Here the "first" thread is selected.
 
 void TaskThread::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _taskThreads.front().get_id()) {
-    if (_useStringView)
-      finishTask(_taskSV);
-    else
-      finishTask(_taskST);
+    _task->finish();
+    // Call static method get() through an instance of class:
+    std::atomic_store(&_task, _task->get());
   }
 }
 
 // Process current task (batch of requests) by all threads.
 // Only one task is processed at any given time.
 
-template<typename T>
-void TaskThread::processTask(T& task, ProcessRequest processRequest) {
+void TaskThread::processTask(TaskPtr& task, ProcessRequest processRequest) {
   while (!stopFlag) {
     auto [view, atEnd, index, diagnostics] = task->next();
     if (!atEnd) {
@@ -69,19 +58,14 @@ void TaskThread::processTask(T& task, ProcessRequest processRequest) {
 bool TaskThread::startThreads(ProcessRequest processRequest) {
   for (unsigned i = 0; i < _numberTaskThreads; ++i)
     _taskThreads.emplace_back([processRequest] () {
-				if (_useStringView)
-				  processTask(_taskSV, processRequest);
-				else
-				  processTask(_taskST, processRequest); });
+				processTask(_task, processRequest);
+			      });
   return true;
 }
 
 void TaskThread::joinThreads() {
   stopFlag.store(true);
-  if (_useStringView)
-    TaskSV::push(std::make_shared<TaskSV>());
-  else
-    TaskST::push(std::make_shared<TaskST>());
+  Task::push(std::make_shared<Task>());
   for (auto& thread : _taskThreads)
     if (thread.joinable())
       thread.join();

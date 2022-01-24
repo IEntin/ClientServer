@@ -6,7 +6,6 @@
 
 #include "Utility.h"
 #include <memory>
-#include <set>
 #include <boost/asio.hpp>
 
 namespace tcp {
@@ -30,7 +29,6 @@ private:
   void handleReadRequest(const boost::system::error_code& ec, size_t transferred);
   void handleWriteReply(const boost::system::error_code& ec, size_t transferred);
   void asyncWait();
-  bool decompress(size_t uncomprSize);
   bool onReceiveRequest();
   bool sendReply(Batch& batch);
 
@@ -38,13 +36,11 @@ private:
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timer;
-  char _header[HEADER_SIZE] = {};
+  char _headerBuffer[HEADER_SIZE] = {};
   std::vector<char> _request;
-  Batch _requestBatch;
   std::vector<char> _uncompressed;
   Batch _response;
   std::thread _thread;
-  static const bool _useStringView;
 };
 
 } // end of namespace tcp

@@ -1,5 +1,4 @@
 {
-  "StringTypeInTask" : "STRINGVIEW",
   "AdsFileName" : "ads.txt",
   "ProcessRequestMethod" : "Transaction",
   "Diagnostics" : false,

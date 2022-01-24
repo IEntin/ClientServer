@@ -115,24 +115,14 @@ bool FifoServer::sendResponse(Batch& response) {
 }
 
 void FifoServer::operator()() noexcept {
-  static const bool useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
   while (!stopFlag) {
     _response.clear();
     HEADER header;
-    if (useStringView) {
-      _uncompressedRequest.clear();
-      if (!receiveRequest(_uncompressedRequest, header))
-	break;
-      TaskContext context(header);
-      TaskSV::process(context, _uncompressedRequest, _response);
-    }
-    else {
-      _requestBatch.clear();
-      if (!receiveRequest(_requestBatch, header))
-	break;
-      TaskContext context(header);
-      TaskST::process(context, _requestBatch, _response);
-    }
+    _uncompressedRequest.clear();
+    if (!receiveRequest(_uncompressedRequest, header))
+      break;
+    TaskContext context(header);
+    Task::process(context, _uncompressedRequest, _response);
     if (!sendResponse(_response))
       break;
   }

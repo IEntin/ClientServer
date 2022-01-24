@@ -18,12 +18,6 @@ class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;
 
-  static bool readBatch(int fd,
-			size_t uncomprSize,
-			size_t comprSize,
-			bool bcompressed,
-			Batch& batch);
-
   static bool readVectorChar(int fd,
 			     size_t uncomprSize,
 			     size_t comprSize,
@@ -47,8 +41,6 @@ public:
   static bool writeString(int fd, std::string_view str);
 
   static bool sendReply(int fd, Batch& batch);
-
-  static bool receive(int fd, Batch& batch, HEADER& header);
 
   static bool receive(int fd, std::vector<char>& uncompressed, HEADER& header);
 };

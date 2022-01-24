@@ -20,7 +20,7 @@ constexpr char KEYWORDS_END = '&';
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   const auto& winningBid = transaction._winningBid;
   os << transaction._id << ' ';
-  if (Transaction::_globalDiagnostics || transaction._requestDiagnostics) {
+  if (transaction._requestDiagnostics) {
     os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
        << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
@@ -60,7 +60,6 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
-const bool Transaction::_globalDiagnostics = ProgramOptions::get("Diagnostics", false);
 
 Transaction::Transaction(std::string_view input, bool diagnostics) :
   _requestDiagnostics(diagnostics) {
@@ -92,7 +91,7 @@ std::string Transaction::processRequest(std::string_view view, bool diagnostics)
     }
     const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._size);
     transaction.matchAds(adVector);
-    if (transaction._noMatch && !_globalDiagnostics)
+    if (transaction._noMatch && !transaction._requestDiagnostics)
       return id.append(1, ' ').append(EMPTY_REPLY);
     std::ostringstream os;
     os << transaction;

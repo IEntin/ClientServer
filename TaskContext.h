@@ -4,10 +4,17 @@
 
 struct TaskContext {
   TaskContext() = default;
-  TaskContext(std::string_view headerView, HEADER& header);
+  TaskContext(std::string_view headerView);
   TaskContext(const HEADER& header);
   ~TaskContext() = default;
 
+  bool decompress(const std::vector<char>& received, std::vector<char>& uncompressed);
+
+  bool isInputCompressed() const { return _inputCompressed; }
+
   HEADER _header;
-  bool _diagnostics = false;
+  const bool _inputCompressed = true;
+  const size_t _compressedSize = 0;
+  const size_t _uncompressedSize = 0;
+  const bool _diagnostics = false;
 };

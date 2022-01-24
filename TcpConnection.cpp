@@ -5,15 +5,12 @@
 #include "TcpConnection.h"
 #include "Task.h"
 #include "CommUtility.h"
-#include "Compression.h"
 #include "ProgramOptions.h"
 #include <iostream>
 
 extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
-
-const bool TcpConnection::_useStringView = ProgramOptions::get("StringTypeInTask", std::string()) == "STRINGVIEW";
 
 TcpConnection::TcpConnection(boost::asio::io_context& io_context) : _socket(_ioContext), _timer(_ioContext) {}
 
@@ -48,41 +45,18 @@ void TcpConnection::run() noexcept {
 bool TcpConnection::onReceiveRequest() {
   _response.clear();
   _uncompressed.clear();
-  std::string_view headerView(_header, HEADER_SIZE);
-  HEADER header;
-  TaskContext context(headerView, header);
-  const auto& [uncomprSize, comprSize, compressor, diagnostics, done] = header;
-  bool bcompressed = compressor == LZ4;
-  if (bcompressed) {
-    if (!decompress(uncomprSize)) {
+  std::string_view headerView(_headerBuffer, HEADER_SIZE);
+  TaskContext context(headerView);
+  if (context.isInputCompressed()) {
+    if (!context.decompress(_request, _uncompressed)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":decompression failed" << std::endl;
       return false;
     }
   }
-  if (_useStringView)
-    TaskSV::process(context, (bcompressed ? _uncompressed : _request), _response);
-  else {
-    std::string_view input = bcompressed ?
-      std::string_view(_uncompressed.data(), _uncompressed.size()) :
-      std::string_view(_request.data(), _request.size());
-    _requestBatch.clear();
-    utility::split(input, _requestBatch);
-    TaskST::process(context, _requestBatch, _response);
-  }
+  Task::process(context, (context.isInputCompressed() ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
-  return true;
-}
-
-bool TcpConnection::decompress(size_t uncomprSize) {
-  std::string_view received(_request.data(), _request.size());
-  _uncompressed.resize(uncomprSize);
-  if (!Compression::uncompress(received, _uncompressed)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":failed to uncompress payload" << std::endl;
-    return false;
-  }
   return true;
 }
 
@@ -97,9 +71,9 @@ bool TcpConnection::sendReply(Batch& batch) {
 void TcpConnection::readHeader() {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  std::memset(_header, 0, HEADER_SIZE);
+  std::memset(_headerBuffer, 0, HEADER_SIZE);
   boost::asio::async_read(_socket,
-			  boost::asio::buffer(_header),
+			  boost::asio::buffer(_headerBuffer),
 			  [this] (const boost::system::error_code& ec, size_t transferred) {
 			    handleReadHeader(ec, transferred);
 			  });
@@ -108,7 +82,7 @@ void TcpConnection::readHeader() {
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
   asyncWait();
   if (!(ec || stopFlag)) {
-    HEADER t = utility::decodeHeader(std::string_view(_header, HEADER_SIZE));
+    HEADER t = utility::decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
     size_t requestSize = std::get<1>(t);
     _request.clear();
     _request.resize(requestSize);

@@ -121,29 +121,6 @@ bool Fifo::readBatch(int fd,
 		     size_t uncomprSize,
 		     size_t comprSize,
 		     bool bcompressed,
-		     Batch& batch) {
-  std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
-  if (!readString(fd, buffer.data(), comprSize))
-    return false;
-  std::string_view received(buffer.data(), comprSize);
-  if (bcompressed) {
-    std::string_view uncompressedView = Compression::uncompress(received, uncomprSize);
-    if (uncompressedView.empty()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":failed to uncompress payload" << std::endl;
-      return false;
-    }
-    utility::split(uncompressedView, batch); 
-  }
-  else
-    utility::split(received, batch);
-  return true;
-}
-
-bool Fifo::readBatch(int fd,
-		     size_t uncomprSize,
-		     size_t comprSize,
-		     bool bcompressed,
 		     std::ostream* pstream) {
   std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
   if (!readString(fd, buffer.data(), comprSize)) {
@@ -189,14 +166,6 @@ bool Fifo::readVectorChar(int fd,
       return false;
   }
   return true;
-}
-
-bool Fifo::receive(int fd, Batch& batch, HEADER& header) {
-  header = readHeader(fd);
-  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
-  if (!headerDone)
-    return false;
-  return readBatch(fd, uncomprSize, comprSize, compressor == LZ4, batch);
 }
 
 bool Fifo::receive(int fd, std::vector<char>& uncompressed, HEADER& header) {
