@@ -3,17 +3,17 @@
 
 TaskContext::TaskContext(std::string_view headerView) :
   _header(utility::decodeHeader(headerView)),
-  _inputCompressed(std::get<2>(_header).starts_with(LZ4)),
-  _compressedSize(std::get<1>(_header)),
-  _uncompressedSize(std::get<0>(_header)),
-  _diagnostics(std::get<3>(_header))  {}
+  _inputCompressed(std::get<COMPRESSOR>(_header).starts_with(LZ4)),
+  _compressedSize(std::get<COMPRESSED_SIZE>(_header)),
+  _uncompressedSize(std::get<UNCOMPRESSED_SIZE>(_header)),
+  _diagnostics(std::get<DIAGNOSTICS>(_header))  {}
 
 TaskContext::TaskContext(const HEADER& header) :
   _header(header),
-  _inputCompressed(std::get<2>(_header).starts_with(LZ4)),
-  _compressedSize(std::get<1>(_header)),
-  _uncompressedSize(std::get<0>(_header)),
-  _diagnostics(std::get<3>(_header)) {}
+  _inputCompressed(std::get<COMPRESSOR>(_header).starts_with(LZ4)),
+  _compressedSize(std::get<COMPRESSED_SIZE>(_header)),
+  _uncompressedSize(std::get<UNCOMPRESSED_SIZE>(_header)),
+  _diagnostics(std::get<DIAGNOSTICS>(_header)) {}
 
 bool TaskContext::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
   std::string_view received(input.data(), input.size());

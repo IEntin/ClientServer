@@ -45,8 +45,7 @@ void TcpConnection::run() noexcept {
 bool TcpConnection::onReceiveRequest() {
   _response.clear();
   _uncompressed.clear();
-  std::string_view headerView(_headerBuffer, HEADER_SIZE);
-  TaskContext context(headerView);
+  TaskContext context(_header);
   if (context.isInputCompressed()) {
     if (!context.decompress(_request, _uncompressed)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -82,8 +81,8 @@ void TcpConnection::readHeader() {
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
   asyncWait();
   if (!(ec || stopFlag)) {
-    HEADER t = utility::decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
-    size_t requestSize = std::get<1>(t);
+    _header = utility::decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
+    size_t requestSize = std::get<COMPRESSED_SIZE>(_header);
     _request.clear();
     _request.resize(requestSize);
     readRequest();

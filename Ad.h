@@ -9,6 +9,12 @@
 #include <memory>
 #include <vector>
 
+enum BID_INDEX {
+  BID_KEYWORD,
+  AD_WEAK_PTR,
+  BID_MONEY
+};
+
 class Ad;
 using AdBid = std::tuple<std::string_view, std::weak_ptr<Ad>, double>;
 using AdPtr = std::shared_ptr<Ad>;

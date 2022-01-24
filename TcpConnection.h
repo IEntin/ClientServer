@@ -37,6 +37,7 @@ private:
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timer;
   char _headerBuffer[HEADER_SIZE] = {};
+  HEADER _header;
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Batch _response;

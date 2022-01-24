@@ -21,6 +21,13 @@ inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 
+enum HEADER_INDEX {
+  UNCOMPRESSED_SIZE,
+  COMPRESSED_SIZE,
+  COMPRESSOR,
+  DIAGNOSTICS,
+  DONE
+};
 using HEADER = std::tuple<ssize_t, ssize_t, std::string_view, bool, bool>;
 
 using Batch = std::vector<std::string>;

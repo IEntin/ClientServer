@@ -12,6 +12,8 @@ struct TaskContext {
 
   bool isInputCompressed() const { return _inputCompressed; }
 
+  size_t getCompressedSize() const { return _compressedSize; };
+
   HEADER _header;
   const bool _inputCompressed = true;
   const size_t _compressedSize = 0;
