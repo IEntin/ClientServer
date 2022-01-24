@@ -21,7 +21,7 @@ inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 
-enum HEADER_INDEX {
+enum class HEADER_INDEX : unsigned {
   UNCOMPRESSED_SIZE,
   COMPRESSED_SIZE,
   COMPRESSOR,

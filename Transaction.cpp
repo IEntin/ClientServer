@@ -37,10 +37,11 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
     else {
-      auto winningAdPtr = std::get<AD_WEAK_PTR>(winningBid).lock();
+      auto winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_WEAK_PTR)>(winningBid).lock();
       assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << std::get<BID_KEYWORD>(winningBid) << ", "
-	 << utility::Print(std::get<BID_MONEY>(winningBid), 1) << "\n*****\n";
+      os << winningAdPtr->getId() << ", " << std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(winningBid)
+	 << ", " << utility::Print(std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(winningBid), 1)
+	 << "\n*****\n";
     }
   }
   else {
@@ -49,10 +50,10 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
     else {
-      auto winningAdPtr = std::get<AD_WEAK_PTR>(winningBid).lock();
+      auto winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_WEAK_PTR)>(winningBid).lock();
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(std::get<BID_MONEY>(winningBid), 1) << '\n';
+	 << utility::Print(std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(winningBid), 1) << '\n';
     }
   }
   return os;
@@ -106,11 +107,11 @@ std::string Transaction::processRequest(std::string_view view, bool diagnostics)
 
 struct Comparator {
   bool operator()(std::string_view keyword, const AdBid& bid) const {
-    return keyword < std::get<BID_KEYWORD>(bid);
+    return keyword < std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid);
   }
 
   bool operator()(const AdBid& bid, std::string_view keyword) const {
-    return std::get<BID_KEYWORD>(bid) < keyword;
+    return std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid) < keyword;
   }
 };
 
@@ -132,7 +133,8 @@ void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   else
     _winningBid = *std::max_element(_bids.cbegin(), _bids.cend(),
 				    [] (const AdBid& bid1, const AdBid& bid2) {
-				      return std::get<BID_MONEY>(bid1) < std::get<BID_MONEY>(bid2);
+				      return std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid1)
+					< std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid2);
 				    });
 }
 

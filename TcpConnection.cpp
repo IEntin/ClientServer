@@ -82,7 +82,7 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
   asyncWait();
   if (!(ec || stopFlag)) {
     _header = utility::decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
-    size_t requestSize = std::get<COMPRESSED_SIZE>(_header);
+    size_t requestSize = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSED_SIZE)>(_header);
     _request.clear();
     _request.resize(requestSize);
     readRequest();

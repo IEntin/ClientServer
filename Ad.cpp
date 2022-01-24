@@ -96,7 +96,8 @@ bool Ad::parseArray() {
     _bids.push_back(std::make_tuple(vect[i], weak_from_this(), money));
   }
   std::sort(_bids.begin(), _bids.end(), [] (const AdBid& bid1, const AdBid& bid2) {
-	      return std::get<BID_KEYWORD>(bid1) < std::get<BID_KEYWORD>(bid2); });
+	      return std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid1)
+		< std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid2); });
   return true;
 }
 

@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-enum BID_INDEX {
+enum class BID_INDEX : unsigned {
   BID_KEYWORD,
   AD_WEAK_PTR,
   BID_MONEY
