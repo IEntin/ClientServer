@@ -38,10 +38,11 @@ HEADER decodeHeader(std::string_view buffer, bool done) {
     return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
   }
   offset += NUM_FIELD_SIZE;
-  std::string_view compressor(buffer.data() + offset, COMPRESSOR_NAME_SIZE - 1);
+  std::string_view compressor(buffer.data() + offset, COMPRESSOR_NAME_SIZE);
+  bool enabled = compressor.starts_with(LZ4);
   offset += COMPRESSOR_NAME_SIZE;
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
-  return std::make_tuple(uncomprSize, comprSize, compressor, diagnostics, done);
+  return std::make_tuple(uncomprSize, comprSize, enabled ? LZ4 : EMPTY_COMPRESSOR, diagnostics, done);
 }
 
 std::string createRequestId(size_t index) {

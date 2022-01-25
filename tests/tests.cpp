@@ -88,24 +88,6 @@ TEST(FromCharsTest, FloatingPoint) {
   ASSERT_EQ(value, 1234567.89);
 }
 
-TEST(HeaderTest, HeaderTest1) {
-  char buffer[HEADER_SIZE] = {};
-  size_t uncomprSz = 123456;
-  size_t comprSz = 12345;
-  std::string_view compressor("qWe");
-  bool diagnostics = true;
-  utility::encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
-  HEADER header = utility::decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
-  size_t uncomprSzResult = std::get<static_cast<unsigned>(HEADER_INDEX::UNCOMPRESSED_SIZE)>(header);
-  ASSERT_EQ(uncomprSz, uncomprSzResult);
-  size_t comprSzResult = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSED_SIZE)>(header);
-  ASSERT_EQ(comprSz, comprSzResult);
-  std::string_view compressorResult = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSOR)>(header);
-  ASSERT_EQ(compressor, compressorResult);
-  bool diagnosticsResult = std::get<static_cast<unsigned>(HEADER_INDEX::DIAGNOSTICS)>(header);
-  ASSERT_EQ(diagnostics, diagnosticsResult);
-}
-
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
