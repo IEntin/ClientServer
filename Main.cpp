@@ -14,30 +14,16 @@
 
 volatile std::atomic<bool> stopFlag = false;
 
-namespace {
-
-std::promise<void> stopPromise;
-
-} // end of anonimous namespace
-
-void stop() {
-  try {
-    stopPromise.set_value();
-  }
-  catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
-  }
-}
-
 void signalHandler(int signal) {
-  stopFlag.store(true);
-  stop();
 }
 
 int main() {
   signal(SIGPIPE, SIG_IGN);
   std::signal(SIGINT, signalHandler);
+  sigset_t set;
+  sigemptyset(&set);
+  if (sigaddset(&set, SIGINT) == -1)
+    perror("Sigaddset error");
   const bool timing = ProgramOptions::get("Timing", false);
   Chronometer chronometer(timing, __FILE__, __LINE__);
   ProcessRequest processRequest;
@@ -55,8 +41,10 @@ int main() {
   tcp::TcpServer::startServer();
   if (!TaskThread::startThreads(processRequest))
     return 1;
-  auto future = stopPromise.get_future();
-  future.get();
+  int sig;
+  if (sigwait(&set, &sig) != SIGINT)
+    perror("Sigwait error");
+  stopFlag.store(true);
   fifo::FifoServer::joinThreads();
   tcp::TcpServer::stopServer();
   TaskThread::joinThreads();

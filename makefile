@@ -51,8 +51,10 @@ WARNINGS = -Wall -pedantic-errors
 SERVERINCLUDES:=-I. -Icommon 
 SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp)
 
-server : $(SERVERSOURCES) *.h common/*.h
+server : $(SERVERSOURCES) *.h common/*.h $(TESTDIR)/runtests
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
+	./$(TESTDIR)/runtests
+
 
 CLIENTINCLUDES = -Iclient_src -Icommon 
 CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
