@@ -54,7 +54,7 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
       utility::decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
-    if (!readReply(socket, uncomprSize, comprSize, compressor == LZ4, dataStream))
+    if (!readReply(socket, uncomprSize, comprSize, compressor.starts_with(LZ4), dataStream))
       return false;
   }
   return true;

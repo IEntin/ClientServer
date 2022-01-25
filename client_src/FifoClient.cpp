@@ -19,7 +19,7 @@ bool receive(int fd, std::ostream* dataStream) {
   auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] = Fifo::readHeader(fd);
   if (!headerDone)
     return false;
-  if (!Fifo::readBatch(fd, uncomprSize, comprSize, compressor == LZ4, dataStream)) {
+  if (!Fifo::readBatch(fd, uncomprSize, comprSize, compressor.starts_with(LZ4), dataStream)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }

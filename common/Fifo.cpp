@@ -173,7 +173,7 @@ bool Fifo::receive(int fd, std::vector<char>& uncompressed, HEADER& header) {
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
     return false;
-  return readVectorChar(fd, uncomprSize, comprSize, compressor == LZ4, uncompressed);
+  return readVectorChar(fd, uncomprSize, comprSize, compressor.starts_with(LZ4), uncompressed);
 }
 
 ssize_t Fifo::getDefaultPipeSize() {
