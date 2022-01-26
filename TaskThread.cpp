@@ -22,26 +22,27 @@ TaskPtr TaskThread::_task(std::make_shared<Task>());
 unsigned TaskThread::_numberTaskThreads = getNumberTaskThreads();
 std::barrier<CompletionFunction> TaskThread::_barrier(_numberTaskThreads, onTaskFinish);
 std::vector<std::thread> TaskThread::_taskThreads;
+bool TaskThread::_diagnostics = false;
 
 // Completion action is run by only one (any) blocked thread.
-// Here the "first" thread is selected.
+// Here the "first" thread is selected. This method is thread safe.
 
 void TaskThread::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _taskThreads.front().get_id()) {
     _task->finish();
-    // Call static method get() through an instance of class:
     std::atomic_store(&_task, _task->get());
+    _diagnostics = _task->isDiagnosticsEnabled();
   }
-}
+ }
 
 // Process current task (batch of requests) by all threads.
 // Only one task is processed at any given time.
 
 void TaskThread::processTask(TaskPtr& task, ProcessRequest processRequest) {
   while (!stopFlag) {
-    auto [view, atEnd, index, diagnostics] = task->next();
+    auto [view, atEnd, index] = task->next();
     if (!atEnd) {
-      task->updateResponse(index, processRequest(view, diagnostics));
+      task->updateResponse(index, processRequest(view, _diagnostics));
       continue;
     }
     try {

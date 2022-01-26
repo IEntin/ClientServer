@@ -25,4 +25,5 @@ private:
   static unsigned _numberTaskThreads;
   static std::vector<std::thread> _taskThreads;
   static std::barrier<CompletionFunction> _barrier;
+  static bool _diagnostics;
 };

@@ -41,17 +41,18 @@ class Task {
 
   bool empty() const { return _storage.empty(); }
 
-  std::tuple<std::string_view, bool, size_t, bool> next() {
+  bool isDiagnosticsEnabled() const { return _context._diagnostics; }
+
+  std::tuple<std::string_view, bool, size_t> next() {
     size_t pointer = _pointer.fetch_add(1);
     if (pointer < _storage.size()) {
       auto it = std::next(_storage.begin(), pointer);
       return std::make_tuple(std::string_view(it->data(), it->size()),
 			     false,
-			     std::distance(_storage.begin(), it),
-			     _context._diagnostics);
+			     std::distance(_storage.begin(), it));
     }
     else
-      return std::make_tuple(std::string_view(), true, 0, false);
+      return std::make_tuple(std::string_view(), true, 0);
   }
 
   static void push(TaskPtr task);

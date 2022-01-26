@@ -23,7 +23,8 @@ int main() {
   sigset_t set;
   sigemptyset(&set);
   if (sigaddset(&set, SIGINT) == -1)
-    perror("Sigaddset error");
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ' ' << strerror(errno) << std::endl;
   const bool timing = ProgramOptions::get("Timing", false);
   Chronometer chronometer(timing, __FILE__, __LINE__);
   ProcessRequest processRequest;
@@ -41,9 +42,10 @@ int main() {
   tcp::TcpServer::startServer();
   if (!TaskThread::startThreads(processRequest))
     return 1;
-  int sig;
+  int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
-    perror("Sigwait error");
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ' ' << strerror(errno) << std::endl;
   stopFlag.store(true);
   fifo::FifoServer::joinThreads();
   tcp::TcpServer::stopServer();

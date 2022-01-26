@@ -51,9 +51,8 @@ WARNINGS = -Wall -pedantic-errors
 SERVERINCLUDES:=-I. -Icommon 
 SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp)
 
-server : $(SERVERSOURCES) *.h common/*.h $(TESTDIR)/runtests
+server : $(SERVERSOURCES) *.h common/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
-	./$(TESTDIR)/runtests
 
 
 CLIENTINCLUDES = -Iclient_src -Icommon 
@@ -65,8 +64,9 @@ $(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/*.h
 TESTINCLUDES = -Iclient_src -Icommon 
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp)
 
-$(TESTDIR)/runtests : $(TESTSOURCES)
+$(TESTDIR)/runtests : $(TESTSOURCES) server
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
+	./$(TESTDIR)/runtests
 
 .PHONY: clean
 clean:
