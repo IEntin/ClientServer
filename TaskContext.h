@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Utility.h"
+#include "Header.h"
+#include <vector>
 
 struct TaskContext {
   TaskContext() = default;
@@ -12,11 +13,9 @@ struct TaskContext {
 
   bool isInputCompressed() const { return _inputCompressed; }
 
-  size_t getCompressedSize() const { return _compressedSize; }
-
   HEADER _header;
   const bool _inputCompressed = true;
-  const size_t _compressedSize = 0;
-  const size_t _uncompressedSize = 0;
+  const ssize_t _compressedSize = 0;
+  const ssize_t _uncompressedSize = 0;
   const bool _diagnostics = false;
 };

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Utility.h"
 #include "TaskContext.h"
 #include <atomic>
 #include <future>

@@ -1,4 +1,5 @@
 #include "Task.h"
+#include "Utility.h"
 
 std::mutex Task::_queueMutex;
 std::condition_variable Task::_queueCondition;

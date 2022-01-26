@@ -3,9 +3,9 @@
  */
 
 #include "MemoryPool.h"
-#include "lz4.h"
+#include "Header.h"
 #include "ProgramOptions.h"
-#include "Utility.h"
+#include "lz4.h"
 #include <iostream>
 
 const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);

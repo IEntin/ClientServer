@@ -4,44 +4,12 @@
 
 #include "Utility.h"
 #include "Compression.h"
+#include "Header.h"
 #include "ProgramOptions.h"
 #include <cassert>
 #include <cstring>
 
 namespace utility {
-
-void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor, bool diagnostics) {
-  std::memset(buffer, 0, HEADER_SIZE);
-  size_t offset = 0;
-  bool ok = toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
-  assert(ok);
-  offset += NUM_FIELD_SIZE;
-  ok = toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
-  assert(ok);
-  offset +=  NUM_FIELD_SIZE;
-  std::strncpy(buffer + offset, compressor.data(), COMPRESSOR_NAME_SIZE - 1);
-  offset += COMPRESSOR_NAME_SIZE;
-  buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
-}
-
-HEADER decodeHeader(std::string_view buffer, bool done) {
-  size_t offset = 0;
-  size_t uncomprSize = 0;
-  std::string_view stru(buffer.data(), NUM_FIELD_SIZE);
-  if (!fromChars(stru, uncomprSize))
-    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
-  offset +=  NUM_FIELD_SIZE;
-  size_t comprSize = 0;
-  std::string_view strc(buffer.data() + offset, NUM_FIELD_SIZE);
-  if (!fromChars(strc, comprSize))
-    return std::make_tuple(-1, -1, EMPTY_COMPRESSOR, false, false);
-  offset += NUM_FIELD_SIZE;
-  std::string_view compressor(buffer.data() + offset, COMPRESSOR_NAME_SIZE - 1);
-  offset += COMPRESSOR_NAME_SIZE;
-  bool enabled = compressor.starts_with(LZ4);
-  bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
-  return std::make_tuple(uncomprSize, comprSize, (enabled ? LZ4 : EMPTY_COMPRESSOR), diagnostics, done);
-}
 
 std::string createRequestId(size_t index) {
   char arr[CONV_BUFFER_SIZE + 1] = { '[' };

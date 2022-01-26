@@ -3,8 +3,8 @@
  */
 
 #include "Transaction.h"
-#include "ProgramOptions.h"
 #include "Utility.h"
+#include <cassert>
 #include <cstring>
 #include <iomanip>
 

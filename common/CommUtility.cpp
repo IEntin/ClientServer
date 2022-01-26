@@ -1,5 +1,6 @@
 #include "CommUtility.h"
 #include "Compression.h"
+#include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
 
@@ -27,11 +28,11 @@ std::string_view buildReply(const Batch& batch) {
     if (dstView.empty())
       return empty;
     buffer.resize(HEADER_SIZE + dstView.size());
-    utility::encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
+    encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
     std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
   }
   else
-    utility::encodeHeader(buffer.data(), uncomprSize, uncomprSize, EMPTY_COMPRESSOR, false);
+    encodeHeader(buffer.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, false);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }

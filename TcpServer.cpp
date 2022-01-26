@@ -4,6 +4,7 @@
 
 #include "TcpServer.h"
 #include "ProgramOptions.h"
+#include <iostream>
 
 namespace tcp {
 
@@ -44,7 +45,7 @@ void TcpServer::run() noexcept {
 bool TcpServer::startServer() {
   try {
     accept();
-    _thread = std::move(std::thread(TcpServer::run));
+    _thread = std::thread(TcpServer::run);
   }
   catch (const std::exception& e) {
     std::cerr << "exception: " << e.what() << "\n";

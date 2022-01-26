@@ -30,7 +30,7 @@ void TcpConnection::start() {
 	    << "-local " << local.address() << ':' << local.port()
 	    << ",remote " << remote.address() << ':' << remote.port()
 	    << std::endl;
-  _thread = std::move(std::thread(&TcpConnection::run, shared_from_this()));
+  _thread = std::thread(&TcpConnection::run, shared_from_this());
 }
 
 void TcpConnection::run() noexcept {
@@ -81,7 +81,7 @@ void TcpConnection::readHeader() {
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
   asyncWait();
   if (!(ec || stopFlag)) {
-    _header = utility::decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
+    _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
     size_t requestSize = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSED_SIZE)>(_header);
     _request.clear();
     _request.resize(requestSize);

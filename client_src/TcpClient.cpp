@@ -5,6 +5,7 @@
 #include "TcpClient.h"
 #include "Chronometer.h"
 #include "Compression.h"
+#include "Header.h"
 #include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "Utility.h"
@@ -51,10 +52,10 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
     memset(header, 0, HEADER_SIZE);
     boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE), ec);
     auto [uncomprSize, comprSize, compressor, diagnostics, done] =
-      utility::decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
+      decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
-    if (!readReply(socket, uncomprSize, comprSize, compressor == LZ4, dataStream))
+    if (!readReply(socket, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, dataStream))
       return false;
   }
   return true;

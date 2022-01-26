@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include "Utility.h"
+#include "Header.h"
 #include <memory>
 #include <boost/asio.hpp>
+
+using Batch = std::vector<std::string>;
 
 namespace tcp {
 

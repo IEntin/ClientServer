@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include "Utility.h"
+#include "Header.h"
+#include <vector>
+
+using Batch = std::vector<std::string>;
 
 namespace fifo {
 

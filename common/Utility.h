@@ -12,23 +12,6 @@
 #include <vector>
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
-inline constexpr size_t NUM_FIELD_SIZE = 10;
-inline constexpr size_t COMPRESSOR_NAME_SIZE = 4;
-inline constexpr size_t DIAGNOSTICS_SIZE = 2;
-inline constexpr size_t UNUSED_SIZE = 4;
-inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE + DIAGNOSTICS_SIZE + UNUSED_SIZE;
-
-inline constexpr char DIAGNOSTICS_CHAR = 'D';
-inline constexpr char NDIAGNOSTICS_CHAR = 'N';
-
-enum class HEADER_INDEX : unsigned {
-  UNCOMPRESSED_SIZE,
-  COMPRESSED_SIZE,
-  COMPRESSOR,
-  DIAGNOSTICS,
-  DONE
-};
-using HEADER = std::tuple<ssize_t, ssize_t, std::string_view, bool, bool>;
 
 using Batch = std::vector<std::string>;
 
@@ -122,10 +105,6 @@ template <Integral T>
     }
     return true;
 }
-
-void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, std::string_view compressor, bool diagnostics);
-
-HEADER decodeHeader(std::string_view buffer, bool done = true);
 
 std::string createRequestId(size_t index);
 

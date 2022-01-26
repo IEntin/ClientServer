@@ -6,6 +6,7 @@
 #include "Fifo.h"
 #include "ProgramOptions.h"
 #include "Task.h"
+#include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
 #include <iostream>
@@ -81,8 +82,7 @@ void FifoServer::joinThreads() {
   std::vector<FifoServer>().swap(FifoServer::_runnables);
 }
 
-template <typename C>
-bool FifoServer::receiveRequest(C& batch, HEADER& header) {
+bool FifoServer::receiveRequest(std::vector<char>& batch, HEADER& header) {
   if (_fdWrite != -1) {
     close(_fdWrite);
     _fdWrite = -1;

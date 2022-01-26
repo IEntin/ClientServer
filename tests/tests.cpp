@@ -3,6 +3,7 @@
  */
 
 #include "Compression.h"
+#include "Header.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -92,23 +93,23 @@ TEST(HeaderTest, HeaderTest1) {
   char buffer[HEADER_SIZE] = {};
   size_t uncomprSz = 123456;
   size_t comprSz = 12345;
-  static std::string_view compressor("QwE");
+  COMPRESSORS compressor = COMPRESSORS::LZ4;
   bool diagnostics = true;
-  utility::encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
-  HEADER header = utility::decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
-  size_t uncomprSzResult = std::get<static_cast<unsigned>(HEADER_INDEX::UNCOMPRESSED_SIZE)>(header);
+  encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
+  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
+  size_t uncomprSzResult = getUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);
-  size_t comprSzResult = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSED_SIZE)>(header);
+  size_t comprSzResult = getCompressedSize(header);
   ASSERT_EQ(comprSz, comprSzResult);
-  std::string_view compressorResult = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSOR)>(header);
-  ASSERT_EQ(EMPTY_COMPRESSOR, compressorResult);
-  bool diagnosticsResult = std::get<static_cast<unsigned>(HEADER_INDEX::DIAGNOSTICS)>(header);
+  COMPRESSORS compressorResult = getCompressor(header);
+  ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
+  bool diagnosticsResult = getDiagnostics(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
-  compressor = LZ4;
-  utility::encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
-  header = utility::decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
-  compressorResult = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSOR)>(header);
-  ASSERT_EQ(compressorResult, LZ4);
+  compressor = COMPRESSORS::NONE;
+  encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
+  header = decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
+  compressorResult = getCompressor(header);
+  ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
 int main(int argc, char **argv) {

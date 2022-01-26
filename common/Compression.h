@@ -7,8 +7,7 @@
 #include <string>
 #include <vector>
 
-inline constexpr std::string_view EMPTY_COMPRESSOR = "EMP";
-inline constexpr std::string_view LZ4 = "LZ4";
+enum class COMPRESSORS : unsigned short;
 
 class Compression {
   Compression() = delete;
@@ -20,7 +19,7 @@ class Compression {
 				 char* uncompressed,
 				 size_t uncomprSize);
  public:
-  static std::pair<std::string_view, bool> isCompressionEnabled();
+  static std::pair<COMPRESSORS, bool> isCompressionEnabled();
 
   static std::string_view compress(std::string_view origin);
 
