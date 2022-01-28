@@ -3,24 +3,21 @@
  */
 
 #include "TaskThread.h"
-#include "ProgramOptions.h"
 #include <cassert>
 #include <iostream>
+
+extern unsigned  numberTaskThreadsCfg;
 
 namespace {
 
 volatile std::atomic<bool> stopFlag = false;
 
-unsigned getNumberTaskThreads() {
-  int numberTaskThreadsConfig = ProgramOptions::get("NumberTaskThreads", -1);
-  return numberTaskThreadsConfig > 0 ? numberTaskThreadsConfig : std::thread::hardware_concurrency();
-}
-
 } // end of anonimous namespace
 
 TaskPtr TaskThread::_task(std::make_shared<Task>());
-unsigned TaskThread::_numberTaskThreads = getNumberTaskThreads();
-std::barrier<CompletionFunction> TaskThread::_barrier(_numberTaskThreads, onTaskFinish);
+unsigned TaskThread::_numberThreads = numberTaskThreadsCfg > 0 ? numberTaskThreadsCfg :
+std::thread::hardware_concurrency();
+std::barrier<CompletionFunction> TaskThread::_barrier(_numberThreads, onTaskFinish);
 std::vector<std::thread> TaskThread::_taskThreads;
 bool TaskThread::_diagnostics = false;
 
@@ -30,7 +27,7 @@ bool TaskThread::_diagnostics = false;
 void TaskThread::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _taskThreads.front().get_id()) {
     _task->finish();
-    std::atomic_store(&_task, _task->get());
+    _task = Task::get();
     _diagnostics = _task->isDiagnosticsEnabled();
   }
  }
@@ -57,7 +54,7 @@ void TaskThread::processTask(TaskPtr& task, ProcessRequest processRequest) {
 }
 
 bool TaskThread::startThreads(ProcessRequest processRequest) {
-  for (unsigned i = 0; i < _numberTaskThreads; ++i)
+  for (unsigned i = 0; i < _numberThreads; ++i)
     _taskThreads.emplace_back([processRequest] () {
 				processTask(_task, processRequest);
 			      });

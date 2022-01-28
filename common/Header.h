@@ -5,10 +5,10 @@
 #include <tuple>
 
 inline constexpr size_t NUM_FIELD_SIZE = 10;
-inline constexpr size_t COMPRESSOR_NAME_SIZE = 2;
+inline constexpr size_t COMPRESSOR_TYPE_SIZE = 2;
 inline constexpr size_t DIAGNOSTICS_SIZE = 2;
 inline constexpr size_t UNUSED_SIZE = 4;
-inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_NAME_SIZE + DIAGNOSTICS_SIZE + UNUSED_SIZE;
+inline constexpr size_t HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + UNUSED_SIZE;
 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';

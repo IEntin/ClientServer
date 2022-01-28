@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 #include <vector>
 
 using Batch = std::vector<std::string>;
@@ -9,4 +9,6 @@ namespace commutility {
 
 std::string_view buildReply(const Batch& batch);
 
- } // end of namespace commutility
+size_t createPayload(const char* sourceName, Batch& payload);
+
+} // end of namespace commutility

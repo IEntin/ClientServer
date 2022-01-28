@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ClientOptions.h"
 #include <boost/asio.hpp>
 
 namespace tcp {
@@ -16,15 +17,11 @@ struct CloseSocket {
   boost::asio::ip::tcp::socket& _socket;
 };
 
-bool run(const Batch& payload,
-	 bool runLoop,
-	 unsigned maxNumberTasks,
-	 std::ostream* dataStream,
-	 std::ostream* instrStream);
+bool run(const Batch& payload, const TcpClientOptions& options);
 
 bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
-		 std::ostream* dataStream);
+		 const TcpClientOptions& options);
 
 bool readReply(boost::asio::ip::tcp::socket& socket,
 	       size_t uncomprSize,

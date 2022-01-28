@@ -10,21 +10,25 @@ namespace tcp {
 
 class TcpServer {
 public:
-  TcpServer() = delete;
-  ~TcpServer() = delete;
-  static bool startServer();
+  TcpServer(unsigned port, unsigned timeout);
+  ~TcpServer() = default;
+  void stop();
+  static bool startServer(unsigned port, unsigned timeout);
   static void stopServer();
 private:
-  static void accept();
+  void accept();
 
-  static void handleAccept(std::shared_ptr<TcpConnection> connection,
-			   const boost::system::error_code& ec);
+  void handleAccept(std::shared_ptr<TcpConnection> connection,
+		    const boost::system::error_code& ec);
   static void run() noexcept;
-  static boost::asio::io_context _ioContext;
-  static unsigned _tcpPort;
-  static boost::asio::ip::tcp::endpoint _endpoint;
-  static boost::asio::ip::tcp::acceptor _acceptor;
-  static std::thread _thread;
+
+  boost::asio::io_context _ioContext;
+  unsigned _tcpPort;
+  unsigned _timeout;
+  boost::asio::ip::tcp::endpoint _endpoint;
+  boost::asio::ip::tcp::acceptor _acceptor;
+  std::thread _thread;
+  static std::shared_ptr<TcpServer> _instance;
 };
 
 } // end of namespace tcp

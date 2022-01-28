@@ -2,16 +2,20 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "CommUtility.h"
 #include "Compression.h"
 #include "Header.h"
+#include "MemoryPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 
-std::string readContent(const char* sourceName) {
-  std::ifstream ifs(sourceName);
+constexpr const char* sourceName = "client_bin/requests.log";
+
+std::string readContent(const std::string& name = sourceName) {
+  std::ifstream ifs(sourceName, std::ifstream::in | std::ifstream::binary);
   if (!ifs) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
 	      << std::strerror(errno) << ' ' << sourceName << std::endl;
@@ -52,7 +56,7 @@ bool testCompressionDecompression2(std::string_view input) {
 
 TEST(CompressionTest, CompressionTest1) {
   bool compressionTestResult = true;
-  const std::string content = readContent("client_bin/requests.log");
+  const std::string content = readContent();
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression1(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
@@ -112,7 +116,20 @@ TEST(HeaderTest, HeaderTest1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
+TEST(PreparePackageTest, PreparePackageTest1) {
+  Batch payload;
+  commutility::createPayload(sourceName, payload);
+  Batch modified;
+  size_t bufferSize = 360000;
+  bool diagnostics = true;
+  bool prepared = utility::preparePackage(payload, modified, bufferSize, diagnostics);
+  ASSERT_TRUE(prepared);
+  ASSERT_TRUE(Compression::isCompressionEnabled().second);
+}
+
 int main(int argc, char **argv) {
+  MemoryPool::setup(100000);
+  Compression::setCompressionEnabled("LZ4");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

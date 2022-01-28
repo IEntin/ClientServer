@@ -22,7 +22,7 @@ private:
   static void onTaskFinish() noexcept;
   static void processTask(TaskPtr& task, ProcessRequest processRequest);
   static TaskPtr _task;
-  static unsigned _numberTaskThreads;
+  static unsigned _numberThreads;
   static std::vector<std::thread> _taskThreads;
   static std::barrier<CompletionFunction> _barrier;
   static bool _diagnostics;

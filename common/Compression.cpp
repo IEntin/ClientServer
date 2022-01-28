@@ -5,8 +5,9 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "ProgramOptions.h"
 #include "lz4.h"
+#include <cassert>
+#include <cstring>
 #include <iostream>
 
 namespace {
@@ -15,12 +16,18 @@ constexpr std::string_view LZ4 = "LZ4";
 
 } // end of anonimous namespace
 
+COMPRESSORS Compression::_compressor = COMPRESSORS::NONE;
+bool Compression::_enabled = false;
+
 std::pair<COMPRESSORS, bool> Compression::isCompressionEnabled() {
-  static std::string compressor = ProgramOptions::get("Compression", std::string());
-  static bool enabled = compressor.starts_with("LZ4");
-  static auto& dummy[[maybe_unused]] =
-    std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
-  return enabled ? std::make_pair(COMPRESSORS::LZ4, true) : std::make_pair(COMPRESSORS::NONE, false);
+  return std::make_pair(_compressor, _enabled);
+}
+
+bool Compression::setCompressionEnabled(const std::string& compressorStr) {
+  _enabled = compressorStr.starts_with(LZ4);
+  _compressor = COMPRESSORS::LZ4;
+  std::clog << LZ4 << "compression " << (_enabled ? "enabled" : "disabled") << std::endl;
+  return _enabled;
 }
 
 std::string_view Compression::compressInternal(std::string_view uncompressed,

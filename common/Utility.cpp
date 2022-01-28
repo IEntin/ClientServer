@@ -5,7 +5,6 @@
 #include "Utility.h"
 #include "Compression.h"
 #include "Header.h"
-#include "ProgramOptions.h"
 #include <cassert>
 #include <cstring>
 
@@ -19,13 +18,12 @@ std::string createRequestId(size_t index) {
   return arr;
 }
 
-bool preparePackage(const Batch& payload, Batch& modified) {
-  static const bool diagnostics = ProgramOptions::get("Diagnostics", false);
+  bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bool diagnostics) {
   modified.clear();
   // keep vector capacity
   static Batch aggregated;
   aggregated.clear();
-  if (!mergePayload(payload, aggregated)) {
+  if (!mergePayload(payload, aggregated, bufferSize)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -37,16 +35,15 @@ bool preparePackage(const Batch& payload, Batch& modified) {
 }
 
 // reduce number of write/read system calls.
-bool mergePayload(const Batch& batch, Batch& aggregatedBatch) {
+  bool mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t bufferSize) {
   if (batch.empty())
     return false;
-  static const size_t BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
   std::string bigString;
   size_t reserveSize = 0;
   if (reserveSize)
     bigString.reserve(reserveSize + 1);
   for (std::string_view line : batch) {
-    if (bigString.size() + line.size() < BUFFER_SIZE || bigString.empty())
+    if (bigString.size() + line.size() < bufferSize || bigString.empty())
       bigString.append(line);
     else {
       reserveSize = std::max(reserveSize, bigString.size());

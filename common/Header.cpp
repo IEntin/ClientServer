@@ -12,9 +12,9 @@ void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, COMPRESSORS co
   ok = utility::toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
   assert(ok);
   offset +=  NUM_FIELD_SIZE;
-  ok = utility::toChars(static_cast<unsigned short>(compressor), buffer + offset, COMPRESSOR_NAME_SIZE);
+  ok = utility::toChars(static_cast<unsigned short>(compressor), buffer + offset, COMPRESSOR_TYPE_SIZE);
   assert(ok);
-  offset += COMPRESSOR_NAME_SIZE;
+  offset += COMPRESSOR_TYPE_SIZE;
   buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
 }
 
@@ -30,12 +30,12 @@ HEADER decodeHeader(std::string_view buffer, bool done) {
   if (!utility::fromChars(strc, comprSize))
     return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
   offset += NUM_FIELD_SIZE;
-  std::string_view str(buffer.data() + offset, COMPRESSOR_NAME_SIZE);
+  std::string_view str(buffer.data() + offset, COMPRESSOR_TYPE_SIZE);
   size_t value = 0;
   if (!utility::fromChars(str, value))
     return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
   COMPRESSORS compressor = static_cast<COMPRESSORS>(value);
-  offset += COMPRESSOR_NAME_SIZE;
+  offset += COMPRESSOR_TYPE_SIZE;
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
   return std::make_tuple(uncomprSize, comprSize, compressor, diagnostics, done);
 }

@@ -3,7 +3,11 @@
  */
 
 #include "Chronometer.h"
+#include "ClientOptions.h"
+#include "CommUtility.h"
+#include "Compression.h"
 #include "FifoClient.h"
+#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "TcpClient.h"
 #include "Utility.h"
@@ -17,65 +21,35 @@ void signalHandler(int signal) {
   stopFlag.store(true);
 }
 
-size_t createPayload(Batch& payload) {
-  std::string sourceName = ProgramOptions::get("SourceName", std::string());
-  std::ifstream input(sourceName, std::ifstream::in | std::ifstream::binary);
-  if (!input)
-    throw std::runtime_error(sourceName);
-  unsigned long long requestIndex = 0;
-  std::string line;
-  Batch batch;
-  while (std::getline(input, line)) {
-    if (line.empty())
-      continue;
-    std::string modifiedLine(utility::createRequestId(requestIndex++));
-    modifiedLine.append(line.append(1, '\n'));
-    payload.emplace_back(std::move(modifiedLine));
-  }
-  return payload.size();
-}
-
 int main() {
   const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
   const bool useFifo = communicationType == "FIFO";
   const bool useTcp = communicationType == "TCP";
   try {
-    const bool timing = ProgramOptions::get("Timing", false);
-    const std::string instrumentationFn = ProgramOptions::get("InstrumentationFn", std::string());
-    std::ostream* instrStream = nullptr;
-    std::ofstream instrFileStream;
-    if (!instrumentationFn.empty()) {
-      instrFileStream.open(instrumentationFn);
-      instrStream = &instrFileStream;
-    }
-    Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
+    Chronometer chronometer(true, __FILE__, __LINE__, __func__);
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
     signal(SIGPIPE, SIG_IGN);
     std::signal(SIGINT, signalHandler);
     chronometer.start(__FILE__, __func__, __LINE__);
+    MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000));
+    std::string compressorStr = ProgramOptions::get("Compression", std::string());
+    Compression::setCompressionEnabled(compressorStr);
+    std::string sourceName = ProgramOptions::get("SourceName", std::string());
     Batch payload;
-    createPayload(payload);
+    commutility::createPayload(sourceName.c_str(), payload);
     chronometer.stop(__FILE__, __func__, __LINE__);
-    const bool runLoop = ProgramOptions::get("RunLoop", false);
-    const std::string outpuFileName = ProgramOptions::get("OutputFileName", std::string());
-    std::ostream* dataStream = nullptr;
-    std::ofstream dataFileStream;
-    unsigned maxNumberTasks = 0;
-    if (!outpuFileName.empty()) {
-      dataFileStream.open(outpuFileName, std::ofstream::binary);
-      dataStream = &dataFileStream;
-      maxNumberTasks = ProgramOptions::get("MaxNumberTasks", 100);
+    if (useFifo) {
+      FifoClientOptions options;
+      if (!fifo::run(payload, options))
+	return 1;
     }
-    else
-      maxNumberTasks = std::numeric_limits<unsigned int>::max();
-    if (useFifo)
-      if (!fifo::run(payload, runLoop, maxNumberTasks, dataStream, instrStream))
+    if (useTcp) {
+      TcpClientOptions options;
+      if (!tcp::run(payload, options))
 	return 1;
-    if (useTcp)
-      if (!tcp::run(payload, runLoop, maxNumberTasks, dataStream, instrStream))
-	return 1;
+    }
   }
   catch (std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ClientOptions.h"
 #include <string>
 #include <vector>
 
@@ -13,12 +14,11 @@ using Batch = std::vector<std::string>;
 
 bool receive(int fd, std::ostream* dataStream);
 
-bool run(const Batch& payload,
-	 bool runLoop,
-	 unsigned maxNumberTasks,
-	 std::ostream* dataStream,
-	 std::ostream* instrStream);
+bool run(const Batch& payload, const FifoClientOptions& options);
 
-bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* pstream);
+bool processTask(const Batch& payload,
+		 const FifoClientOptions& options,
+		 int& fdWrite,
+		 int& fdRead);
 
 } // end of namespace fifo

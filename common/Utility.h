@@ -108,9 +108,9 @@ template <Integral T>
 
 std::string createRequestId(size_t index);
 
-bool preparePackage(const Batch& payload, Batch& modified);
+bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bool diagnostics);
 
-bool mergePayload(const Batch& batch, Batch& aggregatedBatch);
+bool mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t bufferSize);
 
 bool buildMessage(const Batch& payload, Batch& message, bool diagnostics);
 

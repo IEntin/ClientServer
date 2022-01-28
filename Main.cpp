@@ -3,8 +3,10 @@
  */
 
 #include "Chronometer.h"
+#include "Compression.h"
 #include "Echo.h"
 #include "FifoServer.h"
+#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "TaskThread.h"
 #include "TcpServer.h"
@@ -13,6 +15,7 @@
 #include <iostream>
 
 volatile std::atomic<bool> stopFlag = false;
+int numberTaskThreadsCfg = ProgramOptions::get("NumberTaskThreads", -1);
 
 void signalHandler(int signal) {
 }
@@ -25,6 +28,9 @@ int main() {
   if (sigaddset(&set, SIGINT) == -1)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
+  MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000));
+  std::string compressorStr = ProgramOptions::get("Compression", std::string());
+  Compression::setCompressionEnabled(compressorStr);
   const bool timing = ProgramOptions::get("Timing", false);
   Chronometer chronometer(timing, __FILE__, __LINE__);
   ProcessRequest processRequest;
@@ -39,7 +45,7 @@ int main() {
   }
   if (!fifo::FifoServer::startThreads())
     return 1;
-  tcp::TcpServer::startServer();
+  tcp::TcpServer::startServer(ProgramOptions::get("TcpPort", 0), ProgramOptions::get("Timeout", 1));
   if (!TaskThread::startThreads(processRequest))
     return 1;
   int sig = 0;

@@ -6,9 +6,10 @@
 #include "Chronometer.h"
 #include "Compression.h"
 #include "Fifo.h"
-#include "ProgramOptions.h"
+#include "MemoryPool.h"
 #include "Utility.h"
 #include <atomic>
+#include <cstring>
 #include <fcntl.h>
 
 extern volatile std::atomic<bool> stopFlag;
@@ -26,32 +27,30 @@ bool receive(int fd, std::ostream* dataStream) {
   return true;
 }
 
-bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* dataStream) {
+bool processTask(const Batch& payload,
+		 const FifoClientOptions& options,
+		 int& fdWrite,
+		 int& fdRead) {
   // keep vector capacity
   static Batch modified;
-  // Simulate fast client to measure server performance accurately.
-  // used with "RunLoop" : true
-  static bool prepareOnce = ProgramOptions::get("PrepareBatchOnce", false);
-  if (prepareOnce) {
-    static bool done = utility::preparePackage(payload, modified);
+  static const size_t bufferSize = MemoryPool::getInitialBufferSize();
+  if (options._prepareOnce) {
+    static bool done = utility::preparePackage(payload, modified, bufferSize, options._diagnostics);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
   }
-  else if (!utility::preparePackage(payload, modified))
+  else if (!utility::preparePackage(payload, modified, bufferSize, options._diagnostics))
     return false;
-  static const std::string fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
-  static const std::string fifoBaseName = ProgramOptions::get("FifoBaseName", std::string());
-  static const std::string fifoName = fifoDirectoryName + '/' + fifoBaseName;
   for (const auto& chunk : modified) {
     close(fdRead);
     fdRead = -1;
     if (!stopFlag) {
-      fdWrite = open(fifoName.c_str(), O_WRONLY);
+      fdWrite = open(options._fifoName.c_str(), O_WRONLY);
       if (fdWrite == -1) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << fifoName << '-' << std::strerror(errno) << std::endl;
+		  << options._fifoName << '-' << std::strerror(errno) << std::endl;
 	return false;
       }
     }
@@ -64,14 +63,14 @@ bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* 
     close(fdWrite);
     fdWrite = -1;
     if (!stopFlag) {
-      fdRead = open(fifoName.c_str(), O_RDONLY);
+      fdRead = open(options._fifoName.c_str(), O_RDONLY);
       if (fdRead == -1) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << fifoName << '-' << std::strerror(errno) << std::endl;
+		  << options._fifoName << '-' << std::strerror(errno) << std::endl;
 	return false;
       }
     }
-    if (!receive(fdRead, dataStream))
+    if (!receive(fdRead, options._dataStream))
       return false;
   }
   return true;
@@ -79,25 +78,20 @@ bool processTask(const Batch& payload, int& fdWrite, int& fdRead, std::ostream* 
 
 // To run a test infinite loop must keep payload unchanged.
 // in a real setup payload is used once and vector is mutable.
-bool run(const Batch& payload,
-	 bool runLoop,
-	 unsigned maxNumberTasks,
-	 std::ostream* dataStream,
-	 std::ostream* instrStream) {
-  static const bool timing = ProgramOptions::get("Timing", false);
+bool run(const Batch& payload, const FifoClientOptions& options) {
   int fdWrite = -1;
   CloseFileDescriptor raiiw(fdWrite);
   int fdRead = -1;
   CloseFileDescriptor raiir(fdRead);
   unsigned numberTasks = 0;
   do {
-    Chronometer chronometer(timing, __FILE__, __LINE__, __func__, instrStream);
-    if (!processTask(payload, fdWrite, fdRead, dataStream))
+    Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
+    if (!processTask(payload, options, fdWrite, fdRead))
       return false;
     // limit output file size
-    if (++numberTasks == maxNumberTasks)
+    if (++numberTasks == options._maxNumberTasks)
       break;
-  } while (runLoop);
+  } while (options._runLoop);
   return true;
 }
 

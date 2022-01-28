@@ -5,14 +5,16 @@
 #include "TcpConnection.h"
 #include "Task.h"
 #include "CommUtility.h"
-#include "ProgramOptions.h"
 #include <iostream>
 
 extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
-TcpConnection::TcpConnection(boost::asio::io_context& io_context) : _socket(_ioContext), _timer(_ioContext) {}
+  TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout) :
+    _socket(_ioContext),
+    _timeout(timeout),
+    _timer(_ioContext) {}
 
 TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
@@ -82,15 +84,13 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
   asyncWait();
   if (!(ec || stopFlag)) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
-    size_t requestSize = std::get<static_cast<unsigned>(HEADER_INDEX::COMPRESSED_SIZE)>(_header);
     _request.clear();
-    _request.resize(requestSize);
+    _request.resize(getCompressedSize(_header));
     readRequest();
   }
-  else {
-    if (ec)
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-		<< ec.what() << std::endl;
+  else if (ec) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+	      << ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -141,9 +141,8 @@ void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t
 }
 
 void TcpConnection::asyncWait() {
-  const static unsigned timeout = ProgramOptions::get("Timeout", 1);
   boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::seconds(timeout), ignore);
+  _timer.expires_from_now(std::chrono::seconds(_timeout), ignore);
   _timer.async_wait([this](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;

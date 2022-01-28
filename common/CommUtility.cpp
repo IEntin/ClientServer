@@ -3,6 +3,8 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
+#include <fstream>
+#include <iostream>
 
 namespace commutility {
 
@@ -35,6 +37,23 @@ std::string_view buildReply(const Batch& batch) {
     encodeHeader(buffer.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, false);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
+}
+
+size_t createPayload(const char* sourceName, Batch& payload) {
+  std::ifstream input(sourceName, std::ifstream::in | std::ifstream::binary);
+  if (!input)
+    throw std::runtime_error(sourceName);
+  unsigned long long requestIndex = 0;
+  std::string line;
+  Batch batch;
+  while (std::getline(input, line)) {
+    if (line.empty())
+      continue;
+    std::string modifiedLine(utility::createRequestId(requestIndex++));
+    modifiedLine.append(line.append(1, '\n'));
+    payload.emplace_back(std::move(modifiedLine));
+  }
+  return payload.size();
 }
 
 } // end of namespace commutility

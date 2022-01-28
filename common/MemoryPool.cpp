@@ -4,16 +4,12 @@
 
 #include "MemoryPool.h"
 #include "Header.h"
-#include "ProgramOptions.h"
 #include "lz4.h"
 #include <iostream>
 
-const size_t DYNAMIC_BUFFER_SIZE = ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000);
-
-thread_local std::vector<char>
-MemoryPool::_primaryBuffer(LZ4_compressBound(DYNAMIC_BUFFER_SIZE) + HEADER_SIZE);
-thread_local std::vector<char>
-MemoryPool::_secondaryBuffer(LZ4_compressBound(DYNAMIC_BUFFER_SIZE) + HEADER_SIZE);
+size_t MemoryPool::_initialBufferSize;
+thread_local std::vector<char> MemoryPool::_primaryBuffer;
+thread_local std::vector<char> MemoryPool::_secondaryBuffer;
 
 std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
   if (requested > _primaryBuffer.capacity()) {
@@ -33,4 +29,14 @@ std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
     _secondaryBuffer.reserve(requested);
   }
   return _secondaryBuffer;
+}
+
+void MemoryPool::setup(size_t initialSize) {
+  _initialBufferSize = initialSize;
+  _primaryBuffer.resize(LZ4_compressBound(initialSize) + HEADER_SIZE);
+  _secondaryBuffer.resize(LZ4_compressBound(initialSize) + HEADER_SIZE);
+}
+
+size_t MemoryPool::getInitialBufferSize() {
+  return _initialBufferSize;
 }

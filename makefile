@@ -14,7 +14,7 @@
 
 CMPLR=
 ifeq ($(CMPLR),)
-	CXX=g++
+	CXX=clang++
 else
 	CXX=$(CMPLR)
 endif
