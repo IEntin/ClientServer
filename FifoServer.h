@@ -15,7 +15,7 @@ namespace fifo {
 class FifoServer {
   static std::vector<FifoServer> _runnables;
   static std::vector<std::thread> _threads;
-  static const std::string _fifoDirectoryName;
+  static std::string _fifoDirectoryName;
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
@@ -25,7 +25,7 @@ public:
   explicit FifoServer(const std::string& receiveFifoName);
   ~FifoServer();
   void operator()() noexcept;
-  static bool startThreads();
+  static bool startThreads(const std::string& fifoDirName, const std::string& fifoBaseNames);
   static void joinThreads();
   static void removeFifoFiles();
   std::vector<char> _uncompressedRequest;

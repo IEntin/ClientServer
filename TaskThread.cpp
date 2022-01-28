@@ -6,7 +6,7 @@
 #include <cassert>
 #include <iostream>
 
-extern unsigned  numberTaskThreadsCfg;
+extern unsigned getNumberTaskThreads();
 
 namespace {
 
@@ -15,8 +15,7 @@ volatile std::atomic<bool> stopFlag = false;
 } // end of anonimous namespace
 
 TaskPtr TaskThread::_task(std::make_shared<Task>());
-unsigned TaskThread::_numberThreads = numberTaskThreadsCfg > 0 ? numberTaskThreadsCfg :
-std::thread::hardware_concurrency();
+unsigned TaskThread::_numberThreads = getNumberTaskThreads();
 std::barrier<CompletionFunction> TaskThread::_barrier(_numberThreads, onTaskFinish);
 std::vector<std::thread> TaskThread::_taskThreads;
 bool TaskThread::_diagnostics = false;
@@ -30,7 +29,7 @@ void TaskThread::onTaskFinish() noexcept {
     _task = Task::get();
     _diagnostics = _task->isDiagnosticsEnabled();
   }
- }
+}
 
 // Process current task (batch of requests) by all threads.
 // Only one task is processed at any given time.

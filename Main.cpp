@@ -15,7 +15,15 @@
 #include <iostream>
 
 volatile std::atomic<bool> stopFlag = false;
-int numberTaskThreadsCfg = ProgramOptions::get("NumberTaskThreads", -1);
+
+unsigned getNumberTaskThreads() {
+  unsigned numberTaskThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
+  return numberTaskThreadsCfg > 0 ? numberTaskThreadsCfg : std::thread::hardware_concurrency();
+}
+
+size_t getMemPoolBufferSize() {
+  return ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000);
+}
 
 void signalHandler(int signal) {
 }
@@ -28,7 +36,6 @@ int main() {
   if (sigaddset(&set, SIGINT) == -1)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
-  MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 200000));
   std::string compressorStr = ProgramOptions::get("Compression", std::string());
   Compression::setCompressionEnabled(compressorStr);
   const bool timing = ProgramOptions::get("Timing", false);
@@ -43,7 +50,8 @@ int main() {
     std::cerr << "No valid processRequest definition provided" << std::endl;
     return 1;
   }
-  if (!fifo::FifoServer::startThreads())
+  if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName", std::string()),
+				      ProgramOptions::get("FifoBaseNames", std::string())))
     return 1;
   tcp::TcpServer::startServer(ProgramOptions::get("TcpPort", 0), ProgramOptions::get("Timeout", 1));
   if (!TaskThread::startThreads(processRequest))

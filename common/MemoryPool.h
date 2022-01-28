@@ -13,7 +13,6 @@ struct MemoryPool {
   static std::pair<char*, size_t> getPrimaryBuffer(size_t capacity);
   static std::vector<char>& getSecondaryBuffer(size_t capacity);
   static size_t getInitialBufferSize();
-  static void setup(size_t initialSize);
 private:
   MemoryPool() = delete;
   ~MemoryPool() = delete;

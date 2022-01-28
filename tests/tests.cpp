@@ -14,6 +14,10 @@
 
 constexpr const char* sourceName = "client_bin/requests.log";
 
+size_t getMemPoolBufferSize() {
+  return 100000;
+}
+
 std::string readContent(const std::string& name = sourceName) {
   std::ifstream ifs(sourceName, std::ifstream::in | std::ifstream::binary);
   if (!ifs) {
@@ -128,7 +132,6 @@ TEST(PreparePackageTest, PreparePackageTest1) {
 }
 
 int main(int argc, char **argv) {
-  MemoryPool::setup(100000);
   Compression::setCompressionEnabled("LZ4");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

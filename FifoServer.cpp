@@ -4,11 +4,11 @@
 
 #include "FifoServer.h"
 #include "Fifo.h"
-#include "ProgramOptions.h"
 #include "Task.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
+#include <cstring>
 #include <iostream>
 #include <sys/stat.h>
 
@@ -18,7 +18,7 @@ namespace fifo {
 
 std::vector<FifoServer> FifoServer::_runnables;
 std::vector<std::thread> FifoServer::_threads;
-const std::string FifoServer::_fifoDirectoryName = ProgramOptions::get("FifoDirectoryName", std::string());
+std::string FifoServer::_fifoDirectoryName;
 
 FifoServer::FifoServer(const std::string& fifoName) :
   _fifoName(fifoName) {}
@@ -31,12 +31,12 @@ FifoServer::~FifoServer() {
 }
 
 // start threads - one for each client
-bool FifoServer::startThreads() {
+  bool FifoServer::startThreads(const std::string& fifoDirName, const std::string& fifoBaseNames) {
+    _fifoDirectoryName = fifoDirName;
   // in case there was no proper shudown.
   removeFifoFiles();
-  std::string fifoBaseNamesStr = ProgramOptions::get("FifoBaseNames", std::string());
   std::vector<std::string> fifoBaseNameVector;
-  utility::split(fifoBaseNamesStr, fifoBaseNameVector, ",\n ");
+  utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-empty fifo base names vector" << std::endl;
