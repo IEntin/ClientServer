@@ -3,7 +3,6 @@
  */
 
 #include "Ad.h"
-#include "ProgramOptions.h"
 #include "Utility.h"
 #include <cassert>
 #include <cstring>
@@ -27,7 +26,6 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
 }
 
 SizeMap Ad::_mapBySize;
-bool Ad::_loaded = Ad::load();
 
 Ad::Ad(std::string&& input) noexcept : _input(std::move(input)) {}
 
@@ -109,13 +107,9 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const Size& size) {
   return it->second;
 }
 
-bool Ad::load() {
-  const std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
-  if (method != "Transaction")
-    return false;
-  const std::string adsFileName = ProgramOptions::get("AdsFileName", std::string());
+bool Ad::load(const std::string& fileName) {
   try {
-    std::ifstream ifs(adsFileName, std::ifstream::in);
+    std::ifstream ifs(fileName, std::ifstream::in);
     if (!ifs)
       throw std::runtime_error("");
     while(true) {
@@ -140,7 +134,7 @@ bool Ad::load() {
   }
   catch (...) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << std::strerror(errno) << ' ' << adsFileName << std::endl;
+	      << ' ' << std::strerror(errno) << ' ' << fileName << std::endl;
     std::exit(1);
     return false;
   }

@@ -34,8 +34,10 @@ int main() {
   Chronometer chronometer(timing, __FILE__, __LINE__);
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
-  if (method == "Transaction")
+  if (method == "Transaction") {
+    Ad::load(ProgramOptions::get("AdsFileName", std::string()));
     processRequest = Transaction::processRequest;
+  }
   else if (method == "Echo")
     processRequest = echo::processRequest;
   else {

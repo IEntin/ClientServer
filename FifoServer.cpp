@@ -12,7 +12,11 @@
 #include <iostream>
 #include <sys/stat.h>
 
-extern volatile std::atomic<bool> stopFlag;
+namespace {
+
+volatile std::atomic<bool> stopFlag;
+
+} // endof anonimous namespace
 
 namespace fifo {
 
@@ -56,6 +60,7 @@ FifoServer::~FifoServer() {
 }
 
 void FifoServer::joinThreads() {
+  stopFlag.store(true);
   for (auto& runnable : _runnables) {
     int fd = open(runnable._fifoName.c_str(), O_WRONLY);
     if (fd == -1) {

@@ -28,7 +28,7 @@ public:
   explicit Ad(std::string&& input) noexcept;
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
-  static bool load();
+  static bool load(const std::string& fileName);
   static const std::vector<AdPtr>& getAdsBySize(const Size& size);
 private:
   Ad(const Ad& other) = delete;
