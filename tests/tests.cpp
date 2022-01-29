@@ -132,6 +132,7 @@ TEST(PreparePackageTest, PreparePackageTest1) {
 }
 
 int main(int argc, char **argv) {
+  MemoryPool::setup(200000);
   Compression::setCompressionEnabled("LZ4");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

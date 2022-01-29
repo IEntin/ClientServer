@@ -7,13 +7,15 @@
 #include <vector>
 
 struct MemoryPool {
-  static size_t _initialBufferSize;
-  static thread_local std::vector<char> _primaryBuffer;
-  static thread_local std::vector<char> _secondaryBuffer;
+  MemoryPool();
+  ~MemoryPool() = default;
+  static void setup(size_t initialBufferSize);
+  std::vector<char> _primaryBuffer;
+  std::vector<char> _secondaryBuffer;
   static std::pair<char*, size_t> getPrimaryBuffer(size_t capacity);
   static std::vector<char>& getSecondaryBuffer(size_t capacity);
   static size_t getInitialBufferSize();
 private:
-  MemoryPool() = delete;
-  ~MemoryPool() = delete;
+static MemoryPool& instance();
+  static size_t _initialBufferSize;
 };

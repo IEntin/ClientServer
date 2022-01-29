@@ -16,15 +16,6 @@
 
 volatile std::atomic<bool> stopFlag = false;
 
-unsigned getNumberTaskThreads() {
-  unsigned numberTaskThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
-  return numberTaskThreadsCfg > 0 ? numberTaskThreadsCfg : std::thread::hardware_concurrency();
-}
-
-size_t getMemPoolBufferSize() {
-  return ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000);
-}
-
 void signalHandler(int signal) {
 }
 
@@ -36,6 +27,7 @@ int main() {
   if (sigaddset(&set, SIGINT) == -1)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
+  MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
   std::string compressorStr = ProgramOptions::get("Compression", std::string());
   Compression::setCompressionEnabled(compressorStr);
   const bool timing = ProgramOptions::get("Timing", false);
@@ -50,12 +42,16 @@ int main() {
     std::cerr << "No valid processRequest definition provided" << std::endl;
     return 1;
   }
+  unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
+  unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
+    std::thread::hardware_concurrency();
+  TaskThreadPoolPtr taskThreadPool =
+	 std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
+  taskThreadPool->start();
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName", std::string()),
 				      ProgramOptions::get("FifoBaseNames", std::string())))
     return 1;
   tcp::TcpServer::startServer(ProgramOptions::get("TcpPort", 0), ProgramOptions::get("Timeout", 1));
-  if (!TaskThread::startThreads(processRequest))
-    return 1;
   int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -63,7 +59,7 @@ int main() {
   stopFlag.store(true);
   fifo::FifoServer::joinThreads();
   tcp::TcpServer::stopServer();
-  TaskThread::joinThreads();
+  taskThreadPool->stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;

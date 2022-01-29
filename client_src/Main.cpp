@@ -17,10 +17,6 @@
 
 volatile std::atomic<bool> stopFlag = false;
 
-size_t getMemPoolBufferSize() {
-  return ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000);
-}
-
 void signalHandler(int signal) {
   stopFlag.store(true);
 }
@@ -36,6 +32,7 @@ int main() {
     std::cout.tie(nullptr);
     signal(SIGPIPE, SIG_IGN);
     std::signal(SIGINT, signalHandler);
+    MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
     chronometer.start(__FILE__, __func__, __LINE__);
     std::string compressorStr = ProgramOptions::get("Compression", std::string());
     Compression::setCompressionEnabled(compressorStr);

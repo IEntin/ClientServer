@@ -7,32 +7,40 @@
 #include "lz4.h"
 #include <iostream>
 
-extern size_t getMemPoolBufferSize();
+size_t MemoryPool::_initialBufferSize(100000);
 
-size_t MemoryPool::_initialBufferSize = getMemPoolBufferSize();
-thread_local std::vector<char> MemoryPool::_primaryBuffer(LZ4_compressBound(_initialBufferSize) + HEADER_SIZE);
-thread_local std::vector<char> MemoryPool::_secondaryBuffer(LZ4_compressBound(_initialBufferSize) + HEADER_SIZE);
+MemoryPool::MemoryPool() :
+  _primaryBuffer(_initialBufferSize), _secondaryBuffer(_initialBufferSize) {}
+
+MemoryPool& MemoryPool::instance() {
+  static thread_local MemoryPool instance;
+  return instance;
+}
+
+void MemoryPool::setup(size_t initialBufferSize) {
+  _initialBufferSize = initialBufferSize;
+}
 
 std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
-  if (requested > _primaryBuffer.capacity()) {
+  if (requested > instance()._primaryBuffer.capacity()) {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " increased _primaryBuffer from " << _primaryBuffer.capacity()
+	      << " increased _primaryBuffer from " << instance()._primaryBuffer.capacity()
 	      << " to " << requested << std::endl;
-    _primaryBuffer.reserve(requested);
+    instance()._primaryBuffer.reserve(requested);
   }
-  return { _primaryBuffer.data(), _primaryBuffer.capacity() };
+  return { instance()._primaryBuffer.data(), instance()._primaryBuffer.capacity() };
 }
 
 std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
-  if (requested > _secondaryBuffer.capacity()) {
+  if (requested > instance()._secondaryBuffer.capacity()) {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " increased _secondaryBuffer from " << _secondaryBuffer.capacity()
+	      << " increased _secondaryBuffer from " << instance()._secondaryBuffer.capacity()
 	      << " to " << requested << std::endl;
-    _secondaryBuffer.reserve(requested);
+    instance()._secondaryBuffer.reserve(requested);
   }
-  return _secondaryBuffer;
+  return instance()._secondaryBuffer;
 }
 
 size_t MemoryPool::getInitialBufferSize() {
-  return _initialBufferSize;
+  return instance()._initialBufferSize;
 }
