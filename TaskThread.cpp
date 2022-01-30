@@ -15,28 +15,16 @@ volatile std::atomic<bool> stopFlag = false;
 TaskPtr TaskThreadPool::_task(std::make_shared<Task>());
 bool TaskThreadPool::_diagnostics;
 std::vector<std::thread> TaskThreadPool::_taskThreads;
-std::thread::id TaskThreadPool::_firstThreadId;
 
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
-  _barrier(_numberThreads, onTaskFinish) {
-}
+  _barrier(_numberThreads, onTaskFinish) {}
 
 void TaskThreadPool::start() {
   for (unsigned i = 0; i < _numberThreads; ++i) {
-    TaskThreadPtr runnable = std::make_shared<TaskThread>(shared_from_this());
-    auto threadFunc = [this, runnable] () {
-      runnable->processTask(_task,
-			    _processRequest,
-			    _barrier,
-			    std::ref(_diagnostics));
-    };
-    std::thread newThread(threadFunc);
-    if (i == 0)
-      _firstThreadId = newThread.get_id();
-    _taskThreads.emplace_back();
-    _taskThreads.back().swap(newThread);
+    TaskThread runnable(shared_from_this(), _task, _processRequest, _diagnostics, _barrier);
+    _taskThreads.emplace_back(runnable);
   }
 }
 
@@ -51,36 +39,40 @@ void TaskThreadPool::stop() {
   std::vector<std::thread>().swap(_taskThreads);
 }
 
-// This method is called by all, but in our case
-// executed only by one, "first", blocked thread.
+// This method is called by all blocked threads, but in
+// our case the body is executed only by one, "the first".
 
 void TaskThreadPool::onTaskFinish() noexcept {
-  if (std::this_thread::get_id() == _firstThreadId) {
+  static std::thread::id firstThreadId = std::this_thread::get_id();
+  if (std::this_thread::get_id() == firstThreadId) {
     _task->finish();
+    // thread safe Task::get version
     Task::get(_task);
     _diagnostics = _task->isDiagnosticsEnabled();
   }
 }
 
-TaskThread::TaskThread(TaskThreadPoolPtr pool) : _pool(pool) {}
+TaskThread::TaskThread(TaskThreadPoolPtr pool,
+		       TaskPtr& task,
+		       ProcessRequest processRequest,
+		       bool& diagnostics,
+		       std::barrier<CompletionFunction>& barrier) :
+  _pool(pool), _task(task),_processRequest(processRequest), _diagnostics(diagnostics), _barrier(barrier) {}
 
 TaskThread::~TaskThread() {}
 
 // Process current task (batch of requests) by all threads.
 // Only one task is processed at any given time.
 
-void TaskThread::processTask(TaskPtr& task,
-			     ProcessRequest processRequest,
-			     std::barrier<CompletionFunction>& barrier,
-			     bool& diagnostics) {
+void TaskThread::operator()() noexcept {
   while (!stopFlag) {
-    auto [view, atEnd, index] = task->next();
+    auto [view, atEnd, index] = _task->next();
     if (!atEnd) {
-      task->updateResponse(index, processRequest(view, diagnostics));
+      _task->updateResponse(index, _processRequest(view, _diagnostics));
       continue;
     }
     try {
-      barrier.arrive_and_wait();
+      _barrier.arrive_and_wait();
     }
     catch (std::system_error& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

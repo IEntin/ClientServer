@@ -50,7 +50,7 @@ bool FifoServer::startThreads(const std::string& fifoDirName, const std::string&
 		<< std::strerror(errno) << '-' << fifoName << std::endl;
       return false;
     }
-    _fifoThreads.emplace_back(FifoServer(fifoName));
+    _fifoThreads.emplace_back(fifoName);
   }
   return true;
 }

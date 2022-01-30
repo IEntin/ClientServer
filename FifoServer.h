@@ -13,7 +13,6 @@ using Batch = std::vector<std::string>;
 namespace fifo {
 
 class FifoServer {
-  explicit FifoServer(const std::string& fifoName);
   static std::string _fifoDirectoryName;
   struct Runnable {
     explicit Runnable(const std::string& fifoName);
@@ -32,8 +31,9 @@ class FifoServer {
   static std::vector<FifoServer> _fifoThreads;
   static void removeFifoFiles();
  public:
-  ~FifoServer() = default;
+  explicit FifoServer(const std::string& fifoName);
   FifoServer(FifoServer&& other);
+  ~FifoServer() = default;
   static bool startThreads(const std::string& fifoDirName, const std::string& fifoBaseNames);
   static void joinThreads();
 };
