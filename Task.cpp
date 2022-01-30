@@ -22,12 +22,11 @@ void Task::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-TaskPtr Task::get() {
+void Task::get(TaskPtr& dest) {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [] { return !_queue.empty(); });
-  auto task = _queue.front();
+  dest = _queue.front();
   _queue.pop();
-  return task;
 }
 
 void Task::process(const TaskContext& context, std::vector<char>& input, Batch& response) {

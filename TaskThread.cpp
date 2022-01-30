@@ -57,7 +57,7 @@ void TaskThreadPool::stop() {
 void TaskThreadPool::onTaskFinish() noexcept {
   if (std::this_thread::get_id() == _firstThreadId) {
     _task->finish();
-    _task = Task::get();
+    Task::get(_task);
     _diagnostics = _task->isDiagnosticsEnabled();
   }
 }

@@ -56,7 +56,7 @@ class Task {
 
   static void push(TaskPtr task);
 
-  static TaskPtr get();
+  static void get(TaskPtr& dest);
 
   void updateResponse(size_t index, std::string&& rsp) {
     _response[index].swap(rsp);
