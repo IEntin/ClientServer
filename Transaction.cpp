@@ -3,6 +3,7 @@
  */
 
 #include "Transaction.h"
+#include "Diagnostics.h"
 #include "Utility.h"
 #include <cassert>
 #include <cstring>
@@ -20,7 +21,7 @@ constexpr char KEYWORDS_END = '&';
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   const auto& winningBid = transaction._winningBid;
   os << transaction._id << ' ';
-  if (transaction._requestDiagnostics) {
+  if (Diagnostics::enabled()) {
     os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
        << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
@@ -62,8 +63,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
-Transaction::Transaction(std::string_view input, bool diagnostics) :
-  _requestDiagnostics(diagnostics) {
+Transaction::Transaction(std::string_view input) {
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
@@ -81,10 +81,10 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-std::string Transaction::processRequest(std::string_view view, bool diagnostics) noexcept {
+std::string Transaction::processRequest(std::string_view view) noexcept {
   std::string id("[unknown]");
   try {
-    Transaction transaction(view, diagnostics);
+    Transaction transaction(view);
     id.assign(transaction._id);
     if (transaction._size.empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
@@ -92,7 +92,7 @@ std::string Transaction::processRequest(std::string_view view, bool diagnostics)
     }
     const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._size);
     transaction.matchAds(adVector);
-    if (transaction._noMatch && !transaction._requestDiagnostics)
+    if (transaction._noMatch && !Diagnostics::enabled())
       return id.append(1, ' ').append(EMPTY_REPLY);
     std::ostringstream os;
     os << transaction;

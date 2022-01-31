@@ -11,12 +11,11 @@
 
 std::ostream& operator <<(std::ostream& os, const class Transaction& transaction);
 
-class Transaction {
-  friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
+class Transaction {  friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
 public:
-  static std::string processRequest(std::string_view, bool diagnostics) noexcept;
+  static std::string processRequest(std::string_view) noexcept;
 private:
-  Transaction(std::string_view input, bool diagnostics);
+  Transaction(std::string_view input);
   explicit Transaction(const Transaction& other) = delete;
   ~Transaction();
   Transaction& operator =(const Transaction& other) = delete;
@@ -24,7 +23,6 @@ private:
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<AdPtr>& adVector);
   std::string_view _id;
-  const bool _requestDiagnostics;
   std::string_view _request;
   Size _size;
   // Made static to keep the capacity growing as needed.

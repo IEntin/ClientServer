@@ -3,6 +3,7 @@
  */
 
 #include "TaskThread.h"
+#include "Diagnostics.h"
 #include <cassert>
 #include <iostream>
 
@@ -13,7 +14,6 @@ volatile std::atomic<bool> stopFlag = false;
 } // end of anonimous namespace
 
 TaskPtr TaskThreadPool::_task(std::make_shared<Task>());
-bool TaskThreadPool::_diagnostics;
 std::vector<std::thread> TaskThreadPool::_taskThreads;
 
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
@@ -23,7 +23,7 @@ TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processReq
 
 void TaskThreadPool::start() {
   for (unsigned i = 0; i < _numberThreads; ++i) {
-    TaskThread runnable(shared_from_this(), _task, _processRequest, _diagnostics, _barrier);
+    TaskThread runnable(shared_from_this(), _task, _processRequest, _barrier);
     _taskThreads.emplace_back(runnable);
   }
 }
@@ -48,16 +48,15 @@ void TaskThreadPool::onTaskFinish() noexcept {
     _task->finish();
     // thread safe Task::get version
     Task::get(_task);
-    _diagnostics = _task->isDiagnosticsEnabled();
+    Diagnostics::setEnabled(_task->isDiagnosticsEnabled());
   }
 }
 
 TaskThread::TaskThread(TaskThreadPoolPtr pool,
 		       TaskPtr& task,
 		       ProcessRequest processRequest,
-		       bool& diagnostics,
 		       std::barrier<CompletionFunction>& barrier) :
-  _pool(pool), _task(task),_processRequest(processRequest), _diagnostics(diagnostics), _barrier(barrier) {}
+  _pool(pool), _task(task),_processRequest(processRequest), _barrier(barrier) {}
 
 TaskThread::~TaskThread() {}
 
@@ -68,7 +67,7 @@ void TaskThread::operator()() noexcept {
   while (!stopFlag) {
     auto [view, atEnd, index] = _task->next();
     if (!atEnd) {
-      _task->updateResponse(index, _processRequest(view, _diagnostics));
+      _task->updateResponse(index, _processRequest(view));
       continue;
     }
     try {

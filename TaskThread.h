@@ -8,7 +8,7 @@
 #include <barrier>
 #include <vector>
 
-using ProcessRequest = std::string (*)(std::string_view, bool diagnostics);
+using ProcessRequest = std::string (*)(std::string_view);
 
 using CompletionFunction = void (*) () noexcept;
 
@@ -19,7 +19,6 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
   ProcessRequest _processRequest;
   std::barrier<CompletionFunction> _barrier;
   static TaskPtr _task;
-  static bool _diagnostics;
   static std::vector<std::thread> _taskThreads;
  public:
   TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest);
@@ -34,7 +33,6 @@ public:
   TaskThread(TaskThreadPoolPtr pool,
 	     TaskPtr& task,
 	     ProcessRequest processRequest,
-	     bool& diagnostics,
 	     std::barrier<CompletionFunction>& barrier);
   ~TaskThread();
 
@@ -43,6 +41,5 @@ private:
   TaskThreadPoolPtr _pool;
   TaskPtr& _task;
   ProcessRequest _processRequest;
-  bool& _diagnostics;
   std::barrier<CompletionFunction>& _barrier;
 };
