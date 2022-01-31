@@ -84,6 +84,7 @@ bool run(const Batch& payload, const TcpClientOptions& options) {
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":exception:" << e.what() << std::endl;
+    return false;
   }
   return true;
 }

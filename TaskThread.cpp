@@ -13,20 +13,21 @@ volatile std::atomic<bool> stopFlag = false;
 
 } // end of anonimous namespace
 
-TaskPtr TaskThreadPool::_task(std::make_shared<Task>());
 std::vector<std::thread> TaskThreadPool::_taskThreads;
 
-TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
-  _numberThreads(numberThreads),
-  _processRequest(processRequest),
-  _barrier(_numberThreads, onTaskFinish) {}
+// parameters are desired number of work threads and
+// a method to apply to every request in the task.
 
-void TaskThreadPool::start() {
-  for (unsigned i = 0; i < _numberThreads; ++i) {
-    TaskThread runnable(shared_from_this(), _task, _processRequest, _barrier);
+void TaskThreadPool::start(unsigned numberThreads, ProcessRequest processRequest) {
+  TaskThread::createBarrier(numberThreads);
+  for (unsigned i = 0; i < numberThreads; ++i) {
+    TaskThread runnable(processRequest);
     _taskThreads.emplace_back(runnable);
   }
 }
+
+// push an empty task to the queue to
+// wake up and join the threads.
 
 void TaskThreadPool::stop() {
   stopFlag.store(true);
@@ -39,29 +40,27 @@ void TaskThreadPool::stop() {
   std::vector<std::thread>().swap(_taskThreads);
 }
 
-// This method is called by all blocked threads, but in
-// our case the body is executed only by one, "the first".
+// start with an empty task
 
-void TaskThreadPool::onTaskFinish() noexcept {
-  static std::thread::id firstThreadId = std::this_thread::get_id();
-  if (std::this_thread::get_id() == firstThreadId) {
-    _task->finish();
-    // thread safe Task::get version
-    Task::get(_task);
-    Diagnostics::setEnabled(_task->isDiagnosticsEnabled());
-  }
-}
+TaskPtr TaskThread::_task(std::make_shared<Task>());
 
-TaskThread::TaskThread(TaskThreadPoolPtr pool,
-		       TaskPtr& task,
-		       ProcessRequest processRequest,
-		       std::barrier<CompletionFunction>& barrier) :
-  _pool(pool), _task(task),_processRequest(processRequest), _barrier(barrier) {}
+// postpone barrier creation until desired number of threads is known.
+
+std::unique_ptr<std::barrier<CompletionFunction>> TaskThread::_barrier;
+
+// save function pointer to apply to every request in the task
+
+TaskThread::TaskThread(ProcessRequest processRequest) :
+  _processRequest(processRequest) {}
 
 TaskThread::~TaskThread() {}
 
-// Process current task (batch of requests) by all threads.
-// Only one task is processed at any given time.
+void TaskThread::createBarrier(unsigned numberThreads) {
+  _barrier = std::make_unique<std::barrier<CompletionFunction>>(numberThreads, onTaskFinish);
+}
+
+// Process the current task (batch of requests) by all threads. Arrive
+// at the sync point when the task is done and wait for the next one.
 
 void TaskThread::operator()() noexcept {
   while (!stopFlag) {
@@ -71,12 +70,31 @@ void TaskThread::operator()() noexcept {
       continue;
     }
     try {
-      _barrier.arrive_and_wait();
+      _barrier->arrive_and_wait();
     }
     catch (std::system_error& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< "-exception:" << e.what() << std::endl;
       std::exit(1);
     }
+  }
+}
+
+// This method is called by every blocked thread when it ran out of work and waits
+// for the next task. In our case only one thread is doing the actual work. This
+// thread is selected arbitrarily, in this case the first created thread.
+
+void TaskThread::onTaskFinish() noexcept {
+  // static initialization happens once. It is also thread safe
+  // but this is not relevant here.
+
+  static std::thread::id firstThreadId = std::this_thread::get_id();
+
+  if (std::this_thread::get_id() == firstThreadId) {
+    _task->finish();
+    // thread safe Task::get version. Blocks until the new task is available.
+    Task::get(_task);
+
+    Diagnostics::setEnabled(_task->isDiagnosticsEnabled());
   }
 }

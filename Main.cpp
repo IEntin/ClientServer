@@ -28,10 +28,13 @@ int main() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
+  // read compression method
   std::string compressorStr = ProgramOptions::get("Compression", std::string());
   Compression::setCompressionEnabled(compressorStr);
+  // optionally record elapsed times
   const bool timing = ProgramOptions::get("Timing", false);
   Chronometer chronometer(timing, __FILE__, __LINE__);
+  // method to apply to every request in the batch
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
   if (method == "Transaction") {
@@ -47,9 +50,7 @@ int main() {
   unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
   unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
     std::thread::hardware_concurrency();
-  TaskThreadPoolPtr taskThreadPool =
-	 std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
-  taskThreadPool->start();
+  TaskThreadPool::start(numberWorkThreads, processRequest);
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName", std::string()),
 				      ProgramOptions::get("FifoBaseNames", std::string())))
     return 1;
@@ -61,7 +62,7 @@ int main() {
   stopFlag.store(true);
   fifo::FifoServer::joinThreads();
   tcp::TcpServer::stopServer();
-  taskThreadPool->stop();
+  TaskThreadPool::stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;
