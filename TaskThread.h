@@ -11,24 +11,36 @@ using ProcessRequest = std::string (*)(std::string_view);
 
 using CompletionFunction = void (*) () noexcept;
 
-class TaskThreadPool {
-  TaskThreadPool() = delete;
-  ~TaskThreadPool() = delete;
-  static std::vector<std::thread> _taskThreads;
+using TaskThreadPoolPtr = std::shared_ptr<class TaskThreadPool>;
+
+using TaskThreadPtr = std::shared_ptr<class TaskThread>;
+
+class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
+  friend class TaskThread;
+  const unsigned _numberThreads;
+  ProcessRequest _processRequest;
+  std::barrier<CompletionFunction> _barrier;
+  std::vector<TaskThreadPtr> _threads;
  public:
-  static void start(unsigned numberThreads, ProcessRequest processRequest);
-  static void stop();
+  TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest);
+  ~TaskThreadPool() = default;
+  void start();
+  void stop();
 };
 
 class TaskThread {
-public:
-  TaskThread(ProcessRequest processRequest);
-  ~TaskThread();
-  void operator()() noexcept;
-  static void createBarrier(unsigned numberThreads);
-private:
-  ProcessRequest _processRequest;
-  static void onTaskFinish() noexcept;
+ public:
+  class Runnable {
+    TaskThreadPoolPtr _pool;
+    ProcessRequest _processRequest;
+  public:
+    Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest);
+    ~Runnable() = default;
+    void operator()() noexcept;
+  } _runnable;
+  TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest);
+  ~TaskThread() = default;
   static TaskPtr _task;
-  static std::unique_ptr<std::barrier<CompletionFunction>> _barrier;
+  static void onTaskFinish() noexcept;
+  std::thread _thread;
 };

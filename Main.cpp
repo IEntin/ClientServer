@@ -50,7 +50,8 @@ int main() {
   unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
   unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
     std::thread::hardware_concurrency();
-  TaskThreadPool::start(numberWorkThreads, processRequest);
+  auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
+  taskThreadPool->start();
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName", std::string()),
 				      ProgramOptions::get("FifoBaseNames", std::string())))
     return 1;
@@ -62,7 +63,7 @@ int main() {
   stopFlag.store(true);
   fifo::FifoServer::joinThreads();
   tcp::TcpServer::stopServer();
-  TaskThreadPool::stop();
+  taskThreadPool->stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;
