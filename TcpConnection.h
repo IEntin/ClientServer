@@ -5,8 +5,8 @@
 #pragma once
 
 #include "Header.h"
-#include <memory>
 #include <boost/asio.hpp>
+#include <memory>
 
 using Batch = std::vector<std::string>;
 
@@ -14,9 +14,11 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
+using TcpServerPtr = std::shared_ptr<class TcpServer>;
+
 class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
-  TcpConnection(boost::asio::io_context& io_context, unsigned timeout);
+  TcpConnection(boost::asio::io_context& io_context, unsigned timeout, TcpServerPtr server);
   ~TcpConnection();
 
   void start();
@@ -45,6 +47,7 @@ private:
   std::vector<char> _uncompressed;
   Batch _response;
   std::thread _thread;
+  TcpServerPtr _server;
 };
 
 } // end of namespace tcp

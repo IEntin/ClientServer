@@ -4,31 +4,34 @@
 
 #pragma once
 
-#include "TcpConnection.h"
+#include <boost/asio.hpp>
+#include <memory>
 
 namespace tcp {
 
-class TcpServer {
+using TcpServerPtr = std::shared_ptr<class TcpServer>;
+
+class TcpServer : public std::enable_shared_from_this<TcpServer> {
 public:
   TcpServer(unsigned port, unsigned timeout);
   ~TcpServer() = default;
+  void start();
   void stop();
-  static bool startServer(unsigned port, unsigned timeout);
-  static void stopServer();
+  bool stopped() const { return _stopped; }
 private:
   void accept();
 
-  void handleAccept(std::shared_ptr<TcpConnection> connection,
+  void handleAccept(std::shared_ptr<class TcpConnection> connection,
 		    const boost::system::error_code& ec);
-  static void run() noexcept;
+  void run() noexcept;
 
   boost::asio::io_context _ioContext;
   unsigned _tcpPort;
   unsigned _timeout;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
+  std::atomic<bool> _stopped = false;
   std::thread _thread;
-  static std::shared_ptr<TcpServer> _instance;
 };
 
 } // end of namespace tcp

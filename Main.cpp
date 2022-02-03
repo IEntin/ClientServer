@@ -55,14 +55,16 @@ int main() {
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName", std::string()),
 				      ProgramOptions::get("FifoBaseNames", std::string())))
     return 1;
-  tcp::TcpServer::startServer(ProgramOptions::get("TcpPort", 0), ProgramOptions::get("Timeout", 1));
+  tcp::TcpServerPtr tcpServer =
+    std::make_shared<tcp::TcpServer>(ProgramOptions::get("TcpPort", 0), ProgramOptions::get("Timeout", 1));
+  tcpServer->start();
   int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   stopFlag.store(true);
   fifo::FifoServer::joinThreads();
-  tcp::TcpServer::stopServer();
+  tcpServer->stop();
   taskThreadPool->stop();
   int ret = fcloseall();
   assert(ret == 0);

@@ -11,10 +11,8 @@ extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
-TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout) :
-  _socket(_ioContext),
-  _timeout(timeout),
-  _timer(_ioContext) {}
+TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout, TcpServerPtr server) :
+  _socket(_ioContext), _timeout(timeout), _timer(_ioContext), _server(server) {}
 
 TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
