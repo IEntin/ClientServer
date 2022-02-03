@@ -21,6 +21,12 @@ using Requests = std::vector<std::string_view>;
 class Task {
   Task(const Task& other) = delete;
   Task& operator =(const Task& other) = delete;
+
+  size_t size() const { return _storage.size(); }
+  bool empty() const { return _storage.empty(); }
+
+  std::tuple<std::string_view, bool, size_t> nextImpl();
+  void finishImpl();
   static std::mutex _queueMutex;
   static std::condition_variable _queueCondition;
   static std::queue<TaskPtr> _queue;
@@ -31,38 +37,26 @@ class Task {
   std::promise<void> _promise;
   Batch& _response;
   static Batch _emptyBatch;
+  static TaskPtr _task;
+
  public:
   Task();
 
   Task(const TaskContext& context, std::vector<char>& input, Batch& response);
 
-  size_t size() const { return _storage.size(); }
-
-  bool empty() const { return _storage.empty(); }
-
-  bool isDiagnosticsEnabled() const { return _context._diagnostics; }
-
-  std::tuple<std::string_view, bool, size_t> next() {
-    size_t pointer = _pointer.fetch_add(1);
-    if (pointer < _storage.size()) {
-      auto it = std::next(_storage.begin(), pointer);
-      return std::make_tuple(std::string_view(it->data(), it->size()),
-			     false,
-			     std::distance(_storage.begin(), it));
-    }
-    else
-      return std::make_tuple(std::string_view(), true, 0);
+  static std::tuple<std::string_view, bool, size_t> next() {
+    return _task->nextImpl();
   }
-
   static void push(TaskPtr task);
 
-  static void get(TaskPtr& dest);
+  static void pop();
 
-  void updateResponse(size_t index, std::string&& rsp) {
-    _response[index].swap(rsp);
+  static void updateResponse(size_t index, std::string&& rsp) {
+    _task->_response[index].swap(rsp);
   }
+  static bool isDiagnosticsEnabled();
 
-  void finish();
+  static void finish();
 
   static void process(const TaskContext& context, std::vector<char>& input, Batch& response);
 };

@@ -16,7 +16,24 @@ volatile std::atomic<bool> stopFlag = false;
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
-  _barrier(numberThreads, TaskThread::onTaskFinish) {}
+  _barrier(numberThreads, TaskThreadPool::onTaskFinish) {}
+
+// This method is called for every blocked thread when it ran out of work and waits
+// for the next task. In our case only one thread is doing the actual work. This
+// thread is selected arbitrarily, in this case the first created thread.
+
+void TaskThreadPool::onTaskFinish() noexcept {
+  // static initialization happens once. It is also thread safe (not relevant here).
+  static std::thread::id firstThreadId = std::this_thread::get_id();
+
+  if (std::this_thread::get_id() == firstThreadId) {
+    Task::finish();
+    // Blocks until the new task is available.
+    Task::pop();
+
+    Diagnostics::enable(Task::isDiagnosticsEnabled());
+  }
+}
 
 void TaskThreadPool::start() {
   for (unsigned i = 0; i < _numberThreads; ++i)
@@ -33,9 +50,6 @@ void TaskThreadPool::stop() {
   std::clog << "... TaskThreadPool stopped ..." << std::endl;
 }
 
-// start with an empty task
-TaskPtr TaskThread::_task(std::make_shared<Task>());
-
 // save pool pointer and a function pointer to apply to every request in the task
 TaskThread::TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
   _runnable(pool, processRequest), _thread(_runnable) {}
@@ -43,23 +57,6 @@ TaskThread::TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
 TaskThread::~TaskThread() {
   if (_thread.joinable())
     _thread.join();
-}
-
-// This method is called for every blocked thread when it ran out of work and waits
-// for the next task. In our case only one thread is doing the actual work. This
-// thread is selected arbitrarily, in this case the first created thread.
-
-void TaskThread::onTaskFinish() noexcept {
-  // static initialization happens once. It is also thread safe (not relevant here).
-  static std::thread::id firstThreadId = std::this_thread::get_id();
-
-  if (std::this_thread::get_id() == firstThreadId) {
-    _task->finish();
-    // thread safe Task::get version. Blocks until the new task is available.
-    Task::get(_task);
-
-    Diagnostics::setEnabled(_task->isDiagnosticsEnabled());
-  }
 }
 
 TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
@@ -70,9 +67,9 @@ TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processReq
 
 void TaskThread::Runnable::operator()() noexcept {
   while (!stopFlag) {
-    auto [view, atEnd, index] = _task->next();
+    auto [view, atEnd, index] = Task::next();
     if (!atEnd) {
-      _task->updateResponse(index, _processRequest(view));
+      Task::updateResponse(index, _processRequest(view));
       continue;
     }
     try {

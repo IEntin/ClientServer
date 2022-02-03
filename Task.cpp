@@ -6,6 +6,8 @@ std::condition_variable Task::_queueCondition;
 std::queue<TaskPtr> Task::_queue;
 thread_local std::vector<char> Task::_rawInput;
 Batch Task::_emptyBatch;
+// start with empty task
+TaskPtr Task::_task(std::make_shared<Task>());
 
 Task::Task() : _response(_emptyBatch) {}
 
@@ -22,10 +24,10 @@ void Task::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-void Task::get(TaskPtr& dest) {
+void Task::pop() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [] { return !_queue.empty(); });
-  dest = _queue.front();
+  _task = _queue.front();
   _queue.pop();
 }
 
@@ -42,7 +44,23 @@ void Task::process(const TaskContext& context, std::vector<char>& input, Batch& 
   }
 }
 
+std::tuple<std::string_view, bool, size_t> Task::nextImpl() {
+  size_t pointer = _pointer.fetch_add(1);
+  if (pointer < _storage.size()) {
+    auto it = std::next(_storage.begin(), pointer);
+    return std::make_tuple(std::string_view(it->data(), it->size()),
+			   false,
+			   std::distance(_storage.begin(), it));
+  }
+  else
+    return std::make_tuple(std::string_view(), true, 0);
+}
+
 void Task::finish() {
+  _task->finishImpl();
+}
+
+void Task::finishImpl() {
   try {
     _promise.set_value();
   }
@@ -50,4 +68,8 @@ void Task::finish() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-exception:" << e.what() << std::endl;
   }
+}
+
+bool Task::isDiagnosticsEnabled() {
+  return _task->_context._diagnostics;
 }
