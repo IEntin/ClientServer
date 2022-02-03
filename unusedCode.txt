@@ -1,10 +1,13 @@
 #include <poll.h>
 
+// fd should be open with O_NONBLOCK
+
 bool FifoRunnable::waitRequest() {
   unsigned rep = 0;
   do {
     errno = 0;
     pollfd pfd{ _fdRead, POLLIN, -1 };
+    pfd.revents = 0;
     int presult = poll(&pfd, 1, -1);
     if (presult <= 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -19,15 +22,15 @@ bool FifoRunnable::waitRequest() {
       return false;
     }
     else if (pfd.revents & POLLHUP) {
-      if (!_stopFlag)
+      if (!stopFlag)
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << ":POLLHUP detected " << _receiveFifoName << std::endl;
+		  << ":POLLHUP detected " << _fifoName << std::endl;
       close(_fdRead);
       _fdRead = -1;
       close(_fdWrite);
       _fdWrite = -1;
       return false;
     }
-  } while (errno == EINTR && rep++ < 3 && !_stopFlag);
-  return !_stopFlag;
+  } while (errno == EINTR && rep++ < 3 && !stopFlag);
+  return !stopFlag;
 }

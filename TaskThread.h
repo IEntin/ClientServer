@@ -29,18 +29,20 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
 };
 
 class TaskThread {
- public:
+  friend class TaskThreadPool;
   class Runnable {
     TaskThreadPoolPtr _pool;
+    std::reference_wrapper<std::barrier<CompletionFunction>> _barrier;
     ProcessRequest _processRequest;
   public:
     Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest);
     ~Runnable() = default;
     void operator()() noexcept;
   } _runnable;
-  TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest);
-  ~TaskThread() = default;
   static TaskPtr _task;
   static void onTaskFinish() noexcept;
   std::thread _thread;
+ public:
+  TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest);
+  ~TaskThread();
 };

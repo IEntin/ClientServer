@@ -29,30 +29,28 @@ void TaskThreadPool::start() {
 void TaskThreadPool::stop() {
   stopFlag.store(true);
   Task::push(std::make_shared<Task>());
-  for (auto& taskThread : _threads)
-    if (taskThread->_thread.joinable())
-      taskThread->_thread.join();
   std::vector<TaskThreadPtr>().swap(_threads);
   std::clog << "... TaskThreadPool stopped ..." << std::endl;
 }
 
 // start with an empty task
-
 TaskPtr TaskThread::_task(std::make_shared<Task>());
 
-// save function pointer to apply to every request in the task
-
+// save pool pointer and a function pointer to apply to every request in the task
 TaskThread::TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
-  _runnable(pool, processRequest), _thread(std::thread(_runnable)) {}
+  _runnable(pool, processRequest), _thread(_runnable) {}
+
+TaskThread::~TaskThread() {
+  if (_thread.joinable())
+    _thread.join();
+}
 
 // This method is called for every blocked thread when it ran out of work and waits
 // for the next task. In our case only one thread is doing the actual work. This
 // thread is selected arbitrarily, in this case the first created thread.
 
 void TaskThread::onTaskFinish() noexcept {
-  // static initialization happens once. It is also
-  // thread safe but this is not relevant here.
-
+  // static initialization happens once. It is also thread safe (not relevant here).
   static std::thread::id firstThreadId = std::this_thread::get_id();
 
   if (std::this_thread::get_id() == firstThreadId) {
@@ -65,7 +63,7 @@ void TaskThread::onTaskFinish() noexcept {
 }
 
 TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
-  _pool(pool), _processRequest(processRequest) {}
+  _pool(pool), _barrier(pool->_barrier), _processRequest(processRequest) {}
 
 // Process the current task (batch of requests) by all threads. Arrive
 // at the sync point when the task is done and wait for the next one.
@@ -78,7 +76,7 @@ void TaskThread::Runnable::operator()() noexcept {
       continue;
     }
     try {
-      _pool->_barrier.arrive_and_wait();
+      _barrier.get().arrive_and_wait();
     }
     catch (std::system_error& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

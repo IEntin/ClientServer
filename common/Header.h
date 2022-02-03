@@ -28,6 +28,10 @@ enum class HEADER_INDEX : unsigned {
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
+inline bool isOk(const HEADER& header) {
+  return std::get<static_cast<unsigned>(HEADER_INDEX::DONE)>(header);
+}
+
 inline ssize_t getUncompressedSize(const HEADER& header) {
   return std::get<static_cast<unsigned>(HEADER_INDEX::UNCOMPRESSED_SIZE)>(header);
 }

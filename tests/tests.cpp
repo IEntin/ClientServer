@@ -105,6 +105,7 @@ TEST(HeaderTest, HeaderTest1) {
   bool diagnostics = true;
   encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
+  ASSERT_TRUE(isOk(header));
   size_t uncomprSzResult = getUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);
   size_t comprSzResult = getCompressedSize(header);
@@ -116,6 +117,7 @@ TEST(HeaderTest, HeaderTest1) {
   compressor = COMPRESSORS::NONE;
   encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
   header = decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
+  ASSERT_TRUE(isOk(header));
   compressorResult = getCompressor(header);
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }

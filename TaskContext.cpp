@@ -2,13 +2,6 @@
 #include "Compression.h"
 #include <iostream>
 
-TaskContext::TaskContext(std::string_view headerView) :
-  _header(decodeHeader(headerView)),
-  _inputCompressed(getCompressor(_header) == COMPRESSORS::LZ4),
-  _compressedSize(getCompressedSize(_header)),
-  _uncompressedSize(getUncompressedSize(_header)),
-  _diagnostics(getDiagnostics(_header)) {}
-
 TaskContext::TaskContext(const HEADER& header) :
   _header(header),
   _inputCompressed(getCompressor(_header) == COMPRESSORS::LZ4),

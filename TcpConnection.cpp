@@ -11,10 +11,10 @@ extern volatile std::atomic<bool> stopFlag;
 
 namespace tcp {
 
-  TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout) :
-    _socket(_ioContext),
-    _timeout(timeout),
-    _timer(_ioContext) {}
+TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout) :
+  _socket(_ioContext),
+  _timeout(timeout),
+  _timer(_ioContext) {}
 
 TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
@@ -62,10 +62,10 @@ bool TcpConnection::onReceiveRequest() {
 }
 
 bool TcpConnection::sendReply(Batch& batch) {
-  std::string_view sendView = commutility::buildReply(batch);
-  if (sendView.empty())
+  std::string_view message = commutility::buildReply(batch);
+  if (message.empty())
     return false;
-  write(sendView);
+  write(message);
   return true;
 }
 
@@ -84,6 +84,11 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
   asyncWait();
   if (!(ec || stopFlag)) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
+    if (!isOk(_header)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+		<< "header is not valid" << std::endl;
+      return;
+    }
     _request.clear();
     _request.resize(getCompressedSize(_header));
     readRequest();
