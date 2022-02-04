@@ -31,7 +31,7 @@ void TaskThreadPool::onTaskFinish() noexcept {
     // Blocks until the new task is available.
     Task::pop();
 
-    Diagnostics::enable(Task::isDiagnosticsEnabled());
+    Diagnostics::enable(Task::diagnosticsEnabled());
   }
 }
 

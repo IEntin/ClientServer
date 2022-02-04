@@ -11,8 +11,8 @@ TaskPtr Task::_task(std::make_shared<Task>());
 
 Task::Task() : _response(_emptyBatch) {}
 
-Task::Task(const TaskContext& context, std::vector<char>& input, Batch& response) :
-  _context(context), _response(response)  {
+Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
+  _header(header), _response(response)  {
   input.swap(_rawInput);
   utility::split(_rawInput, _storage);
   _response.resize(_storage.size());
@@ -31,9 +31,9 @@ void Task::pop() {
   _queue.pop();
 }
 
-void Task::process(const TaskContext& context, std::vector<char>& input, Batch& response) {
+void Task::process(const HEADER& header, std::vector<char>& input, Batch& response) {
   try {
-    TaskPtr task = std::make_shared<Task>(context, input, response);
+    TaskPtr task = std::make_shared<Task>(header, input, response);
     auto future = task->_promise.get_future();
     push(task);
     future.get();
@@ -70,6 +70,6 @@ void Task::finishImpl() {
   }
 }
 
-bool Task::isDiagnosticsEnabled() {
-  return _task->_context._diagnostics;
+bool Task::diagnosticsEnabled() {
+  return isDiagnosticsEnabled(_task->_header);
 }

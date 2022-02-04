@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "TaskContext.h"
+#include "Header.h"
 #include <atomic>
 #include <future>
 #include <iostream>
@@ -32,7 +32,7 @@ class Task {
   static std::queue<TaskPtr> _queue;
   Requests _storage;
   static thread_local std::vector<char> _rawInput;
-  TaskContext _context;
+  HEADER _header;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
   Batch& _response;
@@ -42,7 +42,7 @@ class Task {
  public:
   Task();
 
-  Task(const TaskContext& context, std::vector<char>& input, Batch& response);
+  Task(const HEADER& header, std::vector<char>& input, Batch& response);
 
   static std::tuple<std::string_view, bool, size_t> next() {
     return _task->nextImpl();
@@ -54,9 +54,9 @@ class Task {
   static void updateResponse(size_t index, std::string&& rsp) {
     _task->_response[index].swap(rsp);
   }
-  static bool isDiagnosticsEnabled();
+  static bool diagnosticsEnabled();
 
   static void finish();
 
-  static void process(const TaskContext& context, std::vector<char>& input, Batch& response);
+  static void process(const HEADER& header, std::vector<char>& input, Batch& response);
 };

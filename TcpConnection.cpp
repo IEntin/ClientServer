@@ -3,6 +3,7 @@
  */
 
 #include "TcpConnection.h"
+#include "Compression.h"
 #include "TcpServer.h"
 #include "Task.h"
 #include "CommUtility.h"
@@ -43,16 +44,15 @@ void TcpConnection::run() noexcept {
 bool TcpConnection::onReceiveRequest() {
   _response.clear();
   _uncompressed.clear();
-  TaskContext context(_header);
   bool bcompressed = isInputCompressed(_header);
   if (bcompressed) {
-    if (!context.decompress(_request, _uncompressed)) {
+    if (!decompress(_request, _uncompressed)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":decompression failed" << std::endl;
       return false;
     }
   }
-  Task::process(context, (bcompressed ? _uncompressed : _request), _response);
+  Task::process(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;
@@ -153,6 +153,17 @@ void TcpConnection::asyncWait() {
 			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
 		      }
 		    });
+}
+
+bool TcpConnection::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
+  std::string_view received(input.data(), input.size());
+  uncompressed.resize(getUncompressedSize(_header));
+  if (!Compression::uncompress(received, uncompressed)) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":failed to uncompress payload" << std::endl;
+    return false;
+  }
+  return true;
 }
 
 } // end of namespace tcp

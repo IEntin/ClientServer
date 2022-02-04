@@ -72,8 +72,7 @@ void FifoServer::Runnable::operator()() noexcept {
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
       break;
-    TaskContext context(header);
-    Task::process(context, _uncompressedRequest, _response);
+    Task::process(header, _uncompressedRequest, _response);
     if (!sendResponse(_response))
       break;
   }

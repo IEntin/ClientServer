@@ -35,6 +35,7 @@ private:
   void asyncWait();
   bool onReceiveRequest();
   bool sendReply(Batch& batch);
+  bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
