@@ -18,6 +18,7 @@ public:
   void start();
   void stop();
   bool stopped() const { return _stopped; }
+  std::vector<std::thread>& getConnectionThreadVector() { return _connectionThreads; }
 private:
   void accept();
 
@@ -32,6 +33,7 @@ private:
   boost::asio::ip::tcp::acceptor _acceptor;
   std::atomic<bool> _stopped = false;
   std::thread _thread;
+  std::vector<std::thread> _connectionThreads;
 };
 
 } // end of namespace tcp

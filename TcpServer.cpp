@@ -29,6 +29,9 @@ void TcpServer::stop() {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ... _thread joined ..." << std::endl;
   }
+  for (auto& thread : _connectionThreads)
+    if (thread.joinable())
+      thread.join();
 }
 
 void TcpServer::run() noexcept {

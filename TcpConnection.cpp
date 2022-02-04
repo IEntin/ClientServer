@@ -3,6 +3,7 @@
  */
 
 #include "TcpConnection.h"
+#include "TcpServer.h"
 #include "Task.h"
 #include "CommUtility.h"
 #include <iostream>
@@ -19,8 +20,6 @@ TcpConnection::~TcpConnection() {
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
-  if (_thread.joinable())
-    _thread.detach();
 }
 
 void TcpConnection::start() {
@@ -30,7 +29,7 @@ void TcpConnection::start() {
 	    << "-local " << local.address() << ':' << local.port()
 	    << ",remote " << remote.address() << ':' << remote.port()
 	    << std::endl;
-  _thread = std::thread(&TcpConnection::run, shared_from_this());
+  _server->getConnectionThreadVector().emplace_back(&TcpConnection::run, shared_from_this());
 }
 
 void TcpConnection::run() noexcept {
@@ -46,14 +45,15 @@ bool TcpConnection::onReceiveRequest() {
   _response.clear();
   _uncompressed.clear();
   TaskContext context(_header);
-  if (context.isInputCompressed()) {
+  bool bcompressed = isInputCompressed(_header);
+  if (bcompressed) {
     if (!context.decompress(_request, _uncompressed)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":decompression failed" << std::endl;
       return false;
     }
   }
-  Task::process(context, (context.isInputCompressed() ? _uncompressed : _request), _response);
+  Task::process(context, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;

@@ -112,7 +112,7 @@ TEST(HeaderTest, HeaderTest1) {
   ASSERT_EQ(comprSz, comprSzResult);
   COMPRESSORS compressorResult = getCompressor(header);
   ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
-  bool diagnosticsResult = getDiagnostics(header);
+  bool diagnosticsResult = isDiagnosticsEnabled(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
   encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);

@@ -46,7 +46,6 @@ private:
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Batch _response;
-  std::thread _thread;
   TcpServerPtr _server;
 };
 

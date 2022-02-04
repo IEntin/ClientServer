@@ -7,7 +7,7 @@ TaskContext::TaskContext(const HEADER& header) :
   _inputCompressed(getCompressor(_header) == COMPRESSORS::LZ4),
   _compressedSize(getCompressedSize(_header)),
   _uncompressedSize(getUncompressedSize(_header)),
-  _diagnostics(getDiagnostics(_header)) {}
+  _diagnostics(isDiagnosticsEnabled(_header)) {}
 
 bool TaskContext::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
   std::string_view received(input.data(), input.size());
