@@ -43,7 +43,7 @@ void TcpServer::run() noexcept {
 }
 
 void TcpServer::accept() {
-  auto connection = std::make_shared<TcpConnection>(_ioContext, _timeout, shared_from_this());
+  auto connection = std::make_shared<TcpConnection>(_ioContext, _timeout, this);
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {

@@ -8,11 +8,9 @@
 #include "CommUtility.h"
 #include <iostream>
 
-extern volatile std::atomic<bool> stopFlag;
-
 namespace tcp {
 
-TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout, TcpServerPtr server) :
+TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout, TcpServer* server) :
   _socket(_ioContext), _timeout(timeout), _timer(_ioContext), _server(server) {}
 
 TcpConnection::~TcpConnection() {
@@ -29,7 +27,8 @@ void TcpConnection::start() {
 	    << "-local " << local.address() << ':' << local.port()
 	    << ",remote " << remote.address() << ':' << remote.port()
 	    << std::endl;
-  _server->getConnectionThreadVector().emplace_back(&TcpConnection::run, shared_from_this());
+  // start and save connection thread
+  _server->getConnectionThreads().emplace_back(&TcpConnection::run, shared_from_this());
 }
 
 void TcpConnection::run() noexcept {
@@ -80,7 +79,7 @@ void TcpConnection::readHeader() {
 
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
   asyncWait();
-  if (!(ec || stopFlag)) {
+  if (!(ec || _server->stopped())) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
     if (!isOk(_header)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
@@ -118,7 +117,7 @@ void TcpConnection::write(std::string_view reply) {
 void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!(ec || stopFlag))
+  if (!(ec || _server->stopped()))
     onReceiveRequest();
   else {
     if (ec)
@@ -132,7 +131,7 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_
 void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!(ec || stopFlag))
+  if (!(ec || _server->stopped()))
     readHeader();
   else {
     if (ec)

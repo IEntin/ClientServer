@@ -9,16 +9,14 @@
 
 namespace tcp {
 
-using TcpServerPtr = std::shared_ptr<class TcpServer>;
-
-class TcpServer : public std::enable_shared_from_this<TcpServer> {
+class TcpServer {
 public:
   TcpServer(unsigned port, unsigned timeout);
   ~TcpServer() = default;
   void start();
   void stop();
   bool stopped() const { return _stopped; }
-  std::vector<std::thread>& getConnectionThreadVector() { return _connectionThreads; }
+  std::vector<std::thread>& getConnectionThreads() { return _connectionThreads; }
 private:
   void accept();
 
