@@ -74,7 +74,7 @@ void FifoServer::Runnable::operator()() noexcept {
       break;
     Task::process(header, _uncompressedRequest, _response);
     if (!sendResponse(_response))
-      break;
+      continue;
   }
 }
 
@@ -100,7 +100,7 @@ bool FifoServer::Runnable::sendResponse(Batch& response) {
     _fdRead = -1;
   }
   if (!stopFlag) {
-    _fdWrite = open(_fifoName.c_str(), O_WRONLY);
+    _fdWrite = open(_fifoName.c_str(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< '-' << std::strerror(errno) << std::endl;

@@ -2,7 +2,7 @@
 
 // fd should be open with O_NONBLOCK
 
-bool FifoRunnable::waitRequest() {
+bool FifoServer::Runnable::waitRequest() {
   unsigned rep = 0;
   do {
     errno = 0;
