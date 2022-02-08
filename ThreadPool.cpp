@@ -16,24 +16,14 @@ ThreadPool::ThreadPool(unsigned numberThreads) {
   }
 }
 
-ThreadPool::~ThreadPool() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
-  /*
-  for (unsigned i = 0; i < _threads.size(); ++i)
-    push(std::shared_ptr<Runnable>());
-  for (auto& thread : _threads)
-    if (thread.joinable()) {
-      thread.join();
-  }
-  */
-}
-
 void ThreadPool::stop() {
   for (unsigned i = 0; i < _threads.size(); ++i)
     push(std::shared_ptr<Runnable>());
   for (auto& thread : _threads)
     if (thread.joinable())
       thread.join();
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << " ... _threads joined ..." << std::endl;
 }
 
 void ThreadPool::push(RunnablePtr runnable) {

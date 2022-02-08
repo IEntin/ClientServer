@@ -20,7 +20,6 @@ TcpServer::TcpServer(unsigned expectedNumberConnections, unsigned port, unsigned
 }
 
 TcpServer::~TcpServer(){
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   boost::system::error_code ignore;
   _acceptor.close(ignore);
   _ioContext.stop();

@@ -67,7 +67,8 @@ fifo:\
 
 tcp:
   "TcpPort" : "49152",
-  "Timeout" : 5
+  "Timeout" : 5,
+  "ExpectedTcpConnections" : 5 // this must be equal or greater than the number of tcp clients
 
 client #1:\
 communication type:\

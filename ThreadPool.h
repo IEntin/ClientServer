@@ -13,7 +13,6 @@ class Runnable {
   Runnable() = default;
   virtual ~Runnable() {}
   virtual void run() = 0;
-  virtual bool stopped() const = 0;
 };
 
 class ThreadPool {
@@ -23,7 +22,7 @@ class ThreadPool {
   std::queue<RunnablePtr> _queue;
  public:
   ThreadPool(unsigned numberThreads);
-  ~ThreadPool();
+  ~ThreadPool() = default;
   void stop();
   void push(RunnablePtr runnable);
   RunnablePtr get();

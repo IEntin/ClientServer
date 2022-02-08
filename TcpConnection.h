@@ -23,8 +23,8 @@ public:
   ~TcpConnection() override;
 
   void run() noexcept override;
-  bool stopped() const override;
   void start();
+  bool stopped() const;
   auto& socket() { return _socket; }
   auto& endpoint() { return _endpoint; }
 private:
