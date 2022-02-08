@@ -5,7 +5,12 @@ ThreadPool::ThreadPool(unsigned numberThreads) {
   for (unsigned i = 0; i < numberThreads; ++i) {
     _threads.emplace_back([this] () {
 			    while (true) {
+
+			      // additional scope for the fast destruction
+			      // of the finished runnable
+
 			      {
+				// this blocks waiting for the new runnable
 				std::shared_ptr runnable = get();
 				if (!runnable)
 				  break;
