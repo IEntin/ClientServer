@@ -8,19 +8,19 @@
 
 namespace tcp {
 
-TcpServer::TcpServer(unsigned port, unsigned timeout) :
+TcpServer::TcpServer(unsigned expectedNumberConnections, unsigned port, unsigned timeout) :
+  _ioContext(1),
   _tcpPort(port),
   _timeout(timeout),
   _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
-  _acceptor(_ioContext, _endpoint) {}
-
-void TcpServer::start() {
+  _acceptor(_ioContext, _endpoint),
+  _connectionThreadPool(expectedNumberConnections) {
   accept();
   _thread = std::thread(&TcpServer::run, this);
 }
 
-void TcpServer::stop() {
-  _stopped.store(true);
+TcpServer::~TcpServer(){
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   boost::system::error_code ignore;
   _acceptor.close(ignore);
   _ioContext.stop();
@@ -29,9 +29,11 @@ void TcpServer::stop() {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ... _thread joined ..." << std::endl;
   }
-  for (auto& thread : _connectionThreads)
-    if (thread.joinable())
-      thread.join();
+}
+
+void TcpServer::stop() {
+  _stopped.store(true);
+  _connectionThreadPool.stop();
 }
 
 void TcpServer::run() noexcept {
@@ -43,7 +45,7 @@ void TcpServer::run() noexcept {
 }
 
 void TcpServer::accept() {
-  auto connection = std::make_shared<TcpConnection>(_ioContext, _timeout, this);
+  auto connection = std::make_shared<TcpConnection>(_timeout, this);
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {
@@ -60,6 +62,10 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
     connection->start();
     accept();
   }
+}
+
+void TcpServer::pushConnection(std::shared_ptr<TcpConnection> connection){
+  _connectionThreadPool.push(connection);
 }
 
 } // end of namespace tcp

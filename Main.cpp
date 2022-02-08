@@ -14,8 +14,7 @@
 #include <csignal>
 #include <iostream>
 
-void signalHandler(int signal) {
-}
+void signalHandler(int signal) {}
 
 int main() {
   signal(SIGPIPE, SIG_IGN);
@@ -26,12 +25,9 @@ int main() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
-  // read compression method
-  std::string compressorStr = ProgramOptions::get("Compression", std::string());
-  Compression::setCompressionEnabled(compressorStr);
+  Compression::setCompressionEnabled(ProgramOptions::get("Compression", std::string()));
   // optionally record elapsed times
-  const bool timing = ProgramOptions::get("Timing", false);
-  Chronometer chronometer(timing, __FILE__, __LINE__);
+  Chronometer chronometer(ProgramOptions::get("Timing", false), __FILE__, __LINE__);
   // method to apply to every request in the batch
   ProcessRequest processRequest;
   std::string method = ProgramOptions::get("ProcessRequestMethod", std::string());
@@ -53,8 +49,9 @@ int main() {
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName", std::string()),
 				      ProgramOptions::get("FifoBaseNames", std::string())))
     return 1;
-  tcp::TcpServer tcpServer(ProgramOptions::get("TcpPort", 0), ProgramOptions::get("Timeout", 1));
-  tcpServer.start();
+  tcp::TcpServer tcpServer(ProgramOptions::get("ExpectedTcpConnections", 1),
+			   ProgramOptions::get("TcpPort", 0),
+			   ProgramOptions::get("Timeout", 1));
   int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

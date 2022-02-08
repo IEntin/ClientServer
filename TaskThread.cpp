@@ -47,7 +47,8 @@ void TaskThreadPool::stop() {
   stopFlag.store(true);
   Task::push(std::make_shared<Task>());
   std::vector<TaskThreadPtr>().swap(_threads);
-  std::clog << "... TaskThreadPool stopped ..." << std::endl;
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << " ... TaskThreadPool stopped ..." << std::endl;
 }
 
 // save pool pointer and a function pointer to apply to every request in the task

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include "ThreadPool.h"
 #include <boost/asio.hpp>
 #include <memory>
 
@@ -16,16 +17,17 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpServer;
 
-class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
+class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public Runnable {
 public:
-  TcpConnection(boost::asio::io_context& io_context, unsigned timeout, TcpServer* server);
-  ~TcpConnection();
+  TcpConnection(unsigned timeout, TcpServer* server);
+  ~TcpConnection() override;
 
+  void run() noexcept override;
+  bool stopped() const override;
   void start();
   auto& socket() { return _socket; }
   auto& endpoint() { return _endpoint; }
 private:
-  void run() noexcept;
   void readHeader();
   void readRequest();
   void write(std::string_view reply);

@@ -11,14 +11,19 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(boost::asio::io_context& io_context, unsigned timeout, TcpServer* server) :
-  _socket(_ioContext), _timeout(timeout), _timer(_ioContext), _server(server) {}
+TcpConnection::TcpConnection(unsigned timeout, TcpServer* server) :
+  _ioContext(1), _socket(_ioContext), _timeout(timeout), _timer(_ioContext), _server(server) {}
 
 TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+bool TcpConnection::stopped() const {
+  return _server->stopped();
 }
 
 void TcpConnection::start() {
@@ -28,8 +33,7 @@ void TcpConnection::start() {
 	    << "-local " << local.address() << ':' << local.port()
 	    << ",remote " << remote.address() << ':' << remote.port()
 	    << std::endl;
-  // start and save connection thread
-  _server->getConnectionThreads().emplace_back(&TcpConnection::run, shared_from_this());
+  _server->pushConnection(shared_from_this());
 }
 
 void TcpConnection::run() noexcept {
@@ -78,8 +82,10 @@ void TcpConnection::readHeader() {
 }
 
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
+  if (stopped())
+    return;
   asyncWait();
-  if (!(ec || _server->stopped())) {
+  if (!ec) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
     if (!isOk(_header)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
@@ -90,7 +96,7 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t
     _request.resize(getCompressedSize(_header));
     readRequest();
   }
-  else if (ec) {
+  else {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
 	      << ec.what() << std::endl;
     boost::system::error_code ignore;
@@ -115,28 +121,30 @@ void TcpConnection::write(std::string_view reply) {
 }
 
 void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_t transferred) {
+  if (stopped())
+    return;
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!(ec || _server->stopped()))
+  if (!ec)
     onReceiveRequest();
   else {
-    if (ec)
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-		<< ec.what() << std::endl;
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+	      << ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
 }
 
 void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t transferred) {
+  if (stopped())
+    return;
   boost::system::error_code ignore;
   _timer.cancel(ignore);
-  if (!(ec || _server->stopped()))
+  if (!ec)
     readHeader();
   else {
-    if (ec)
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-		<< ec.what() << std::endl;
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+	      << ec.what() << std::endl;
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }

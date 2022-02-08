@@ -7,10 +7,12 @@
 #include "Task.h"
 #include "Utility.h"
 #include <fcntl.h>
-#include <filesystem>
-#include <cstring>
-#include <iostream>
+#include <poll.h>
 #include <sys/stat.h>
+#include <cassert>
+#include <cstring>
+#include <filesystem>
+#include <iostream>
 
 namespace {
 
@@ -71,7 +73,7 @@ void FifoServer::Runnable::operator()() noexcept {
     HEADER header;
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
-      break;
+      continue;
     Task::process(header, _uncompressedRequest, _response);
     if (!sendResponse(_response))
       continue;
@@ -106,6 +108,21 @@ bool FifoServer::Runnable::sendResponse(Batch& response) {
 		<< '-' << std::strerror(errno) << std::endl;
       return false;
     }
+    do {
+      pollfd pfd{ _fdWrite, POLLOUT, -1 };
+      pfd.revents = 0;
+      int presult = poll(&pfd, 1, -1);
+      if (presult <= 0) {
+	if (errno == EINTR)
+	  continue;
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		  << '-' << std::strerror(errno) << std::endl;
+	close(_fdWrite);
+	_fdWrite = -1;
+	return false;
+      }
+      assert(pfd.revents & POLLOUT);
+    } while (errno == EINTR);
   }
   return Fifo::sendReply(_fdWrite, response);
 }
