@@ -72,8 +72,8 @@ fifo:\
   "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
 
 tcp:
-  "TcpPort" : "49152",
-  "Timeout" : 5,
+  "TcpPort" : "49152",\
+  "Timeout" : 5,\
   "ExpectedTcpConnections" : 5 // this must be equal or greater than the number of tcp clients
 
 client #1:\
