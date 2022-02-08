@@ -5,9 +5,9 @@ Copyright (C) 2021 Ilya Entin.
 This server can work with multiple mixed tcp and fifo clients.
 
 TCP communication layer is using boost Asio library. Every connection is running in its own thread\
-(io_context per connection). Connections can be extremely short-lived, e.g. it might service one 30ms\
-request or in another extreme it can run for the life time of the server. With this architecture it\
-is important to use thread pooling to save on thread creations.
+(io_context per connection). Connections can be extremely short-lived, e.g. it might service one
+submillisecond request or in another extreme it can run for the life time of the server. With this\
+architecture it is important to use thread pooling to save on creating the threads.
 
 This server is using thread pools for both tcp and fifo connections.
 
