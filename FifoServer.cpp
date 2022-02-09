@@ -88,8 +88,8 @@ bool FifoServer::Runnable::receiveRequest(std::vector<char>& batch, HEADER& head
   if (!stopFlag) {
     _fdRead = open(_fifoName.c_str(), O_RDONLY);
     if (_fdRead == -1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
   }
@@ -104,8 +104,8 @@ bool FifoServer::Runnable::sendResponse(Batch& response) {
   if (!stopFlag) {
     _fdWrite = open(_fifoName.c_str(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
     do {
@@ -115,8 +115,8 @@ bool FifoServer::Runnable::sendResponse(Batch& response) {
       if (presult <= 0) {
 	if (errno == EINTR)
 	  continue;
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << '-' << std::strerror(errno) << std::endl;
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		  << std::strerror(errno) << ' ' << _fifoName << std::endl;
 	close(_fdWrite);
 	_fdWrite = -1;
 	return false;

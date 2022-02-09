@@ -10,8 +10,6 @@
 #include "Utility.h"
 #include <iostream>
 
-extern volatile std::atomic<bool> stopFlag;
-
 namespace tcp {
 
 CloseSocket::CloseSocket(boost::asio::ip::tcp::socket& socket) : _socket(socket) {}
@@ -79,7 +77,7 @@ bool run(const Batch& payload, const TcpClientOptions& options) {
       // limit output file size
       if (++numberTasks == options._maxNumberTasks)
 	break;
-    } while (options._runLoop && !stopFlag);
+    } while (options._runLoop);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

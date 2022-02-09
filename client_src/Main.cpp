@@ -11,47 +11,8 @@
 #include "ProgramOptions.h"
 #include "TcpClient.h"
 #include "Utility.h"
-#include <atomic>
 #include <csignal>
 #include <iostream>
-
-volatile std::atomic<bool> stopFlag = false;
-
-void signalHandler(int signal) {
-  stopFlag.store(true);
-}
-
-// placed here to limit the number of property_tree includes
-std::ofstream ClientOptions::_dataFileStream;
-std::ofstream ClientOptions::_instrFileStream;
-
-ClientOptions::ClientOptions() :
-  _diagnostics(ProgramOptions::get("Diagnostics", false)),
-  _runLoop(ProgramOptions::get("RunLoop", false)),
-  _prepareOnce(ProgramOptions::get("PrepareBatchOnce", false)),
-  _timing(ProgramOptions::get("Timing", false)),
-  _dataStream(initStream(ProgramOptions::get("OutputFileName", std::string()), _dataFileStream)),
-  _maxNumberTasks(_dataStream ? ProgramOptions::get("MaxNumberTasks", 100) :
-		  std::numeric_limits<unsigned int>::max()),
-  _instrStream(initStream(ProgramOptions::get("InstrumentationFn", std::string()), _instrFileStream)) {}
-
-TcpClientOptions::TcpClientOptions() : ClientOptions(),
-  _serverHost(ProgramOptions::get("ServerHost", std::string())),
-  _tcpPort(ProgramOptions::get("TcpPort", std::string())) {}
-
-FifoClientOptions::FifoClientOptions() : ClientOptions(),
-  _fifoName(ProgramOptions::get("FifoDirectoryName", std::string()) + '/' +
-	    ProgramOptions::get("FifoBaseName", std::string())) {}
-
-std::ostream* ClientOptions::initStream(const std::string& fileName,
-					std::ofstream& fileStream) {
-  std::string outpuFileName = ProgramOptions::get("OutputFileName", std::string());
-  if (!fileName.empty()) {
-    fileStream.open(fileName, std::ofstream::binary);
-    return &fileStream;
-  }
-  return nullptr;
-}
 
 int main() {
   const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
@@ -63,7 +24,6 @@ int main() {
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
     signal(SIGPIPE, SIG_IGN);
-    std::signal(SIGINT, signalHandler);
     MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
     chronometer.start(__FILE__, __func__, __LINE__);
     std::string compressorStr = ProgramOptions::get("Compression", std::string());

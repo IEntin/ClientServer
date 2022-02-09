@@ -12,8 +12,6 @@
 #include <cstring>
 #include <fcntl.h>
 
-extern volatile std::atomic<bool> stopFlag;
-
 namespace fifo {
 
 bool receive(int fd, std::ostream* dataStream) {
@@ -46,29 +44,23 @@ bool processTask(const Batch& payload,
   for (const auto& chunk : modified) {
     close(fdRead);
     fdRead = -1;
-    if (!stopFlag) {
-      fdWrite = open(options._fifoName.c_str(), O_WRONLY);
-      if (fdWrite == -1) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << options._fifoName << '-' << std::strerror(errno) << std::endl;
-	return false;
-      }
-    }
-    if (fdWrite == -1)
+    fdWrite = open(options._fifoName.c_str(), O_WRONLY);
+    if (fdWrite == -1) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		<< options._fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
+    }
     if (!Fifo::writeString(fdWrite, chunk)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
     close(fdWrite);
     fdWrite = -1;
-    if (!stopFlag) {
-      fdRead = open(options._fifoName.c_str(), O_RDONLY);
-      if (fdRead == -1) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << options._fifoName << '-' << std::strerror(errno) << std::endl;
-	return false;
-      }
+    fdRead = open(options._fifoName.c_str(), O_RDONLY);
+    if (fdRead == -1) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		<< options._fifoName << '-' << std::strerror(errno) << std::endl;
+      return false;
     }
     if (!receive(fdRead, options._dataStream))
       return false;
