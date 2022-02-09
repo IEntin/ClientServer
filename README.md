@@ -4,33 +4,36 @@ Copyright (C) 2021 Ilya Entin.
 
 This server can work with multiple mixed tcp and fifo clients.
 
-TCP communication layer is using boost Asio library. Every connection is running in its own thread\
-(io_context per connection). Connections can be extremely short-lived, e.g. it might service one
-submillisecond request or in another extreme it can last for the life time of the server. With this\
-architecture it is important to avoid creating new threads by using thread pools.
+Tcp communication layer is using boost Asio library. Every connection is running in its own thread\
+(io_context per connection). Connections can be extremely short-lived, e.g. it might service one\
+submillisecond request or in another extreme it can run for the life time of the server. With this\
+architecture it is important to avoid creating new threads and use thread pools.
 
-This server is using thread pools for both tcp and fifo connections. One of those is a generic thread pool.
+This server is using thread pools for both tcp and fifo connections, see ThreadPool class for a\
+generic thread pool.
 
-Fifo provides better performance and arguably stronger security than tcp.\
-If fifo is not an option tcp client can connect to the server without stopping it.\
-Due to protocol and predictable sequence of reads and writes, it is possible to make pipes bidirectional.\
-This situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
-After write we close write file descriptor and open read fd for the same end of the pipe, and so on.\
-This significantly simplified the setup - one fifo per client. See below fragments of configuration\
-in ProgramOptions.json for the server and clients. Testing showed that performance impact of fd reopening\
-is small for large batches when reopening is relatively rare.
+In some cases fifo has better performance and possibly stronger security than tcp. Due to protocol\
+with predictable sequence of reads and writes, it is possible to make pipes bidirectional. This\
+situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
+After every write the code closes write file descriptor and opens read fd for the same end of the\
+pipe, and so on. This significantly simplifies the setup - one fifo per client. See below fragments\
+of configuration in ProgramOptions.json for the server and clients. Testing showed that performance\
+impact of fd reopening is small for large batches.
 
-Lockless. Processing batches of requests without locking. To address possible questions, queues of tasks\
-and connections are still using locks, but this type of locking is relatively rare for large tasks and\
-does not affect the performance.
+If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
+stopping the server.
 
-Memory Pooling. Business code and compression/decompression are not allocating.
+Lockless. Processing batches of requests is lockless. Queues of tasks and connections are\
+still using locks, but this type of locking is relatively rare for large tasks and does not\
+affect overall performance.
+
+Memory Pooling. Business code and compression/decompression are not allocating after startup.
 
 Builtin optional LZ4 compression.
 
 Business logic, compression, task multithreading, and communication layers are completely decoupled.
 
-Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in. 
+Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
 In order to measure performance of the system the same batch was repeated in an infinite loop. I was mostly interested in the server performance, so requests from the client were compressed once (optional, "PrepareBatchOnce" in ProgramOptions.json on the client side) and then repeatedly sent to the server. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes 26 to 30 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal doubles the latency.
 
@@ -58,8 +61,8 @@ boost_1_78_0
 
 make -j3
 
-g++ is used by default. To use clang add CMPLR=clang++ to the make command.\
-There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels.\
+clang++ compiler is used by default. To use g++ add CMPLR=g++ to the make command.\
+There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels,\
 see the makefile.
 
 3. run\
@@ -91,9 +94,11 @@ tcp:\
 
   ........
 
-Names of pipes and tcp ports should match on server and clients. ProgramOptions.json contains the\
-list for 5 clients, but this number can be increased, only performance can put the\
-limit. The server was tested with 5 clients with mixed client types.
+Names of pipes and tcp ports should match on server and clients. For named pipes ProgramOptions.json\
+contains the list of known clients. The number and identity of tcp clients is not known in advance, only\
+their expected maximum number("ExpectedTcpConnections" in ProgramOptions.json).\
+Generally, the number of clients is limited by hardware performance.\
+This server was tested with 5 clients with mixed client types.
 
 FIFO files are created on server startup and removed on server shutdown with Ctrl-C.\
 By design, the clients should not create or remove FIFO files. The code does not do\
@@ -118,7 +123,7 @@ Some of these:
 'Echo' allows to test multithreading, compression, and fifo/tcp. To check the results save client\
 output to the file and diff this file with the source (default is 'requests.log').
 
-To enable compression (default)\
+To enable compression\
 "Compression" : "LZ4"\
 If this is empty or something different the compression is disabled.
 
@@ -129,12 +134,17 @@ for the batch of 10000 requests and the total run time for the server. See Chron
 This parameter controls the task size(the number of requests in the batch) and\
 memory footprint of the application. The latter is important for embedded systems.
 
-Client can request diagnostics for specific task which shows details of all stages of business calculations for each request.\
-This setting is '"Diagnostics" : true' in the client ProgramOptions.json. It enables diagnostics only for that client. Server restart is not necessary in this case.
+Client can request diagnostics for a specific task to show details of all stages of business calculations.\
+This setting is '"Diagnostics" : true' in the client ProgramOptions.json. It enables diagnostics only\
+for that client.
 
-To run tests:\
+To run the Google tests:\
 'tests/runtests'\
 in the project root directory.
+
+The accepted procedure in this project includes thread and memory sanitizer runs and performance\
+profiling of every commit. Sanitizer warnings are considered failures and are not accepted.\
+The number of Google tests is still limited and is steadily increasing.
 
 =======
 ### Fast Lockless Linux Client-Server with TCP and FIFO clients
