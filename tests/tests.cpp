@@ -158,7 +158,7 @@ TEST(ThreadPoolTest, ThreadPoolTest1) {
   public:
     TestRunnable(unsigned number, ThreadPool& pool) : Runnable(), _number(number), _pool(pool) {}
     ~TestRunnable() override {
-      assert(_id == std::this_thread::get_id());
+      EXPECT_EQ(_id, std::this_thread::get_id());
     }
     void run() override {
       _id = std::this_thread::get_id();
