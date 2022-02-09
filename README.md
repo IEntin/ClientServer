@@ -6,10 +6,10 @@ This server can work with multiple mixed tcp and fifo clients.
 
 TCP communication layer is using boost Asio library. Every connection is running in its own thread\
 (io_context per connection). Connections can be extremely short-lived, e.g. it might service one
-submillisecond request or in another extreme it can run for the life time of the server. With this\
-architecture it is important to use thread pooling to save on creating the threads.
+submillisecond request or in another extreme it can last for the life time of the server. With this\
+architecture it is important to avoid creating new threads by using thread pools.
 
-This server is using thread pools for both tcp and fifo connections.
+This server is using thread pools for both tcp and fifo connections. One of those is a generic thread pool.
 
 Fifo provides better performance and arguably stronger security than tcp.\
 If fifo is not an option tcp client can connect to the server without stopping it.\
@@ -20,8 +20,9 @@ This significantly simplified the setup - one fifo per client. See below fragmen
 in ProgramOptions.json for the server and clients. Testing showed that performance impact of fd reopening\
 is small for large batches when reopening is relatively rare.
 
-Lockless. Processing batches of requests without locking. To address possible questions, queues of batches\
-are still using locks, but this type of locking is relatively rare and does not affect performance.
+Lockless. Processing batches of requests without locking. To address possible questions, queues of tasks\
+and connections are still using locks, but this type of locking is relatively rare for large tasks and\
+does not affect the performance.
 
 Memory Pooling. Business code and compression/decompression are not allocating.
 

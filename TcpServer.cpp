@@ -52,7 +52,7 @@ void TcpServer::accept() {
 			 });
 }
 
-void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
+void TcpServer::handleAccept(TcpConnectionPtr connection,
 			     const boost::system::error_code& ec) {
   if (ec)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
@@ -63,7 +63,7 @@ void TcpServer::handleAccept(std::shared_ptr<TcpConnection> connection,
   }
 }
 
-void TcpServer::pushConnection(std::shared_ptr<TcpConnection> connection){
+void TcpServer::pushConnection(TcpConnectionPtr connection){
   _connectionThreadPool.push(connection);
 }
 

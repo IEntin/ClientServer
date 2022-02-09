@@ -10,17 +10,19 @@
 
 namespace tcp {
 
+using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
+
 class TcpServer {
 public:
   TcpServer(unsigned expectedNumberConnections, unsigned port, unsigned timeout);
   ~TcpServer();
   void stop();
   bool stopped() const { return _stopped; }
-  void pushConnection(std::shared_ptr<class TcpConnection> connection);
+  void pushConnection(TcpConnectionPtr connection);
 private:
   void accept();
 
-  void handleAccept(std::shared_ptr<class TcpConnection> connection,
+  void handleAccept(TcpConnectionPtr connection,
 		    const boost::system::error_code& ec);
   void run() noexcept;
 
