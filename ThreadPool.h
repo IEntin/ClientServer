@@ -30,4 +30,5 @@ class ThreadPool {
   void stop();
   void push(RunnablePtr runnable);
   RunnablePtr get();
+  std::vector<std::thread>& getThreads() { return _threads; }
 };

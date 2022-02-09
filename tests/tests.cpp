@@ -6,11 +6,13 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "ThreadPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 constexpr const char* sourceName = "client_bin/requests.log";
 
@@ -34,7 +36,7 @@ bool testCompressionDecompression1(std::string_view input) {
   std::string_view compressedView = Compression::compress(input);
   if (compressedView.empty())
     return false;
-  // save in a string before buffer is reused in uncompress
+  // save to a string before buffer is reused in uncompress
   std::string compressed;
   compressed.assign(compressedView.data(), compressedView.size());
   std::string_view uncompressedView = Compression::uncompress(compressed, input.size());
@@ -131,6 +133,54 @@ TEST(PreparePackageTest, PreparePackageTest1) {
   bool prepared = utility::preparePackage(payload, modified, bufferSize, diagnostics);
   ASSERT_TRUE(prepared);
   ASSERT_TRUE(Compression::isCompressionEnabled().second);
+  std::string uncompressedResult;
+  for (const std::string& task : modified) {
+    HEADER header = decodeHeader(task.data());
+    ASSERT_TRUE(isOk(header));
+    size_t comprSize = getCompressedSize(header);
+    ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
+    std::string_view uncompressedView =
+      Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
+			      getUncompressedSize(header));
+    ASSERT_FALSE(uncompressedView.empty());
+    uncompressedResult.append(uncompressedView);
+  }
+  Batch batchResult;
+  utility::split(uncompressedResult, batchResult);
+  for (auto& line : batchResult)
+    line.append(1, '\n');
+  ASSERT_TRUE(batchResult == payload);
+}
+
+TEST(ThreadPoolTest, ThreadPoolTest1) {
+  ThreadPool pool(10);
+  class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
+  public:
+    TestRunnable(unsigned number, ThreadPool& pool) : Runnable(), _number(number), _pool(pool) {}
+    ~TestRunnable() override {
+      assert(_id == std::this_thread::get_id());
+    }
+    void run() override {
+      _id = std::this_thread::get_id();
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    void start() {
+      _pool.get().push(shared_from_this());
+    }
+    const unsigned _number;
+    std::reference_wrapper<ThreadPool> _pool;
+    std::thread::id _id;
+  };
+  for (unsigned i = 0; i < 20; ++i) {
+    auto runnable = std::make_shared<TestRunnable>(i, pool);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    runnable->start();
+  }
+  pool.stop();
+  bool allJoined = true;
+  for (auto& thread : pool.getThreads())
+    allJoined = allJoined && !thread.joinable();
+  ASSERT_TRUE(allJoined);
 }
 
 int main(int argc, char **argv) {

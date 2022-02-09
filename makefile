@@ -61,11 +61,11 @@ CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 $(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 
-TESTINCLUDES = -Iclient_src -Icommon 
-TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp)
+TESTINCLUDES = -I. -Iclient_src -Icommon 
+TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) ThreadPool.cpp
 
 $(TESTDIR)/runtests : $(TESTSOURCES) server
-	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
+	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 	./$(TESTDIR)/runtests
 
 .PHONY: clean
