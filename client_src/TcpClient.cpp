@@ -22,7 +22,8 @@ CloseSocket::~CloseSocket() {
 
 bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
-		 const TcpClientOptions& options) {
+		 const TcpClientOptions& options,
+		 std::ostream* dataStream) {
   // keep vector capacity
   static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
@@ -50,13 +51,14 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
       decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
-    if (!readReply(socket, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, options._dataStream))
+    std::ostream* pstream = dataStream ? dataStream : options._dataStream;
+    if (!readReply(socket, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, pstream))
       return false;
   }
   return true;
 }
 
-bool run(const Batch& payload, const TcpClientOptions& options) {
+bool run(const Batch& payload, const TcpClientOptions& options, std::ostream* dataStream) {
   unsigned numberTasks = 0;
   try {
     boost::asio::io_context ioContext;
@@ -72,7 +74,7 @@ bool run(const Batch& payload, const TcpClientOptions& options) {
     }
     do {
       Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
-      if (!processTask(socket, payload, options))
+      if (!processTask(socket, payload, options, dataStream))
 	return false;
       // limit output file size
       if (++numberTasks == options._maxNumberTasks)

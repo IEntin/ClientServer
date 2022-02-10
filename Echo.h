@@ -8,6 +8,6 @@
 
 namespace echo {
 
-  std::string processRequest(std::string_view view) noexcept;
+std::string processRequest(std::string_view view) noexcept;
 
 } // end of namespace echo

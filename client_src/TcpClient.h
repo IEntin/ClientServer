@@ -17,11 +17,14 @@ struct CloseSocket {
   boost::asio::ip::tcp::socket& _socket;
 };
 
-bool run(const Batch& payload, const TcpClientOptions& options);
+bool run(const Batch& payload,
+	 const TcpClientOptions& options,
+	 std::ostream* dataStream = nullptr);
 
 bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
-		 const TcpClientOptions& options);
+		 const TcpClientOptions& options,
+		 std::ostream* dataStream = nullptr);
 
 bool readReply(boost::asio::ip::tcp::socket& socket,
 	       size_t uncomprSize,

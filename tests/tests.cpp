@@ -4,8 +4,15 @@
 
 #include "CommUtility.h"
 #include "Compression.h"
+#include "Echo.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "Task.h"
+#include "TaskThread.h"
+#include "ClientOptions.h"
+#include "TcpClient.h"
+#include "TcpConnection.h"
+#include "TcpServer.h"
 #include "ThreadPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
@@ -14,17 +21,15 @@
 #include <iostream>
 #include <sstream>
 
-constexpr const char* sourceName = "client_bin/requests.log";
-
 size_t getMemPoolBufferSize() {
   return 100000;
 }
 
-std::string readContent(const std::string& name = sourceName) {
-  std::ifstream ifs(sourceName, std::ifstream::in | std::ifstream::binary);
+std::string readContent(const std::string& name) {
+  std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
   if (!ifs) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << std::strerror(errno) << ' ' << sourceName << std::endl;
+	      << std::strerror(errno) << ' ' << name << std::endl;
     return "";
   }
   std::stringstream buffer;
@@ -62,7 +67,7 @@ bool testCompressionDecompression2(std::string_view input) {
 
 TEST(CompressionTest, CompressionTest1) {
   bool compressionTestResult = true;
-  const std::string content = readContent();
+  const std::string content = readContent("requests.log");
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression1(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
@@ -70,14 +75,14 @@ TEST(CompressionTest, CompressionTest1) {
 
 TEST(CompressionTest, CompressionTest2) {
   bool compressionTestResult = true;
-  const std::string content = readContent("client_bin/output.txt");
+  const std::string content = readContent("output.txt");
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression2(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
 }
 
 TEST(SplitTest, SplitTest1) {
-  const std::string content = readContent("client_bin/requests.log");
+  const std::string content = readContent("requests.log");
   std::vector<std::string_view> lines;
   utility::split(content, lines);
   ASSERT_EQ(lines.size(), 10000);
@@ -126,7 +131,7 @@ TEST(HeaderTest, HeaderTest1) {
 
 TEST(PreparePackageTest, PreparePackageTest1) {
   Batch payload;
-  commutility::createPayload(sourceName, payload);
+  commutility::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
   bool diagnostics = true;
@@ -181,6 +186,26 @@ TEST(ThreadPoolTest, ThreadPoolTest1) {
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
+}
+
+TEST(EchoTest, EchoTestTcp) {
+  // start server
+  using ProcessRequest = std::string (*)(std::string_view);
+  ProcessRequest processRequest = echo::processRequest;
+  unsigned numberWorkThreads = std::thread::hardware_concurrency();
+  auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
+  taskThreadPool->start();
+  tcp::TcpServer tcpServer(1, 49172, 1);
+  // start client
+  TcpClientOptions options;
+  std::string sourceContent = readContent("requests.log");
+  Batch payload;
+  commutility::createPayload("requests.log", payload);
+  std::ostringstream oss;
+  ASSERT_TRUE(tcp::run(payload, options, &oss));
+  ASSERT_EQ(oss.str(), sourceContent);
+  tcpServer.stop();
+  taskThreadPool->stop();
 }
 
 int main(int argc, char **argv) {

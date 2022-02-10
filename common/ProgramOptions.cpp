@@ -20,7 +20,8 @@ bool ProgramOptions::initialize(boost::property_tree::ptree& pTree) {
     boost::property_tree::read_json(jsonName, pTree);
   }
   catch (std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what()
+	      << ",default values will be returned" << std::endl;
     return false;
   }
   catch (...) {

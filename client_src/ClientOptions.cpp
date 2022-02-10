@@ -29,8 +29,8 @@ std::ostream* ClientOptions::initStream(const std::string& fileName,
 }
 
 TcpClientOptions::TcpClientOptions() : ClientOptions(),
-  _serverHost(ProgramOptions::get("ServerHost", std::string())),
-  _tcpPort(ProgramOptions::get("TcpPort", std::string())) {}
+  _serverHost(ProgramOptions::get("ServerHost", std::string("localhost"))),
+  _tcpPort(ProgramOptions::get("TcpPort", std::string("49172"))) {}
 
 FifoClientOptions::FifoClientOptions() : ClientOptions(),
   _fifoName(ProgramOptions::get("FifoDirectoryName", std::string()) + '/' +
