@@ -25,7 +25,7 @@ std::pair<COMPRESSORS, bool> Compression::isCompressionEnabled() {
 
 bool Compression::setCompressionEnabled(const std::string& compressorStr) {
   _enabled = compressorStr.starts_with(LZ4);
-  _compressor = COMPRESSORS::LZ4;
+  _compressor = _enabled ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
   std::clog << LZ4 << "compression " << (_enabled ? "enabled" : "disabled") << std::endl;
   return _enabled;
 }
