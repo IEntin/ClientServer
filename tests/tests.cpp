@@ -2,14 +2,16 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "ClientOptions.h"
 #include "CommUtility.h"
 #include "Compression.h"
 #include "Echo.h"
+#include "FifoClient.h"
+#include "FifoServer.h"
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Task.h"
 #include "TaskThread.h"
-#include "ClientOptions.h"
 #include "TcpClient.h"
 #include "TcpConnection.h"
 #include "TcpServer.h"
@@ -17,13 +19,15 @@
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-size_t getMemPoolBufferSize() {
-  return 100000;
-}
+using ProcessRequest = std::string (*)(std::string_view);
+ProcessRequest processRequest = echo::processRequest;
+unsigned numberWorkThreads = std::thread::hardware_concurrency();
+auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
 
 std::string readContent(const std::string& name) {
   std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
@@ -190,10 +194,6 @@ TEST(ThreadPoolTest, ThreadPoolTest1) {
 
 TEST(EchoTest, EchoTestTcp) {
   // start server
-  using ProcessRequest = std::string (*)(std::string_view);
-  ProcessRequest processRequest = echo::processRequest;
-  unsigned numberWorkThreads = std::thread::hardware_concurrency();
-  auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
   taskThreadPool->start();
   tcp::TcpServer tcpServer(1, 49172, 1);
   // start client
@@ -205,6 +205,20 @@ TEST(EchoTest, EchoTestTcp) {
   ASSERT_TRUE(tcp::run(payload, options, &oss));
   ASSERT_EQ(oss.str(), sourceContent);
   tcpServer.stop();
+}
+
+TEST(EchoTest, EchoTestFifo) {
+  std::string fifoDirName = std::filesystem::current_path().string();
+  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"));
+  // start client
+  FifoClientOptions options;
+  std::string sourceContent = readContent("requests.log");
+  Batch payload;
+  commutility::createPayload("requests.log", payload);
+  std::ostringstream oss;
+  ASSERT_TRUE(fifo::run(payload, options, &oss));
+  ASSERT_EQ(oss.str(), sourceContent);
+  fifo::FifoServer::joinThreads();
   taskThreadPool->stop();
 }
 

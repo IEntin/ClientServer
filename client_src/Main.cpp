@@ -19,7 +19,8 @@ int main() {
   const bool useFifo = communicationType == "FIFO";
   const bool useTcp = communicationType == "TCP";
   try {
-    Chronometer chronometer(true, __FILE__, __LINE__, __func__);
+    bool timing = ProgramOptions::get("Timing", false);
+    Chronometer chronometer(timing, __FILE__, __LINE__, __func__);
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);

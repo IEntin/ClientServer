@@ -118,12 +118,7 @@ in corresponding directories.
 
 Some of these:
 
-"ProcessRequestMethod" : ["Transaction", "Echo"]\
-'Transaction' is a business logic.\
-'Echo' allows to test multithreading, compression, and fifo/tcp. To check the results save client\
-output to the file and diff this file with the source (default is 'requests.log').
-
-To enable compression\
+Compression\
 "Compression" : "LZ4"\
 If this is empty or something different the compression is disabled.
 

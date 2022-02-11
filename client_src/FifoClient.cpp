@@ -28,7 +28,8 @@ bool receive(int fd, std::ostream* dataStream) {
 bool processTask(const Batch& payload,
 		 const FifoClientOptions& options,
 		 int& fdWrite,
-		 int& fdRead) {
+		 int& fdRead,
+		 std::ostream* dataStream) {
   // keep vector capacity
   static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
@@ -62,15 +63,18 @@ bool processTask(const Batch& payload,
 		<< options._fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    if (!receive(fdRead, options._dataStream))
+    std::ostream* pstream = dataStream ? dataStream : options._dataStream;
+    if (!receive(fdRead, pstream))
       return false;
   }
   return true;
 }
 
 // To run a test infinite loop must keep payload unchanged.
-// in a real setup payload is used once and vector is mutable.
-bool run(const Batch& payload, const FifoClientOptions& options) {
+// in a real setup payload is used once and the vector is mutable.
+bool run(const Batch& payload,
+	 const FifoClientOptions& options,
+	 std::ostream* dataStream) {
   int fdWrite = -1;
   CloseFileDescriptor raiiw(fdWrite);
   int fdRead = -1;
@@ -78,7 +82,7 @@ bool run(const Batch& payload, const FifoClientOptions& options) {
   unsigned numberTasks = 0;
   do {
     Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
-    if (!processTask(payload, options, fdWrite, fdRead))
+    if (!processTask(payload, options, fdWrite, fdRead, dataStream))
       return false;
     // limit output file size
     if (++numberTasks == options._maxNumberTasks)

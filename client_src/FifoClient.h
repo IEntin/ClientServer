@@ -14,11 +14,14 @@ using Batch = std::vector<std::string>;
 
 bool receive(int fd, std::ostream* dataStream);
 
-bool run(const Batch& payload, const FifoClientOptions& options);
+bool run(const Batch& payload,
+	 const FifoClientOptions& options,
+	 std::ostream* dataStream = nullptr);
 
 bool processTask(const Batch& payload,
 		 const FifoClientOptions& options,
 		 int& fdWrite,
-		 int& fdRead);
+		 int& fdRead,
+		 std::ostream* dataStream = nullptr);
 
 } // end of namespace fifo

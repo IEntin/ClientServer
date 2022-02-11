@@ -4,6 +4,7 @@
 
 #include "ClientOptions.h"
 #include "ProgramOptions.h"
+#include <filesystem>
 
 std::ofstream ClientOptions::_dataFileStream;
 std::ofstream ClientOptions::_instrFileStream;
@@ -18,8 +19,7 @@ ClientOptions::ClientOptions() :
 		  std::numeric_limits<unsigned int>::max()),
   _instrStream(initStream(ProgramOptions::get("InstrumentationFn", std::string()), _instrFileStream)) {}
 
-std::ostream* ClientOptions::initStream(const std::string& fileName,
-					std::ofstream& fileStream) {
+std::ostream* ClientOptions::initStream(const std::string& fileName, std::ofstream& fileStream) {
   std::string outpuFileName = ProgramOptions::get("OutputFileName", std::string());
   if (!fileName.empty()) {
     fileStream.open(fileName, std::ofstream::binary);
@@ -33,5 +33,5 @@ TcpClientOptions::TcpClientOptions() : ClientOptions(),
   _tcpPort(ProgramOptions::get("TcpPort", std::string("49172"))) {}
 
 FifoClientOptions::FifoClientOptions() : ClientOptions(),
-  _fifoName(ProgramOptions::get("FifoDirectoryName", std::string()) + '/' +
-	    ProgramOptions::get("FifoBaseName", std::string())) {}
+  _fifoName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
+	    ProgramOptions::get("FifoBaseName", std::string("client1"))) {}

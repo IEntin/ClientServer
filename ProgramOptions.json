@@ -1,6 +1,5 @@
 {
   "AdsFileName" : "ads.txt",
-  "ProcessRequestMethod" : "Transaction",
   "Diagnostics" : false,
   "NumberTaskThreads" : 0,
   "Compression" : "LZ4",
