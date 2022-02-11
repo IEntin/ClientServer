@@ -24,11 +24,6 @@
 #include <iostream>
 #include <sstream>
 
-using ProcessRequest = std::string (*)(std::string_view);
-ProcessRequest processRequest = echo::processRequest;
-unsigned numberWorkThreads = std::thread::hardware_concurrency();
-auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
-
 std::string readContent(const std::string& name) {
   std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
   if (!ifs) {
@@ -192,34 +187,49 @@ TEST(ThreadPoolTest, ThreadPoolTest1) {
   ASSERT_TRUE(allJoined);
 }
 
-TEST(EchoTest, EchoTestTcp) {
+struct EchoTest : testing::Test {
+  using ProcessRequest = std::string (*)(std::string_view);
+  static ProcessRequest _processRequest;
+  static unsigned _numberWorkThreads;
+  static std::shared_ptr<TaskThreadPool> _taskThreadPool;
+  static std::string _sourceContent;
+  static Batch _payload;
+
+  static void SetUpTestSuite() {
+    commutility::createPayload("requests.log", _payload);
+    _taskThreadPool->start();
+  }
+  static void TearDownTestSuite() {
+    _taskThreadPool->stop();
+  }
+};
+ProcessRequest EchoTest::_processRequest = echo::processRequest;
+unsigned EchoTest::_numberWorkThreads = std::thread::hardware_concurrency();
+std::shared_ptr<TaskThreadPool> EchoTest::_taskThreadPool =
+  std::make_shared<TaskThreadPool>(_numberWorkThreads, _processRequest);
+std::string EchoTest::_sourceContent = readContent("requests.log");
+Batch EchoTest::_payload;
+
+TEST_F(EchoTest, EchoTestTcp) {
   // start server
-  taskThreadPool->start();
   tcp::TcpServer tcpServer(1, 49172, 1);
   // start client
   TcpClientOptions options;
-  std::string sourceContent = readContent("requests.log");
-  Batch payload;
-  commutility::createPayload("requests.log", payload);
   std::ostringstream oss;
-  ASSERT_TRUE(tcp::run(payload, options, &oss));
-  ASSERT_EQ(oss.str(), sourceContent);
+  ASSERT_TRUE(tcp::run(_payload, options, &oss));
+  ASSERT_EQ(oss.str(), _sourceContent);
   tcpServer.stop();
 }
 
-TEST(EchoTest, EchoTestFifo) {
+TEST_F(EchoTest, EchoTestFifo) {
   std::string fifoDirName = std::filesystem::current_path().string();
   fifo::FifoServer::startThreads(fifoDirName, std::string("client1"));
   // start client
   FifoClientOptions options;
-  std::string sourceContent = readContent("requests.log");
-  Batch payload;
-  commutility::createPayload("requests.log", payload);
   std::ostringstream oss;
-  ASSERT_TRUE(fifo::run(payload, options, &oss));
-  ASSERT_EQ(oss.str(), sourceContent);
+  ASSERT_TRUE(fifo::run(_payload, options, &oss));
+  ASSERT_EQ(oss.str(), _sourceContent);
   fifo::FifoServer::joinThreads();
-  taskThreadPool->stop();
 }
 
 int main(int argc, char **argv) {
