@@ -14,6 +14,8 @@ volatile std::atomic<bool> stopFlag = false;
 
 } // end of anonimous namespace
 
+std::thread::id TaskThreadPool::_firstId;
+
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
@@ -24,10 +26,7 @@ TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processReq
 // thread is selected arbitrarily, in this case the first created thread.
 
 void TaskThreadPool::onTaskFinish() noexcept {
-  // static initialization happens once. It is also thread safe (not relevant here).
-  static std::thread::id firstThreadId = std::this_thread::get_id();
-
-  if (std::this_thread::get_id() == firstThreadId) {
+  if (std::this_thread::get_id() == _firstId) {
     Task::finish();
     // Blocks until the new task is available.
     Task::pop();
@@ -37,8 +36,11 @@ void TaskThreadPool::onTaskFinish() noexcept {
 }
 
 void TaskThreadPool::start() {
-  for (unsigned i = 0; i < _numberThreads; ++i)
+  for (unsigned i = 0; i < _numberThreads; ++i) {
     _threads.emplace_back(std::make_shared<TaskThread>(shared_from_this(), _processRequest));
+    if (i == 0)
+      _firstId = _threads.back()->_thread.get_id();
+  }
 }
 
 // push an empty task to the queue to

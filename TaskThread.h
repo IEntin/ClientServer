@@ -23,6 +23,7 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
   std::barrier<CompletionFunction> _barrier;
   std::vector<TaskThreadPtr> _threads;
   static void onTaskFinish() noexcept;
+  static std::thread::id _firstId;
  public:
   TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest);
   ~TaskThreadPool() = default;
