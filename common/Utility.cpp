@@ -18,7 +18,7 @@ std::string createRequestId(size_t index) {
   return arr;
 }
 
-  bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bool diagnostics) {
+bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bool diagnostics) {
   modified.clear();
   // keep vector capacity
   static Batch aggregated;

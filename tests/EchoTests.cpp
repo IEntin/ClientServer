@@ -59,36 +59,6 @@ TEST_F(EchoTest, EchoTestTcpNoCompression) {
   tcpServer.stop();
 }
 
-TEST_F(EchoTest, EchoTestTcpServerCompressionClientNoCompression) {
-  Compression::setCompressionEnabled(std::string(NOP));
-  Batch payload;
-  commutility::createPayload("requests.log", payload);
-  Compression::setCompressionEnabled(std::string(LZ4));
-  TcpClientOptions options;
-  // start server
-  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1);
-  // start client
-  std::ostringstream oss;
-  ASSERT_TRUE(tcp::run(payload, options, &oss));
-  ASSERT_EQ(oss.str(), _sourceContent);
-  tcpServer.stop();
-}
-
-TEST_F(EchoTest, EchoTestTcpServerNoCompressionClientCompression) {
-  Compression::setCompressionEnabled(std::string(LZ4));
-  Batch payload;
-  commutility::createPayload("requests.log", payload);
-  Compression::setCompressionEnabled(std::string(NOP));
-  TcpClientOptions options;
-  // start server
-  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1);
-  // start client
-  std::ostringstream oss;
-  ASSERT_TRUE(tcp::run(payload, options, &oss));
-  ASSERT_EQ(oss.str(), _sourceContent);
-  tcpServer.stop();
-}
-
 TEST_F(EchoTest, EchoTestFifoCompression) {
   Compression::setCompressionEnabled(std::string(LZ4));
   // start server
