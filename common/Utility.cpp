@@ -59,9 +59,9 @@ std::string createRequestId(size_t index) {
 bool buildMessage(const Batch& payload, Batch& message, bool diagnostics) {
   if (payload.empty())
     return false;
+  const auto[compressor, enabled] = Compression::isCompressionEnabled();
   for (std::string_view str : payload) {
     char array[HEADER_SIZE + 1] = {};
-    static const auto[compressor, enabled] = Compression::isCompressionEnabled();
     size_t uncomprSize = str.size();
     message.emplace_back();
     if (enabled) {

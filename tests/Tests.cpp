@@ -2,39 +2,16 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ClientOptions.h"
 #include "CommUtility.h"
 #include "Compression.h"
-#include "Echo.h"
-#include "FifoClient.h"
-#include "FifoServer.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "Task.h"
-#include "TaskThread.h"
-#include "TcpClient.h"
-#include "TcpConnection.h"
-#include "TcpServer.h"
 #include "ThreadPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
-#include <cstring>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
-std::string readContent(const std::string& name) {
-  std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
-  if (!ifs) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << std::strerror(errno) << ' ' << name << std::endl;
-    return "";
-  }
-  std::stringstream buffer;
-  buffer << ifs.rdbuf();
-  return buffer.str();
-}
 
 bool testCompressionDecompression1(std::string_view input) {
   std::string_view compressedView = Compression::compress(input);
@@ -66,7 +43,7 @@ bool testCompressionDecompression2(std::string_view input) {
 
 TEST(CompressionTest, CompressionTest1) {
   bool compressionTestResult = true;
-  const std::string content = readContent("requests.log");
+  const std::string content = commutility::readFileContent("requests.log");
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression1(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
@@ -74,14 +51,14 @@ TEST(CompressionTest, CompressionTest1) {
 
 TEST(CompressionTest, CompressionTest2) {
   bool compressionTestResult = true;
-  const std::string content = readContent("output.txt");
+  const std::string content = commutility::readFileContent("output.txt");
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression2(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
 }
 
 TEST(SplitTest, SplitTest1) {
-  const std::string content = readContent("requests.log");
+  const std::string content = commutility::readFileContent("requests.log");
   std::vector<std::string_view> lines;
   utility::split(content, lines);
   ASSERT_EQ(lines.size(), 10000);
@@ -128,7 +105,8 @@ TEST(HeaderTest, HeaderTest1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(PreparePackageTest, PreparePackageTest1) {
+TEST(PreparePackageTest, PreparePackageTestCompressed) {
+  Compression::setCompressionEnabled(std::string(LZ4));
   Batch payload;
   commutility::createPayload("requests.log", payload);
   Batch modified;
@@ -136,18 +114,57 @@ TEST(PreparePackageTest, PreparePackageTest1) {
   bool diagnostics = true;
   bool prepared = utility::preparePackage(payload, modified, bufferSize, diagnostics);
   ASSERT_TRUE(prepared);
-  ASSERT_TRUE(Compression::isCompressionEnabled().second);
   std::string uncompressedResult;
   for (const std::string& task : modified) {
     HEADER header = decodeHeader(task.data());
     ASSERT_TRUE(isOk(header));
+    bool bcompressed = isInputCompressed(header);
+    ASSERT_TRUE(bcompressed);
     size_t comprSize = getCompressedSize(header);
     ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
-    std::string_view uncompressedView =
-      Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
-			      getUncompressedSize(header));
-    ASSERT_FALSE(uncompressedView.empty());
-    uncompressedResult.append(uncompressedView);
+    if (bcompressed) {
+      std::string_view uncompressedView =
+	Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
+				getUncompressedSize(header));
+      ASSERT_FALSE(uncompressedView.empty());
+      uncompressedResult.append(uncompressedView);
+    }
+    else
+      uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
+  }
+  Batch batchResult;
+  utility::split(uncompressedResult, batchResult);
+  for (auto& line : batchResult)
+    line.append(1, '\n');
+  ASSERT_TRUE(batchResult == payload);
+}
+
+TEST(PreparePackageTest, PreparePackageTestNotcompressed) {
+  Compression::setCompressionEnabled(std::string(NOP));
+  Batch payload;
+  commutility::createPayload("requests.log", payload);
+  Batch modified;
+  size_t bufferSize = 360000;
+  bool diagnostics = true;
+  bool prepared = utility::preparePackage(payload, modified, bufferSize, diagnostics);
+  ASSERT_TRUE(prepared);
+  std::string uncompressedResult;
+  for (const std::string& task : modified) {
+    HEADER header = decodeHeader(task.data());
+    ASSERT_TRUE(isOk(header));
+    bool bcompressed = isInputCompressed(header);
+    ASSERT_FALSE(bcompressed);
+    size_t comprSize = getCompressedSize(header);
+    ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
+    if (bcompressed) {
+      std::string_view uncompressedView =
+	Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
+				getUncompressedSize(header));
+      ASSERT_FALSE(uncompressedView.empty());
+      uncompressedResult.append(uncompressedView);
+    }
+    else
+      uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
   }
   Batch batchResult;
   utility::split(uncompressedResult, batchResult);
@@ -187,54 +204,8 @@ TEST(ThreadPoolTest, ThreadPoolTest1) {
   ASSERT_TRUE(allJoined);
 }
 
-struct EchoTest : testing::Test {
-  using ProcessRequest = std::string (*)(std::string_view);
-  static ProcessRequest _processRequest;
-  static unsigned _numberWorkThreads;
-  static std::shared_ptr<TaskThreadPool> _taskThreadPool;
-  static std::string _sourceContent;
-  static Batch _payload;
-
-  static void SetUpTestSuite() {
-    commutility::createPayload("requests.log", _payload);
-    _taskThreadPool->start();
-  }
-  static void TearDownTestSuite() {
-    _taskThreadPool->stop();
-  }
-};
-ProcessRequest EchoTest::_processRequest = echo::processRequest;
-unsigned EchoTest::_numberWorkThreads = std::thread::hardware_concurrency();
-std::shared_ptr<TaskThreadPool> EchoTest::_taskThreadPool =
-  std::make_shared<TaskThreadPool>(_numberWorkThreads, _processRequest);
-std::string EchoTest::_sourceContent = readContent("requests.log");
-Batch EchoTest::_payload;
-
-TEST_F(EchoTest, EchoTestTcp) {
-  // start server
-  tcp::TcpServer tcpServer(1, 49172, 1);
-  // start client
-  TcpClientOptions options;
-  std::ostringstream oss;
-  ASSERT_TRUE(tcp::run(_payload, options, &oss));
-  ASSERT_EQ(oss.str(), _sourceContent);
-  tcpServer.stop();
-}
-
-TEST_F(EchoTest, EchoTestFifo) {
-  std::string fifoDirName = std::filesystem::current_path().string();
-  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"));
-  // start client
-  FifoClientOptions options;
-  std::ostringstream oss;
-  ASSERT_TRUE(fifo::run(_payload, options, &oss));
-  ASSERT_EQ(oss.str(), _sourceContent);
-  fifo::FifoServer::joinThreads();
-}
-
 int main(int argc, char **argv) {
   MemoryPool::setup(200000);
-  Compression::setCompressionEnabled("LZ4");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

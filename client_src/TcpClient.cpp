@@ -4,6 +4,7 @@
 
 #include "TcpClient.h"
 #include "Chronometer.h"
+#include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"

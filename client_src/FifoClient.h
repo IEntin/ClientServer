@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "ClientOptions.h"
 #include <string>
 #include <vector>
+
+struct FifoClientOptions;
 
 namespace fifo {
 

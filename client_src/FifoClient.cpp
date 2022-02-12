@@ -4,7 +4,7 @@
 
 #include "FifoClient.h"
 #include "Chronometer.h"
-#include "Compression.h"
+#include "ClientOptions.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
 #include "Utility.h"

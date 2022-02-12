@@ -4,6 +4,7 @@
 
 #include "TaskThread.h"
 #include "Diagnostics.h"
+#include "Task.h"
 #include <cassert>
 #include <iostream>
 
@@ -49,6 +50,7 @@ void TaskThreadPool::stop() {
   std::vector<TaskThreadPtr>().swap(_threads);
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... TaskThreadPool stopped ..." << std::endl;
+  stopFlag.store(false);
 }
 
 // save pool pointer and a function pointer to apply to every request in the task

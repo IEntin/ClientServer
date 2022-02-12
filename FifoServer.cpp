@@ -157,6 +157,7 @@ void FifoServer::joinThreads() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... fifoThreads joined ..." << std::endl;
   std::vector<FifoServer>().swap(FifoServer::_fifoThreads);
+  stopFlag.store(false);
 }
 
 } // end of namespace fifo

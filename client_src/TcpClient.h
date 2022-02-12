@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "ClientOptions.h"
 #include <boost/asio.hpp>
+
+struct TcpClientOptions;
 
 namespace tcp {
 

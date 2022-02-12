@@ -25,7 +25,7 @@ int main() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
-  Compression::setCompressionEnabled(ProgramOptions::get("Compression", std::string("LZ4")));
+  Compression::setCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   // optionally record elapsed times
   Chronometer chronometer(ProgramOptions::get("Timing", false), __FILE__, __LINE__);
   // method to apply to every request in the batch

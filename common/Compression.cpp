@@ -10,12 +10,6 @@
 #include <cstring>
 #include <iostream>
 
-namespace {
-
-constexpr std::string_view LZ4 = "LZ4";
-
-} // end of anonimous namespace
-
 COMPRESSORS Compression::_compressor = COMPRESSORS::NONE;
 bool Compression::_enabled = false;
 

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Task.h"
 #include <barrier>
+#include <memory>
+#include <vector>
 
 using ProcessRequest = std::string (*)(std::string_view);
 

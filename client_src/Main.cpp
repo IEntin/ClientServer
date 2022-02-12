@@ -10,7 +10,6 @@
 #include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "TcpClient.h"
-#include "Utility.h"
 #include <csignal>
 #include <iostream>
 

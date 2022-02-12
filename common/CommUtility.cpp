@@ -3,8 +3,10 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
+#include <cstring>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 namespace commutility {
 
@@ -12,7 +14,7 @@ std::string_view buildReply(const Batch& batch) {
   static std::string_view empty;
   if (batch.empty())
     return empty;
-  static const auto[compressor, enabled] = Compression::isCompressionEnabled();
+  const auto[compressor, enabled] = Compression::isCompressionEnabled();
   size_t uncomprSize = 0;
   for (const auto& chunk : batch)
     uncomprSize += chunk.size();
@@ -54,6 +56,18 @@ size_t createPayload(const char* sourceName, Batch& payload) {
     payload.emplace_back(std::move(modifiedLine));
   }
   return payload.size();
+}
+
+std::string readFileContent(const std::string& name) {
+  std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
+  if (!ifs) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+	      << std::strerror(errno) << ' ' << name << std::endl;
+    return "";
+  }
+  std::stringstream buffer;
+  buffer << ifs.rdbuf();
+  return buffer.str();
 }
 
 } // end of namespace commutility
