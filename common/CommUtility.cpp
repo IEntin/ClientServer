@@ -10,11 +10,13 @@
 
 namespace commutility {
 
-std::string_view buildReply(const Batch& batch) {
+std::string_view buildReply(const Batch& batch, const std::pair<COMPRESSORS, bool>& compression) {
   static std::string_view empty;
   if (batch.empty())
     return empty;
-  const auto[compressor, enabled] = Compression::isCompressionEnabled();
+  const auto[compressor, enabled] = compression;
+  static auto& printOnce[[maybe_unused]] =
+    std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& chunk : batch)
     uncomprSize += chunk.size();

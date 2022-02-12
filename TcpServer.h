@@ -8,14 +8,20 @@
 #include <boost/asio.hpp>
 #include <memory>
 
+enum class COMPRESSORS : unsigned short;
+
 namespace tcp {
 
 using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpServer {
 public:
-  TcpServer(unsigned expectedNumberConnections, unsigned port, unsigned timeout);
+  TcpServer(unsigned expectedNumberConnections,
+	    unsigned port,
+	    unsigned timeout,
+	    const std::pair<COMPRESSORS, bool>& compression);
   ~TcpServer();
+  const std::pair<COMPRESSORS, bool>& getCompression() const { return _compression; }
   void stop();
   bool stopped() const { return _stopped; }
   void pushConnection(TcpConnectionPtr connection);
@@ -29,6 +35,7 @@ private:
   boost::asio::io_context _ioContext;
   unsigned _tcpPort;
   unsigned _timeout;
+  std::pair<COMPRESSORS, bool> _compression;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   std::atomic<bool> _stopped = false;

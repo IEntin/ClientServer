@@ -66,6 +66,8 @@ bool buildMessage(const Batch& payload,
   if (payload.empty())
     return false;
   const auto[compressor, enabled] = options._compression;
+  static auto& printOnce[[maybe_unused]] =
+    std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
   for (std::string_view str : payload) {
     char array[HEADER_SIZE + 1] = {};
     size_t uncomprSize = str.size();

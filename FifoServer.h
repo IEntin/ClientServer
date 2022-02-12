@@ -10,10 +10,13 @@
 
 using Batch = std::vector<std::string>;
 
+enum class COMPRESSORS : unsigned short;
+
 namespace fifo {
 
 class FifoServer {
   static std::string _fifoDirectoryName;
+  static std::pair<COMPRESSORS, bool> _compression;
   struct Runnable {
     explicit Runnable(const std::string& fifoName);
     ~Runnable();
@@ -34,7 +37,9 @@ class FifoServer {
   explicit FifoServer(const std::string& fifoName);
   FifoServer(FifoServer&& other);
   ~FifoServer() = default;
-  static bool startThreads(const std::string& fifoDirName, const std::string& fifoBaseNames);
+  static bool startThreads(const std::string& fifoDirName,
+			   const std::string& fifoBaseNames,
+			   const std::pair<COMPRESSORS, bool>& compression);
   static void joinThreads();
 };
 

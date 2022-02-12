@@ -8,10 +8,14 @@
 
 namespace tcp {
 
-TcpServer::TcpServer(unsigned expectedNumberConnections, unsigned port, unsigned timeout) :
+TcpServer::TcpServer(unsigned expectedNumberConnections,
+		     unsigned port,
+		     unsigned timeout,
+		     const std::pair<COMPRESSORS, bool>& compression) :
   _ioContext(1),
   _tcpPort(port),
   _timeout(timeout),
+  _compression(compression),
   _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
   _acceptor(_ioContext, _endpoint),
   _connectionThreadPool(expectedNumberConnections) {

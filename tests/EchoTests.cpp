@@ -21,7 +21,6 @@ struct EchoTest : testing::Test {
 std::string EchoTest::_sourceContent = commutility::readFileContent("requests.log");
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
-  Compression::setCompressionEnabled(std::string(LZ4));
   // start server
   TaskThreadPoolPtr taskThreadPool =
     std::make_shared<TaskThreadPool>(std::thread::hardware_concurrency(),
@@ -30,7 +29,8 @@ TEST_F(EchoTest, EchoTestTcpCompression) {
   auto clientCompression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
   std::ostringstream oss;
   TcpClientOptions options(clientCompression, &oss);
-  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1);
+  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
+  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1, compression);
   // start client
   Batch payload;
   commutility::createPayload("requests.log", payload);
@@ -41,7 +41,6 @@ TEST_F(EchoTest, EchoTestTcpCompression) {
 }
 
 TEST_F(EchoTest, EchoTestTcpNoCompression) {
-  Compression::setCompressionEnabled(std::string(NOP));
   // start server
   TaskThreadPoolPtr taskThreadPool =
     std::make_shared<TaskThreadPool>(std::thread::hardware_concurrency(),
@@ -49,8 +48,9 @@ TEST_F(EchoTest, EchoTestTcpNoCompression) {
   taskThreadPool->start();
   auto clientCompression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   std::ostringstream oss;
+  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   TcpClientOptions options(clientCompression, &oss);
-  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1);
+  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1, compression);
   // start client
   Batch payload;
   commutility::createPayload("requests.log", payload);
@@ -61,14 +61,14 @@ TEST_F(EchoTest, EchoTestTcpNoCompression) {
 }
 
 TEST_F(EchoTest, EchoTestFifoCompression) {
-  Compression::setCompressionEnabled(std::string(LZ4));
   // start server
   TaskThreadPoolPtr taskThreadPool =
     std::make_shared<TaskThreadPool>(std::thread::hardware_concurrency(),
 				     echo::processRequest);
   taskThreadPool->start();
   std::string fifoDirName = std::filesystem::current_path().string();
-  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"));
+  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
+  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"), compression);
   // start client
   Batch payload;
   commutility::createPayload("requests.log", payload);
@@ -82,14 +82,14 @@ TEST_F(EchoTest, EchoTestFifoCompression) {
 }
 
 TEST_F(EchoTest, EchoTestFifoNoCompression) {
-  Compression::setCompressionEnabled(std::string(NOP));
   // start server
   TaskThreadPoolPtr taskThreadPool =
     std::make_shared<TaskThreadPool>(std::thread::hardware_concurrency(),
 				     echo::processRequest);
   taskThreadPool->start();
   std::string fifoDirName = std::filesystem::current_path().string();
-  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"));
+  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
+  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"), compression);
   // start client
   Batch payload;
   commutility::createPayload("requests.log", payload);

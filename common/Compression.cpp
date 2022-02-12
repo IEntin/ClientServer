@@ -10,26 +10,10 @@
 #include <cstring>
 #include <iostream>
 
-COMPRESSORS Compression::_compressor = COMPRESSORS::NONE;
-bool Compression::_enabled = false;
-
-std::pair<COMPRESSORS, bool> Compression::isCompressionEnabled() {
-  return std::make_pair(_compressor, _enabled);
-}
-
 std::pair<COMPRESSORS, bool> Compression::isCompressionEnabled(const std::string& compressorStr) {
   bool enabled =  compressorStr.starts_with(LZ4);
   COMPRESSORS compressor = enabled ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
-  static auto& printOnce[[maybe_unused]] =
-    std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
   return std::make_pair(compressor, enabled);
-}
-
-bool Compression::setCompressionEnabled(const std::string& compressorStr) {
-  _enabled = compressorStr.starts_with(LZ4);
-  _compressor = _enabled ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
-  std::clog << LZ4 << "compression " << (_enabled ? "enabled" : "disabled") << std::endl;
-  return _enabled;
 }
 
 std::string_view Compression::compressInternal(std::string_view uncompressed,

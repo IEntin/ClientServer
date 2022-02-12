@@ -22,14 +22,7 @@ class Compression {
   static bool uncompressInternal(std::string_view compressed,
 				 char* uncompressed,
 				 size_t uncomprSize);
-
-  static COMPRESSORS _compressor;
-  static bool _enabled;
  public:
-  static bool setCompressionEnabled(const std::string& compressorStr);
-
-  static std::pair<COMPRESSORS, bool> isCompressionEnabled();
-
   static std::pair<COMPRESSORS, bool> isCompressionEnabled(const std::string& compressorStr);
 
   static std::string_view compress(std::string_view origin);

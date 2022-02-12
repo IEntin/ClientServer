@@ -25,7 +25,6 @@ int main() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
-  Compression::setCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   // optionally record elapsed times
   Chronometer chronometer(ProgramOptions::get("Timing", false), __FILE__, __LINE__);
   // method to apply to every request in the batch
@@ -36,13 +35,16 @@ int main() {
     std::thread::hardware_concurrency();
   auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
   taskThreadPool->start();
+  auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName",
 							  std::filesystem::current_path().string()),
-				      ProgramOptions::get("FifoBaseNames", std::string("client1"))))
+				      ProgramOptions::get("FifoBaseNames", std::string("client1")),
+				                          compression))
     return 1;
   tcp::TcpServer tcpServer(ProgramOptions::get("ExpectedTcpConnections", 1),
 			   ProgramOptions::get("TcpPort", 49172),
-			   ProgramOptions::get("Timeout", 1));
+			   ProgramOptions::get("Timeout", 1),
+			   compression);
   int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

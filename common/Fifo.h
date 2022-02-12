@@ -43,8 +43,6 @@ public:
 
   static bool writeString(int fd, std::string_view str);
 
-  static bool sendReply(int fd, Batch& batch);
-
   static bool receive(int fd, std::vector<char>& uncompressed, HEADER& header);
 };
 

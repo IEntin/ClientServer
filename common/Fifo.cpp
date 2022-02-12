@@ -3,7 +3,6 @@
  */
 
 #include "Fifo.h"
-#include "CommUtility.h"
 #include "Compression.h"
 #include "MemoryPool.h"
 #include <cstring>
@@ -48,19 +47,6 @@ HEADER Fifo::readHeader(int fd) {
       readSoFar += result;
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE), readSoFar == HEADER_SIZE);
-}
-
-bool Fifo::sendReply(int fd, Batch& batch) {
-  std::string_view sendView = commutility::buildReply(batch);
-  if (sendView.empty())
-    return false;
-  if (fd == -1)
-    return false;
-  if (!writeString(fd, sendView)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-    return false;
-  }
-  return true;
 }
 
 bool Fifo::writeString(int fd, std::string_view str) {

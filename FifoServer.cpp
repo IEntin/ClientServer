@@ -3,6 +3,7 @@
  */
 
 #include "FifoServer.h"
+#include "CommUtility.h"
 #include "Fifo.h"
 #include "Task.h"
 #include "Utility.h"
@@ -23,6 +24,7 @@ volatile std::atomic<bool> stopFlag;
 namespace fifo {
 
 std::string FifoServer::_fifoDirectoryName;
+std::pair<COMPRESSORS, bool> FifoServer::_compression;
 std::vector<FifoServer> FifoServer::_fifoThreads;
 
 FifoServer::FifoServer(const std::string& fifoName) :
@@ -34,8 +36,11 @@ FifoServer::FifoServer(FifoServer&& other) :
 
 // start threads - one for each client
 
-bool FifoServer::startThreads(const std::string& fifoDirName, const std::string& fifoBaseNames) {
+bool FifoServer::startThreads(const std::string& fifoDirName,
+			      const std::string& fifoBaseNames,
+			      const std::pair<COMPRESSORS, bool>& compression) {
   _fifoDirectoryName = fifoDirName;
+  _compression = compression;
   // in case there was no proper shudown.
   removeFifoFiles();
   std::vector<std::string> fifoBaseNameVector;
@@ -124,7 +129,10 @@ bool FifoServer::Runnable::sendResponse(Batch& response) {
       assert(pfd.revents & POLLOUT);
     } while (errno == EINTR);
   }
-  return Fifo::sendReply(_fdWrite, response);
+  std::string_view message = commutility::buildReply(response, _compression);
+  if (message.empty())
+    return false;
+  return Fifo::writeString(_fdWrite, message);
 }
 
 void FifoServer::removeFifoFiles() {
