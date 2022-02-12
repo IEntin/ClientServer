@@ -30,6 +30,8 @@ class Compression {
 
   static std::pair<COMPRESSORS, bool> isCompressionEnabled();
 
+  static std::pair<COMPRESSORS, bool> isCompressionEnabled(const std::string& compressorStr);
+
   static std::string_view compress(std::string_view origin);
 
   static std::string_view uncompress(std::string_view compressed, size_t uncomprSize);

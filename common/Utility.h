@@ -15,6 +15,8 @@ inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 
 using Batch = std::vector<std::string>;
 
+struct ClientOptions;
+
 namespace utility {
 
 // INPUT can be a string or string_view or vector<char>
@@ -108,10 +110,15 @@ template <Integral T>
 
 std::string createRequestId(size_t index);
 
-bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bool diagnostics);
+bool preparePackage(const Batch& payload,
+		    Batch& modified,
+		    size_t bufferSize,
+		    const ClientOptions& options);
 
 bool mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t bufferSize);
 
-bool buildMessage(const Batch& payload, Batch& message, bool diagnostics);
+bool buildMessage(const Batch& payload,
+		  Batch& message,
+		  const ClientOptions& options);
 
 } // end of namespace utility

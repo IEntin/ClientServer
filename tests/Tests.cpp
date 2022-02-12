@@ -3,6 +3,7 @@
  */
 
 #include "CommUtility.h"
+#include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
@@ -111,8 +112,9 @@ TEST(PreparePackageTest, PreparePackageTestCompressed) {
   commutility::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
-  bool diagnostics = true;
-  bool prepared = utility::preparePackage(payload, modified, bufferSize, diagnostics);
+  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
+  ClientOptions options(compression);
+  bool prepared = utility::preparePackage(payload, modified, bufferSize, options);
   ASSERT_TRUE(prepared);
   std::string uncompressedResult;
   for (const std::string& task : modified) {
@@ -145,8 +147,9 @@ TEST(PreparePackageTest, PreparePackageTestNotcompressed) {
   commutility::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
-  bool diagnostics = true;
-  bool prepared = utility::preparePackage(payload, modified, bufferSize, diagnostics);
+  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
+  ClientOptions options(compression);
+  bool prepared = utility::preparePackage(payload, modified, bufferSize, options);
   ASSERT_TRUE(prepared);
   std::string uncompressedResult;
   for (const std::string& task : modified) {

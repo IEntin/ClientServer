@@ -3,6 +3,7 @@
  */
 
 #include "Utility.h"
+#include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include <cassert>
@@ -18,7 +19,10 @@ std::string createRequestId(size_t index) {
   return arr;
 }
 
-bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bool diagnostics) {
+bool preparePackage(const Batch& payload,
+		    Batch& modified,
+		    size_t bufferSize,
+		    const ClientOptions& options) {
   modified.clear();
   // keep vector capacity
   static Batch aggregated;
@@ -27,7 +31,7 @@ bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bo
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  if (!(buildMessage(aggregated, modified, diagnostics))) {
+  if (!(buildMessage(aggregated, modified, options))) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -56,10 +60,12 @@ bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize, bo
   return true;
 }
 
-bool buildMessage(const Batch& payload, Batch& message, bool diagnostics) {
+bool buildMessage(const Batch& payload,
+		  Batch& message,
+		  const ClientOptions& options) {
   if (payload.empty())
     return false;
-  const auto[compressor, enabled] = Compression::isCompressionEnabled();
+  const auto[compressor, enabled] = options._compression;
   for (std::string_view str : payload) {
     char array[HEADER_SIZE + 1] = {};
     size_t uncomprSize = str.size();
@@ -68,12 +74,12 @@ bool buildMessage(const Batch& payload, Batch& message, bool diagnostics) {
       std::string_view dstView = Compression::compress(str);
       if (dstView.empty())
 	return false;
-      encodeHeader(array, uncomprSize, dstView.size(), compressor, diagnostics);
+      encodeHeader(array, uncomprSize, dstView.size(), compressor, options._diagnostics);
       message.back().reserve(HEADER_SIZE + dstView.size() + 1);
       message.back().append(array, HEADER_SIZE).append(dstView);
     }
     else {
-      encodeHeader(array, uncomprSize, uncomprSize, compressor, diagnostics);
+      encodeHeader(array, uncomprSize, uncomprSize, compressor, options._diagnostics);
       message.back().reserve(HEADER_SIZE + str.size() + 1);
       message.back().append(array, HEADER_SIZE).append(str);
     }

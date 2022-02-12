@@ -23,19 +23,18 @@ CloseSocket::~CloseSocket() {
 
 bool processTask(boost::asio::ip::tcp::socket& socket,
 		 const Batch& payload,
-		 const TcpClientOptions& options,
-		 std::ostream* dataStream) {
+		 const TcpClientOptions& options) {
   // keep vector capacity
   static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
   if (options._prepareOnce) {
-    static bool done = utility::preparePackage(payload, modified, bufferSize, options._diagnostics);
+    static bool done = utility::preparePackage(payload, modified, bufferSize, options);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
   }
-  else if (!utility::preparePackage(payload, modified, bufferSize, options._diagnostics))
+  else if (!utility::preparePackage(payload, modified, bufferSize, options))
     return false;
   for (const auto& chunk : modified) {
     boost::system::error_code ec;
@@ -52,14 +51,13 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
       decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
-    std::ostream* pstream = dataStream ? dataStream : options._dataStream;
-    if (!readReply(socket, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, pstream))
+    if (!readReply(socket, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, options._dataStream))
       return false;
   }
   return true;
 }
 
-bool run(const Batch& payload, const TcpClientOptions& options, std::ostream* dataStream) {
+bool run(const Batch& payload, const TcpClientOptions& options) {
   unsigned numberTasks = 0;
   try {
     boost::asio::io_context ioContext;
@@ -75,7 +73,7 @@ bool run(const Batch& payload, const TcpClientOptions& options, std::ostream* da
     }
     do {
       Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
-      if (!processTask(socket, payload, options, dataStream))
+      if (!processTask(socket, payload, options))
 	return false;
       // limit output file size
       if (++numberTasks == options._maxNumberTasks)

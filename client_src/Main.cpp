@@ -26,19 +26,18 @@ int main() {
     signal(SIGPIPE, SIG_IGN);
     MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
     chronometer.start(__FILE__, __func__, __LINE__);
-    std::string compressorStr = ProgramOptions::get("Compression", std::string());
-    Compression::setCompressionEnabled(compressorStr);
     std::string sourceName = ProgramOptions::get("SourceName", std::string());
     Batch payload;
     commutility::createPayload(sourceName.c_str(), payload);
     chronometer.stop(__FILE__, __func__, __LINE__);
+    auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string()));
     if (useFifo) {
-      FifoClientOptions options;
+      FifoClientOptions options(compression);
       if (!fifo::run(payload, options))
 	return 1;
     }
     if (useTcp) {
-      TcpClientOptions options;
+      TcpClientOptions options(compression);
       if (!tcp::run(payload, options))
 	return 1;
     }
