@@ -23,7 +23,12 @@ class FifoServer {
     std::string _fifoName;
     int _fdRead = -1;
     int _fdWrite = -1;
-    bool receiveRequest(std::vector<char>& batch, HEADER& header);
+    bool receiveRequest(std::vector<char>& message, HEADER& header);
+    bool readMsgBody(int fd,
+		     size_t uncomprSize,
+		     size_t comprSize,
+		     bool bcompressed,
+		     std::vector<char>& uncompressed);
     bool sendResponse(Batch& response);
     std::vector<char> _uncompressedRequest;
     Batch _requestBatch;

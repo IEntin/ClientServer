@@ -33,12 +33,12 @@ int main() {
     auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string()));
     if (useFifo) {
       FifoClientOptions options(compression);
-      if (!fifo::run(payload, options))
+      if (!fifo::FifoClient::run(payload, options))
 	return 1;
     }
     if (useTcp) {
       TcpClientOptions options(compression);
-      if (!tcp::run(payload, options))
+      if (!tcp::TcpClient::run(payload, options))
 	return 1;
     }
   }

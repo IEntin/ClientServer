@@ -50,12 +50,17 @@ bool TcpConnection::onReceiveRequest() {
   _uncompressed.clear();
   bool bcompressed = isInputCompressed(_header);
   if (bcompressed) {
+    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+						       << " received compressed" << std::endl;
     if (!decompress(_request, _uncompressed)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":decompression failed" << std::endl;
       return false;
     }
   }
+  else
+    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+						       << " received not compressed" << std::endl;
   Task::process(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;

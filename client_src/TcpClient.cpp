@@ -21,9 +21,9 @@ CloseSocket::~CloseSocket() {
   _socket.close(ignore);
 }
 
-bool processTask(boost::asio::ip::tcp::socket& socket,
-		 const Batch& payload,
-		 const TcpClientOptions& options) {
+bool TcpClient::processTask(boost::asio::ip::tcp::socket& socket,
+			    const Batch& payload,
+			    const TcpClientOptions& options) {
   // keep vector capacity
   static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
@@ -57,7 +57,7 @@ bool processTask(boost::asio::ip::tcp::socket& socket,
   return true;
 }
 
-bool run(const Batch& payload, const TcpClientOptions& options) {
+bool  TcpClient::run(const Batch& payload, const TcpClientOptions& options) {
   unsigned numberTasks = 0;
   try {
     boost::asio::io_context ioContext;
@@ -88,11 +88,11 @@ bool run(const Batch& payload, const TcpClientOptions& options) {
   return true;
 }
 
-bool readReply(boost::asio::ip::tcp::socket& socket,
-	       size_t uncomprSize,
-	       size_t comprSize,
-	       bool bcompressed,
-	       std::ostream* pstream) {
+bool  TcpClient::readReply(boost::asio::ip::tcp::socket& socket,
+			   size_t uncomprSize,
+			   size_t comprSize,
+			   bool bcompressed,
+			   std::ostream* pstream) {
   std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize);
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(buffer, comprSize), ec);
@@ -103,6 +103,8 @@ bool readReply(boost::asio::ip::tcp::socket& socket,
   std::string_view received(buffer.data(), comprSize);
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
+    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+						       << " received compressed" << std::endl;
     std::string_view dstView = Compression::uncompress(received, uncomprSize);
     if (dstView.empty()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -111,8 +113,11 @@ bool readReply(boost::asio::ip::tcp::socket& socket,
     }
     stream << dstView; 
   }
-  else
+  else {
+    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+						       << " received not compressed" << std::endl;
     stream << received;
+  }
   return true;
 }
 

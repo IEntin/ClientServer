@@ -11,15 +11,27 @@ struct FifoClientOptions;
 
 namespace fifo {
 
-using Batch = std::vector<std::string>;
+class FifoClient {
 
-bool receive(int fd, std::ostream* dataStream);
+  FifoClient() = delete;
+  ~FifoClient() = delete;
 
-bool run(const Batch& payload, const FifoClientOptions& options);
+  using Batch = std::vector<std::string>;
 
-bool processTask(const Batch& payload,
-		 const FifoClientOptions& options,
-		 int& fdWrite,
-		 int& fdRead);
+  static bool receive(int fd, std::ostream* dataStream);
+
+  static bool processTask(const Batch& payload,
+			  const FifoClientOptions& options,
+			  int& fdWrite,
+			  int& fdRead);
+
+  static bool readBatch(int fd,
+			size_t uncomprSize,
+			size_t comprSize,
+			bool bcompressed,
+			std::ostream* dataStream);
+ public:
+  static bool run(const Batch& payload, const FifoClientOptions& options);
+};
 
 } // end of namespace fifo

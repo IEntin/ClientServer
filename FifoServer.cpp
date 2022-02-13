@@ -4,7 +4,9 @@
 
 #include "FifoServer.h"
 #include "CommUtility.h"
+#include "Compression.h"
 #include "Fifo.h"
+#include "MemoryPool.h"
 #include "Task.h"
 #include "Utility.h"
 #include <fcntl.h>
@@ -85,7 +87,7 @@ void FifoServer::Runnable::operator()() noexcept {
   }
 }
 
-bool FifoServer::Runnable::receiveRequest(std::vector<char>& batch, HEADER& header) {
+bool FifoServer::Runnable::receiveRequest(std::vector<char>& message, HEADER& header) {
   if (_fdWrite != -1) {
     close(_fdWrite);
     _fdWrite = -1;
@@ -98,7 +100,40 @@ bool FifoServer::Runnable::receiveRequest(std::vector<char>& batch, HEADER& head
       return false;
     }
   }
-  return Fifo::receive(_fdRead, batch, header) && !batch.empty();
+  header = Fifo::readHeader(_fdRead);
+  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
+  if (!headerDone)
+    return false;
+  return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
+}
+
+bool FifoServer::Runnable::readMsgBody(int fd,
+					  size_t uncomprSize,
+					  size_t comprSize,
+					  bool bcompressed,
+					  std::vector<char>& uncompressed) {
+  if (bcompressed) {
+    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+						       << " received compressed" << std::endl;
+    auto[buffer, bufferSize] = MemoryPool::getPrimaryBuffer(comprSize);
+    if (!Fifo::readString(fd, buffer, comprSize))
+      return false;
+    std::string_view received(buffer, comprSize);
+    uncompressed.resize(uncomprSize);
+    if (!Compression::uncompress(received, uncompressed)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":failed to uncompress payload" << std::endl;
+      return false;
+    }
+  }
+  else {
+    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+						       << " received not compressed" << std::endl;
+    uncompressed.resize(uncomprSize);
+    if (!Fifo::readString(fd, uncompressed.data(), uncomprSize))
+      return false;
+  }
+  return true;
 }
 
 bool FifoServer::Runnable::sendResponse(Batch& response) {
