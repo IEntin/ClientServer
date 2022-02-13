@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Client.h"
 #include <boost/asio.hpp>
 
 struct TcpClientOptions;
@@ -16,24 +17,22 @@ struct CloseSocket {
   boost::asio::ip::tcp::socket& _socket;
 };
 
-class TcpClient {
-
-  TcpClient() = delete;
-  ~TcpClient() = delete;
+class TcpClient : public Client {
 
   using Batch = std::vector<std::string>;
 
-  static bool processTask(boost::asio::ip::tcp::socket& socket,
-			  const Batch& payload,
-			  const TcpClientOptions& options);
+  bool processTask(const Batch& payload);
 
-  static bool readReply(boost::asio::ip::tcp::socket& socket,
-			size_t uncomprSize,
-			size_t comprSize,
-			bool bcompressed,
-			std::ostream* pstream);
+  bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
+
+  boost::asio::io_context _ioContext;
+  boost::asio::ip::tcp::socket _socket;
+  const TcpClientOptions& _options;
  public:
-  static bool run(const Batch& payload, const TcpClientOptions& options);
+  TcpClient(const TcpClientOptions& options);
+  ~TcpClient() = default;
+
+  bool run(const Batch& payload);
 
 };
 

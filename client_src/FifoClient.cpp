@@ -8,35 +8,34 @@
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
-#include "Utility.h"
 #include <atomic>
 #include <cstring>
 #include <fcntl.h>
 
 namespace fifo {
 
-bool FifoClient::receive(int fd, std::ostream* dataStream) {
-  auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] = Fifo::readHeader(fd);
+FifoClient::FifoClient(const FifoClientOptions& options) :
+  Client(options), _options(options), _fifoName(options._fifoName) {}
+
+bool FifoClient::receive() {
+  auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] = Fifo::readHeader(_fdRead);
   if (!headerDone)
     return false;
-  if (!readBatch(fd, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, dataStream)) {
+  if (!readBatch(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   return true;
 }
 
-bool FifoClient::readBatch(int fd,
-			   size_t uncomprSize,
-			   size_t comprSize,
-			   bool bcompressed,
-			   std::ostream* pstream) {
+bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed) {
   std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize + 1);
-  if (!Fifo::readString(fd, buffer.data(), comprSize)) {
+  if (!Fifo::readString(_fdRead, buffer.data(), comprSize)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   std::string_view received(buffer.data(), comprSize);
+  std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -57,65 +56,62 @@ bool FifoClient::readBatch(int fd,
   return true;
 }
 
-bool FifoClient::processTask(const Batch& payload,
-			     const FifoClientOptions& options,
-			     int& fdWrite,
-			     int& fdRead) {
+bool FifoClient::processTask(const Batch& payload) {
   // keep vector capacity
   static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
-  if (options._prepareOnce) {
-    static bool done = utility::preparePackage(payload, modified, bufferSize, options);
+  if (_options._prepareOnce) {
+    static bool done = preparePackage(payload, modified, bufferSize);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
   }
-  else if (!utility::preparePackage(payload, modified, bufferSize, options))
+  else if (!preparePackage(payload, modified, bufferSize))
     return false;
   for (const auto& chunk : modified) {
-    close(fdRead);
-    fdRead = -1;
-    fdWrite = open(options._fifoName.c_str(), O_WRONLY);
-    if (fdWrite == -1) {
+    close(_fdRead);
+    _fdRead = -1;
+    _fdWrite = open(_fifoName.c_str(), O_WRONLY);
+    if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< options._fifoName << '-' << std::strerror(errno) << std::endl;
+		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    if (!Fifo::writeString(fdWrite, chunk)) {
+    if (!Fifo::writeString(_fdWrite, chunk)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
-    close(fdWrite);
-    fdWrite = -1;
-    fdRead = open(options._fifoName.c_str(), O_RDONLY);
-    if (fdRead == -1) {
+    close(_fdWrite);
+    _fdWrite = -1;
+    _fdRead = open(_fifoName.c_str(), O_RDONLY);
+    if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< options._fifoName << '-' << std::strerror(errno) << std::endl;
+		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    if (!receive(fdRead, options._dataStream))
+    if (!receive())
       return false;
   }
   return true;
 }
 
-// To run a test infinite loop must keep payload unchanged.
-// in a real setup payload is used once and the vector is mutable.
-bool FifoClient::run(const Batch& payload, const FifoClientOptions& options) {
-  int fdWrite = -1;
-  CloseFileDescriptor raiiw(fdWrite);
-  int fdRead = -1;
-  CloseFileDescriptor raiir(fdRead);
+// For the test payload is unchanged in a loop.
+
+bool FifoClient::run(const Batch& payload) {
+  _fdWrite = -1;
+  CloseFileDescriptor raiiw(_fdWrite);
+  _fdRead = -1;
+  CloseFileDescriptor raiir(_fdRead);
   unsigned numberTasks = 0;
   do {
-    Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
-    if (!processTask(payload, options, fdWrite, fdRead))
+    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
+    if (!processTask(payload))
       return false;
     // limit output file size
-    if (++numberTasks == options._maxNumberTasks)
+    if (++numberTasks == _options._maxNumberTasks)
       break;
-  } while (options._runLoop);
+  } while (_options._runLoop);
   return true;
 }
 

@@ -1,6 +1,5 @@
 #include "Echo.h"
 #include "ClientOptions.h"
-#include "CommUtility.h"
 #include "Compression.h"
 #include "FifoClient.h"
 #include "FifoServer.h"
@@ -18,7 +17,7 @@ struct EchoTest : testing::Test {
   static void SetUpTestSuite() {}
   static void TearDownTestSuite() {}
 };
-std::string EchoTest::_sourceContent = commutility::readFileContent("requests.log");
+std::string EchoTest::_sourceContent = Client::readFileContent("requests.log");
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
   // start server
@@ -33,8 +32,9 @@ TEST_F(EchoTest, EchoTestTcpCompression) {
   tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1, compression);
   // start client
   Batch payload;
-  commutility::createPayload("requests.log", payload);
-  ASSERT_TRUE(tcp::TcpClient::run(payload, options));
+  Client::createPayload("requests.log", payload);
+  tcp::TcpClient client(options);
+  ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   tcpServer.stop();
   taskThreadPool->stop();
@@ -53,8 +53,9 @@ TEST_F(EchoTest, EchoTestTcpNoCompression) {
   tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1, compression);
   // start client
   Batch payload;
-  commutility::createPayload("requests.log", payload);
-  ASSERT_TRUE(tcp::TcpClient::run(payload, options));
+  Client::createPayload("requests.log", payload);
+  tcp::TcpClient client(options);
+  ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   tcpServer.stop();
   taskThreadPool->stop();
@@ -71,11 +72,12 @@ TEST_F(EchoTest, EchoTestFifoCompression) {
   fifo::FifoServer::startThreads(fifoDirName, std::string("client1"), compression);
   // start client
   Batch payload;
-  commutility::createPayload("requests.log", payload);
+  Client::createPayload("requests.log", payload);
   auto clientCompression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
   std::ostringstream oss;
   FifoClientOptions options(clientCompression, &oss);
-  ASSERT_TRUE(fifo::FifoClient::run(payload, options));
+  fifo::FifoClient client(options);
+  ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   fifo::FifoServer::joinThreads();
   taskThreadPool->stop();
@@ -92,11 +94,12 @@ TEST_F(EchoTest, EchoTestFifoNoCompression) {
   fifo::FifoServer::startThreads(fifoDirName, std::string("client1"), compression);
   // start client
   Batch payload;
-  commutility::createPayload("requests.log", payload);
+  Client::createPayload("requests.log", payload);
   auto clientCompression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   std::ostringstream oss;
   FifoClientOptions options(clientCompression, &oss);
-  ASSERT_TRUE(fifo::FifoClient::run(payload, options));
+  fifo::FifoClient client(options);
+  ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   fifo::FifoServer::joinThreads();
   taskThreadPool->stop();

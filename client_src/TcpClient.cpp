@@ -8,7 +8,6 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "Utility.h"
 #include <iostream>
 
 namespace tcp {
@@ -21,24 +20,25 @@ CloseSocket::~CloseSocket() {
   _socket.close(ignore);
 }
 
-bool TcpClient::processTask(boost::asio::ip::tcp::socket& socket,
-			    const Batch& payload,
-			    const TcpClientOptions& options) {
+TcpClient::TcpClient(const TcpClientOptions& options) :
+  Client(options), _ioContext(1), _socket(_ioContext), _options(options) {}
+
+bool TcpClient::processTask(const Batch& payload) {
   // keep vector capacity
   static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
-  if (options._prepareOnce) {
-    static bool done = utility::preparePackage(payload, modified, bufferSize, options);
+  if (_options._prepareOnce) {
+    static bool done = preparePackage(payload, modified, bufferSize);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
   }
-  else if (!utility::preparePackage(payload, modified, bufferSize, options))
+  else if (!preparePackage(payload, modified, bufferSize))
     return false;
   for (const auto& chunk : modified) {
     boost::system::error_code ec;
-    size_t result[[maybe_unused]] = boost::asio::write(socket, boost::asio::buffer(chunk), ec);
+    size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(chunk), ec);
     if (ec) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ':' << ec.what() << std::endl;
@@ -46,39 +46,41 @@ bool TcpClient::processTask(boost::asio::ip::tcp::socket& socket,
     }
     char header[HEADER_SIZE + 1] = {};
     memset(header, 0, HEADER_SIZE);
-    boost::asio::read(socket, boost::asio::buffer(header, HEADER_SIZE), ec);
+    boost::asio::read(_socket, boost::asio::buffer(header, HEADER_SIZE), ec);
     auto [uncomprSize, comprSize, compressor, diagnostics, done] =
       decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
     if (!done)
       return false;
-    if (!readReply(socket, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, options._dataStream))
+    if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
       return false;
   }
   return true;
 }
 
-bool  TcpClient::run(const Batch& payload, const TcpClientOptions& options) {
+// For the test payload is unchanged in a loop.
+
+bool TcpClient::run(const Batch& payload) {
   unsigned numberTasks = 0;
   try {
-    boost::asio::io_context ioContext;
-    boost::asio::ip::tcp::socket socket(ioContext);
-    CloseSocket closeSocket(socket);
-    boost::asio::ip::tcp::resolver resolver(ioContext);
+    CloseSocket closeSocket(_socket);
+    boost::asio::ip::tcp::resolver resolver(_ioContext);
     boost::system::error_code ec;
-    boost::asio::connect(socket, resolver.resolve(options._serverHost, options._tcpPort, ec));
+    auto endpoint = boost::asio::connect(_socket,
+					 resolver.resolve(_options._serverHost, _options._tcpPort, ec));
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << std::endl;
     if (ec) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ':' << ec.what() << std::endl;
       return false;
     }
     do {
-      Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
-      if (!processTask(socket, payload, options))
+      Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
+      if (!processTask(payload))
 	return false;
       // limit output file size
-      if (++numberTasks == options._maxNumberTasks)
+      if (++numberTasks == _options._maxNumberTasks)
 	break;
-    } while (options._runLoop);
+    } while (_options._runLoop);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -88,19 +90,16 @@ bool  TcpClient::run(const Batch& payload, const TcpClientOptions& options) {
   return true;
 }
 
-bool  TcpClient::readReply(boost::asio::ip::tcp::socket& socket,
-			   size_t uncomprSize,
-			   size_t comprSize,
-			   bool bcompressed,
-			   std::ostream* pstream) {
+bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed) {
   std::vector<char>& buffer = MemoryPool::getSecondaryBuffer(comprSize);
   boost::system::error_code ec;
-  size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(buffer, comprSize), ec);
+  size_t transferred[[maybe_unused]] = boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   std::string_view received(buffer.data(), comprSize);
+  std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__

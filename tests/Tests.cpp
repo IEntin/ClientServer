@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CommUtility.h"
+#include "Client.h"
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
@@ -44,7 +44,7 @@ bool testCompressionDecompression2(std::string_view input) {
 
 TEST(CompressionTest, CompressionTest1) {
   bool compressionTestResult = true;
-  const std::string content = commutility::readFileContent("requests.log");
+  const std::string content = Client::readFileContent("requests.log");
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression1(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
@@ -52,14 +52,14 @@ TEST(CompressionTest, CompressionTest1) {
 
 TEST(CompressionTest, CompressionTest2) {
   bool compressionTestResult = true;
-  const std::string content = commutility::readFileContent("output.txt");
+  const std::string content = Client::readFileContent("output.txt");
   for (int i = 0; i < 10; ++i)
     compressionTestResult = compressionTestResult && testCompressionDecompression2(content);
   ASSERT_TRUE(compressionTestResult && !content.empty());
 }
 
 TEST(SplitTest, SplitTest1) {
-  const std::string content = commutility::readFileContent("requests.log");
+  const std::string content = Client::readFileContent("requests.log");
   std::vector<std::string_view> lines;
   utility::split(content, lines);
   ASSERT_EQ(lines.size(), 10000);
@@ -108,12 +108,13 @@ TEST(HeaderTest, HeaderTest1) {
 
 TEST(PreparePackageTest, AllCompressed) {
   Batch payload;
-  commutility::createPayload("requests.log", payload);
+  Client::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
   ClientOptions options(compression);
-  bool prepared = utility::preparePackage(payload, modified, bufferSize, options);
+  Client client(options);
+  bool prepared = client.preparePackage(payload, modified, bufferSize);
   ASSERT_TRUE(prepared);
   std::string uncompressedResult;
   for (const std::string& task : modified) {
@@ -142,12 +143,13 @@ TEST(PreparePackageTest, AllCompressed) {
 
 TEST(PreparePackageTest, AllNotcompressed) {
   Batch payload;
-  commutility::createPayload("requests.log", payload);
+  Client::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   ClientOptions options(compression);
-  bool prepared = utility::preparePackage(payload, modified, bufferSize, options);
+  Client client(options);
+  bool prepared = client.preparePackage(payload, modified, bufferSize);
   ASSERT_TRUE(prepared);
   std::string uncompressedResult;
   for (const std::string& task : modified) {
@@ -176,12 +178,13 @@ TEST(PreparePackageTest, AllNotcompressed) {
 
 TEST(PreparePackageTest, ServerNotCompressedClientCompressed) {
   Batch payload;
-  commutility::createPayload("requests.log", payload);
+  Client::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
   ClientOptions options(compression);
-  bool prepared = utility::preparePackage(payload, modified, bufferSize, options);
+  Client client(options);
+  bool prepared = client.preparePackage(payload, modified, bufferSize);
   ASSERT_TRUE(prepared);
   std::string uncompressedResult;
   for (const std::string& task : modified) {
@@ -210,12 +213,13 @@ TEST(PreparePackageTest, ServerNotCompressedClientCompressed) {
 
 TEST(PreparePackageTest, ServerCompressedClientNotCompressed) {
   Batch payload;
-  commutility::createPayload("requests.log", payload);
+  Client::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   ClientOptions options(compression);
-  bool prepared = utility::preparePackage(payload, modified, bufferSize, options);
+  Client client(options);
+  bool prepared = client.preparePackage(payload, modified, bufferSize);
   ASSERT_TRUE(prepared);
   std::string uncompressedResult;
   for (const std::string& task : modified) {

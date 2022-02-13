@@ -108,17 +108,4 @@ template <Integral T>
     return true;
 }
 
-std::string createRequestId(size_t index);
-
-bool preparePackage(const Batch& payload,
-		    Batch& modified,
-		    size_t bufferSize,
-		    const ClientOptions& options);
-
-bool mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t bufferSize);
-
-bool buildMessage(const Batch& payload,
-		  Batch& message,
-		  const ClientOptions& options);
-
 } // end of namespace utility

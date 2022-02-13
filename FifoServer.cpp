@@ -3,7 +3,7 @@
  */
 
 #include "FifoServer.h"
-#include "CommUtility.h"
+#include "ServerUtility.h"
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
@@ -164,7 +164,7 @@ bool FifoServer::Runnable::sendResponse(Batch& response) {
       assert(pfd.revents & POLLOUT);
     } while (errno == EINTR);
   }
-  std::string_view message = commutility::buildReply(response, _compression);
+  std::string_view message = serverutility::buildReply(response, _compression);
   if (message.empty())
     return false;
   return Fifo::writeString(_fdWrite, message);

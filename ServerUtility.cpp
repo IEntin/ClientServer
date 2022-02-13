@@ -1,14 +1,12 @@
-#include "CommUtility.h"
+#include "ServerUtility.h"
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "Utility.h"
+#include <cassert>
 #include <cstring>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 
-namespace commutility {
+namespace serverutility {
 
 std::string_view buildReply(const Batch& batch, const std::pair<COMPRESSORS, bool>& compression) {
   static std::string_view empty;
@@ -41,35 +39,6 @@ std::string_view buildReply(const Batch& batch, const std::pair<COMPRESSORS, boo
     encodeHeader(buffer.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, false);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
-}
-
-size_t createPayload(const char* sourceName, Batch& payload) {
-  std::ifstream input(sourceName, std::ifstream::in | std::ifstream::binary);
-  if (!input)
-    throw std::runtime_error(sourceName);
-  unsigned long long requestIndex = 0;
-  std::string line;
-  Batch batch;
-  while (std::getline(input, line)) {
-    if (line.empty())
-      continue;
-    std::string modifiedLine(utility::createRequestId(requestIndex++));
-    modifiedLine.append(line.append(1, '\n'));
-    payload.emplace_back(std::move(modifiedLine));
-  }
-  return payload.size();
-}
-
-std::string readFileContent(const std::string& name) {
-  std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
-  if (!ifs) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << std::strerror(errno) << ' ' << name << std::endl;
-    return "";
-  }
-  std::stringstream buffer;
-  buffer << ifs.rdbuf();
-  return buffer.str();
 }
 
 } // end of namespace commutility

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Client.h"
 #include <string>
 #include <vector>
 
@@ -11,27 +12,27 @@ struct FifoClientOptions;
 
 namespace fifo {
 
-class FifoClient {
-
-  FifoClient() = delete;
-  ~FifoClient() = delete;
+class FifoClient : public Client {
 
   using Batch = std::vector<std::string>;
 
-  static bool receive(int fd, std::ostream* dataStream);
+  bool receive();
 
-  static bool processTask(const Batch& payload,
-			  const FifoClientOptions& options,
-			  int& fdWrite,
-			  int& fdRead);
+  bool processTask(const Batch& payload);
 
-  static bool readBatch(int fd,
-			size_t uncomprSize,
-			size_t comprSize,
-			bool bcompressed,
-			std::ostream* dataStream);
+  bool readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed);
+
+  const FifoClientOptions& _options;
+  const std::string _fifoName;
+  int _fdRead = -1;
+  int _fdWrite = -1;
  public:
-  static bool run(const Batch& payload, const FifoClientOptions& options);
+
+  FifoClient(const FifoClientOptions& _options);
+
+  ~FifoClient() = default;
+
+  bool run(const Batch& payload);
 };
 
 } // end of namespace fifo

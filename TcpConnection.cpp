@@ -4,9 +4,9 @@
 
 #include "TcpConnection.h"
 #include "Compression.h"
+#include "ServerUtility.h"
 #include "TcpServer.h"
 #include "Task.h"
-#include "CommUtility.h"
 #include <iostream>
 
 namespace tcp {
@@ -68,7 +68,7 @@ bool TcpConnection::onReceiveRequest() {
 }
 
 bool TcpConnection::sendReply(Batch& batch) {
-  std::string_view message = commutility::buildReply(batch, _server->getCompression());
+  std::string_view message = serverutility::buildReply(batch, _server->getCompression());
   if (message.empty())
     return false;
   write(message);

@@ -4,7 +4,6 @@
 
 #include "Chronometer.h"
 #include "ClientOptions.h"
-#include "CommUtility.h"
 #include "Compression.h"
 #include "FifoClient.h"
 #include "MemoryPool.h"
@@ -28,17 +27,19 @@ int main() {
     chronometer.start(__FILE__, __func__, __LINE__);
     std::string sourceName = ProgramOptions::get("SourceName", std::string());
     Batch payload;
-    commutility::createPayload(sourceName.c_str(), payload);
+    Client::createPayload(sourceName.c_str(), payload);
     chronometer.stop(__FILE__, __func__, __LINE__);
     auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string()));
     if (useFifo) {
       FifoClientOptions options(compression);
-      if (!fifo::FifoClient::run(payload, options))
+      fifo::FifoClient client(options);
+      if (!client.run(payload))
 	return 1;
     }
     if (useTcp) {
       TcpClientOptions options(compression);
-      if (!tcp::TcpClient::run(payload, options))
+      tcp::TcpClient client(options);
+      if (!client.run(payload))
 	return 1;
     }
   }
