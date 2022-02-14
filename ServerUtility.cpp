@@ -3,7 +3,6 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include <cassert>
-#include <cstring>
 #include <iostream>
 
 namespace serverutility {
@@ -35,8 +34,10 @@ std::string_view buildReply(const Batch& batch, const std::pair<COMPRESSORS, boo
     encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
     std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
   }
-  else
-    encodeHeader(buffer.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, false);
+  else {
+    assert(compressor == COMPRESSORS::NONE);
+    encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false);
+  }
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }

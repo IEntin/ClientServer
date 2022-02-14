@@ -35,7 +35,6 @@ class TaskThread {
   friend class TaskThreadPool;
   class Runnable {
     TaskThreadPoolPtr _pool;
-    std::reference_wrapper<std::barrier<CompletionFunction>> _barrier;
     ProcessRequest _processRequest;
   public:
     Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest);

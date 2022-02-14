@@ -19,7 +19,7 @@ std::thread::id TaskThreadPool::_firstId;
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
-  _barrier(numberThreads, TaskThreadPool::onTaskFinish) {}
+  _barrier(numberThreads, onTaskFinish) {}
 
 // This method is called for every blocked thread when it ran out of work and waits
 // for the next task. In our case only one thread is doing the actual work. This
@@ -65,7 +65,7 @@ TaskThread::~TaskThread() {
 }
 
 TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
-  _pool(pool), _barrier(pool->_barrier), _processRequest(processRequest) {}
+  _pool(pool), _processRequest(processRequest) {}
 
 // Process the current task (batch of requests) by all threads. Arrive
 // at the sync point when the task is done and wait for the next one.
@@ -78,7 +78,7 @@ void TaskThread::Runnable::operator()() noexcept {
       continue;
     }
     try {
-      _barrier.get().arrive_and_wait();
+      _pool->_barrier.arrive_and_wait();
     }
     catch (std::system_error& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
