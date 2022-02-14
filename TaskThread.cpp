@@ -72,10 +72,16 @@ TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processReq
 
 void TaskThread::Runnable::operator()() noexcept {
   while (!stopFlag) {
-    auto [view, atEnd, index] = Task::next();
-    if (!atEnd) {
-      Task::updateResponse(index, _processRequest(view));
-      continue;
+    try {
+      auto [view, atEnd, index] = Task::next();
+      if (!atEnd) {
+	Task::updateResponse(index, _processRequest(view));
+	continue;
+      }
+    }
+    catch (...) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< " ! exception caught" << std::endl;
     }
     try {
       _pool->_barrier.arrive_and_wait();

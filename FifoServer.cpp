@@ -76,14 +76,22 @@ FifoServer::Runnable::~Runnable() {
 
 void FifoServer::Runnable::operator()() noexcept {
   while (!stopFlag) {
-    _response.clear();
-    HEADER header;
-    _uncompressedRequest.clear();
-    if (!receiveRequest(_uncompressedRequest, header))
-      continue;
-    Task::process(header, _uncompressedRequest, _response);
-    if (!sendResponse(_response))
-      continue;
+    try {
+      _response.clear();
+      HEADER header;
+      _uncompressedRequest.clear();
+      if (!receiveRequest(_uncompressedRequest, header))
+	continue;
+      Task::process(header, _uncompressedRequest, _response);
+      if (!sendResponse(_response))
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		  << std::strerror(errno) << '-' << _fifoName << std::endl;
+    }
+    catch (...) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< " ! exception caught " << _fifoName << std::endl;
+      break;
+    }
   }
 }
 
