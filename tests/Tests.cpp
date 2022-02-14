@@ -7,7 +7,6 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "ThreadPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <fstream>
@@ -244,37 +243,6 @@ TEST(PreparePackageTest, ServerCompressedClientNotCompressed) {
   for (auto& line : batchResult)
     line.append(1, '\n');
   ASSERT_TRUE(batchResult == payload);
-}
-
-TEST(ThreadPoolTest, ThreadPoolTest1) {
-  ThreadPool pool(10);
-  class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
-  public:
-    TestRunnable(unsigned number, ThreadPool& pool) : Runnable(), _number(number), _pool(pool) {}
-    ~TestRunnable() override {
-      EXPECT_EQ(_id, std::this_thread::get_id());
-    }
-    void run() override {
-      _id = std::this_thread::get_id();
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    void start() {
-      _pool.get().push(shared_from_this());
-    }
-    const unsigned _number;
-    std::reference_wrapper<ThreadPool> _pool;
-    std::thread::id _id;
-  };
-  for (unsigned i = 0; i < 20; ++i) {
-    auto runnable = std::make_shared<TestRunnable>(i, pool);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    runnable->start();
-  }
-  pool.stop();
-  bool allJoined = true;
-  for (auto& thread : pool.getThreads())
-    allJoined = allJoined && !thread.joinable();
-  ASSERT_TRUE(allJoined);
 }
 
 int main(int argc, char **argv) {

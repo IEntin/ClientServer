@@ -135,7 +135,6 @@ bool Ad::load(const std::string& fileName) {
   catch (...) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << std::strerror(errno) << ' ' << fileName << std::endl;
-    std::exit(1);
     return false;
   }
   return true;

@@ -71,25 +71,22 @@ TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processReq
 // at the sync point when the task is done and wait for the next one.
 
 void TaskThread::Runnable::operator()() noexcept {
-  while (!stopFlag) {
-    try {
+  try {
+    while (!stopFlag) {
       auto [view, atEnd, index] = Task::next();
       if (!atEnd) {
 	Task::updateResponse(index, _processRequest(view));
 	continue;
       }
-    }
-    catch (...) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< " ! exception caught" << std::endl;
-    }
-    try {
       _pool->_barrier.arrive_and_wait();
     }
-    catch (std::system_error& e) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-exception:" << e.what() << std::endl;
-      std::exit(1);
-    }
+  }
+  catch (std::system_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+  }
+  catch (...) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " ! exception caught" << std::endl;
   }
 }

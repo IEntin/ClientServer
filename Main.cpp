@@ -29,11 +29,12 @@ int main() {
   Chronometer chronometer(ProgramOptions::get("Timing", false), __FILE__, __LINE__);
   // method to apply to every request in the batch
   ProcessRequest processRequest = Transaction::processRequest;
-  Ad::load(ProgramOptions::get("AdsFileName", std::string()));
+  if (!Ad::load(ProgramOptions::get("AdsFileName", std::string())))
+    return 1;
   unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
   unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
     std::thread::hardware_concurrency();
-  auto taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
+  TaskThreadPoolPtr taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
   taskThreadPool->start();
   auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName",
