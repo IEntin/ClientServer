@@ -5,8 +5,6 @@
 #include "ThreadPool.h"
 #include <iostream>
 
-std::atomic<bool> ThreadPool::_destroyed = false;
-
 ThreadPool::ThreadPool(unsigned numberThreads) {
   for (unsigned i = 0; i < numberThreads; ++i) {
     _threads.emplace_back([this] () {
@@ -26,7 +24,7 @@ ThreadPool::ThreadPool(unsigned numberThreads) {
 }
 
 ThreadPool::~ThreadPool() {
-  _destroyed.store(true);
+  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void ThreadPool::stop() {

@@ -12,9 +12,11 @@ enum class COMPRESSORS : unsigned short;
 
 namespace tcp {
 
+using TcpServerPtr = std::shared_ptr<class TcpServer>;
+
 using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
-class TcpServer {
+ class TcpServer : public std::enable_shared_from_this<TcpServer> {
 public:
   TcpServer(unsigned expectedNumberConnections,
 	    unsigned port,
@@ -22,7 +24,11 @@ public:
 	    const std::pair<COMPRESSORS, bool>& compression);
   ~TcpServer();
   const std::pair<COMPRESSORS, bool>& getCompression() const { return _compression; }
-  void stop();
+  static void start(unsigned expectedNumberConnections,
+		    unsigned port,
+		    unsigned timeout,
+		    const std::pair<COMPRESSORS, bool>& compression);
+  static void stop();
   bool stopped() const { return _stopped; }
   void pushConnection(TcpConnectionPtr connection);
 private:
@@ -41,6 +47,7 @@ private:
   std::atomic<bool> _stopped = false;
   std::thread _thread;
   ThreadPool _connectionThreadPool;
+  static std::weak_ptr<TcpServer> _weakPtr;
 };
 
 } // end of namespace tcp
