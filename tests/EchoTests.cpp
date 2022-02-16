@@ -29,14 +29,14 @@ TEST_F(EchoTest, EchoTestTcpCompression) {
   std::ostringstream oss;
   TcpClientOptions options(clientCompression, &oss);
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-  tcp::TcpServer::start(1, std::atoi(options._tcpPort.c_str()), 1, compression);
+  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1, compression);
   // start client
   Batch payload;
   Client::createPayload("requests.log", payload);
   tcp::TcpClient client(options);
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
-  tcp::TcpServer::stop();
+  tcpServer.stop();
   taskThreadPool->stop();
 }
 
@@ -50,14 +50,14 @@ TEST_F(EchoTest, EchoTestTcpNoCompression) {
   std::ostringstream oss;
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   TcpClientOptions options(clientCompression, &oss);
-  tcp::TcpServer::start(1, std::atoi(options._tcpPort.c_str()), 1, compression);
+  tcp::TcpServer tcpServer(1, std::atoi(options._tcpPort.c_str()), 1, compression);
   // start client
   Batch payload;
   Client::createPayload("requests.log", payload);
   tcp::TcpClient client(options);
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
-  tcp::TcpServer::stop();
+  tcpServer.stop();
   taskThreadPool->stop();
 }
 

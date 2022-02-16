@@ -42,16 +42,16 @@ int main() {
 				      ProgramOptions::get("FifoBaseNames", std::string("client1")),
 				                          compression))
     return 1;
-  tcp::TcpServer::start(ProgramOptions::get("ExpectedTcpConnections", 1),
-			ProgramOptions::get("TcpPort", 49172),
-			ProgramOptions::get("Timeout", 1),
-			compression);
+  tcp::TcpServer tcpServer(ProgramOptions::get("ExpectedTcpConnections", 1),
+			   ProgramOptions::get("TcpPort", 49172),
+			   ProgramOptions::get("Timeout", 1),
+			   compression);
   int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   fifo::FifoServer::joinThreads();
-  tcp::TcpServer::stop();
+  tcpServer.stop();
   taskThreadPool->stop();
   int ret = fcloseall();
   assert(ret == 0);

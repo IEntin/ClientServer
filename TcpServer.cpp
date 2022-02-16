@@ -8,8 +8,6 @@
 
 namespace tcp {
 
-std::weak_ptr<TcpServer> TcpServer::_weakPtr;
-
 TcpServer::TcpServer(unsigned expectedNumberConnections,
 		     unsigned port,
 		     unsigned timeout,
@@ -21,9 +19,13 @@ TcpServer::TcpServer(unsigned expectedNumberConnections,
   _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
   _acceptor(_ioContext, _endpoint),
   _connectionThreadPool(expectedNumberConnections) {
+  accept();
+  _thread = std::thread(&TcpServer::run, this);
 }
 
-TcpServer::~TcpServer() {
+TcpServer::~TcpServer(){
+  boost::system::error_code ignore;
+  _acceptor.close(ignore);
   _ioContext.stop();
   if (_thread.joinable()) {
     _thread.join();
@@ -32,37 +34,9 @@ TcpServer::~TcpServer() {
   }
 }
 
-void TcpServer::start(unsigned expectedNumberConnections,
-		      unsigned port,
-		      unsigned timeout,
-		      const std::pair<COMPRESSORS, bool>& compression) {
-  try {
-    TcpServerPtr server = std::make_shared<TcpServer>(expectedNumberConnections,
-						      port,
-						      timeout,
-						      compression);
-    server->accept();
-    server->_thread = std::thread(&TcpServer::run, server);
-    _weakPtr = server;
-  }
-  catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " exception caught:" << e.what() << std::endl;
-  }
-  catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " exception caught:" << std::strerror(errno) << std::endl;
-  }
-}
-
 void TcpServer::stop() {
-  TcpServerPtr server = _weakPtr.lock();
-  if (server) {
-    server->_stopped.store(true);
-    boost::system::error_code ignore;
-    server->_acceptor.close(ignore);
-    server->_connectionThreadPool.stop();
-  }
+  _stopped.store(true);
+  _connectionThreadPool.stop();
 }
 
 void TcpServer::run() noexcept {
@@ -74,7 +48,7 @@ void TcpServer::run() noexcept {
 }
 
 void TcpServer::accept() {
-  auto connection = std::make_shared<TcpConnection>(_timeout, shared_from_this());
+  auto connection = std::make_shared<TcpConnection>(_timeout, this);
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {

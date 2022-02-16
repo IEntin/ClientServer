@@ -11,7 +11,7 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(unsigned timeout, TcpServerPtr server) :
+TcpConnection::TcpConnection(unsigned timeout, TcpServer* server) :
   _ioContext(1), _socket(_ioContext), _timeout(timeout), _timer(_ioContext), _server(server) {}
 
 TcpConnection::~TcpConnection() {
