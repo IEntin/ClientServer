@@ -38,6 +38,10 @@ private:
 		    const boost::system::error_code& ec);
   void run() noexcept;
 
+  void startInstance();
+
+  void stopInstance();
+
   boost::asio::io_context _ioContext;
   unsigned _tcpPort;
   unsigned _timeout;
@@ -47,7 +51,7 @@ private:
   std::atomic<bool> _stopped = false;
   std::thread _thread;
   ThreadPool _connectionThreadPool;
-  static std::weak_ptr<TcpServer> _weakPtr;
+  static TcpServerPtr _instance;
 };
 
 } // end of namespace tcp

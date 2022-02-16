@@ -8,7 +8,7 @@
 
 namespace tcp {
 
-std::weak_ptr<TcpServer> TcpServer::_weakPtr;
+TcpServerPtr TcpServer::_instance;
 
 TcpServer::TcpServer(unsigned expectedNumberConnections,
 		     unsigned port,
@@ -24,12 +24,12 @@ TcpServer::TcpServer(unsigned expectedNumberConnections,
 }
 
 TcpServer::~TcpServer() {
-  _ioContext.stop();
-  if (_thread.joinable()) {
-    _thread.join();
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " ... _thread joined ..." << std::endl;
-  }
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+void TcpServer::startInstance() {
+  accept();
+  _thread = std::thread(&TcpServer::run, shared_from_this());
 }
 
 void TcpServer::start(unsigned expectedNumberConnections,
@@ -37,13 +37,8 @@ void TcpServer::start(unsigned expectedNumberConnections,
 		      unsigned timeout,
 		      const std::pair<COMPRESSORS, bool>& compression) {
   try {
-    TcpServerPtr server = std::make_shared<TcpServer>(expectedNumberConnections,
-						      port,
-						      timeout,
-						      compression);
-    server->accept();
-    server->_thread = std::thread(&TcpServer::run, server);
-    _weakPtr = server;
+    _instance = std::make_shared<TcpServer>(expectedNumberConnections, port, timeout, compression);
+    _instance->startInstance();
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -55,14 +50,22 @@ void TcpServer::start(unsigned expectedNumberConnections,
   }
 }
 
-void TcpServer::stop() {
-  TcpServerPtr server = _weakPtr.lock();
-  if (server) {
-    server->_stopped.store(true);
-    boost::system::error_code ignore;
-    server->_acceptor.close(ignore);
-    server->_connectionThreadPool.stop();
+void TcpServer::stopInstance() {
+  _stopped.store(true);
+  boost::system::error_code ignore;
+  _acceptor.close(ignore);
+  _connectionThreadPool.stop();
+  _ioContext.stop();
+  if (_thread.joinable()) {
+    _thread.join();
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " ... _thread joined ..." << std::endl;
   }
+}
+
+void TcpServer::stop() {
+  _instance->stopInstance();
+  _instance.reset();
 }
 
 void TcpServer::run() noexcept {
