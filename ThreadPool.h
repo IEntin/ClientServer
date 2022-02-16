@@ -33,5 +33,4 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   RunnablePtr get();
   // used in tests
   std::vector<std::thread>& getThreads() { return _threads; }
-  static std::atomic<bool> _destroyed;
 };
