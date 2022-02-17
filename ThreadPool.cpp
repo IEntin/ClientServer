@@ -24,7 +24,7 @@ ThreadPool::ThreadPool(unsigned numberThreads) {
 }
 
 ThreadPool::~ThreadPool() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void ThreadPool::stop() {

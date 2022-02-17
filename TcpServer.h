@@ -50,7 +50,7 @@ private:
   boost::asio::ip::tcp::acceptor _acceptor;
   std::atomic<bool> _stopped = false;
   std::thread _thread;
-  ThreadPool _threadPool;
+  ThreadPool _connectionThreadPool;
   static TcpServerPtr _instance;
 };
 
