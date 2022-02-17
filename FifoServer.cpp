@@ -25,34 +25,26 @@ volatile std::atomic<bool> stopFlag;
 
 namespace fifo {
 
-FifoServerPtr FifoServer::_instance;
+std::string FifoServer::_fifoDirectoryName;
+std::pair<COMPRESSORS, bool> FifoServer::_compression;
+std::vector<FifoServer> FifoServer::_fifoThreads;
 
-FifoServer::FifoServer(const std::string& fifoDirName,
-		       const std::pair<COMPRESSORS, bool>& compression,
-		       size_t numberConnections) :
-  _fifoDirName(fifoDirName), _compression(compression), _threadPool(numberConnections) {}
-
-bool FifoServer::startInstance(const std::vector<std::string>& fifoBaseNameVector) {
-  // in case there was no proper shudown.
-  removeFifoFiles();
-  for (size_t i = 0; i < fifoBaseNameVector.size(); ++i) {
-    std::string fifoName = _fifoDirName + '/' + fifoBaseNameVector[i];
-    if (mkfifo(fifoName.c_str(), 0620) == -1 && errno != EEXIST) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< std::strerror(errno) << '-' << fifoName << std::endl;
-      return false;
-    }
-    FifoConnectionPtr connection = std::make_shared<FifoConnection>(fifoName, shared_from_this());
-    connection->start();
-  }
-  return true;
+FifoServer::FifoServer(const std::string& fifoName) :
+  _runnable(fifoName), _thread(_runnable) {
 }
+
+FifoServer::FifoServer(FifoServer&& other) :
+  _runnable(std::move(other._runnable)), _thread(std::move(other._thread)) {}
 
 // start threads - one for each client
 
-bool FifoServer::start(const std::string& fifoDirName,
-		       const std::string& fifoBaseNames,
-		       const std::pair<COMPRESSORS, bool>& compression) {
+bool FifoServer::startThreads(const std::string& fifoDirName,
+			      const std::string& fifoBaseNames,
+			      const std::pair<COMPRESSORS, bool>& compression) {
+  _fifoDirectoryName = fifoDirName;
+  _compression = compression;
+  // in case there was no proper shudown.
+  removeFifoFiles();
   std::vector<std::string> fifoBaseNameVector;
   utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
@@ -60,45 +52,29 @@ bool FifoServer::start(const std::string& fifoDirName,
 	      << "-empty fifo base names vector" << std::endl;
     return false;
   }
-  _instance = std::make_shared<FifoServer>(fifoDirName, compression, fifoBaseNameVector.size());
-  return _instance->startInstance(fifoBaseNameVector);
+  for (size_t i = 0; i < fifoBaseNameVector.size(); ++i) {
+    std::string fifoName = _fifoDirectoryName + '/' + fifoBaseNameVector[i];
+    if (mkfifo(fifoName.c_str(), 0620) == -1 && errno != EEXIST) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		<< std::strerror(errno) << '-' << fifoName << std::endl;
+      return false;
+    }
+    _fifoThreads.emplace_back(fifoName);
+  }
+  return true;
 }
 
-void FifoServer::stopInstance() {
-  removeFifoFiles();
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << " ... fifoThreads joined ..." << std::endl;
-}
+FifoServer::Runnable::Runnable(const std::string& fifoName) :
+  _fifoName(fifoName) {}
 
-void FifoServer::stop() {
-  stopFlag.store(true);
-  _instance->stopInstance();
-  _instance.reset();
-  stopFlag.store(false);
-}
-
-void FifoServer::passToThreadPool(FifoConnectionPtr connection){
-  _threadPool.push(connection);
-}
-
-void FifoServer::removeFifoFiles() {
-  for(auto const& entry : std::filesystem::directory_iterator(_fifoDirName))
-    if (entry.is_fifo())
-      std::filesystem::remove(entry);
-}
-
-FifoConnection::FifoConnection(const std::string& fifoName, FifoServerPtr server) :
-  _fifoName(fifoName), _server(server) {}
-
-FifoConnection::~FifoConnection() {
-  stop();
+FifoServer::Runnable::~Runnable() {
   if (_fdRead != -1)
     close(_fdRead);
   if (_fdWrite != -1)
     close(_fdWrite);
 }
 
-void FifoConnection::run() noexcept {
+void FifoServer::Runnable::operator()() noexcept {
   while (!stopFlag) {
     try {
       _response.clear();
@@ -119,11 +95,7 @@ void FifoConnection::run() noexcept {
   }
 }
 
-void FifoConnection::start() {
-  _server->passToThreadPool(shared_from_this());
-}
-
-bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) {
+bool FifoServer::Runnable::receiveRequest(std::vector<char>& message, HEADER& header) {
   if (_fdWrite != -1) {
     close(_fdWrite);
     _fdWrite = -1;
@@ -143,11 +115,11 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
   return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
 }
 
-bool FifoConnection::readMsgBody(int fd,
-			       size_t uncomprSize,
-			       size_t comprSize,
-			       bool bcompressed,
-			       std::vector<char>& uncompressed) {
+bool FifoServer::Runnable::readMsgBody(int fd,
+					  size_t uncomprSize,
+					  size_t comprSize,
+					  bool bcompressed,
+					  std::vector<char>& uncompressed) {
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received compressed" << std::endl;
@@ -172,7 +144,7 @@ bool FifoConnection::readMsgBody(int fd,
   return true;
 }
 
-bool FifoConnection::sendResponse(Batch& response) {
+bool FifoServer::Runnable::sendResponse(Batch& response) {
   if (_fdRead != -1) {
     close(_fdRead);
     _fdRead = -1;
@@ -200,27 +172,43 @@ bool FifoConnection::sendResponse(Batch& response) {
       assert(pfd.revents & POLLOUT);
     } while (errno == EINTR);
   }
-  std::string_view message = serverutility::buildReply(response, _server->_compression);
+  std::string_view message = serverutility::buildReply(response, _compression);
   if (message.empty())
     return false;
   return Fifo::writeString(_fdWrite, message);
 }
 
-bool FifoConnection::stop() {
-  int fd = open(_fifoName.c_str(), O_WRONLY);
-  if (fd == -1) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	      << std::strerror(errno) << '-' << _fifoName << std::endl;
-    return false;
+void FifoServer::removeFifoFiles() {
+  for(auto const& entry : std::filesystem::directory_iterator(_fifoDirectoryName))
+    if (entry.is_fifo())
+      std::filesystem::remove(entry);
+}
+
+void FifoServer::joinThreads() {
+  stopFlag.store(true);
+  for (auto& [runnable, thread] : _fifoThreads) {
+    int fd = open(runnable._fifoName.c_str(), O_WRONLY);
+    if (fd == -1) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		<< std::strerror(errno) << '-' << runnable._fifoName << std::endl;
+      continue;
+    }
+    char c = 's';
+    int result = write(fd, &c, 1);
+    if (result != 1)
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
+		<< result << ":expected result == 1 " << std::strerror(errno) << std::endl;
+    if (fd != -1)
+      close(fd);
   }
-  char c = 's';
-  int result = write(fd, &c, 1);
-  if (result != 1)
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
-	      << result << ":expected result == 1 " << std::strerror(errno) << std::endl;
-  if (fd != -1)
-    close(fd);
-  return true;
+  for (auto& [runnable, thread] : _fifoThreads)
+    if (thread.joinable())
+      thread.join();
+  removeFifoFiles();
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << " ... fifoThreads joined ..." << std::endl;
+  std::vector<FifoServer>().swap(FifoServer::_fifoThreads);
+  stopFlag.store(false);
 }
 
 } // end of namespace fifo
