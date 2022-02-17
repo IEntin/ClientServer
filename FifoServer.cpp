@@ -17,12 +17,6 @@
 #include <filesystem>
 #include <iostream>
 
-namespace {
-
-volatile std::atomic<bool> stopFlag;
-
-} // end of anonimous namespace
-
 namespace fifo {
 
 FifoServerPtr FifoServer::_instance;
@@ -65,16 +59,15 @@ bool FifoServer::start(const std::string& fifoDirName,
 }
 
 void FifoServer::stopInstance() {
+  _stopped.store(true);
   removeFifoFiles();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... fifoThreads joined ..." << std::endl;
 }
 
 void FifoServer::stop() {
-  stopFlag.store(true);
   _instance->stopInstance();
   _instance.reset();
-  stopFlag.store(false);
 }
 
 void FifoServer::passToThreadPool(FifoConnectionPtr connection){
@@ -99,7 +92,7 @@ FifoConnection::~FifoConnection() {
 }
 
 void FifoConnection::run() noexcept {
-  while (!stopFlag) {
+  while (!_server->stopped()) {
     try {
       _response.clear();
       HEADER header;
@@ -128,7 +121,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
     close(_fdWrite);
     _fdWrite = -1;
   }
-  if (!stopFlag) {
+  if (!_server->stopped()) {
     _fdRead = open(_fifoName.c_str(), O_RDONLY);
     if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
@@ -177,7 +170,7 @@ bool FifoConnection::sendResponse(Batch& response) {
     close(_fdRead);
     _fdRead = -1;
   }
-  if (!stopFlag) {
+  if (!_server->stopped()) {
     _fdWrite = open(_fifoName.c_str(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'

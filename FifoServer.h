@@ -49,9 +49,11 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   const std::string _fifoDirName;
   std::pair<COMPRESSORS, bool> _compression;
   ThreadPool _threadPool;
+  std::atomic<bool> _stopped = false;
   static FifoServerPtr _instance;
   bool startInstance(const std::vector<std::string>& fifoBaseNameVector);
   void stopInstance();
+  bool stopped() const { return _stopped; }
   void removeFifoFiles();
   void passToThreadPool(FifoConnectionPtr connection);
  public:
