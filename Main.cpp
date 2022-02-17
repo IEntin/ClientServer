@@ -37,10 +37,9 @@ int main() {
   TaskThreadPoolPtr taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
   taskThreadPool->start();
   auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
-  if (!fifo::FifoServer::startThreads(ProgramOptions::get("FifoDirectoryName",
-							  std::filesystem::current_path().string()),
-				      ProgramOptions::get("FifoBaseNames", std::string("client1")),
-				                          compression))
+  if (!fifo::FifoServer::start(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()),
+			       ProgramOptions::get("FifoBaseNames", std::string("client1")),
+			       compression))
     return 1;
   tcp::TcpServer::start(ProgramOptions::get("ExpectedTcpConnections", 1),
 			ProgramOptions::get("TcpPort", 49172),
@@ -50,7 +49,7 @@ int main() {
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
-  fifo::FifoServer::joinThreads();
+  fifo::FifoServer::stop();
   tcp::TcpServer::stop();
   taskThreadPool->stop();
   int ret = fcloseall();

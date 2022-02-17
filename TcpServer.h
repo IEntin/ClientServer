@@ -16,8 +16,8 @@ using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
 using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
- class TcpServer : public std::enable_shared_from_this<TcpServer> {
-public:
+class TcpServer : public std::enable_shared_from_this<TcpServer> {
+ public:
   TcpServer(unsigned expectedNumberConnections,
 	    unsigned port,
 	    unsigned timeout,
@@ -30,7 +30,7 @@ public:
 		    const std::pair<COMPRESSORS, bool>& compression);
   static void stop();
   bool stopped() const { return _stopped; }
-  void pushConnection(TcpConnectionPtr connection);
+  void passToThreadPool(TcpConnectionPtr connection);
 private:
   void accept();
 

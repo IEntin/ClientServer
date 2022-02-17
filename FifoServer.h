@@ -5,6 +5,8 @@
 #pragma once
 
 #include "Header.h"
+#include "ThreadPool.h"
+#include <memory>
 #include <thread>
 #include <vector>
 
@@ -14,38 +16,53 @@ enum class COMPRESSORS : unsigned short;
 
 namespace fifo {
 
-class FifoServer {
-  static std::string _fifoDirectoryName;
-  static std::pair<COMPRESSORS, bool> _compression;
-  struct Runnable {
-    explicit Runnable(const std::string& fifoName);
-    ~Runnable();
-    std::string _fifoName;
-    int _fdRead = -1;
-    int _fdWrite = -1;
-    bool receiveRequest(std::vector<char>& message, HEADER& header);
-    bool readMsgBody(int fd,
-		     size_t uncomprSize,
-		     size_t comprSize,
-		     bool bcompressed,
-		     std::vector<char>& uncompressed);
-    bool sendResponse(Batch& response);
-    std::vector<char> _uncompressedRequest;
-    Batch _requestBatch;
-    Batch _response;
-    void operator()() noexcept;
-  } _runnable;
-  std::thread _thread;
-  static std::vector<FifoServer> _fifoThreads;
-  static void removeFifoFiles();
+using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
+
+using FifoServerPtr = std::shared_ptr<class FifoServer>;
+
+class FifoConnection : public std::enable_shared_from_this<FifoConnection>, public Runnable {
+  friend class FifoServer;
+  bool receiveRequest(std::vector<char>& message, HEADER& header);
+  bool readMsgBody(int fd,
+		   size_t uncomprSize,
+		   size_t comprSize,
+		   bool bcompressed,
+		   std::vector<char>& uncompressed);
+  bool sendResponse(Batch& response);
+  std::string _fifoName;
+  FifoServerPtr _server;
+  int _fdRead = -1;
+  int _fdWrite = -1;
+  std::vector<char> _uncompressedRequest;
+  Batch _requestBatch;
+  Batch _response;
  public:
-  explicit FifoServer(const std::string& fifoName);
-  FifoServer(FifoServer&& other);
+  FifoConnection(const std::string& fifoName, FifoServerPtr server);
+  ~FifoConnection() override;
+  void run() noexcept override;
+  void start();
+  bool stop();
+};
+
+class FifoServer : public std::enable_shared_from_this<FifoServer> {
+  friend class FifoConnection;
+  const std::string _fifoDirName;
+  std::pair<COMPRESSORS, bool> _compression;
+  ThreadPool _threadPool;
+  static FifoServerPtr _instance;
+  bool startInstance(const std::vector<std::string>& fifoBaseNameVector);
+  void stopInstance();
+  void removeFifoFiles();
+  void passToThreadPool(FifoConnectionPtr connection);
+ public:
+  explicit FifoServer(const std::string& fifoDirectoryName,
+		      const std::pair<COMPRESSORS, bool>& compression,
+		      size_t numberConnections);
   ~FifoServer() = default;
-  static bool startThreads(const std::string& fifoDirName,
-			   const std::string& fifoBaseNames,
-			   const std::pair<COMPRESSORS, bool>& compression);
-  static void joinThreads();
+  static bool start(const std::string& fifoDirName,
+		    const std::string& fifoBaseNames,
+		    const std::pair<COMPRESSORS, bool>& compression);
+  static void stop();
 };
 
 } // end of namespace fifo

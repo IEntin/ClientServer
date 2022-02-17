@@ -20,8 +20,7 @@ TcpServer::TcpServer(unsigned expectedNumberConnections,
   _compression(compression),
   _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
   _acceptor(_ioContext, _endpoint),
-  _connectionThreadPool(expectedNumberConnections) {
-}
+  _connectionThreadPool(expectedNumberConnections) {}
 
 TcpServer::~TcpServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -96,7 +95,7 @@ void TcpServer::handleAccept(TcpConnectionPtr connection,
   }
 }
 
-void TcpServer::pushConnection(TcpConnectionPtr connection){
+void TcpServer::passToThreadPool(TcpConnectionPtr connection) {
   _connectionThreadPool.push(connection);
 }
 
