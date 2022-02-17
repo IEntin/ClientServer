@@ -57,9 +57,9 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   void removeFifoFiles();
   void passToThreadPool(FifoConnectionPtr connection);
  public:
-  explicit FifoServer(const std::string& fifoDirectoryName,
-		      const std::pair<COMPRESSORS, bool>& compression,
-		      size_t numberConnections);
+  FifoServer(const std::string& fifoDirectoryName,
+	     const std::pair<COMPRESSORS, bool>& compression,
+	     size_t numberConnections);
   ~FifoServer() = default;
   static bool start(const std::string& fifoDirName,
 		    const std::string& fifoBaseNames,

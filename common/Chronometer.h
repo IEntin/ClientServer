@@ -12,7 +12,7 @@ struct Chronometer {
   explicit Chronometer(bool enable = true,
 		       std::string_view file = __FILE__,
 		       int line = __LINE__,
-		       std::string_view function = "unknown",
+		       std::string_view function = "global",
 		       std::ostream* pstream = nullptr) :
     _enabled(enable), _file(file), _line(line), _function(function),
     _stream(pstream ? *pstream : std::clog) {

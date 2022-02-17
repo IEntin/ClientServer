@@ -20,7 +20,7 @@ TcpServer::TcpServer(unsigned expectedNumberConnections,
   _compression(compression),
   _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
   _acceptor(_ioContext, _endpoint),
-  _connectionThreadPool(expectedNumberConnections) {}
+  _threadPool(expectedNumberConnections) {}
 
 TcpServer::~TcpServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -53,7 +53,7 @@ void TcpServer::stopInstance() {
   _stopped.store(true);
   boost::system::error_code ignore;
   _acceptor.close(ignore);
-  _connectionThreadPool.stop();
+  _threadPool.stop();
   _ioContext.stop();
   if (_thread.joinable()) {
     _thread.join();
@@ -96,7 +96,7 @@ void TcpServer::handleAccept(TcpConnectionPtr connection,
 }
 
 void TcpServer::passToThreadPool(TcpConnectionPtr connection) {
-  _connectionThreadPool.push(connection);
+  _threadPool.push(connection);
 }
 
 } // end of namespace tcp
