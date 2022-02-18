@@ -27,14 +27,21 @@ namespace fifo {
 
 std::string FifoServer::_fifoDirectoryName;
 std::pair<COMPRESSORS, bool> FifoServer::_compression;
-std::vector<FifoServer> FifoServer::_fifoThreads;
+std::vector<FifoServerPtr> FifoServer::_fifoThreads;
 
-FifoServer::FifoServer(const std::string& fifoName) :
-  _runnable(fifoName), _thread(_runnable) {
+FifoServer::FifoServer(const std::string& fifoName) : _fifoName(fifoName) {}
+
+FifoServer::~FifoServer() {
+  if (_fdRead != -1)
+    close(_fdRead);
+  if (_fdWrite != -1)
+    close(_fdWrite);
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-FifoServer::FifoServer(FifoServer&& other) :
-  _runnable(std::move(other._runnable)), _thread(std::move(other._thread)) {}
+void FifoServer::start() {
+  _thread = std::thread(&FifoServer::run, shared_from_this());
+}
 
 // start threads - one for each client
 
@@ -59,22 +66,14 @@ bool FifoServer::startThreads(const std::string& fifoDirName,
 		<< std::strerror(errno) << '-' << fifoName << std::endl;
       return false;
     }
-    _fifoThreads.emplace_back(fifoName);
+    FifoServerPtr server = std::make_shared<FifoServer>(fifoName);
+    server->start();
+    _fifoThreads.emplace_back(server);
   }
   return true;
 }
 
-FifoServer::Runnable::Runnable(const std::string& fifoName) :
-  _fifoName(fifoName) {}
-
-FifoServer::Runnable::~Runnable() {
-  if (_fdRead != -1)
-    close(_fdRead);
-  if (_fdWrite != -1)
-    close(_fdWrite);
-}
-
-void FifoServer::Runnable::operator()() noexcept {
+void FifoServer::run() noexcept {
   while (!stopFlag) {
     try {
       _response.clear();
@@ -95,7 +94,7 @@ void FifoServer::Runnable::operator()() noexcept {
   }
 }
 
-bool FifoServer::Runnable::receiveRequest(std::vector<char>& message, HEADER& header) {
+bool FifoServer::receiveRequest(std::vector<char>& message, HEADER& header) {
   if (_fdWrite != -1) {
     close(_fdWrite);
     _fdWrite = -1;
@@ -115,11 +114,11 @@ bool FifoServer::Runnable::receiveRequest(std::vector<char>& message, HEADER& he
   return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
 }
 
-bool FifoServer::Runnable::readMsgBody(int fd,
-					  size_t uncomprSize,
-					  size_t comprSize,
-					  bool bcompressed,
-					  std::vector<char>& uncompressed) {
+bool FifoServer::readMsgBody(int fd,
+			     size_t uncomprSize,
+			     size_t comprSize,
+			     bool bcompressed,
+			     std::vector<char>& uncompressed) {
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received compressed" << std::endl;
@@ -144,7 +143,7 @@ bool FifoServer::Runnable::readMsgBody(int fd,
   return true;
 }
 
-bool FifoServer::Runnable::sendResponse(Batch& response) {
+bool FifoServer::sendResponse(Batch& response) {
   if (_fdRead != -1) {
     close(_fdRead);
     _fdRead = -1;
@@ -186,11 +185,11 @@ void FifoServer::removeFifoFiles() {
 
 void FifoServer::joinThreads() {
   stopFlag.store(true);
-  for (auto& [runnable, thread] : _fifoThreads) {
-    int fd = open(runnable._fifoName.c_str(), O_WRONLY);
+  for (auto server : _fifoThreads) {
+    int fd = open(server->_fifoName.c_str(), O_WRONLY);
     if (fd == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< std::strerror(errno) << '-' << runnable._fifoName << std::endl;
+		<< std::strerror(errno) << '-' << server->_fifoName << std::endl;
       continue;
     }
     char c = 's';
@@ -201,13 +200,13 @@ void FifoServer::joinThreads() {
     if (fd != -1)
       close(fd);
   }
-  for (auto& [runnable, thread] : _fifoThreads)
-    if (thread.joinable())
-      thread.join();
+  for (auto server : _fifoThreads)
+    if (server->_thread.joinable())
+      server->_thread.join();
   removeFifoFiles();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... fifoThreads joined ..." << std::endl;
-  std::vector<FifoServer>().swap(FifoServer::_fifoThreads);
+  std::vector<FifoServerPtr>().swap(FifoServer::_fifoThreads);
   stopFlag.store(false);
 }
 
