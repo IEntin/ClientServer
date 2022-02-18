@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <barrier>
 #include <memory>
 #include <vector>
@@ -22,6 +23,8 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
   ProcessRequest _processRequest;
   std::barrier<CompletionFunction> _barrier;
   std::vector<TaskThreadPtr> _threads;
+  std::atomic<bool> _stopped = false;
+  bool stopped() const { return _stopped; }
   static void onTaskFinish() noexcept;
   static std::thread::id _firstId;
  public:

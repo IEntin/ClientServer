@@ -8,12 +8,6 @@
 #include <cassert>
 #include <iostream>
 
-namespace {
-
-volatile std::atomic<bool> stopFlag = false;
-
-} // end of anonimous namespace
-
 std::thread::id TaskThreadPool::_firstId;
 
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
@@ -47,12 +41,11 @@ void TaskThreadPool::start() {
 // wake up and join the threads.
 
 void TaskThreadPool::stop() {
-  stopFlag.store(true);
+  _stopped.store(true);
   Task::push(std::make_shared<Task>());
   std::vector<TaskThreadPtr>().swap(_threads);
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... TaskThreadPool stopped ..." << std::endl;
-  stopFlag.store(false);
 }
 
 // save pool pointer and a function pointer to apply to every request in the task
@@ -72,7 +65,7 @@ TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processReq
 
 void TaskThread::Runnable::operator()() noexcept {
   try {
-    while (!stopFlag) {
+    while (!_pool->stopped()) {
       auto [view, atEnd, index] = Task::next();
       if (!atEnd) {
 	Task::updateResponse(index, _processRequest(view));

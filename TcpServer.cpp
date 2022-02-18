@@ -20,8 +20,7 @@ TcpServer::TcpServer(unsigned expectedNumberConnections,
   _compression(compression),
   _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
   _acceptor(_ioContext, _endpoint),
-  _connectionThreadPool(expectedNumberConnections) {
-}
+  _connectionThreadPool(expectedNumberConnections) {}
 
 TcpServer::~TcpServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -32,7 +31,7 @@ void TcpServer::startInstance() {
   _thread = std::thread(&TcpServer::run, shared_from_this());
 }
 
-void TcpServer::start(unsigned expectedNumberConnections,
+bool TcpServer::start(unsigned expectedNumberConnections,
 		      unsigned port,
 		      unsigned timeout,
 		      const std::pair<COMPRESSORS, bool>& compression) {
@@ -42,12 +41,15 @@ void TcpServer::start(unsigned expectedNumberConnections,
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " exception caught:" << e.what() << std::endl;
+	      << " exception caught:" << e.what() << " port=" << port << std::endl;
+    return false;
   }
   catch (...) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " exception caught:" << std::strerror(errno) << std::endl;
+    return false;
   }
+  return true;
 }
 
 void TcpServer::stopInstance() {

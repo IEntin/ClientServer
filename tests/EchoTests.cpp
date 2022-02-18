@@ -69,7 +69,7 @@ TEST_F(EchoTest, EchoTestFifoCompression) {
   taskThreadPool->start();
   std::string fifoDirName = std::filesystem::current_path().string();
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"), compression);
+  fifo::FifoServer::start(fifoDirName, std::string("client1"), compression);
   // start client
   Batch payload;
   Client::createPayload("requests.log", payload);
@@ -79,7 +79,7 @@ TEST_F(EchoTest, EchoTestFifoCompression) {
   fifo::FifoClient client(options);
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
-  fifo::FifoServer::joinThreads();
+  fifo::FifoServer::stop();
   taskThreadPool->stop();
 }
 
@@ -91,7 +91,7 @@ TEST_F(EchoTest, EchoTestFifoNoCompression) {
   taskThreadPool->start();
   std::string fifoDirName = std::filesystem::current_path().string();
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
-  fifo::FifoServer::startThreads(fifoDirName, std::string("client1"), compression);
+  fifo::FifoServer::start(fifoDirName, std::string("client1"), compression);
   // start client
   Batch payload;
   Client::createPayload("requests.log", payload);
@@ -101,6 +101,6 @@ TEST_F(EchoTest, EchoTestFifoNoCompression) {
   fifo::FifoClient client(options);
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
-  fifo::FifoServer::joinThreads();
+  fifo::FifoServer::stop();
   taskThreadPool->stop();
 }

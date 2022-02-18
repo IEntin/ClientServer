@@ -26,7 +26,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   std::condition_variable _queueCondition;
   std::queue<RunnablePtr> _queue;
  public:
-  ThreadPool(unsigned numberThreads);
+  explicit ThreadPool(unsigned numberThreads);
   ~ThreadPool();
   void stop();
   void push(RunnablePtr runnable);

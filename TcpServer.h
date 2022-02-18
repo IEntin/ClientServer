@@ -24,7 +24,7 @@ public:
 	    const std::pair<COMPRESSORS, bool>& compression);
   ~TcpServer();
   const std::pair<COMPRESSORS, bool>& getCompression() const { return _compression; }
-  static void start(unsigned expectedNumberConnections,
+  static bool start(unsigned expectedNumberConnections,
 		    unsigned port,
 		    unsigned timeout,
 		    const std::pair<COMPRESSORS, bool>& compression);
