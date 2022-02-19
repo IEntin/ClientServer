@@ -33,7 +33,7 @@ void TcpConnection::start() {
 	    << "-local " << local.address() << ':' << local.port()
 	    << ",remote " << remote.address() << ':' << remote.port()
 	    << std::endl;
-  _server->pushConnection(shared_from_this());
+  _server->pushToThreadPool(shared_from_this());
 }
 
 void TcpConnection::run() noexcept {

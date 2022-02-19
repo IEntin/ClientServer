@@ -46,8 +46,11 @@ int main() {
   }
   if (!fifo::FifoServer::start(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()),
 			       ProgramOptions::get("FifoBaseNames", std::string("client1")),
-			       compression))
+			       compression)) {
+    fifo::FifoServer::stop();
+    taskThreadPool->stop();
     return 3;
+  }
   int sig = 0;
   if (sigwait(&set, &sig) != SIGINT)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

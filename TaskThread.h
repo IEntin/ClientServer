@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ThreadPool.h"
 #include <atomic>
 #include <barrier>
 #include <memory>
@@ -22,11 +23,10 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
   const unsigned _numberThreads;
   ProcessRequest _processRequest;
   std::barrier<CompletionFunction> _barrier;
-  std::vector<TaskThreadPtr> _threads;
+  ThreadPool _threadPool;
   std::atomic<bool> _stopped = false;
   bool stopped() const { return _stopped; }
   static void onTaskFinish() noexcept;
-  static std::thread::id _firstId;
  public:
   TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest);
   ~TaskThreadPool() = default;
@@ -34,18 +34,13 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
   void stop();
 };
 
-class TaskThread {
+class TaskThread : public std::enable_shared_from_this<TaskThread>, public Runnable {
   friend class TaskThreadPool;
-  class Runnable {
-    TaskThreadPoolPtr _pool;
-    ProcessRequest _processRequest;
-  public:
-    Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest);
-    ~Runnable() = default;
-    void operator()() noexcept;
-  } _runnable;
-  std::thread _thread;
+  TaskThreadPoolPtr _pool;
+  ProcessRequest _processRequest;
  public:
   TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest);
-  ~TaskThread();
+  ~TaskThread() override;
+  void run() noexcept override;
+  void startInstance();
 };

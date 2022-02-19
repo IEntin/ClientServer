@@ -8,19 +8,19 @@
 #include <cassert>
 #include <iostream>
 
-std::thread::id TaskThreadPool::_firstId;
-
 TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
-  _barrier(numberThreads, onTaskFinish) {}
+  _barrier(numberThreads, onTaskFinish),
+  _threadPool(numberThreads) {}
 
 // This method is called for every blocked thread when it ran out of work and waits
 // for the next task. In our case only one thread is doing the actual work. This
 // thread is selected arbitrarily, in this case the first created thread.
 
 void TaskThreadPool::onTaskFinish() noexcept {
-  if (std::this_thread::get_id() == _firstId) {
+  static std::thread::id firstId = std::this_thread::get_id();
+  if (std::this_thread::get_id() == firstId) {
     Task::finish();
     // Blocks until the new task is available.
     Task::pop();
@@ -31,9 +31,8 @@ void TaskThreadPool::onTaskFinish() noexcept {
 
 void TaskThreadPool::start() {
   for (unsigned i = 0; i < _numberThreads; ++i) {
-    _threads.emplace_back(std::make_shared<TaskThread>(shared_from_this(), _processRequest));
-    if (i == 0)
-      _firstId = _threads.back()->_thread.get_id();
+    TaskThreadPtr taskThread = std::make_shared<TaskThread>(shared_from_this(), _processRequest);
+    taskThread->startInstance();
   }
 }
 
@@ -43,27 +42,25 @@ void TaskThreadPool::start() {
 void TaskThreadPool::stop() {
   _stopped.store(true);
   Task::push(std::make_shared<Task>());
-  std::vector<TaskThreadPtr>().swap(_threads);
+  _threadPool.stop();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... TaskThreadPool stopped ..." << std::endl;
 }
 
 // save pool pointer and a function pointer to apply to every request in the task
 TaskThread::TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
-  _runnable(pool, processRequest), _thread(_runnable) {}
-
-TaskThread::~TaskThread() {
-  if (_thread.joinable())
-    _thread.join();
-}
-
-TaskThread::Runnable::Runnable(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
   _pool(pool), _processRequest(processRequest) {}
+
+TaskThread::~TaskThread() {}
+
+void TaskThread::startInstance() {
+  _pool->_threadPool.push(shared_from_this());
+}
 
 // Process the current task (batch of requests) by all threads. Arrive
 // at the sync point when the task is done and wait for the next one.
 
-void TaskThread::Runnable::operator()() noexcept {
+void TaskThread::run() noexcept {
   try {
     while (!_pool->stopped()) {
       auto [view, atEnd, index] = Task::next();
