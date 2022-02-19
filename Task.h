@@ -49,12 +49,11 @@ class Task {
   }
   static void push(TaskPtr task);
 
-  static void pop();
+  static void setNew();
 
   static void updateResponse(size_t index, std::string&& rsp) {
     _task->_response[index].swap(rsp);
   }
-  static bool diagnosticsEnabled();
 
   static void finish();
 

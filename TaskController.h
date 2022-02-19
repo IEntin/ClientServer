@@ -14,11 +14,11 @@ using ProcessRequest = std::string (*)(std::string_view);
 
 using CompletionFunction = void (*) () noexcept;
 
-using TaskThreadPoolPtr = std::shared_ptr<class TaskThreadPool>;
+using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 using TaskThreadPtr = std::shared_ptr<class TaskThread>;
 
-class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
+class TaskController : public std::enable_shared_from_this<TaskController> {
   friend class TaskThread;
   const unsigned _numberThreads;
   ProcessRequest _processRequest;
@@ -28,18 +28,18 @@ class TaskThreadPool : public std::enable_shared_from_this<TaskThreadPool> {
   bool stopped() const { return _stopped; }
   static void onTaskFinish() noexcept;
  public:
-  TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest);
-  ~TaskThreadPool() = default;
+  TaskController(unsigned numberThreads, ProcessRequest processRequest);
+  ~TaskController() = default;
   void start();
   void stop();
 };
 
 class TaskThread : public std::enable_shared_from_this<TaskThread>, public Runnable {
-  friend class TaskThreadPool;
-  TaskThreadPoolPtr _pool;
+  friend class TaskController;
+  TaskControllerPtr _pool;
   ProcessRequest _processRequest;
  public:
-  TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest);
+  TaskThread(TaskControllerPtr pool, ProcessRequest processRequest);
   ~TaskThread() override;
   void run() noexcept override;
   void startInstance();

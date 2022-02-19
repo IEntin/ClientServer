@@ -2,13 +2,12 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "TaskThread.h"
-#include "Diagnostics.h"
+#include "TaskController.h"
 #include "Task.h"
 #include <cassert>
 #include <iostream>
 
-TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processRequest) :
+TaskController::TaskController(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
   _barrier(numberThreads, onTaskFinish),
@@ -18,18 +17,16 @@ TaskThreadPool::TaskThreadPool(unsigned numberThreads, ProcessRequest processReq
 // for the next task. In our case only one thread is doing the actual work. This
 // thread is selected arbitrarily, in this case the first created thread.
 
-void TaskThreadPool::onTaskFinish() noexcept {
+void TaskController::onTaskFinish() noexcept {
   static std::thread::id firstId = std::this_thread::get_id();
   if (std::this_thread::get_id() == firstId) {
     Task::finish();
     // Blocks until the new task is available.
-    Task::pop();
-
-    Diagnostics::enable(Task::diagnosticsEnabled());
+    Task::setNew();
   }
 }
 
-void TaskThreadPool::start() {
+void TaskController::start() {
   for (unsigned i = 0; i < _numberThreads; ++i) {
     TaskThreadPtr taskThread = std::make_shared<TaskThread>(shared_from_this(), _processRequest);
     taskThread->startInstance();
@@ -39,16 +36,16 @@ void TaskThreadPool::start() {
 // push an empty task to the queue to
 // wake up and join the threads.
 
-void TaskThreadPool::stop() {
+void TaskController::stop() {
   _stopped.store(true);
   Task::push(std::make_shared<Task>());
   _threadPool.stop();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << " ... TaskThreadPool stopped ..." << std::endl;
+	    << " ... TaskController stopped ..." << std::endl;
 }
 
 // save pool pointer and a function pointer to apply to every request in the task
-TaskThread::TaskThread(TaskThreadPoolPtr pool, ProcessRequest processRequest) :
+TaskThread::TaskThread(TaskControllerPtr pool, ProcessRequest processRequest) :
   _pool(pool), _processRequest(processRequest) {}
 
 TaskThread::~TaskThread() {}
@@ -63,9 +60,9 @@ void TaskThread::startInstance() {
 void TaskThread::run() noexcept {
   try {
     while (!_pool->stopped()) {
-      auto [view, atEnd, index] = Task::next();
+      auto [request, atEnd, index] = Task::next();
       if (!atEnd) {
-	Task::updateResponse(index, _processRequest(view));
+	Task::updateResponse(index, _processRequest(request));
 	continue;
       }
       _pool->_barrier.arrive_and_wait();

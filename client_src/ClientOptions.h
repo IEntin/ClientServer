@@ -9,10 +9,9 @@
 enum class COMPRESSORS : unsigned short;
 
 struct ClientOptions {
-  ClientOptions(const std::pair<COMPRESSORS, bool>& compression,
-		std::ostream* externalDataStream = nullptr);
+  explicit ClientOptions(std::ostream* externalDataStream = nullptr);
 
-  const std::pair<COMPRESSORS, bool> _compression;
+  std::pair<COMPRESSORS, bool> _compression;
   const bool _diagnostics;
   const bool _runLoop;
   // Simulate fast client to measure server performance.
@@ -37,16 +36,14 @@ struct ClientOptions {
 };
 
 struct TcpClientOptions : ClientOptions {
-  TcpClientOptions(const std::pair<COMPRESSORS, bool>& compression,
-		   std::ostream* externalDataStream = nullptr);
+  explicit TcpClientOptions(std::ostream* externalDataStream = nullptr);
 
   const std::string _serverHost;
   const std::string _tcpPort;
 };
 
 struct FifoClientOptions : ClientOptions {
-  FifoClientOptions(const std::pair<COMPRESSORS, bool>& compression,
-		    std::ostream* externalDataStream = nullptr);
+  explicit FifoClientOptions(std::ostream* externalDataStream = nullptr);
 
   const std::string _fifoName;
 };

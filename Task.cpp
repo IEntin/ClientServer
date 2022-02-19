@@ -1,4 +1,5 @@
 #include "Task.h"
+#include "Diagnostics.h"
 #include "Utility.h"
 
 std::mutex Task::_queueMutex;
@@ -24,10 +25,11 @@ void Task::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-void Task::pop() {
+void Task::setNew() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [] { return !_queue.empty(); });
   _task = _queue.front();
+  Diagnostics::enable(isDiagnosticsEnabled(_task->_header));
   _queue.pop();
 }
 
@@ -68,8 +70,4 @@ void Task::finishImpl() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-exception:" << e.what() << std::endl;
   }
-}
-
-bool Task::diagnosticsEnabled() {
-  return isDiagnosticsEnabled(_task->_header);
 }

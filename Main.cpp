@@ -7,7 +7,7 @@
 #include "FifoServer.h"
 #include "MemoryPool.h"
 #include "ProgramOptions.h"
-#include "TaskThread.h"
+#include "TaskController.h"
 #include "TcpServer.h"
 #include "Transaction.h"
 #include <csignal>
@@ -34,21 +34,22 @@ int main() {
   unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
   unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
     std::thread::hardware_concurrency();
-  TaskThreadPoolPtr taskThreadPool = std::make_shared<TaskThreadPool>(numberWorkThreads, processRequest);
-  taskThreadPool->start();
+  TaskControllerPtr taskController =
+    std::make_shared<TaskController>(numberWorkThreads, processRequest);
+  taskController->start();
   auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   if (!tcp::TcpServer::start(ProgramOptions::get("ExpectedTcpConnections", 1),
 			     ProgramOptions::get("TcpPort", 49172),
 			     ProgramOptions::get("Timeout", 1),
 			     compression)) {
-    taskThreadPool->stop();
+    taskController->stop();
     return 2;
   }
   if (!fifo::FifoServer::start(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()),
 			       ProgramOptions::get("FifoBaseNames", std::string("client1")),
 			       compression)) {
-    fifo::FifoServer::stop();
-    taskThreadPool->stop();
+    tcp::TcpServer::stop();
+    taskController->stop();
     return 3;
   }
   int sig = 0;
@@ -57,7 +58,7 @@ int main() {
 	      << ' ' << strerror(errno) << std::endl;
   fifo::FifoServer::stop();
   tcp::TcpServer::stop();
-  taskThreadPool->stop();
+  taskController->stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;

@@ -7,9 +7,9 @@
 #include "ProgramOptions.h"
 #include <filesystem>
 
-ClientOptions::ClientOptions(const std::pair<COMPRESSORS, bool>& compression,
-			     std::ostream* externalDataStream) :
-  _compression(compression),
+ClientOptions::ClientOptions(std::ostream* externalDataStream) :
+  _compression(Compression::isCompressionEnabled(
+         ProgramOptions::get("Compression", std::string(LZ4)))),
   _diagnostics(ProgramOptions::get("Diagnostics", false)),
   _runLoop(ProgramOptions::get("RunLoop", false)),
   _prepareOnce(ProgramOptions::get("PrepareBatchOnce", false)),
@@ -42,14 +42,12 @@ std::ostream* ClientOptions::initInstrStream(const std::string& fileName, std::o
   return nullptr;
 }
 
-TcpClientOptions::TcpClientOptions(const std::pair<COMPRESSORS, bool>& compression,
-				   std::ostream* externalDataStream) :
-  ClientOptions(compression, externalDataStream),
+TcpClientOptions::TcpClientOptions(std::ostream* externalDataStream) :
+  ClientOptions(externalDataStream),
   _serverHost(ProgramOptions::get("ServerHost", std::string("localhost"))),
   _tcpPort(ProgramOptions::get("TcpPort", std::string("49172"))) {}
 
-FifoClientOptions::FifoClientOptions(const std::pair<COMPRESSORS, bool>& compression,
-				     std::ostream* externalDataStream) :
-  ClientOptions(compression, externalDataStream),
+FifoClientOptions::FifoClientOptions(std::ostream* externalDataStream) :
+  ClientOptions(externalDataStream),
   _fifoName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
 	    ProgramOptions::get("FifoBaseName", std::string("client1"))) {}

@@ -105,13 +105,13 @@ TEST(HeaderTest, HeaderTest1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(PreparePackageTest, AllCompressed) {
+TEST(PreparePackageTest, Compression) {
   Batch payload;
   Client::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
-  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-  ClientOptions options(compression);
+  ClientOptions options;
+  options._compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
   Client client(options);
   bool prepared = client.preparePackage(payload, modified, bufferSize);
   ASSERT_TRUE(prepared);
@@ -140,83 +140,13 @@ TEST(PreparePackageTest, AllCompressed) {
   ASSERT_TRUE(batchResult == payload);
 }
 
-TEST(PreparePackageTest, AllNotcompressed) {
+TEST(PreparePackageTest, NoCompression) {
   Batch payload;
   Client::createPayload("requests.log", payload);
   Batch modified;
   size_t bufferSize = 360000;
-  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
-  ClientOptions options(compression);
-  Client client(options);
-  bool prepared = client.preparePackage(payload, modified, bufferSize);
-  ASSERT_TRUE(prepared);
-  std::string uncompressedResult;
-  for (const std::string& task : modified) {
-    HEADER header = decodeHeader(task.data());
-    ASSERT_TRUE(isOk(header));
-    bool bcompressed = isInputCompressed(header);
-    ASSERT_FALSE(bcompressed);
-    size_t comprSize = getCompressedSize(header);
-    ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
-    if (bcompressed) {
-      std::string_view uncompressedView =
-	Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
-				getUncompressedSize(header));
-      ASSERT_FALSE(uncompressedView.empty());
-      uncompressedResult.append(uncompressedView);
-    }
-    else
-      uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
-  }
-  Batch batchResult;
-  utility::split(uncompressedResult, batchResult);
-  for (auto& line : batchResult)
-    line.append(1, '\n');
-  ASSERT_TRUE(batchResult == payload);
-}
-
-TEST(PreparePackageTest, ServerNotCompressedClientCompressed) {
-  Batch payload;
-  Client::createPayload("requests.log", payload);
-  Batch modified;
-  size_t bufferSize = 360000;
-  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-  ClientOptions options(compression);
-  Client client(options);
-  bool prepared = client.preparePackage(payload, modified, bufferSize);
-  ASSERT_TRUE(prepared);
-  std::string uncompressedResult;
-  for (const std::string& task : modified) {
-    HEADER header = decodeHeader(task.data());
-    ASSERT_TRUE(isOk(header));
-    bool bcompressed = isInputCompressed(header);
-    ASSERT_TRUE(bcompressed);
-    size_t comprSize = getCompressedSize(header);
-    ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
-    if (bcompressed) {
-      std::string_view uncompressedView =
-	Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
-				getUncompressedSize(header));
-      ASSERT_FALSE(uncompressedView.empty());
-      uncompressedResult.append(uncompressedView);
-    }
-    else
-      uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
-  }
-  Batch batchResult;
-  utility::split(uncompressedResult, batchResult);
-  for (auto& line : batchResult)
-    line.append(1, '\n');
-  ASSERT_TRUE(batchResult == payload);
-}
-
-TEST(PreparePackageTest, ServerCompressedClientNotCompressed) {
-  Batch payload;
-  Client::createPayload("requests.log", payload);
-  Batch modified;
-  size_t bufferSize = 360000;
-  auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
-  ClientOptions options(compression);
+  ClientOptions options;
+  options._compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   Client client(options);
   bool prepared = client.preparePackage(payload, modified, bufferSize);
   ASSERT_TRUE(prepared);
