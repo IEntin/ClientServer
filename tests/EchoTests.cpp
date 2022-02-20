@@ -20,10 +20,7 @@ std::string EchoTest::_sourceContent = Client::readFileContent("requests.log");
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
   // start server
-  TaskControllerPtr taskController =
-    std::make_shared<TaskController>(std::thread::hardware_concurrency(),
-				     echo::processRequest);
-  taskController->start();
+  TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
   std::ostringstream oss;
   TcpClientOptions options(&oss);
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
@@ -36,15 +33,12 @@ TEST_F(EchoTest, EchoTestTcpCompression) {
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   tcp::TcpServer::stop();
-  taskController->stop();
+  TaskController::stop();
 }
 
 TEST_F(EchoTest, EchoTestTcpNoCompression) {
   // start server
-  TaskControllerPtr taskController =
-    std::make_shared<TaskController>(std::thread::hardware_concurrency(),
-				     echo::processRequest);
-  taskController->start();
+  TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
   std::ostringstream oss;
   TcpClientOptions options(&oss);
   auto compression =  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
@@ -57,15 +51,12 @@ TEST_F(EchoTest, EchoTestTcpNoCompression) {
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   tcp::TcpServer::stop();
-  taskController->stop();
+  TaskController::stop();
 }
 
 TEST_F(EchoTest, EchoTestFifoCompression) {
   // start server
-  TaskControllerPtr taskController =
-    std::make_shared<TaskController>(std::thread::hardware_concurrency(),
-				     echo::processRequest);
-  taskController->start();
+  TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
   std::string fifoDirName = std::filesystem::current_path().string();
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
   fifo::FifoServer::start(fifoDirName, std::string("client1"), compression);
@@ -79,15 +70,12 @@ TEST_F(EchoTest, EchoTestFifoCompression) {
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   fifo::FifoServer::stop();
-  taskController->stop();
+  TaskController::stop();
 }
 
 TEST_F(EchoTest, EchoTestFifoNoCompression) {
   // start server
-  TaskControllerPtr taskController =
-    std::make_shared<TaskController>(std::thread::hardware_concurrency(),
-				     echo::processRequest);
-  taskController->start();
+  TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
   std::string fifoDirName = std::filesystem::current_path().string();
   auto compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
   fifo::FifoServer::start(fifoDirName, std::string("client1"), compression);
@@ -101,5 +89,5 @@ TEST_F(EchoTest, EchoTestFifoNoCompression) {
   ASSERT_TRUE(client.run(payload));
   ASSERT_EQ(oss.str(), _sourceContent);
   fifo::FifoServer::stop();
-  taskController->stop();
+  TaskController::stop();
 }

@@ -34,22 +34,20 @@ int main() {
   unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
   unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
     std::thread::hardware_concurrency();
-  TaskControllerPtr taskController =
-    std::make_shared<TaskController>(numberWorkThreads, processRequest);
-  taskController->start();
+  TaskController::start(numberWorkThreads, processRequest);
   auto compression = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   if (!tcp::TcpServer::start(ProgramOptions::get("ExpectedTcpConnections", 1),
 			     ProgramOptions::get("TcpPort", 49172),
 			     ProgramOptions::get("Timeout", 1),
 			     compression)) {
-    taskController->stop();
+    TaskController::stop();
     return 2;
   }
   if (!fifo::FifoServer::start(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()),
 			       ProgramOptions::get("FifoBaseNames", std::string("client1")),
 			       compression)) {
     tcp::TcpServer::stop();
-    taskController->stop();
+    TaskController::stop();
     return 3;
   }
   int sig = 0;
@@ -58,7 +56,7 @@ int main() {
 	      << ' ' << strerror(errno) << std::endl;
   fifo::FifoServer::stop();
   tcp::TcpServer::stop();
-  taskController->stop();
+  TaskController::stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;

@@ -25,37 +25,26 @@ class Task {
   size_t size() const { return _storage.size(); }
   bool empty() const { return _storage.empty(); }
 
-  std::tuple<std::string_view, bool, size_t> nextImpl();
-  void finishImpl();
-  static std::mutex _queueMutex;
-  static std::condition_variable _queueCondition;
-  static std::queue<TaskPtr> _queue;
   Requests _storage;
-  static thread_local std::vector<char> _rawInput;
   HEADER _header;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
   Batch& _response;
-  static Batch _emptyBatch;
-  static TaskPtr _task;
 
  public:
-  Task();
+  Task(Batch& emptyBatch);
 
   Task(const HEADER& header, std::vector<char>& input, Batch& response);
 
-  static std::tuple<std::string_view, bool, size_t> next() {
-    return _task->nextImpl();
+  bool diagnosticsEnabled() const { return isDiagnosticsEnabled(_header); }
+
+  std::promise<void>& getPromise() { return _promise; }
+
+  std::tuple<std::string_view, bool, size_t> next();
+
+  void updateResponse(size_t index, std::string& rsp) {
+    _response[index].swap(rsp);
   }
-  static void push(TaskPtr task);
 
-  static void setNew();
-
-  static void updateResponse(size_t index, std::string&& rsp) {
-    _task->_response[index].swap(rsp);
-  }
-
-  static void finish();
-
-  static void process(const HEADER& header, std::vector<char>& input, Batch& response);
+  void finish();
 };

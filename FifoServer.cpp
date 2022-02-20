@@ -7,7 +7,7 @@
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
-#include "Task.h"
+#include "TaskController.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <poll.h>
@@ -123,7 +123,7 @@ void FifoConnection::run() noexcept {
       _uncompressedRequest.clear();
       if (!receiveRequest(_uncompressedRequest, header))
 	continue;
-      Task::process(header, _uncompressedRequest, _response);
+      TaskController::processTask(header, _uncompressedRequest, _response);
       if (!sendResponse(_response))
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		  << std::strerror(errno) << '-' << _fifoName << std::endl;

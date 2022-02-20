@@ -5,8 +5,8 @@
 #include "TcpConnection.h"
 #include "Compression.h"
 #include "ServerUtility.h"
+#include "TaskController.h"
 #include "TcpServer.h"
-#include "Task.h"
 #include <iostream>
 
 namespace tcp {
@@ -61,7 +61,7 @@ bool TcpConnection::onReceiveRequest() {
   else
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received not compressed" << std::endl;
-  Task::process(_header, (bcompressed ? _uncompressed : _request), _response);
+  TaskController::processTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;

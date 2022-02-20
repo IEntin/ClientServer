@@ -1,52 +1,17 @@
 #include "Task.h"
-#include "Diagnostics.h"
 #include "Utility.h"
 
-std::mutex Task::_queueMutex;
-std::condition_variable Task::_queueCondition;
-std::queue<TaskPtr> Task::_queue;
-thread_local std::vector<char> Task::_rawInput;
-Batch Task::_emptyBatch;
-// start with empty task
-TaskPtr Task::_task(std::make_shared<Task>());
-
-Task::Task() : _response(_emptyBatch) {}
+Task::Task(Batch& emptyBatch) : _response(emptyBatch) {}
 
 Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
   _header(header), _response(response)  {
-  input.swap(_rawInput);
-  utility::split(_rawInput, _storage);
+  static thread_local std::vector<char> rawInput;
+  input.swap(rawInput);
+  utility::split(rawInput, _storage);
   _response.resize(_storage.size());
 }
 
-void Task::push(TaskPtr task) {
-  std::lock_guard lock(_queueMutex);
-  _queue.push(task);
-  _queueCondition.notify_all();
-}
-
-void Task::setNew() {
-  std::unique_lock lock(_queueMutex);
-  _queueCondition.wait(lock, [] { return !_queue.empty(); });
-  _task = _queue.front();
-  Diagnostics::enable(isDiagnosticsEnabled(_task->_header));
-  _queue.pop();
-}
-
-void Task::process(const HEADER& header, std::vector<char>& input, Batch& response) {
-  try {
-    TaskPtr task = std::make_shared<Task>(header, input, response);
-    auto future = task->_promise.get_future();
-    push(task);
-    future.get();
-  }
-  catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
-  }
-}
-
-std::tuple<std::string_view, bool, size_t> Task::nextImpl() {
+std::tuple<std::string_view, bool, size_t> Task::next() {
   size_t pointer = _pointer.fetch_add(1);
   if (pointer < _storage.size()) {
     auto it = std::next(_storage.begin(), pointer);
@@ -59,10 +24,6 @@ std::tuple<std::string_view, bool, size_t> Task::nextImpl() {
 }
 
 void Task::finish() {
-  _task->finishImpl();
-}
-
-void Task::finishImpl() {
   try {
     _promise.set_value();
   }
