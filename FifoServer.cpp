@@ -22,7 +22,7 @@ FifoServerPtr FifoServer::_instance;
 
 FifoServer::FifoServer(const std::string& fifoDirName,
 		       const std::vector<std::string>& fifoBaseNames,
-		       const CompressionDescription& compression) :
+		       const CompressionType& compression) :
   _fifoDirName(fifoDirName), _compression(compression), _threadPool(fifoBaseNames.size()) {
   // in case there was no proper shudown.
   removeFifoFiles();
@@ -49,7 +49,7 @@ bool FifoServer::startInstance() {
 
 bool FifoServer::start(const std::string& fifoDirName,
 		       const std::string& fifoBaseNames,
-		       const CompressionDescription& compression) {
+		       const CompressionType& compression) {
   std::vector<std::string> fifoBaseNameVector;
   utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {

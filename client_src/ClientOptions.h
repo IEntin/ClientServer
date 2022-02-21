@@ -10,7 +10,7 @@
 struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
 
-  CompressionDescription _compression;
+  CompressionType _compression;
   const bool _diagnostics;
   const bool _runLoop;
   // Simulate fast client to measure server performance.

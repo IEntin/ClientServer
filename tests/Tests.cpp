@@ -13,10 +13,16 @@
 #include <iostream>
 #include <sstream>
 
-bool testCompressionDecompression1(std::string_view input) {
+struct CompressionTest : testing::Test {
+  static std::string _input1;
+  static std::string _input2;
+};
+std::string CompressionTest::_input1 = Client::readFileContent("requests.log");
+std::string CompressionTest::_input2 = Client::readFileContent("output.txt");
+
+void testCompressionDecompression1(std::string_view input) {
   std::string_view compressedView = Compression::compress(input);
-  if (compressedView.empty())
-    return false;
+  ASSERT_FALSE(compressedView.empty());
   // save to a string before buffer is reused in uncompress
   std::string compressed;
   compressed.assign(compressedView.data(), compressedView.size());
@@ -24,37 +30,39 @@ bool testCompressionDecompression1(std::string_view input) {
   static auto& printOnce [[maybe_unused]] = std::clog << "\n   input.size()=" << input.size()
 	    << " compressedView.size()=" << compressedView.size() << " restored to original:"
             << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-  return input == uncompressedView;
+  ASSERT_EQ(input, uncompressedView);
 }
 
-bool testCompressionDecompression2(std::string_view input) {
+void testCompressionDecompression2(std::string_view input) {
   std::string_view compressedView = Compression::compress(input);
-  if (compressedView.empty())
-    return false;
+  ASSERT_FALSE(compressedView.empty());
   std::vector<char> uncompressed(input.size());
-  if (!Compression::uncompress(compressedView, uncompressed))
-    return false;
+  ASSERT_TRUE(Compression::uncompress(compressedView, uncompressed));
   std::string_view uncompressedView(uncompressed.begin(), uncompressed.end());
   static auto& printOnce [[maybe_unused]] = std::clog << "\n   input.size()=" << input.size()
             << " compressedView.size()=" << compressedView.size() << " restored to original:"
 	    << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-  return input == uncompressedView;
+  ASSERT_EQ(input, uncompressedView);
 }
 
-TEST(CompressionTest, CompressionTest1) {
-  bool compressionTestResult = true;
-  const std::string content = Client::readFileContent("requests.log");
-  for (int i = 0; i < 10; ++i)
-    compressionTestResult = compressionTestResult && testCompressionDecompression1(content);
-  ASSERT_TRUE(compressionTestResult && !content.empty());
+TEST_F(CompressionTest, CompressionTest1) {
+  for (int i = 0; i < 5; ++i)
+    testCompressionDecompression1(_input1);
 }
 
-TEST(CompressionTest, CompressionTest2) {
-  bool compressionTestResult = true;
-  const std::string content = Client::readFileContent("output.txt");
-  for (int i = 0; i < 10; ++i)
-    compressionTestResult = compressionTestResult && testCompressionDecompression2(content);
-  ASSERT_TRUE(compressionTestResult && !content.empty());
+TEST_F(CompressionTest, CompressionTest2) {
+  for (int i = 0; i < 5; ++i)
+    testCompressionDecompression1(_input2);
+}
+
+TEST_F(CompressionTest, CompressionTest3) {
+  for (int i = 0; i < 5; ++i)
+    testCompressionDecompression2(_input1);
+}
+
+TEST_F(CompressionTest, CompressionTest4) {
+  for (int i = 0; i < 5; ++i)
+    testCompressionDecompression2(_input2);
 }
 
 TEST(SplitTest, SplitTest1) {
@@ -105,74 +113,61 @@ TEST(HeaderTest, HeaderTest1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(PreparePackageTest, Compression) {
-  Batch payload;
-  Client::createPayload("requests.log", payload);
-  Batch modified;
-  size_t bufferSize = 360000;
-  ClientOptions options;
-  options._compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-  Client client(options);
-  bool prepared = client.preparePackage(payload, modified, bufferSize);
-  ASSERT_TRUE(prepared);
-  std::string uncompressedResult;
-  for (const std::string& task : modified) {
-    HEADER header = decodeHeader(task.data());
-    ASSERT_TRUE(isOk(header));
-    bool bcompressed = isInputCompressed(header);
-    ASSERT_TRUE(bcompressed);
-    size_t comprSize = getCompressedSize(header);
-    ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
-    if (bcompressed) {
-      std::string_view uncompressedView =
-	Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
-				getUncompressedSize(header));
-      ASSERT_FALSE(uncompressedView.empty());
-      uncompressedResult.append(uncompressedView);
+struct PreparePackageTest : testing::Test {
+  static CompressionType _compressionY;
+  static CompressionType _compressionN;
+  static Batch _payload;
+
+  void testPreparePackage(CompressionType compression) {
+    Batch modified;
+    size_t bufferSize = 360000;
+    ClientOptions options;
+    options._compression = compression;
+    Client client(options);
+    bool prepared = client.preparePackage(_payload, modified, bufferSize);
+    ASSERT_TRUE(prepared);
+    std::string uncompressedResult;
+    for (const std::string& task : modified) {
+      HEADER header = decodeHeader(task.data());
+      ASSERT_TRUE(isOk(header));
+      bool bcompressed = isInputCompressed(header);
+      ASSERT_EQ(bcompressed, compression.second);
+      size_t comprSize = getCompressedSize(header);
+      ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
+      if (bcompressed) {
+	std::string_view uncompressedView =
+	  Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
+				  getUncompressedSize(header));
+	ASSERT_FALSE(uncompressedView.empty());
+	uncompressedResult.append(uncompressedView);
+      }
+      else
+	uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
     }
-    else
-      uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
+    Batch batchResult;
+    utility::split(uncompressedResult, batchResult);
+    for (auto& line : batchResult)
+      line.append(1, '\n');
+    ASSERT_TRUE(batchResult == _payload);
   }
-  Batch batchResult;
-  utility::split(uncompressedResult, batchResult);
-  for (auto& line : batchResult)
-    line.append(1, '\n');
-  ASSERT_TRUE(batchResult == payload);
+
+  static void SetUpTestSuite() {
+    Client::createPayload("requests.log", _payload);
+  }
+  static void TearDownTestSuite() {}
+};
+CompressionType PreparePackageTest::_compressionY =
+  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
+CompressionType PreparePackageTest::_compressionN =
+  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
+Batch PreparePackageTest::_payload;
+
+TEST_F(PreparePackageTest, Compression) {
+  testPreparePackage(_compressionY);
 }
 
-TEST(PreparePackageTest, NoCompression) {
-  Batch payload;
-  Client::createPayload("requests.log", payload);
-  Batch modified;
-  size_t bufferSize = 360000;
-  ClientOptions options;
-  options._compression = std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
-  Client client(options);
-  bool prepared = client.preparePackage(payload, modified, bufferSize);
-  ASSERT_TRUE(prepared);
-  std::string uncompressedResult;
-  for (const std::string& task : modified) {
-    HEADER header = decodeHeader(task.data());
-    ASSERT_TRUE(isOk(header));
-    bool bcompressed = isInputCompressed(header);
-    ASSERT_FALSE(bcompressed);
-    size_t comprSize = getCompressedSize(header);
-    ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
-    if (bcompressed) {
-      std::string_view uncompressedView =
-	Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
-				getUncompressedSize(header));
-      ASSERT_FALSE(uncompressedView.empty());
-      uncompressedResult.append(uncompressedView);
-    }
-    else
-      uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
-  }
-  Batch batchResult;
-  utility::split(uncompressedResult, batchResult);
-  for (auto& line : batchResult)
-    line.append(1, '\n');
-  ASSERT_TRUE(batchResult == payload);
+TEST_F(PreparePackageTest, NoCompression) {
+  testPreparePackage(_compressionN);
 }
 
 int main(int argc, char **argv) {

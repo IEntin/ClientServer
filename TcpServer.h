@@ -20,13 +20,13 @@ public:
   TcpServer(unsigned expectedNumberConnections,
 	    unsigned port,
 	    unsigned timeout,
-	    const CompressionDescription& compression);
+	    const CompressionType& compression);
   ~TcpServer();
-  const CompressionDescription& getCompression() const { return _compression; }
+  const CompressionType& getCompression() const { return _compression; }
   static bool start(unsigned expectedNumberConnections,
 		    unsigned port,
 		    unsigned timeout,
-		    const CompressionDescription& compression);
+		    const CompressionType& compression);
   static void stop();
   bool stopped() const { return _stopped; }
   void pushToThreadPool(TcpConnectionPtr connection);
@@ -45,7 +45,7 @@ private:
   boost::asio::io_context _ioContext;
   unsigned _tcpPort;
   unsigned _timeout;
-  CompressionDescription _compression;
+  CompressionType _compression;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   std::atomic<bool> _stopped = false;

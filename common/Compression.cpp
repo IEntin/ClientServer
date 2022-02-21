@@ -10,7 +10,7 @@
 #include <cstring>
 #include <iostream>
 
-CompressionDescription Compression::isCompressionEnabled(const std::string& compressorStr) {
+CompressionType Compression::isCompressionEnabled(const std::string& compressorStr) {
   bool enabled = compressorStr.starts_with(LZ4);
   COMPRESSORS compressor = enabled ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
   return std::make_pair(compressor, enabled);
