@@ -10,10 +10,10 @@
 #include <cstring>
 #include <iostream>
 
-CompressionType Compression::isCompressionEnabled(const std::string& compressorStr) {
+COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) {
   bool enabled = compressorStr.starts_with(LZ4);
   COMPRESSORS compressor = enabled ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
-  return std::make_pair(compressor, enabled);
+  return compressor;
 }
 
 std::string_view Compression::compressInternal(std::string_view uncompressed,

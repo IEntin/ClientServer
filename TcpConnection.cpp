@@ -68,7 +68,7 @@ bool TcpConnection::onReceiveRequest() {
 }
 
 bool TcpConnection::sendReply(Batch& batch) {
-  std::string_view message = serverutility::buildReply(batch, _server->getCompression());
+  std::string_view message = serverutility::buildReply(batch, _server->getCompressor());
   if (message.empty())
     return false;
   write(message);

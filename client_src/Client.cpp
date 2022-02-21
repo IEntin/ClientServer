@@ -50,9 +50,9 @@ bool Client::mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t buf
 bool Client::buildMessage(const Batch& payload, Batch& message) {
   if (payload.empty())
     return false;
-  const auto[compressor, enabled] = _options._compression;
+  bool enabled = _options._compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
+    std::clog << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
   for (std::string_view str : payload) {
     char array[HEADER_SIZE + 1] = {};
     size_t uncomprSize = str.size();
@@ -61,12 +61,12 @@ bool Client::buildMessage(const Batch& payload, Batch& message) {
       std::string_view dstView = Compression::compress(str);
       if (dstView.empty())
 	return false;
-      encodeHeader(array, uncomprSize, dstView.size(), compressor, _options._diagnostics);
+      encodeHeader(array, uncomprSize, dstView.size(), _options._compressor, _options._diagnostics);
       message.back().reserve(HEADER_SIZE + dstView.size() + 1);
       message.back().append(array, HEADER_SIZE).append(dstView);
     }
     else {
-      encodeHeader(array, uncomprSize, uncomprSize, compressor, _options._diagnostics);
+      encodeHeader(array, uncomprSize, uncomprSize, _options._compressor, _options._diagnostics);
       message.back().reserve(HEADER_SIZE + str.size() + 1);
       message.back().append(array, HEADER_SIZE).append(str);
     }

@@ -7,7 +7,7 @@
 #include <filesystem>
 
 ClientOptions::ClientOptions(std::ostream* externalDataStream) :
-  _compression(Compression::isCompressionEnabled(
+  _compressor(Compression::isCompressionEnabled(
          ProgramOptions::get("Compression", std::string(LZ4)))),
   _diagnostics(ProgramOptions::get("Diagnostics", false)),
   _runLoop(ProgramOptions::get("RunLoop", false)),

@@ -114,15 +114,15 @@ TEST(HeaderTest, HeaderTest1) {
 }
 
 struct PreparePackageTest : testing::Test {
-  static CompressionType _compressionY;
-  static CompressionType _compressionN;
+  static COMPRESSORS _compressionY;
+  static COMPRESSORS _compressionN;
   static Batch _payload;
 
-  void testPreparePackage(CompressionType compression) {
+  void testPreparePackage(COMPRESSORS compressor) {
     Batch modified;
     size_t bufferSize = 360000;
     ClientOptions options;
-    options._compression = compression;
+    options._compressor = compressor;
     Client client(options);
     bool prepared = client.preparePackage(_payload, modified, bufferSize);
     ASSERT_TRUE(prepared);
@@ -131,7 +131,7 @@ struct PreparePackageTest : testing::Test {
       HEADER header = decodeHeader(task.data());
       ASSERT_TRUE(isOk(header));
       bool bcompressed = isInputCompressed(header);
-      ASSERT_EQ(bcompressed, compression.second);
+      ASSERT_EQ(bcompressed, compressor == COMPRESSORS::LZ4);
       size_t comprSize = getCompressedSize(header);
       ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
       if (bcompressed) {
@@ -156,10 +156,8 @@ struct PreparePackageTest : testing::Test {
   }
   static void TearDownTestSuite() {}
 };
-CompressionType PreparePackageTest::_compressionY =
-  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-CompressionType PreparePackageTest::_compressionN =
-  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
+COMPRESSORS PreparePackageTest::_compressionY = COMPRESSORS::LZ4;
+COMPRESSORS PreparePackageTest::_compressionN = COMPRESSORS::NONE;
 Batch PreparePackageTest::_payload;
 
 TEST_F(PreparePackageTest, Compression) {

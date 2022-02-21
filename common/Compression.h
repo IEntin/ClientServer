@@ -12,8 +12,6 @@ inline constexpr std::string_view NOP = "NOP";
 
 enum class COMPRESSORS : unsigned short;
 
-using CompressionType = std::pair<COMPRESSORS, bool>;
-
 class Compression {
   Compression() = delete;
   ~Compression() = delete;
@@ -25,7 +23,7 @@ class Compression {
 				 char* uncompressed,
 				 size_t uncomprSize);
  public:
-  static CompressionType isCompressionEnabled(const std::string& compressorStr);
+  static COMPRESSORS isCompressionEnabled(const std::string& compressorStr);
 
   static std::string_view compress(std::string_view origin);
 

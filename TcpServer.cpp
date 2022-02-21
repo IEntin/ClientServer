@@ -13,12 +13,12 @@ TcpServerPtr TcpServer::_instance;
 TcpServer::TcpServer(unsigned expectedNumberConnections,
 		     unsigned port,
 		     unsigned timeout,
-		     const CompressionType& compression) :
+		     COMPRESSORS compressor) :
   _numberThreads(expectedNumberConnections),
   _ioContext(1),
   _tcpPort(port),
   _timeout(timeout),
-  _compression(compression),
+  _compressor(compressor),
   _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
   _acceptor(_ioContext) {}
 
@@ -50,9 +50,9 @@ void TcpServer::startInstance(boost::system::error_code& ec) {
 bool TcpServer::start(unsigned expectedNumberConnections,
 		      unsigned port,
 		      unsigned timeout,
-		      const CompressionType& compression) {
+		      COMPRESSORS compressor) {
   try {
-    _instance = std::make_shared<TcpServer>(expectedNumberConnections, port, timeout, compression);
+    _instance = std::make_shared<TcpServer>(expectedNumberConnections, port, timeout, compressor);
     boost::system::error_code ec;
     _instance->startInstance(ec);
     if (ec) {

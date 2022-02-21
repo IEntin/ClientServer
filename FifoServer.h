@@ -22,7 +22,7 @@ using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
 class FifoServer : public std::enable_shared_from_this<FifoServer> {
   friend class FifoConnection;
   const std::string _fifoDirName;
-  const CompressionType _compression;
+  const COMPRESSORS _compressor;
   ThreadPool _threadPool;
   std::atomic<bool> _stopped = false;
   bool stopped() const { return _stopped; }
@@ -35,11 +35,11 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
  public:
   FifoServer(const std::string& fifoDirName,
 	     const std::vector<std::string>& fifoBaseNames,
-	     const CompressionType& compression);
+	     COMPRESSORS compressor);
   ~FifoServer();
   static bool start(const std::string& fifoDirName,
 		    const std::string& fifoBaseNames,
-		    const CompressionType& compression);
+		    COMPRESSORS compressor);
   static void stop();
 };
 
@@ -47,7 +47,7 @@ class FifoConnection : public std::enable_shared_from_this<FifoConnection>, publ
   friend class FifoServer;
   std::string _fifoName;
   FifoServerPtr _server;
-  CompressionType _compression;
+  COMPRESSORS _compressor;
   int _fdRead = -1;
   int _fdWrite = -1;
   bool receiveRequest(std::vector<char>& message, HEADER& header);

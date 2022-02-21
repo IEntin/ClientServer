@@ -22,8 +22,8 @@ FifoServerPtr FifoServer::_instance;
 
 FifoServer::FifoServer(const std::string& fifoDirName,
 		       const std::vector<std::string>& fifoBaseNames,
-		       const CompressionType& compression) :
-  _fifoDirName(fifoDirName), _compression(compression), _threadPool(fifoBaseNames.size()) {
+		       COMPRESSORS compressor) :
+  _fifoDirName(fifoDirName), _compressor(compressor), _threadPool(fifoBaseNames.size()) {
   // in case there was no proper shudown.
   removeFifoFiles();
   for (const auto& baseName : fifoBaseNames)
@@ -49,7 +49,7 @@ bool FifoServer::startInstance() {
 
 bool FifoServer::start(const std::string& fifoDirName,
 		       const std::string& fifoBaseNames,
-		       const CompressionType& compression) {
+		       COMPRESSORS compressor) {
   std::vector<std::string> fifoBaseNameVector;
   utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
@@ -57,7 +57,7 @@ bool FifoServer::start(const std::string& fifoDirName,
 	      << "-empty fifo base names vector" << std::endl;
     return false;
   }
-  _instance = std::make_shared<FifoServer>(fifoDirName, fifoBaseNameVector, compression);
+  _instance = std::make_shared<FifoServer>(fifoDirName, fifoBaseNameVector, compressor);
   return _instance->startInstance();
 }
 
@@ -101,7 +101,7 @@ void FifoServer::wakeupPipes() {
 }
 
 FifoConnection::FifoConnection(const std::string& fifoName, FifoServerPtr server) :
-  _fifoName(fifoName), _server(server), _compression(server->_compression) {}
+  _fifoName(fifoName), _server(server), _compressor(server->_compressor) {}
 
 FifoConnection::~FifoConnection() {
   if (_fdRead != -1)
@@ -213,7 +213,7 @@ bool FifoConnection::sendResponse(Batch& response) {
       assert(pfd.revents & POLLOUT);
     } while (errno == EINTR);
   }
-  std::string_view message = serverutility::buildReply(response, _compression);
+  std::string_view message = serverutility::buildReply(response, _compressor);
   if (message.empty())
     return false;
   return Fifo::writeString(_fdWrite, message);

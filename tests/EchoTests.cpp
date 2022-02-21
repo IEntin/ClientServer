@@ -11,17 +11,17 @@
 #include <filesystem>
 
 struct EchoTest : testing::Test {
-  static CompressionType _compressionY;
-  static CompressionType _compressionN;
+  static COMPRESSORS _compressionY;
+  static COMPRESSORS _compressionN;
   static std::string _input;
   static Batch _payload;
 
-  void testEchoTcp(CompressionType serverCompression, CompressionType clientCompression) {
+  void testEchoTcp(COMPRESSORS serverCompression, COMPRESSORS clientCompression) {
     // start server
     TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
     std::ostringstream oss;
     TcpClientOptions options(&oss);
-    options._compression = clientCompression;
+    options._compressor = clientCompression;
     tcp::TcpServer::start(1, std::atoi(options._tcpPort.c_str()), 1, serverCompression);
     // start client
     tcp::TcpClient client(options);
@@ -30,7 +30,7 @@ struct EchoTest : testing::Test {
     tcp::TcpServer::stop();
     TaskController::stop();
   }
-  void testEchoFifo(CompressionType serverCompression, CompressionType clientCompression) {
+  void testEchoFifo(COMPRESSORS serverCompression, COMPRESSORS clientCompression) {
     // start server
     TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
     std::string fifoDirName = std::filesystem::current_path().string();
@@ -38,7 +38,7 @@ struct EchoTest : testing::Test {
     // start client
     std::ostringstream oss;
     FifoClientOptions options(&oss);
-    options._compression = clientCompression;
+    options._compressor = clientCompression;
     fifo::FifoClient client(options);
     ASSERT_TRUE(client.run(_payload));
     ASSERT_EQ(oss.str(), _input);
@@ -52,10 +52,8 @@ struct EchoTest : testing::Test {
   static void TearDownTestSuite() {}
 };
 std::string EchoTest::_input = Client::readFileContent("requests.log");
-CompressionType EchoTest::_compressionY =
-  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
-CompressionType EchoTest::_compressionN =
-  std::make_pair<COMPRESSORS, bool>(COMPRESSORS::NONE, false);
+COMPRESSORS EchoTest::_compressionY = COMPRESSORS::LZ4;
+COMPRESSORS EchoTest::_compressionN = COMPRESSORS::NONE;
 Batch EchoTest::_payload;
 
 TEST_F(EchoTest, EchoTestTcpCompression) {

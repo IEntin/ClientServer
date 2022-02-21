@@ -6,11 +6,11 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Batch& batch, const CompressionType& compression) {
+std::string_view buildReply(const Batch& batch, COMPRESSORS compressor) {
   static std::string_view empty;
   if (batch.empty())
     return empty;
-  const auto[compressor, enabled] = compression;
+  bool enabled = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
