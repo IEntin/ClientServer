@@ -13,7 +13,7 @@
 struct EchoTest : testing::Test {
   static CompressionType _compressionY;
   static CompressionType _compressionN;
-  static std::string _sourceContent;
+  static std::string _input;
   static Batch _payload;
 
   void testEchoTcp(CompressionType serverCompression, CompressionType clientCompression) {
@@ -26,7 +26,7 @@ struct EchoTest : testing::Test {
     // start client
     tcp::TcpClient client(options);
     ASSERT_TRUE(client.run(_payload));
-    ASSERT_EQ(oss.str(), _sourceContent);
+    ASSERT_EQ(oss.str(), _input);
     tcp::TcpServer::stop();
     TaskController::stop();
   }
@@ -41,7 +41,7 @@ struct EchoTest : testing::Test {
     options._compression = clientCompression;
     fifo::FifoClient client(options);
     ASSERT_TRUE(client.run(_payload));
-    ASSERT_EQ(oss.str(), _sourceContent);
+    ASSERT_EQ(oss.str(), _input);
     fifo::FifoServer::stop();
     TaskController::stop();
   }
@@ -51,7 +51,7 @@ struct EchoTest : testing::Test {
   }
   static void TearDownTestSuite() {}
 };
-std::string EchoTest::_sourceContent = Client::readFileContent("requests.log");
+std::string EchoTest::_input = Client::readFileContent("requests.log");
 CompressionType EchoTest::_compressionY =
   std::make_pair<COMPRESSORS, bool>(COMPRESSORS::LZ4, true);
 CompressionType EchoTest::_compressionN =

@@ -40,14 +40,11 @@ int main() {
 			     ProgramOptions::get("TcpPort", 49172),
 			     ProgramOptions::get("Timeout", 1),
 			     compression)) {
-    TaskController::stop();
     return 2;
   }
   if (!fifo::FifoServer::start(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()),
 			       ProgramOptions::get("FifoBaseNames", std::string("client1")),
 			       compression)) {
-    tcp::TcpServer::stop();
-    TaskController::stop();
     return 3;
   }
   int sig = 0;
