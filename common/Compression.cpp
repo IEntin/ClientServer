@@ -10,8 +10,8 @@
 #include <cstring>
 #include <iostream>
 
-std::pair<COMPRESSORS, bool> Compression::isCompressionEnabled(const std::string& compressorStr) {
-  bool enabled =  compressorStr.starts_with(LZ4);
+CompressionDescription Compression::isCompressionEnabled(const std::string& compressorStr) {
+  bool enabled = compressorStr.starts_with(LZ4);
   COMPRESSORS compressor = enabled ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
   return std::make_pair(compressor, enabled);
 }

@@ -67,6 +67,10 @@ bool TcpClient::run(const Batch& payload) {
     boost::system::error_code ec;
     auto endpoint = boost::asio::connect(_socket,
 					 resolver.resolve(_options._serverHost, _options._tcpPort, ec));
+    if (!ec)
+      _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false), ec);
+    if (!ec)
+      _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << std::endl;
     if (ec) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

@@ -13,20 +13,36 @@ TcpServerPtr TcpServer::_instance;
 TcpServer::TcpServer(unsigned expectedNumberConnections,
 		     unsigned port,
 		     unsigned timeout,
-		     const std::pair<COMPRESSORS, bool>& compression) :
+		     const CompressionDescription& compression) :
+  _numberThreads(expectedNumberConnections),
   _ioContext(1),
   _tcpPort(port),
   _timeout(timeout),
   _compression(compression),
-  _endpoint(boost::asio::ip::tcp::v4(), _tcpPort),
-  _acceptor(_ioContext, _endpoint),
-  _threadPool(expectedNumberConnections) {}
+  _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
+  _acceptor(_ioContext) {}
 
 TcpServer::~TcpServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-void TcpServer::startInstance() {
+void TcpServer::startInstance(boost::system::error_code& ec) {
+  _acceptor.open(_endpoint.protocol(), ec);
+  if (ec)
+    return;
+  _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false), ec);
+  if (ec)
+    return;
+  _acceptor.set_option(boost::asio::socket_base::linger(false, 0), ec);
+  if (ec)
+    return;
+  _acceptor.bind(_endpoint, ec);
+  if (ec)
+    return;
+  _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+  if (ec)
+    return;
+  _threadPool.start(_numberThreads);
   accept();
   _thread = std::thread(&TcpServer::run, shared_from_this());
 }
@@ -34,10 +50,16 @@ void TcpServer::startInstance() {
 bool TcpServer::start(unsigned expectedNumberConnections,
 		      unsigned port,
 		      unsigned timeout,
-		      const std::pair<COMPRESSORS, bool>& compression) {
+		      const CompressionDescription& compression) {
   try {
     _instance = std::make_shared<TcpServer>(expectedNumberConnections, port, timeout, compression);
-    _instance->startInstance();
+    boost::system::error_code ec;
+    _instance->startInstance(ec);
+    if (ec) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ' ' << ec.what() << " port=" << port << std::endl;
+      return false;
+    }
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -66,7 +88,8 @@ void TcpServer::stopInstance() {
 }
 
 void TcpServer::stop() {
-  _instance->stopInstance();
+  if (_instance)
+    _instance->stopInstance();
   _instance.reset();
 }
 

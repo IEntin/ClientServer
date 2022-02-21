@@ -51,7 +51,7 @@ void TaskController::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-void TaskController::processTask(const HEADER& header, std::vector<char>& input, Batch& response) {
+void TaskController::submitTask(const HEADER& header, std::vector<char>& input, Batch& response) {
   try {
     TaskPtr task = std::make_shared<Task>(header, input, response);
     auto future = task->getPromise().get_future();
@@ -92,11 +92,12 @@ void TaskController::stopInstance() {
 }
 
 void TaskController::stop() {
-  _instance->stopInstance();
+  if (_instance)
+    _instance->stopInstance();
   _instance.reset();
 }
 
-// save pool pointer and a function pointer to apply to every request in the task
+// save controller pointer and a function pointer to apply to every request in the task
 TaskProcessor::TaskProcessor(TaskControllerPtr controller, ProcessRequest processRequest) :
   _controller(controller), _processRequest(processRequest) {}
 

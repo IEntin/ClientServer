@@ -61,7 +61,7 @@ bool TcpConnection::onReceiveRequest() {
   else
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received not compressed" << std::endl;
-  TaskController::processTask(_header, (bcompressed ? _uncompressed : _request), _response);
+  TaskController::submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;

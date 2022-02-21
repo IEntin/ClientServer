@@ -1,5 +1,4 @@
 #include "ServerUtility.h"
-#include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
 #include <cassert>
@@ -7,7 +6,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Batch& batch, const std::pair<COMPRESSORS, bool>& compression) {
+std::string_view buildReply(const Batch& batch, const CompressionDescription& compression) {
   static std::string_view empty;
   if (batch.empty())
     return empty;

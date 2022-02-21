@@ -5,7 +5,17 @@
 #include "ThreadPool.h"
 #include <iostream>
 
+ThreadPool::ThreadPool() {}
+
 ThreadPool::ThreadPool(unsigned numberThreads) {
+  start(numberThreads);
+}
+
+ThreadPool::~ThreadPool() {
+  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+void ThreadPool::start(size_t numberThreads) {
   for (unsigned i = 0; i < numberThreads; ++i) {
     _threads.emplace_back([this] () {
 			    while (true) {
@@ -21,10 +31,6 @@ ThreadPool::ThreadPool(unsigned numberThreads) {
 			    }
 			  });
   }
-}
-
-ThreadPool::~ThreadPool() {
-  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void ThreadPool::stop() {

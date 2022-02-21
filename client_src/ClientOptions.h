@@ -4,14 +4,13 @@
 
 #pragma once
 
+#include "Compression.h"
 #include <fstream>
-
-enum class COMPRESSORS : unsigned short;
 
 struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
 
-  std::pair<COMPRESSORS, bool> _compression;
+  CompressionDescription _compression;
   const bool _diagnostics;
   const bool _runLoop;
   // Simulate fast client to measure server performance.

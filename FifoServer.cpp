@@ -4,7 +4,6 @@
 
 #include "FifoServer.h"
 #include "ServerUtility.h"
-#include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
 #include "TaskController.h"
@@ -23,7 +22,7 @@ FifoServerPtr FifoServer::_instance;
 
 FifoServer::FifoServer(const std::string& fifoDirName,
 		       const std::vector<std::string>& fifoBaseNames,
-		       const std::pair<COMPRESSORS, bool>& compression) :
+		       const CompressionDescription& compression) :
   _fifoDirName(fifoDirName), _compression(compression), _threadPool(fifoBaseNames.size()) {
   // in case there was no proper shudown.
   removeFifoFiles();
@@ -50,7 +49,7 @@ bool FifoServer::startInstance() {
 
 bool FifoServer::start(const std::string& fifoDirName,
 		       const std::string& fifoBaseNames,
-		       const std::pair<COMPRESSORS, bool>& compression) {
+		       const CompressionDescription& compression) {
   std::vector<std::string> fifoBaseNameVector;
   utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
@@ -70,7 +69,8 @@ void FifoServer::stopInstance() {
 }
 
 void FifoServer::stop() {
-  _instance->stopInstance();
+  if (_instance)
+    _instance->stopInstance();
   _instance.reset();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... fifoThreads joined ..." << std::endl;
@@ -123,7 +123,7 @@ void FifoConnection::run() noexcept {
       _uncompressedRequest.clear();
       if (!receiveRequest(_uncompressedRequest, header))
 	continue;
-      TaskController::processTask(header, _uncompressedRequest, _response);
+      TaskController::submitTask(header, _uncompressedRequest, _response);
       if (!sendResponse(_response))
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		  << std::strerror(errno) << '-' << _fifoName << std::endl;

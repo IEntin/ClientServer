@@ -1,14 +1,13 @@
 #pragma once
 
+#include "Compression.h"
 #include <string>
 #include <vector>
 
 using Batch = std::vector<std::string>;
 
-enum class COMPRESSORS : unsigned short;
-
 namespace serverutility {
 
-std::string_view buildReply(const Batch& batch, const std::pair<COMPRESSORS, bool>& compression);
+std::string_view buildReply(const Batch& batch, const CompressionDescription& compression);
 
 } // end of namespace commutility

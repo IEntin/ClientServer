@@ -3,7 +3,6 @@
  */
 
 #include "ClientOptions.h"
-#include "Compression.h"
 #include "ProgramOptions.h"
 #include <filesystem>
 
