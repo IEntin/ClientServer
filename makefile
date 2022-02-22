@@ -7,6 +7,7 @@
 #kcachegrind callgrind.out.*
 #valgrind --tool=massif ./server
 #ms_print massif.out.*
+#ps huH p <pid> | wc -l
 
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]

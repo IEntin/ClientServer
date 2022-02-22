@@ -11,17 +11,19 @@
 
 namespace tcp {
 
+using RunnablePtr = std::shared_ptr<class Runnable>;
+
 using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
 using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
-class TcpServer : public std::enable_shared_from_this<TcpServer> {
+class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
 public:
   TcpServer(unsigned expectedNumberConnections,
 	    unsigned port,
 	    unsigned timeout,
 	    COMPRESSORS compressor);
-  ~TcpServer();
+  ~TcpServer() override;
   const COMPRESSORS getCompressor() const { return _compressor; }
   static bool start(unsigned expectedNumberConnections,
 		    unsigned port,
@@ -29,19 +31,19 @@ public:
 		    COMPRESSORS compressor);
   static void stop();
   bool stopped() const { return _stopped; }
-  void pushToThreadPool(TcpConnectionPtr connection);
+  void pushToThreadPool(RunnablePtr runnable);
 private:
   void accept();
 
   void handleAccept(TcpConnectionPtr connection,
 		    const boost::system::error_code& ec);
-  void run() noexcept;
+  void run() noexcept override;
 
   void startInstance(boost::system::error_code& ec);
 
   void stopInstance();
 
-  const size_t _numberThreads;
+  const size_t _numberConnections;
   boost::asio::io_context _ioContext;
   unsigned _tcpPort;
   unsigned _timeout;
@@ -49,7 +51,6 @@ private:
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   std::atomic<bool> _stopped = false;
-  std::thread _thread;
   ThreadPool _threadPool;
   static TcpServerPtr _instance;
 };

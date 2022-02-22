@@ -14,7 +14,7 @@ TcpServer::TcpServer(unsigned expectedNumberConnections,
 		     unsigned port,
 		     unsigned timeout,
 		     COMPRESSORS compressor) :
-  _numberThreads(expectedNumberConnections),
+  _numberConnections(expectedNumberConnections),
   _ioContext(1),
   _tcpPort(port),
   _timeout(timeout),
@@ -42,9 +42,10 @@ void TcpServer::startInstance(boost::system::error_code& ec) {
   _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
   if (ec)
     return;
-  _threadPool.start(_numberThreads);
+  // + 1 for 'this'
+  _threadPool.start(_numberConnections + 1);
   accept();
-  _thread = std::thread(&TcpServer::run, shared_from_this());
+  _threadPool.push(shared_from_this());
 }
 
 bool TcpServer::start(unsigned expectedNumberConnections,
@@ -80,11 +81,6 @@ void TcpServer::stopInstance() {
   _acceptor.close(ignore);
   _threadPool.stop();
   _ioContext.stop();
-  if (_thread.joinable()) {
-    _thread.join();
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " ... _thread joined ..." << std::endl;
-  }
 }
 
 void TcpServer::stop() {
@@ -121,7 +117,7 @@ void TcpServer::handleAccept(TcpConnectionPtr connection,
   }
 }
 
-void TcpServer::pushToThreadPool(TcpConnectionPtr connection){
+void TcpServer::pushToThreadPool(RunnablePtr connection){
   _threadPool.push(connection);
 }
 

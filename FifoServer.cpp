@@ -23,7 +23,7 @@ FifoServerPtr FifoServer::_instance;
 FifoServer::FifoServer(const std::string& fifoDirName,
 		       const std::vector<std::string>& fifoBaseNames,
 		       COMPRESSORS compressor) :
-  _fifoDirName(fifoDirName), _compressor(compressor), _threadPool(fifoBaseNames.size()) {
+  _fifoDirName(fifoDirName), _compressor(compressor) {
   // in case there was no proper shudown.
   removeFifoFiles();
   for (const auto& baseName : fifoBaseNames)
@@ -44,6 +44,7 @@ bool FifoServer::startInstance() {
     FifoConnectionPtr connection = std::make_shared<FifoConnection>(fifoName, shared_from_this());
     connection->start();
   }
+  _threadPool.start(_fifoNames.size());
   return true;
 }
 
