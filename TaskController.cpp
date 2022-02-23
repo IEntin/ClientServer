@@ -8,8 +8,6 @@
 #include <cassert>
 #include <iostream>
 
-TaskControllerPtr TaskController::_instance;
-
 TaskController::TaskController(unsigned numberThreads, ProcessRequest processRequest) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
@@ -20,6 +18,18 @@ TaskController::TaskController(unsigned numberThreads, ProcessRequest processReq
   _task = std::make_shared<Task>(emptyBatch);
 }
 
+TaskControllerPtr TaskController::create(unsigned numberThreads, ProcessRequest processRequest) {
+  // to have private constructor do not use make_shared
+  TaskControllerPtr taskController(new TaskController(numberThreads, processRequest));
+  taskController->initialize();
+  return taskController;
+}
+
+TaskControllerPtr TaskController::instance(unsigned numberThreads, ProcessRequest processRequest) {
+  static TaskControllerPtr instance = create(numberThreads, processRequest);
+  return instance;
+}
+
 // This method is called for every blocked thread when it ran out of work and waits
 // for the next task. In our case only one thread is doing the actual work. This
 // thread is selected arbitrarily, in this case the first created thread.
@@ -27,23 +37,18 @@ TaskController::TaskController(unsigned numberThreads, ProcessRequest processReq
 void TaskController::onTaskFinish() noexcept {
   static std::thread::id firstId = std::this_thread::get_id();
   if (std::this_thread::get_id() == firstId) {
-    _instance->_task->finish();
+    TaskControllerPtr taskController = instance();
+    taskController->_task->finish();
     // Blocks until the new task is available.
-    _instance->setNew();
+    taskController->setNew();
   }
 }
 
-void TaskController::startInstance() {
+void TaskController::initialize() {
   for (unsigned i = 0; i < _numberThreads; ++i) {
     TaskProcessorPtr taskProcessor = std::make_shared<TaskProcessor>(shared_from_this());
     pushToThreadPool(taskProcessor);
   }
-}
-
-TaskControllerPtr TaskController::start(unsigned numberThreads, ProcessRequest processRequest) {
-  _instance = std::make_shared<TaskController>(numberThreads, processRequest);
-  _instance->startInstance();
-  return _instance;
 }
 
 // Process the current task (batch of requests) by all threads. Arrive
@@ -108,19 +113,13 @@ void TaskController::updateResponse(size_t index, std::string& rsp) {
 
 // push an empty task to the queue to
 // wake up and join the threads.
-void TaskController::stopInstance() {
+void TaskController::stop() {
   _stopped.store(true);
   static Batch emptyBatch;
   push(std::make_shared<Task>(emptyBatch));
   _threadPool.stop();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	    << " ... TaskController stopped ..." << std::endl;
-}
-
-void TaskController::stop() {
-  if (_instance)
-    _instance->stopInstance();
-  _instance.reset();
 }
 
 void TaskController::pushToThreadPool(TaskProcessorPtr processor) {

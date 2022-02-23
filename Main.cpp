@@ -34,7 +34,7 @@ int main() {
   unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
   unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
     std::thread::hardware_concurrency();
-  TaskControllerPtr taskController = TaskController::start(numberWorkThreads, processRequest);
+  TaskControllerPtr taskController = TaskController::instance(numberWorkThreads, processRequest);
   COMPRESSORS compressor = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
   tcp::TcpServerPtr tcpServer =
     std::make_shared<tcp::TcpServer>(taskController,
@@ -57,7 +57,7 @@ int main() {
 	      << ' ' << strerror(errno) << std::endl;
   fifoServer->stop();
   tcpServer->stop();
-  TaskController::stop();
+  taskController->stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;
