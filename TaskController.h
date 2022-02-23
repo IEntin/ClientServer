@@ -24,7 +24,6 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskProcessorPtr = std::shared_ptr<class TaskProcessor>;
 
 class TaskController : public std::enable_shared_from_this<TaskController> {
-  friend class TaskProcessor;
   const unsigned _numberThreads;
   ProcessRequest _processRequest;
   std::barrier<CompletionFunction> _barrier;
@@ -32,32 +31,31 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   TaskPtr _task;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
-   std::queue<TaskPtr> _queue;
+  std::queue<TaskPtr> _queue;
   std::atomic<bool> _stopped = false;
-  bool stopped() const { return _stopped; }
   static TaskControllerPtr _instance;
   void startInstance();
   void push(TaskPtr task);
   void setNew();
   std::tuple<std::string_view, bool, size_t> next();
   void updateResponse(size_t index, std::string& rsp);
+  bool stopped() const { return _stopped; }
   void stopInstance();
   static void onTaskFinish() noexcept;
  public:
   TaskController(unsigned numberThreads, ProcessRequest processRequest);
   ~TaskController() = default;
+  void run() noexcept;
   void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
   static TaskControllerPtr start(unsigned numberThreads, ProcessRequest processRequest);
   static void stop();
+  void pushToThreadPool(TaskProcessorPtr processor);
 };
 
 class TaskProcessor : public std::enable_shared_from_this<TaskProcessor>, public Runnable {
-  friend class TaskController;
   TaskControllerPtr _controller;
-  ProcessRequest _processRequest;
  public:
-  TaskProcessor(TaskControllerPtr controller, ProcessRequest processRequest);
+  explicit TaskProcessor(TaskControllerPtr controller);
   ~TaskProcessor() override;
   void run() noexcept override;
-  void startInstance();
 };

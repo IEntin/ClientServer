@@ -35,8 +35,8 @@ void TaskController::onTaskFinish() noexcept {
 
 void TaskController::startInstance() {
   for (unsigned i = 0; i < _numberThreads; ++i) {
-    TaskProcessorPtr taskProcessor = std::make_shared<TaskProcessor>(shared_from_this(), _processRequest);
-    taskProcessor->startInstance();
+    TaskProcessorPtr taskProcessor = std::make_shared<TaskProcessor>(shared_from_this());
+    pushToThreadPool(taskProcessor);
   }
 }
 
@@ -44,6 +44,31 @@ TaskControllerPtr TaskController::start(unsigned numberThreads, ProcessRequest p
   _instance = std::make_shared<TaskController>(numberThreads, processRequest);
   _instance->startInstance();
   return _instance;
+}
+
+// Process the current task (batch of requests) by all threads. Arrive
+// at the sync point when the task is done and wait for the next one.
+
+void TaskController::run() noexcept {
+  try {
+    while (!stopped()) {
+      auto [request, atEnd, index] = next();
+      if (!atEnd) {
+	std::string response = _processRequest(request);
+	updateResponse(index, response);
+	continue;
+      }
+      _barrier.arrive_and_wait();
+    }
+  }
+  catch (std::system_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+  }
+  catch (...) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " ! exception caught" << std::endl;
+  }
 }
 
 void TaskController::push(TaskPtr task) {
@@ -98,37 +123,16 @@ void TaskController::stop() {
   _instance.reset();
 }
 
-// save controller pointer and a function pointer to apply to every request in the task
-TaskProcessor::TaskProcessor(TaskControllerPtr controller, ProcessRequest processRequest) :
-  _controller(controller), _processRequest(processRequest) {}
+void TaskController::pushToThreadPool(TaskProcessorPtr processor) {
+  _threadPool.push(processor);
+}
+
+// class TaskProcessor
+
+TaskProcessor::TaskProcessor(TaskControllerPtr controller) : _controller(controller) {}
 
 TaskProcessor::~TaskProcessor() {}
 
-void TaskProcessor::startInstance() {
-  _controller->_threadPool.push(shared_from_this());
-}
-
-// Process the current task (batch of requests) by all threads. Arrive
-// at the sync point when the task is done and wait for the next one.
-
 void TaskProcessor::run() noexcept {
-  try {
-    while (!_controller->stopped()) {
-      auto [request, atEnd, index] = _controller->next();
-      if (!atEnd) {
-	std::string response = _processRequest(request);
-	_controller->updateResponse(index, response);
-	continue;
-      }
-      _controller->_barrier.arrive_and_wait();
-    }
-  }
-  catch (std::system_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
-  }
-  catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " ! exception caught" << std::endl;
-  }
+  _controller->run();
 }

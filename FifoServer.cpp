@@ -48,8 +48,8 @@ bool FifoServer::start() {
       return false;
     }
     FifoConnectionPtr connection =
-      std::make_shared<FifoConnection>(_taskController, fifoName, shared_from_this());
-    connection->start();
+      std::make_shared<FifoConnection>(_taskController, fifoName, _compressor, shared_from_this());
+    pushToThreadPool(connection);
   }
   _threadPool.start(_fifoNames.size());
   return true;
@@ -86,8 +86,17 @@ void FifoServer::wakeupPipes() {
   }
 }
 
-FifoConnection::FifoConnection(TaskControllerPtr taskController, const std::string& fifoName, FifoServerPtr server) :
-  _taskController(taskController), _fifoName(fifoName), _server(server), _compressor(server->_compressor) {}
+void FifoServer::pushToThreadPool(FifoConnectionPtr connection) {
+  _threadPool.push(connection);
+}
+
+// class FifoConnection
+
+FifoConnection::FifoConnection(TaskControllerPtr taskController,
+			       const std::string& fifoName,
+			       COMPRESSORS compressor,
+			       FifoServerPtr server) :
+  _taskController(taskController), _fifoName(fifoName), _compressor(compressor), _server(server) {}
 
 FifoConnection::~FifoConnection() {
   if (_fdRead != -1)
@@ -95,10 +104,6 @@ FifoConnection::~FifoConnection() {
   if (_fdWrite != -1)
     close(_fdWrite);
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
-}
-
-void FifoConnection::start() {
-  _server->_threadPool.push(shared_from_this());
 }
 
 void FifoConnection::run() noexcept {
