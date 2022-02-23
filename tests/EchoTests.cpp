@@ -11,38 +11,45 @@
 #include <filesystem>
 
 struct EchoTest : testing::Test {
-  static COMPRESSORS _compressionY;
-  static COMPRESSORS _compressionN;
+  static COMPRESSORS _compressorY;
+  static COMPRESSORS _compressorN;
   static std::string _input;
   static Batch _payload;
 
-  void testEchoTcp(COMPRESSORS serverCompression, COMPRESSORS clientCompression) {
+  void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
+    TaskControllerPtr taskController =
+      TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
     std::ostringstream oss;
     TcpClientOptions options(&oss);
-    options._compressor = clientCompression;
-    tcp::TcpServer::start(1, std::atoi(options._tcpPort.c_str()), 1, serverCompression);
+    options._compressor = clientCompressor;
+    tcp::TcpServerPtr tcpServer =
+      std::make_shared<tcp::TcpServer>(taskController, 1, std::atoi(options._tcpPort.c_str()), 1, serverCompressor);
+    ASSERT_TRUE(tcpServer->start());
     // start client
     tcp::TcpClient client(options);
     ASSERT_TRUE(client.run(_payload));
     ASSERT_EQ(oss.str(), _input);
-    tcp::TcpServer::stop();
+    tcpServer->stop();
     TaskController::stop();
   }
-  void testEchoFifo(COMPRESSORS serverCompression, COMPRESSORS clientCompression) {
+
+  void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
+    TaskControllerPtr taskController =
+      TaskController::start(std::thread::hardware_concurrency(), echo::processRequest);
     std::string fifoDirName = std::filesystem::current_path().string();
-    fifo::FifoServer::start(fifoDirName, std::string("client1"), serverCompression);
+    fifo::FifoServerPtr fifoServer =
+      std::make_shared<fifo::FifoServer>(taskController, fifoDirName, std::string("client1"), serverCompressor);
+    ASSERT_TRUE(fifoServer->start());
     // start client
     std::ostringstream oss;
     FifoClientOptions options(&oss);
-    options._compressor = clientCompression;
+    options._compressor = clientCompressor;
     fifo::FifoClient client(options);
     ASSERT_TRUE(client.run(_payload));
     ASSERT_EQ(oss.str(), _input);
-    fifo::FifoServer::stop();
+    fifoServer->stop();
     TaskController::stop();
   }
 
@@ -52,38 +59,38 @@ struct EchoTest : testing::Test {
   static void TearDownTestSuite() {}
 };
 std::string EchoTest::_input = Client::readFileContent("requests.log");
-COMPRESSORS EchoTest::_compressionY = COMPRESSORS::LZ4;
-COMPRESSORS EchoTest::_compressionN = COMPRESSORS::NONE;
+COMPRESSORS EchoTest::_compressorY = COMPRESSORS::LZ4;
+COMPRESSORS EchoTest::_compressorN = COMPRESSORS::NONE;
 Batch EchoTest::_payload;
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
-  testEchoTcp(_compressionY, _compressionY);
+  testEchoTcp(_compressorY, _compressorY);
 }
 
 TEST_F(EchoTest, EchoTestTcpNoCompression) {
-  testEchoTcp(_compressionN, _compressionN);
+  testEchoTcp(_compressorN, _compressorN);
 }
 
 TEST_F(EchoTest, EchoTestTcpServerCompressionClientNoCompression) {
-  testEchoTcp(_compressionY, _compressionN);
+  testEchoTcp(_compressorY, _compressorN);
 }
 
 TEST_F(EchoTest, EchoTestTcpServerNoCompressionClientCompression) {
-  testEchoTcp(_compressionN, _compressionY);
+  testEchoTcp(_compressorN, _compressorY);
 }
 
 TEST_F(EchoTest, EchoTestFifoCompression) {
-  testEchoFifo(_compressionY, _compressionY);
+  testEchoFifo(_compressorY, _compressorY);
 }
 
 TEST_F(EchoTest, EchoTestFifoNoCompression) {
-  testEchoFifo(_compressionN, _compressionN);
+  testEchoFifo(_compressorN, _compressorN);
 }
 
 TEST_F(EchoTest, EchoTestFifoServerCompressionClientNoCompression) {
-  testEchoFifo(_compressionY, _compressionN);
+  testEchoFifo(_compressorY, _compressorN);
 }
 
 TEST_F(EchoTest, EchoTestFifoServerNoCompressionClientCompression) {
-  testEchoFifo(_compressionN, _compressionY);
+  testEchoFifo(_compressorN, _compressorY);
 }

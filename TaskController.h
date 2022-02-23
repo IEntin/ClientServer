@@ -46,8 +46,8 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
  public:
   TaskController(unsigned numberThreads, ProcessRequest processRequest);
   ~TaskController() = default;
-  static void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
-  static void start(unsigned numberThreads, ProcessRequest processRequest);
+  void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
+  static TaskControllerPtr start(unsigned numberThreads, ProcessRequest processRequest);
   static void stop();
 };
 

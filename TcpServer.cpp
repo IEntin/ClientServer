@@ -8,12 +8,12 @@
 
 namespace tcp {
 
-TcpServerPtr TcpServer::_instance;
-
-TcpServer::TcpServer(unsigned expectedNumberConnections,
+TcpServer::TcpServer(TaskControllerPtr taskController,
+		     unsigned expectedNumberConnections,
 		     unsigned port,
 		     unsigned timeout,
 		     COMPRESSORS compressor) :
+  _taskController(taskController),
   _numberConnections(expectedNumberConnections),
   _ioContext(1),
   _tcpPort(port),
@@ -26,67 +26,35 @@ TcpServer::~TcpServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-void TcpServer::startInstance(boost::system::error_code& ec) {
+bool TcpServer::start() {
+  boost::system::error_code ec;
   _acceptor.open(_endpoint.protocol(), ec);
+  if (!ec)
+    _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false), ec);
+  if (!ec)
+    _acceptor.set_option(boost::asio::socket_base::linger(false, 0), ec);
+  if (!ec)
+    _acceptor.bind(_endpoint, ec);
+  if (!ec)
+    _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+  if (!ec) {
+    // + 1 for 'this'
+    _threadPool.start(_numberConnections + 1);
+    accept();
+    _threadPool.push(shared_from_this());
+  }
   if (ec)
-    return;
-  _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false), ec);
-  if (ec)
-    return;
-  _acceptor.set_option(boost::asio::socket_base::linger(false, 0), ec);
-  if (ec)
-    return;
-  _acceptor.bind(_endpoint, ec);
-  if (ec)
-    return;
-  _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
-  if (ec)
-    return;
-  // + 1 for 'this'
-  _threadPool.start(_numberConnections + 1);
-  accept();
-  _threadPool.push(shared_from_this());
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ' ' << ec.what() << " _tcpPort=" << _tcpPort << std::endl;
+  return !ec;
 }
 
-bool TcpServer::start(unsigned expectedNumberConnections,
-		      unsigned port,
-		      unsigned timeout,
-		      COMPRESSORS compressor) {
-  try {
-    _instance = std::make_shared<TcpServer>(expectedNumberConnections, port, timeout, compressor);
-    boost::system::error_code ec;
-    _instance->startInstance(ec);
-    if (ec) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ' ' << ec.what() << " port=" << port << std::endl;
-      return false;
-    }
-  }
-  catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " exception caught:" << e.what() << " port=" << port << std::endl;
-    return false;
-  }
-  catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " exception caught:" << std::strerror(errno) << std::endl;
-    return false;
-  }
-  return true;
-}
-
-void TcpServer::stopInstance() {
+void TcpServer::stop() {
   _stopped.store(true);
   boost::system::error_code ignore;
   _acceptor.close(ignore);
   _threadPool.stop();
   _ioContext.stop();
-}
-
-void TcpServer::stop() {
-  if (_instance)
-    _instance->stopInstance();
-  _instance.reset();
 }
 
 void TcpServer::run() noexcept {
@@ -98,7 +66,8 @@ void TcpServer::run() noexcept {
 }
 
 void TcpServer::accept() {
-  auto connection = std::make_shared<TcpConnection>(_timeout, shared_from_this());
+  auto connection =
+    std::make_shared<TcpConnection>(_taskController, _timeout, _compressor, shared_from_this());
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {

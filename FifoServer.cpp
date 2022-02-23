@@ -18,15 +18,21 @@
 
 namespace fifo {
 
-FifoServerPtr FifoServer::_instance;
-
-FifoServer::FifoServer(const std::string& fifoDirName,
-		       const std::vector<std::string>& fifoBaseNames,
+FifoServer::FifoServer(TaskControllerPtr taskController,
+		       const std::string& fifoDirName,
+		       const std::string& fifoBaseNames,
 		       COMPRESSORS compressor) :
-  _fifoDirName(fifoDirName), _compressor(compressor) {
+  _taskController(taskController), _fifoDirName(fifoDirName), _compressor(compressor) {
   // in case there was no proper shudown.
   removeFifoFiles();
-  for (const auto& baseName : fifoBaseNames)
+  std::vector<std::string> fifoBaseNameVector;
+  utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
+  if (fifoBaseNameVector.empty()) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-empty fifo base names vector" << std::endl;
+    return;
+  }
+  for (const auto& baseName : fifoBaseNameVector)
     _fifoNames.emplace_back(_fifoDirName + '/' + baseName);
 }
 
@@ -34,47 +40,26 @@ FifoServer::~FifoServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool FifoServer::startInstance() {
+bool FifoServer::start() {
   for (const auto& fifoName : _fifoNames) {
     if (mkfifo(fifoName.c_str(), 0620) == -1 && errno != EEXIST) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << '-' << fifoName << std::endl;
       return false;
     }
-    FifoConnectionPtr connection = std::make_shared<FifoConnection>(fifoName, shared_from_this());
+    FifoConnectionPtr connection =
+      std::make_shared<FifoConnection>(_taskController, fifoName, shared_from_this());
     connection->start();
   }
   _threadPool.start(_fifoNames.size());
   return true;
 }
 
-bool FifoServer::start(const std::string& fifoDirName,
-		       const std::string& fifoBaseNames,
-		       COMPRESSORS compressor) {
-  std::vector<std::string> fifoBaseNameVector;
-  utility::split(fifoBaseNames, fifoBaseNameVector, ",\n ");
-  if (fifoBaseNameVector.empty()) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-empty fifo base names vector" << std::endl;
-    return false;
-  }
-  _instance = std::make_shared<FifoServer>(fifoDirName, fifoBaseNameVector, compressor);
-  return _instance->startInstance();
-}
-
-void FifoServer::stopInstance() {
+void FifoServer::stop() {
   _stopped.store(true);
   wakeupPipes();
   _threadPool.stop();
   removeFifoFiles();
-}
-
-void FifoServer::stop() {
-  if (_instance)
-    _instance->stopInstance();
-  _instance.reset();
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << " ... fifoThreads joined ..." << std::endl;
 }
 
 void FifoServer::removeFifoFiles() {
@@ -101,8 +86,8 @@ void FifoServer::wakeupPipes() {
   }
 }
 
-FifoConnection::FifoConnection(const std::string& fifoName, FifoServerPtr server) :
-  _fifoName(fifoName), _server(server), _compressor(server->_compressor) {}
+FifoConnection::FifoConnection(TaskControllerPtr taskController, const std::string& fifoName, FifoServerPtr server) :
+  _taskController(taskController), _fifoName(fifoName), _server(server), _compressor(server->_compressor) {}
 
 FifoConnection::~FifoConnection() {
   if (_fdRead != -1)
@@ -124,7 +109,7 @@ void FifoConnection::run() noexcept {
       _uncompressedRequest.clear();
       if (!receiveRequest(_uncompressedRequest, header))
 	continue;
-      TaskController::submitTask(header, _uncompressedRequest, _response);
+      _taskController->submitTask(header, _uncompressedRequest, _response);
       if (!sendResponse(_response))
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		  << std::strerror(errno) << '-' << _fifoName << std::endl;

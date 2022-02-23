@@ -40,9 +40,10 @@ void TaskController::startInstance() {
   }
 }
 
-void TaskController::start(unsigned numberThreads, ProcessRequest processRequest) {
+TaskControllerPtr TaskController::start(unsigned numberThreads, ProcessRequest processRequest) {
   _instance = std::make_shared<TaskController>(numberThreads, processRequest);
   _instance->startInstance();
+  return _instance;
 }
 
 void TaskController::push(TaskPtr task) {
@@ -55,7 +56,7 @@ void TaskController::submitTask(const HEADER& header, std::vector<char>& input, 
   try {
     TaskPtr task = std::make_shared<Task>(header, input, response);
     auto future = task->getPromise().get_future();
-    _instance->push(task);
+    push(task);
     future.get();
   }
   catch (std::future_error& e) {

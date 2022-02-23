@@ -13,6 +13,8 @@
 
 using Batch = std::vector<std::string>;
 
+using TaskControllerPtr = std::shared_ptr<class TaskController>;
+
 namespace fifo {
 
 using FifoServerPtr = std::shared_ptr<class FifoServer>;
@@ -21,6 +23,7 @@ using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
 
 class FifoServer : public std::enable_shared_from_this<FifoServer> {
   friend class FifoConnection;
+  TaskControllerPtr _taskController;
   const std::string _fifoDirName;
   const COMPRESSORS _compressor;
   ThreadPool _threadPool;
@@ -28,23 +31,20 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   bool stopped() const { return _stopped; }
   void removeFifoFiles();
   std::vector<std::string> _fifoNames;
-  static FifoServerPtr _instance;
-  bool startInstance();
-  void stopInstance();
   void wakeupPipes();
  public:
-  FifoServer(const std::string& fifoDirName,
-	     const std::vector<std::string>& fifoBaseNames,
+  FifoServer(TaskControllerPtr taskController,
+	     const std::string& fifoDirName,
+	     const std::string& fifoBaseNames,
 	     COMPRESSORS compressor);
   ~FifoServer();
-  static bool start(const std::string& fifoDirName,
-		    const std::string& fifoBaseNames,
-		    COMPRESSORS compressor);
-  static void stop();
+  bool start();
+  void stop();
 };
 
 class FifoConnection : public std::enable_shared_from_this<FifoConnection>, public Runnable {
   friend class FifoServer;
+  TaskControllerPtr _taskController;
   std::string _fifoName;
   FifoServerPtr _server;
   COMPRESSORS _compressor;
@@ -63,7 +63,7 @@ class FifoConnection : public std::enable_shared_from_this<FifoConnection>, publ
   void run() noexcept override;
   void start();
  public:
-  explicit FifoConnection(const std::string& fifoName, FifoServerPtr server);
+  explicit FifoConnection(TaskControllerPtr taskController, const std::string& fifoName, FifoServerPtr server);
   ~FifoConnection() override;
 };
 

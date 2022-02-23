@@ -11,8 +11,14 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(unsigned timeout, TcpServerPtr server) :
-  _ioContext(1), _socket(_ioContext), _timeout(timeout), _timer(_ioContext), _server(server) {}
+TcpConnection::TcpConnection(TaskControllerPtr taskController, unsigned timeout, COMPRESSORS compressor, TcpServerPtr server) :
+  _taskController(taskController),
+  _ioContext(1),
+  _socket(_ioContext),
+  _timeout(timeout),
+  _timer(_ioContext),
+  _compressor(compressor),
+  _server(server) {}
 
 TcpConnection::~TcpConnection() {
   boost::system::error_code ignore;
@@ -61,14 +67,14 @@ bool TcpConnection::onReceiveRequest() {
   else
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received not compressed" << std::endl;
-  TaskController::submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
+  _taskController->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;
 }
 
 bool TcpConnection::sendReply(Batch& batch) {
-  std::string_view message = serverutility::buildReply(batch, _server->getCompressor());
+  std::string_view message = serverutility::buildReply(batch, _compressor);
   if (message.empty())
     return false;
   write(message);
