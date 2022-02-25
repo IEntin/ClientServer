@@ -18,6 +18,17 @@ TaskController::TaskController(unsigned numberThreads, ProcessRequest processReq
   _task = std::make_shared<Task>(emptyBatch);
 }
 
+// push an empty task to the queue to
+// wake up and join the threads.
+
+TaskController::~TaskController() {
+  _stopped.store(true);
+  Batch emptyBatch;
+  push(std::make_shared<Task>(emptyBatch));
+  _threadPool.stop();
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
 TaskControllerPtr TaskController::create(unsigned numberThreads, ProcessRequest processRequest) {
   // to have private constructor do not use make_shared
   TaskControllerPtr taskController(new TaskController(numberThreads, processRequest));
@@ -109,17 +120,6 @@ std::tuple<std::string_view, bool, size_t> TaskController::next() {
 
 void TaskController::updateResponse(size_t index, std::string& rsp) {
   _task->updateResponse(index, rsp);
-}
-
-// push an empty task to the queue to
-// wake up and join the threads.
-void TaskController::stop() {
-  _stopped.store(true);
-  static Batch emptyBatch;
-  push(std::make_shared<Task>(emptyBatch));
-  _threadPool.stop();
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << " ... TaskController stopped ..." << std::endl;
 }
 
 void TaskController::pushToThreadPool(TaskProcessorPtr processor) {

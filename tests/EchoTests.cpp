@@ -24,12 +24,15 @@ struct EchoTest : testing::Test {
     options._compressor = clientCompressor;
     tcp::TcpServerPtr tcpServer =
       std::make_shared<tcp::TcpServer>(_taskController, 1, std::atoi(options._tcpPort.c_str()), 1, serverCompressor);
-    ASSERT_TRUE(tcpServer->start());
+    bool serverStart = tcpServer->start();
     // start client
     tcp::TcpClient client(options);
-    ASSERT_TRUE(client.run(_payload));
-    ASSERT_EQ(oss.str(), _input);
+    bool clientRun = client.run(_payload);
     tcpServer->stop();
+    ASSERT_TRUE(serverStart);
+    ASSERT_TRUE(clientRun);
+    ASSERT_EQ(oss.str().size(), _input.size());
+    ASSERT_EQ(oss.str(), _input);
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
@@ -37,30 +40,34 @@ struct EchoTest : testing::Test {
     std::string fifoDirName = std::filesystem::current_path().string();
     fifo::FifoServerPtr fifoServer =
       std::make_shared<fifo::FifoServer>(_taskController, fifoDirName, std::string("client1"), serverCompressor);
-    ASSERT_TRUE(fifoServer->start());
+    bool serverStart = fifoServer->start();
     // start client
     std::ostringstream oss;
     FifoClientOptions options(&oss);
     options._compressor = clientCompressor;
     fifo::FifoClient client(options);
-    ASSERT_TRUE(client.run(_payload));
+    bool clientRun = client.run(_payload);
+    ASSERT_TRUE(serverStart);
+    ASSERT_TRUE(clientRun);
+    ASSERT_EQ(oss.str().size(), _input.size());
     ASSERT_EQ(oss.str(), _input);
     fifoServer->stop();
   }
 
   static void SetUpTestSuite() {
     Client::createPayload("requests.log", _payload);
+    _taskController =
+      TaskController::instance(std::thread::hardware_concurrency(), echo::processRequest);
   }
   static void TearDownTestSuite() {
-    _taskController->stop();
+    _payload.clear();
   }
 };
 std::string EchoTest::_input = Client::readFileContent("requests.log");
 COMPRESSORS EchoTest::_compressorY = COMPRESSORS::LZ4;
 COMPRESSORS EchoTest::_compressorN = COMPRESSORS::NONE;
 Batch EchoTest::_payload;
-TaskControllerPtr EchoTest::_taskController =
-  TaskController::instance(std::thread::hardware_concurrency(), echo::processRequest);
+TaskControllerPtr EchoTest::_taskController;
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
   testEchoTcp(_compressorY, _compressorY);

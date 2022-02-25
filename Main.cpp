@@ -57,7 +57,6 @@ int main() {
 	      << ' ' << strerror(errno) << std::endl;
   fifoServer->stop();
   tcpServer->stop();
-  taskController->stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;

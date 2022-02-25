@@ -43,11 +43,10 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::queue<TaskPtr> _queue;
   std::atomic<bool> _stopped = false;
  public:
-  ~TaskController() = default;
+  ~TaskController();
   void run() noexcept;
   void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
   void pushToThreadPool(TaskProcessorPtr processor);
-  void stop();
   static TaskControllerPtr instance(unsigned numberThreads = 0,
 				    ProcessRequest processRequest = nullptr);
 };
