@@ -24,21 +24,19 @@ TcpClient::TcpClient(const TcpClientOptions& options) :
   Client(options), _ioContext(1), _socket(_ioContext), _options(options) {}
 
 bool TcpClient::processTask(const Batch& payload) {
-  // keep vector capacity
-  static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
-  if (_options._prepareOnce) {
-    static bool done = preparePackage(payload, modified, bufferSize);
+  if (_options._buildTaskOnce) {
+    static bool done = buildTask(payload, bufferSize);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
   }
-  else if (!preparePackage(payload, modified, bufferSize))
+  else if (!buildTask(payload, bufferSize))
     return false;
-  for (const auto& chunk : modified) {
+  for (const auto& subtask : _task) {
     boost::system::error_code ec;
-    size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(chunk), ec);
+    size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
     if (ec) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ':' << ec.what() << std::endl;

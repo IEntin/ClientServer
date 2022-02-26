@@ -66,7 +66,7 @@ $(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/*.h
 TESTINCLUDES = -I. -Iclient_src -Icommon 
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
 
-$(TESTDIR)/runtests : $(TESTSOURCES) server
+$(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 	cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/output.txt .; ./runtests
 

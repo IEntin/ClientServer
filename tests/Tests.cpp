@@ -113,21 +113,20 @@ TEST(HeaderTest, HeaderTest1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-struct PreparePackageTest : testing::Test {
+struct BuildTaskTest : testing::Test {
   static COMPRESSORS _compressionY;
   static COMPRESSORS _compressionN;
   static Batch _payload;
 
-  void testPreparePackage(COMPRESSORS compressor) {
-    Batch modified;
+  void testBuildTask(COMPRESSORS compressor) {
     size_t bufferSize = 360000;
     ClientOptions options;
     options._compressor = compressor;
     Client client(options);
-    bool prepared = client.preparePackage(_payload, modified, bufferSize);
+    bool prepared = client.buildTask(_payload, bufferSize);
     ASSERT_TRUE(prepared);
     std::string uncompressedResult;
-    for (const std::string& task : modified) {
+    for (const std::string& task : client.getTask()) {
       HEADER header = decodeHeader(task.data());
       ASSERT_TRUE(isOk(header));
       bool bcompressed = isInputCompressed(header);
@@ -156,16 +155,16 @@ struct PreparePackageTest : testing::Test {
   }
   static void TearDownTestSuite() {}
 };
-COMPRESSORS PreparePackageTest::_compressionY = COMPRESSORS::LZ4;
-COMPRESSORS PreparePackageTest::_compressionN = COMPRESSORS::NONE;
-Batch PreparePackageTest::_payload;
+COMPRESSORS BuildTaskTest::_compressionY = COMPRESSORS::LZ4;
+COMPRESSORS BuildTaskTest::_compressionN = COMPRESSORS::NONE;
+Batch BuildTaskTest::_payload;
 
-TEST_F(PreparePackageTest, Compression) {
-  testPreparePackage(_compressionY);
+TEST_F(BuildTaskTest, Compression) {
+  testBuildTask(_compressionY);
 }
 
-TEST_F(PreparePackageTest, NoCompression) {
-  testPreparePackage(_compressionN);
+TEST_F(BuildTaskTest, NoCompression) {
+  testBuildTask(_compressionN);
 }
 
 int main(int argc, char **argv) {

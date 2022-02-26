@@ -11,7 +11,7 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
          ProgramOptions::get("Compression", std::string(LZ4)))),
   _diagnostics(ProgramOptions::get("Diagnostics", false)),
   _runLoop(ProgramOptions::get("RunLoop", false)),
-  _prepareOnce(ProgramOptions::get("PrepareBatchOnce", false)),
+  _buildTaskOnce(ProgramOptions::get("BuildTaskOnce", false)),
   _timing(ProgramOptions::get("Timing", false)),
   _dataStream(initDataStream(externalDataStream,
 			     ProgramOptions::get("OutputFileName", std::string()),

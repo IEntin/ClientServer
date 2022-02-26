@@ -16,16 +16,19 @@ class Client {
 
   const ClientOptions& _options;
 
+  static std::string createRequestId(size_t index);
+
+  Batch _task;
  public:
 
   Client(const ClientOptions& options);
   ~Client() = default;
 
-  bool preparePackage(const Batch& payload, Batch& modified, size_t bufferSize);
-
-  static std::string createRequestId(size_t index);
-
   static size_t createPayload(const char* sourceName, Batch& payload);
+
+  bool buildTask(const Batch& payload, size_t bufferSize);
+
+  const Batch& getTask() const { return _task; }
 
   static std::string readFileContent(const std::string& name);
 };

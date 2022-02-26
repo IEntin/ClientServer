@@ -57,19 +57,17 @@ bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompresse
 }
 
 bool FifoClient::processTask(const Batch& payload) {
-  // keep vector capacity
-  static Batch modified;
   static const size_t bufferSize = MemoryPool::getInitialBufferSize();
-  if (_options._prepareOnce) {
-    static bool done = preparePackage(payload, modified, bufferSize);
+  if (_options._buildTaskOnce) {
+    static bool done = buildTask(payload, bufferSize);
     if (!done) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
   }
-  else if (!preparePackage(payload, modified, bufferSize))
+  else if (!buildTask(payload, bufferSize))
     return false;
-  for (const auto& chunk : modified) {
+  for (const auto& subtask : _task) {
     close(_fdRead);
     _fdRead = -1;
     _fdWrite = open(_fifoName.c_str(), O_WRONLY);
@@ -78,7 +76,7 @@ bool FifoClient::processTask(const Batch& payload) {
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    if (!Fifo::writeString(_fdWrite, chunk)) {
+    if (!Fifo::writeString(_fdWrite, subtask)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }
@@ -97,7 +95,6 @@ bool FifoClient::processTask(const Batch& payload) {
 }
 
 // For the test payload is unchanged in a loop.
-
 bool FifoClient::run(const Batch& payload) {
   _fdWrite = -1;
   CloseFileDescriptor raiiw(_fdWrite);

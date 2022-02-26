@@ -15,7 +15,7 @@ struct ClientOptions {
   const bool _runLoop;
   // Simulate fast client to measure server performance.
   // used with "RunLoop" : true
-  const bool _prepareOnce;
+  const bool _buildTaskOnce;
   const bool _timing;
   std::ostream* _dataStream;
   // if output file specified limit the number of invocations

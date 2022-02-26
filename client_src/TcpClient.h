@@ -17,7 +17,7 @@ struct CloseSocket {
   boost::asio::ip::tcp::socket& _socket;
 };
 
-class TcpClient : public Client {
+class TcpClient : protected Client {
 
   using Batch = std::vector<std::string>;
 

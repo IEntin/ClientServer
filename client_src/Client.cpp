@@ -9,8 +9,8 @@
 
 Client::Client(const ClientOptions& options) : _options(options) {}
 
-bool Client::preparePackage(const Batch& payload, Batch& modified, size_t bufferSize) {
-  modified.clear();
+bool Client::buildTask(const Batch& payload, size_t bufferSize) {
+  _task.clear();
   // keep vector capacity
   static Batch aggregated;
   aggregated.clear();
@@ -18,7 +18,7 @@ bool Client::preparePackage(const Batch& payload, Batch& modified, size_t buffer
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  if (!(buildMessage(aggregated, modified))) {
+  if (!(buildMessage(aggregated, _task))) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -92,9 +92,9 @@ size_t Client::createPayload(const char* sourceName, Batch& payload) {
   while (std::getline(input, line)) {
     if (line.empty())
       continue;
-    std::string modifiedLine(createRequestId(requestIndex++));
-    modifiedLine.append(line.append(1, '\n'));
-    payload.emplace_back(std::move(modifiedLine));
+    std::string taskLine(createRequestId(requestIndex++));
+    taskLine.append(line.append(1, '\n'));
+    payload.emplace_back(std::move(taskLine));
   }
   return payload.size();
 }

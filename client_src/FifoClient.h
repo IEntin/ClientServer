@@ -12,7 +12,7 @@ struct FifoClientOptions;
 
 namespace fifo {
 
-class FifoClient : public Client {
+class FifoClient : protected Client {
 
   using Batch = std::vector<std::string>;
 

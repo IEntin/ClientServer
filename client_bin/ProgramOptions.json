@@ -9,7 +9,7 @@
   "Compression" : "LZ4",
   "DYNAMIC_BUFFER_SIZE" : 3600000,
   "Timing" : true,
-  "PrepareBatchOnce" : true,
+  "BuildTaskOnce" : true,
   "RunLoop" : true,
   "MaxNumberTasks" : 150,
   "ServerHost" : "ilya-Lenovo-G570",
