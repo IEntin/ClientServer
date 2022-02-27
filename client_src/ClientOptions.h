@@ -22,16 +22,6 @@ struct ClientOptions {
   // not to create big logs.
   const unsigned _maxNumberTasks;
   std::ostream* _instrStream;
-
-  std::ofstream _dataFileStream;
-  std::ofstream _instrFileStream;
-
-  // redirect output to the file or external stream.
-  std::ostream* initDataStream(std::ostream* externalDataStream,
-			       const std::string& fileName,
-			       std::ofstream& fileStream);
-  std::ostream* initInstrStream(const std::string& fileName,
-				std::ofstream& fileStream);
 };
 
 struct TcpClientOptions : ClientOptions {

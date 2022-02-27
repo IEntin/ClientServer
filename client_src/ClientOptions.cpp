@@ -13,33 +13,29 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
   _runLoop(ProgramOptions::get("RunLoop", false)),
   _buildTaskOnce(ProgramOptions::get("BuildTaskOnce", false)),
   _timing(ProgramOptions::get("Timing", false)),
-  _dataStream(initDataStream(externalDataStream,
-			     ProgramOptions::get("OutputFileName", std::string()),
-			     _dataFileStream)),
+  _dataStream([=]()->std::ostream* {
+		if (externalDataStream)
+		  return externalDataStream;
+		else {
+		  const std::string fileName = ProgramOptions::get("OutputFileName", std::string());
+		  if (!fileName.empty()) {
+		    static std::ofstream fileStream(fileName, std::ofstream::binary);
+		    return &fileStream;
+		  }
+		  else
+		    return nullptr;
+		}
+	      }()),
   _maxNumberTasks(_dataStream ? ProgramOptions::get("MaxNumberTasks", 100) :
 		  std::numeric_limits<unsigned int>::max()),
-  _instrStream(initInstrStream(ProgramOptions::get("InstrumentationFn", std::string()), _instrFileStream)) {}
-
-std::ostream* ClientOptions::initDataStream(std::ostream* externalDataStream,
-					    const std::string& fileName,
-					    std::ofstream& fileStream) {
-  if (externalDataStream)
-    return externalDataStream;
-  else if (!fileName.empty()) {
-      fileStream.open(fileName, std::ofstream::binary);
-      return &fileStream;
-  }
-  else
-    return nullptr;
-}
-
-std::ostream* ClientOptions::initInstrStream(const std::string& fileName, std::ofstream& fileStream) {
-  if (!fileName.empty()) {
-    fileStream.open(fileName, std::ofstream::binary);
-    return &fileStream;
-  }
-  return nullptr;
-}
+  _instrStream([]()->std::ostream* {
+		 const std::string fileName = ProgramOptions::get("InstrumentationFn", std::string());
+		 if (!fileName.empty()) {
+		   static std::ofstream instrFileStream(fileName, std::ofstream::binary);
+		   return &instrFileStream;
+		 }
+		 return nullptr;
+	       }()) {}
 
 TcpClientOptions::TcpClientOptions(std::ostream* externalDataStream) :
   ClientOptions(externalDataStream),
