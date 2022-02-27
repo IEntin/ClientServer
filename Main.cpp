@@ -2,16 +2,14 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "Ad.h"
 #include "Chronometer.h"
-#include "Compression.h"
 #include "FifoServer.h"
 #include "MemoryPool.h"
-#include "ProgramOptions.h"
+#include "ServerOptions.h"
 #include "TaskController.h"
 #include "TcpServer.h"
-#include "Transaction.h"
 #include <csignal>
-#include <filesystem>
 #include <iostream>
 
 void signalHandler(int signal) {}
@@ -24,31 +22,27 @@ int main() {
   if (sigaddset(&set, SIGINT) == -1)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
-  MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
+  ServerOptions options;
+  MemoryPool::setup(options._bufferSize);
   // optionally record elapsed times
-  Chronometer chronometer(ProgramOptions::get("Timing", false), __FILE__, __LINE__);
-  // method to apply to every request in the batch
-  ProcessRequest processRequest = Transaction::processRequest;
-  if (!Ad::load(ProgramOptions::get("AdsFileName", std::string())))
+  Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
+  if (!Ad::load(options._adsFileName))
     return 1;
-  unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
-  unsigned numberWorkThreads = numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
-    std::thread::hardware_concurrency();
-  TaskControllerPtr taskController = TaskController::instance(numberWorkThreads, processRequest);
-  COMPRESSORS compressor = Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)));
+  TaskControllerPtr taskController = TaskController::instance(options._numberWorkThreads,
+							      options._processRequest);
   tcp::TcpServerPtr tcpServer =
     std::make_shared<tcp::TcpServer>(taskController,
-				     ProgramOptions::get("ExpectedTcpConnections", 1),
-				     ProgramOptions::get("TcpPort", 49172),
-				     ProgramOptions::get("Timeout", 1),
-				     compressor);
+				     options._expectedTcpConnections,
+				     options._tcpPort,
+				     options._tcpTimeout,
+				     options._compressor);
   if (!tcpServer->start())
     return 2;
   fifo::FifoServerPtr fifoServer =
     std::make_shared<fifo::FifoServer>(taskController,
-				       ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()),
-				       ProgramOptions::get("FifoBaseNames", std::string("client1")),
-				       compressor);
+				       options._fifoDirectoryName,
+				       options._fifoBaseNames,
+				       options._compressor);
   if (!fifoServer->start())
     return 3;
   int sig = 0;

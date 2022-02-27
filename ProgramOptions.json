@@ -8,5 +8,5 @@
   "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5",
   "ExpectedTcpConnections" : 5,
   "TcpPort" : 49152,
-  "Timeout" : 5
+  "TcpTimeout" : 5
 }

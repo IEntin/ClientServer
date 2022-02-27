@@ -50,10 +50,10 @@ endif
 
 WARNINGS = -Wall -pedantic-errors
 
-SERVERINCLUDES:=-I. -Icommon 
-SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp)
+SERVERINCLUDES:=-I. -Icommon -Ififo -Itcp
+SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
 
-server : $(SERVERSOURCES) *.h common/*.h
+server : $(SERVERSOURCES) *.h common/*.h fifo/*.h tcp/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
 
 
@@ -63,8 +63,8 @@ CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 $(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/*.h
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 
-TESTINCLUDES = -I. -Iclient_src -Icommon 
-TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
+TESTINCLUDES = -I. -Iclient_src -Icommon -Ififo -Itcp
+TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
 
 $(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
