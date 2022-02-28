@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ThreadPool.h"
 #include <string>
 #include <vector>
 
@@ -19,10 +20,12 @@ class Client {
   static std::string createRequestId(size_t index);
 
   Batch _task;
+
+  ThreadPool _threadPool;
  public:
 
   Client(const ClientOptions& options);
-  ~Client() = default;
+  ~Client();
 
   static size_t createPayload(const char* sourceName, Batch& payload);
 

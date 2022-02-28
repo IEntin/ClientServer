@@ -21,7 +21,7 @@ class TcpClient : protected Client {
 
   using Batch = std::vector<std::string>;
 
-  bool processTask(const Batch& payload);
+  bool processTask();
 
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
 

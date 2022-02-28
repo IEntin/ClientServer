@@ -7,11 +7,11 @@
 #include <filesystem>
 
 ClientOptions::ClientOptions(std::ostream* externalDataStream) :
+  _sourceName(ProgramOptions::get("SourceName", std::string("requests.log"))),
   _compressor(Compression::isCompressionEnabled(
          ProgramOptions::get("Compression", std::string(LZ4)))),
   _diagnostics(ProgramOptions::get("Diagnostics", false)),
   _runLoop(ProgramOptions::get("RunLoop", false)),
-  _buildTaskOnce(ProgramOptions::get("BuildTaskOnce", false)),
   _timing(ProgramOptions::get("Timing", false)),
   _dataStream([=]()->std::ostream* {
 		if (externalDataStream)

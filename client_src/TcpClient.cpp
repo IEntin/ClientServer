@@ -8,6 +8,7 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "TaskBuilder.h"
 #include <iostream>
 
 namespace tcp {
@@ -23,17 +24,7 @@ CloseSocket::~CloseSocket() {
 TcpClient::TcpClient(const TcpClientOptions& options) :
   Client(options), _ioContext(1), _socket(_ioContext), _options(options) {}
 
-bool TcpClient::processTask(const Batch& payload) {
-  static const size_t bufferSize = MemoryPool::getInitialBufferSize();
-  if (_options._buildTaskOnce) {
-    static bool done = buildTask(payload, bufferSize);
-    if (!done) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      return false;
-    }
-  }
-  else if (!buildTask(payload, bufferSize))
-    return false;
+bool TcpClient::processTask() {
   for (const auto& subtask : _task) {
     boost::system::error_code ec;
     size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
@@ -55,8 +46,6 @@ bool TcpClient::processTask(const Batch& payload) {
   return true;
 }
 
-// For the test payload is unchanged in a loop.
-
 bool TcpClient::run(const Batch& payload) {
   unsigned numberTasks = 0;
   try {
@@ -75,9 +64,16 @@ bool TcpClient::run(const Batch& payload) {
 		<< ':' << ec.what() << std::endl;
       return false;
     }
+    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
+    _threadPool.push(taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-      if (!processTask(payload))
+      taskBuilder->getTask(_task);
+      if (_options._runLoop) {
+	taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
+	_threadPool.push(taskBuilder);
+      }
+      if (!processTask())
 	return false;
       // limit output file size
       if (++numberTasks == _options._maxNumberTasks)

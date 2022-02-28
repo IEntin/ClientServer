@@ -18,7 +18,7 @@ class FifoClient : protected Client {
 
   bool receive();
 
-  bool processTask(const Batch& payload);
+  bool processTask();
 
   bool readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed);
 

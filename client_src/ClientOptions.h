@@ -10,12 +10,10 @@
 struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
 
+  const std::string _sourceName;
   COMPRESSORS _compressor;
   const bool _diagnostics;
   const bool _runLoop;
-  // Simulate fast client to measure server performance.
-  // used with "RunLoop" : true
-  const bool _buildTaskOnce;
   const bool _timing;
   std::ostream* _dataStream;
   // if output file specified limit the number of invocations

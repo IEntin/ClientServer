@@ -8,6 +8,7 @@
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
+#include "TaskBuilder.h"
 #include <atomic>
 #include <cstring>
 #include <fcntl.h>
@@ -56,17 +57,7 @@ bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompresse
   return true;
 }
 
-bool FifoClient::processTask(const Batch& payload) {
-  static const size_t bufferSize = MemoryPool::getInitialBufferSize();
-  if (_options._buildTaskOnce) {
-    static bool done = buildTask(payload, bufferSize);
-    if (!done) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      return false;
-    }
-  }
-  else if (!buildTask(payload, bufferSize))
-    return false;
+bool FifoClient::processTask() {
   for (const auto& subtask : _task) {
     close(_fdRead);
     _fdRead = -1;
@@ -94,16 +85,22 @@ bool FifoClient::processTask(const Batch& payload) {
   return true;
 }
 
-// For the test payload is unchanged in a loop.
 bool FifoClient::run(const Batch& payload) {
   _fdWrite = -1;
   CloseFileDescriptor raiiw(_fdWrite);
   _fdRead = -1;
   CloseFileDescriptor raiir(_fdRead);
   unsigned numberTasks = 0;
+  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
+  _threadPool.push(taskBuilder);
   do {
     Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-    if (!processTask(payload))
+    taskBuilder->getTask(_task);
+    if (_options._runLoop) {
+      taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
+      _threadPool.push(taskBuilder);
+    }
+    if (!processTask())
       return false;
     // limit output file size
     if (++numberTasks == _options._maxNumberTasks)
