@@ -46,7 +46,7 @@ bool TcpClient::processTask() {
   return true;
 }
 
-bool TcpClient::run(const Batch& payload) {
+bool TcpClient::run() {
   unsigned numberTasks = 0;
   try {
     CloseSocket closeSocket(_socket);

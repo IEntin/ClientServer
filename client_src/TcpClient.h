@@ -32,7 +32,7 @@ class TcpClient : protected Client {
   TcpClient(const TcpClientOptions& options);
   ~TcpClient() = default;
 
-  bool run(const Batch& payload);
+  bool run();
 
 };
 

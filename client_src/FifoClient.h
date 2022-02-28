@@ -32,7 +32,7 @@ class FifoClient : protected Client {
 
   ~FifoClient() = default;
 
-  bool run(const Batch& payload);
+  bool run();
 };
 
 } // end of namespace fifo

@@ -85,7 +85,7 @@ bool FifoClient::processTask() {
   return true;
 }
 
-bool FifoClient::run(const Batch& payload) {
+bool FifoClient::run() {
   _fdWrite = -1;
   CloseFileDescriptor raiiw(_fdWrite);
   _fdRead = -1;

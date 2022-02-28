@@ -7,6 +7,7 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "TaskBuilder.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <fstream>
@@ -116,48 +117,48 @@ TEST(HeaderTest, HeaderTest1) {
 struct BuildTaskTest : testing::Test {
   static COMPRESSORS _compressionY;
   static COMPRESSORS _compressionN;
-  static Batch _payload;
 
   void testBuildTask(COMPRESSORS compressor) {
-    size_t bufferSize = 360000;
     ClientOptions options;
     options._compressor = compressor;
-    Client client(options);
-    bool prepared = client.buildTask(_payload, bufferSize);
-    ASSERT_TRUE(prepared);
+    TaskBuilder taskBuilder(options._sourceName, options._compressor, options._diagnostics);
+    Batch originalBatch;
+    taskBuilder.createRequestBatch(originalBatch);
+    taskBuilder.run();
+    Batch task;
+    taskBuilder.getTask(task);
+    ASSERT_TRUE(taskBuilder.isDone());
     std::string uncompressedResult;
-    for (const std::string& task : client.getTask()) {
-      HEADER header = decodeHeader(task.data());
+    for (const std::string& subtask : task) {
+      HEADER header = decodeHeader(subtask.data());
       ASSERT_TRUE(isOk(header));
       bool bcompressed = isInputCompressed(header);
       ASSERT_EQ(bcompressed, compressor == COMPRESSORS::LZ4);
       size_t comprSize = getCompressedSize(header);
-      ASSERT_EQ(comprSize + HEADER_SIZE, task.size());
+      ASSERT_EQ(comprSize + HEADER_SIZE, subtask.size());
       if (bcompressed) {
 	std::string_view uncompressedView =
-	  Compression::uncompress(std::string_view(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE),
+	  Compression::uncompress(std::string_view(subtask.data() + HEADER_SIZE, subtask.size() - HEADER_SIZE),
 				  getUncompressedSize(header));
 	ASSERT_FALSE(uncompressedView.empty());
 	uncompressedResult.append(uncompressedView);
       }
       else
-	uncompressedResult.append(task.data() + HEADER_SIZE, task.size() - HEADER_SIZE);
+	uncompressedResult.append(subtask.data() + HEADER_SIZE, subtask.size() - HEADER_SIZE);
     }
     Batch batchResult;
     utility::split(uncompressedResult, batchResult);
     for (auto& line : batchResult)
       line.append(1, '\n');
-    ASSERT_TRUE(batchResult == _payload);
+    ASSERT_TRUE(batchResult == originalBatch);
   }
 
-  static void SetUpTestSuite() {
-    Client::createPayload("requests.log", _payload);
-  }
+  static void SetUpTestSuite() {}
+
   static void TearDownTestSuite() {}
 };
 COMPRESSORS BuildTaskTest::_compressionY = COMPRESSORS::LZ4;
 COMPRESSORS BuildTaskTest::_compressionN = COMPRESSORS::NONE;
-Batch BuildTaskTest::_payload;
 
 TEST_F(BuildTaskTest, Compression) {
   testBuildTask(_compressionY);

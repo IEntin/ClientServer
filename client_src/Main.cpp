@@ -24,20 +24,17 @@ int main() {
     signal(SIGPIPE, SIG_IGN);
     MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
     chronometer.start(__FILE__, __func__, __LINE__);
-    std::string sourceName = ProgramOptions::get("SourceName", std::string());
-    Batch payload;
-    Client::createPayload(sourceName.c_str(), payload);
     chronometer.stop(__FILE__, __func__, __LINE__);
     if (useFifo) {
       FifoClientOptions options;
       fifo::FifoClient client(options);
-      if (!client.run(payload))
+      if (!client.run())
 	return 1;
     }
     if (useTcp) {
       TcpClientOptions options;
       tcp::TcpClient client(options);
-      if (!client.run(payload))
+      if (!client.run())
 	return 1;
     }
   }

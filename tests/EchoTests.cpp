@@ -14,7 +14,6 @@ struct EchoTest : testing::Test {
   static COMPRESSORS _compressorY;
   static COMPRESSORS _compressorN;
   static std::string _input;
-  static Batch _payload;
   static TaskControllerPtr _taskController;
 
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
@@ -27,7 +26,7 @@ struct EchoTest : testing::Test {
     bool serverStart = tcpServer->start();
     // start client
     tcp::TcpClient client(options);
-    bool clientRun = client.run(_payload);
+    bool clientRun = client.run();
     tcpServer->stop();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
@@ -46,7 +45,7 @@ struct EchoTest : testing::Test {
     FifoClientOptions options(&oss);
     options._compressor = clientCompressor;
     fifo::FifoClient client(options);
-    bool clientRun = client.run(_payload);
+    bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
     ASSERT_EQ(oss.str().size(), _input.size());
@@ -55,18 +54,14 @@ struct EchoTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
-    Client::createPayload("requests.log", _payload);
     _taskController =
       TaskController::instance(std::thread::hardware_concurrency(), echo::processRequest);
   }
-  static void TearDownTestSuite() {
-    _payload.clear();
-  }
+  static void TearDownTestSuite() {}
 };
 std::string EchoTest::_input = Client::readFileContent("requests.log");
 COMPRESSORS EchoTest::_compressorY = COMPRESSORS::LZ4;
 COMPRESSORS EchoTest::_compressorN = COMPRESSORS::NONE;
-Batch EchoTest::_payload;
 TaskControllerPtr EchoTest::_taskController;
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
