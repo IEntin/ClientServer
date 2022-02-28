@@ -16,9 +16,9 @@ class FifoClient : protected Client {
 
   using Batch = std::vector<std::string>;
 
-  bool receive();
+  bool processTask() override;
 
-  bool processTask();
+  bool receive();
 
   bool readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed);
 

@@ -18,8 +18,8 @@ struct CompressionTest : testing::Test {
   static std::string _input1;
   static std::string _input2;
 };
-std::string CompressionTest::_input1 = Client::readFileContent("requests.log");
-std::string CompressionTest::_input2 = Client::readFileContent("output.txt");
+std::string CompressionTest::_input1 = Client::readFile("requests.log");
+std::string CompressionTest::_input2 = Client::readFile("output.txt");
 
 void testCompressionDecompression1(std::string_view input) {
   std::string_view compressedView = Compression::compress(input);
@@ -67,7 +67,7 @@ TEST_F(CompressionTest, CompressionTest4) {
 }
 
 TEST(SplitTest, SplitTest1) {
-  const std::string content = Client::readFileContent("requests.log");
+  const std::string content = Client::readFile("requests.log");
   std::vector<std::string_view> lines;
   utility::split(content, lines);
   ASSERT_EQ(lines.size(), 10000);

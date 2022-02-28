@@ -3,14 +3,13 @@
  */
 
 #include "FifoClient.h"
-#include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
-#include "TaskBuilder.h"
 #include <atomic>
 #include <cstring>
+#include <iostream>
 #include <fcntl.h>
 
 namespace fifo {
@@ -90,23 +89,7 @@ bool FifoClient::run() {
   CloseFileDescriptor raiiw(_fdWrite);
   _fdRead = -1;
   CloseFileDescriptor raiir(_fdRead);
-  unsigned numberTasks = 0;
-  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
-  _threadPool.push(taskBuilder);
-  do {
-    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-    taskBuilder->getTask(_task);
-    if (_options._runLoop) {
-      taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
-      _threadPool.push(taskBuilder);
-    }
-    if (!processTask())
-      return false;
-    // limit output file size
-    if (++numberTasks == _options._maxNumberTasks)
-      break;
-  } while (_options._runLoop);
-  return true;
+  return loop();
 }
 
 } // end of namespace fifo

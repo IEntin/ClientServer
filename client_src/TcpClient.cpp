@@ -3,12 +3,10 @@
  */
 
 #include "TcpClient.h"
-#include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "TaskBuilder.h"
 #include <iostream>
 
 namespace tcp {
@@ -47,7 +45,6 @@ bool TcpClient::processTask() {
 }
 
 bool TcpClient::run() {
-  unsigned numberTasks = 0;
   try {
     CloseSocket closeSocket(_socket);
     boost::asio::ip::tcp::resolver resolver(_ioContext);
@@ -64,21 +61,7 @@ bool TcpClient::run() {
 		<< ':' << ec.what() << std::endl;
       return false;
     }
-    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
-    _threadPool.push(taskBuilder);
-    do {
-      Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-      taskBuilder->getTask(_task);
-      if (_options._runLoop) {
-	taskBuilder = std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
-	_threadPool.push(taskBuilder);
-      }
-      if (!processTask())
-	return false;
-      // limit output file size
-      if (++numberTasks == _options._maxNumberTasks)
-	break;
-    } while (_options._runLoop);
+    return loop();
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

@@ -11,11 +11,15 @@ struct ClientOptions;
 class Client {
  protected:
 
+  virtual bool processTask() = 0;
+
   const ClientOptions& _options;
 
   Batch _task;
 
   ThreadPool _threadPool;
+
+  bool loop();
 
  public:
 
@@ -24,5 +28,5 @@ class Client {
 
   const Batch& getTask() const { return _task; }
 
-  static std::string readFileContent(const std::string& name);
+  static std::string readFile(const std::string& name);
 };

@@ -16,15 +16,29 @@ TaskBuilder::TaskBuilder(const std::string& sourceName, COMPRESSORS compressor, 
 TaskBuilder::~TaskBuilder() {}
 
 void TaskBuilder::run() noexcept {
-  _task.clear();
-  Batch requestBatch;
-  if (!createRequestBatch(requestBatch)) {
+  try {
+    _task.clear();
+    Batch requestBatch;
+    if (!createRequestBatch(requestBatch)) {
+      _promise.set_value();
+      return;
+    }
+    buildTask(requestBatch);
+    _done = true;
     _promise.set_value();
-    return;
   }
-  buildTask(requestBatch);
-  _done = true;
-  _promise.set_value();
+  catch (std::future_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+  }
+  catch (std::system_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+  }
+  catch (...) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception caught" << std::endl;
+  }
 }
 
 void TaskBuilder::getTask(Batch& task) {

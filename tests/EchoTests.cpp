@@ -59,7 +59,7 @@ struct EchoTest : testing::Test {
   }
   static void TearDownTestSuite() {}
 };
-std::string EchoTest::_input = Client::readFileContent("requests.log");
+std::string EchoTest::_input = Client::readFile("requests.log");
 COMPRESSORS EchoTest::_compressorY = COMPRESSORS::LZ4;
 COMPRESSORS EchoTest::_compressorN = COMPRESSORS::NONE;
 TaskControllerPtr EchoTest::_taskController;
