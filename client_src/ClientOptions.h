@@ -11,6 +11,7 @@ struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
 
   const std::string _sourceName;
+  size_t _bufferSize;
   COMPRESSORS _compressor;
   const bool _diagnostics;
   const bool _runLoop;

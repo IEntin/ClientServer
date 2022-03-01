@@ -10,9 +10,12 @@
 #include "TaskBuilder.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
+#include <csignal>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+volatile std::sig_atomic_t stopFlag = false;
 
 struct CompressionTest : testing::Test {
   static std::string _input1;

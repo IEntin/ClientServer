@@ -8,6 +8,7 @@
 
 ClientOptions::ClientOptions(std::ostream* externalDataStream) :
   _sourceName(ProgramOptions::get("SourceName", std::string("requests.log"))),
+  _bufferSize(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000)),
   _compressor(Compression::isCompressionEnabled(
          ProgramOptions::get("Compression", std::string(LZ4)))),
   _diagnostics(ProgramOptions::get("Diagnostics", false)),

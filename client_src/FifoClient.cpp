@@ -17,6 +17,10 @@ namespace fifo {
 FifoClient::FifoClient(const FifoClientOptions& options) :
   Client(options), _options(options), _fifoName(options._fifoName) {}
 
+FifoClient::~FifoClient() {
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
 bool FifoClient::receive() {
   auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] = Fifo::readHeader(_fdRead);
   if (!headerDone)

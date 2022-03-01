@@ -30,7 +30,7 @@ class FifoClient : protected Client {
 
   FifoClient(const FifoClientOptions& _options);
 
-  ~FifoClient() = default;
+  ~FifoClient();
 
   bool run();
 };

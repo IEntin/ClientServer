@@ -1,16 +1,23 @@
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
+#include "MemoryPool.h"
 #include "TaskBuilder.h"
 #include <cassert>
+#include <csignal>
 #include <cstring>
 #include <iostream>
 #include <sstream>
 
-Client::Client(const ClientOptions& options) : _options(options), _threadPool(1) {}
+extern volatile std::sig_atomic_t stopFlag;
+
+Client::Client(const ClientOptions& options) : _options(options), _threadPool(1) {
+  MemoryPool::setup(options._bufferSize);
+}
 
 Client::~Client() {
   _threadPool.stop();
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool Client::loop() {
@@ -39,7 +46,7 @@ bool Client::loop() {
     // limit output file size
     if (++numberTasks == _options._maxNumberTasks)
       break;
-  } while (_options._runLoop);
+  } while (_options._runLoop && !stopFlag);
   return true;
 }
 

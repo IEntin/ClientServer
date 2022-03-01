@@ -5,48 +5,40 @@
 #include "Chronometer.h"
 #include "ClientOptions.h"
 #include "FifoClient.h"
-#include "MemoryPool.h"
 #include "ProgramOptions.h"
 #include "TcpClient.h"
 #include <csignal>
 #include <iostream>
 
+volatile std::sig_atomic_t stopFlag = false;
+
+void signalHandler(int signum) {
+  stopFlag = true;
+  std::clog << "Interrupt signal (" << signum << ") received" << std::endl;
+}
+
 int main() {
   const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
   const bool useFifo = communicationType == "FIFO";
   const bool useTcp = communicationType == "TCP";
-  try {
-    bool timing = ProgramOptions::get("Timing", false);
-    Chronometer chronometer(timing, __FILE__, __LINE__, __func__);
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
-    signal(SIGPIPE, SIG_IGN);
-    MemoryPool::setup(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000));
-    chronometer.start(__FILE__, __func__, __LINE__);
-    chronometer.stop(__FILE__, __func__, __LINE__);
-    if (useFifo) {
-      FifoClientOptions options;
-      fifo::FifoClient client(options);
-      if (!client.run())
-	return 1;
-    }
-    if (useTcp) {
-      TcpClientOptions options;
-      tcp::TcpClient client(options);
-      if (!client.run())
-	return 1;
-    }
+  bool timing = ProgramOptions::get("Timing", false);
+  Chronometer chronometer(timing, __FILE__, __LINE__, __func__);
+  std::ios::sync_with_stdio(false);
+  std::cin.tie(nullptr);
+  std::cout.tie(nullptr);
+  signal(SIGPIPE, SIG_IGN);
+  signal(SIGINT, signalHandler);
+  if (useFifo) {
+    FifoClientOptions options;
+    fifo::FifoClient client(options);
+    if (!client.run())
+      return 1;
   }
-  catch (std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
-	      << std::strerror(errno) << '-' << e.what() << std::endl;
-    return 2;
-  }
-  catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
-	      << std::strerror(errno) << std::endl;
-    return 3;
+  if (useTcp) {
+    TcpClientOptions options;
+    tcp::TcpClient client(options);
+    if (!client.run())
+      return 2;
   }
   return 0;
 }
