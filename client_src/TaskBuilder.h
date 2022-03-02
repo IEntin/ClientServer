@@ -11,7 +11,6 @@ class TaskBuilder : public std::enable_shared_from_this<TaskBuilder>, public Run
 
   bool mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t bufferSize);
   bool buildMessage(const Batch& payload, Batch& message);
-  static std::string createRequestId(size_t index);
 
   Batch _task;
   const std::string _sourceName;

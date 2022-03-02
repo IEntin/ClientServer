@@ -39,6 +39,7 @@ void TaskBuilder::run() noexcept {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-exception caught" << std::endl;
   }
+  Batch testBatch;
 }
 
 void TaskBuilder::getTask(Batch& task) {
@@ -112,7 +113,7 @@ bool TaskBuilder::buildMessage(const Batch& payload, Batch& message) {
   return true;
 }
 
-bool TaskBuilder::createRequestBatch(Batch& payload) {
+bool TaskBuilder::createRequestBatch(Batch& batch) {
   std::ifstream input(_sourceName, std::ifstream::in | std::ifstream::binary);
   if (!input) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
@@ -120,22 +121,22 @@ bool TaskBuilder::createRequestBatch(Batch& payload) {
     return false;
   }
   unsigned long long requestIndex = 0;
-  std::string line;
-  Batch batch;
-  while (std::getline(input, line)) {
-    if (line.empty())
+  size_t bufferSize = MemoryPool::getInitialBufferSize();
+  std::vector<char>& buffer(MemoryPool::getSecondaryBuffer(bufferSize));
+  while (input) {
+    std::memset(buffer.data(), '[', 1);
+    auto [ptr, ec] = std::to_chars(buffer.data() + 1, buffer.data() + CONV_BUFFER_SIZE, requestIndex++);
+    std::memset(ptr, ']', 1);
+    input.getline(ptr + 1, bufferSize - CONV_BUFFER_SIZE);
+    if (!input)
+      break;
+    std::streamsize numberRead = input.gcount();
+    if (numberRead < 2)
       continue;
-    std::string taskLine(createRequestId(requestIndex++));
-    taskLine.append(line.append(1, '\n'));
-    payload.emplace_back(std::move(taskLine));
+    // ignore null at the end
+    --numberRead;
+    std::memset(ptr + 1 + numberRead, '\n', 1);
+    batch.emplace_back(buffer.data(), ptr + 1 + numberRead + 1 - buffer.data());
   }
   return true;
-}
-
-std::string TaskBuilder::createRequestId(size_t index) {
-  char arr[CONV_BUFFER_SIZE + 1] = { '[' };
-  auto [ptr, ec] = std::to_chars(arr + 1, arr + CONV_BUFFER_SIZE, index);
-  assert(ec == std::errc() && ptr - arr < CONV_BUFFER_SIZE);
-  *ptr = ']';
-  return arr;
 }
