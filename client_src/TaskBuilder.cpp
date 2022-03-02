@@ -18,12 +18,7 @@ TaskBuilder::~TaskBuilder() {}
 void TaskBuilder::run() noexcept {
   try {
     _task.clear();
-    Batch requestBatch;
-    if (!createRequestBatch(requestBatch)) {
-      _promise.set_value();
-      return;
-    }
-    buildTask(requestBatch);
+    buildTask();
     _done = true;
     _promise.set_value();
   }
@@ -48,43 +43,71 @@ void TaskBuilder::getTask(Batch& task) {
   _task.swap(task);
 }
 
-bool TaskBuilder::buildTask(const Batch& payload) {
-  static const size_t bufferSize = MemoryPool::getInitialBufferSize();
+bool TaskBuilder::buildTask() {
   // keep vector capacity
-  static Batch aggregated;
-  aggregated.clear();
-  if (!mergePayload(payload, aggregated, bufferSize)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-    return false;
-  }
-  if (!(buildMessage(aggregated, _task))) {
+  static Batch aggregatedBatch;
+  aggregatedBatch.clear();
+  createRequestBatch(aggregatedBatch);
+  if (!(buildMessage(aggregatedBatch, _task))) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   return true;
 }
 
-// reduce number of write/read system calls.
-bool TaskBuilder::mergePayload(const Batch& batch, Batch& aggregatedBatch, size_t bufferSize) {
-  if (batch.empty())
+// Read requests from the source, generate id for each.
+// The source can be a file or a message received from
+// another device.
+// Aggregaqte requests to send them in one shot
+// to reduce the number of write/read system calls.
+// The size of the aggregate depends on the buffer size.
+
+bool TaskBuilder::createRequestBatch(Batch& aggregatedBatch) {
+  std::ifstream input(_sourceName, std::ifstream::in | std::ifstream::binary);
+  if (!input) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
+	      << strerror(errno) << ' ' << _sourceName << std::endl;
     return false;
-  std::string bigString;
-  size_t reserveSize = 0;
-  if (reserveSize)
-    bigString.reserve(reserveSize + 1);
-  for (std::string_view line : batch) {
-    if (bigString.size() + line.size() < bufferSize || bigString.empty())
-      bigString.append(line);
+  }
+  unsigned long long requestIndex = 0;
+  size_t dstCapacity = MemoryPool::getInitialBufferSize();
+  [[maybe_unused]] auto [aggregated, dummy] = MemoryPool::getPrimaryBuffer(dstCapacity);
+  std::vector<char>& single(MemoryPool::getSecondaryBuffer(dstCapacity));
+  size_t offset = 0;
+  while (input) {
+    std::memset(single.data(), '[', 1);
+    auto [ptr, ec] = std::to_chars(single.data() + 1, single.data() + CONV_BUFFER_SIZE, requestIndex++);
+    if (ec != std::errc()) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< "-error translating number:" << requestIndex << std::endl;
+      continue;
+    }
+    std::memset(ptr, ']', 1);
+    input.getline(ptr + 1, dstCapacity - CONV_BUFFER_SIZE);
+    std::streamsize numberRead = input.gcount();
+    if (numberRead < 2)
+      continue;
+    // ignore terminating null
+    --numberRead;
+    std::memset(ptr + 1 + numberRead, '\n', 1);
+    size_t size = ptr + 1 + numberRead + 1 - single.data();
+    if (offset + size < dstCapacity || offset == 0) {
+      std::memcpy(aggregated + offset, single.data(), size);
+      offset += size;
+    }
     else {
-      reserveSize = std::max(reserveSize, bigString.size());
-      aggregatedBatch.push_back(std::move(bigString));
-      bigString.assign(std::move(line));
+      aggregatedBatch.emplace_back(aggregated, offset);
+      std::memcpy(aggregated, single.data(), size);
+      offset = size;
     }
   }
-  if (!bigString.empty())
-    aggregatedBatch.push_back(std::move(bigString));
+  if (offset > 0)
+    aggregatedBatch.emplace_back(aggregated, offset);
   return true;
 }
+
+// Compress requests if options require this.
+// Generate header for every aggregated group of requests.
 
 bool TaskBuilder::buildMessage(const Batch& payload, Batch& message) {
   if (payload.empty())
@@ -109,34 +132,6 @@ bool TaskBuilder::buildMessage(const Batch& payload, Batch& message) {
       message.back().reserve(HEADER_SIZE + str.size() + 1);
       message.back().append(array, HEADER_SIZE).append(str);
     }
-  }
-  return true;
-}
-
-bool TaskBuilder::createRequestBatch(Batch& batch) {
-  std::ifstream input(_sourceName, std::ifstream::in | std::ifstream::binary);
-  if (!input) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
-	      << strerror(errno) << ' ' << _sourceName << std::endl;
-    return false;
-  }
-  unsigned long long requestIndex = 0;
-  size_t bufferSize = MemoryPool::getInitialBufferSize();
-  std::vector<char>& buffer(MemoryPool::getSecondaryBuffer(bufferSize));
-  while (input) {
-    std::memset(buffer.data(), '[', 1);
-    auto [ptr, ec] = std::to_chars(buffer.data() + 1, buffer.data() + CONV_BUFFER_SIZE, requestIndex++);
-    std::memset(ptr, ']', 1);
-    input.getline(ptr + 1, bufferSize - CONV_BUFFER_SIZE);
-    if (!input)
-      break;
-    std::streamsize numberRead = input.gcount();
-    if (numberRead < 2)
-      continue;
-    // ignore null at the end
-    --numberRead;
-    std::memset(ptr + 1 + numberRead, '\n', 1);
-    batch.emplace_back(buffer.data(), ptr + 1 + numberRead + 1 - buffer.data());
   }
   return true;
 }

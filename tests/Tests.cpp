@@ -151,9 +151,16 @@ struct BuildTaskTest : testing::Test {
     }
     Batch batchResult;
     utility::split(uncompressedResult, batchResult);
-    for (auto& line : batchResult)
-      line.append(1, '\n');
-    ASSERT_TRUE(batchResult == originalBatch);
+    Batch batchOfSingles;
+    for (const std::string& bigString : originalBatch) {
+      Batch subBatch;
+      utility::split(bigString, subBatch);
+      batchOfSingles.insert(batchOfSingles.end(),
+			    std::make_move_iterator(subBatch.begin()),
+			    std::make_move_iterator(subBatch.end()));
+    }
+    ASSERT_TRUE(batchResult.size() == batchOfSingles.size());
+    ASSERT_TRUE(batchResult == batchOfSingles);
   }
 
   static void SetUpTestSuite() {}

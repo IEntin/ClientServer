@@ -22,6 +22,10 @@ CloseSocket::~CloseSocket() {
 TcpClient::TcpClient(const TcpClientOptions& options) :
   Client(options), _ioContext(1), _socket(_ioContext), _options(options) {}
 
+TcpClient::~TcpClient() {
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
 bool TcpClient::processTask() {
   for (const auto& subtask : _task) {
     boost::system::error_code ec;

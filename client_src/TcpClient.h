@@ -30,7 +30,7 @@ class TcpClient : protected Client {
   const TcpClientOptions& _options;
  public:
   TcpClient(const TcpClientOptions& options);
-  ~TcpClient() = default;
+  ~TcpClient();
 
   bool run();
 
