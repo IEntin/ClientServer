@@ -118,8 +118,6 @@ TEST(HeaderTest, HeaderTest1) {
 }
 
 struct BuildTaskTest : testing::Test {
-  static COMPRESSORS _compressionY;
-  static COMPRESSORS _compressionN;
 
   void testBuildTask(COMPRESSORS compressor) {
     ClientOptions options;
@@ -167,15 +165,13 @@ struct BuildTaskTest : testing::Test {
 
   static void TearDownTestSuite() {}
 };
-COMPRESSORS BuildTaskTest::_compressionY = COMPRESSORS::LZ4;
-COMPRESSORS BuildTaskTest::_compressionN = COMPRESSORS::NONE;
 
 TEST_F(BuildTaskTest, Compression) {
-  testBuildTask(_compressionY);
+  testBuildTask(COMPRESSORS::LZ4);
 }
 
 TEST_F(BuildTaskTest, NoCompression) {
-  testBuildTask(_compressionN);
+  testBuildTask(COMPRESSORS::NONE);
 }
 
 int main(int argc, char **argv) {
