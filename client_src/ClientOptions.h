@@ -10,6 +10,7 @@
 struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
 
+  const bool _turnOffLogging;
   const std::string _sourceName;
   size_t _bufferSize;
   COMPRESSORS _compressor;

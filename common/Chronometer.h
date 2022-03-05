@@ -15,7 +15,7 @@ struct Chronometer {
 		       std::string_view function = "global",
 		       std::ostream* pstream = nullptr) :
     _enabled(enable), _file(file), _line(line), _function(function),
-    _stream(pstream ? *pstream : std::clog) {
+    _stream(pstream ? *pstream : std::cout) {
     if (_enabled) {
       _globalStart = std::chrono::steady_clock::now();
       _localStart = _globalStart;

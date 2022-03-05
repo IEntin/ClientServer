@@ -7,6 +7,7 @@ using ProcessRequest = std::string (*)(std::string_view);
 struct ServerOptions {
   ServerOptions();
   ~ServerOptions() = default;
+  const bool _turnOffLogging;
   const size_t _bufferSize;
   const bool _timingEnabled;
   const ProcessRequest _processRequest;

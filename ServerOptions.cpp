@@ -5,6 +5,7 @@
 #include <thread>
 
 ServerOptions::ServerOptions() :
+  _turnOffLogging(ProgramOptions::get("TurnOffLogging", true)),
   _bufferSize(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000)),
   _timingEnabled(ProgramOptions::get("Timing", false)),
   _processRequest(Transaction::processRequest),
@@ -18,4 +19,8 @@ ServerOptions::ServerOptions() :
   _tcpPort(ProgramOptions::get("TcpPort", 49172)),
   _tcpTimeout(ProgramOptions::get("TcpTimeout", 1)),
   _fifoDirectoryName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string())),
-  _fifoBaseNames(ProgramOptions::get("FifoBaseNames", std::string("client1"))) {}
+  _fifoBaseNames(ProgramOptions::get("FifoBaseNames", std::string("client1"))) {
+  // disable clog
+  if (_turnOffLogging)
+    std::clog.rdbuf(nullptr);
+}

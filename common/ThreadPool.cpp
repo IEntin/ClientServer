@@ -12,7 +12,7 @@ ThreadPool::ThreadPool(unsigned numberThreads) {
 }
 
 ThreadPool::~ThreadPool() {
-  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void ThreadPool::start(size_t numberThreads) {

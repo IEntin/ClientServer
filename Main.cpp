@@ -46,7 +46,7 @@ int main() {
   if (!fifoServer->start())
     return 3;
   int sig = 0;
-  if (sigwait(&set, &sig) != SIGINT)
+  if (sigwait(&set, &sig))
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   fifoServer->stop();

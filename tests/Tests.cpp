@@ -50,23 +50,19 @@ void testCompressionDecompression2(std::string_view input) {
 }
 
 TEST_F(CompressionTest, CompressionTest1) {
-  for (int i = 0; i < 5; ++i)
-    testCompressionDecompression1(_input1);
+  testCompressionDecompression1(_input1);
 }
 
 TEST_F(CompressionTest, CompressionTest2) {
-  for (int i = 0; i < 5; ++i)
-    testCompressionDecompression1(_input2);
+  testCompressionDecompression1(_input2);
 }
 
 TEST_F(CompressionTest, CompressionTest3) {
-  for (int i = 0; i < 5; ++i)
-    testCompressionDecompression2(_input1);
+  testCompressionDecompression2(_input1);
 }
 
 TEST_F(CompressionTest, CompressionTest4) {
-  for (int i = 0; i < 5; ++i)
-    testCompressionDecompression2(_input2);
+  testCompressionDecompression2(_input2);
 }
 
 TEST(SplitTest, SplitTest1) {

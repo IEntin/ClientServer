@@ -1,4 +1,5 @@
 {
+  "TurnOffLogging" : true,
   "CommunicationType" : "TCP",
   "Diagnostics" : false,
   "FifoDirectoryName" : "/home/ilya/Fifos",
