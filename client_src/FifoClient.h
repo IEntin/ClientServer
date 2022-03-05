@@ -14,8 +14,6 @@ namespace fifo {
 
 class FifoClient : protected Client {
 
-  using Batch = std::vector<std::string>;
-
   bool processTask() override;
 
   bool receive();

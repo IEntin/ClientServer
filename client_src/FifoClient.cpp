@@ -70,7 +70,7 @@ bool FifoClient::processTask() {
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    if (!Fifo::writeString(_fdWrite, subtask)) {
+    if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
     }

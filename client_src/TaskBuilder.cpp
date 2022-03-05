@@ -37,7 +37,7 @@ void TaskBuilder::run() noexcept {
   Batch testBatch;
 }
 
-void TaskBuilder::getTask(Batch& task) {
+void TaskBuilder::getTask(Vectors& task) {
   std::future<void> future = _promise.get_future();
   future.get();
   _task.swap(task);
@@ -45,10 +45,10 @@ void TaskBuilder::getTask(Batch& task) {
 
 bool TaskBuilder::buildTask() {
   // keep vector capacity
-  static Batch aggregatedBatch;
-  aggregatedBatch.clear();
-  createRequestBatch(aggregatedBatch);
-  if (!(buildMessage(aggregatedBatch, _task))) {
+  static Vectors aggregatedRequests;
+  aggregatedRequests.clear();
+  createRequests(aggregatedRequests);
+  if (!(compressSubtasks())) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -62,7 +62,7 @@ bool TaskBuilder::buildTask() {
 // to reduce the number of write/read system calls.
 // The size of the aggregate depends on the buffer size.
 
-bool TaskBuilder::createRequestBatch(Batch& aggregatedBatch) {
+bool TaskBuilder::createRequests(Vectors& aggregatedRequests) {
   std::ifstream input(_sourceName, std::ifstream::in | std::ifstream::binary);
   if (!input) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
@@ -71,7 +71,8 @@ bool TaskBuilder::createRequestBatch(Batch& aggregatedBatch) {
   }
   unsigned long long requestIndex = 0;
   size_t dstCapacity = MemoryPool::getInitialBufferSize();
-  [[maybe_unused]] auto [aggregated, dummy] = MemoryPool::getPrimaryBuffer(dstCapacity);
+  [[maybe_unused]] auto [aggregated, bufferSize] = MemoryPool::getPrimaryBuffer(dstCapacity);
+  char* buffer = aggregated + HEADER_SIZE;
   std::vector<char>& single(MemoryPool::getSecondaryBuffer(dstCapacity));
   size_t offset = 0;
   while (input) {
@@ -93,44 +94,44 @@ bool TaskBuilder::createRequestBatch(Batch& aggregatedBatch) {
     std::memset(ptr + 1 + numberRead, '\n', 1);
     size_t size = ptr + 1 + numberRead + 1 - single.data();
     if (offset + size < dstCapacity - HEADER_SIZE || offset == 0) {
-      std::memcpy(aggregated + offset, single.data(), size);
+      std::memcpy(buffer + offset, single.data(), size);
       offset += size;
     }
     else {
-      aggregatedBatch.emplace_back(aggregated, aggregated + offset);
-      std::memcpy(aggregated, single.data(), size);
+      _task.emplace_back(aggregated, aggregated + offset + HEADER_SIZE);
+      std::memcpy(buffer, single.data(), size);
       offset = size;
     }
   }
   if (offset > 0)
-    aggregatedBatch.emplace_back(aggregated, aggregated + offset);
+    _task.emplace_back(aggregated, aggregated + offset + HEADER_SIZE);
   return true;
 }
 
 // Compress requests if options require this.
 // Generate header for every aggregated group of requests.
 
-bool TaskBuilder::buildMessage(const Batch& payload, Batch& message) {
-  if (payload.empty())
+bool TaskBuilder::compressSubtasks() {
+  if (_task.empty())
     return false;
-  std::vector<char>& buffer(MemoryPool::getSecondaryBuffer(MemoryPool::getInitialBufferSize()));
-  bool enabled = _compressor == COMPRESSORS::LZ4;
+  bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    std::clog << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
-  for (const auto& line : payload) {
+    std::clog << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
+  for (auto& item : _task) {
+    std::string_view line(item.data() + HEADER_SIZE, item.data() + item.size());
     size_t uncomprSize = line.size();
-    if (enabled) {
-      std::string_view dstView = Compression::compress(line);
+    std::string_view viewIn(line.data(), line.size());
+    if (bcompressed) {
+      std::string_view dstView = Compression::compress(viewIn);
       if (dstView.empty())
 	return false;
-      encodeHeader(buffer.data(), uncomprSize, dstView.size(), _compressor, _diagnostics);
-      std::memcpy(buffer.data() + HEADER_SIZE, dstView.data(), dstView.size());
-      message.emplace_back(buffer.data(), buffer.data() + HEADER_SIZE + dstView.size());
+      encodeHeader(item.data(), uncomprSize, dstView.size(), _compressor, _diagnostics);
+      std::memcpy(item.data() + HEADER_SIZE, dstView.data(), dstView.size());
+      item.resize(HEADER_SIZE + dstView.size());
     }
     else {
-      encodeHeader(buffer.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
-      std::memcpy(buffer.data() + HEADER_SIZE, line.data(), line.size());
-      message.emplace_back(buffer.data(), buffer.data() + HEADER_SIZE + line.size());
+      encodeHeader(item.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
+      item.resize(HEADER_SIZE + viewIn.size());
     }
   }
   return true;

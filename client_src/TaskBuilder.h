@@ -3,17 +3,16 @@
 #include "ThreadPool.h"
 #include <future>
 
-using Batch = std::vector<std::string>;
+using Vectors = std::vector<std::vector<char>>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 enum class COMPRESSORS : unsigned short;
 
 class TaskBuilder : public std::enable_shared_from_this<TaskBuilder>, public Runnable {
 
-  bool buildMessage(const Batch& payload, Batch& message);
+  bool compressSubtasks();
 
-  Batch _task;
+  Vectors _task;
   const std::string _sourceName;
-  Batch _source;
   const COMPRESSORS _compressor;
   const bool _diagnostics;
   bool _done = false;
@@ -25,7 +24,7 @@ class TaskBuilder : public std::enable_shared_from_this<TaskBuilder>, public Run
   ~TaskBuilder() override;
   void run() noexcept override;
   bool isDone() const { return _done; }
-  void getTask(Batch& task);
+  void getTask(Vectors& task);
   bool buildTask();
-  bool createRequestBatch(Batch& requestBatch);
+  bool createRequests(Vectors& aggregatedRequests);
 };

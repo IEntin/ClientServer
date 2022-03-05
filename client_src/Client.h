@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-using Batch = std::vector<std::string>;
+using Vectors = std::vector<std::vector<char>>;
 
 struct ClientOptions;
 
@@ -15,7 +15,7 @@ class Client {
 
   const ClientOptions& _options;
 
-  Batch _task;
+  Vectors _task;
 
   ThreadPool _threadPool;
 
@@ -26,7 +26,7 @@ class Client {
   Client(const ClientOptions& options);
   ~Client();
 
-  const Batch& getTask() const { return _task; }
+  const Vectors& getTask() const { return _task; }
 
   static std::string readFile(const std::string& name);
 };
