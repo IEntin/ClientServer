@@ -149,18 +149,14 @@ struct BuildTaskTest : testing::Test {
     }
     Vectors batchResult;
     utility::split(uncompressedResult, batchResult);
-    /*
-    Batch batchOfSingles;
-    for (const std::string& bigString : originalBatch) {
-      Batch subBatch;
-      utility::split(bigString, subBatch);
-      batchOfSingles.insert(batchOfSingles.end(),
-			    std::make_move_iterator(subBatch.begin()),
-			    std::make_move_iterator(subBatch.end()));
+    std::string restoredString;
+    for (const auto& item : batchResult) {
+      std::string_view str(item.data(), item.size());
+      size_t pos = str.find(']');
+      restoredString.append(str.substr(pos + 1)).append(1, '\n');
     }
-    ASSERT_TRUE(batchResult.size() == batchOfSingles.size());
-    ASSERT_TRUE(batchResult == batchOfSingles);
-    */
+    ASSERT_EQ(_input.size(), restoredString.size());
+    ASSERT_EQ(_input, restoredString);
   }
 
   static void SetUpTestSuite() {}
