@@ -18,7 +18,18 @@ TaskBuilder::~TaskBuilder() {}
 void TaskBuilder::run() noexcept {
   try {
     _task.clear();
-    buildTask();
+    if (!createRequests()) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      _done = false;
+      _promise.set_value();
+      return;
+    }
+    if (!(compressSubtasks())) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+      _done = false;
+      _promise.set_value();
+      return;
+    }
     _done = true;
     _promise.set_value();
   }
@@ -34,25 +45,12 @@ void TaskBuilder::run() noexcept {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-exception caught" << std::endl;
   }
-  Batch testBatch;
 }
 
 void TaskBuilder::getTask(Vectors& task) {
   std::future<void> future = _promise.get_future();
   future.get();
   _task.swap(task);
-}
-
-bool TaskBuilder::buildTask() {
-  // keep vector capacity
-  static Vectors aggregatedRequests;
-  aggregatedRequests.clear();
-  createRequests(aggregatedRequests);
-  if (!(compressSubtasks())) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-    return false;
-  }
-  return true;
 }
 
 // Read requests from the source, generate id for each.
@@ -62,7 +60,7 @@ bool TaskBuilder::buildTask() {
 // to reduce the number of write/read system calls.
 // The size of the aggregate depends on the buffer size.
 
-bool TaskBuilder::createRequests(Vectors& aggregatedRequests) {
+bool TaskBuilder::createRequests() {
   std::ifstream input(_sourceName, std::ifstream::in | std::ifstream::binary);
   if (!input) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '

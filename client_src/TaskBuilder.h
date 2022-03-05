@@ -7,7 +7,7 @@ using Vectors = std::vector<std::vector<char>>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 enum class COMPRESSORS : unsigned short;
 
-class TaskBuilder : public std::enable_shared_from_this<TaskBuilder>, public Runnable {
+class TaskBuilder : public Runnable {
 
   bool compressSubtasks();
 
@@ -25,6 +25,5 @@ class TaskBuilder : public std::enable_shared_from_this<TaskBuilder>, public Run
   void run() noexcept override;
   bool isDone() const { return _done; }
   void getTask(Vectors& task);
-  bool buildTask();
-  bool createRequests(Vectors& aggregatedRequests);
+  bool createRequests();
 };

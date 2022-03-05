@@ -7,12 +7,11 @@
 namespace serverutility {
 
 std::string_view buildReply(const Batch& batch, COMPRESSORS compressor) {
-  static std::string_view empty;
   if (batch.empty())
-    return empty;
-  bool enabled = compressor == COMPRESSORS::LZ4;
+    return std::string_view();
+  bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    std::clog << LZ4 << "compression " << (enabled ? "enabled" : "disabled") << std::endl;
+    std::clog << LZ4 << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& chunk : batch)
     uncomprSize += chunk.size();
@@ -25,18 +24,16 @@ std::string_view buildReply(const Batch& batch, COMPRESSORS compressor) {
     pos += chunk.size();
   }
   std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
-  if (enabled) {
+  if (bcompressed) {
     std::string_view dstView = Compression::compress(uncompressedView);
     if (dstView.empty())
-      return empty;
+      return std::string_view();
     buffer.resize(HEADER_SIZE + dstView.size());
     encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
     std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
   }
-  else {
-    assert(compressor == COMPRESSORS::NONE);
+  else
     encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false);
-  }
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }
