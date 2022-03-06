@@ -93,7 +93,7 @@ bool FifoClient::run() {
   CloseFileDescriptor raiiw(_fdWrite);
   _fdRead = -1;
   CloseFileDescriptor raiir(_fdRead);
-  return loop();
+  return loop(_options);
 }
 
 } // end of namespace fifo

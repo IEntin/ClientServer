@@ -112,7 +112,6 @@ on client side './client' in the client_bin or any other directory.
 No special requirements for the hardware.\
 Using laptop with 4 cores and 4GB RAM to run the server and up to 5 clients.\
 Running Linux Mint 20.2.
-
 Multiple runtime options are in ProgramOptions.json files for the server and client
 in corresponding directories.
 
@@ -138,7 +137,7 @@ To run the Google tests:\
 in the project root directory.
 
 Script profile.sh runs automatic profiling of the server and client. The usage is\
-'. profile.sh' in the server directory.
+'./profile.sh' in the server directory.
 
 The accepted procedure in this project includes thread and memory sanitizer runs and performance\
 profiling of every commit. Sanitizer warnings are considered failures and are not accepted.\

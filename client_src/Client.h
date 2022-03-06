@@ -13,13 +13,11 @@ class Client {
 
   virtual bool processTask() = 0;
 
-  const ClientOptions& _options;
-
   Vectors _task;
 
   ThreadPool _threadPool;
 
-  bool loop();
+  bool loop(const ClientOptions& options);
 
  public:
 

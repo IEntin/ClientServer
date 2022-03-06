@@ -65,7 +65,7 @@ bool TcpClient::run() {
 		<< ':' << ec.what() << std::endl;
       return false;
     }
-    return loop();
+    return loop(_options);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

@@ -14,7 +14,7 @@ struct ClientOptions {
   const std::string _sourceName;
   size_t _bufferSize;
   COMPRESSORS _compressor;
-  const bool _diagnostics;
+  bool _diagnostics;
   const bool _runLoop;
   const bool _timing;
   std::ostream* _dataStream;

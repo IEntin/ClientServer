@@ -11,7 +11,7 @@
 
 extern volatile std::sig_atomic_t stopFlag;
 
-Client::Client(const ClientOptions& options) : _options(options), _threadPool(1) {
+Client::Client(const ClientOptions& options) : _threadPool(1) {
   MemoryPool::setup(options._bufferSize);
 }
 
@@ -20,13 +20,13 @@ Client::~Client() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool Client::loop() {
+bool Client::loop(const ClientOptions& options) {
   unsigned numberTasks = 0;
   TaskBuilderPtr taskBuilder =
-    std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
+    std::make_shared<TaskBuilder>(options._sourceName, options._compressor, options._diagnostics);
   _threadPool.push(taskBuilder);
   do {
-    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
+    Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
     // blocks until task construction in another thread is finished
     taskBuilder->getTask(_task);
     if (!taskBuilder->isDone()) {
@@ -35,18 +35,18 @@ bool Client::loop() {
       return false;
     }
     // starts construction of the next task in the background
-    if (_options._runLoop) {
+    if (options._runLoop) {
       taskBuilder =
-	std::make_shared<TaskBuilder>(_options._sourceName, _options._compressor, _options._diagnostics);
+	std::make_shared<TaskBuilder>(options._sourceName, options._compressor, options._diagnostics);
       _threadPool.push(taskBuilder);
     }
     // processes current task
     if (!processTask())
       return false;
     // limit output file size
-    if (++numberTasks == _options._maxNumberTasks)
+    if (++numberTasks == options._maxNumberTasks)
       break;
-  } while (_options._runLoop && !stopFlag);
+  } while (options._runLoop && !stopFlag);
   return true;
 }
 

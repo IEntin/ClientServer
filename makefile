@@ -68,9 +68,9 @@ TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fif
 
 $(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client
 	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
-	cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/output.txt .; ./runtests
+	cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/output.txt .; ln -sf ../ads.txt .; ./runtests
 
 .PHONY: clean
 clean:
 	rm -f *.d server $(CLIENTBINDIR)/client $(CLIENTBINDIR)/*.d $(CLIENTBINDIR)/gmon.out $(TESTDIR)/runtests $(TESTDIR)/*.d
-	rm -f gmon.out *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/output.txt
+	rm -f gmon.out *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/output.txt $(TESTDIR)/ads.txt
