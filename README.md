@@ -137,6 +137,9 @@ To run the Google tests:\
 'tests/runtests'\
 in the project root directory.
 
+Script profile.sh runs automatic profiling of the server and client. The usage is\
+'. profile.sh' in the server directory.
+
 The accepted procedure in this project includes thread and memory sanitizer runs and performance\
 profiling of every commit. Sanitizer warnings are considered failures and are not accepted.\
 The number of Google tests is still limited and is steadily increasing.

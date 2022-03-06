@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#usage:
+# '. profile.sh' in the server directory
+
+trap "exit" SIGHUP SIGINT SIGTERM
+
 make clean
 make -j3 PROFILE=1
 export SERVER_DIRECTORY=$PWD
