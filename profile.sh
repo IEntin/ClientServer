@@ -14,7 +14,10 @@ $SERVER_DIRECTORY/server&
 export SERVER_PID=$!
 echo $SERVER_PID
 sleep 2
+# start tcp or fifo client
 ( cd $SERVER_DIRECTORY/client_bin && $SERVER_DIRECTORY/client_bin/profile_client.sh& )
+# start fifo or tcp client to have a mix in server profile
+( cd $SERVER_DIRECTORY/../FIFOClient1 && $SERVER_DIRECTORY/../FIFOClient1/profile_client.sh& )
 date
 sleep 180
 kill -SIGINT $SERVER_PID
