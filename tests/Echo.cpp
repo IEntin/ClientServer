@@ -7,8 +7,7 @@
 namespace echo {
 
 // test transport layer, multithreading, and compression
-
-  std::string processRequest(std::string_view view) noexcept {
+std::string Echo::processRequest(std::string_view view) noexcept {
   std::string_view response(view);
   // remove id part, if there is, to run 'diff' with source file
   size_t pos = response.find(']');

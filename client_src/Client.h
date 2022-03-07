@@ -19,6 +19,12 @@ class Client {
 
   bool loop(const ClientOptions& options);
 
+  bool printReply(const ClientOptions& options,
+		  const std::vector<char>& buffer,
+		  size_t uncomprSize,
+		  size_t comprSize,
+		  bool bcompressed);
+
  public:
 
   Client(const ClientOptions& options);

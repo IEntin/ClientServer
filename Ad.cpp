@@ -26,6 +26,7 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
 }
 
 SizeMap Ad::_mapBySize;
+bool Ad::_loaded = false;
 
 Ad::Ad(std::string&& input) noexcept : _input(std::move(input)) {}
 
@@ -108,6 +109,8 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const Size& size) {
 }
 
 bool Ad::load(const std::string& fileName) {
+  if (_loaded)
+    return true;
   try {
     std::ifstream ifs(fileName, std::ifstream::in);
     if (!ifs)
@@ -137,5 +140,6 @@ bool Ad::load(const std::string& fileName) {
 	      << ' ' << std::strerror(errno) << ' ' << fileName << std::endl;
     return false;
   }
+  _loaded = true;
   return true;
 }

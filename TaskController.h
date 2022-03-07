@@ -47,6 +47,7 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   void run() noexcept;
   void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
   void pushToThreadPool(TaskProcessorPtr processor);
+  void setProcessMethod(ProcessRequest processMethod) { _processRequest = processMethod; }
   static TaskControllerPtr instance(unsigned numberThreads = 0,
 				    ProcessRequest processRequest = nullptr);
 };

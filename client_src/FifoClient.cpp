@@ -38,26 +38,7 @@ bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompresse
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  std::string_view received(buffer.data(), comprSize);
-  std::ostream* pstream = _options._dataStream;
-  std::ostream& stream = pstream ? *pstream : std::cout;
-  if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-						       << " received compressed" << std::endl;
-    std::string_view dstView = Compression::uncompress(received, uncomprSize);
-    if (dstView.empty()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":failed to uncompress payload" << std::endl;
-      return false;
-    }
-    stream << dstView; 
-  }
-  else {
-    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-						       << " received not compressed" << std::endl;
-    stream << received;
-  }
-  return true;
+  return printReply(_options, buffer, uncomprSize, comprSize, bcompressed);
 }
 
 bool FifoClient::processTask() {

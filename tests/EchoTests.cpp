@@ -53,7 +53,11 @@ struct EchoTest : testing::Test {
 
   static void SetUpTestSuite() {
     _taskController =
-      TaskController::instance(std::thread::hardware_concurrency(), echo::processRequest);
+      TaskController::instance(std::thread::hardware_concurrency(), echo::Echo::processRequest);
+    // TaskController instance could be already created by other tests.
+    // The scope of TaskProcessor is the process.
+    // Make sure we have the correct method in action.
+    _taskController->setProcessMethod( echo::Echo::processRequest);
   }
   static void TearDownTestSuite() {}
 };

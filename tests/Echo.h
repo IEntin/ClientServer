@@ -8,6 +8,10 @@
 
 namespace echo {
 
-std::string processRequest(std::string_view view) noexcept;
+struct Echo {
+  Echo() = delete;
+  ~Echo() = delete;
+  static std::string processRequest(std::string_view view) noexcept;
+};
 
 } // end of namespace echo
