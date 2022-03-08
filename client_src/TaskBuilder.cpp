@@ -47,10 +47,16 @@ void TaskBuilder::run() noexcept {
   }
 }
 
-void TaskBuilder::getTask(Vectors& task) {
+bool TaskBuilder::getTask(Vectors& task) {
   std::future<void> future = _promise.get_future();
   future.get();
-  _task.swap(task);
+  if (_done)
+    _task.swap(task);
+  else {
+    Vectors().swap(_task);
+    Vectors().swap(task);
+  }
+  return _done;
 }
 
 // Read requests from the source, generate id for each.
@@ -69,6 +75,11 @@ bool TaskBuilder::createRequests() {
   }
   unsigned long long requestIndex = 0;
   size_t dstCapacity = MemoryPool::getInitialBufferSize();
+  if (dstCapacity < HEADER_SIZE + CONV_BUFFER_SIZE + 2) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << " buffer is too small:" << dstCapacity << std::endl;
+    return false;
+  }
   [[maybe_unused]] auto [aggregated, bufferSize] = MemoryPool::getPrimaryBuffer(dstCapacity);
   char* buffer = aggregated + HEADER_SIZE;
   std::vector<char>& single(MemoryPool::getSecondaryBuffer(dstCapacity));
@@ -82,8 +93,15 @@ bool TaskBuilder::createRequests() {
       continue;
     }
     std::memset(ptr, ']', 1);
-    input.getline(ptr + 1, dstCapacity);
+    size_t availableSize = dstCapacity - HEADER_SIZE - CONV_BUFFER_SIZE - 2;
+    input.getline(ptr + 1, availableSize);
     std::streamsize numberRead = input.gcount();
+    if (numberRead == availableSize - 1) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< " buffer is too small:" << dstCapacity << std::endl;
+      input.clear();
+      return false;
+    }
     if (numberRead < 2)
       continue;
     // ignore terminating null

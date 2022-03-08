@@ -136,3 +136,16 @@ TEST_F(LogicTest, LogicTestFifo3) {
 TEST_F(LogicTest, LogicTestFifo4) {
   testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, 100000, 3600000);
 }
+
+TEST_F(LogicTest, LogicTestFifo5) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 10000, 500);
+  FAIL() << "Expected:buffer is too small";
+}
+
+TEST_F(LogicTest, LogicTestFifo6) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 500, 10000);
+}
+
+TEST_F(LogicTest, LogicTestFifo7) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 10000000, 10000000);
+}

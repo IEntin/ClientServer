@@ -23,7 +23,6 @@ class TaskBuilder : public Runnable {
   TaskBuilder(const std::string& sourceName, COMPRESSORS compressor, bool diagnostics);
   ~TaskBuilder() override;
   void run() noexcept override;
-  bool isDone() const { return _done; }
-  void getTask(Vectors& task);
+  bool getTask(Vectors& task);
   bool createRequests();
 };

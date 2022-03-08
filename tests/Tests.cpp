@@ -119,12 +119,9 @@ struct BuildTaskTest : testing::Test {
     ClientOptions options;
     options._compressor = compressor;
     TaskBuilder taskBuilder(options._sourceName, options._compressor, options._diagnostics);
-    //Batch originalBatch;
-    //taskBuilder.createRequestBatch(originalBatch);
-    taskBuilder.run();
+   taskBuilder.run();
     Vectors task;
-    taskBuilder.getTask(task);
-    ASSERT_TRUE(taskBuilder.isDone());
+    ASSERT_TRUE(taskBuilder.getTask(task));
     std::string uncompressedResult;
     for (const auto& subtask : task) {
       HEADER header = decodeHeader(subtask.data());

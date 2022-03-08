@@ -28,11 +28,12 @@ bool Client::loop(const ClientOptions& options) {
   do {
     Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
     // blocks until task construction in another thread is finished
-    taskBuilder->getTask(_task);
-    if (!taskBuilder->isDone()) {
+    bool success = taskBuilder->getTask(_task);
+    if (!success) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		 << ':' << std::strerror(errno) << std::endl;
-      return false;
+		 << ":TaskBuilder failed" << std::endl;
+      if (!options._runLoop)
+	return false;
     }
     // starts construction of the next task in the background
     if (options._runLoop) {
@@ -40,6 +41,8 @@ bool Client::loop(const ClientOptions& options) {
 	std::make_shared<TaskBuilder>(options._sourceName, options._compressor, options._diagnostics);
       _threadPool.push(taskBuilder);
     }
+    if (!success)
+      continue;
     // processes current task
     if (!processTask())
       return false;
