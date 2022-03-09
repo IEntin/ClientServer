@@ -74,15 +74,13 @@ bool TaskBuilder::createRequests() {
     return false;
   }
   unsigned long long requestIndex = 0;
-  size_t dstCapacity = MemoryPool::getInitialBufferSize();
-  if (dstCapacity < HEADER_SIZE + CONV_BUFFER_SIZE + 2) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " buffer is too small:" << dstCapacity << std::endl;
-    return false;
+  std::vector<char>& aggregated = MemoryPool::getPrimaryBuffer();
+  std::vector<char>& single(MemoryPool::getSecondaryBuffer());
+  size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
+  if (single.capacity() < minimumCapacity) {
+    single.reserve(minimumCapacity * 2);
+    aggregated.reserve(single.capacity() + 1);
   }
-  [[maybe_unused]] auto [aggregated, bufferSize] = MemoryPool::getPrimaryBuffer(dstCapacity);
-  char* buffer = aggregated + HEADER_SIZE;
-  std::vector<char>& single(MemoryPool::getSecondaryBuffer(dstCapacity));
   size_t offset = 0;
   while (input) {
     std::memset(single.data(), '[', 1);
@@ -92,35 +90,49 @@ bool TaskBuilder::createRequests() {
 		<< "-error translating number:" << requestIndex << std::endl;
       continue;
     }
-    std::memset(ptr, ']', 1);
-    size_t availableSize = dstCapacity - HEADER_SIZE - CONV_BUFFER_SIZE - 2;
-    input.getline(ptr + 1, availableSize);
-    std::streamsize numberRead = input.gcount();
-    if (numberRead == availableSize - 1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< " buffer is too small:" << dstCapacity << std::endl;
-      input.clear();
-      return false;
-    }
-    if (numberRead < 2)
-      continue;
-    // ignore terminating null
-    if (*(ptr + numberRead) == '\0')
-      --numberRead;
-    std::memset(ptr + 1 + numberRead, '\n', 1);
-    size_t size = ptr + 1 + numberRead + 1 - single.data();
-    if (offset + size < dstCapacity - HEADER_SIZE || offset == 0) {
-      std::memcpy(buffer + offset, single.data(), size);
-      offset += size;
+    size_t singleOffset = ptr - single.data();
+    std::memset(single.data() + singleOffset, ']', 1);
+    ++singleOffset;
+    // keep capacity
+    static std::string line;
+    line.clear();
+    if (!std::getline(input, line, '\n'))
+      break;
+    if (singleOffset + line.size() > single.capacity())
+      single.reserve(singleOffset + line.size() + 1);
+    std::memcpy(single.data() + singleOffset, line.data(), line.size());
+    singleOffset += line.size();
+    std::memset(single.data() + singleOffset, '\n', 1);
+    size_t size = singleOffset + 1;
+    if (offset + size < aggregated.capacity() - HEADER_SIZE || offset == 0) {
+      if (aggregated.capacity() < size + HEADER_SIZE) {
+	std::vector<char> vect(size + HEADER_SIZE);
+	std::memcpy(vect.data() + HEADER_SIZE, single.data(), size);
+	_task.emplace_back();
+	_task.back().swap(vect);
+      }
+      else {
+	std::memcpy(aggregated.data() + HEADER_SIZE + offset, single.data(), size);
+	offset += size;
+      }
     }
     else {
-      _task.emplace_back(aggregated, aggregated + offset + HEADER_SIZE);
-      std::memcpy(buffer, single.data(), size);
-      offset = size;
+      _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
+      if (single.size() + HEADER_SIZE > aggregated.capacity()) {
+	std::vector<char> vect(size + HEADER_SIZE);
+	std::memcpy(vect.data() + HEADER_SIZE, single.data(), size);
+	_task.emplace_back();
+	_task.back().swap(vect);
+	offset = 0;
+      }
+      else {
+	std::memcpy(aggregated.data() + HEADER_SIZE, single.data(), size);
+	offset = size;
+      }
     }
   }
   if (offset > 0)
-    _task.emplace_back(aggregated, aggregated + offset + HEADER_SIZE);
+    _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
   return true;
 }
 
@@ -141,9 +153,15 @@ bool TaskBuilder::compressSubtasks() {
       std::string_view dstView = Compression::compress(viewIn);
       if (dstView.empty())
 	return false;
-      encodeHeader(item.data(), uncomprSize, dstView.size(), _compressor, _diagnostics);
-      std::memcpy(item.data() + HEADER_SIZE, dstView.data(), dstView.size());
-      item.resize(HEADER_SIZE + dstView.size());
+      if (dstView.size() >= viewIn.size()) {
+	encodeHeader(item.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
+	item.resize(HEADER_SIZE + viewIn.size());
+      }
+      else {
+	encodeHeader(item.data(), uncomprSize, dstView.size(), _compressor, _diagnostics);
+	std::memcpy(item.data() + HEADER_SIZE, dstView.data(), dstView.size());
+	item.resize(HEADER_SIZE + dstView.size());
+      }
     }
     else {
       encodeHeader(item.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);

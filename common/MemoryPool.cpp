@@ -21,26 +21,26 @@ void MemoryPool::setup(size_t initialBufferSize) {
   _initialBufferSize = initialBufferSize;
 }
 
-std::pair<char*, size_t> MemoryPool::getPrimaryBuffer(size_t requested) {
-  if (requested > instance()._primaryBuffer.capacity()) {
+std::vector<char>& MemoryPool::getPrimaryBuffer(size_t requested) {
+  if (requested == 0)
+    return instance()._primaryBuffer;
+  else if (requested > instance()._primaryBuffer.capacity()) {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " increased _primaryBuffer from " << instance()._primaryBuffer.capacity()
 	      << " to " << requested << std::endl;
     instance()._primaryBuffer.reserve(requested);
   }
-  return { instance()._primaryBuffer.data(), instance()._primaryBuffer.capacity() };
+  return instance()._primaryBuffer;
 }
 
 std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
-  if (requested > instance()._secondaryBuffer.capacity()) {
+  if (requested == 0)
+    return instance()._secondaryBuffer;
+  else if (requested > instance()._secondaryBuffer.capacity()) {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " increased _secondaryBuffer from " << instance()._secondaryBuffer.capacity()
 	      << " to " << requested << std::endl;
     instance()._secondaryBuffer.reserve(requested);
   }
   return instance()._secondaryBuffer;
-}
-
-size_t MemoryPool::getInitialBufferSize() {
-  return instance()._initialBufferSize;
 }

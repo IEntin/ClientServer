@@ -155,10 +155,10 @@ bool FifoConnection::readMsgBody(int fd,
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received compressed" << std::endl;
-    auto[buffer, bufferSize] = MemoryPool::getPrimaryBuffer(comprSize);
-    if (!Fifo::readString(fd, buffer, comprSize))
+    std::vector<char>& buffer = MemoryPool::getPrimaryBuffer(comprSize);
+    if (!Fifo::readString(fd, buffer.data(), comprSize))
       return false;
-    std::string_view received(buffer, comprSize);
+    std::string_view received(buffer.data(), comprSize);
     uncompressed.resize(uncomprSize);
     if (!Compression::uncompress(received, uncompressed)) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
