@@ -78,8 +78,9 @@ bool TaskBuilder::createRequests() {
   std::vector<char>& single(MemoryPool::getSecondaryBuffer());
   size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
   if (single.capacity() < minimumCapacity) {
-    single.reserve(minimumCapacity * 2);
-    aggregated.reserve(single.capacity() + 1);
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":Minimum size of the buffer is " << minimumCapacity << std::endl;
+    return false;
   }
   size_t offset = 0;
   while (input) {
