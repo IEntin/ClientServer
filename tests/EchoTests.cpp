@@ -55,8 +55,8 @@ struct EchoTest : testing::Test {
     _taskController =
       TaskController::instance(std::thread::hardware_concurrency(), echo::Echo::processRequest);
     // TaskController instance could be already created by other tests.
-    // The scope of TaskProcessor is the process.
-    // Make sure we have the correct method in action.
+    // The lifetime of the TaskProcessor is the lifetime of the process.
+    // Making sure we have the correct method in action.
     _taskController->setProcessMethod( echo::Echo::processRequest);
   }
   static void TearDownTestSuite() {}

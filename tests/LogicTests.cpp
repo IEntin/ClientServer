@@ -40,7 +40,6 @@ struct LogicTest : testing::Test {
     clientOptions._diagnostics = true;
     tcp::TcpClient client(clientOptions);
     bool clientRun = client.run();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
     ASSERT_EQ(oss.str().size(), _calibratedOutput.size());
@@ -70,7 +69,6 @@ struct LogicTest : testing::Test {
     clientOptions._diagnostics = true;
     fifo::FifoClient client(clientOptions);
     bool clientRun = client.run();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
     ASSERT_EQ(oss.str().size(), _calibratedOutput.size());
@@ -82,8 +80,8 @@ struct LogicTest : testing::Test {
     _taskController =
       TaskController::instance(std::thread::hardware_concurrency(), Transaction::processRequest);
     // TaskController instance could be already created by other tests.
-    // The scope of TaskProcessor is the process.
-    // Make sure we have the correct method in action.
+    // The lifetime of the TaskProcessor is the lifetime of the process.
+    // Making sure we have the correct method in action.
     _taskController->setProcessMethod(Transaction::processRequest);
   }
   static void TearDownTestSuite() {}

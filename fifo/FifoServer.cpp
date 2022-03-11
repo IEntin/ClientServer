@@ -182,7 +182,7 @@ bool FifoConnection::sendResponse(Batch& response) {
     _fdRead = -1;
   }
   if (!_server->stopped()) {
-    _fdWrite = open(_fifoName.c_str(), O_WRONLY | O_NONBLOCK);
+    _fdWrite = open(_fifoName.c_str(), O_WRONLY);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
