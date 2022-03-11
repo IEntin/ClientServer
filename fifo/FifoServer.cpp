@@ -9,7 +9,6 @@
 #include "TaskController.h"
 #include "Utility.h"
 #include <fcntl.h>
-#include <poll.h>
 #include <sys/stat.h>
 #include <cassert>
 #include <cstring>
@@ -188,21 +187,6 @@ bool FifoConnection::sendResponse(Batch& response) {
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
-    do {
-      pollfd pfd{ _fdWrite, POLLOUT, -1 };
-      pfd.revents = 0;
-      int presult = poll(&pfd, 1, -1);
-      if (presult <= 0) {
-	if (errno == EINTR)
-	  continue;
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << std::strerror(errno) << ' ' << _fifoName << std::endl;
-	close(_fdWrite);
-	_fdWrite = -1;
-	return false;
-      }
-      assert(pfd.revents & POLLOUT);
-    } while (errno == EINTR);
   }
   std::string_view message = serverutility::buildReply(response, _compressor);
   if (message.empty())
