@@ -20,7 +20,7 @@ CloseSocket::~CloseSocket() {
 }
 
 TcpClient::TcpClient(const TcpClientOptions& options) :
-  Client(options), _ioContext(1), _socket(_ioContext), _options(options) {}
+  Client(options._bufferSize), _ioContext(1), _socket(_ioContext), _options(options) {}
 
 TcpClient::~TcpClient() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;

@@ -27,7 +27,7 @@ class Client {
 
  public:
 
-  Client(const ClientOptions& options);
+  Client(size_t bufferSize);
   ~Client();
 
   const Vectors& getTask() const { return _task; }

@@ -76,6 +76,7 @@ bool TaskBuilder::createRequests() {
   unsigned long long requestIndex = 0;
   std::vector<char>& aggregated = MemoryPool::getPrimaryBuffer();
   std::vector<char>& single(MemoryPool::getSecondaryBuffer());
+  size_t initialBufferSize = MemoryPool::getInitialBufferSize();
   size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
   if (single.capacity() < minimumCapacity) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -105,8 +106,8 @@ bool TaskBuilder::createRequests() {
     singleOffset += line.size();
     std::memset(single.data() + singleOffset, '\n', 1);
     size_t size = singleOffset + 1;
-    if (offset + size < aggregated.capacity() - HEADER_SIZE || offset == 0) {
-      if (aggregated.capacity() < size + HEADER_SIZE) {
+    if (offset + size < initialBufferSize - HEADER_SIZE || offset == 0) {
+      if (initialBufferSize < size + HEADER_SIZE) {
 	std::vector<char> vect(size + HEADER_SIZE);
 	std::memcpy(vect.data() + HEADER_SIZE, single.data(), size);
 	_task.emplace_back();
@@ -119,7 +120,7 @@ bool TaskBuilder::createRequests() {
     }
     else {
       _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
-      if (single.size() + HEADER_SIZE > aggregated.capacity()) {
+      if (single.size() + HEADER_SIZE > initialBufferSize) {
 	std::vector<char> vect(size + HEADER_SIZE);
 	std::memcpy(vect.data() + HEADER_SIZE, single.data(), size);
 	_task.emplace_back();

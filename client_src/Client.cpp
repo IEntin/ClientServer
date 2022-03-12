@@ -11,8 +11,8 @@
 
 extern volatile std::sig_atomic_t stopFlag;
 
-Client::Client(const ClientOptions& options) : _threadPool(1) {
-  MemoryPool::setup(options._bufferSize);
+Client::Client(size_t bufferSize) : _threadPool(1) {
+  MemoryPool::setup(bufferSize);
 }
 
 Client::~Client() {

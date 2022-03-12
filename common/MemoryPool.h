@@ -14,6 +14,7 @@ struct MemoryPool {
   std::vector<char> _secondaryBuffer;
   static std::vector<char>& getPrimaryBuffer(size_t capacity = 0);
   static std::vector<char>& getSecondaryBuffer(size_t capacity = 0);
+  static size_t getInitialBufferSize() { return _initialBufferSize; }
   private:
   static MemoryPool& instance();
   static size_t _initialBufferSize;
