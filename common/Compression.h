@@ -26,13 +26,11 @@ class Compression {
  public:
   static COMPRESSORS isCompressionEnabled(const std::string& compressorStr);
 
-  static std::string_view compress(std::string_view origin);
-
   static std::string_view compress(std::string_view origin, MemoryPool& memoryPool);
 
-  static std::string_view uncompress(std::string_view compressed, size_t uncomprSize);
-
-  static std::string_view uncompress(std::string_view compressed, size_t uncomprSize, MemoryPool& memoryPool);
+  static std::string_view uncompress(std::string_view compressed,
+				     size_t uncomprSize,
+				     MemoryPool& memoryPool);
 
   static bool uncompress(std::string_view compressed, std::vector<char>& uncompressed);
 

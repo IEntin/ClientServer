@@ -10,21 +10,12 @@
 
 size_t MemoryPool::_initialBufferSize(0);
 
-MemoryPool::MemoryPool() :
-  _primaryBuffer(Compression::getCompressBound(_initialBufferSize)),
-  _secondaryBuffer(Compression::getCompressBound(_initialBufferSize)) {}
-
-MemoryPool::~MemoryPool() {
-  std::vector<char>().swap(_primaryBuffer);
-  std::vector<char>().swap(_secondaryBuffer);
-}
-
 MemoryPool& MemoryPool::instance() {
   static thread_local MemoryPool instance;
   return instance;
 }
 
-void MemoryPool::setup(size_t initialBufferSize) {
+void MemoryPool::setInitialSize(size_t initialBufferSize) {
   _initialBufferSize = initialBufferSize;
 }
 
@@ -57,9 +48,9 @@ std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
 void MemoryPool::resetBufferSize() {
   if (_perThreadBufferSize != _initialBufferSize) {
     std::vector<char>().swap(_primaryBuffer);
-    _primaryBuffer.resize(_initialBufferSize);
+    _primaryBuffer.resize(Compression::getCompressBound(_initialBufferSize));
     std::vector<char>().swap(_secondaryBuffer);
-    _secondaryBuffer.resize(_initialBufferSize);
+    _secondaryBuffer.resize(Compression::getCompressBound(_initialBufferSize));
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":buffer size reset from " << _perThreadBufferSize
 	      <<" to " << _initialBufferSize << std::endl;

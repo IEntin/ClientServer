@@ -8,11 +8,14 @@
 #include <cassert>
 #include <iostream>
 
-TaskController::TaskController(unsigned numberThreads, ProcessRequest processRequest) :
+TaskController::TaskController(unsigned numberThreads,
+			       ProcessRequest processRequest,
+			       size_t bufferSize) :
   _numberThreads(numberThreads),
   _processRequest(processRequest),
   _barrier(numberThreads, onTaskFinish),
   _threadPool(numberThreads) {
+  _memoryPool.setInitialSize(bufferSize);
   // start with empty task
   static Batch emptyBatch;
   _task = std::make_shared<Task>(emptyBatch);
@@ -29,15 +32,19 @@ TaskController::~TaskController() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-TaskControllerPtr TaskController::create(unsigned numberThreads, ProcessRequest processRequest) {
+TaskControllerPtr TaskController::create(unsigned numberThreads,
+					 ProcessRequest processRequest,
+					 size_t bufferSize) {
   // to have private constructor do not use make_shared
-  TaskControllerPtr taskController(new TaskController(numberThreads, processRequest));
+  TaskControllerPtr taskController(new TaskController(numberThreads, processRequest, bufferSize));
   taskController->initialize();
   return taskController;
 }
 
-TaskControllerPtr TaskController::instance(unsigned numberThreads, ProcessRequest processRequest) {
-  static TaskControllerPtr instance = create(numberThreads, processRequest);
+TaskControllerPtr TaskController::instance(unsigned numberThreads,
+					   ProcessRequest processRequest,
+					   size_t bufferSize) {
+  static TaskControllerPtr instance = create(numberThreads, processRequest, bufferSize);
   return instance;
 }
 
@@ -51,7 +58,7 @@ void TaskController::onTaskFinish() noexcept {
     TaskControllerPtr taskController = instance();
     taskController->_task->finish();
     // Blocks until the new task is available.
-    taskController->setNew();
+    taskController->setNextTask();
   }
 }
 
@@ -106,12 +113,16 @@ void TaskController::submitTask(const HEADER& header, std::vector<char>& input, 
   }
 }
 
-void TaskController::setNew() {
+void TaskController::setNextTask() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   _task = _queue.front();
   Diagnostics::enable(_task->diagnosticsEnabled());
   _queue.pop();
+}
+
+void TaskController::setMemoryPoolSize(size_t size) {
+  _memoryPool.setInitialSize(size);
 }
 
 std::tuple<std::string_view, bool, size_t> TaskController::next() {

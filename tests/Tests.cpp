@@ -26,7 +26,7 @@ std::string CompressionTest::_input2 = Client::readFile("output.txt");
 
 void testCompressionDecompression1(std::string_view input) {
   MemoryPool memoryPool;
-  memoryPool.setup(100000);
+  memoryPool.setInitialSize(100000);
   std::string_view compressedView = Compression::compress(input, memoryPool);
   ASSERT_FALSE(compressedView.empty());
   // save to a string before buffer is reused in uncompress
@@ -41,7 +41,7 @@ void testCompressionDecompression1(std::string_view input) {
 
 void testCompressionDecompression2(std::string_view input) {
   MemoryPool memoryPool;
-  memoryPool.setup(100000);
+  memoryPool.setInitialSize(100000);
   std::string_view compressedView = Compression::compress(input, memoryPool);
   ASSERT_FALSE(compressedView.empty());
   std::vector<char> uncompressed(input.size());
@@ -123,7 +123,7 @@ struct BuildTaskTest : testing::Test {
     ClientOptions options;
     options._compressor = compressor;
     MemoryPool memoryPool;
-    memoryPool.setup(options._bufferSize);
+    memoryPool.setInitialSize(options._bufferSize);
     TaskBuilder taskBuilder(options, memoryPool);
     taskBuilder.run();
     Vectors task;
@@ -173,7 +173,6 @@ TEST_F(BuildTaskTest, NoCompression) {
 }
 
 int main(int argc, char **argv) {
-  MemoryPool::setup(200000);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

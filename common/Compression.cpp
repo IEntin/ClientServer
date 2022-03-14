@@ -47,18 +47,6 @@ size_t Compression::getCompressBound(size_t uncomprSize) {
   return LZ4_compressBound(uncomprSize);
 }
 
-std::string_view Compression::compress(std::string_view origin) {
-  size_t dstCapacity = LZ4_compressBound(origin.size());
-  std::vector<char>& buffer = MemoryPool::getPrimaryBuffer(dstCapacity);
-  std::string_view dstView = compressInternal(origin, buffer.data(), dstCapacity);
-  if (dstView.empty()) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":failed to compress payload" << std::endl;
-    return { nullptr, 0 };
-  }
-  return dstView;
-}
-
 std::string_view Compression::compress(std::string_view origin, MemoryPool& memoryPool) {
   size_t dstCapacity = LZ4_compressBound(origin.size());
   std::vector<char>& buffer = memoryPool.getPrimaryBuffer(dstCapacity);
@@ -69,16 +57,6 @@ std::string_view Compression::compress(std::string_view origin, MemoryPool& memo
     return { nullptr, 0 };
   }
   return dstView;
-}
-
-std::string_view Compression::uncompress(std::string_view compressed, size_t uncomprSize) {
-  std::vector<char>& buffer = MemoryPool::getPrimaryBuffer(uncomprSize);
-  if (!uncompressInternal(compressed, buffer.data(), uncomprSize)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " failed" << std::endl;
-    return { nullptr, 0 };
-  }
-  return { buffer.data(), uncomprSize };
 }
 
 std::string_view Compression::uncompress(std::string_view compressed,

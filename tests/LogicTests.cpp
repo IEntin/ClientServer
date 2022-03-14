@@ -24,7 +24,7 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions serverOptions;
     Ad::load(serverOptions._adsFileName);
-    MemoryPool::setup(serverMemPoolSize);
+    _taskController->setMemoryPoolSize(serverMemPoolSize);
     tcp::TcpServerPtr tcpServer =
       std::make_shared<tcp::TcpServer>(_taskController,
 				       serverOptions._expectedTcpConnections,
@@ -54,7 +54,7 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions serverOptions;
     Ad::load(serverOptions._adsFileName);
-    MemoryPool::setup(serverMemPoolSize);
+    _taskController->setMemoryPoolSize(serverMemPoolSize);
     fifo::FifoServerPtr fifoServer =
       std::make_shared<fifo::FifoServer>(_taskController,
 					 serverOptions._fifoDirectoryName,

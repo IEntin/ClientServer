@@ -5,7 +5,6 @@
 #include "Ad.h"
 #include "Chronometer.h"
 #include "FifoServer.h"
-#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "TcpServer.h"
@@ -23,13 +22,13 @@ int main() {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
   ServerOptions options;
-  MemoryPool::setup(options._bufferSize);
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
   if (!Ad::load(options._adsFileName))
     return 1;
   TaskControllerPtr taskController = TaskController::instance(options._numberWorkThreads,
-							      options._processRequest);
+							      options._processRequest,
+							      options._bufferSize);
   tcp::TcpServerPtr tcpServer =
     std::make_shared<tcp::TcpServer>(taskController,
 				     options._expectedTcpConnections,

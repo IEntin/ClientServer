@@ -154,7 +154,7 @@ bool FifoConnection::readMsgBody(int fd,
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received compressed" << std::endl;
-    std::vector<char>& buffer = MemoryPool::getPrimaryBuffer(comprSize);
+    std::vector<char>& buffer = _taskController->getMemoryPool().getPrimaryBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize))
       return false;
     std::string_view received(buffer.data(), comprSize);
@@ -188,7 +188,9 @@ bool FifoConnection::sendResponse(Batch& response) {
       return false;
     }
   }
-  std::string_view message = serverutility::buildReply(response, _compressor);
+  std::string_view message = serverutility::buildReply(response,
+						       _compressor,
+						       _taskController->getMemoryPool());
   if (message.empty())
     return false;
   return Fifo::writeString(_fdWrite, message);

@@ -11,7 +11,7 @@
 extern volatile std::sig_atomic_t stopFlag;
 
 Client::Client(size_t bufferSize) : _threadPool(1) {
-  _memoryPool.setup(bufferSize);
+  _memoryPool.setInitialSize(bufferSize);
 }
 
 Client::~Client() {
@@ -25,7 +25,7 @@ bool Client::loop(const ClientOptions& options) {
   _threadPool.push(taskBuilder);
   do {
     Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
-    // blocks until task construction in another thread is finished
+    // Blocks until task construction in another thread is finished
     bool success = taskBuilder->getTask(_task);
     if (!success) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

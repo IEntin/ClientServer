@@ -8,6 +8,6 @@ using Batch = std::vector<std::string>;
 
 namespace serverutility {
 
-std::string_view buildReply(const Batch& batch, COMPRESSORS compressor);
+std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPool& memoryPool);
 
 } // end of namespace commutility

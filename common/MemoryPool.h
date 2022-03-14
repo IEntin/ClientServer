@@ -7,17 +7,22 @@
 #include <vector>
 
 struct MemoryPool {
-  MemoryPool();
-  ~MemoryPool();
-  static void setup(size_t initialBufferSize);
+  MemoryPool() = default;
+  ~MemoryPool() = default;
+  void setInitialSize(size_t initialBufferSize);
   std::vector<char> _primaryBuffer;
   std::vector<char> _secondaryBuffer;
   size_t _perThreadBufferSize = 0;
-  static std::vector<char>& getPrimaryBuffer(size_t capacity = 0);
-  static std::vector<char>& getSecondaryBuffer(size_t capacity = 0);
-  static size_t getInitialBufferSize() { return _initialBufferSize; }
+  std::vector<char>& getPrimaryBuffer(size_t capacity = 0);
+  std::vector<char>& getSecondaryBuffer(size_t capacity = 0);
+  size_t getInitialBufferSize() const { return _initialBufferSize; }
   private:
   void resetBufferSize();
   static MemoryPool& instance();
+  // _initialBufferSize must be static,
+  // otherwise it will be set only in
+  // one and often irrelevant thread.
+  // Instances of this struct are thread_local,
+  // see implementation.
   static size_t _initialBufferSize;
 };
