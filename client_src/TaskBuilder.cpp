@@ -1,7 +1,6 @@
 #include "TaskBuilder.h"
 #include "Compression.h"
 #include "Header.h"
-#include "MemoryPool.h"
 #include "Utility.h"
 #include <cassert>
 #include <cstring>
@@ -9,8 +8,11 @@
 #include <iostream>
 #include <sstream>
 
-TaskBuilder::TaskBuilder(const std::string& sourceName, COMPRESSORS compressor, bool diagnostics) :
-  _sourceName(sourceName), _compressor(compressor), _diagnostics(diagnostics) {
+TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
+  _sourceName(options._sourceName),
+  _compressor(options._compressor),
+  _diagnostics(options._diagnostics),
+  _memoryPool(memoryPool) {
 }
 
 TaskBuilder::~TaskBuilder() {}
@@ -74,9 +76,9 @@ bool TaskBuilder::createRequests() {
     return false;
   }
   unsigned long long requestIndex = 0;
-  std::vector<char>& aggregated = MemoryPool::getPrimaryBuffer();
-  std::vector<char>& single(MemoryPool::getSecondaryBuffer());
-  size_t initialBufferSize = MemoryPool::getInitialBufferSize();
+  std::vector<char>& aggregated = _memoryPool.getPrimaryBuffer();
+  std::vector<char>& single(_memoryPool.getSecondaryBuffer());
+  size_t initialBufferSize = _memoryPool.getInitialBufferSize();
   size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
   if (single.capacity() < minimumCapacity) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -152,7 +154,7 @@ bool TaskBuilder::compressSubtasks() {
     size_t uncomprSize = line.size();
     std::string_view viewIn(line.data(), line.size());
     if (bcompressed) {
-      std::string_view dstView = Compression::compress(viewIn);
+      std::string_view dstView = Compression::compress(viewIn, _memoryPool);
       if (dstView.empty())
 	return false;
       if (dstView.size() >= viewIn.size()) {

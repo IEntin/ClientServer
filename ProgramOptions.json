@@ -3,7 +3,7 @@
   "AdsFileName" : "ads.txt",
   "NumberTaskThreads" : 0,
   "Compression" : "LZ4",
-  "DYNAMIC_BUFFER_SIZE" : 3600000,
+  "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5",

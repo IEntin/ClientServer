@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MemoryPool.h"
 #include "ThreadPool.h"
 #include <string>
 #include <vector>
@@ -16,6 +17,8 @@ class Client {
   Vectors _task;
 
   ThreadPool _threadPool;
+
+  MemoryPool _memoryPool;
 
   bool loop(const ClientOptions& options);
 

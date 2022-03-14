@@ -25,11 +25,11 @@ struct EchoTest : testing::Test {
     // start client
     tcp::TcpClient client(options);
     bool clientRun = client.run();
-    tcpServer->stop();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
     ASSERT_EQ(oss.str().size(), _input.size());
     ASSERT_EQ(oss.str(), _input);
+    tcpServer->stop();
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {

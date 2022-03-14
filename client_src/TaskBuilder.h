@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ClientOptions.h"
+#include "MemoryPool.h"
 #include "ThreadPool.h"
 #include <future>
 
@@ -15,12 +17,13 @@ class TaskBuilder : public Runnable {
   const std::string _sourceName;
   const COMPRESSORS _compressor;
   const bool _diagnostics;
+  MemoryPool& _memoryPool;
   bool _done = false;
   std::promise<void> _promise;
 
  public:
 
-  TaskBuilder(const std::string& sourceName, COMPRESSORS compressor, bool diagnostics);
+  TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool);
   ~TaskBuilder() override;
   void run() noexcept override;
   bool getTask(Vectors& task);

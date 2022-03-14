@@ -1,7 +1,6 @@
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
-#include "MemoryPool.h"
 #include "TaskBuilder.h"
 #include <cassert>
 #include <csignal>
@@ -12,7 +11,7 @@
 extern volatile std::sig_atomic_t stopFlag;
 
 Client::Client(size_t bufferSize) : _threadPool(1) {
-  MemoryPool::setup(bufferSize);
+  _memoryPool.setup(bufferSize);
 }
 
 Client::~Client() {
@@ -22,8 +21,7 @@ Client::~Client() {
 
 bool Client::loop(const ClientOptions& options) {
   unsigned numberTasks = 0;
-  TaskBuilderPtr taskBuilder =
-    std::make_shared<TaskBuilder>(options._sourceName, options._compressor, options._diagnostics);
+  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(options, _memoryPool);
   _threadPool.push(taskBuilder);
   do {
     Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
@@ -38,7 +36,7 @@ bool Client::loop(const ClientOptions& options) {
     // starts construction of the next task in the background
     if (options._runLoop) {
       taskBuilder =
-	std::make_shared<TaskBuilder>(options._sourceName, options._compressor, options._diagnostics);
+	std::make_shared<TaskBuilder>(options, _memoryPool);
       _threadPool.push(taskBuilder);
     }
     if (!success)
@@ -64,7 +62,7 @@ bool Client::printReply(const ClientOptions& options,
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received compressed" << std::endl;
-    std::string_view dstView = Compression::uncompress(received, uncomprSize);
+    std::string_view dstView = Compression::uncompress(received, uncomprSize, _memoryPool);
     if (dstView.empty()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":failed to uncompress payload" << std::endl;

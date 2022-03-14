@@ -25,12 +25,14 @@ std::string CompressionTest::_input1 = Client::readFile("requests.log");
 std::string CompressionTest::_input2 = Client::readFile("output.txt");
 
 void testCompressionDecompression1(std::string_view input) {
-  std::string_view compressedView = Compression::compress(input);
+  MemoryPool memoryPool;
+  memoryPool.setup(100000);
+  std::string_view compressedView = Compression::compress(input, memoryPool);
   ASSERT_FALSE(compressedView.empty());
   // save to a string before buffer is reused in uncompress
   std::string compressed;
   compressed.assign(compressedView.data(), compressedView.size());
-  std::string_view uncompressedView = Compression::uncompress(compressed, input.size());
+  std::string_view uncompressedView = Compression::uncompress(compressed, input.size(), memoryPool);
   static auto& printOnce [[maybe_unused]] = std::clog << "\n   input.size()=" << input.size()
 	    << " compressedView.size()=" << compressedView.size() << " restored to original:"
             << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
@@ -38,7 +40,9 @@ void testCompressionDecompression1(std::string_view input) {
 }
 
 void testCompressionDecompression2(std::string_view input) {
-  std::string_view compressedView = Compression::compress(input);
+  MemoryPool memoryPool;
+  memoryPool.setup(100000);
+  std::string_view compressedView = Compression::compress(input, memoryPool);
   ASSERT_FALSE(compressedView.empty());
   std::vector<char> uncompressed(input.size());
   ASSERT_TRUE(Compression::uncompress(compressedView, uncompressed));
@@ -118,8 +122,10 @@ struct BuildTaskTest : testing::Test {
   void testBuildTask(COMPRESSORS compressor) {
     ClientOptions options;
     options._compressor = compressor;
-    TaskBuilder taskBuilder(options._sourceName, options._compressor, options._diagnostics);
-   taskBuilder.run();
+    MemoryPool memoryPool;
+    memoryPool.setup(options._bufferSize);
+    TaskBuilder taskBuilder(options, memoryPool);
+    taskBuilder.run();
     Vectors task;
     ASSERT_TRUE(taskBuilder.getTask(task));
     std::string uncompressedResult;
@@ -133,7 +139,7 @@ struct BuildTaskTest : testing::Test {
       if (bcompressed) {
 	std::string_view uncompressedView =
 	  Compression::uncompress(std::string_view(subtask.data() + HEADER_SIZE, subtask.size() - HEADER_SIZE),
-				  getUncompressedSize(header));
+				  getUncompressedSize(header), memoryPool);
 	ASSERT_FALSE(uncompressedView.empty());
 	uncompressedResult.append(uncompressedView);
       }

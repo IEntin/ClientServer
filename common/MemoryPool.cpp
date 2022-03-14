@@ -3,14 +3,21 @@
  */
 
 #include "MemoryPool.h"
+#include "Compression.h"
 #include "Header.h"
 #include "lz4.h"
 #include <iostream>
 
-size_t MemoryPool::_initialBufferSize(100000);
+size_t MemoryPool::_initialBufferSize(0);
 
 MemoryPool::MemoryPool() :
-  _primaryBuffer(_initialBufferSize), _secondaryBuffer(_initialBufferSize) {}
+  _primaryBuffer(Compression::getCompressBound(_initialBufferSize)),
+  _secondaryBuffer(Compression::getCompressBound(_initialBufferSize)) {}
+
+MemoryPool::~MemoryPool() {
+  std::vector<char>().swap(_primaryBuffer);
+  std::vector<char>().swap(_secondaryBuffer);
+}
 
 MemoryPool& MemoryPool::instance() {
   static thread_local MemoryPool instance;
@@ -22,6 +29,7 @@ void MemoryPool::setup(size_t initialBufferSize) {
 }
 
 std::vector<char>& MemoryPool::getPrimaryBuffer(size_t requested) {
+  instance().resetBufferSize();
   if (requested == 0)
     return instance()._primaryBuffer;
   else if (requested > instance()._primaryBuffer.capacity()) {
@@ -34,6 +42,7 @@ std::vector<char>& MemoryPool::getPrimaryBuffer(size_t requested) {
 }
 
 std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
+  instance().resetBufferSize();
   if (requested == 0)
     return instance()._secondaryBuffer;
   else if (requested > instance()._secondaryBuffer.capacity()) {
@@ -43,4 +52,17 @@ std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
     instance()._secondaryBuffer.reserve(requested);
   }
   return instance()._secondaryBuffer;
+}
+
+void MemoryPool::resetBufferSize() {
+  if (_perThreadBufferSize != _initialBufferSize) {
+    std::vector<char>().swap(_primaryBuffer);
+    _primaryBuffer.resize(_initialBufferSize);
+    std::vector<char>().swap(_secondaryBuffer);
+    _secondaryBuffer.resize(_initialBufferSize);
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":buffer size reset from " << _perThreadBufferSize
+	      <<" to " << _initialBufferSize << std::endl;
+    _perThreadBufferSize = _initialBufferSize;
+  }
 }

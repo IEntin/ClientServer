@@ -8,7 +8,7 @@
   "OutputFileName" : "",
   "InstrumentationFn" : "",
   "Compression" : "LZ4",
-  "DYNAMIC_BUFFER_SIZE" : 3600000,
+  "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
   "RunLoop" : true,
   "MaxNumberTasks" : 150,
