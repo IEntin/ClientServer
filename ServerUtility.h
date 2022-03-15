@@ -10,4 +10,4 @@ namespace serverutility {
 
 std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPool& memoryPool);
 
-} // end of namespace commutility
+} // end of namespace serverutility

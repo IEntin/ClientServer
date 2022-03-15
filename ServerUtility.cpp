@@ -15,7 +15,7 @@ std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPo
   size_t uncomprSize = 0;
   for (const auto& chunk : batch)
     uncomprSize += chunk.size();
-  size_t requestedSize = Compression::getCompressBound(uncomprSize) + HEADER_SIZE;
+  size_t requestedSize = uncomprSize + HEADER_SIZE;
   std::vector<char>& buffer = memoryPool.getSecondaryBuffer(requestedSize);
   buffer.resize(uncomprSize + HEADER_SIZE);
   size_t pos = HEADER_SIZE;
@@ -38,4 +38,4 @@ std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPo
   return sendView;
 }
 
-} // end of namespace commutility
+} // end of namespace serverutility
