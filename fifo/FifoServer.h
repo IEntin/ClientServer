@@ -42,7 +42,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   void pushToThreadPool(FifoConnectionPtr connection);
 };
 
-class FifoConnection : public std::enable_shared_from_this<FifoConnection>, public Runnable {
+class FifoConnection : public Runnable {
   TaskControllerPtr _taskController;
   std::string _fifoName;
   COMPRESSORS _compressor;
@@ -57,7 +57,6 @@ class FifoConnection : public std::enable_shared_from_this<FifoConnection>, publ
 		   std::vector<char>& uncompressed);
   bool sendResponse(Batch& response);
   std::vector<char> _uncompressedRequest;
-  Batch _requestBatch;
   Batch _response;
   void run() noexcept override;
  public:

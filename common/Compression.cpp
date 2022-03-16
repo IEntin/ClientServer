@@ -48,16 +48,8 @@ size_t Compression::getCompressBound(size_t uncomprSize) {
 }
 
 std::string_view Compression::compress(std::string_view origin, MemoryPool& memoryPool) {
-  size_t needCapacity = LZ4_compressBound(origin.size());
-  size_t dstCapacity = 0;
-  if (memoryPool.getPrimaryBuffer().capacity() < needCapacity)
-    // need to increase
-    dstCapacity = origin.size();
-  else
-    // can use as is
-    dstCapacity = 0;
-  std::vector<char>& buffer = memoryPool.getPrimaryBuffer(dstCapacity);
-  std::string_view dstView = compressInternal(origin, buffer.data(), needCapacity);
+  std::vector<char>& buffer = memoryPool.getPrimaryBuffer(LZ4_compressBound(origin.size()));
+  std::string_view dstView = compressInternal(origin, buffer.data(), buffer.capacity());
   if (dstView.empty()) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":failed to compress payload" << std::endl;
