@@ -17,7 +17,7 @@ constexpr double EPSILON{ 0.0001 };
 } // end of anonimous namespace
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
-  os << "Ad" << ad._id << " size=" << ad._size << " defaultBid="
+  os << "Ad" << ad._id << " size=" << ad._sizeKey << " defaultBid="
      << utility::Print(ad._defaultBid, 1) << '\n';
   os << ' ' << ad._input << '\n';
   for (const auto& [key, adPtr, money] : ad._bids)
@@ -40,8 +40,6 @@ bool Ad::parseIntro() {
   std::string_view introStr(_input.begin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
-  int width = 0;
-  int height = 0;
   enum { ID, WIDTH, HEIGHT, DEFAULTBID, END };
   for (int i = ID; i != END; ++i) {
     switch(i) {
@@ -49,12 +47,10 @@ bool Ad::parseIntro() {
       _id = vect[i];
       break;
     case WIDTH:
-      if (!utility::fromChars(vect[i], width))
-	return false;
+      _sizeKey.append(vect[WIDTH].data(), vect[WIDTH].size()).append(1, 'x');
       break;
     case HEIGHT:
-      if (!utility::fromChars(vect[i], height))
-	return false;
+      _sizeKey.append(vect[HEIGHT].data(), vect[HEIGHT].size());
       break;
     case DEFAULTBID:
       if (!utility::fromChars(vect[i], _defaultBid))
@@ -64,7 +60,6 @@ bool Ad::parseIntro() {
       break;
     }
   }
-  _size = { width, height };
   if (_defaultBid < EPSILON)
     _defaultBid = 0;
   return true;
@@ -100,9 +95,9 @@ bool Ad::parseArray() {
   return true;
 }
 
-const std::vector<AdPtr>& Ad::getAdsBySize(const Size& size) {
-  static std::vector<AdPtr> empty = std::vector<AdPtr>();
-  const auto it = _mapBySize.find(size);
+const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
+  static const std::vector<AdPtr> empty;
+  const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
     return empty;
   return it->second;
@@ -122,7 +117,7 @@ bool Ad::load(const std::string& fileName) {
 	  AdPtr ad = std::make_shared<Ad>(std::move(line));
 	  if (!(ad->parseIntro() && ad->parseArray()))
 	    continue;
-	  auto [it, inserted] = _mapBySize.emplace(ad->_size, std::vector<AdPtr>());
+	  auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
 	  it->second.push_back(ad);
 	}
 	else

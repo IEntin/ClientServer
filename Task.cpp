@@ -7,7 +7,7 @@ Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
   _header(header), _response(response)  {
   static thread_local std::vector<char> rawInput;
   input.swap(rawInput);
-  utility::split(rawInput, _storage);
+  utility::split(std::string_view(rawInput.data(), rawInput.size()), _storage);
   _response.resize(_storage.size());
 }
 

@@ -15,6 +15,10 @@ constexpr std::string_view START_KEYWORDS1("kw=");
 constexpr std::string_view START_KEYWORDS2("keywords=");
 constexpr char KEYWORD_SEP = '+';
 constexpr char KEYWORDS_END = '&';
+constexpr std::string_view SIZE_START("size=");
+constexpr std::string_view AD_WIDTH("ad_width=");
+constexpr std::string_view AD_HEIGHT("ad_height=");
+constexpr char SIZE_END('&');
 
 } // end of anonimous namespace
 
@@ -22,7 +26,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   const auto& winningBid = transaction._winningBid;
   os << transaction._id << ' ';
   if (Diagnostics::enabled()) {
-    os <<"Transaction size=" << transaction._size << " #matches=" << utility::Print(transaction._bids.size())
+    os <<"Transaction size=" << transaction._sizeKey << " #matches=" << utility::Print(transaction._bids.size())
        << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
@@ -68,9 +72,8 @@ Transaction::Transaction(std::string_view input) {
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
     _request = input.substr(pos + 1);
-    _size = Size::parseSizeFormat1(_request);
-    if (_size.empty())
-      _size = Size::parseSizeFormat2(_request);
+    if (!normalizeSizeKey())
+      return;
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }
@@ -86,11 +89,11 @@ std::string Transaction::processRequest(std::string_view view) noexcept {
   try {
     Transaction transaction(view);
     id.assign(transaction._id);
-    if (transaction._size.empty() || transaction._keywords.empty()) {
+    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._sizeKey);
+    if (adVector.empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
-    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._size);
     transaction.matchAds(adVector);
     if (transaction._noMatch && !Diagnostics::enabled())
       return id.append(1, ' ').append(EMPTY_REPLY);
@@ -103,6 +106,40 @@ std::string Transaction::processRequest(std::string_view view) noexcept {
 	      << std::strerror(errno) << std::endl;
   }
   return id.append(PROCESSING_ERROR);
+}
+
+bool Transaction::normalizeSizeKey() {
+  size_t beg = _request.find(SIZE_START);
+  if (beg != std::string::npos) {
+    beg += SIZE_START.size();
+    size_t end = _request.find(SIZE_END, beg + 1);
+    if (end == std::string::npos)
+      _sizeKey = _request.substr(beg, _request.size() - beg);
+    else
+      _sizeKey = _request.substr(beg, end - beg);
+  }
+  else {
+    size_t beg = _request.find(AD_WIDTH);
+    if (beg != std::string::npos) {
+      size_t separator = _request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
+      if (separator != std::string::npos) {
+	size_t offset = beg + AD_WIDTH.size();
+	_sizeKey.append(_request.data() + offset, separator - offset).append(1, 'x');
+	size_t begHeight = _request.find(AD_HEIGHT, separator + 1);
+	if (begHeight != std::string::npos) {
+	  offset = begHeight + AD_HEIGHT.size();
+	  size_t heightSize = std::string::npos;
+	  size_t end = _request.find(SIZE_END, offset + 1);
+	  if (end != std::string::npos)
+	    heightSize = end - offset;
+	  else
+	    heightSize = _request.size() - offset;
+	  _sizeKey.append(_request.data() + offset, heightSize);
+	}
+      }
+    }
+  }
+  return !(_invalid = _sizeKey.empty());
 }
 
 struct Comparator {

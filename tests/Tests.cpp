@@ -146,7 +146,7 @@ struct BuildTaskTest : testing::Test {
       else
 	uncompressedResult.append(subtask.data() + HEADER_SIZE, subtask.size() - HEADER_SIZE);
     }
-    Vectors batchResult;
+    std::vector<std::string_view> batchResult;
     utility::split(uncompressedResult, batchResult);
     std::string restoredString;
     for (const auto& item : batchResult) {

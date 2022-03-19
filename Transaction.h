@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Ad.h"
-#include "Size.h"
 #include <string_view>
 #include <vector>
 
@@ -21,10 +20,11 @@ private:
   Transaction& operator =(const Transaction& other) = delete;
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
+  bool normalizeSizeKey();
   void matchAds(const std::vector<AdPtr>& adVector);
   std::string_view _id;
   std::string_view _request;
-  Size _size;
+  std::string _sizeKey;
   // Made static to keep the capacity growing as needed.
   // thread_local makes it thread safe b/c single request
   // is processed in one thread. Transaction destructor clears this

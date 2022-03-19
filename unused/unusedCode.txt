@@ -34,3 +34,20 @@ bool FifoServer::Runnable::waitRequest() {
   } while (errno == EINTR && rep++ < 3 && !stopFlag);
   return !stopFlag;
 }
+
+// INPUT can be a string or string_view or vector<char>
+// OUTPUT a string or string_view or vector<char>
+template <typename INPUT, typename OUTPUT>
+  void split(const INPUT& input, std::vector<OUTPUT>& lines, char delim = '\n') {
+    auto start = input.cbegin();
+    auto end = input.cend();
+    auto next = std::find(start, end, delim);
+    while (next != end) {
+      if (next > start + 1)
+	lines.emplace_back(start, next);
+      start = next + 1;
+      next = std::find(start, end, delim);
+    }
+    if (next > start + 1)
+      lines.emplace_back(start, next);
+}

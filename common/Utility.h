@@ -19,21 +19,23 @@ struct ClientOptions;
 
 namespace utility {
 
-// INPUT can be a string or string_view or vector<char>
-// OUTPUT a string or string_view or vector<char>
+// INPUT can be a string or string_view
+// OUTPUT a string or string_view
 template <typename INPUT, typename OUTPUT>
   void split(const INPUT& input, std::vector<OUTPUT>& lines, char delim = '\n') {
-    auto start = input.cbegin();
-    auto end = input.cend();
-    auto next = std::find(start, end, delim);
-    while (next != end) {
-      if (next > start + 1)
-	lines.emplace_back(start, next);
+    size_t start = 0;
+    size_t next = 0;
+    while (start < input.size()) {
+      next = input.find(delim, start);
+      if (next == std::string::npos) {
+	if (input.size() > start + 1)
+	  lines.emplace_back(input.data() + start, input.size() - start);
+	break;
+      }
+      else if (next > start + 1)
+	lines.emplace_back(input.data() + start, next - start);
       start = next + 1;
-      next = std::find(start, end, delim);
     }
-    if (next > start + 1)
-      lines.emplace_back(start, next);
 }
 
 template <typename STRING1, typename STRING2>

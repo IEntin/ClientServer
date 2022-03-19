@@ -2,6 +2,7 @@
 #include "ProgramOptions.h"
 #include "Transaction.h"
 #include <filesystem>
+#include <iostream>
 #include <thread>
 
 ServerOptions::ServerOptions() :
