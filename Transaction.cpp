@@ -66,6 +66,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
+thread_local std::string  Transaction::_sizeKey;
 
 Transaction::Transaction(std::string_view input) {
   size_t pos = input.find(']');
@@ -82,6 +83,7 @@ Transaction::Transaction(std::string_view input) {
 Transaction::~Transaction() {
   _bids.clear();
   _keywords.clear();
+  _sizeKey.clear();
 }
 
 std::string Transaction::processRequest(std::string_view view) noexcept {
@@ -114,12 +116,11 @@ bool Transaction::normalizeSizeKey() {
     beg += SIZE_START.size();
     size_t end = _request.find(SIZE_END, beg + 1);
     if (end == std::string::npos)
-      _sizeKey = _request.substr(beg, _request.size() - beg);
-    else
-      _sizeKey = _request.substr(beg, end - beg);
+      end = _request.size();
+    _sizeKey.assign(_request.data() + beg, end - beg);
   }
   else {
-    size_t beg = _request.find(AD_WIDTH);
+    beg = _request.find(AD_WIDTH);
     if (beg != std::string::npos) {
       size_t separator = _request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
       if (separator != std::string::npos) {

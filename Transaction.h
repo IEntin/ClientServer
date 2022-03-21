@@ -24,7 +24,6 @@ private:
   void matchAds(const std::vector<AdPtr>& adVector);
   std::string_view _id;
   std::string_view _request;
-  std::string _sizeKey;
   // Made static to keep the capacity growing as needed.
   // thread_local makes it thread safe b/c single request
   // is processed in one thread. Transaction destructor clears this
@@ -34,6 +33,8 @@ private:
   static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
+  // and here
+  static thread_local std::string _sizeKey;
   AdBid _winningBid;
   bool _noMatch{ false };
   bool _invalid{ false };

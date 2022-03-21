@@ -110,7 +110,7 @@ on server side './server' in the project root\
 on client side './client' in the client_bin or any other directory.
 
 No special requirements for the hardware.\
-Using laptop with 4 cores and 4GB RAM to run the server and up to 5 clients.\
+Using laptop with 4 cores and 4GB RAM to run the server and up to 5 fifo and tcp clients.\
 Running Linux Mint 20.2.
 Multiple runtime options are in ProgramOptions.json files for the server and client
 in corresponding directories.

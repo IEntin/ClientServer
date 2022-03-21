@@ -6,16 +6,10 @@
 
 #include <charconv>
 #include <iostream>
-#include <string>
 #include <string_view>
-#include <tuple>
 #include <vector>
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
-
-using Batch = std::vector<std::string>;
-
-struct ClientOptions;
 
 namespace utility {
 

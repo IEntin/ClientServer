@@ -36,7 +36,7 @@ echo "FIRST_CLIENT_PROFILE is $FIRST_CLIENT_PROFILE"
 echo "SECOND_CLIENT_PROFILE is $SECOND_CLIENT_PROFILE"
 
 # Build profile binaries.
-make -j3 PROFILE=1
+make -j3 CMPLR=g++ PROFILE=1
 # Start the server.
 $SERVER_DIRECTORY/server&
 SERVER_PID=$!
