@@ -12,6 +12,6 @@
   "Timing" : true,
   "RunLoop" : true,
   "MaxNumberTasks" : 150,
-  "ServerHost" : "ilya-Lenovo-G570",
+  "ServerHost" : "localhost",
   "TcpPort" : "49152"
 }

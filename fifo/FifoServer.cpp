@@ -69,11 +69,11 @@ void FifoServer::removeFifoFiles() {
 
 void FifoServer::wakeupPipes() {
   for (const auto& fifoName : _fifoNames) {
-    int fd = open(fifoName.c_str(), O_WRONLY);
+    int fd = open(fifoName.c_str(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << '-' << fifoName << std::endl;
-      return;
+      continue;
     }
     char c = 's';
     int result = write(fd, &c, 1);
