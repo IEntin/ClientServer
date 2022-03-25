@@ -48,18 +48,14 @@ TaskControllerPtr TaskController::instance(unsigned numberThreads,
   return instance;
 }
 
-// This method is called for every blocked thread when it ran out of work and waits
-// for the next task. In our case only one thread is doing the actual work. This
-// thread is selected arbitrarily, in this case the first created thread.
+// This method is called by one of the blocked threads when
+// they ran out of work and wait for the next task.
 
 void TaskController::onTaskFinish() noexcept {
-  static std::thread::id firstId = std::this_thread::get_id();
-  if (std::this_thread::get_id() == firstId) {
-    TaskControllerPtr taskController = instance();
-    taskController->_task->finish();
-    // Blocks until the new task is available.
-    taskController->setNextTask();
-  }
+  TaskControllerPtr taskController = instance();
+  taskController->_task->finish();
+  // Blocks until the new task is available.
+  taskController->setNextTask();
 }
 
 void TaskController::initialize() {
