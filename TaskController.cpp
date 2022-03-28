@@ -21,13 +21,8 @@ TaskController::TaskController(unsigned numberThreads,
   _task = std::make_shared<Task>(emptyBatch);
 }
 
-// push an empty task to the queue to
-// wake up and join the threads.
-
 TaskController::~TaskController() {
   _stopped.store(true);
-  Batch emptyBatch;
-  push(std::make_shared<Task>(emptyBatch));
   _threadPool.stop();
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
@@ -59,10 +54,8 @@ void TaskController::onTaskFinish() noexcept {
 }
 
 void TaskController::initialize() {
-  for (unsigned i = 0; i < _numberThreads; ++i) {
-    TaskProcessorPtr taskProcessor = std::make_shared<TaskProcessor>(shared_from_this());
-    pushToThreadPool(taskProcessor);
-  }
+  for (unsigned i = 0; i < _numberThreads; ++i)
+    _threadPool.push(shared_from_this());
 }
 
 // Process the current task (batch of requests) by all threads. Arrive
@@ -127,18 +120,4 @@ std::tuple<std::string_view, bool, size_t> TaskController::next() {
 
 void TaskController::updateResponse(size_t index, std::string& rsp) {
   _task->updateResponse(index, rsp);
-}
-
-void TaskController::pushToThreadPool(TaskProcessorPtr processor) {
-  _threadPool.push(processor);
-}
-
-// class TaskProcessor
-
-TaskProcessor::TaskProcessor(TaskControllerPtr controller) : _controller(controller) {}
-
-TaskProcessor::~TaskProcessor() {}
-
-void TaskProcessor::run() noexcept {
-  _controller->run();
 }
