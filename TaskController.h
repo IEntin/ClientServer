@@ -27,8 +27,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void initialize();
   void push(TaskPtr task);
   void setNextTask();
-  std::tuple<std::string_view, bool, size_t> next();
-  void updateResponse(size_t index, std::string& rsp);
   bool stopped() const { return _stopped; }
   static TaskControllerPtr create(unsigned numberThreads,
 				  ProcessRequest processRequest,

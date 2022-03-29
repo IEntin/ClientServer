@@ -64,10 +64,10 @@ void TaskController::initialize() {
 void TaskController::run() noexcept {
   try {
     while (!stopped()) {
-      auto [request, atEnd, index] = next();
+      auto [request, atEnd, index] = _task->next();
       if (!atEnd) {
 	std::string response = _processRequest(request);
-	updateResponse(index, response);
+	_task->updateResponse(index, response);
 	continue;
       }
       _barrier.arrive_and_wait();
@@ -112,12 +112,4 @@ void TaskController::setNextTask() {
 
 void TaskController::setMemoryPoolSize(size_t size) {
   _memoryPool.setInitialSize(size);
-}
-
-std::tuple<std::string_view, bool, size_t> TaskController::next() {
-  return _task->next();
-}
-
-void TaskController::updateResponse(size_t index, std::string& rsp) {
-  _task->updateResponse(index, rsp);
 }
