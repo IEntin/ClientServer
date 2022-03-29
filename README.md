@@ -111,8 +111,8 @@ on client side './client' in the client_bin or any other directory.
 
 No special requirements for the hardware.\
 Using laptop with 4 cores and 4GB RAM to run the server and up to 5 fifo and tcp clients.\
-Running Linux Mint 20.2.
-Multiple runtime options are in ProgramOptions.json files for the server and client
+Running Linux Mint 20.2.\
+Multiple runtime options are in ProgramOptions.json files for the server and client\
 in corresponding directories.
 
 Some of these:
@@ -128,6 +128,9 @@ for the batch of 10000 requests and the total run time for the server. See Chron
 This parameter controls the task size(the number of requests in the batch) and\
 memory footprint of the application. The latter is important for embedded systems.
 
+"NumberTaskThreads" is the number of work threads. The default\
+value 0 means that the number of threads is std::hardware_concurrency
+
 Client can request diagnostics for a specific task to show details of all stages of business calculations.\
 This setting is '"Diagnostics" : true' in the client ProgramOptions.json. It enables diagnostics only\
 for that client.
@@ -139,9 +142,8 @@ in the project root directory.
 Script profile.sh runs automatic profiling of the server and client. The usage is\
 './profile.sh' in the server directory.
 
-The accepted procedure in this project includes thread and memory sanitizer runs and performance\
-profiling of every commit. Sanitizer warnings are considered failures and are not accepted.\
-The number of Google tests is still limited and is steadily increasing.
+The conventional procedure in this project includes thread and memory sanitizer runs and performance\
+profiling of every commit. Sanitizer warnings are considered failures and are not accepted.
 
 =======
 ### Fast Lockless Linux Client-Server with TCP and FIFO clients
