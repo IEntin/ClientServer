@@ -3,10 +3,11 @@
  */
 
 #include "TaskController.h"
-#include "Diagnostics.h"
 #include "Task.h"
 #include <cassert>
 #include <iostream>
+
+bool TaskController::_diagnosticsEnabled = false;
 
 TaskController::TaskController(unsigned numberThreads,
 			       ProcessRequest processRequest,
@@ -106,7 +107,7 @@ void TaskController::setNextTask() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   _task = _queue.front();
-  Diagnostics::enable(_task->diagnosticsEnabled());
+  _diagnosticsEnabled = _task->diagnosticsEnabled();
   _queue.pop();
 }
 

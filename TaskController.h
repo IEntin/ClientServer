@@ -42,6 +42,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   std::queue<TaskPtr> _queue;
   std::atomic<bool> _stopped = false;
   MemoryPool _memoryPool;
+  static bool _diagnosticsEnabled;
  public:
   ~TaskController() override;
   void run() noexcept override;
@@ -52,4 +53,5 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   static TaskControllerPtr instance(unsigned numberThreads = 0,
 				    ProcessRequest processRequest = nullptr,
 				    size_t bufferSize = 0);
+  static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
 };
