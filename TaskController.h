@@ -23,17 +23,14 @@ using CompletionFunction = void (*) () noexcept;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
-  TaskController(unsigned numberThreads, ProcessRequest processRequest, size_t bufferSize);
+  TaskController(unsigned numberThreads, size_t bufferSize);
   void initialize();
   void push(TaskPtr task);
   void setNextTask();
   bool stopped() const { return _stopped; }
-  static TaskControllerPtr create(unsigned numberThreads,
-				  ProcessRequest processRequest,
-				  size_t bufferSize);
+  static TaskControllerPtr create(unsigned numberThreads, size_t bufferSize);
   static void onTaskFinish() noexcept;
   const unsigned _numberThreads;
-  ProcessRequest _processRequest;
   std::barrier<CompletionFunction> _barrier;
   ThreadPool _threadPool;
   TaskPtr _task;
@@ -47,11 +44,8 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   ~TaskController() override;
   void run() noexcept override;
   void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
-  void setProcessMethod(ProcessRequest processMethod) { _processRequest = processMethod; }
   MemoryPool& getMemoryPool() { return _memoryPool; }
   void setMemoryPoolSize(size_t size);
-  static TaskControllerPtr instance(unsigned numberThreads = 0,
-				    ProcessRequest processRequest = nullptr,
-				    size_t bufferSize = 0);
+  static TaskControllerPtr instance(unsigned numberThreads = 0, size_t bufferSize = 0);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
 };

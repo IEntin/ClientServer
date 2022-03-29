@@ -6,6 +6,7 @@
 #include "Chronometer.h"
 #include "FifoServer.h"
 #include "ServerOptions.h"
+#include "Task.h"
 #include "TaskController.h"
 #include "TcpServer.h"
 #include <csignal>
@@ -26,8 +27,8 @@ int main() {
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
   if (!Ad::load(options._adsFileName))
     return 1;
+  Task::setProcessMethod(options._processRequest);
   TaskControllerPtr taskController = TaskController::instance(options._numberWorkThreads,
-							      options._processRequest,
 							      options._bufferSize);
   tcp::TcpServerPtr tcpServer =
     std::make_shared<tcp::TcpServer>(taskController,

@@ -18,6 +18,8 @@ using TaskPtr = std::shared_ptr<Task>;
 
 using Requests = std::vector<std::string_view>;
 
+using ProcessRequest = std::string (*)(std::string_view);
+
 class Task {
   Task(const Task& other) = delete;
   Task& operator =(const Task& other) = delete;
@@ -30,6 +32,7 @@ class Task {
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
   Batch& _response;
+  static ProcessRequest _processRequest;
 
  public:
   Task(Batch& emptyBatch);
@@ -40,11 +43,11 @@ class Task {
 
   std::promise<void>& getPromise() { return _promise; }
 
-  std::tuple<std::string_view, bool, size_t> next();
-
-  void updateResponse(size_t index, std::string& rsp) {
-    _response[index].swap(rsp);
-  }
+  bool next();
 
   void finish();
+
+  static void setProcessMethod(ProcessRequest processMethod) {
+    _processRequest = processMethod;
+  }
 };

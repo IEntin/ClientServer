@@ -9,11 +9,8 @@
 
 bool TaskController::_diagnosticsEnabled = false;
 
-TaskController::TaskController(unsigned numberThreads,
-			       ProcessRequest processRequest,
-			       size_t bufferSize) :
+TaskController::TaskController(unsigned numberThreads, size_t bufferSize) :
   _numberThreads(numberThreads),
-  _processRequest(processRequest),
   _barrier(numberThreads, onTaskFinish),
   _threadPool(numberThreads) {
   _memoryPool.setInitialSize(bufferSize);
@@ -28,19 +25,15 @@ TaskController::~TaskController() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-TaskControllerPtr TaskController::create(unsigned numberThreads,
-					 ProcessRequest processRequest,
-					 size_t bufferSize) {
+TaskControllerPtr TaskController::create(unsigned numberThreads, size_t bufferSize) {
   // to have private constructor do not use make_shared
-  TaskControllerPtr taskController(new TaskController(numberThreads, processRequest, bufferSize));
+  TaskControllerPtr taskController(new TaskController(numberThreads, bufferSize));
   taskController->initialize();
   return taskController;
 }
 
-TaskControllerPtr TaskController::instance(unsigned numberThreads,
-					   ProcessRequest processRequest,
-					   size_t bufferSize) {
-  static TaskControllerPtr instance = create(numberThreads, processRequest, bufferSize);
+TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t bufferSize) {
+  static TaskControllerPtr instance = create(numberThreads, bufferSize);
   return instance;
 }
 
@@ -65,12 +58,8 @@ void TaskController::initialize() {
 void TaskController::run() noexcept {
   try {
     while (!stopped()) {
-      auto [request, atEnd, index] = _task->next();
-      if (!atEnd) {
-	std::string response = _processRequest(request);
-	_task->updateResponse(index, response);
+      if (_task->next())
 	continue;
-      }
       _barrier.arrive_and_wait();
     }
   }

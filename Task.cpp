@@ -1,6 +1,8 @@
 #include "Task.h"
 #include "Utility.h"
 
+ProcessRequest Task::_processRequest = nullptr;
+
 Task::Task(Batch& emptyBatch) : _response(emptyBatch) {}
 
 Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
@@ -11,16 +13,16 @@ Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
   _response.resize(_storage.size());
 }
 
-std::tuple<std::string_view, bool, size_t> Task::next() {
+bool Task::next() {
   size_t pointer = _pointer.fetch_add(1);
   if (pointer < _storage.size()) {
-    auto it = std::next(_storage.begin(), pointer);
-    return std::make_tuple(std::string_view(it->data(), it->size()),
-			   false,
-			   std::distance(_storage.begin(), it));
+    std::string_view request = _storage[pointer];
+    std::string response = _processRequest(request);
+    _response[pointer].swap(response);
+    return true;
   }
   else
-    return std::make_tuple(std::string_view(), true, 0);
+    return false;
 }
 
 void Task::finish() {

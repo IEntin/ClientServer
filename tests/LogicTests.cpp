@@ -4,6 +4,7 @@
 #include "FifoServer.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
+#include "Task.h"
 #include "TaskController.h"
 #include "TcpClient.h"
 #include "TcpConnection.h"
@@ -77,12 +78,8 @@ struct LogicTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
-    _taskController =
-      TaskController::instance(std::thread::hardware_concurrency(), Transaction::processRequest);
-    // TaskController instance could be already created by other tests.
-    // The lifetime of the TaskProcessor is the lifetime of the process.
-    // Making sure we have the correct method in action.
-    _taskController->setProcessMethod(Transaction::processRequest);
+    Task::setProcessMethod(Transaction::processRequest);
+    _taskController = TaskController::instance(std::thread::hardware_concurrency());
   }
   static void TearDownTestSuite() {}
 };
