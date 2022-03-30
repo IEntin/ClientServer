@@ -22,7 +22,7 @@ struct CompressionTest : testing::Test {
   static std::string _input2;
 };
 std::string CompressionTest::_input1 = Client::readFile("requests.log");
-std::string CompressionTest::_input2 = Client::readFile("output.txt");
+std::string CompressionTest::_input2 = Client::readFile("outputD.txt");
 
 void testCompressionDecompression1(std::string_view input) {
   MemoryPool memoryPool;

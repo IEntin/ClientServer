@@ -84,7 +84,7 @@ struct LogicTest : testing::Test {
   static void TearDownTestSuite() {}
 };
 std::string LogicTest::_input = Client::readFile("requests.log");
-std::string LogicTest::_calibratedOutput = Client::readFile("output.txt");
+std::string LogicTest::_calibratedOutput = Client::readFile("outputD.txt");
 TaskControllerPtr LogicTest::_taskController;
 
 TEST_F(LogicTest, LogicTestTcp1) {
