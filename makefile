@@ -25,7 +25,12 @@ CLIENTBINDIR = client_bin
 
 TESTDIR = tests
 
+
 PRECOMPILED_HEADERS = true
+
+ifeq ($(CXX),g++)
+PRECOMPILED_HEADERS = false
+endif
 
 ifeq ($(PRECOMPILED_HEADERS),true) 
 	ALLH = common/all.h
