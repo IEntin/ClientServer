@@ -84,4 +84,4 @@ $(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client $(PCH) $(TEST
 clean:
 	rm -f *.d server $(CLIENTBINDIR)/client $(CLIENTBINDIR)/*.d $(CLIENTBINDIR)/gmon.out $(TESTDIR)/runtests $(TESTDIR)/*.d
 	rm -f gmon.out *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt
-	rm -f $(PCH)
+	rm -f common/all.h.pch common/all.h.gch
