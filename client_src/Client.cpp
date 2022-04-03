@@ -30,22 +30,17 @@ bool Client::loop(const ClientOptions& options) {
     if (!success) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		 << ":TaskBuilder failed" << std::endl;
-      if (!options._runLoop)
-	return false;
+      return false;
     }
-    // starts construction of the next task in the background
+    // start construction of the next task in the background
     if (options._runLoop) {
-      taskBuilder =
-	std::make_shared<TaskBuilder>(options, _memoryPool);
+      taskBuilder = std::make_shared<TaskBuilder>(options, _memoryPool);
       _threadPool.push(taskBuilder);
     }
-    if (!success)
-      continue;
     // processes current task
     if (!processTask())
       return false;
-    // limit output file size
-    if (++numberTasks == options._maxNumberTasks)
+    if (options._maxNumberTasks > 0 && ++numberTasks == options._maxNumberTasks)
       break;
   } while (options._runLoop && !stopFlag);
   return true;

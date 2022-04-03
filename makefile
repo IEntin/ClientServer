@@ -25,6 +25,12 @@ CLIENTBINDIR = client_bin
 
 TESTDIR = tests
 
+ifeq ($(CXX),clang++)
+	PCH = common/all.h.pch
+else
+	PCH = common/all.h.gch
+endif
+
 all: server $(CLIENTBINDIR)/client $(TESTDIR)/runtests
 
 OPTIMIZE=
@@ -53,24 +59,29 @@ WARNINGS = -Wall -pedantic-errors
 SERVERINCLUDES:=-I. -Icommon -Ififo -Itcp
 SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
 
-server : $(SERVERSOURCES) *.h common/*.h fifo/*.h tcp/*.h
-	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
+$(PCH) : common/all.h
+	$(CXX) -g -x c++-header -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(CLIENTINCLUDES) $(TESTINCLUDES) common/all.h  $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -pthread -o $@
+
+
+server : $(SERVERSOURCES) $(PCH) *.h common/*.h fifo/*.h tcp/*.h
+	$(CXX) -g -include common/all.h -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
 
 
 CLIENTINCLUDES = -Iclient_src -Icommon 
 CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 
-$(CLIENTBINDIR)/client : $(CLIENTSOURCES) common/*.h client_src/*.h
-	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
+$(CLIENTBINDIR)/client : $(CLIENTSOURCES) $(PCH) common/*.h client_src/*.h
+	$(CXX) -g -include common/all.h -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 
 TESTINCLUDES = -I. -Itests -Iclient_src -Icommon -Ififo -Itcp
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
 
-$(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client $(TESTDIR)/*.h
-	$(CXX) -g -MMD -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
+$(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client $(PCH) $(TESTDIR)/*.h
+	$(CXX) -g -include common/all.h -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 	cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .; ./runtests
 
 .PHONY: clean
 clean:
 	rm -f *.d server $(CLIENTBINDIR)/client $(CLIENTBINDIR)/*.d $(CLIENTBINDIR)/gmon.out $(TESTDIR)/runtests $(TESTDIR)/*.d
 	rm -f gmon.out *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt
+	rm -f $(PCH)

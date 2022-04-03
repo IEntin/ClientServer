@@ -1,6 +1,6 @@
 {
   "TurnOffLogging" : false,
-  "CommunicationType" : "TCP",
+  "CommunicationType" : "FIFO",
   "Diagnostics" : false,
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseName" : "Client1",
@@ -11,7 +11,7 @@
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
   "RunLoop" : true,
-  "MaxNumberTasks" : 150,
+  "MaxNumberTasks" : 0,
   "ServerHost" : "localhost",
   "TcpPort" : "49152"
 }

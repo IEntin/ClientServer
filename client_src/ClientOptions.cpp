@@ -29,8 +29,7 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
 		    return nullptr;
 		}
 	      }()),
-  _maxNumberTasks(_dataStream ? ProgramOptions::get("MaxNumberTasks", 100) :
-		  std::numeric_limits<unsigned int>::max()),
+  _maxNumberTasks(ProgramOptions::get("MaxNumberTasks", 0)),
   _instrStream([]()->std::ostream* {
 		 const std::string fileName = ProgramOptions::get("InstrumentationFn", std::string());
 		 if (!fileName.empty()) {
