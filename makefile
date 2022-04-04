@@ -25,23 +25,12 @@ CLIENTBINDIR = client_bin
 
 TESTDIR = tests
 
-
-PRECOMPILED_HEADERS = true
-
-ifeq ($(CXX),g++)
-PRECOMPILED_HEADERS = false
-endif
-
-ifeq ($(PRECOMPILED_HEADERS),true) 
-	ALLH = common/all.h
-else
-	ALLH = common/none.h
-endif
+# enable precompiled headers for clang++
 
 ifeq ($(CXX),clang++)
+	ALLH = common/all.h
 	PCH = $(ALLH).pch
-else
-	PCH = $(ALLH).gch
+	INCLUDE_PRECOMPILED = -include $(ALLH)
 endif
 
 all: server $(CLIENTBINDIR)/client $(TESTDIR)/runtests
@@ -83,7 +72,7 @@ $(PCH) : $(ALLH)
 server : $(SERVERSOURCES) $(PCH) *.h common/*.h fifo/*.h tcp/*.h
 	@echo -n server start:
 	@date
-	$(CXX) -g -include $(ALLH) -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
+	$(CXX) -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(SERVERINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(SERVERSOURCES) -pthread -o $@
 	@echo -n server end:
 	@date
 
@@ -94,7 +83,7 @@ CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 $(CLIENTBINDIR)/client : $(CLIENTSOURCES) $(PCH) common/*.h client_src/*.h
 	@echo -n client start:
 	@date
-	$(CXX) -g -include $(ALLH) -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
+	$(CXX) -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(CLIENTINCLUDES) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) $(CLIENTSOURCES) -pthread -o $@
 	@echo -n client end:
 	@date
 
@@ -104,7 +93,7 @@ TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fif
 $(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client $(PCH) $(TESTDIR)/*.h
 	@echo -n tests start:
 	@date
-	$(CXX) -g -include $(ALLH) -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
+	$(CXX) -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(TESTINCLUDES) $(OPTIMIZATION) $(SANBLD) -DSANITIZE=$(SANITIZE) $(TESTSOURCES) -lgtest -lgtest_main -pthread -o $@
 	@echo -n tests end:
 	@date
 	cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .; ./runtests
@@ -113,4 +102,4 @@ $(TESTDIR)/runtests : $(TESTSOURCES) server $(CLIENTBINDIR)/client $(PCH) $(TEST
 clean:
 	rm -f *.d server $(CLIENTBINDIR)/client $(CLIENTBINDIR)/*.d $(CLIENTBINDIR)/gmon.out $(TESTDIR)/runtests $(TESTDIR)/*.d
 	rm -f gmon.out *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt
-	rm -f common/*.pch common/*.gch
+	rm -f $(PCH)

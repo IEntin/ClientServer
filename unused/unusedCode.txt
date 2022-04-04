@@ -51,3 +51,10 @@ template <typename INPUT, typename OUTPUT>
     if (next > start + 1)
       lines.emplace_back(start, next);
 }
+
+
+    _winningBid = *std::max_element(_bids.cbegin(), _bids.cend(),
+				    [] (const AdBid& bid1, const AdBid& bid2) {
+				      return std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid1)
+					< std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid2);
+				    });

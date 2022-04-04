@@ -153,6 +153,19 @@ struct Comparator {
   }
 };
 
+inline AdBid findWinningBid(const std::vector<AdBid>& bids) {
+  AdBid bid = bids[0];
+  double max = std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid);
+  for (size_t i = 1; i < bids.size(); ++i) {
+    double money = std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bids[i]);
+    if (money > max) {
+      max = money;
+      bid = bids[i];
+    }
+  }
+  return bid;
+}
+
 void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   for (const AdPtr& ad : adVector) {
     try {
@@ -168,12 +181,10 @@ void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   }
   if (_bids.empty())
     _noMatch = true;
-  else
-    _winningBid = *std::max_element(_bids.cbegin(), _bids.cend(),
-				    [] (const AdBid& bid1, const AdBid& bid2) {
-				      return std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid1)
-					< std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid2);
-				    });
+  else {
+    // replaced std::max_element()
+    _winningBid = findWinningBid(_bids);
+  }
 }
 
 void Transaction::breakKeywords(std::string_view kwStr) {
