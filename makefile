@@ -14,7 +14,6 @@
 #make SANITIZE=[  | aul | thread ]
 #make CMPLR=[ g++ | clang++ ]
 
-CMPLR=
 ifeq ($(CMPLR),)
 	CXX=clang++
 else
@@ -41,10 +40,6 @@ ifeq ($(OPTIMIZE),)
 else
 	OPTIMIZATION=$(OPTIMIZE)
 endif
-SANITIZE=
-SANBLD=
-PROFILE=
-PROFBLD=
 
 ifeq ($(SANITIZE), aul)
 	SANBLD=-fsanitize=address,undefined,leak
