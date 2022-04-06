@@ -57,14 +57,14 @@ MACROS = -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE)
 
 CPPFLAGS = -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS) -pthread
 
-$(PCH) : $(ALLH)
+$(PCH) : *.h */*.h $(ALLH)
 	@echo -n precompile start:
 	@date
 	$(CXX) -g -x c++-header $(CPPFLAGS) $(SERVERINCLUDES) $(CLIENTINCLUDES) $(TESTINCLUDES) $(ALLH) -o $@
 	@echo -n precompile end:
 	@date
 
-SERVERINCLUDES:=-I. -Icommon -Ififo -Itcp
+SERVERINCLUDES=-I. -Icommon -Ififo -Itcp
 SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
 
 server : $(SERVERSOURCES) $(PCH) *.h common/*.h fifo/*.h tcp/*.h
@@ -87,13 +87,13 @@ $(CLIENTBINDIR)/client : $(PCH) $(CLIENTSOURCES) common/*.h client_src/*.h
 TESTINCLUDES = -I. -Itests -Iclient_src -Icommon -Ififo -Itcp
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
 
-$(TESTDIR)/runtests : $(PCH) $(TESTSOURCES) server $(CLIENTBINDIR)/client $(TESTDIR)/*.h
+$(TESTDIR)/runtests : $(PCH) $(TESTSOURCES) $(SERVERSOURCES) $(CLIENTSOURCES) *.h common/*.h fifo/*.h tcp/*.h client_src/*.h $(TESTDIR)/*.h
 	@echo -n tests start:
 	@date
 	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main -o $@
 	@echo -n tests end:
 	@date
-	cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .; ./runtests
+	@cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .;./runtests
 
 .PHONY: clean
 clean:
