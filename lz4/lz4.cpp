@@ -2447,6 +2447,10 @@ int LZ4_compress_continue (LZ4_stream_t* LZ4_stream, const char* source, char* d
     return LZ4_compress_fast_continue(LZ4_stream, source, dest, inputSize, LZ4_compressBound(inputSize), 1);
 }
 
+// to make linker happy
+int main() {
+}
+
 /*
 These decompression functions are deprecated and should no longer be used.
 They are only provided here for compatibility with older user programs.

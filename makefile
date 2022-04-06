@@ -57,8 +57,9 @@ MACROS = -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE)
 
 CPPFLAGS = -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS) -pthread
 
+OBJECTDIR = obj
+
 LZ4LIBA = lz4/lz4.a
-LZ4LIBS = lz4/lz4.so
 LZ4INCLUDES = -Ilz4
 LZ4SOURCES = lz4/lz4.cpp
 LZ4OBJECTS = lz4/lz4.o
@@ -66,7 +67,6 @@ LZ4LINK = -Llz4 -llz4
 
 $(LZ4LIBA) : $(LZ4SOURCES) lz4/*.h
 	$(CXX) -g  -c -std=c++2a $(LZ4INCLUDES) $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES) -fPIC
-	$(CXX) -shared $(LZ4OBJECTS) -o lz4/lz4.so
 	ar r $(LZ4LIBA) $(LZ4OBJECTS)
 
 $(PCH) : *.h */*.h $(ALLH)
@@ -76,37 +76,51 @@ $(PCH) : *.h */*.h $(ALLH)
 	@echo -n precompile end:
 	@date
 
-SERVERINCLUDES=-I. -Icommon -Ififo -Itcp
-SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
+COMMONLIBA = common/common.a
+COMMONINCLUDES = -Icommon
+COMMONSOURCES = $(wildcard common/*.cpp)
+COMMONLINK = -Lcommon -lcommon
 
-server : $(PCH) $(SERVERSOURCES) $(LZ4LIBA) *.h common/*.h fifo/*.h tcp/*.h
+$(COMMONLIBA) : $(COMMONSOURCES) common/*h
+	@echo -n common start:
+	@date
+	$(CXX) -g -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS) -c $(COMMONSOURCES) -fpic -pthread
+	ar r $(COMMONLIBA) *.o
+	rm -f *.o
+	@echo -n common end:
+	@date
+
+SERVERINCLUDES=-I. -Icommon -Ififo -Itcp
+SERVERSOURCES=$(wildcard *.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
+
+server : $(PCH) $(COMMONLIBA) $(SERVERSOURCES) $(LZ4LIBA) *.h fifo/*.h tcp/*.h
 	@echo -n server start:
 	@date
-	$(CXX) $(CPPFLAGS) $(SERVERINCLUDES) $(SERVERSOURCES) $(LZ4LINK) -o $@
+	$(CXX) $(CPPFLAGS) $(SERVERINCLUDES) $(SERVERSOURCES) $(COMMONLIBA) $(LZ4LINK) -o $@
 	@echo -n server end:
 	@date
 
-CLIENTINCLUDES = -Iclient_src -Icommon 
-CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
+CLIENTINCLUDES = -Iclient_src -Icommon
+CLIENTSOURCES=$(wildcard client_src/*.cpp)
 
-$(CLIENTBINDIR)/client : $(PCH) $(CLIENTSOURCES) $(LZ4LIBA) common/*.h client_src/*.h
+$(CLIENTBINDIR)/client : $(PCH) $(COMMONLIBA) $(CLIENTSOURCES) $(LZ4LIBA) client_src/*.h
 	@echo -n client start:
 	@date
-	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) $(CLIENTSOURCES) $(LZ4LINK) -o $@
+	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) $(CLIENTSOURCES) $(COMMONLIBA) $(LZ4LINK) -o $@
 	@echo -n client end:
 	@date
 
 TESTINCLUDES = -I. -Itests -Iclient_src -Icommon -Ififo -Itcp
-TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
+TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
 
-$(TESTDIR)/runtests : $(PCH) $(TESTSOURCES) $(SERVERSOURCES) $(CLIENTSOURCES) $(LZ4LIBA) *.h common/*.h fifo/*.h tcp/*.h client_src/*.h $(TESTDIR)/*.h
+$(TESTDIR)/runtests : $(PCH) $(COMMONLIBA) $(TESTSOURCES) $(SERVERSOURCES) $(CLIENTSOURCES) $(LZ4LIBA) fifo/*.h tcp/*.h client_src/*.h $(TESTDIR)/*.h
 	@echo -n tests start:
 	@date
-	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main $(LZ4LINK) -o $@
+	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main $(COMMONLIBA) $(LZ4LINK) -o $@
 	@echo -n tests end:
 	@date
 	@cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .;./runtests
 
 .PHONY: clean
 clean:
-	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LZ4LIBA) $(LZ4LIBS) $(LZ4OBJECTS) $(PCH)
+	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LZ4LIBA) $(LZ4LIBS) $(LZ4OBJECTS) $(PCH) $(COMMONLIBA)
