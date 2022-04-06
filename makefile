@@ -57,6 +57,18 @@ MACROS = -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE)
 
 CPPFLAGS = -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS) -pthread
 
+LZ4LIBA = lz4/lz4.a
+LZ4LIBS = lz4/lz4.so
+LZ4INCLUDES = -Ilz4
+LZ4SOURCES = lz4/lz4.cpp
+LZ4OBJECTS = lz4/lz4.o
+LZ4LINK = -Llz4 -llz4
+
+$(LZ4LIBA) : $(LZ4SOURCES) lz4/*.h
+	$(CXX) -g  -c -std=c++2a $(LZ4INCLUDES) $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES) -fPIC
+	$(CXX) -shared $(LZ4OBJECTS) -o lz4/lz4.so
+	ar r $(LZ4LIBA) $(LZ4OBJECTS)
+
 $(PCH) : *.h */*.h $(ALLH)
 	@echo -n precompile start:
 	@date
@@ -67,34 +79,34 @@ $(PCH) : *.h */*.h $(ALLH)
 SERVERINCLUDES=-I. -Icommon -Ififo -Itcp
 SERVERSOURCES=$(wildcard *.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
 
-server : $(SERVERSOURCES) $(PCH) *.h common/*.h fifo/*.h tcp/*.h
+server : $(PCH) $(SERVERSOURCES) $(LZ4LIBA) *.h common/*.h fifo/*.h tcp/*.h
 	@echo -n server start:
 	@date
-	$(CXX) $(CPPFLAGS) $(SERVERINCLUDES) $(SERVERSOURCES) -o $@
+	$(CXX) $(CPPFLAGS) $(SERVERINCLUDES) $(SERVERSOURCES) $(LZ4LINK) -o $@
 	@echo -n server end:
 	@date
 
 CLIENTINCLUDES = -Iclient_src -Icommon 
 CLIENTSOURCES=$(wildcard client_src/*.cpp) $(wildcard common/*.cpp)
 
-$(CLIENTBINDIR)/client : $(PCH) $(CLIENTSOURCES) common/*.h client_src/*.h
+$(CLIENTBINDIR)/client : $(PCH) $(CLIENTSOURCES) $(LZ4LIBA) common/*.h client_src/*.h
 	@echo -n client start:
 	@date
-	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) $(CLIENTSOURCES) -o $@
+	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) $(CLIENTSOURCES) $(LZ4LINK) -o $@
 	@echo -n client end:
 	@date
 
 TESTINCLUDES = -I. -Itests -Iclient_src -Icommon -Ififo -Itcp
 TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(wildcard common/*.cpp) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp) $(filter-out client_src/Main.cpp, $(wildcard client_src/*.cpp)) $(filter-out Main.cpp, $(wildcard *.cpp))
 
-$(TESTDIR)/runtests : $(PCH) $(TESTSOURCES) $(SERVERSOURCES) $(CLIENTSOURCES) *.h common/*.h fifo/*.h tcp/*.h client_src/*.h $(TESTDIR)/*.h
+$(TESTDIR)/runtests : $(PCH) $(TESTSOURCES) $(SERVERSOURCES) $(CLIENTSOURCES) $(LZ4LIBA) *.h common/*.h fifo/*.h tcp/*.h client_src/*.h $(TESTDIR)/*.h
 	@echo -n tests start:
 	@date
-	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main -o $@
+	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main $(LZ4LINK) -o $@
 	@echo -n tests end:
 	@date
 	@cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .;./runtests
 
 .PHONY: clean
 clean:
-	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(PCH)
+	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LZ4LIBA) $(LZ4LIBS) $(LZ4OBJECTS) $(PCH)
