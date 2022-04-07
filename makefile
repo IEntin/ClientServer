@@ -57,16 +57,17 @@ MACROS = -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE)
 
 CPPFLAGS = -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS) -pthread
 
-OBJECTDIR = obj
+CURRENTDIR := ${CURDIR}
+BUILDDIR = $(CURRENTDIR)/build
 
-LZ4LIBA = lz4/lz4.a
-LZ4INCLUDES = -Ilz4
-LZ4SOURCES = lz4/lz4.cpp
-LZ4OBJECTS = lz4/lz4.o
-LZ4LINK = -Llz4 -llz4
+LZ4LIBA = $(BUILDDIR)/lz4.a
+LZ4INCLUDES = -I$(CURRENTDIR)/lz4
+LZ4SOURCES = $(CURRENTDIR)/lz4/lz4.cpp
+LZ4OBJECTS = $(BUILDDIR)/lz4.o
+LZ4LINK = -L$(BUILDDIR) -llz4
 
 $(LZ4LIBA) : $(LZ4SOURCES) lz4/*.h
-	$(CXX) -g  -c -std=c++2a $(LZ4INCLUDES) $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES) -fPIC
+	$(CXX) -g  -c -std=c++2a $(LZ4INCLUDES) $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES)
 	ar r $(LZ4LIBA) $(LZ4OBJECTS)
 
 $(PCH) : *.h */*.h $(ALLH)
@@ -76,15 +77,15 @@ $(PCH) : *.h */*.h $(ALLH)
 	@echo -n precompile end:
 	@date
 
-COMMONLIBA = common/common.a
+COMMONLIBA = $(BUILDDIR)/common.a
 COMMONINCLUDES = -Icommon
 COMMONSOURCES = $(wildcard common/*.cpp)
-COMMONLINK = -Lcommon -lcommon
+COMMONLINK = -L$(BUILDDIR) -lcommon
 
-$(COMMONLIBA) : $(COMMONSOURCES) common/*h
+$(COMMONLIBA) : $(PCH) $(COMMONSOURCES) common/*h
 	@echo -n common start:
 	@date
-	$(CXX) -g -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS) -c $(COMMONSOURCES) -fpic -pthread
+	$(CXX) $(CPPFLAGS) -c $(COMMONSOURCES) -pthread
 	ar r $(COMMONLIBA) *.o
 	rm -f *.o
 	@echo -n common end:
@@ -123,4 +124,4 @@ $(TESTDIR)/runtests : $(PCH) $(COMMONLIBA) $(TESTSOURCES) $(SERVERSOURCES) $(CLI
 
 .PHONY: clean
 clean:
-	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LZ4LIBA) $(LZ4LIBS) $(LZ4OBJECTS) $(PCH) $(COMMONLIBA)
+	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(BUILDDIR)/* $(PCH) $(COMMONLIBA)
