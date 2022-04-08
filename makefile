@@ -91,11 +91,11 @@ $(COMMONLIBA) : $(PCH) $(COMMONSOURCES) common/*h
 	@echo -n common end:
 	@date
 
-SERVERINCLUDES=-I. -Icommon -Ififo -Itcp
+SERVERINCLUDES=-I. -Icommon
 SERVERSOURCES = ServerMain.cpp
 
 SERVERLIBA = $(LIBDIR)/root.a
-SERVERLIBSOURCES = $(filter-out ServerMain.cpp, $(wildcard *.cpp)) $(wildcard fifo/*.cpp) $(wildcard tcp/*.cpp)
+SERVERLIBSOURCES = $(filter-out ServerMain.cpp, $(wildcard *.cpp))
 SERVERLIBOBJECTS = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERLIBSOURCES))
 
 $(SERVERLIBA) : $(PCH) $(SERVERLIBSOURCES)
@@ -114,23 +114,37 @@ server : $(PCH) $(COMMONLIBA) $(SERVERLIBA) $(SERVERSOURCES) $(LZ4LIBA) *.h
 	@echo -n server end:
 	@date
 
-CLIENTINCLUDES = -Iclient_src -Icommon
-CLIENTSOURCES=$(wildcard client_src/*.cpp)
+CLIENTLIBA = $(LIBDIR)/client.a
+CLIENTLIBSOURCES = $(filter-out client_src/ClientMain.cpp, $(wildcard client_src/*.cpp))
+CLIENTLIBOBJECTS = $(patsubst client_src/%.cpp, $(OBJDIR)/%.o, $(CLIENTLIBSOURCES))
 
-$(CLIENTBINDIR)/client : $(PCH) $(COMMONLIBA) $(CLIENTSOURCES) $(LZ4LIBA) client_src/*.h
+CLIENTINCLUDES = -Iclient_src -Icommon
+
+$(CLIENTLIBA) : $(PCH) $(CLIENTLIBSOURCES)
+	@echo -n clientlib start:
+	@date
+	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) -c $(CLIENTLIBSOURCES)
+	mv *.o $(OBJDIR)
+	ar r $(CLIENTLIBA) $(CLIENTLIBOBJECTS)
+	@echo -n clientlib end:
+	@date
+
+CLIENTSOURCES = client_src/ClientMain.cpp
+
+$(CLIENTBINDIR)/client : $(PCH) $(COMMONLIBA) $(CLIENTLIBA) $(CLIENTSOURCES) $(LZ4LIBA) client_src/*.h
 	@echo -n client start:
 	@date
-	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) $(CLIENTSOURCES) $(COMMONLIBA) $(LZ4LINK) -o $@
+	$(CXX) $(CPPFLAGS) $(CLIENTINCLUDES) $(CLIENTSOURCES) $(CLIENTLIBA) $(COMMONLIBA) $(LZ4LINK) -o $@
 	@echo -n client end:
 	@date
 
-TESTINCLUDES = -I. -Itests -Iclient_src -Icommon -Ififo -Itcp
-TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp) $(filter-out client_src/ClientMain.cpp, $(wildcard client_src/*.cpp))
+TESTINCLUDES = -I. -Itests -Iclient_src -Icommon
+TESTSOURCES=$(wildcard $(TESTDIR)/*.cpp)
 
-$(TESTDIR)/runtests : $(PCH) $(COMMONLIBA) $(SERVERLIBA) $(TESTSOURCES) $(SERVERLIBA) $(CLIENTSOURCES) $(LZ4LIBA) client_src/*.h $(TESTDIR)/*.h
+$(TESTDIR)/runtests : $(PCH) $(COMMONLIBA) $(CLIENTLIBA) $(SERVERLIBA) $(TESTSOURCES) $(SERVERLIBA) $(LZ4LIBA) client_src/*.h $(TESTDIR)/*.h
 	@echo -n tests start:
 	@date
-	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main $(COMMONLIBA) $(SERVERLIBA) $(LZ4LINK) -o $@
+	$(CXX) $(CPPFLAGS) $(TESTINCLUDES) $(TESTSOURCES) -lgtest -lgtest_main $(CLIENTLIBA) $(COMMONLIBA) $(SERVERLIBA) $(LZ4LINK) -o $@
 	@echo -n tests end:
 	@date
 	@cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .;./runtests
