@@ -67,7 +67,7 @@ LZ4SOURCES = lz4/lz4.cpp
 LZ4OBJECTS = $(OBJDIR)/lz4.o
 LZ4LINK = -L$(LIBDIR) -llz4
 
-$(LZ4LIBA) : $(LZ4SOURCES) lz4/*.h
+$(LZ4LIBA) : lz4/*.h
 	$(CXX) -g -c $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES)
 	ar r $(LZ4LIBA) $(LZ4OBJECTS)
 
@@ -108,7 +108,7 @@ $(SERVERLIBA) : $(PCH) $(SERVERLIBOBJECTS)
 
 SERVERSOURCES = ServerMain.cpp
 
-server : $(PCH) $(COMMONLIBA) $(SERVERLIBA) $(SERVERSOURCES) $(LZ4LIBA) *.h
+server : $(PCH) $(COMMONLIBA) $(SERVERLIBA) $(LZ4LIBA) *.h
 	@echo -n server start:
 	@date
 	$(CXX) $(CPPFLAGS) -Icommon $(SERVERSOURCES) $(SERVERLIBA) $(COMMONLIBA) $(LZ4LINK) -o $@
@@ -131,16 +131,16 @@ $(CLIENTLIBA) : $(PCH) $(CLIENTLIBOBJECTS)
 
 CLIENTSOURCES = client_src/ClientMain.cpp
 
-$(CLIENTBINDIR)/client : $(PCH) $(COMMONLIBA) $(CLIENTLIBA) $(CLIENTSOURCES) $(LZ4LIBA) client_src/*.h
+$(CLIENTBINDIR)/client : $(PCH) $(COMMONLIBA) $(CLIENTLIBA) $(LZ4LIBA) client_src/*.h
 	@echo -n client start:
 	@date
 	$(CXX) $(CPPFLAGS) -Icommon $(CLIENTSOURCES) $(CLIENTLIBA) $(COMMONLIBA) $(LZ4LINK) -o $@
 	@echo -n client end:
 	@date
 
-TESTSOURCES = $(wildcard $(TESTDIR)/*.cpp)
+TESTSOURCES = $(wildcard tests/*.cpp)
 
-$(TESTDIR)/runtests : $(PCH) $(COMMONLIBA) $(CLIENTLIBA) $(SERVERLIBA) $(TESTSOURCES) $(SERVERLIBA) $(LZ4LIBA) client_src/*.h $(TESTDIR)/*.h
+$(TESTDIR)/runtests : $(PCH) $(COMMONLIBA) $(CLIENTLIBA) $(SERVERLIBA) $(LZ4LIBA) client_src/*.h $(TESTDIR)/*.h
 	@echo -n tests start:
 	@date
 	$(CXX) $(CPPFLAGS) $(INCLUDES) $(TESTSOURCES) -lgtest -lgtest_main $(CLIENTLIBA) $(COMMONLIBA) $(SERVERLIBA) $(LZ4LINK) -o $@
