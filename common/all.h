@@ -2,29 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Ad.h"
-#include "Chronometer.h"
-#include "Client.h"
-#include "ClientOptions.h"
-#include "Compression.h"
-#include "Echo.h"
-#include "Fifo.h"
-#include "FifoClient.h"
-#include "FifoServer.h"
-#include "Header.h"
-#include "MemoryPool.h"
-#include "ProgramOptions.h"
-#include "ServerOptions.h"
-#include "ServerUtility.h"
-#include "Task.h"
-#include "TaskBuilder.h"
-#include "TaskController.h"
-#include "TcpClient.h"
-#include "TcpConnection.h"
-#include "TcpServer.h"
-#include "ThreadPool.h"
-#include "Transaction.h"
-#include "Utility.h"
 #include <boost/asio.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
