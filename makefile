@@ -15,40 +15,48 @@
 #make CMPLR=[ g++ | clang++ ]
 
 ifeq ($(CMPLR),)
-CXX=clang++
+  CXX=clang++
 else
-CXX=$(CMPLR)
+  CXX=$(CMPLR)
 endif
 
 CLIENTBINDIR = client_bin
 
 TESTDIR = tests
 
-# enable precompiled headers for clang++
+# precompiled headers
 
-ifeq ($(CXX),clang++)
-ALLH = common/all.h
-PCH = $(ALLH).pch
-INCLUDE_PRECOMPILED = -include $(ALLH)
+ENABLEPCH = 1
+
+ifeq ($(ENABLEPCH),1)
+  ALLH = common/all.h
+
+  ifeq ($(CXX),clang++)
+    PCH = $(ALLH).pch
+  else ifeq ($(CXX),g++)
+    PCH = $(ALLH).gch
+  endif
+
+  INCLUDE_PRECOMPILED = -include $(ALLH)
 endif
 
 all: server $(CLIENTBINDIR)/client $(TESTDIR)/runtests
 
 OPTIMIZE=
 ifeq ($(OPTIMIZE),)
-OPTIMIZATION=-O3
+  OPTIMIZATION=-O3
 else
-OPTIMIZATION=$(OPTIMIZE)
+  OPTIMIZATION=$(OPTIMIZE)
 endif
 
 ifeq ($(SANITIZE), aul)
-SANBLD=-fsanitize=address,undefined,leak
+  SANBLD=-fsanitize=address,undefined,leak
 else ifeq ($(SANITIZE), thread)
-SANBLD=-fsanitize=thread
+  SANBLD=-fsanitize=thread
 endif
 
 ifeq ($(PROFILE), 1)
-PROFBLD=-fno-omit-frame-pointer -pg
+  PROFBLD=-fno-omit-frame-pointer -pg
 endif
 
 WARNINGS = -Wall -pedantic-errors
@@ -62,9 +70,7 @@ CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(S
 OBJDIR = obj
 LIBDIR = lib
 
-vpath %.cpp common
-vpath %.cpp client_src
-vpath %.cpp $(TESTDIR)
+vpath %.cpp common client_src $(TESTDIR)
 
 $(OBJDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
@@ -74,8 +80,10 @@ LZ4SOURCES = lz4/lz4.cpp
 LZ4OBJECTS = $(OBJDIR)/lz4.o
 LZ4LINK = -L$(LIBDIR) -llz4
 
-$(LZ4LIBA) : lz4/*.h
+$(LZ4OBJECTS) : $(LZ4SOURCES)
 	$(CXX) -g -c $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES)
+
+$(LZ4LIBA) : $(LZ4OBJECTS)
 	ar r $(LZ4LIBA) $(LZ4OBJECTS)
 
 $(PCH) : $(ALLH)
@@ -89,7 +97,7 @@ COMMONLIBA = $(LIBDIR)/common.a
 COMMONSOURCES = $(wildcard common/*.cpp)
 COMMONOBJECTS = $(patsubst common/%.cpp, $(OBJDIR)/%.o, $(COMMONSOURCES))
 
-$(COMMONLIBA) : $(COMMONOBJECTS) common/*.h
+$(COMMONLIBA) : $(COMMONOBJECTS) $(LZ4OBJECTS)
 	@echo -n common start:
 	@date
 	ar r $(COMMONLIBA) $(COMMONOBJECTS) $(LZ4OBJECTS)
@@ -147,4 +155,4 @@ $(TESTDIR)/runtests : $(TESTOBJECTS) $(COMMONLIBA) $(CLIENTLIBA) $(SERVERLIBA) $
 
 .PHONY: clean
 clean:
-	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LIBDIR)/* $(PCH) $(COMMONLIBA) $(OBJDIR)/*  *~ */*~
+	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LIBDIR)/* common/*.gch common/*.pch $(COMMONLIBA) $(OBJDIR)/*  *~ */*~
