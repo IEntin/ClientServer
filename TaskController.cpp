@@ -41,10 +41,9 @@ TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t buffer
 // they ran out of work and wait for the next task.
 
 void TaskController::onTaskFinish() noexcept {
-  TaskControllerPtr taskController = instance();
-  taskController->_task->finish();
+  instance()->_task->finish();
   // Blocks until the new task is available.
-  taskController->setNextTask();
+  instance()->setNextTask();
 }
 
 void TaskController::initialize() {

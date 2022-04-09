@@ -71,7 +71,7 @@ $(LZ4LIBA) : lz4/*.h
 	$(CXX) -g -c $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) -o $(LZ4OBJECTS) $(LZ4SOURCES)
 	ar r $(LZ4LIBA) $(LZ4OBJECTS)
 
-$(PCH) : *.h */*.h $(ALLH)
+$(PCH) : $(ALLH)
 	@echo -n precompile start:
 	@date
 	$(CXX) -g -x c++-header $(CPPFLAGS) $(ALLH) -o $@
@@ -110,7 +110,7 @@ $(SERVERLIBA) : $(PCH) $(SERVERLIBOBJECTS)
 server : $(PCH) $(COMMONLIBA) $(SERVEROBJECTS) $(LZ4LIBA) *.h
 	@echo -n server start:
 	@date
-	$(CXX) -o $@ $(SERVEROBJECTS) $(COMMONLIBA) $(LZ4LINK) -pthread
+	$(CXX) -o $@ $(SERVEROBJECTS) $(CPPFLAGS) $(COMMONLIBA) $(LZ4LINK) -pthread
 	@echo -n server end:
 	@date
 
@@ -132,7 +132,7 @@ $(CLIENTLIBA) : $(PCH) $(CLIENTLIBOBJECTS)
 $(CLIENTBINDIR)/client : $(PCH) $(COMMONLIBA) $(CLIENTOBJECTS) client_src/*.h
 	@echo -n client start:
 	@date
-	$(CXX) -o $@ $(CLIENTOBJECTS) $(COMMONLIBA) $(LZ4LINK) -pthread
+	$(CXX) -o $@ $(CLIENTOBJECTS) $(CPPFLAGS) $(COMMONLIBA) $(LZ4LINK) -pthread
 	@echo -n client end:
 	@date
 
