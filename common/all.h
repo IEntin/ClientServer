@@ -26,7 +26,10 @@
 #include <mutex>
 #include <queue>
 #include <sstream>
+#include <stddef.h>
+#include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <string_view>
 #include <sys/stat.h>
 #include <sys/types.h>
