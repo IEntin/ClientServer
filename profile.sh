@@ -7,7 +7,7 @@ trap "exit" SIGHUP SIGINT SIGTERM
 
 date
 
-make clean
+make cleanall
 SERVER_DIRECTORY=$PWD
 echo $SERVER_DIRECTORY
 

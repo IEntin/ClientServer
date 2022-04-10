@@ -68,58 +68,43 @@ INCLUDES := -I. -Icommon -Iclient_src -I$(TESTDIR) -Ilz4
 CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
 OBJDIR = obj
-LIBDIR = lib
 
 vpath %.cpp common client_src $(TESTDIR) lz4
 
 $(OBJDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
-LZ4SOURCES = lz4/lz4.cpp
-LZ4OBJECTS = $(OBJDIR)/lz4.o
-
 $(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) $(ALLH) -o $@
 
-COMMONLIBA = $(LIBDIR)/common.a
+LZ4SOURCES = lz4/lz4.cpp
 COMMONSOURCES = $(wildcard common/*.cpp)
-COMMONOBJECTS = $(patsubst common/%.cpp, $(OBJDIR)/%.o, $(COMMONSOURCES))
+COMMONOBJECTS = $(patsubst common/%.cpp, $(OBJDIR)/%.o, $(COMMONSOURCES)) $(patsubst lz4/%.cpp, $(OBJDIR)/%.o, $(LZ4SOURCES))
 
-$(COMMONLIBA) : $(COMMONOBJECTS) $(LZ4OBJECTS)
-	ar r $(COMMONLIBA) $(COMMONOBJECTS) $(LZ4OBJECTS)
-
-SERVERLIBA = $(LIBDIR)/server.a
 SERVERSOURCES = $(wildcard *.cpp)
 SERVEROBJECTS = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSOURCES))
 SERVERLIBOBJECTS = $(filter-out $(OBJDIR)/ServerMain.o, $(SERVEROBJECTS))
 
-$(SERVERLIBA) : $(SERVERLIBOBJECTS)
-	ar r $(SERVERLIBA) $(SERVERLIBOBJECTS)
+server : $(COMMONOBJECTS) $(SERVEROBJECTS)
+	$(CXX) -o $@ $(SERVEROBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
 
-server : $(COMMONLIBA) $(SERVEROBJECTS)
-	$(CXX) -o $@ $(SERVEROBJECTS) $(CPPFLAGS) $(COMMONLIBA) -pthread
-
-CLIENTLIBA = $(LIBDIR)/client.a
 CLIENTSOURCES = $(wildcard client_src/*.cpp)
 CLIENTOBJECTS = $(patsubst client_src/%.cpp, $(OBJDIR)/%.o, $(CLIENTSOURCES))
 CLIENTLIBOBJECTS = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJECTS))
 
-$(CLIENTLIBA) : $(CLIENTLIBOBJECTS)
-	ar r $(CLIENTLIBA) $(CLIENTLIBOBJECTS)
-
-$(CLIENTBINDIR)/client : $(COMMONLIBA) $(CLIENTOBJECTS)
-	$(CXX) -o $@ $(CLIENTOBJECTS) $(CPPFLAGS) $(COMMONLIBA) -pthread
+$(CLIENTBINDIR)/client : $(COMMONOBJECTS) $(CLIENTOBJECTS)
+	$(CXX) -o $@ $(CLIENTOBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
 
 TESTSOURCES = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJECTS = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSOURCES))
 
-$(TESTDIR)/runtests : $(TESTOBJECTS) $(COMMONLIBA) $(CLIENTLIBA) $(SERVERLIBA)
-	$(CXX) -o $@ $(TESTOBJECTS) -lgtest -lgtest_main $(CPPFLAGS) $(CLIENTLIBA) $(COMMONLIBA) $(SERVERLIBA) -pthread
+$(TESTDIR)/runtests : $(TESTOBJECTS) $(COMMONOBJECTS) $(CLIENTLIBOBJECTS) $(SERVERLIBOBJECTS)
+	$(CXX) -o $@ $(TESTOBJECTS) -lgtest -lgtest_main $(CPPFLAGS) $(CLIENTLIBOBJECTS) $(COMMONOBJECTS) $(SERVERLIBOBJECTS) -pthread
 	@cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .;./runtests
 
-.PHONY: clean
+.PHONY: clean cleanall
 clean:
-	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(LIBDIR)/* $(COMMONLIBA) $(OBJDIR)/*  *~ */*~
+	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(OBJDIR)/*  *~ */*~
 
 cleanall : clean
 	rm -f common/*.gch common/*.pch
