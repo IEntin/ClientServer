@@ -88,8 +88,7 @@ $(PCH) : $(ALLH)
 
 LZ4SRC = $(LZ4DIR)/lz4.cpp
 COMMONSRC = $(wildcard $(COMMONDIR)/*.cpp)
-COMMONOBJ = $(patsubst $(COMMONDIR)/%.cpp, $(OBJDIR)/%.o, $(COMMONSRC))\
-	$(patsubst $(LZ4DIR)/%.cpp, $(OBJDIR)/%.o, $(LZ4SRC))
+COMMONOBJ = $(patsubst $(COMMONDIR)/%.cpp, $(OBJDIR)/%.o, $(COMMONSRC)) $(patsubst $(LZ4DIR)/%.cpp, $(OBJDIR)/%.o, $(LZ4SRC))
 
 SERVERSRC = $(wildcard *.cpp)
 SERVEROBJ = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSRC))
@@ -110,14 +109,12 @@ TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
-	$(CXX) -o $@ $(TESTOBJ) -lgtest $(CPPFLAGS) $(CLIENTFILTEREDOBJ)\
-	$(COMMONOBJ) $(SERVERFILTEREDOBJ) -pthread
+	$(CXX) -o $@ $(TESTOBJ) -lgtest $(CPPFLAGS) $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) -pthread
 	@(cd $(TESTDIR); ln -sf ../$(DATADIR) .; ./runtests $(DATADIR))
 
 .PHONY: clean cleanall
 clean:
-	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data\
-	 gmon.out */gmon.out $(TESTBIN) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
+	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBIN) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
 
 cleanall : clean
 	$(RM) $(COMMONDIR)/*.gch $(COMMONDIR)/*.pch
