@@ -103,6 +103,7 @@ CLIENTLIBOBJECTS = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJECTS))
 
 $(CLIENTBINARY) : $(COMMONOBJECTS) $(CLIENTOBJECTS)
 	$(CXX) -o $@ $(CLIENTOBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
+	@(cd $(CLIENTBINDIR); ln -sf ../$(DATADIR))
 
 TESTSOURCES = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJECTS = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSOURCES))
@@ -113,7 +114,7 @@ $(TESTBINARY) : $(TESTOBJECTS) $(COMMONOBJECTS) $(CLIENTLIBOBJECTS) $(SERVERLIBO
 
 .PHONY: clean cleanall
 clean:
-	$(RM) */*.d $(SERVERBINARY) $(CLIENTBINARY) gmon.out */gmon.out $(TESTBINARY) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
+	$(RM) */*.d $(SERVERBINARY) $(CLIENTBINARY) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINARY) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
 
 cleanall : clean
 	$(RM) $(COMMONDIR)/*.gch $(COMMONDIR)/*.pch

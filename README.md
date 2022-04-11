@@ -109,6 +109,13 @@ To start:\
 on server side './server' in the project root\
 on client side './client' in the client_bin or any other directory.
 
+To run the server outside of the project create a directory, copy server binary,\
+make a soft link to the project_root/data directory, copy server' ProgramOptions.json\
+to this directory, and issue './server' command.
+
+Similarly for the client. Create a directory, copy binary client, make a soft link to data\
+directory, copy client' ProgramOptions.json, and run './client'.
+
 No special requirements for the hardware.\
 Using laptop with 4 cores and 4GB RAM to run the server and up to 5 fifo and tcp clients.\
 Running Linux Mint 20.2.\
@@ -141,10 +148,10 @@ in the tests directory\
 or './runtests.sh'\
 in the project root.
 
-It is also possible to run tests from any directory if it is outside of the\
-project. To do this create a directory anywhere, make a soft link to the\
-project root/data directory in this new directory and copy the binary\
-runtests from the project root/tests. Then issue './runtests'.
+To run tests from any directory *outside* of the project\
+create a directory anywhere, make a soft link to the\
+project_root/data directory in this new directory and copy the binary\
+runtests from the project_root/tests, issue './runtests' command.
 
 Script profile.sh runs automatic profiling of the server and clients.\
  The usage is\

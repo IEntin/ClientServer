@@ -4,7 +4,7 @@
   "Diagnostics" : false,
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseName" : "Client1",
-  "SourceName" : "../data/requests.log",
+  "SourceName" : "data/requests.log",
   "OutputFileName" : "",
   "InstrumentationFn" : "",
   "Compression" : "LZ4",
