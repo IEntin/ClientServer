@@ -119,7 +119,7 @@ Some of these:
 
 Compression\
 "Compression" : "LZ4"\
-If this is empty or something different the compression is disabled.
+If this is empty or different the compression is disabled.
 
 "Timing" prints elapsed times between selected lines of the code. Currently it shows client latency\
 for the batch of 10000 requests and the total run time for the server. See Chronometer class in the code.
@@ -136,11 +136,15 @@ This setting is '"Diagnostics" : true' in the client ProgramOptions.json. It ena
 for that client.
 
 To run the Google tests:\
-'tests/runtests'\
-in the project root directory.
+'./runtests'\
+in the tests directory\
+or './runtests.sh'\
+in the project root.
 
-Script profile.sh runs automatic profiling of the server and client. The usage is\
-'./profile.sh' in the server directory.
+Script profile.sh runs automatic profiling of the server and clients.\
+ The usage is\
+'./profile.sh'\
+in the project root.
 
 The conventional procedure in this project includes thread and memory sanitizer runs and performance\
 profiling of every commit. Sanitizer warnings are considered failures and are not accepted.

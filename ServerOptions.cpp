@@ -10,7 +10,7 @@ ServerOptions::ServerOptions() :
   _bufferSize(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000)),
   _timingEnabled(ProgramOptions::get("Timing", false)),
   _processRequest(Transaction::processRequest),
-  _adsFileName(ProgramOptions::get("AdsFileName", std::string("ads.txt"))),
+  _adsFileName(ProgramOptions::get("AdsFileName", std::string("data/ads.txt"))),
   _numberWorkThreads([] ()->unsigned {
 		       unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
 		       return numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :

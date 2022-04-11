@@ -1,7 +1,10 @@
 #!/bin/bash
 
-make -j4
-
 TESTDIR=tests
+BINARY=runtests
 
-(cd $TESTDIR;./runtests)
+if [ -f $TESTDIR/$BINARY ]; then
+    (cd $TESTDIR;./$BINARY)
+else
+    make -j4
+fi

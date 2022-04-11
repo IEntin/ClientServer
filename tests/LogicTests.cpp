@@ -78,13 +78,16 @@ struct LogicTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
+    ClientOptions clientOptions;
+    _input = Client::readFile(clientOptions._sourceName);
+    _calibratedOutput = Client::readFile("data/outputD.txt");
     Task::setProcessMethod(Transaction::processRequest);
     _taskController = TaskController::instance(std::thread::hardware_concurrency());
   }
   static void TearDownTestSuite() {}
 };
-std::string LogicTest::_input = Client::readFile("requests.log");
-std::string LogicTest::_calibratedOutput = Client::readFile("outputD.txt");
+std::string LogicTest::_input;
+std::string LogicTest::_calibratedOutput;
 TaskControllerPtr LogicTest::_taskController;
 
 TEST_F(LogicTest, LogicTestTcp1) {

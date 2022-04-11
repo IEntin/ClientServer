@@ -20,38 +20,47 @@ volatile std::sig_atomic_t stopFlag = false;
 struct CompressionTest : testing::Test {
   static std::string _input1;
   static std::string _input2;
+
+  void testCompressionDecompression1(std::string_view input) {
+    MemoryPool memoryPool;
+    memoryPool.setInitialSize(100000);
+    std::string_view compressedView = Compression::compress(input, memoryPool);
+    ASSERT_FALSE(compressedView.empty());
+    // save to a string before buffer is reused in uncompress
+    std::string compressed;
+    compressed.assign(compressedView.data(), compressedView.size());
+    std::string_view uncompressedView = Compression::uncompress(compressed, input.size(), memoryPool);
+    static auto& printOnce [[maybe_unused]] =
+      std::clog << "\n   input.size()=" << input.size()
+		<< " compressedView.size()=" << compressedView.size() << " restored to original:"
+		<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+    ASSERT_EQ(input, uncompressedView);
+  }
+
+  void testCompressionDecompression2(std::string_view input) {
+    MemoryPool memoryPool;
+    memoryPool.setInitialSize(100000);
+    std::string_view compressedView = Compression::compress(input, memoryPool);
+    ASSERT_FALSE(compressedView.empty());
+    std::vector<char> uncompressed(input.size());
+    ASSERT_TRUE(Compression::uncompress(compressedView, uncompressed));
+    std::string_view uncompressedView(uncompressed.begin(), uncompressed.end());
+    static auto& printOnce [[maybe_unused]] =
+      std::clog << "\n   input.size()=" << input.size()
+		<< " compressedView.size()=" << compressedView.size() << " restored to original:"
+		<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+    ASSERT_EQ(input, uncompressedView);
+  }
+
+  static void SetUpTestSuite() {
+    ClientOptions clientOptions;
+    _input1 = Client::readFile(clientOptions._sourceName);
+    _input2 = Client::readFile("data/outputD.txt");
+  }
+  static void TearDownTestSuite() {}
 };
-std::string CompressionTest::_input1 = Client::readFile("requests.log");
-std::string CompressionTest::_input2 = Client::readFile("outputD.txt");
-
-void testCompressionDecompression1(std::string_view input) {
-  MemoryPool memoryPool;
-  memoryPool.setInitialSize(100000);
-  std::string_view compressedView = Compression::compress(input, memoryPool);
-  ASSERT_FALSE(compressedView.empty());
-  // save to a string before buffer is reused in uncompress
-  std::string compressed;
-  compressed.assign(compressedView.data(), compressedView.size());
-  std::string_view uncompressedView = Compression::uncompress(compressed, input.size(), memoryPool);
-  static auto& printOnce [[maybe_unused]] = std::clog << "\n   input.size()=" << input.size()
-	    << " compressedView.size()=" << compressedView.size() << " restored to original:"
-            << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-  ASSERT_EQ(input, uncompressedView);
-}
-
-void testCompressionDecompression2(std::string_view input) {
-  MemoryPool memoryPool;
-  memoryPool.setInitialSize(100000);
-  std::string_view compressedView = Compression::compress(input, memoryPool);
-  ASSERT_FALSE(compressedView.empty());
-  std::vector<char> uncompressed(input.size());
-  ASSERT_TRUE(Compression::uncompress(compressedView, uncompressed));
-  std::string_view uncompressedView(uncompressed.begin(), uncompressed.end());
-  static auto& printOnce [[maybe_unused]] = std::clog << "\n   input.size()=" << input.size()
-            << " compressedView.size()=" << compressedView.size() << " restored to original:"
-	    << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-  ASSERT_EQ(input, uncompressedView);
-}
+std::string CompressionTest::_input1;
+std::string CompressionTest::_input2;
 
 TEST_F(CompressionTest, CompressionTest1) {
   testCompressionDecompression1(_input1);
@@ -70,7 +79,8 @@ TEST_F(CompressionTest, CompressionTest4) {
 }
 
 TEST(SplitTest, SplitTest1) {
-  const std::string content = Client::readFile("requests.log");
+  ClientOptions clientOptions;
+  const std::string content = Client::readFile(clientOptions._sourceName);
   std::vector<std::string_view> lines;
   utility::split(content, lines);
   ASSERT_EQ(lines.size(), 10000);
@@ -158,11 +168,14 @@ struct BuildTaskTest : testing::Test {
     ASSERT_EQ(_input, restoredString);
   }
 
-  static void SetUpTestSuite() {}
+  static void SetUpTestSuite() {
+    ClientOptions clientOptions;
+    _input = Client::readFile(clientOptions._sourceName);
+  }
 
   static void TearDownTestSuite() {}
 };
-std::string BuildTaskTest::_input = Client::readFile("requests.log");
+std::string BuildTaskTest::_input;
 
 TEST_F(BuildTaskTest, Compression) {
   testBuildTask(COMPRESSORS::LZ4);
@@ -172,7 +185,7 @@ TEST_F(BuildTaskTest, NoCompression) {
   testBuildTask(COMPRESSORS::NONE);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

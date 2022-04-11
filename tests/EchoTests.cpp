@@ -54,14 +54,16 @@ struct EchoTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
+    ClientOptions clientOptions;
+    _input = Client::readFile(clientOptions._sourceName);
     Task::setProcessMethod(echo::Echo::processRequest);
     _taskController = TaskController::instance(std::thread::hardware_concurrency());
-    ServerOptions options;
-    _taskController->setMemoryPoolSize(options._bufferSize);
+    ServerOptions serverOptions;
+    _taskController->setMemoryPoolSize(serverOptions._bufferSize);
   }
   static void TearDownTestSuite() {}
 };
-std::string EchoTest::_input = Client::readFile("requests.log");
+std::string EchoTest::_input;
 TaskControllerPtr EchoTest::_taskController;
 
 TEST_F(EchoTest, EchoTestTcpCompression) {

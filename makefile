@@ -20,16 +20,25 @@ else
   CXX=$(CMPLR)
 endif
 
-CLIENTBINDIR = client_bin
+RM = rm -f
 
+CLIENTSRCDIR = client_src
+CLIENTBINDIR = client_bin
+COMMONDIR = common
+LZ4DIR = lz4
 TESTDIR = tests
+DATADIR = data
+
+SERVERBINARY = server
+CLIENTBINARY = $(CLIENTBINDIR)/client
+TESTBINARY = $(TESTDIR)/runtests
 
 # precompiled headers
 
 ENABLEPCH = 1
 
 ifeq ($(ENABLEPCH),1)
-  ALLH = common/all.h
+  ALLH = $(COMMONDIR)/all.h
 
   ifeq ($(CXX),clang++)
     PCH = $(ALLH).pch
@@ -40,7 +49,7 @@ ifeq ($(ENABLEPCH),1)
   INCLUDE_PRECOMPILED = -include $(ALLH)
 endif
 
-all: server $(CLIENTBINDIR)/client $(TESTDIR)/runtests
+all: $(SERVERBINARY) $(CLIENTBINARY) $(TESTBINARY)
 
 OPTIMIZE=
 ifeq ($(OPTIMIZE),)
@@ -63,13 +72,13 @@ WARNINGS = -Wall -pedantic-errors
 
 MACROS = -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE)
 
-INCLUDES := -I. -Icommon -Iclient_src -I$(TESTDIR) -Ilz4
+INCLUDES := -I. -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTDIR) -I$(LZ4DIR)
 
 CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
 OBJDIR = obj
 
-vpath %.cpp common client_src $(TESTDIR) lz4
+vpath %.cpp $(COMMONDIR) $(CLIENTSRCDIR) $(TESTDIR) $(LZ4DIR)
 
 $(OBJDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
@@ -77,34 +86,34 @@ $(OBJDIR)/%.o : %.cpp $(PCH)
 $(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) $(ALLH) -o $@
 
-LZ4SOURCES = lz4/lz4.cpp
-COMMONSOURCES = $(wildcard common/*.cpp)
-COMMONOBJECTS = $(patsubst common/%.cpp, $(OBJDIR)/%.o, $(COMMONSOURCES)) $(patsubst lz4/%.cpp, $(OBJDIR)/%.o, $(LZ4SOURCES))
+LZ4SOURCES = $(LZ4DIR)/lz4.cpp
+COMMONSOURCES = $(wildcard $(COMMONDIR)/*.cpp)
+COMMONOBJECTS = $(patsubst $(COMMONDIR)/%.cpp, $(OBJDIR)/%.o, $(COMMONSOURCES)) $(patsubst $(LZ4DIR)/%.cpp, $(OBJDIR)/%.o, $(LZ4SOURCES))
 
 SERVERSOURCES = $(wildcard *.cpp)
 SERVEROBJECTS = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSOURCES))
 SERVERLIBOBJECTS = $(filter-out $(OBJDIR)/ServerMain.o, $(SERVEROBJECTS))
 
-server : $(COMMONOBJECTS) $(SERVEROBJECTS)
+$(SERVERBINARY) : $(COMMONOBJECTS) $(SERVEROBJECTS)
 	$(CXX) -o $@ $(SERVEROBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
 
-CLIENTSOURCES = $(wildcard client_src/*.cpp)
-CLIENTOBJECTS = $(patsubst client_src/%.cpp, $(OBJDIR)/%.o, $(CLIENTSOURCES))
+CLIENTSOURCES = $(wildcard $(CLIENTSRCDIR)/*.cpp)
+CLIENTOBJECTS = $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSOURCES))
 CLIENTLIBOBJECTS = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJECTS))
 
-$(CLIENTBINDIR)/client : $(COMMONOBJECTS) $(CLIENTOBJECTS)
+$(CLIENTBINARY) : $(COMMONOBJECTS) $(CLIENTOBJECTS)
 	$(CXX) -o $@ $(CLIENTOBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
 
 TESTSOURCES = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJECTS = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSOURCES))
 
-$(TESTDIR)/runtests : $(TESTOBJECTS) $(COMMONOBJECTS) $(CLIENTLIBOBJECTS) $(SERVERLIBOBJECTS)
-	$(CXX) -o $@ $(TESTOBJECTS) -lgtest -lgtest_main $(CPPFLAGS) $(CLIENTLIBOBJECTS) $(COMMONOBJECTS) $(SERVERLIBOBJECTS) -pthread
-	@cd $(TESTDIR); ln -sf ../$(CLIENTBINDIR)/requests.log .; ln -sf ../$(CLIENTBINDIR)/outputD.txt .; ln -sf ../$(CLIENTBINDIR)/outputND.txt .; ln -sf ../ads.txt .;./runtests
+$(TESTBINARY) : $(TESTOBJECTS) $(COMMONOBJECTS) $(CLIENTLIBOBJECTS) $(SERVERLIBOBJECTS)
+	$(CXX) -o $@ $(TESTOBJECTS) -lgtest $(CPPFLAGS) $(CLIENTLIBOBJECTS) $(COMMONOBJECTS) $(SERVERLIBOBJECTS) -pthread
+	@(cd $(TESTDIR); ln -sf ../$(DATADIR) .; ./runtests $(DATADIR))
 
 .PHONY: clean cleanall
 clean:
-	rm -f */*.d server $(CLIENTBINDIR)/client gmon.out */gmon.out $(TESTDIR)/runtests *.gcov *.gcno *.gcda $(TESTDIR)/requests.log $(TESTDIR)/outputD.txt $(TESTDIR)/outputND.txt $(TESTDIR)/ads.txt $(OBJDIR)/*  *~ */*~
+	$(RM) */*.d $(SERVERBINARY) $(CLIENTBINARY) gmon.out */gmon.out $(TESTBINARY) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
 
 cleanall : clean
-	rm -f common/*.gch common/*.pch
+	$(RM) $(COMMONDIR)/*.gch $(COMMONDIR)/*.pch

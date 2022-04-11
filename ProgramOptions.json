@@ -1,6 +1,6 @@
 {
   "TurnOffLogging" : true,
-  "AdsFileName" : "ads.txt",
+  "AdsFileName" : "data/ads.txt",
   "NumberTaskThreads" : 0,
   "Compression" : "LZ4",
   "DYNAMIC_BUFFER_SIZE" : 3000000,
