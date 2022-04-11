@@ -143,8 +143,8 @@ in the project root.
 
 It is also possible to run tests from any directory if it is outside of the\
 project. To do this create a directory anywhere, make a soft link to the\
-<project root>/data directory in this new directory and copy the binary\
-'runtests' from the <project root>/tests. Then issue './runtests'.
+project root/data directory in this new directory and copy the binary\
+runtests from the project root/tests. Then issue './runtests'.
 
 Script profile.sh runs automatic profiling of the server and clients.\
  The usage is\
