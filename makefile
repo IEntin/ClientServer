@@ -29,9 +29,9 @@ LZ4DIR = lz4
 TESTDIR = tests
 DATADIR = data
 
-SERVERBINARY = server
-CLIENTBINARY = $(CLIENTBINDIR)/client
-TESTBINARY = $(TESTDIR)/runtests
+SERVERBIN = server
+CLIENTBIN = $(CLIENTBINDIR)/client
+TESTBIN = $(TESTDIR)/runtests
 
 # precompiled headers
 
@@ -49,7 +49,7 @@ ifeq ($(ENABLEPCH),1)
   INCLUDE_PRECOMPILED = -include $(ALLH)
 endif
 
-all: $(SERVERBINARY) $(CLIENTBINARY) $(TESTBINARY)
+all: $(SERVERBIN) $(CLIENTBIN) $(TESTBIN)
 
 OPTIMIZE=
 ifeq ($(OPTIMIZE),)
@@ -86,35 +86,38 @@ $(OBJDIR)/%.o : %.cpp $(PCH)
 $(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) $(ALLH) -o $@
 
-LZ4SOURCES = $(LZ4DIR)/lz4.cpp
-COMMONSOURCES = $(wildcard $(COMMONDIR)/*.cpp)
-COMMONOBJECTS = $(patsubst $(COMMONDIR)/%.cpp, $(OBJDIR)/%.o, $(COMMONSOURCES)) $(patsubst $(LZ4DIR)/%.cpp, $(OBJDIR)/%.o, $(LZ4SOURCES))
+LZ4SRC = $(LZ4DIR)/lz4.cpp
+COMMONSRC = $(wildcard $(COMMONDIR)/*.cpp)
+COMMONOBJ = $(patsubst $(COMMONDIR)/%.cpp, $(OBJDIR)/%.o, $(COMMONSRC))\
+	$(patsubst $(LZ4DIR)/%.cpp, $(OBJDIR)/%.o, $(LZ4SRC))
 
-SERVERSOURCES = $(wildcard *.cpp)
-SERVEROBJECTS = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSOURCES))
-SERVERLIBOBJECTS = $(filter-out $(OBJDIR)/ServerMain.o, $(SERVEROBJECTS))
+SERVERSRC = $(wildcard *.cpp)
+SERVEROBJ = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSRC))
+SERVERFILTEREDOBJ = $(filter-out $(OBJDIR)/ServerMain.o, $(SERVEROBJ))
 
-$(SERVERBINARY) : $(COMMONOBJECTS) $(SERVEROBJECTS)
-	$(CXX) -o $@ $(SERVEROBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
+$(SERVERBIN) : $(COMMONOBJ) $(SERVEROBJ)
+	$(CXX) -o $@ $(SERVEROBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
 
-CLIENTSOURCES = $(wildcard $(CLIENTSRCDIR)/*.cpp)
-CLIENTOBJECTS = $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSOURCES))
-CLIENTLIBOBJECTS = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJECTS))
+CLIENTSRC = $(wildcard $(CLIENTSRCDIR)/*.cpp)
+CLIENTOBJ = $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSRC))
+CLIENTFILTEREDOBJ = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJ))
 
-$(CLIENTBINARY) : $(COMMONOBJECTS) $(CLIENTOBJECTS)
-	$(CXX) -o $@ $(CLIENTOBJECTS) $(CPPFLAGS) $(COMMONOBJECTS) -pthread
+$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
+	$(CXX) -o $@ $(CLIENTOBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
 	@(cd $(CLIENTBINDIR); ln -sf ../$(DATADIR))
 
-TESTSOURCES = $(wildcard $(TESTDIR)/*.cpp)
-TESTOBJECTS = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSOURCES))
+TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
+TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
 
-$(TESTBINARY) : $(TESTOBJECTS) $(COMMONOBJECTS) $(CLIENTLIBOBJECTS) $(SERVERLIBOBJECTS)
-	$(CXX) -o $@ $(TESTOBJECTS) -lgtest $(CPPFLAGS) $(CLIENTLIBOBJECTS) $(COMMONOBJECTS) $(SERVERLIBOBJECTS) -pthread
+$(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
+	$(CXX) -o $@ $(TESTOBJ) -lgtest $(CPPFLAGS) $(CLIENTFILTEREDOBJ)\
+	$(COMMONOBJ) $(SERVERFILTEREDOBJ) -pthread
 	@(cd $(TESTDIR); ln -sf ../$(DATADIR) .; ./runtests $(DATADIR))
 
 .PHONY: clean cleanall
 clean:
-	$(RM) */*.d $(SERVERBINARY) $(CLIENTBINARY) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINARY) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
+	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data\
+	 gmon.out */gmon.out $(TESTBIN) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
 
 cleanall : clean
 	$(RM) $(COMMONDIR)/*.gch $(COMMONDIR)/*.pch

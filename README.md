@@ -35,7 +35,7 @@ Business logic, compression, task multithreading, and communication layers are c
 
 Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-In order to measure performance of the system the same batch was repeated in an infinite loop, but every time it was created anew from a file. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes about 30 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal doubles the latency.
+To measure the performance of the system the same batch was repeated in an infinite loop, but every time it was created anew from a source file. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes about 30 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal doubles the latency.
 
 To test the code:
 
@@ -148,10 +148,13 @@ in the tests directory\
 or './runtests.sh'\
 in the project root.
 
-To run tests from any directory *outside* of the project\
+To run the tests from any directory outside of the project\
 create a directory anywhere, make a soft link to the\
 project_root/data directory in this new directory and copy the binary\
-runtests from the project_root/tests, issue './runtests' command.
+runtests from the project_root/tests, issue './runtests' command.\
+Note that runtests binary is not using program options. Instead, it is using\
+defaults. The presence of the ProgramOptions.json in the current\
+directory breaks the tests.
 
 Script profile.sh runs automatic profiling of the server and clients.\
  The usage is\
