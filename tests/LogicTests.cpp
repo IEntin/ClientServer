@@ -9,13 +9,12 @@
 #include "TcpClient.h"
 #include "TcpConnection.h"
 #include "TcpServer.h"
+#include "TestEnvironment.h"
 #include "Transaction.h"
 #include <gtest/gtest.h>
 #include <filesystem>
 
 struct LogicTest : testing::Test {
-  static std::string _input;
-  static std::string _calibratedOutput;
   static TaskControllerPtr _taskController;
 
   void testLogicTcp(COMPRESSORS serverCompressor,
@@ -43,8 +42,8 @@ struct LogicTest : testing::Test {
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), _calibratedOutput.size());
-    ASSERT_EQ(oss.str(), _calibratedOutput);
+    ASSERT_EQ(oss.str().size(), TestEnvironment::_outputD.size());
+    ASSERT_EQ(oss.str(), TestEnvironment::_outputD);
     tcpServer->stop();
   }
 
@@ -72,22 +71,17 @@ struct LogicTest : testing::Test {
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), _calibratedOutput.size());
-    ASSERT_EQ(oss.str(), _calibratedOutput);
+    ASSERT_EQ(oss.str().size(), TestEnvironment::_outputD.size());
+    ASSERT_EQ(oss.str(), TestEnvironment::_outputD);
     fifoServer->stop();
   }
 
   static void SetUpTestSuite() {
-    ClientOptions clientOptions;
-    _input = Client::readFile(clientOptions._sourceName);
-    _calibratedOutput = Client::readFile("data/outputD.txt");
     Task::setProcessMethod(Transaction::processRequest);
     _taskController = TaskController::instance(std::thread::hardware_concurrency());
   }
   static void TearDownTestSuite() {}
 };
-std::string LogicTest::_input;
-std::string LogicTest::_calibratedOutput;
 TaskControllerPtr LogicTest::_taskController;
 
 TEST_F(LogicTest, LogicTestTcp1) {

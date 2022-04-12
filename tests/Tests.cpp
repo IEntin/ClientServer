@@ -8,6 +8,7 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include "TaskBuilder.h"
+#include "TestEnvironment.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <csignal>
@@ -17,9 +18,18 @@
 
 volatile std::sig_atomic_t stopFlag = false;
 
+std::string TestEnvironment::_source;
+std::string TestEnvironment::_outputD;
+
+void TestEnvironment::SetUp() {
+    ClientOptions clientOptions;
+    _source = Client::readFile(clientOptions._sourceName);
+    _outputD = Client::readFile("data/outputD.txt");
+}
+
+void TestEnvironment::TearDown() {}
+
 struct CompressionTest : testing::Test {
-  static std::string _input1;
-  static std::string _input2;
 
   void testCompressionDecompression1(std::string_view input) {
     MemoryPool memoryPool;
@@ -52,37 +62,30 @@ struct CompressionTest : testing::Test {
     ASSERT_EQ(input, uncompressedView);
   }
 
-  static void SetUpTestSuite() {
-    ClientOptions clientOptions;
-    _input1 = Client::readFile(clientOptions._sourceName);
-    _input2 = Client::readFile("data/outputD.txt");
-  }
+  static void SetUpTestSuite() {}
   static void TearDownTestSuite() {}
 };
-std::string CompressionTest::_input1;
-std::string CompressionTest::_input2;
 
 TEST_F(CompressionTest, CompressionTest1) {
-  testCompressionDecompression1(_input1);
+  testCompressionDecompression1(TestEnvironment::_source);
 }
 
 TEST_F(CompressionTest, CompressionTest2) {
-  testCompressionDecompression1(_input2);
+  testCompressionDecompression1(TestEnvironment::_outputD);
 }
 
 TEST_F(CompressionTest, CompressionTest3) {
-  testCompressionDecompression2(_input1);
+  testCompressionDecompression2(TestEnvironment::_source);
 }
 
 TEST_F(CompressionTest, CompressionTest4) {
-  testCompressionDecompression2(_input2);
+  testCompressionDecompression2(TestEnvironment::_outputD);
 }
 
 TEST(SplitTest, SplitTest1) {
   ClientOptions clientOptions;
-  const std::string content = Client::readFile(clientOptions._sourceName);
   std::vector<std::string_view> lines;
-  utility::split(content, lines);
+  utility::split(TestEnvironment::_source, lines);
   ASSERT_EQ(lines.size(), 10000);
 }
 
@@ -128,7 +131,6 @@ TEST(HeaderTest, HeaderTest1) {
 }
 
 struct BuildTaskTest : testing::Test {
-  static std::string _input;
   void testBuildTask(COMPRESSORS compressor) {
     ClientOptions options;
     options._compressor = compressor;
@@ -164,18 +166,14 @@ struct BuildTaskTest : testing::Test {
       size_t pos = str.find(']');
       restoredString.append(str.substr(pos + 1)).append(1, '\n');
     }
-    ASSERT_EQ(_input.size(), restoredString.size());
-    ASSERT_EQ(_input, restoredString);
+    ASSERT_EQ(TestEnvironment::_source.size(), restoredString.size());
+    ASSERT_EQ(TestEnvironment::_source, restoredString);
   }
 
-  static void SetUpTestSuite() {
-    ClientOptions clientOptions;
-    _input = Client::readFile(clientOptions._sourceName);
-  }
+  static void SetUpTestSuite() {}
 
   static void TearDownTestSuite() {}
 };
-std::string BuildTaskTest::_input;
 
 TEST_F(BuildTaskTest, Compression) {
   testBuildTask(COMPRESSORS::LZ4);
@@ -186,6 +184,8 @@ TEST_F(BuildTaskTest, NoCompression) {
 }
 
 int main(int argc, char** argv) {
+  TestEnvironment* env = new TestEnvironment(); 
+  ::testing::AddGlobalTestEnvironment(env);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

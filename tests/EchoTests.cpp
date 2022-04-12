@@ -9,11 +9,11 @@
 #include "TcpClient.h"
 #include "TcpConnection.h"
 #include "TcpServer.h"
+#include "TestEnvironment.h"
 #include <gtest/gtest.h>
 #include <filesystem>
 
 struct EchoTest : testing::Test {
-  static std::string _input;
   static TaskControllerPtr _taskController;
 
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
@@ -29,8 +29,8 @@ struct EchoTest : testing::Test {
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), _input.size());
-    ASSERT_EQ(oss.str(), _input);
+    ASSERT_EQ(oss.str().size(), TestEnvironment::_source.size());
+    ASSERT_EQ(oss.str(), TestEnvironment::_source);
     tcpServer->stop();
   }
 
@@ -48,14 +48,13 @@ struct EchoTest : testing::Test {
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), _input.size());
-    ASSERT_EQ(oss.str(), _input);
+    ASSERT_EQ(oss.str().size(), TestEnvironment::_source.size());
+    ASSERT_EQ(oss.str(), TestEnvironment::_source);
     fifoServer->stop();
   }
 
   static void SetUpTestSuite() {
     ClientOptions clientOptions;
-    _input = Client::readFile(clientOptions._sourceName);
     Task::setProcessMethod(echo::Echo::processRequest);
     _taskController = TaskController::instance(std::thread::hardware_concurrency());
     ServerOptions serverOptions;
@@ -63,7 +62,6 @@ struct EchoTest : testing::Test {
   }
   static void TearDownTestSuite() {}
 };
-std::string EchoTest::_input;
 TaskControllerPtr EchoTest::_taskController;
 
 TEST_F(EchoTest, EchoTestTcpCompression) {
