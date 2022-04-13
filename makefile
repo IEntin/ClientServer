@@ -14,6 +14,8 @@
 #make SANITIZE=[  | aul | thread ]
 #make CMPLR=[ g++ | clang++ ]
 
+all: server client tests runtests
+
 ifeq ($(CMPLR),)
   CXX=clang++
 else
@@ -48,8 +50,6 @@ ifeq ($(ENABLEPCH),1)
 
   INCLUDE_PRECOMPILED = -include $(ALLH)
 endif
-
-all: $(SERVERBIN) $(CLIENTBIN) $(TESTBIN)
 
 OPTIMIZE=
 ifeq ($(OPTIMIZE),)
@@ -96,25 +96,28 @@ SERVERSRC = $(wildcard *.cpp)
 SERVEROBJ = $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ = $(filter-out $(OBJDIR)/ServerMain.o, $(SERVEROBJ))
 
-$(SERVERBIN) : $(COMMONOBJ) $(SERVEROBJ)
-	$(CXX) -o $@ $(SERVEROBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
+server : $(COMMONOBJ) $(SERVEROBJ)
+	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
 
 CLIENTSRC = $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ = $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJ))
 
-$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
-	$(CXX) -o $@ $(CLIENTOBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
+client : $(COMMONOBJ) $(CLIENTOBJ)
+	$(CXX) -o $(CLIENTBIN) $(CLIENTOBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
 	@(cd $(CLIENTBINDIR); ln -sf ../$(DATADIR))
 
 TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
 
-$(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
-	$(CXX) -o $@ $(TESTOBJ) -lgtest $(CPPFLAGS) $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) -pthread
+tests : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
+	$(CXX) -o $(TESTBIN) $(TESTOBJ) -lgtest $(CPPFLAGS) $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) -pthread
+
+.PHONY: clean cleanall runtests
+
+runtests : tests
 	@(cd $(TESTDIR); ln -sf ../$(DATADIR) .; ./runtests $(DATADIR))
 
-.PHONY: clean cleanall
 clean:
 	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBIN) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
 
