@@ -23,19 +23,19 @@ HEADER decodeHeader(std::string_view buffer, bool done) {
   size_t uncomprSize = 0;
   std::string_view stru(buffer.data(), NUM_FIELD_SIZE);
   if (!utility::fromChars(stru, uncomprSize))
-    return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
+    return { -1, -1, COMPRESSORS::NONE, false, false };
   offset += NUM_FIELD_SIZE;
   size_t comprSize = 0;
   std::string_view strc(buffer.data() + offset, NUM_FIELD_SIZE);
   if (!utility::fromChars(strc, comprSize))
-    return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
+    return { -1, -1, COMPRESSORS::NONE, false, false };
   offset += NUM_FIELD_SIZE;
   std::string_view str(buffer.data() + offset, COMPRESSOR_TYPE_SIZE);
   size_t value = 0;
   if (!utility::fromChars(str, value))
-    return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
+    return { -1, -1, COMPRESSORS::NONE, false, false };
   COMPRESSORS compressor = static_cast<COMPRESSORS>(value);
   offset += COMPRESSOR_TYPE_SIZE;
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
-  return std::make_tuple(uncomprSize, comprSize, compressor, diagnostics, done);
+  return { uncomprSize, comprSize, compressor, diagnostics, done };
 }

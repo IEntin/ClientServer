@@ -87,7 +87,7 @@ bool Ad::parseArray() {
       continue;
     if (money < EPSILON)
       money = _defaultBid;
-    _bids.push_back(std::make_tuple(vect[i], weak_from_this(), money));
+    _bids.emplace_back(vect[i], this, money);
   }
   std::sort(_bids.begin(), _bids.end(), [] (const AdBid& bid1, const AdBid& bid2) {
 	      return std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid1)

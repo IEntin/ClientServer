@@ -31,9 +31,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, adWeakPtr, money] : transaction._bids) {
-      AdPtr adPtr = adWeakPtr.lock();
-      assert(adPtr);
+    for (const auto& [kw, adPtr, money] : transaction._bids) {
       os << *adPtr << " match:" << kw << ' ' << utility::Print(money, 1) << '\n';
     }
     os << "summary:";
@@ -42,7 +40,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
     else {
-      auto winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_WEAK_PTR)>(winningBid).lock();
+      auto winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_RAW_PTR)>(winningBid);
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(winningBid)
 	 << ", " << utility::Print(std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(winningBid), 1)
@@ -55,8 +53,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
     else {
-      auto winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_WEAK_PTR)>(winningBid).lock();
-      assert(winningAdPtr);
+      Ad* winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_RAW_PTR)>(winningBid);
       os << winningAdPtr->getId() << ", "
 	 << utility::Print(std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(winningBid), 1) << '\n';
     }

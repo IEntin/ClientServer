@@ -10,12 +10,12 @@
 
 enum class BID_INDEX : unsigned {
   BID_KEYWORD,
-  AD_WEAK_PTR,
+  AD_RAW_PTR,
   BID_MONEY
 };
 
 class Ad;
-using AdBid = std::tuple<std::string_view, std::weak_ptr<Ad>, double>;
+using AdBid = std::tuple<std::string_view, Ad*, double>;
 using AdPtr = std::shared_ptr<Ad>;
 using SizeMap = std::unordered_map<std::string, std::vector<AdPtr>>;
 

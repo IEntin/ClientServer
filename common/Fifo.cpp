@@ -33,13 +33,13 @@ HEADER Fifo::readHeader(int fd) {
       else {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		  << ':' << std::strerror(errno) << std::endl;
-	return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
+	return { -1, -1, COMPRESSORS::NONE, false, false };
       }
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
                 << ":read(...) returns 0,EOF." << std::endl;
-      return std::make_tuple(-1, -1, COMPRESSORS::NONE, false, false);
+      return { -1, -1, COMPRESSORS::NONE, false, false };
     }
     else
       readSoFar += result;
