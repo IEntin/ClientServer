@@ -21,7 +21,7 @@ using SizeMap = std::unordered_map<std::string, std::vector<AdPtr>>;
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad);
 
-class Ad : public std::enable_shared_from_this<Ad> {
+class Ad {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
 public:
   explicit Ad(std::string&& input) noexcept;
