@@ -5,7 +5,6 @@
 #include "TaskController.h"
 #include "Task.h"
 #include <cassert>
-#include <iostream>
 
 bool TaskController::_diagnosticsEnabled = false;
 

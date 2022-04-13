@@ -5,9 +5,6 @@
 #include "Utility.h"
 #include <cassert>
 #include <cstring>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 
 TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
   _sourceName(options._sourceName),

@@ -10,7 +10,6 @@
 #include "TaskController.h"
 #include "TcpServer.h"
 #include <csignal>
-#include <iostream>
 
 void signalHandler(int signal) {}
 

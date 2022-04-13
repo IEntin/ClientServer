@@ -14,8 +14,6 @@
 #include <sys/stat.h>
 #include <cassert>
 #include <cstring>
-#include <filesystem>
-#include <iostream>
 
 namespace fifo {
 

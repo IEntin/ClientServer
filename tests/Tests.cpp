@@ -11,10 +11,6 @@
 #include "TestEnvironment.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
-#include <csignal>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 
 volatile std::sig_atomic_t stopFlag = false;
 

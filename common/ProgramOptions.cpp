@@ -4,7 +4,6 @@
 
 #include "ProgramOptions.h"
 #include <filesystem>
-#include <iostream>
 
 boost::property_tree::ptree& ProgramOptions::instance() {
   static boost::property_tree::ptree pTree;

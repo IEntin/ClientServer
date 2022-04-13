@@ -8,7 +8,6 @@
 #include "ProgramOptions.h"
 #include "TcpClient.h"
 #include <csignal>
-#include <iostream>
 
 volatile std::sig_atomic_t stopFlag = false;
 

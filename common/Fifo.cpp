@@ -6,7 +6,6 @@
 #include "Header.h"
 #include <cstring>
 #include <fcntl.h>
-#include <iostream>
 #include <sys/stat.h>
 #include <unistd.h>
 

@@ -6,8 +6,6 @@
 #include <cassert>
 #include <csignal>
 #include <cstring>
-#include <iostream>
-#include <sstream>
 
 extern volatile std::sig_atomic_t stopFlag;
 

@@ -6,7 +6,6 @@
 #include "Compression.h"
 #include "Header.h"
 #include "lz4.h"
-#include <iostream>
 
 size_t MemoryPool::_initialBufferSize(0);
 

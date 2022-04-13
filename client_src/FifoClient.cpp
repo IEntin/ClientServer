@@ -10,7 +10,6 @@
 #include "MemoryPool.h"
 #include <atomic>
 #include <cstring>
-#include <iostream>
 #include <fcntl.h>
 
 namespace fifo {

@@ -5,8 +5,6 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "ProgramOptions.h"
-#include <filesystem>
-#include <iostream>
 
 ClientOptions::ClientOptions(std::ostream* externalDataStream) :
   _turnOffLogging(ProgramOptions::get("TurnOffLogging", true)),

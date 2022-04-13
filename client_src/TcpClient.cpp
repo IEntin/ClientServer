@@ -7,7 +7,6 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include <iostream>
 
 namespace tcp {
 
