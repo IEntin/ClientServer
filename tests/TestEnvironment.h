@@ -1,7 +1,6 @@
 #pragma once
 
-class TestEnvironment : public ::testing::Environment
-{
+class TestEnvironment : public ::testing::Environment {
 public:
   virtual ~TestEnvironment() = default;
 
