@@ -6,6 +6,7 @@
 #include "Compression.h"
 #include "ServerUtility.h"
 #include "Fifo.h"
+#include "Header.h"
 #include "MemoryPool.h"
 #include "TaskController.h"
 #include "Utility.h"

@@ -3,6 +3,7 @@
  */
 
 #include "Fifo.h"
+#include "Header.h"
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>

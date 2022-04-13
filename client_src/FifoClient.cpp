@@ -6,6 +6,7 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Fifo.h"
+#include "Header.h"
 #include "MemoryPool.h"
 #include <atomic>
 #include <cstring>

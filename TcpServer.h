@@ -14,7 +14,7 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 namespace tcp {
 
-using RunnablePtr = std::shared_ptr<class Runnable>;
+using RunnablePtr = std::shared_ptr<Runnable>;
 
 using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
