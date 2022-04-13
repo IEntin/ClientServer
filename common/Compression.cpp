@@ -5,6 +5,7 @@
 #include "Compression.h"
 #include "Header.h"
 #include "lz4.h"
+#include "MemoryPool.h"
 #include <cassert>
 #include <cstring>
 #include <iostream>

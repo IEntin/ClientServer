@@ -1,4 +1,5 @@
 #include "ServerUtility.h"
+#include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
 #include <cassert>

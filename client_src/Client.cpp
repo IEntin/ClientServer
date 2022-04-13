@@ -1,6 +1,7 @@
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
+#include "Compression.h"
 #include "TaskBuilder.h"
 #include <cassert>
 #include <csignal>

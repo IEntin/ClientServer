@@ -1,13 +1,13 @@
 #pragma once
 
 #include "ClientOptions.h"
-#include "MemoryPool.h"
-#include "ThreadPool.h"
+#include "Runnable.h"
 #include <future>
 
 using Vectors = std::vector<std::vector<char>>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 enum class COMPRESSORS : unsigned short;
+struct MemoryPool;
 
 class TaskBuilder : public Runnable {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Compression.h"
+enum class COMPRESSORS : short unsigned int;
 
 using ProcessRequest = std::string (*)(std::string_view);
 

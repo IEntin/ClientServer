@@ -3,6 +3,7 @@
  */
 
 #include "FifoServer.h"
+#include "Compression.h"
 #include "ServerUtility.h"
 #include "Fifo.h"
 #include "MemoryPool.h"

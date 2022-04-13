@@ -1,6 +1,7 @@
 #include "TaskBuilder.h"
 #include "Compression.h"
 #include "Header.h"
+#include "MemoryPool.h"
 #include "Utility.h"
 #include <cassert>
 #include <cstring>

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Runnable.h"
 #include "ThreadPool.h"
 #include "Compression.h"
 #include <boost/asio.hpp>

@@ -1,4 +1,5 @@
 #include "ServerOptions.h"
+#include "Compression.h"
 #include "ProgramOptions.h"
 #include "Transaction.h"
 #include <filesystem>

@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include "Header.h"
 #include "MemoryPool.h"
+#include "Runnable.h"
 #include "ThreadPool.h"
 #include <atomic>
 #include <barrier>
 #include <memory>
 #include <vector>
+
+enum class COMPRESSORS : short unsigned int;
 
 using Batch = std::vector<std::string>;
 
@@ -21,6 +23,8 @@ using ProcessRequest = std::string (*)(std::string_view);
 using CompletionFunction = void (*) () noexcept;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
+
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
 class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
   TaskController(unsigned numberThreads, size_t bufferSize);

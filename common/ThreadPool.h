@@ -13,13 +13,6 @@
 using RunnablePtr = std::shared_ptr<class Runnable>;
 using ThreadPoolPtr = std::shared_ptr<class ThreadPool>;
 
-class Runnable {
- public:
-  Runnable() = default;
-  virtual ~Runnable() {}
-  virtual void run() = 0;
-};
-
 class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;

@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Compression.h"
 #include <string>
 #include <vector>
+
+enum class COMPRESSORS : short unsigned int;
+
+struct MemoryPool;
 
 using Batch = std::vector<std::string>;
 

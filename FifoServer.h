@@ -4,12 +4,15 @@
 
 #pragma once
 
-#include "Compression.h"
-#include "Header.h"
+#include "Runnable.h"
 #include "ThreadPool.h"
 #include <memory>
 #include <thread>
 #include <vector>
+
+enum class COMPRESSORS : short unsigned int;
+
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
 using Batch = std::vector<std::string>;
 

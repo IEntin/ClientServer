@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Compression.h"
 #include <fstream>
+
+enum class COMPRESSORS : short unsigned int;
 
 struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
