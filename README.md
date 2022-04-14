@@ -43,6 +43,13 @@ To test the code:
 
 2. build the app
 
+There are four targets:\
+server client tests runtests\
+default is all targets.\
+'make -j4'\
+or any combination of targets, e.g.\
+'make -j4 server client'
+
 boost libraries must be installed.
 
 google tests must be installed:\
