@@ -12,6 +12,8 @@ public:
 
   virtual void TearDown();
 
+  static std::string readFile(const std::string& name);
+
   static std::string _source;
   static std::string _outputD;
 };

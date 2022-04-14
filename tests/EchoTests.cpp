@@ -1,6 +1,5 @@
 #include "Echo.h"
 #include "ClientOptions.h"
-#include "Compression.h"
 #include "FifoClient.h"
 #include "FifoServer.h"
 #include "ServerOptions.h"

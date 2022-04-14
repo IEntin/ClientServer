@@ -71,15 +71,3 @@ bool Client::printReply(const ClientOptions& options,
   }
   return true;
 }
-
-std::string Client::readFile(const std::string& name) {
-  std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
-  if (!ifs) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << std::strerror(errno) << ' ' << name << std::endl;
-    return "";
-  }
-  std::stringstream buffer;
-  buffer << ifs.rdbuf();
-  return buffer.str();
-}

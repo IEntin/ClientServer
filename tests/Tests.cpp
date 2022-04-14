@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Client.h"
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
@@ -11,19 +10,6 @@
 #include "TestEnvironment.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
-
-volatile std::sig_atomic_t stopFlag = false;
-
-std::string TestEnvironment::_source;
-std::string TestEnvironment::_outputD;
-
-void TestEnvironment::SetUp() {
-    ClientOptions clientOptions;
-    _source = Client::readFile(clientOptions._sourceName);
-    _outputD = Client::readFile("data/outputD.txt");
-}
-
-void TestEnvironment::TearDown() {}
 
 struct CompressionTest : testing::Test {
 

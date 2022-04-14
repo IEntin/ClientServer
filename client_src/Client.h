@@ -2,8 +2,6 @@
 
 #include "MemoryPool.h"
 #include "ThreadPool.h"
-#include <string>
-#include <vector>
 
 using Vectors = std::vector<std::vector<char>>;
 
@@ -34,6 +32,4 @@ class Client {
   ~Client();
 
   const Vectors& getTask() const { return _task; }
-
-  static std::string readFile(const std::string& name);
 };

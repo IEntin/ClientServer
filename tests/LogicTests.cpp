@@ -1,8 +1,6 @@
 #include "ClientOptions.h"
-#include "Compression.h"
 #include "FifoClient.h"
 #include "FifoServer.h"
-#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
