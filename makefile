@@ -103,8 +103,10 @@ CLIENTSRC = $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ = $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ = $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJ))
 
-client : $(COMMONOBJ) $(CLIENTOBJ)
-	$(CXX) -o $(CLIENTBIN) $(CLIENTOBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
+$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
+	$(CXX) -o $@ $(CLIENTOBJ) $(CPPFLAGS) $(COMMONOBJ) -pthread
+
+client : $(CLIENTBIN)
 	@(cd $(CLIENTBINDIR); ln -sf ../$(DATADIR))
 
 TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
@@ -113,7 +115,7 @@ TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
 tests : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
 	$(CXX) -o $(TESTBIN) $(TESTOBJ) -lgtest $(CPPFLAGS) $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) -pthread
 
-.PHONY: clean cleanall runtests
+.PHONY: clean cleanall client runtests
 
 runtests : tests
 	@(cd $(TESTDIR); ln -sf ../$(DATADIR) .; ./runtests $(DATADIR))
