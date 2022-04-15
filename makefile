@@ -29,7 +29,7 @@ CLIENTBINDIR := client_bin
 CLIENTPSEUDOTARGET := client
 COMMONDIR := common
 LZ4DIR := lz4
-TESTDIR := tests
+TESTDIR := test_src
 DATADIR := data
 
 SERVERBIN := server
