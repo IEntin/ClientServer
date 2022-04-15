@@ -44,10 +44,10 @@ To test the code:
 2. build the app
 
 There are four targets:\
-server client tests runtests\
-default is all targets.\
+server client buildtests runtests.\
+By default all targets are built:\
 'make -j4'\
-or any combination of targets, e.g.\
+Otherwise any combination of targets can be specified, e.g.\
 'make -j4 server client'
 
 boost libraries must be installed.
