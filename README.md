@@ -43,14 +43,9 @@ To test the code:
 
 2. build the app
 
-There are four targets:\
-server client buildtests runtests.\
-By default all targets are built:\
-'make -j4'\
-Otherwise any combination of targets can be specified, e.g.\
-'make -j4 server client'
+Prerequisites:
 
-boost libraries must be installed.
+Header only boost libraries must be installed.
 
 google tests must be installed:\
 sudo apt-get install libgtest-dev\
@@ -61,16 +56,24 @@ sudo make\
 sudo cp lib/*.a /usr/lib
 
 The compiler must support c++20\
-I use\
 gcc  11.1.0 and\
 clang 12.0.0\
 boost_1_78_0
 
-make -j3
-
 clang++ compiler is used by default. To use g++ add CMPLR=g++ to the make command.\
 There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels,\
 see the makefile.
+
+There are four targets:\
+server client buildtests runtests.\
+By default all targets are built:\
+'make -j4'\
+(you can specify any number of jobs).\
+Any combination of targets can be specified, e.g.\
+'make -j4 server client'\
+Note that empty file client (as well as buildtests) in the root\
+is a pseudo target used by make tool. Binary client is created\
+in the client_bin directory.
 
 3. run\
 server:
@@ -113,8 +116,13 @@ this, besides fifo directory permissions do not allow this.\
 ........
 
 To start:\
-on server side './server' in the project root\
-on client side './client' in the client_bin or any other directory.
+in the server terminal\
+cd project_root\
+./server
+
+in the client terminal\
+cd project_root/client_bin\
+./client
 
 To run the server outside of the project create a directory, copy server binary,\
 make a soft link to the project_root/data directory, copy server' ProgramOptions.json\

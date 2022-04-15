@@ -126,7 +126,7 @@ $(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
 .PHONY: clean cleanall runtests
 
 runtests : $(TESTPSEUDOTARGET)
-	@(cd $(TESTBINDIR); ./runtests $(DATADIR))
+	@(cd $(TESTBINDIR); ./runtests)
 
 clean:
 	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINDIR)/* *.gcov *.gcno *.gcda $(OBJDIR)/* *~ */*~
