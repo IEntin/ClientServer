@@ -129,7 +129,7 @@ runtests : $(TESTPSEUDOTARGET)
 	@(cd $(TESTBINDIR); ./runtests)
 
 clean:
-	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINDIR)/* *.gcov *.gcno *.gcda $(OBJDIR)/* *~ */*~
+	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINDIR)/* *.gcov *.gcno *.gcda *~ */*~
 
 cleanall : clean
-	$(RM) $(COMMONDIR)/*.gch $(COMMONDIR)/*.pch
+	$(RM) *.gch */*.gch *.pch */*.pch

@@ -40,10 +40,10 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
     else {
-      auto winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_RAW_PTR)>(winningBid);
+      auto winningAdPtr = winningBid._adPtr;
       assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(winningBid)
-	 << ", " << utility::Print(std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(winningBid), 1)
+      os << winningAdPtr->getId() << ", " << winningBid._keyword
+	 << ", " << utility::Print(winningBid._money, 1)
 	 << "\n*****\n";
     }
   }
@@ -53,9 +53,9 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
     else {
-      Ad* winningAdPtr = std::get<static_cast<unsigned>(BID_INDEX::AD_RAW_PTR)>(winningBid);
+      Ad* winningAdPtr = winningBid._adPtr;
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(winningBid), 1) << '\n';
+	 << utility::Print(winningBid._money, 1) << '\n';
     }
   }
   return os;
@@ -142,19 +142,19 @@ bool Transaction::normalizeSizeKey() {
 
 struct Comparator {
   bool operator()(std::string_view keyword, const AdBid& bid) const {
-    return keyword < std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid);
+    return keyword < bid._keyword;
   }
 
   bool operator()(const AdBid& bid, std::string_view keyword) const {
-    return std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid) < keyword;
+    return bid._keyword < keyword;
   }
 };
 
 inline AdBid findWinningBid(const std::vector<AdBid>& bids) {
   AdBid bid = bids[0];
-  double max = std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid);
+  double max = bid._money;
   for (size_t i = 1; i < bids.size(); ++i) {
-    double money = std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bids[i]);
+    double money = bids[i]._money;
     if (money > max) {
       max = money;
       bid = bids[i];

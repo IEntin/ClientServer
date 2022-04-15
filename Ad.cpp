@@ -15,6 +15,9 @@ constexpr double EPSILON{ 0.0001 };
 
 } // end of anonimous namespace
 
+AdBid::AdBid(std::string_view keyword, Ad* adPtr, double money) :
+  _keyword(keyword), _adPtr(adPtr), _money(money) {}
+
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << ad._id << " size=" << ad._sizeKey << " defaultBid="
      << utility::Print(ad._defaultBid, 1) << '\n';
@@ -89,8 +92,7 @@ bool Ad::parseArray() {
     _bids.emplace_back(vect[i], this, money);
   }
   std::sort(_bids.begin(), _bids.end(), [] (const AdBid& bid1, const AdBid& bid2) {
-	      return std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid1)
-		< std::get<static_cast<unsigned>(BID_INDEX::BID_KEYWORD)>(bid2); });
+	      return bid1._keyword < bid2._keyword; });
   return true;
 }
 

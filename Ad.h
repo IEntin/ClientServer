@@ -8,16 +8,17 @@
 #include <unordered_map>
 #include <vector>
 
-enum class BID_INDEX : unsigned {
-  BID_KEYWORD,
-  AD_RAW_PTR,
-  BID_MONEY
-};
-
 class Ad;
-using AdBid = std::tuple<std::string_view, Ad*, double>;
 using AdPtr = std::shared_ptr<Ad>;
 using SizeMap = std::unordered_map<std::string, std::vector<AdPtr>>;
+
+struct AdBid {
+  AdBid() = default;
+  AdBid(std::string_view keyword, Ad* adPtr, double money);
+  std::string_view _keyword;
+  Ad* _adPtr = nullptr;
+  double _money = 0;
+};
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad);
 
