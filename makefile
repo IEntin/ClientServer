@@ -8,7 +8,7 @@
 #valgrind --tool=massif ./server
 #ms_print massif.out.*
 #ps huH p <pid> | wc -l
-#~/ClientServer/tests$ ./runtests --gtest_repeat=10 --gtest_break_on_failure
+#~/ClientServer/test_bin$ ./runtests --gtest_repeat=10 --gtest_break_on_failure
 
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]
@@ -34,7 +34,8 @@ DATADIR := data
 
 SERVERBIN := server
 CLIENTBIN := $(CLIENTBINDIR)/client
-TESTBIN := $(TESTDIR)/runtests
+TESTBINDIR := test_bin
+TESTBIN := $(TESTBINDIR)/runtests
 
 # precompiled headers
 
@@ -113,22 +114,22 @@ $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 
 TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
-TESTSPSEUDOTARGET := buildtests
+TESTPSEUDOTARGET := buildtests
 
-$(TESTSPSEUDOTARGET) : $(TESTBIN)
-	(cd $(TESTDIR); ln -sf ../$(DATADIR))
-	touch $(TESTSPSEUDOTARGET)
+$(TESTPSEUDOTARGET) : $(TESTBIN)
+	(cd $(TESTBINDIR); ln -sf ../$(DATADIR))
+	touch $(TESTPSEUDOTARGET)
 
 $(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
 	$(CXX) -o $(TESTBIN) $(TESTOBJ) -lgtest $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CPPFLAGS) -pthread
 
 .PHONY: clean cleanall runtests
 
-runtests : $(TESTSPSEUDOTARGET)
-	@(cd $(TESTDIR); ./runtests $(DATADIR))
+runtests : $(TESTPSEUDOTARGET)
+	@(cd $(TESTBINDIR); ./runtests $(DATADIR))
 
 clean:
-	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBIN) *.gcov *.gcno *.gcda $(OBJDIR)/* $(TESTDIR)/data *~ */*~
+	$(RM) */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINDIR)/* *.gcov *.gcno *.gcda $(OBJDIR)/* *~ */*~
 
 cleanall : clean
 	$(RM) $(COMMONDIR)/*.gch $(COMMONDIR)/*.pch

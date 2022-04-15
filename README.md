@@ -151,14 +151,14 @@ for that client.
 
 To run the Google tests:\
 './runtests'\
-in the tests directory\
+in the test_bin directory\
 or './runtests.sh'\
 in the project root.
 
 To run the tests from any directory outside of the project\
 create a directory anywhere, make a soft link to the\
 project_root/data directory in this new directory and copy the binary\
-runtests from the project_root/tests, issue './runtests' command.\
+runtests from the project_root/test_bin, issue './runtests' command.\
 Note that runtests binary is not using program options. Instead, it is using\
 defaults. The presence of the ProgramOptions.json in the current\
 directory breaks the tests.
