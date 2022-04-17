@@ -2,6 +2,9 @@
 #include "Compression.h"
 #include "ProgramOptions.h"
 #include "Transaction.h"
+#include <filesystem>
+#include <iostream>
+#include <thread>
 
 ServerOptions::ServerOptions() :
   _turnOffLogging(ProgramOptions::get("TurnOffLogging", true)),

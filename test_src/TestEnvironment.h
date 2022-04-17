@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <gtest/gtest.h>
+
 class TestEnvironment : public ::testing::Environment {
 public:
   virtual ~TestEnvironment() = default;
@@ -11,8 +13,6 @@ public:
   virtual void SetUp();
 
   virtual void TearDown();
-
-  static std::string readFile(const std::string& name);
 
   static std::string _source;
   static std::string _outputD;

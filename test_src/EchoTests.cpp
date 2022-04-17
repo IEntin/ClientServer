@@ -10,6 +10,7 @@
 #include "TcpServer.h"
 #include "TestEnvironment.h"
 #include <gtest/gtest.h>
+#include <filesystem>
 
 struct EchoTest : testing::Test {
   static TaskControllerPtr _taskController;

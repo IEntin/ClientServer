@@ -104,4 +104,6 @@ template <Integral T>
     return true;
 }
 
+std::string readFile(const std::string& name);
+
 } // end of namespace utility

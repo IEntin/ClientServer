@@ -8,6 +8,7 @@
 #include "MemoryPool.h"
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) {
   bool enabled = compressorStr.starts_with(LZ4);

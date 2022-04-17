@@ -11,6 +11,7 @@
 #include <atomic>
 #include <cstring>
 #include <fcntl.h>
+#include <iostream>
 
 namespace fifo {
 

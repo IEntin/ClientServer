@@ -3,6 +3,7 @@
 #include "ClientOptions.h"
 #include "Runnable.h"
 #include <future>
+#include <vector>
 
 using Vectors = std::vector<std::vector<char>>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;

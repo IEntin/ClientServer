@@ -3,6 +3,7 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include <cassert>
+#include <iostream>
 
 namespace serverutility {
 
