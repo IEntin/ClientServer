@@ -13,7 +13,6 @@ using AdPtr = std::shared_ptr<Ad>;
 using SizeMap = std::unordered_map<std::string, std::vector<AdPtr>>;
 
 struct AdBid {
-  AdBid() = default;
   AdBid(std::string_view keyword, Ad* adPtr, double money);
   std::string_view _keyword;
   Ad* _adPtr = nullptr;

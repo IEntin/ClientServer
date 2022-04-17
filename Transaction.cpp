@@ -23,7 +23,7 @@ constexpr char SIZE_END('&');
 } // end of anonimous namespace
 
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
-  const auto& winningBid = transaction._winningBid;
+  const AdBid* winningBid = transaction._winningBid;
   os << transaction._id << ' ';
   if (TaskController::isDiagnosticsEnabled()) {
     os <<"Transaction size=" << transaction._sizeKey << " #matches=" << utility::Print(transaction._bids.size())
@@ -31,19 +31,18 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, adPtr, money] : transaction._bids) {
+    for (const auto& [kw, adPtr, money] : transaction._bids)
       os << *adPtr << " match:" << kw << ' ' << utility::Print(money, 1) << '\n';
-    }
     os << "summary:";
     if (transaction._noMatch)
       os << Transaction::EMPTY_REPLY << "*****\n";
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
     else {
-      auto winningAdPtr = winningBid._adPtr;
+      auto winningAdPtr = winningBid->_adPtr;
       assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << winningBid._keyword
-	 << ", " << utility::Print(winningBid._money, 1)
+      os << winningAdPtr->getId() << ", " << winningBid->_keyword
+	 << ", " << utility::Print(winningBid->_money, 1)
 	 << "\n*****\n";
     }
   }
@@ -53,9 +52,9 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
     else {
-      Ad* winningAdPtr = winningBid._adPtr;
+      Ad* winningAdPtr = winningBid->_adPtr;
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(winningBid._money, 1) << '\n';
+	 << utility::Print(winningBid->_money, 1) << '\n';
     }
   }
   return os;
@@ -140,6 +139,19 @@ bool Transaction::normalizeSizeKey() {
   return !(_invalid = _sizeKey.empty());
 }
 
+inline const AdBid* findWinningBid(const std::vector<AdBid>& bids) {
+  unsigned index = 0;
+  double max = bids[0]._money;
+  for (unsigned i = 1; i < bids.size(); ++i) {
+    double money = bids[i]._money;
+    if (money > max) {
+      max = money;
+      index = i;
+    }
+  }
+  return &bids[index];
+}
+
 struct Comparator {
   bool operator()(std::string_view keyword, const AdBid& bid) const {
     return keyword < bid._keyword;
@@ -150,31 +162,12 @@ struct Comparator {
   }
 };
 
-inline AdBid findWinningBid(const std::vector<AdBid>& bids) {
-  AdBid bid = bids[0];
-  double max = bid._money;
-  for (size_t i = 1; i < bids.size(); ++i) {
-    double money = bids[i]._money;
-    if (money > max) {
-      max = money;
-      bid = bids[i];
-    }
-  }
-  return bid;
-}
-
 void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   for (const AdPtr& ad : adVector) {
-    try {
-      std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
-			    _keywords.cbegin(), _keywords.cend(),
-			    std::back_inserter(_bids),
-			    Comparator());
-    }
-    catch (...) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
-		<< std::strerror(errno) << std::endl;
-    }
+    std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
+			  _keywords.cbegin(), _keywords.cend(),
+			  std::back_inserter(_bids),
+			  Comparator());
   }
   if (_bids.empty())
     _noMatch = true;

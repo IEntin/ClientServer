@@ -35,7 +35,7 @@ private:
   static thread_local std::vector<std::string_view> _keywords;
   // and here
   static thread_local std::string _sizeKey;
-  AdBid _winningBid;
+  const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };
   static constexpr std::string_view EMPTY_REPLY{ "0, 0.0\n" };
