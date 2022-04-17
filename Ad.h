@@ -34,6 +34,8 @@ private:
   Ad& operator =(const Ad& other) = delete;
   bool parseIntro();
   bool parseArray();
+  static void readAndSortAds(const std::string& fileName,
+			     std::vector<std::string>& lines);
   const std::string _input;
   std::vector<AdBid> _bids;
   std::string_view _id;

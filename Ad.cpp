@@ -103,39 +103,49 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
     return empty;
   return it->second;
 }
-
-bool Ad::load(const std::string& fileName) {
-  if (_loaded)
-    return true;
+// make SizeMap cache friendly
+void Ad::readAndSortAds(const std::string& fileName,
+			std::vector<std::string>& lines) {
+  auto extractSize = [&] (const std::string& line)->std::string {
+    std::vector<std::string> words;
+    utility::split(line, words, ", ");
+    if (words.size() < 3)
+      return "";
+    return words[1] + '*' + words[2];
+  };
+  std::string content;
   try {
     std::ifstream ifs(fileName, std::ifstream::in);
     if (!ifs)
       throw std::runtime_error("");
-    while(true) {
-      try {
-	std::string line;
-	if (std::getline(ifs, line)) {
-	  AdPtr ad = std::make_shared<Ad>(std::move(line));
-	  if (!(ad->parseIntro() && ad->parseArray()))
-	    continue;
-	  auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
-	  it->second.push_back(ad);
-	}
-	else
-	  break;
-      }
-      catch (std::exception& e) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		  << ' ' << e.what() << std::endl;
-	continue;
-      }
-    }
+    content = utility::readFile(fileName);
   }
-  catch (...) {
+  catch (std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << std::strerror(errno) << ' ' << fileName << std::endl;
-    return false;
+	      << ' ' << e.what() << std::endl;
+    return;
   }
+  utility::split(content, lines, '\n');
+  for (auto& line : lines)
+    extractSize(line);
+  std::stable_sort(lines.begin(), lines.end(), [extractSize] (const std::string& line1,
+							      const std::string& line2) {
+		     return extractSize(line1) < extractSize(line2);
+		   });
+}
+
+bool Ad::load(const std::string& fileName) {
+  if (_loaded)
+    return true;
   _loaded = true;
+  std::vector<std::string> lines;
+  readAndSortAds(fileName, lines);
+  for (auto& line : lines) {
+    AdPtr ad = std::make_shared<Ad>(std::move(line));
+    if (!(ad->parseIntro() && ad->parseArray()))
+      continue;
+    auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
+    it->second.push_back(ad);
+  }
   return true;
 }
