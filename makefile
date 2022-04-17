@@ -39,9 +39,16 @@ TESTBIN := $(TESTBINDIR)/runtests
 
 # precompiled headers
 
-ENABLEPCH := 1
+ENABLEPCH =
+ifeq ($(ENABLEPCH),)
+  PCHENABLED = 1
+else ifeq ($(ENABLEPCH),0)
+  PCHENABLED = 0
+else ifeq ($(ENABLEPCH),1)
+  PCHENABLED = 1
+endif
 
-ifeq ($(ENABLEPCH),1)
+ifeq ($(PCHENABLED),1)
   ALLH := $(COMMONDIR)/all.h
 
   ifeq ($(CXX),clang++)
@@ -72,7 +79,7 @@ endif
 
 WARNINGS := -Wall -pedantic-errors
 
-MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE)
+MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -DENABLEPCH=$(ENABLEPCH)
 
 INCLUDES := -I. -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTDIR) -I$(LZ4DIR)
 

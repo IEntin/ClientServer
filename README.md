@@ -56,13 +56,20 @@ sudo make\
 sudo cp lib/*.a /usr/lib
 
 The compiler must support c++20\
-gcc  11.1.0 and\
+gcc  11.1.0\
 clang 12.0.0\
 boost_1_78_0
 
-clang++ compiler is used by default. To use g++ add CMPLR=g++ to the make command.\
-There are options for sanitizers (address, undefined, leak or thread), profiler, different optimization levels,\
-see the makefile.
+make arguments:
+
+SANITIZE = [ aul | thread |  ] By default disabled.\
+  aul stands for address,undefined,leak. aul and thread sanitizers\
+  cannot be used together.\
+PROFILE = [ 1 | 0 |  ] By default disabled.\
+ENABLEPCH = [ 1 | 0 |  ] By default enabled.\
+  add 'ENABLEPCH=0' to the make command to disable PCH.\
+OPTIMIZE = [ -O3 | any |  ] By default -O3.\
+CMPLR = [ clang++ | g++ |  ] By default clang++.
 
 There are four targets:\
 server client buildtests runtests.\
@@ -71,8 +78,8 @@ By default all targets are built:\
 (you can specify any number of jobs).\
 Any combination of targets can be specified, e.g.\
 'make -j4 server client'\
-Note that empty file client (as well as buildtests) in the root\
-is a pseudo target used by make tool. Binary client is created\
+Note that empty file 'client' (as well as 'buildtests') in the root\
+is a pseudo target used by make. Binary client is created\
 in the client_bin directory.
 
 3. run\
