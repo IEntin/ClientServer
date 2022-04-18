@@ -117,14 +117,12 @@ bool Ad::readAndSortAds(const std::string& fileName,
   try {
     content = utility::readFile(fileName);
   }
-  catch (std::exception& e) {
+  catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
   utility::split(content, lines, '\n');
-  for (auto& line : lines)
-    extractSize(line);
   std::stable_sort(lines.begin(), lines.end(), [extractSize] (const std::string& line1,
 							      const std::string& line2) {
 		     return extractSize(line1) < extractSize(line2);
