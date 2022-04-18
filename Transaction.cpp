@@ -41,7 +41,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else {
       auto winningAdPtr = winningBid->_adPtr;
       assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << winningBid->_keyword
+      os << utility::Print(winningAdPtr->getId()) << ", " << winningBid->_keyword
 	 << ", " << utility::Print(winningBid->_money, 1)
 	 << "\n*****\n";
     }
@@ -53,7 +53,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
       os << Transaction::INVALID_REQUEST;
     else {
       Ad* winningAdPtr = winningBid->_adPtr;
-      os << winningAdPtr->getId() << ", "
+      os << utility::Print(winningAdPtr->getId()) << ", "
 	 << utility::Print(winningBid->_money, 1) << '\n';
     }
   }

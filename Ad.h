@@ -24,8 +24,8 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad);
 class Ad {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
 public:
-  explicit Ad(std::string&& input) noexcept;
-  std::string_view getId() const { return _id; }
+  explicit Ad(std::string_view input) noexcept;
+  unsigned getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(const std::string& fileName);
   static const std::vector<AdPtr>& getAdsBySize(const std::string& key);
@@ -34,13 +34,13 @@ private:
   Ad& operator =(const Ad& other) = delete;
   bool parseIntro();
   bool parseArray();
-  static bool readAndSortAds(const std::string& fileName,
-			     std::vector<std::string>& lines);
-  const std::string _input;
+  inline static std::string extractSize(std::string_view line);
+  static bool readAndSortAds(const std::string& fileName);
+  const std::string_view _input;
   std::vector<AdBid> _bids;
-  std::string_view _id;
-  std::string _sizeKey;
+  unsigned _id = 0;
   double _defaultBid{ 0.0 };
+  static std::vector<std::string> _lines;
   static SizeMap _mapBySize;
   static bool _loaded;
 };

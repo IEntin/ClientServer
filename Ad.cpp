@@ -19,18 +19,19 @@ AdBid::AdBid(std::string_view keyword, Ad* adPtr, double money) :
   _keyword(keyword), _adPtr(adPtr), _money(money) {}
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
-  os << "Ad" << ad._id << " size=" << ad._sizeKey << " defaultBid="
-     << utility::Print(ad._defaultBid, 1) << '\n';
+  os << "Ad" << utility::Print(ad._id) << " size=" << Ad::extractSize(ad._input)
+     << " defaultBid=" << utility::Print(ad._defaultBid, 1) << '\n';
   os << ' ' << ad._input << '\n';
   for (const auto& [key, adPtr, money] : ad._bids)
     os << "  " << key << " " << utility::Print(money, 1) << '\n';
   return os;
 }
 
+std::vector<std::string> Ad::_lines;
 SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;
 
-Ad::Ad(std::string&& input) noexcept : _input(std::move(input)) {}
+Ad::Ad(std::string_view input) noexcept : _input(input) {}
 
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.begin(), _input.end(), '[');
@@ -42,26 +43,11 @@ bool Ad::parseIntro() {
   std::string_view introStr(_input.begin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
-  enum { ID, WIDTH, HEIGHT, DEFAULTBID, END };
-  for (int i = ID; i != END; ++i) {
-    switch(i) {
-    case ID:
-      _id = vect[i];
-      break;
-    case WIDTH:
-      _sizeKey.append(vect[WIDTH].data(), vect[WIDTH].size()).append(1, 'x');
-      break;
-    case HEIGHT:
-      _sizeKey.append(vect[HEIGHT].data(), vect[HEIGHT].size());
-      break;
-    case DEFAULTBID:
-      if (!utility::fromChars(vect[i], _defaultBid))
-	return false;
-      break;
-    default:
-      break;
-    }
-  }
+  enum { ID, DEFAULTBID = 3 };
+  if (!utility::fromChars(vect[ID], _id))
+    return false;
+  if (!utility::fromChars(vect[DEFAULTBID], _defaultBid))
+    return false;
   if (_defaultBid < EPSILON)
     _defaultBid = 0;
   return true;
@@ -106,16 +92,15 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
 
 // make SizeMap cache friendly
 
-inline std::string extractSize(const std::string& line) {
+inline std::string Ad::extractSize(std::string_view line) {
   std::vector<std::string> words;
   utility::split(line, words, ", ");
   if (words.size() < 3)
     return "";
-  return words[1] + '*' + words[2];
+  return words[1] + 'x' + words[2];
 }
 
-bool Ad::readAndSortAds(const std::string& fileName,
-			std::vector<std::string>& lines) {
+bool Ad::readAndSortAds(const std::string& fileName) {
   std::string content;
   try {
     content = utility::readFile(fileName);
@@ -125,9 +110,9 @@ bool Ad::readAndSortAds(const std::string& fileName,
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  utility::split(content, lines, '\n');
-  std::stable_sort(lines.begin(), lines.end(), [] (const std::string& line1,
-						   const std::string& line2) {
+  utility::split(content, _lines, '\n');
+  std::stable_sort(_lines.begin(), _lines.end(), [] (const std::string& line1,
+						     const std::string& line2) {
 		     return extractSize(line1) < extractSize(line2);
 		   });
   return true;
@@ -136,14 +121,13 @@ bool Ad::readAndSortAds(const std::string& fileName,
 bool Ad::load(const std::string& fileName) {
   if (_loaded)
     return true;
-  std::vector<std::string> lines;
-  if (!readAndSortAds(fileName, lines))
+  if (!readAndSortAds(fileName))
     return false;
-  for (auto& line : lines) {
-    AdPtr ad = std::make_shared<Ad>(std::move(line));
+  for (auto& line : _lines) {
+    AdPtr ad = std::make_shared<Ad>(line);
     if (!(ad->parseIntro() && ad->parseArray()))
       continue;
-    auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
+    auto [it, inserted] = _mapBySize.emplace(extractSize(ad->_input), std::vector<AdPtr>());
     it->second.push_back(ad);
   }
   _loaded = true;
