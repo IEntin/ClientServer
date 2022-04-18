@@ -13,9 +13,15 @@ std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 
 void TestEnvironment::SetUp() {
-  ClientOptions clientOptions;
-  _source = utility::readFile(clientOptions._sourceName);
-  _outputD = utility::readFile("data/outputD.txt");
+  try {
+    ClientOptions clientOptions;
+    _source = utility::readFile(clientOptions._sourceName);
+    _outputD = utility::readFile("data/outputD.txt");
+  }
+  catch (const std::exception& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ' ' << e.what() <<std::endl;
+  }
 }
 
 void TestEnvironment::TearDown() {}

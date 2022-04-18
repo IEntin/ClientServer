@@ -166,7 +166,7 @@ TEST_F(BuildTaskTest, NoCompression) {
 }
 
 int main(int argc, char** argv) {
-  TestEnvironment* env = new TestEnvironment(); 
+  TestEnvironment* env = new TestEnvironment();
   ::testing::AddGlobalTestEnvironment(env);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

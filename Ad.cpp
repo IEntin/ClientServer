@@ -104,7 +104,7 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
   return it->second;
 }
 // make SizeMap cache friendly
-void Ad::readAndSortAds(const std::string& fileName,
+bool Ad::readAndSortAds(const std::string& fileName,
 			std::vector<std::string>& lines) {
   auto extractSize = [&] (const std::string& line)->std::string {
     std::vector<std::string> words;
@@ -115,15 +115,12 @@ void Ad::readAndSortAds(const std::string& fileName,
   };
   std::string content;
   try {
-    std::ifstream ifs(fileName, std::ifstream::in);
-    if (!ifs)
-      throw std::runtime_error("");
     content = utility::readFile(fileName);
   }
   catch (std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << e.what() << std::endl;
-    return;
+	      << ' ' << e.what() <<std::endl;
+    return false;
   }
   utility::split(content, lines, '\n');
   for (auto& line : lines)
@@ -132,14 +129,15 @@ void Ad::readAndSortAds(const std::string& fileName,
 							      const std::string& line2) {
 		     return extractSize(line1) < extractSize(line2);
 		   });
+  return true;
 }
 
 bool Ad::load(const std::string& fileName) {
   if (_loaded)
     return true;
-  _loaded = true;
   std::vector<std::string> lines;
-  readAndSortAds(fileName, lines);
+  if (!readAndSortAds(fileName, lines))
+    return false;
   for (auto& line : lines) {
     AdPtr ad = std::make_shared<Ad>(std::move(line));
     if (!(ad->parseIntro() && ad->parseArray()))
@@ -147,5 +145,6 @@ bool Ad::load(const std::string& fileName) {
     auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
     it->second.push_back(ad);
   }
+  _loaded = true;
   return true;
 }

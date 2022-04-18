@@ -13,9 +13,7 @@ namespace utility {
 std::string readFile(const std::string& name) {
   std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
   if (!ifs) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << std::strerror(errno) << ' ' << name << std::endl;
-    return "";
+    throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
   }
   std::stringstream buffer;
   buffer << ifs.rdbuf();
