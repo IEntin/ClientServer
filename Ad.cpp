@@ -103,16 +103,19 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
     return empty;
   return it->second;
 }
+
 // make SizeMap cache friendly
+
+inline std::string extractSize(const std::string& line) {
+  std::vector<std::string> words;
+  utility::split(line, words, ", ");
+  if (words.size() < 3)
+    return "";
+  return words[1] + '*' + words[2];
+}
+
 bool Ad::readAndSortAds(const std::string& fileName,
 			std::vector<std::string>& lines) {
-  auto extractSize = [&] (const std::string& line)->std::string {
-    std::vector<std::string> words;
-    utility::split(line, words, ", ");
-    if (words.size() < 3)
-      return "";
-    return words[1] + '*' + words[2];
-  };
   std::string content;
   try {
     content = utility::readFile(fileName);
@@ -123,8 +126,8 @@ bool Ad::readAndSortAds(const std::string& fileName,
     return false;
   }
   utility::split(content, lines, '\n');
-  std::stable_sort(lines.begin(), lines.end(), [extractSize] (const std::string& line1,
-							      const std::string& line2) {
+  std::stable_sort(lines.begin(), lines.end(), [] (const std::string& line1,
+						   const std::string& line2) {
 		     return extractSize(line1) < extractSize(line2);
 		   });
   return true;
