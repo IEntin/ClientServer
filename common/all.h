@@ -12,6 +12,7 @@
 #include <cassert>
 #include <charconv>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <csignal>
 #include <cstring>

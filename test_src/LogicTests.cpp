@@ -17,7 +17,8 @@ struct LogicTest : testing::Test {
   void testLogicTcp(COMPRESSORS serverCompressor,
 		    COMPRESSORS clientCompressor,
 		    size_t serverMemPoolSize,
-		    size_t clientMemPoolSize) {
+		    size_t clientMemPoolSize,
+		    bool diagnostics = true) {
     // start server
     ServerOptions serverOptions;
     Ad::load(serverOptions._adsFileName);
@@ -34,20 +35,22 @@ struct LogicTest : testing::Test {
     TcpClientOptions clientOptions(&oss);
     clientOptions._bufferSize = clientMemPoolSize;
     clientOptions._compressor = clientCompressor;
-    clientOptions._diagnostics = true;
+    clientOptions._diagnostics = diagnostics;
     tcp::TcpClient client(clientOptions);
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), TestEnvironment::_outputD.size());
-    ASSERT_EQ(oss.str(), TestEnvironment::_outputD);
+    std::string calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+    ASSERT_EQ(oss.str().size(), calibratedOutput.size());
+    ASSERT_EQ(oss.str(), calibratedOutput);
     tcpServer->stop();
   }
 
   void testLogicFifo(COMPRESSORS serverCompressor,
 		     COMPRESSORS clientCompressor,
 		     size_t serverMemPoolSize,
-		     size_t clientMemPoolSize) {
+		     size_t clientMemPoolSize,
+		     bool diagnostics = true) {
     // start server
     ServerOptions serverOptions;
     Ad::load(serverOptions._adsFileName);
@@ -63,13 +66,14 @@ struct LogicTest : testing::Test {
     FifoClientOptions clientOptions(&oss);
     clientOptions._bufferSize = clientMemPoolSize;
     clientOptions._compressor = clientCompressor;
-    clientOptions._diagnostics = true;
+    clientOptions._diagnostics = diagnostics;
     fifo::FifoClient client(clientOptions);
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), TestEnvironment::_outputD.size());
-    ASSERT_EQ(oss.str(), TestEnvironment::_outputD);
+    std::string calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+    ASSERT_EQ(oss.str().size(), calibratedOutput.size());
+    ASSERT_EQ(oss.str(), calibratedOutput);
     fifoServer->stop();
   }
 
@@ -109,6 +113,14 @@ TEST_F(LogicTest, LogicTestTcp7) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 25000, 55000);
 }
 
+TEST_F(LogicTest, LogicTestTcp8) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000, false);
+}
+
+TEST_F(LogicTest, LogicTestTcp9) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000, false);
+}
+
 
 TEST_F(LogicTest, LogicTestFifo1) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000);
@@ -136,4 +148,12 @@ TEST_F(LogicTest, LogicTestFifo6) {
 
 TEST_F(LogicTest, LogicTestFifo7) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 10000000, 10000000);
+}
+
+TEST_F(LogicTest, LogicTestFifo8) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000, true);
+}
+
+TEST_F(LogicTest, LogicTestFifo9) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000, true);
 }

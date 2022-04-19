@@ -21,9 +21,9 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
 		if (externalDataStream)
 		  return externalDataStream;
 		else {
-		  const std::string fileName = ProgramOptions::get("OutputFileName", std::string());
-		  if (!fileName.empty()) {
-		    static std::ofstream fileStream(fileName, std::ofstream::binary);
+		  const std::string filename = ProgramOptions::get("OutputFileName", std::string());
+		  if (!filename.empty()) {
+		    static std::ofstream fileStream(filename, std::ofstream::binary);
 		    return &fileStream;
 		  }
 		  else
@@ -32,9 +32,9 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
 	      }()),
   _maxNumberTasks(ProgramOptions::get("MaxNumberTasks", 0)),
   _instrStream([]()->std::ostream* {
-		 const std::string fileName = ProgramOptions::get("InstrumentationFn", std::string());
-		 if (!fileName.empty()) {
-		   static std::ofstream instrFileStream(fileName, std::ofstream::binary);
+		 const std::string filename = ProgramOptions::get("InstrumentationFn", std::string());
+		 if (!filename.empty()) {
+		   static std::ofstream instrFileStream(filename, std::ofstream::binary);
 		   return &instrFileStream;
 		 }
 		 return nullptr;

@@ -32,7 +32,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
     for (const auto& [kw, adPtr, money] : transaction._bids)
-      os << *adPtr << " match:" << kw << ' ' << utility::Print(money, 1) << '\n';
+      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
     os << "summary:";
     if (transaction._noMatch)
       os << Transaction::EMPTY_REPLY << "*****\n";
@@ -42,7 +42,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
       auto winningAdPtr = winningBid->_adPtr;
       assert(winningAdPtr);
       os << utility::Print(winningAdPtr->getId()) << ", " << winningBid->_keyword
-	 << ", " << utility::Print(winningBid->_money, 1)
+	 << ", " << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
 	 << "\n*****\n";
     }
   }
@@ -54,7 +54,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else {
       Ad* winningAdPtr = winningBid->_adPtr;
       os << utility::Print(winningAdPtr->getId()) << ", "
-	 << utility::Print(winningBid->_money, 1) << '\n';
+	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
     }
   }
   return os;

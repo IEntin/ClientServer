@@ -5,25 +5,20 @@
 #include "Ad.h"
 #include "Utility.h"
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
 
-namespace {
-
-constexpr double EPSILON{ 0.0001 };
-
-} // end of anonimous namespace
-
-AdBid::AdBid(std::string_view keyword, Ad* adPtr, double money) :
+AdBid::AdBid(std::string_view keyword, Ad* adPtr, unsigned money) :
   _keyword(keyword), _adPtr(adPtr), _money(money) {}
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << utility::Print(ad._id) << " size=" << Ad::extractSize(ad._input)
-     << " defaultBid=" << utility::Print(ad._defaultBid, 1) << '\n';
+     << " defaultBid=" << utility::Print(ad._defaultBid) << '\n';
   os << ' ' << ad._input << '\n';
   for (const auto& [key, adPtr, money] : ad._bids)
-    os << "  " << key << " " << utility::Print(money, 1) << '\n';
+    os << "  " << key << " " << utility::Print(money) << '\n';
   return os;
 }
 
@@ -46,10 +41,10 @@ bool Ad::parseIntro() {
   enum { ID, DEFAULTBID = 3 };
   if (!utility::fromChars(vect[ID], _id))
     return false;
-  if (!utility::fromChars(vect[DEFAULTBID], _defaultBid))
+  double dblMoney = 0;
+  if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
     return false;
-  if (_defaultBid < EPSILON)
-    _defaultBid = 0;
+  _defaultBid = std::lround(dblMoney * _scaler);
   return true;
 }
 
@@ -70,10 +65,11 @@ bool Ad::parseArray() {
   std::vector<std::string_view> vect;
   utility::split(arrayStr, vect, "\", ");
   for (size_t i = 0; i < vect.size(); i += 2) {
-    double money = {};
-    if (!utility::fromChars(vect[i + 1], money))
+    double dblMoney = 0;
+    if (!utility::fromChars(vect[i + 1], dblMoney))
       continue;
-    if (money < EPSILON)
+    unsigned money = std::lround(dblMoney * _scaler);
+    if (money == 0)
       money = _defaultBid;
     _bids.emplace_back(vect[i], this, money);
   }
@@ -100,10 +96,10 @@ inline std::string Ad::extractSize(std::string_view line) {
   return words[1] + 'x' + words[2];
 }
 
-bool Ad::readAndSortAds(const std::string& fileName) {
+bool Ad::readAndSortAds(const std::string& filename) {
   std::string content;
   try {
-    content = utility::readFile(fileName);
+    content = utility::readFile(filename);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -118,10 +114,10 @@ bool Ad::readAndSortAds(const std::string& fileName) {
   return true;
 }
 
-bool Ad::load(const std::string& fileName) {
+bool Ad::load(const std::string& filename) {
   if (_loaded)
     return true;
-  if (!readAndSortAds(fileName))
+  if (!readAndSortAds(filename))
     return false;
   for (auto& line : _lines) {
     AdPtr ad = std::make_shared<Ad>(line);

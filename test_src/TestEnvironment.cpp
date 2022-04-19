@@ -11,12 +11,14 @@ volatile std::sig_atomic_t stopFlag = false;
 
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
+std::string TestEnvironment::_outputND;
 
 void TestEnvironment::SetUp() {
   try {
     ClientOptions clientOptions;
     _source = utility::readFile(clientOptions._sourceName);
     _outputD = utility::readFile("data/outputD.txt");
+    _outputND = utility::readFile("data/outputND.txt");
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
