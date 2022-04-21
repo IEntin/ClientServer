@@ -19,6 +19,7 @@
 #include <deque>
 #include <fcntl.h>
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <future>
 #include <iomanip>

@@ -9,6 +9,7 @@
 #include "Task.h"
 #include "TaskController.h"
 #include "TcpServer.h"
+#include "Transaction.h"
 #include <csignal>
 
 void signalHandler(int signal) {}
@@ -24,8 +25,12 @@ int main() {
   ServerOptions options;
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
-  if (!Ad::load(options._adsFileName))
-    return 1;
+  if (options._processRequest == Transaction::processRequest) {
+    if (!Ad::load(options._adsFileName))
+      return 1;
+    if (options._enablePreprocessing)
+      Task::setPreprocessMethod(Transaction::normalizeSizeKey);
+  }
   Task::setProcessMethod(options._processRequest);
   TaskControllerPtr taskController = TaskController::instance(options._numberWorkThreads,
 							      options._bufferSize);

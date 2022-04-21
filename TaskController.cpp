@@ -6,11 +6,12 @@
 #include "Task.h"
 #include <cassert>
 
+TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 
 TaskController::TaskController(unsigned numberThreads, size_t bufferSize) :
   _numberThreads(numberThreads),
-  _barrier(numberThreads, onTaskFinish),
+  _barrier(numberThreads, onTaskCompletion),
   _threadPool(numberThreads) {
   _memoryPool.setInitialSize(bufferSize);
   // start with empty task
@@ -36,13 +37,23 @@ TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t buffer
   return instance;
 }
 
-// This method is called by one of the blocked threads when
-// they ran out of work and wait for the next task.
+// This method is called by one of the threads when
+// the current barrier phase is completed.
 
-void TaskController::onTaskFinish() noexcept {
-  instance()->_task->finish();
-  // Blocks until the new task is available.
-  instance()->setNextTask();
+void TaskController::onTaskCompletion() noexcept {
+  auto taskController = instance();
+  if (_phase == PREPROCESSTASK) {
+    taskController->_task->sortRequests();
+    taskController->_task->resetPointer();
+    _phase = PROCESSTASK;
+    return;
+  }
+  if (_phase == PROCESSTASK) {
+    taskController->_task->finish();
+    // Blocks until the new task is available.
+    taskController->setNextTask();
+    _phase = PREPROCESSTASK;
+  }
 }
 
 void TaskController::initialize() {
@@ -56,8 +67,9 @@ void TaskController::initialize() {
 void TaskController::run() noexcept {
   try {
     while (!stopped()) {
-      if (_task->next())
-	continue;
+      while (_task->extractKeyNext());
+      _barrier.arrive_and_wait();
+      while (_task->processNext());
       _barrier.arrive_and_wait();
     }
   }

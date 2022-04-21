@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "AdBid.h"
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -12,17 +13,18 @@ class Ad;
 using AdPtr = std::shared_ptr<Ad>;
 using SizeMap = std::unordered_map<std::string, std::vector<AdPtr>>;
 
-struct AdBid {
-  AdBid(std::string_view keyword, Ad* adPtr, unsigned money);
-  std::string_view _keyword;
-  Ad* _adPtr = nullptr;
-  unsigned _money = 0;
-};
-
 std::ostream& operator <<(std::ostream& os, const Ad& ad);
 
 class Ad {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
+  enum {
+    ID,
+    WIDTH,
+    HEIGHT,
+    DEFAULTBID,
+    ARRAY,
+    NONE
+  };
 public:
   explicit Ad(std::string_view input) noexcept;
   unsigned getId() const { return _id; }

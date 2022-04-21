@@ -4,7 +4,7 @@
 
 enum class COMPRESSORS : short unsigned int;
 
-using ProcessRequest = std::string (*)(std::string_view);
+using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 struct ServerOptions {
   ServerOptions();
@@ -14,6 +14,7 @@ struct ServerOptions {
   const bool _timingEnabled;
   const ProcessRequest _processRequest;
   const std::string _adsFileName;
+  const bool _enablePreprocessing;
   const unsigned _numberWorkThreads;
   const COMPRESSORS _compressor;
   const unsigned _expectedTcpConnections;

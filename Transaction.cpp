@@ -3,6 +3,7 @@
  */
 
 #include "Transaction.h"
+#include "Ad.h"
 #include "TaskController.h"
 #include "Utility.h"
 #include <cassert>
@@ -62,15 +63,20 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
-thread_local std::string  Transaction::_sizeKey;
+thread_local std::string Transaction::_sizeKey;
 
-Transaction::Transaction(std::string_view input) {
+Transaction::Transaction(std::string_view sizeKey, std::string_view input) {
+  _sizeKey = sizeKey;
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
     _request = input.substr(pos + 1);
-    if (!normalizeSizeKey())
+    if (_sizeKey.empty())
+      normalizeSizeKey(_sizeKey, _request);
+    if (_sizeKey.empty()) {
+      _invalid = true;
       return;
+    }
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }
@@ -82,13 +88,18 @@ Transaction::~Transaction() {
   _sizeKey.clear();
 }
 
-std::string Transaction::processRequest(std::string_view view) noexcept {
+std::string Transaction::processRequest(std::string_view key, std::string_view request) noexcept {
   std::string id("[unknown]");
   try {
-    Transaction transaction(view);
+    Transaction transaction(key, request);
     id.assign(transaction._id);
-    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._sizeKey);
-    if (adVector.empty() || transaction._keywords.empty()) {
+    static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = Ad::getAdsBySize(transaction._sizeKey);
+    static thread_local std::string prevSizeKey = transaction._sizeKey;
+    if (transaction._sizeKey != prevSizeKey) {
+      prevSizeKey = transaction._sizeKey;
+      adVector = Ad::getAdsBySize(transaction._sizeKey);
+    }
+    if (adVector.get().empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
@@ -106,37 +117,37 @@ std::string Transaction::processRequest(std::string_view view) noexcept {
   return id.append(PROCESSING_ERROR);
 }
 
-bool Transaction::normalizeSizeKey() {
-  size_t beg = _request.find(SIZE_START);
+void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view request) {
+  sizeKey.clear();
+  size_t beg = request.find(SIZE_START);
   if (beg != std::string::npos) {
     beg += SIZE_START.size();
-    size_t end = _request.find(SIZE_END, beg + 1);
+    size_t end = request.find(SIZE_END, beg + 1);
     if (end == std::string::npos)
-      end = _request.size();
-    _sizeKey.assign(_request.data() + beg, end - beg);
+      end = request.size();
+    sizeKey.assign(request.data() + beg, end - beg);
   }
   else {
-    beg = _request.find(AD_WIDTH);
+    beg = request.find(AD_WIDTH);
     if (beg != std::string::npos) {
-      size_t separator = _request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
+      size_t separator = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
       if (separator != std::string::npos) {
 	size_t offset = beg + AD_WIDTH.size();
-	_sizeKey.append(_request.data() + offset, separator - offset).append(1, 'x');
-	size_t begHeight = _request.find(AD_HEIGHT, separator + 1);
+	sizeKey.append(request.data() + offset, separator - offset).append(1, 'x');
+	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
 	if (begHeight != std::string::npos) {
 	  offset = begHeight + AD_HEIGHT.size();
 	  size_t heightSize = std::string::npos;
-	  size_t end = _request.find(SIZE_END, offset + 1);
+	  size_t end = request.find(SIZE_END, offset + 1);
 	  if (end != std::string::npos)
 	    heightSize = end - offset;
 	  else
-	    heightSize = _request.size() - offset;
-	  _sizeKey.append(_request.data() + offset, heightSize);
+	    heightSize = request.size() - offset;
+	  sizeKey.append(request.data() + offset, heightSize);
 	}
       }
     }
   }
-  return !(_invalid = _sizeKey.empty());
 }
 
 inline const AdBid* findWinningBid(const std::vector<AdBid>& bids) {

@@ -17,7 +17,7 @@
 all: server client buildtests runtests
 
 ifeq ($(CMPLR),)
-  CXX := clang++
+  CXX := g++
 else
   CXX := $(CMPLR)
 endif
@@ -74,7 +74,7 @@ else ifeq ($(SANITIZE), thread)
 endif
 
 ifeq ($(PROFILE), 1)
-  PROFBLD := -fno-omit-frame-pointer -pg
+  PROFBLD := -pg
 endif
 
 WARNINGS := -Wall -pedantic-errors

@@ -4,23 +4,28 @@
 
 #pragma once
 
-#include "Ad.h"
+#include "AdBid.h"
+#include <memory>
 #include <string_view>
 #include <vector>
 
+class Ad;
+using AdPtr = std::shared_ptr<Ad>;
+
 std::ostream& operator <<(std::ostream& os, const class Transaction& transaction);
 
-class Transaction {  friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
+class Transaction {
+  friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
 public:
-  static std::string processRequest(std::string_view) noexcept;
+  static std::string processRequest(std::string_view key, std::string_view request) noexcept;
+  static void normalizeSizeKey(std::string& sizeKey, std::string_view request);
 private:
-  Transaction(std::string_view input);
+  Transaction(std::string_view sizeKey, std::string_view input);
   explicit Transaction(const Transaction& other) = delete;
   ~Transaction();
   Transaction& operator =(const Transaction& other) = delete;
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
-  bool normalizeSizeKey();
   void matchAds(const std::vector<AdPtr>& adVector);
   std::string_view _id;
   std::string_view _request;
@@ -34,7 +39,7 @@ private:
   // same here
   static thread_local std::vector<std::string_view> _keywords;
   // and here
-  static thread_local std::string _sizeKey;
+   static thread_local std::string _sizeKey;
   const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };

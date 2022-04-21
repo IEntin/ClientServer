@@ -10,9 +10,6 @@
 #include <fstream>
 #include <iomanip>
 
-AdBid::AdBid(std::string_view keyword, Ad* adPtr, unsigned money) :
-  _keyword(keyword), _adPtr(adPtr), _money(money) {}
-
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << utility::Print(ad._id) << " size=" << Ad::extractSize(ad._input)
      << " defaultBid=" << utility::Print(ad._defaultBid) << '\n';
@@ -38,7 +35,6 @@ bool Ad::parseIntro() {
   std::string_view introStr(_input.begin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
-  enum { ID, DEFAULTBID = 3 };
   if (!utility::fromChars(vect[ID], _id))
     return false;
   double dblMoney = 0;
@@ -93,7 +89,7 @@ inline std::string Ad::extractSize(std::string_view line) {
   utility::split(line, words, ", ");
   if (words.size() < 3)
     return "";
-  return words[1] + 'x' + words[2];
+  return words[WIDTH] + 'x' + words[HEIGHT];
 }
 
 bool Ad::readAndSortAds(const std::string& filename) {
