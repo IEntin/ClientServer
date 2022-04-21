@@ -93,7 +93,8 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   try {
     Transaction transaction(key, request);
     id.assign(transaction._id);
-    static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = Ad::getAdsBySize(transaction._sizeKey);
+    static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector =
+      Ad::getAdsBySize(transaction._sizeKey);
     static thread_local std::string prevSizeKey = transaction._sizeKey;
     if (transaction._sizeKey != prevSizeKey) {
       prevSizeKey = transaction._sizeKey;
