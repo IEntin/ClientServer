@@ -31,6 +31,9 @@ Memory Pooling. Business code and compression/decompression are not allocating a
 
 Builtin optional LZ4 compression.
 
+Server allows multi phase request processing. An optional preprocessor phase in the current code\
+is sorting the request batch by one of the fields to make the code more cache friendly.
+
 Business logic, compression, task multithreading, and communication layers are completely decoupled.
 
 Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
