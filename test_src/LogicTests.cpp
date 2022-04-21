@@ -1,3 +1,4 @@
+#include "Ad.h"
 #include "ClientOptions.h"
 #include "FifoClient.h"
 #include "FifoServer.h"
@@ -78,6 +79,11 @@ struct LogicTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
+    // To change options modify defaults in
+    // ServerOptions.cpp and recompile the application
+    ServerOptions serverOptions;
+    if (serverOptions._enablePreprocessing)
+      Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
     _taskController = TaskController::instance(std::thread::hardware_concurrency());
   }

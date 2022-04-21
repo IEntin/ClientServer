@@ -69,7 +69,7 @@ PROFILE = [ 1 | 0 |  ] By default disabled.\
 ENABLEPCH = [ 1 | 0 |  ] By default enabled.\
   add 'ENABLEPCH=0' to the make command to disable PCH.\
 OPTIMIZE = [ -O3 | any |  ] By default -O3.\
-CMPLR = [ clang++ | g++ |  ] By default clang++.
+CMPLR = [ g++ | clang++ |  ] By default g++.
 
 There are four targets:\
 server client buildtests runtests.\

@@ -7,6 +7,7 @@
 #include <charconv>
 #include <iostream>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
@@ -28,6 +29,31 @@ template <typename INPUT, typename OUTPUT>
       }
       else if (next > start + 1)
 	lines.emplace_back(input.data() + start, next - start);
+      start = next + 1;
+    }
+}
+
+template <typename INPUT, typename OUTPUT1, typename OUTPUT2>
+  void split(const INPUT& input, std::vector<std::tuple<OUTPUT1, OUTPUT2, unsigned>>& pairs, char delim = '\n') {
+    static OUTPUT1 empty;
+    unsigned index = 0;
+    size_t start = 0;
+    size_t next = 0;
+    while (start < input.size()) {
+      next = input.find(delim, start);
+      if (next == std::string::npos) {
+	if (input.size() > start + 1) {
+	  OUTPUT2 output2(input.data() + start, input.size() - start);
+	  pairs.emplace_back(std::tie(empty, output2, index));
+	  ++index;
+	}
+	break;
+      }
+      else if (next > start + 1) {
+	OUTPUT2 output2(input.data() + start, next - start);
+	pairs.emplace_back(std::tie(empty, output2, index));
+	++index;
+      }
       start = next + 1;
     }
 }

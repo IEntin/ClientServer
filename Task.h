@@ -16,11 +16,16 @@ class Task;
 
 using TaskPtr = std::shared_ptr<Task>;
 
-using Requests = std::vector<std::string_view>;
+using KeyValue = std::tuple<std::string, std::string_view, unsigned>;
 
-using ProcessRequest = std::string (*)(std::string_view);
+using Requests = std::vector<KeyValue>;
+
+using ExtractKey = void (*)(std::string&, std::string_view);
+
+using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 class Task {
+  enum DATAINDEX { KEY, REQUEST, RESPONSEINDEX };
   Task(const Task& other) = delete;
   Task& operator =(const Task& other) = delete;
 
@@ -32,6 +37,7 @@ class Task {
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
   Batch& _response;
+  static ExtractKey _extractKey;
   static ProcessRequest _processRequest;
 
  public:
@@ -39,15 +45,25 @@ class Task {
 
   Task(const HEADER& header, std::vector<char>& input, Batch& response);
 
+  void sortRequests();
+
+  void resetPointer() { _pointer.store(0); }
+
   bool diagnosticsEnabled() const { return isDiagnosticsEnabled(_header); }
 
   std::promise<void>& getPromise() { return _promise; }
 
-  bool next();
+  bool extractKeyNext();
+
+  bool processNext();
 
   void finish();
 
   static void setProcessMethod(ProcessRequest processMethod) {
     _processRequest = processMethod;
+  }
+
+  static void setPreprocessMethod(ExtractKey preprocessMethod) {
+    _extractKey = preprocessMethod;
   }
 };
