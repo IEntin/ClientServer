@@ -11,7 +11,7 @@
 #include <iomanip>
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
-  os << "Ad" << utility::Print(ad._id) << " size=" << ad._sizeKey
+  os << "Ad" << ad._id << " size=" << ad._sizeKey
      << " defaultBid=" << utility::Print(ad._defaultBid) << '\n';
   os << ' ' << ad._input << '\n';
   for (const auto& [key, adPtr, money] : ad._bids)
@@ -24,7 +24,7 @@ SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;
 
 Ad::Ad(KeyValue& keyValue) noexcept :
-_input(std::get<LINE>(keyValue)), _sizeKey(std::get<KEY>(keyValue)) {}
+_input(std::get<LINE>(keyValue)), _sizeKey(std::get<SIZEKEY>(keyValue)) {}
 
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.begin(), _input.end(), '[');
@@ -36,8 +36,7 @@ bool Ad::parseIntro() {
   std::string_view introStr(_input.begin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
-  if (!utility::fromChars(vect[ID], _id))
-    return false;
+  _id = vect[ID];
   double dblMoney = 0;
   if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
     return false;
@@ -104,10 +103,10 @@ bool Ad::readAndSortAds(const std::string& filename) {
     return false;
   }
   utility::split(content, _keyValues, '\n');
-  for (auto& pair : _keyValues)
-    std::get<KEY>(pair) = extractSize(std::get<LINE>(pair));
+  for (auto& keyValue : _keyValues)
+    std::get<SIZEKEY>(keyValue) = extractSize(std::get<LINE>(keyValue));
   std::stable_sort(_keyValues.begin(), _keyValues.end(), [] (const KeyValue& t1, const KeyValue& t2) {
-		     return std::get<KEY>(t1) < std::get<KEY>(t2);
+		     return std::get<SIZEKEY>(t1) < std::get<SIZEKEY>(t2);
 		   });
   return true;
 }

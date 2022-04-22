@@ -25,13 +25,13 @@ class Ad {
     NONE
   };
   enum Pair {
-    KEY,
+    SIZEKEY,
     LINE
   };
   using KeyValue = std::tuple<std::string, std::string, unsigned>;
 public:
   explicit Ad(KeyValue& keyValue) noexcept;
-  unsigned getId() const { return _id; }
+  std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(const std::string& filename);
   static const std::vector<AdPtr>& getAdsBySize(std::string_view key);
@@ -46,7 +46,7 @@ private:
   const std::string_view _input;
   const std::string_view _sizeKey;
   std::vector<AdBid> _bids;
-  unsigned _id = 0;
+  std::string_view _id;
   unsigned _defaultBid{ 0 };
   static std::vector<KeyValue> _keyValues;
   static SizeMap _mapBySize;
