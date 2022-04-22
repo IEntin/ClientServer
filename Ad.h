@@ -11,13 +11,12 @@
 
 class Ad;
 using AdPtr = std::shared_ptr<Ad>;
-using SizeMap = std::unordered_map<std::string, std::vector<AdPtr>>;
-
+using SizeMap = std::unordered_map<std::string_view, std::vector<AdPtr>>;
 std::ostream& operator <<(std::ostream& os, const Ad& ad);
 
 class Ad {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
-  enum {
+  enum Fields {
     ID,
     WIDTH,
     HEIGHT,
@@ -25,25 +24,31 @@ class Ad {
     ARRAY,
     NONE
   };
+  enum Pair {
+    KEY,
+    LINE
+  };
+  using KeyValue = std::tuple<std::string, std::string, unsigned>;
 public:
-  explicit Ad(std::string_view input) noexcept;
+  explicit Ad(KeyValue& keyValue) noexcept;
   unsigned getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(const std::string& filename);
-  static const std::vector<AdPtr>& getAdsBySize(const std::string& key);
+  static const std::vector<AdPtr>& getAdsBySize(std::string_view key);
   static const unsigned _scaler = 100;
 private:
   Ad(const Ad& other) = delete;
   Ad& operator =(const Ad& other) = delete;
   bool parseIntro();
   bool parseArray();
-  inline static std::string extractSize(std::string_view line);
+  static std::string extractSize(std::string_view line);
   static bool readAndSortAds(const std::string& filename);
   const std::string_view _input;
+  const std::string_view _sizeKey;
   std::vector<AdBid> _bids;
   unsigned _id = 0;
   unsigned _defaultBid{ 0 };
-  static std::vector<std::string> _lines;
+  static std::vector<KeyValue> _keyValues;
   static SizeMap _mapBySize;
   static bool _loaded;
 };

@@ -20,14 +20,13 @@ using TaskPtr = std::shared_ptr<class Task>;
 
 using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
-using CompletionFunction = void (*) () noexcept;
-
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
 class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
+  using CompletionFunction = void (*) () noexcept;
   TaskController(unsigned numberThreads, size_t bufferSize);
   void initialize();
   void push(TaskPtr task);
