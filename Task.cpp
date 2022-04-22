@@ -39,7 +39,7 @@ bool Task::processNext() {
     std::string_view key = std::get<KEY>(_storage[pointer]);
     std::string_view request = std::get<REQUEST>(_storage[pointer]);
     std::string response = _processRequest(key, request);
-    _response[std::get<RESPONSEINDEX>(_storage[pointer])].swap(response);
+    _response[std::get<ORIGINALINDEX>(_storage[pointer])].swap(response);
     return true;
   }
   else

@@ -11,7 +11,7 @@
 #include <iomanip>
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
-  os << "Ad" << utility::Print(ad._id) << " size=" << Ad::extractSize(ad._input)
+  os << "Ad" << utility::Print(ad._id) << " size=" << ad._sizeKey
      << " defaultBid=" << utility::Print(ad._defaultBid) << '\n';
   os << ' ' << ad._input << '\n';
   for (const auto& [key, adPtr, money] : ad._bids)
@@ -19,11 +19,12 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   return os;
 }
 
-std::vector<std::string> Ad::_lines;
+std::vector<Ad::KeyValue> Ad::_keyValues;
 SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;
 
-Ad::Ad(std::string_view input) noexcept : _input(input) {}
+Ad::Ad(KeyValue& keyValue) noexcept :
+_input(std::get<LINE>(keyValue)), _sizeKey(std::get<KEY>(keyValue)) {}
 
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.begin(), _input.end(), '[');
@@ -74,7 +75,7 @@ bool Ad::parseArray() {
   return true;
 }
 
-const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
+const std::vector<AdPtr>& Ad::getAdsBySize(std::string_view key) {
   static const std::vector<AdPtr> empty;
   const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
@@ -82,15 +83,15 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const std::string& key) {
   return it->second;
 }
 
-// make SizeMap cache friendly
-
-inline std::string Ad::extractSize(std::string_view line) {
+std::string Ad::extractSize(std::string_view line) {
   std::vector<std::string> words;
   utility::split(line, words, ", ");
   if (words.size() < 3)
     return "";
   return words[WIDTH] + 'x' + words[HEIGHT];
 }
+
+// make SizeMap cache friendly
 
 bool Ad::readAndSortAds(const std::string& filename) {
   std::string content;
@@ -102,10 +103,11 @@ bool Ad::readAndSortAds(const std::string& filename) {
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  utility::split(content, _lines, '\n');
-  std::stable_sort(_lines.begin(), _lines.end(), [] (const std::string& line1,
-						     const std::string& line2) {
-		     return extractSize(line1) < extractSize(line2);
+  utility::split(content, _keyValues, '\n');
+  for (auto& pair : _keyValues)
+    std::get<KEY>(pair) = extractSize(std::get<LINE>(pair));
+  std::stable_sort(_keyValues.begin(), _keyValues.end(), [] (const KeyValue& t1, const KeyValue& t2) {
+		     return std::get<KEY>(t1) < std::get<KEY>(t2);
 		   });
   return true;
 }
@@ -115,11 +117,11 @@ bool Ad::load(const std::string& filename) {
     return true;
   if (!readAndSortAds(filename))
     return false;
-  for (auto& line : _lines) {
-    AdPtr ad = std::make_shared<Ad>(line);
+  for (auto& pair : _keyValues) {
+    AdPtr ad = std::make_shared<Ad>(pair);
     if (!(ad->parseIntro() && ad->parseArray()))
       continue;
-    auto [it, inserted] = _mapBySize.emplace(extractSize(ad->_input), std::vector<AdPtr>());
+    auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
     it->second.push_back(ad);
   }
   _loaded = true;
