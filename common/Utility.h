@@ -33,10 +33,10 @@ template <typename INPUT, typename OUTPUT>
     }
 }
 
-template <typename INPUT, typename OUTPUT1, typename OUTPUT2>
-  void split(const INPUT& input, std::vector<std::tuple<OUTPUT1, OUTPUT2, unsigned>>& pairs, char delim = '\n') {
-    static OUTPUT1 empty;
-    unsigned index = 0;
+template <typename INPUT, typename OUTPUT1, typename OUTPUT2, typename OUTPUT3>
+  void split(const INPUT& input, std::vector<std::tuple<OUTPUT1, OUTPUT2, OUTPUT3>>& tuples, char delim = '\n') {
+    OUTPUT1 empty{};
+    OUTPUT3 ignored{};
     size_t start = 0;
     size_t next = 0;
     while (start < input.size()) {
@@ -44,15 +44,13 @@ template <typename INPUT, typename OUTPUT1, typename OUTPUT2>
       if (next == std::string::npos) {
 	if (input.size() > start + 1) {
 	  OUTPUT2 output2(input.data() + start, input.size() - start);
-	  pairs.emplace_back(std::tie(empty, output2, index));
-	  ++index;
+	  tuples.emplace_back(std::tie(empty, output2, ignored));
 	}
 	break;
       }
       else if (next > start + 1) {
 	OUTPUT2 output2(input.data() + start, next - start);
-	pairs.emplace_back(std::tie(empty, output2, index));
-	++index;
+	tuples.emplace_back(std::tie(empty, output2, ignored));
       }
       start = next + 1;
     }

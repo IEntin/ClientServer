@@ -28,12 +28,12 @@ int main() {
   if (options._processRequest == Transaction::processRequest) {
     if (!Ad::load(options._adsFileName))
       return 1;
-    if (options._enablePreprocessing)
-      Task::setPreprocessMethod(Transaction::normalizeSizeKey);
+    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   }
   Task::setProcessMethod(options._processRequest);
   TaskControllerPtr taskController = TaskController::instance(options._numberWorkThreads,
-							      options._bufferSize);
+							      options._bufferSize,
+							      options._sortInput);
   tcp::TcpServerPtr tcpServer =
     std::make_shared<tcp::TcpServer>(taskController,
 				     options._expectedTcpConnections,

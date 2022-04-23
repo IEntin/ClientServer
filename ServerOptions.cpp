@@ -8,11 +8,11 @@
 
 ServerOptions::ServerOptions() :
   _turnOffLogging(ProgramOptions::get("TurnOffLogging", true)),
+  _sortInput(ProgramOptions::get("SortInput", true)),
   _bufferSize(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000)),
   _timingEnabled(ProgramOptions::get("Timing", false)),
   _processRequest(Transaction::processRequest),
   _adsFileName(ProgramOptions::get("AdsFileName", std::string("data/ads.txt"))),
-  _enablePreprocessing(ProgramOptions::get("EnablePreprocessing", true)),
   _numberWorkThreads([] ()->unsigned {
 		       unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
 		       return numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :

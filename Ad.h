@@ -12,7 +12,6 @@
 class Ad;
 using AdPtr = std::shared_ptr<Ad>;
 using SizeMap = std::unordered_map<std::string_view, std::vector<AdPtr>>;
-std::ostream& operator <<(std::ostream& os, const Ad& ad);
 
 class Ad {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);

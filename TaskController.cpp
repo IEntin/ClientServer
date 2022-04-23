@@ -9,8 +9,9 @@
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 
-TaskController::TaskController(unsigned numberThreads, size_t bufferSize) :
+TaskController::TaskController(unsigned numberThreads, size_t bufferSize, bool sortInput) :
   _numberThreads(numberThreads),
+  _sortInput(sortInput),
   _barrier(numberThreads, onTaskCompletion),
   _threadPool(numberThreads) {
   _memoryPool.setInitialSize(bufferSize);
@@ -25,15 +26,15 @@ TaskController::~TaskController() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-TaskControllerPtr TaskController::create(unsigned numberThreads, size_t bufferSize) {
+TaskControllerPtr TaskController::create(unsigned numberThreads, size_t bufferSize, bool sortInput) {
   // to have private constructor do not use make_shared
-  TaskControllerPtr taskController(new TaskController(numberThreads, bufferSize));
+  TaskControllerPtr taskController(new TaskController(numberThreads, bufferSize, sortInput));
   taskController->initialize();
   return taskController;
 }
 
-TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t bufferSize) {
-  static TaskControllerPtr instance = create(numberThreads, bufferSize);
+TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t bufferSize, bool sortInput) {
+  static TaskControllerPtr instance = create(numberThreads, bufferSize, sortInput);
   return instance;
 }
 
@@ -43,7 +44,11 @@ TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t buffer
 void TaskController::onTaskCompletion() noexcept {
   auto taskController = instance();
   if (_phase == PREPROCESSTASK) {
-    taskController->_task->sortRequests();
+    if (taskController->_sortInput) {
+      taskController->_task->sortIndices();
+      // another alternative
+      //taskController->_task->sortRequests();
+    }
     taskController->_task->resetPointer();
     _phase = PROCESSTASK;
     return;

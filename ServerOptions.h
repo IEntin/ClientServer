@@ -10,11 +10,11 @@ struct ServerOptions {
   ServerOptions();
   ~ServerOptions() = default;
   const bool _turnOffLogging;
+  const bool _sortInput;
   const size_t _bufferSize;
   const bool _timingEnabled;
   const ProcessRequest _processRequest;
   const std::string _adsFileName;
-  const bool _enablePreprocessing;
   const unsigned _numberWorkThreads;
   const COMPRESSORS _compressor;
   const unsigned _expectedTcpConnections;
