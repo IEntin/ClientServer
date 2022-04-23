@@ -1,5 +1,6 @@
 {
   "TurnOffLogging" : true,
+  "SortInput" : false,
   "AdsFileName" : "data/ads.txt",
   "NumberTaskThreads" : 0,
   "Compression" : "LZ4",

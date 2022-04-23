@@ -8,6 +8,7 @@
 
 ServerOptions::ServerOptions() :
   _turnOffLogging(ProgramOptions::get("TurnOffLogging", true)),
+  _sortInput(ProgramOptions::get("SortInput", true)),
   _bufferSize(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000)),
   _timingEnabled(ProgramOptions::get("Timing", false)),
   _processRequest(Transaction::processRequest),
