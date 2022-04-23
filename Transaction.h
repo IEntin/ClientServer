@@ -12,8 +12,6 @@
 class Ad;
 using AdPtr = std::shared_ptr<Ad>;
 
-std::ostream& operator <<(std::ostream& os, const class Transaction& transaction);
-
 class Transaction {
   friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
 public:
@@ -38,8 +36,7 @@ private:
   static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
-  // and here
-   static thread_local std::string _sizeKey;
+  const std::string_view _sizeKey;
   const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };

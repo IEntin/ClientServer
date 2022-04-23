@@ -63,20 +63,16 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
-thread_local std::string Transaction::_sizeKey;
 
-Transaction::Transaction(std::string_view sizeKey, std::string_view input) {
-  _sizeKey = sizeKey;
+Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
+  if (sizeKey.empty()) {
+    _invalid = true;
+    return;
+  }
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
     _id =input.substr(0, pos + 1);
     _request = input.substr(pos + 1);
-    if (_sizeKey.empty())
-      normalizeSizeKey(_sizeKey, _request);
-    if (_sizeKey.empty()) {
-      _invalid = true;
-      return;
-    }
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }
@@ -85,7 +81,6 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) {
 Transaction::~Transaction() {
   _bids.clear();
   _keywords.clear();
-  _sizeKey.clear();
 }
 
 std::string Transaction::processRequest(std::string_view key, std::string_view request) noexcept {
@@ -93,14 +88,8 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   try {
     Transaction transaction(key, request);
     id.assign(transaction._id);
-    static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector =
-      Ad::getAdsBySize(transaction._sizeKey);
-    static thread_local std::string prevSizeKey = transaction._sizeKey;
-    if (transaction._sizeKey != prevSizeKey) {
-      prevSizeKey = transaction._sizeKey;
-      adVector = Ad::getAdsBySize(transaction._sizeKey);
-    }
-    if (adVector.get().empty() || transaction._keywords.empty()) {
+    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(key);
+    if (adVector.empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
@@ -119,7 +108,6 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
 }
 
 void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view request) {
-  sizeKey.clear();
   size_t beg = request.find(SIZE_START);
   if (beg != std::string::npos) {
     beg += SIZE_START.size();

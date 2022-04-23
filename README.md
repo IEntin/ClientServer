@@ -31,8 +31,8 @@ Memory Pooling. Business code and compression/decompression are not allocating a
 
 Builtin optional LZ4 compression.
 
-Server allows multi phase request processing. An optional preprocessor phase in the current code\
-is sorting the request batch by one of the fields to make data more cache friendly.
+Server allows multi phase request processing. The preprocessor phase in the current code\
+is generation of the specific key and sorting requests by this key.
 
 Business logic, compression, task multithreading, and communication layers are completely decoupled.
 

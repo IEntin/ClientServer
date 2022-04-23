@@ -82,8 +82,7 @@ struct LogicTest : testing::Test {
     // To change options modify defaults in
     // ServerOptions.cpp and recompile the application
     ServerOptions serverOptions;
-    if (serverOptions._enablePreprocessing)
-      Task::setPreprocessMethod(Transaction::normalizeSizeKey);
+    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
     _taskController = TaskController::instance(std::thread::hardware_concurrency());
   }

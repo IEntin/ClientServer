@@ -12,7 +12,6 @@ ServerOptions::ServerOptions() :
   _timingEnabled(ProgramOptions::get("Timing", false)),
   _processRequest(Transaction::processRequest),
   _adsFileName(ProgramOptions::get("AdsFileName", std::string("data/ads.txt"))),
-  _enablePreprocessing(ProgramOptions::get("EnablePreprocessing", true)),
   _numberWorkThreads([] ()->unsigned {
 		       unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
 		       return numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :

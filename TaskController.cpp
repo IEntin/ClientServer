@@ -43,7 +43,9 @@ TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t buffer
 void TaskController::onTaskCompletion() noexcept {
   auto taskController = instance();
   if (_phase == PREPROCESSTASK) {
-    taskController->_task->sortRequests();
+    taskController->_task->sortIndices();
+    // another alternative
+    //taskController->_task->sortRequests();
     taskController->_task->resetPointer();
     _phase = PROCESSTASK;
     return;

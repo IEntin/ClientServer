@@ -22,15 +22,16 @@ using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 class Task {
   enum DATAINDEX { KEY, REQUEST, ORIGINALINDEX };
-  using KeyValue = std::tuple<std::string, std::string_view, unsigned>;
-  using Requests = std::vector<KeyValue>;
+  using Tuple = std::tuple<std::string, std::string_view, unsigned>;
+  using Tuples = std::vector<Tuple>;
   Task(const Task& other) = delete;
   Task& operator =(const Task& other) = delete;
 
-  size_t size() const { return _storage.size(); }
-  bool empty() const { return _storage.empty(); }
+  size_t size() const { return _tuples.size(); }
+  bool empty() const { return _tuples.empty(); }
 
-  Requests _storage;
+  Tuples _tuples;
+  std::vector<unsigned> _indices;
   HEADER _header;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
@@ -42,6 +43,8 @@ class Task {
   Task(Batch& emptyBatch);
 
   Task(const HEADER& header, std::vector<char>& input, Batch& response);
+
+  void sortIndices();
 
   void sortRequests();
 

@@ -14,7 +14,6 @@ struct ServerOptions {
   const bool _timingEnabled;
   const ProcessRequest _processRequest;
   const std::string _adsFileName;
-  const bool _enablePreprocessing;
   const unsigned _numberWorkThreads;
   const COMPRESSORS _compressor;
   const unsigned _expectedTcpConnections;
