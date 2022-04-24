@@ -19,11 +19,11 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   return os;
 }
 
-std::vector<Ad::KeyValue> Ad::_keyValues;
+std::vector<Ad::Tuple> Ad::_tuples;
 SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;
 
-Ad::Ad(KeyValue& keyValue) noexcept :
+Ad::Ad(Tuple& keyValue) noexcept :
 _input(std::get<LINE>(keyValue)), _sizeKey(std::get<SIZEKEY>(keyValue)) {}
 
 bool Ad::parseIntro() {
@@ -109,10 +109,10 @@ bool Ad::readAndSortAds(const std::string& filename) {
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  utility::split(content, _keyValues, '\n');
-  for (auto& keyValue : _keyValues)
-    std::get<SIZEKEY>(keyValue) = extractSize(std::get<LINE>(keyValue));
-  std::stable_sort(_keyValues.begin(), _keyValues.end(), [] (const KeyValue& t1, const KeyValue& t2) {
+  utility::split(content, _tuples, '\n');
+  for (auto& t : _tuples)
+    std::get<SIZEKEY>(t) = extractSize(std::get<LINE>(t));
+  std::stable_sort(_tuples.begin(), _tuples.end(), [] (const Tuple& t1, const Tuple& t2) {
 		     return std::get<SIZEKEY>(t1) < std::get<SIZEKEY>(t2);
 		   });
   return true;
@@ -123,8 +123,8 @@ bool Ad::load(const std::string& filename) {
     return true;
   if (!readAndSortAds(filename))
     return false;
-  for (auto& pair : _keyValues) {
-    AdPtr ad = std::make_shared<Ad>(pair);
+  for (auto& t : _tuples) {
+    AdPtr ad = std::make_shared<Ad>(t);
     if (!(ad->parseIntro() && ad->parseArray()))
       continue;
     auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
