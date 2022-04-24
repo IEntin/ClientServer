@@ -24,6 +24,7 @@
 #include <future>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <mutex>
 #include <queue>

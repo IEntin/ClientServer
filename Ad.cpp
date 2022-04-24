@@ -14,7 +14,7 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << ad._id << " size=" << ad._sizeKey
      << " defaultBid=" << utility::Print(ad._defaultBid) << '\n';
   os << ' ' << ad._input << '\n';
-  for (const auto& [key, adPtr, money] : ad._bids)
+  for (const auto& [key,  money] : ad._bids)
     os << "  " << key << " " << utility::Print(money) << '\n';
   return os;
 }
@@ -67,7 +67,7 @@ bool Ad::parseArray() {
     unsigned money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
-    _bids.emplace_back(vect[i], this, money);
+    _bids.emplace_back(vect[i], money);
   }
   std::sort(_bids.begin(), _bids.end(), [] (const AdBid& bid1, const AdBid& bid2) {
 	      return bid1._keyword < bid2._keyword; });

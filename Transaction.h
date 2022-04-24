@@ -33,11 +33,11 @@ private:
   // vector which keeps its capacity for further usage. Number
   // of matched bids is not exceeding 10, so additional memory
   // is negligible. callgrind shows improvement.
-  static thread_local std::vector<AdBid> _bids;
+  static thread_local std::vector<AdBidMatched> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
   const std::string_view _sizeKey;
-  const AdBid* _winningBid = nullptr;
+  const AdBidMatched* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };
   static constexpr std::string_view EMPTY_REPLY{ "0, 0.0\n" };

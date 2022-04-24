@@ -24,7 +24,7 @@ constexpr char SIZE_END('&');
 } // end of anonimous namespace
 
 std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
-  const AdBid* winningBid = transaction._winningBid;
+  const AdBidMatched* winningBid = transaction._winningBid;
   os << transaction._id << ' ';
   if (TaskController::isDiagnosticsEnabled()) {
     os <<"Transaction size=" << transaction._sizeKey << " #matches=" << utility::Print(transaction._bids.size())
@@ -32,7 +32,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, adPtr, money] : transaction._bids)
+    for (const auto& [kw, money, adPtr] : transaction._bids)
       os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
     os << "summary:";
     if (transaction._noMatch)
@@ -61,7 +61,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   return os;
 }
 
-thread_local std::vector<AdBid> Transaction::_bids;
+thread_local std::vector<AdBidMatched> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
 Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
@@ -139,7 +139,7 @@ void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view reques
   }
 }
 
-inline const AdBid* findWinningBid(const std::vector<AdBid>& bids) {
+inline const AdBidMatched* findWinningBid(const std::vector<AdBidMatched>& bids) {
   unsigned index = 0;
   double max = bids[0]._money;
   for (unsigned i = 1; i < bids.size(); ++i) {
@@ -166,7 +166,7 @@ void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   for (const AdPtr& ad : adVector) {
     std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
 			  _keywords.cbegin(), _keywords.cend(),
-			  std::back_inserter(_bids),
+			  AdBidBackInserter(_bids, ad),
 			  Comparator());
   }
   if (_bids.empty())
