@@ -79,17 +79,11 @@ bool Ad::parseArray() {
 
 const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
   static const std::vector<Ad> empty;
-  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
-  static thread_local std::string prevKey;
-  if (key != prevKey) {
-    prevKey = key;
-    const auto it = _mapBySize.find(key);
-    if (it == _mapBySize.end())
-      adVector = empty;
-    else
-      adVector = it->second;
-  }
-  return adVector;
+  const auto it = _mapBySize.find(key);
+  if (it == _mapBySize.end())
+    return empty;
+  else
+    return it->second;
 }
 
 std::string Ad::extractSize(std::string_view line) {

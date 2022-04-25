@@ -88,8 +88,14 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   try {
     Transaction transaction(key, request);
     id.assign(transaction._id);
-    const std::vector<Ad>& adVector = Ad::getAdsBySize(key);
-    if (adVector.empty() || transaction._keywords.empty()) {
+    static std::vector<Ad> empty;
+    static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
+    static thread_local std::string prevKey;
+    if (key != prevKey) {
+      prevKey = key;
+      adVector = Ad::getAdsBySize(key);
+    }
+    if (adVector.get().empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
