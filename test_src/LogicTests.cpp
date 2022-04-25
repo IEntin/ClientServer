@@ -90,75 +90,75 @@ struct LogicTest : testing::Test {
 };
 TaskControllerPtr LogicTest::_taskController;
 
-TEST_F(LogicTest, LogicTestTcp1) {
+TEST_F(LogicTest, Tcp1) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestTcp2) {
+TEST_F(LogicTest, Tcp2) {
   testLogicTcp(COMPRESSORS::NONE, COMPRESSORS::NONE, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestTcp3) {
+TEST_F(LogicTest, Tcp3) {
   testLogicTcp(COMPRESSORS::NONE, COMPRESSORS::LZ4, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestTcp4) {
+TEST_F(LogicTest, Tcp4) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestTcp5) {
+TEST_F(LogicTest, Tcp5) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 3600000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestTcp6) {
+TEST_F(LogicTest, Tcp6) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 3600000, 10000);
 }
 
-TEST_F(LogicTest, LogicTestTcp7) {
+TEST_F(LogicTest, Tcp7) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 25000, 55000);
 }
 
-TEST_F(LogicTest, LogicTestTcp8) {
+TEST_F(LogicTest, Tcp8) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000, false);
 }
 
-TEST_F(LogicTest, LogicTestTcp9) {
+TEST_F(LogicTest, Tcp9) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000, false);
 }
 
 
-TEST_F(LogicTest, LogicTestFifo1) {
+TEST_F(LogicTest, Fifo1) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestFifo2) {
+TEST_F(LogicTest, Fifo2) {
   testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::NONE, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestFifo3) {
+TEST_F(LogicTest, Fifo3) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestFifo4) {
+TEST_F(LogicTest, Fifo4) {
   testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, 100000, 3600000);
 }
 
-TEST_F(LogicTest, LogicTestFifo5) {
+TEST_F(LogicTest, Fifo5) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 10000, 500);
 }
 
-TEST_F(LogicTest, LogicTestFifo6) {
+TEST_F(LogicTest, Fifo6) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 500, 10000);
 }
 
-TEST_F(LogicTest, LogicTestFifo7) {
+TEST_F(LogicTest, Fifo7) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 10000000, 10000000);
 }
 
-TEST_F(LogicTest, LogicTestFifo8) {
+TEST_F(LogicTest, Fifo8) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000, true);
 }
 
-TEST_F(LogicTest, LogicTestFifo9) {
+TEST_F(LogicTest, Fifo9) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000, true);
 }

@@ -2,7 +2,7 @@
 #include "ThreadPool.h"
 #include <gtest/gtest.h>
 
-TEST(ThreadPoolTest, ThreadPoolTest1) {
+TEST(ThreadPoolTest, 1) {
   ThreadPoolPtr pool = std::make_shared<ThreadPool>(10);
   class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
   public:

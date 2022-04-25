@@ -48,23 +48,23 @@ struct CompressionTest : testing::Test {
   static void TearDownTestSuite() {}
 };
 
-TEST_F(CompressionTest, CompressionTest1) {
+TEST_F(CompressionTest, 1) {
   testCompressionDecompression1(TestEnvironment::_source);
 }
 
-TEST_F(CompressionTest, CompressionTest2) {
+TEST_F(CompressionTest, 2) {
   testCompressionDecompression1(TestEnvironment::_outputD);
 }
 
-TEST_F(CompressionTest, CompressionTest3) {
+TEST_F(CompressionTest, 3) {
   testCompressionDecompression2(TestEnvironment::_source);
 }
 
-TEST_F(CompressionTest, CompressionTest4) {
+TEST_F(CompressionTest, 4) {
   testCompressionDecompression2(TestEnvironment::_outputD);
 }
 
-TEST(SplitTest, SplitTest1) {
+TEST(SplitTest, 1) {
   ClientOptions clientOptions;
   std::vector<std::string_view> lines;
   utility::split(TestEnvironment::_source, lines);
@@ -87,7 +87,7 @@ TEST(FromCharsTest, FloatingPoint) {
   ASSERT_EQ(value, 1234567.89);
 }
 
-TEST(HeaderTest, HeaderTest1) {
+TEST(HeaderTest, 1) {
   char buffer[HEADER_SIZE] = {};
   size_t uncomprSz = 123456;
   size_t comprSz = 12345;

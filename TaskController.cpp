@@ -38,16 +38,14 @@ TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t buffer
   return instance;
 }
 
-// This method is called by one of the threads when
-// the current barrier phase is completed.
+// This method is called by one of the threads
+// when the current barrier phase is completed.
 
 void TaskController::onTaskCompletion() noexcept {
   auto taskController = instance();
   if (_phase == PREPROCESSTASK) {
     if (taskController->_sortInput) {
       taskController->_task->sortIndices();
-      // another alternative
-      //taskController->_task->sortRequests();
     }
     taskController->_task->resetPointer();
     _phase = PROCESSTASK;

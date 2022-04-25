@@ -26,14 +26,12 @@ bool Ad::_loaded = false;
 Ad::Ad(Tuple& keyValue) :
 _input(std::get<LINE>(keyValue)), _sizeKey(std::get<SIZEKEY>(keyValue)) {
     if (!(parseIntro() && parseArray()))
-      throw std::runtime_error("");
+      throw std::runtime_error("parsing failed");
 }
 
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.begin(), _input.end(), '[');
   if (introEnd == _input.end()) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << "unexpected format:\"" << _input << "\",skipping line" << std::endl;
     return false;
   }
   std::string_view introStr(_input.begin(), introEnd);
@@ -126,6 +124,11 @@ bool Ad::load(const std::string& filename) {
       it->second.emplace_back(t);
     }
     catch (std::exception& e) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
+		<< ":key-value=" << '\"' << it->first << "\":\"" << std::get<LINE>(t)
+		<< "\",skipping." << std::endl;
+      if (it->second.empty())
+	_mapBySize.erase(it);
       continue;
     }
   }

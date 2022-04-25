@@ -25,12 +25,6 @@ void Task::sortIndices() {
 	    });
 }
 
-void Task::sortRequests() {
-  std::sort(_tuples.begin(), _tuples.end(), [] (const auto& t1, const auto& t2) {
-	      return std::get<KEY>(t1) < std::get<KEY>(t2);
- 	    });
-}
-
 bool Task::extractKeyNext() {
   if (!_extractKey)
     return false;

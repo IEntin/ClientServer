@@ -28,25 +28,20 @@ class AdBidBackInserter {
   AdBidBackInserter(std::vector<AdBidMatched>& container, const Ad* ad) :
     _container(container), _ad(ad) {}
 
-    template <typename Args>
-      AdBidBackInserter& operator =(Args&& args) {
-      const auto& [keyword, money] = args;
-      _container.emplace_back(keyword, money, _ad);
-      return *this;
-    }
+  AdBidBackInserter& operator =(const AdBid& bid) {
+    const auto& [keyword, money] = bid;
+    _container.emplace_back(keyword, money, _ad);
+    return *this;
+  }
 
-    AdBidBackInserter& operator*() {
-      return *this;
-    }
+  AdBidBackInserter& operator*() {
+    return *this;
+  }
 
-    AdBidBackInserter& operator++() {
-      return *this;
-    }
-
-    AdBidBackInserter operator++(int) {
-      return *this;
-    }
+  AdBidBackInserter& operator++() {
+    return *this;
+  }
  private:
-    std::vector<AdBidMatched>& _container;
-    const Ad* _ad;
+  std::vector<AdBidMatched>& _container;
+  const Ad* _ad;
 };

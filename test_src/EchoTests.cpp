@@ -63,34 +63,34 @@ struct EchoTest : testing::Test {
 };
 TaskControllerPtr EchoTest::_taskController;
 
-TEST_F(EchoTest, EchoTestTcpCompression) {
+TEST_F(EchoTest, TcpCompression) {
   testEchoTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4);
 }
 
-TEST_F(EchoTest, EchoTestTcpNoCompression) {
+TEST_F(EchoTest, TcpNoCompression) {
   testEchoTcp(COMPRESSORS::NONE, COMPRESSORS::NONE);
 }
 
-TEST_F(EchoTest, EchoTestTcpServerCompressionClientNoCompression) {
+TEST_F(EchoTest, TcpServerCompressionClientNoCompression) {
   testEchoTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE);
 }
 
-TEST_F(EchoTest, EchoTestTcpServerNoCompressionClientCompression) {
+TEST_F(EchoTest, TcpServerNoCompressionClientCompression) {
   testEchoTcp(COMPRESSORS::NONE, COMPRESSORS::LZ4);
 }
 
-TEST_F(EchoTest, EchoTestFifoCompression) {
+TEST_F(EchoTest, FifoCompression) {
   testEchoFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4);
 }
 
-TEST_F(EchoTest, EchoTestFifoNoCompression) {
+TEST_F(EchoTest, FifoNoCompression) {
   testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::NONE);
 }
 
-TEST_F(EchoTest, EchoTestFifoServerCompressionClientNoCompression) {
+TEST_F(EchoTest, FifoServerCompressionClientNoCompression) {
   testEchoFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE);
 }
 
-TEST_F(EchoTest, EchoTestFifoServerNoCompressionClientCompression) {
+TEST_F(EchoTest, FifoServerNoCompressionClientCompression) {
   testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4);
 }
