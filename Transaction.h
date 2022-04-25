@@ -5,12 +5,10 @@
 #pragma once
 
 #include "AdBid.h"
-#include <memory>
 #include <string_view>
 #include <vector>
 
 class Ad;
-using AdPtr = std::shared_ptr<Ad>;
 
 class Transaction {
   friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
@@ -24,7 +22,7 @@ private:
   Transaction& operator =(const Transaction& other) = delete;
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
-  void matchAds(const std::vector<AdPtr>& adVector);
+  void matchAds(const std::vector<Ad>& adVector);
   std::string_view _id;
   std::string_view _request;
   // Made static to keep the capacity growing as needed.

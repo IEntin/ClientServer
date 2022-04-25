@@ -40,7 +40,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST << "*****\n";
     else {
-      auto winningAdPtr = winningBid->_adPtr;
+      auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << winningBid->_keyword
 	 << ", " << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
@@ -53,7 +53,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else if (transaction._invalid)
       os << Transaction::INVALID_REQUEST;
     else {
-      Ad* winningAdPtr = winningBid->_adPtr;
+      const Ad* winningAdPtr = winningBid->_ad;
       os << winningAdPtr->getId() << ", "
 	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
     }
@@ -88,7 +88,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   try {
     Transaction transaction(key, request);
     id.assign(transaction._id);
-    const std::vector<AdPtr>& adVector = Ad::getAdsBySize(key);
+    const std::vector<Ad>& adVector = Ad::getAdsBySize(key);
     if (adVector.empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
@@ -162,11 +162,11 @@ struct Comparator {
   }
 };
 
-void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
-  for (const AdPtr& ad : adVector) {
-    std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
+void Transaction::matchAds(const std::vector<Ad>& adVector) {
+  for (const Ad& ad : adVector) {
+    std::set_intersection(ad.getBids().cbegin(), ad.getBids().cend(),
 			  _keywords.cbegin(), _keywords.cend(),
-			  AdBidBackInserter(_bids, ad),
+			  AdBidBackInserter(_bids, &ad),
 			  Comparator());
   }
   if (_bids.empty())

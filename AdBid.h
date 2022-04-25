@@ -5,13 +5,10 @@
 #pragma once
 
 #include <iterator>
-#include <memory>
 #include <string_view>
 #include <vector>
 
 class Ad;
-
-using AdPtr = std::shared_ptr<Ad>;
 
 struct AdBid {
   AdBid(std::string_view keyword, unsigned money);
@@ -20,21 +17,21 @@ struct AdBid {
 };
 
 struct AdBidMatched {
-  AdBidMatched(std::string_view keyword, unsigned money, Ad* adPtr);
+  AdBidMatched(std::string_view keyword, unsigned money, const Ad* ad);
   std::string_view _keyword;
   unsigned _money = 0;
-  Ad* _adPtr = nullptr;
+  const Ad* _ad;
 };
 
 class AdBidBackInserter {
  public:
-  AdBidBackInserter(std::vector<AdBidMatched>& container, const AdPtr& ad) :
-    _container(container), _adPtr(ad.get()) {}
+  AdBidBackInserter(std::vector<AdBidMatched>& container, const Ad* ad) :
+    _container(container), _ad(ad) {}
 
     template <typename Args>
       AdBidBackInserter& operator =(Args&& args) {
       const auto& [keyword, money] = args;
-      _container.emplace_back(keyword, money, _adPtr);
+      _container.emplace_back(keyword, money, _ad);
       return *this;
     }
 
@@ -51,5 +48,5 @@ class AdBidBackInserter {
     }
  private:
     std::vector<AdBidMatched>& _container;
-    Ad* _adPtr = nullptr;
+    const Ad* _ad;
 };

@@ -3,220 +3,220 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  ms/call  ms/call  name    
- 95.93     33.19    33.19     2396    13.85    13.85  LZ4_compress_fast_extState(void*, char const*, char*, int, int, int)
-  2.69     34.12     0.93     2396     0.39     0.39  TaskBuilder::createRequests()
-  1.16     34.52     0.40     2394     0.17     0.17  LZ4_decompress_safe(char const*, char*, int, int)
-  0.03     34.53     0.01     4788     0.00     0.00  unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&)
-  0.03     34.54     0.01     2400     0.00     0.00  LZ4_compressBound(int)
-  0.03     34.55     0.01     2396     0.00    13.86  LZ4_compress_fast(char const*, char*, int, int, int)
-  0.03     34.56     0.01     2396     0.00    13.87  TaskBuilder::compressSubtasks()
-  0.03     34.57     0.01     2396     0.00     0.00  void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&)
-  0.03     34.58     0.01     2394     0.00     0.00  decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool)
-  0.03     34.59     0.01        1    10.00   440.02  Client::loop(ClientOptions const&)
-  0.01     34.60     0.01     2395     0.00     0.18  tcp::TcpClient::processTask()
-  0.01     34.60     0.01     2394     0.00     0.17  tcp::TcpClient::readReply(unsigned long, unsigned long, bool)
-  0.00     34.60     0.00     7186     0.00     0.00  MemoryPool::getPrimaryBuffer(unsigned long)
-  0.00     34.60     0.00     4792     0.00     0.00  TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&)
-  0.00     34.60     0.00     4792     0.00     0.00  bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long)
-  0.00     34.60     0.00     4790     0.00     0.00  MemoryPool::getSecondaryBuffer(unsigned long)
-  0.00     34.60     0.00     4790     0.00     0.00  void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&)
-  0.00     34.60     0.00     2397     0.00     0.00  ThreadPool::get()
-  0.00     34.60     0.00     2397     0.00     0.00  ThreadPool::push(std::shared_ptr<Runnable>)
-  0.00     34.60     0.00     2396     0.00     0.00  encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool)
-  0.00     34.60     0.00     2396     0.00     0.00  LZ4_compress_default(char const*, char*, int, int)
-  0.00     34.60     0.00     2396     0.00    13.86  Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long)
-  0.00     34.60     0.00     2396     0.00    13.86  Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&)
-  0.00     34.60     0.00     2396     0.00    14.26  TaskBuilder::run()
-  0.00     34.60     0.00     2396     0.00     0.00  TaskBuilder::~TaskBuilder()
-  0.00     34.60     0.00     2396     0.00     0.00  std::__future_base::_State_baseV2::~_State_baseV2()
-  0.00     34.60     0.00     2396     0.00     0.00  std::__future_base::_Result<void>::~_Result()
-  0.00     34.60     0.00     2396     0.00     0.00  std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation)
-  0.00     34.60     0.00     2396     0.00     0.00  std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_invoke(std::_Any_data const&)
-  0.00     34.60     0.00     2396     0.00     0.00  std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
-  0.00     34.60     0.00     2396     0.00     0.00  std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-  0.00     34.60     0.00     2396     0.00     0.00  std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
-  0.00     34.60     0.00     2396     0.00     0.00  std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-  0.00     34.60     0.00     2395     0.00     0.00  TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&)
-  0.00     34.60     0.00     2395     0.00     0.00  unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&)
-  0.00     34.60     0.00     2395     0.00     0.00  std::__future_base::_State_baseV2::_M_complete_async()
-  0.00     34.60     0.00     2394     0.00     0.17  Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&)
-  0.00     34.60     0.00     2394     0.00     0.17  Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool)
-  0.00     34.60     0.00      246     0.00     0.00  boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::on_code_unit(char)
-  0.00     34.60     0.00      179     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_ws(char) const
-  0.00     34.60     0.00      158     0.00     0.00  std::_Deque_base<std::shared_ptr<Runnable>, std::allocator<std::shared_ptr<Runnable> > >::_M_initialize_map(unsigned long)
-  0.00     34.60     0.00       64     0.00     0.00  frame_dummy
-  0.00     34.60     0.00       46     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::~basic_ptree()
-  0.00     34.60     0.00       45     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::basic_ptree(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
-  0.00     34.60     0.00       30     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_string()
-  0.00     34.60     0.00       30     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_quote(char) const
-  0.00     34.60     0.00       16     0.00     0.00  boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::new_tree()
-  0.00     34.60     0.00       16     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_open_brace(char) const
-  0.00     34.60     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_array()
-  0.00     34.60     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_open_bracket(char) const
-  0.00     34.60     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_colon(char) const
-  0.00     34.60     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_comma(char) const
-  0.00     34.60     0.00       14     0.00     0.00  ProgramOptions::instance[abi:cxx11]()
-  0.00     34.60     0.00       14     0.00     0.00  boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::reduce()
-  0.00     34.60     0.00       14     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::get_child_optional(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const
-  0.00     34.60     0.00       14     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::walk_path(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) const
-  0.00     34.60     0.00        7     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const ProgramOptions::get<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
-  0.00     34.60     0.00        7     0.00     0.00  boost::asio::detail::posix_mutex::posix_mutex()
-  0.00     34.60     0.00        7     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit(char) const
-  0.00     34.60     0.00        7     0.00     0.00  void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag)
-  0.00     34.60     0.00        6     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_boolean()
-  0.00     34.60     0.00        6     0.00     0.00  boost::asio::detail::socket_ops::get_last_error(boost::system::error_code&, bool)
-  0.00     34.60     0.00        6     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_t(char) const
-  0.00     34.60     0.00        6     0.00     0.00  std::istreambuf_iterator<char, std::char_traits<char> >::_M_get() const
-  0.00     34.60     0.00        6     0.00     0.00  std::vector<char, std::allocator<char> >::_M_default_append(unsigned long)
-  0.00     34.60     0.00        5     0.00     0.00  std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
-  0.00     34.60     0.00        4     0.00     0.00  Compression::getCompressBound(unsigned long)
-  0.00     34.60     0.00        4     0.00     0.00  bool const ProgramOptions::get<bool>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool const&)
-  0.00     34.60     0.00        4     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_e(char) const
-  0.00     34.60     0.00        4     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_f(char) const
-  0.00     34.60     0.00        3     0.00     0.00  signalHandler(int)
-  0.00     34.60     0.00        3     0.00     0.01  MemoryPool::setInitialSize(unsigned long)
-  0.00     34.60     0.00        3     0.00     0.00  tcp::CloseSocket::~CloseSocket()
-  0.00     34.60     0.00        3     0.00     0.00  bool boost::property_tree::json_parser::detail::source<boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::have<boost::property_tree::json_parser::detail::number_callback_adapter<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::input_iterator_tag> >(bool (boost::property_tree::json_parser::detail::encoding<char>::*)(char) const, boost::property_tree::json_parser::detail::number_callback_adapter<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::input_iterator_tag>&)
-  0.00     34.60     0.00        2     0.00     0.00  boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&))
-  0.00     34.60     0.00        2     0.00     0.00  void boost::asio::execution::detail::any_executor_base::destroy_object<boost::asio::io_context::basic_executor_type<std::allocator<void>, 0ul> >(boost::asio::execution::detail::any_executor_base&)
-  0.00     34.60     0.00        2     0.00     0.00  boost::system::operator==(boost::system::error_code const&, boost::system::error_code const&)
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_close_brace(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_0(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_a(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_l(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_n(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_r(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_s(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_u(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_eE(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_dot(char) const
-  0.00     34.60     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_minus(char) const
-  0.00     34.60     0.00        2     0.00     0.00  void std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> >::_M_realloc_insert<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&>(__gnu_cxx::__normal_iterator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer*, std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> > >, boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&)
-  0.00     34.60     0.00        2     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z12encodeHeaderPcmm11COMPRESSORSb
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z17LZ4_versionNumberv
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN10MemoryPool18_initialBufferSizeE
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN10ThreadPoolC2Ev
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN11Compression20isCompressionEnabledERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN11TaskBuilderC2ERK13ClientOptionsR10MemoryPool
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN13ClientOptionsC2EPSo
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN14ProgramOptions8instanceB5cxx11Ev
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN3tcp11CloseSocketC2ERN5boost4asio19basic_stream_socketINS2_2ip3tcpENS2_15any_io_executorEEE
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN4fifo10FifoClientC2ERK17FifoClientOptions
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN4fifo19CloseFileDescriptorC2ERi
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN6ClientC2Em
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN7utility8readFileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
-  0.00     34.60     0.00        1     0.00     0.00  _GLOBAL__sub_I_stopFlag
-  0.00     34.60     0.00        1     0.00     0.00  ThreadPool::stop()
-  0.00     34.60     0.00        1     0.00     0.00  ThreadPool::ThreadPool(unsigned int)
-  0.00     34.60     0.00        1     0.00     0.00  ThreadPool::~ThreadPool()
-  0.00     34.60     0.00        1     0.00     0.00  Compression::isCompressionEnabled(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
-  0.00     34.60     0.00        1     0.00     0.00  ClientOptions::ClientOptions(std::ostream*)
-  0.00     34.60     0.00        1     0.00     0.00  ProgramOptions::initialize(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
-  0.00     34.60     0.00        1     0.00     0.00  void boost::property_tree::json_parser::detail::read_json_internal<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >(std::basic_istream<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::key_type::value_type, std::char_traits<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::key_type::value_type> >&, boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
-  0.00     34.60     0.00        1     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_object()
-  0.00     34.60     0.00        1     0.00     0.00  void boost::property_tree::json_parser::read_json<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, std::locale const&)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>::create(addrinfo*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
-  0.00     34.60     0.00        1     0.00     0.00  std::basic_ostream<char, std::char_traits<char> >& boost::asio::ip::operator<< <char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, boost::asio::ip::address const&)
-  0.00     34.60     0.00        1     0.00     0.00  std::basic_ostream<char, std::char_traits<char> >& boost::asio::ip::operator<< <char, std::char_traits<char>, boost::asio::ip::tcp>(std::basic_ostream<char, std::char_traits<char> >&, boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> const&)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::throw_error(boost::system::error_code const&, char const*)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::epoll_reactor::deregister_descriptor(int, boost::asio::detail::epoll_reactor::descriptor_state*&, bool)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::epoll_reactor::shutdown()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::epoll_reactor::~epoll_reactor()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::resolver_service<boost::asio::ip::tcp>::shutdown()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::resolver_service<boost::asio::ip::tcp>::~resolver_service()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::service_registry::do_use_service(boost::asio::execution_context::service::key const&, boost::asio::execution_context::service* (*)(void*), void*)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::epoll_reactor, boost::asio::execution_context>(void*)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::resolver_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::shutdown()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::~reactive_socket_service()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::eventfd_select_interrupter::open_descriptors()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::op_queue<boost::asio::detail::scheduler_operation>::~op_queue()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::scheduler::get_default_task(boost::asio::execution_context&)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::scheduler::wake_one_thread_and_unlock(boost::asio::detail::conditionally_enabled_mutex::scoped_lock&)
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::scheduler::stop()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::scheduler::shutdown()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::scheduler::~scheduler()
-  0.00     34.60     0.00        1     0.00     0.00  boost::asio::detail::scheduler::~scheduler()
-  0.00     34.60     0.00        1     0.00     0.00  boost::system::detail::snprintf(char*, unsigned long, char const*, ...)
-  0.00     34.60     0.00        1     0.00     0.01  Client::Client(unsigned long)
-  0.00     34.60     0.00        1     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit0(char) const
-  0.00     34.60     0.00        1     0.00     0.00  boost::system::error_code::what[abi:cxx11]() const
-  0.00     34.60     0.00        1     0.00     0.00  boost::system::detail::system_error_category::name() const
-  0.00     34.60     0.00        1     0.00     0.00  boost::system::detail::system_error_category::message[abi:cxx11](int) const
-  0.00     34.60     0.00        1     0.00     0.00  std::_Sp_counted_ptr<std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >*, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
-  0.00     34.60     0.00        1     0.00     0.00  std::_Sp_counted_ptr<std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >*, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-  0.00     34.60     0.00        1     0.00     0.00  std::_Sp_counted_deleter<void*, boost::asio::detail::socket_ops::noop_deleter, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
-  0.00     34.60     0.00        1     0.00     0.00  std::_Sp_counted_deleter<void*, boost::asio::detail::socket_ops::noop_deleter, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-  0.00     34.60     0.00        1     0.00     0.00  void std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >::_M_realloc_insert<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> >(__gnu_cxx::__normal_iterator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>*, std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > > >, boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>&&)
-  0.00     34.60     0.00        1     0.00     0.00  void std::vector<std::thread, std::allocator<std::thread> >::_M_realloc_insert<ThreadPool::start(unsigned long)::{lambda()#1}>(__gnu_cxx::__normal_iterator<std::thread*, std::vector<std::thread, std::allocator<std::thread> > >, ThreadPool::start(unsigned long)::{lambda()#1}&&)
-  0.00     34.60     0.00        1     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+ 95.83     33.02    33.02     2506    13.18    13.18  LZ4_compress_fast_extState(void*, char const*, char*, int, int, int)
+  2.73     33.96     0.94     2506     0.38     0.38  TaskBuilder::createRequests()
+  1.25     34.39     0.43     2504     0.17     0.17  LZ4_decompress_safe(char const*, char*, int, int)
+  0.09     34.42     0.03     7516     0.00     0.00  MemoryPool::getPrimaryBuffer(unsigned long)
+  0.04     34.44     0.02     2506     0.01    13.57  TaskBuilder::run()
+  0.03     34.45     0.01     2506     0.00     0.00  std::__future_base::_Result<void>::~_Result()
+  0.01     34.45     0.01     2506     0.00    13.18  Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&)
+  0.01     34.46     0.01     2506     0.00    13.19  TaskBuilder::compressSubtasks()
+  0.01     34.46     0.01        4     1.25     1.25  Compression::getCompressBound(unsigned long)
+  0.00     34.46     0.00     5012     0.00     0.00  TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&)
+  0.00     34.46     0.00     5012     0.00     0.00  bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long)
+  0.00     34.46     0.00     5010     0.00     0.00  MemoryPool::getSecondaryBuffer(unsigned long)
+  0.00     34.46     0.00     5010     0.00     0.00  void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&)
+  0.00     34.46     0.00     5007     0.00     0.00  unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&)
+  0.00     34.46     0.00     2510     0.00     0.00  LZ4_compressBound(int)
+  0.00     34.46     0.00     2507     0.00     0.00  ThreadPool::get()
+  0.00     34.46     0.00     2507     0.00     0.00  ThreadPool::push(std::shared_ptr<Runnable>)
+  0.00     34.46     0.00     2506     0.00     0.00  encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool)
+  0.00     34.46     0.00     2506     0.00    13.18  LZ4_compress_fast(char const*, char*, int, int, int)
+  0.00     34.46     0.00     2506     0.00     0.00  LZ4_compress_default(char const*, char*, int, int)
+  0.00     34.46     0.00     2506     0.00    13.18  Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long)
+  0.00     34.46     0.00     2506     0.00     0.00  TaskBuilder::~TaskBuilder()
+  0.00     34.46     0.00     2506     0.00     0.00  std::__future_base::_State_baseV2::~_State_baseV2()
+  0.00     34.46     0.00     2506     0.00     0.00  std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation)
+  0.00     34.46     0.00     2506     0.00     0.00  std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_invoke(std::_Any_data const&)
+  0.00     34.46     0.00     2506     0.00     0.00  std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
+  0.00     34.46     0.00     2506     0.00     0.00  std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+  0.00     34.46     0.00     2506     0.00     0.00  std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
+  0.00     34.46     0.00     2506     0.00     0.00  std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+  0.00     34.46     0.00     2506     0.00     0.00  void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&)
+  0.00     34.46     0.00     2505     0.00     0.00  TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&)
+  0.00     34.46     0.00     2505     0.00     0.18  tcp::TcpClient::processTask()
+  0.00     34.46     0.00     2505     0.00     0.00  unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&)
+  0.00     34.46     0.00     2505     0.00     0.00  std::__future_base::_State_baseV2::_M_complete_async()
+  0.00     34.46     0.00     2504     0.00     0.00  decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool)
+  0.00     34.46     0.00     2504     0.00     0.18  Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&)
+  0.00     34.46     0.00     2504     0.00     0.18  tcp::TcpClient::readReply(unsigned long, unsigned long, bool)
+  0.00     34.46     0.00     2504     0.00     0.18  Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool)
+  0.00     34.46     0.00      246     0.00     0.00  boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::on_code_unit(char)
+  0.00     34.46     0.00      179     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_ws(char) const
+  0.00     34.46     0.00      158     0.00     0.00  std::_Deque_base<std::shared_ptr<Runnable>, std::allocator<std::shared_ptr<Runnable> > >::_M_initialize_map(unsigned long)
+  0.00     34.46     0.00       64     0.00     0.00  frame_dummy
+  0.00     34.46     0.00       46     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::~basic_ptree()
+  0.00     34.46     0.00       45     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::basic_ptree(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+  0.00     34.46     0.00       30     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_string()
+  0.00     34.46     0.00       30     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_quote(char) const
+  0.00     34.46     0.00       16     0.00     0.00  boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::new_tree()
+  0.00     34.46     0.00       16     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_open_brace(char) const
+  0.00     34.46     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_array()
+  0.00     34.46     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_open_bracket(char) const
+  0.00     34.46     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_colon(char) const
+  0.00     34.46     0.00       15     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_comma(char) const
+  0.00     34.46     0.00       14     0.00     0.00  ProgramOptions::instance[abi:cxx11]()
+  0.00     34.46     0.00       14     0.00     0.00  boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::reduce()
+  0.00     34.46     0.00       14     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::get_child_optional(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const
+  0.00     34.46     0.00       14     0.00     0.00  boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::walk_path(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) const
+  0.00     34.46     0.00        7     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const ProgramOptions::get<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00     34.46     0.00        7     0.00     0.00  boost::asio::detail::posix_mutex::posix_mutex()
+  0.00     34.46     0.00        7     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit(char) const
+  0.00     34.46     0.00        7     0.00     0.00  void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag)
+  0.00     34.46     0.00        6     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_boolean()
+  0.00     34.46     0.00        6     0.00     0.00  boost::asio::detail::socket_ops::get_last_error(boost::system::error_code&, bool)
+  0.00     34.46     0.00        6     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_t(char) const
+  0.00     34.46     0.00        6     0.00     0.00  std::istreambuf_iterator<char, std::char_traits<char> >::_M_get() const
+  0.00     34.46     0.00        6     0.00     0.00  std::vector<char, std::allocator<char> >::_M_default_append(unsigned long)
+  0.00     34.46     0.00        5     0.00     0.00  std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+  0.00     34.46     0.00        4     0.00     0.00  bool const ProgramOptions::get<bool>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool const&)
+  0.00     34.46     0.00        4     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_e(char) const
+  0.00     34.46     0.00        4     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_f(char) const
+  0.00     34.46     0.00        3     0.00     0.00  signalHandler(int)
+  0.00     34.46     0.00        3     0.00     1.67  MemoryPool::setInitialSize(unsigned long)
+  0.00     34.46     0.00        3     0.00     0.00  tcp::CloseSocket::~CloseSocket()
+  0.00     34.46     0.00        3     0.00     0.00  bool boost::property_tree::json_parser::detail::source<boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::have<boost::property_tree::json_parser::detail::number_callback_adapter<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::input_iterator_tag> >(bool (boost::property_tree::json_parser::detail::encoding<char>::*)(char) const, boost::property_tree::json_parser::detail::number_callback_adapter<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::input_iterator_tag>&)
+  0.00     34.46     0.00        2     0.00     0.00  boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&))
+  0.00     34.46     0.00        2     0.00     0.00  void boost::asio::execution::detail::any_executor_base::destroy_object<boost::asio::io_context::basic_executor_type<std::allocator<void>, 0ul> >(boost::asio::execution::detail::any_executor_base&)
+  0.00     34.46     0.00        2     0.00     0.00  boost::system::operator==(boost::system::error_code const&, boost::system::error_code const&)
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_close_brace(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_0(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_a(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_l(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_n(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_r(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_s(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_u(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_eE(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_dot(char) const
+  0.00     34.46     0.00        2     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_minus(char) const
+  0.00     34.46     0.00        2     0.00     0.00  void std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> >::_M_realloc_insert<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&>(__gnu_cxx::__normal_iterator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer*, std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> > >, boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&)
+  0.00     34.46     0.00        2     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z12encodeHeaderPcmm11COMPRESSORSb
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z17LZ4_versionNumberv
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN10MemoryPool18_initialBufferSizeE
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN10ThreadPoolC2Ev
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN11Compression20isCompressionEnabledERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN11TaskBuilderC2ERK13ClientOptionsR10MemoryPool
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN13ClientOptionsC2EPSo
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN14ProgramOptions8instanceB5cxx11Ev
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN3tcp11CloseSocketC2ERN5boost4asio19basic_stream_socketINS2_2ip3tcpENS2_15any_io_executorEEE
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN4fifo10FifoClientC2ERK17FifoClientOptions
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN4fifo19CloseFileDescriptorC2ERi
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN6ClientC2Em
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN7utility8readFileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE
+  0.00     34.46     0.00        1     0.00     0.00  _GLOBAL__sub_I_stopFlag
+  0.00     34.46     0.00        1     0.00     0.00  ThreadPool::stop()
+  0.00     34.46     0.00        1     0.00     0.00  ThreadPool::ThreadPool(unsigned int)
+  0.00     34.46     0.00        1     0.00     0.00  ThreadPool::~ThreadPool()
+  0.00     34.46     0.00        1     0.00     0.00  Compression::isCompressionEnabled(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00     34.46     0.00        1     0.00     0.00  ClientOptions::ClientOptions(std::ostream*)
+  0.00     34.46     0.00        1     0.00     0.00  ProgramOptions::initialize(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+  0.00     34.46     0.00        1     0.00     0.00  void boost::property_tree::json_parser::detail::read_json_internal<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >(std::basic_istream<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::key_type::value_type, std::char_traits<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::key_type::value_type> >&, boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00     34.46     0.00        1     0.00     0.00  boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_object()
+  0.00     34.46     0.00        1     0.00     0.00  void boost::property_tree::json_parser::read_json<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, std::locale const&)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>::create(addrinfo*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00     34.46     0.00        1     0.00     0.00  std::basic_ostream<char, std::char_traits<char> >& boost::asio::ip::operator<< <char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, boost::asio::ip::address const&)
+  0.00     34.46     0.00        1     0.00     0.00  std::basic_ostream<char, std::char_traits<char> >& boost::asio::ip::operator<< <char, std::char_traits<char>, boost::asio::ip::tcp>(std::basic_ostream<char, std::char_traits<char> >&, boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> const&)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::throw_error(boost::system::error_code const&, char const*)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::epoll_reactor::deregister_descriptor(int, boost::asio::detail::epoll_reactor::descriptor_state*&, bool)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::epoll_reactor::shutdown()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::epoll_reactor::~epoll_reactor()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::resolver_service<boost::asio::ip::tcp>::shutdown()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::resolver_service<boost::asio::ip::tcp>::~resolver_service()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::service_registry::do_use_service(boost::asio::execution_context::service::key const&, boost::asio::execution_context::service* (*)(void*), void*)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::epoll_reactor, boost::asio::execution_context>(void*)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::resolver_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::shutdown()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::~reactive_socket_service()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::eventfd_select_interrupter::open_descriptors()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::op_queue<boost::asio::detail::scheduler_operation>::~op_queue()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::scheduler::get_default_task(boost::asio::execution_context&)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::scheduler::wake_one_thread_and_unlock(boost::asio::detail::conditionally_enabled_mutex::scoped_lock&)
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::scheduler::stop()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::scheduler::shutdown()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::scheduler::~scheduler()
+  0.00     34.46     0.00        1     0.00     0.00  boost::asio::detail::scheduler::~scheduler()
+  0.00     34.46     0.00        1     0.00     0.00  boost::system::detail::snprintf(char*, unsigned long, char const*, ...)
+  0.00     34.46     0.00        1     0.00   451.39  Client::loop(ClientOptions const&)
+  0.00     34.46     0.00        1     0.00     1.67  Client::Client(unsigned long)
+  0.00     34.46     0.00        1     0.00     0.00  boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit0(char) const
+  0.00     34.46     0.00        1     0.00     0.00  boost::system::error_code::what[abi:cxx11]() const
+  0.00     34.46     0.00        1     0.00     0.00  boost::system::detail::system_error_category::name() const
+  0.00     34.46     0.00        1     0.00     0.00  boost::system::detail::system_error_category::message[abi:cxx11](int) const
+  0.00     34.46     0.00        1     0.00     0.00  std::_Sp_counted_ptr<std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >*, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
+  0.00     34.46     0.00        1     0.00     0.00  std::_Sp_counted_ptr<std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >*, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+  0.00     34.46     0.00        1     0.00     0.00  std::_Sp_counted_deleter<void*, boost::asio::detail::socket_ops::noop_deleter, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
+  0.00     34.46     0.00        1     0.00     0.00  std::_Sp_counted_deleter<void*, boost::asio::detail::socket_ops::noop_deleter, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+  0.00     34.46     0.00        1     0.00     0.00  void std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >::_M_realloc_insert<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> >(__gnu_cxx::__normal_iterator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>*, std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > > >, boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>&&)
+  0.00     34.46     0.00        1     0.00     0.00  void std::vector<std::thread, std::allocator<std::thread> >::_M_realloc_insert<ThreadPool::start(unsigned long)::{lambda()#1}>(__gnu_cxx::__normal_iterator<std::thread*, std::vector<std::thread, std::allocator<std::thread> > >, ThreadPool::start(unsigned long)::{lambda()#1}&&)
+  0.00     34.46     0.00        1     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
 
 			Call graph
 
 
-granularity: each sample hit covers 2 byte(s) for 0.03% of 34.60 seconds
+granularity: each sample hit covers 2 byte(s) for 0.03% of 34.46 seconds
 
 index % time    self  children    called     name
-                0.00   34.16    2396/2396        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [2]
-[1]     98.7    0.00   34.16    2396         TaskBuilder::run() [1]
-                0.01   33.21    2396/2396        TaskBuilder::compressSubtasks() [3]
-                0.93    0.01    2396/2396        TaskBuilder::createRequests() [8]
-                0.00    0.00    2396/2396        std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation) [45]
+                                                 <spontaneous>
+[1]     98.7    0.00   34.01                 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [1]
+                0.02   33.99    2506/2506        TaskBuilder::run() [2]
+                0.00    0.00       2/2506        TaskBuilder::~TaskBuilder() [17]
+                0.00    0.00    2507/2507        ThreadPool::get() [38]
+                0.00    0.00       2/2506        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [46]
+                0.00    0.00       2/2506        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [45]
+-----------------------------------------------
+                0.02   33.99    2506/2506        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [1]
+[2]     98.7    0.02   33.99    2506         TaskBuilder::run() [2]
+                0.01   33.04    2506/2506        TaskBuilder::compressSubtasks() [3]
+                0.94    0.01    2506/2506        TaskBuilder::createRequests() [8]
+                0.00    0.00    2506/2506        std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation) [43]
+-----------------------------------------------
+                0.01   33.04    2506/2506        TaskBuilder::run() [2]
+[3]     95.9    0.01   33.04    2506         TaskBuilder::compressSubtasks() [3]
+                0.01   33.03    2506/2506        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
+                0.00    0.00    2506/2506        encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [40]
+-----------------------------------------------
+                0.01   33.03    2506/2506        TaskBuilder::compressSubtasks() [3]
+[4]     95.9    0.01   33.03    2506         Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
+                0.00   33.02    2506/2506        Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [7]
+                0.01    0.00    2506/7516        MemoryPool::getPrimaryBuffer(unsigned long) [16]
+                0.00    0.00    2506/2510        LZ4_compressBound(int) [37]
+-----------------------------------------------
+                0.00   33.02    2506/2506        Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [7]
+[5]     95.8    0.00   33.02    2506         LZ4_compress_fast(char const*, char*, int, int, int) [5]
+               33.02    0.00    2506/2506        LZ4_compress_fast_extState(void*, char const*, char*, int, int, int) [6]
+-----------------------------------------------
+               33.02    0.00    2506/2506        LZ4_compress_fast(char const*, char*, int, int, int) [5]
+[6]     95.8   33.02    0.00    2506         LZ4_compress_fast_extState(void*, char const*, char*, int, int, int) [6]
+-----------------------------------------------
+                0.00   33.02    2506/2506        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
+[7]     95.8    0.00   33.02    2506         Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [7]
+                0.00   33.02    2506/2506        LZ4_compress_fast(char const*, char*, int, int, int) [5]
+                0.00    0.00    2506/2506        LZ4_compress_default(char const*, char*, int, int) [41]
+-----------------------------------------------
+                0.94    0.01    2506/2506        TaskBuilder::run() [2]
+[8]      2.8    0.94    0.01    2506         TaskBuilder::createRequests() [8]
+                0.01    0.00    2506/7516        MemoryPool::getPrimaryBuffer(unsigned long) [16]
+                0.00    0.00    2506/5010        MemoryPool::getSecondaryBuffer(unsigned long) [21]
+                0.00    0.00    2506/2506        void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&) [49]
+                0.00    0.00    2506/5012        TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [33]
+-----------------------------------------------
+                0.00    0.45       1/1           tcp::TcpClient::run() [10]
+[9]      1.3    0.00    0.45       1         Client::loop(ClientOptions const&) [9]
+                0.00    0.44    2505/2505        tcp::TcpClient::processTask() [11]
+                0.00    0.01    2504/2506        TaskBuilder::~TaskBuilder() [17]
+                0.00    0.00    5010/5010        void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&) [35]
+                0.00    0.00    2506/5012        TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [33]
+                0.00    0.00    2506/2507        ThreadPool::push(std::shared_ptr<Runnable>) [39]
+                0.00    0.00    2505/2505        TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [50]
+                0.00    0.00    2504/2506        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [46]
+                0.00    0.00    2504/2506        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [45]
 -----------------------------------------------
                                                  <spontaneous>
-[2]     98.7    0.00   34.16                 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [2]
-                0.00   34.16    2396/2396        TaskBuilder::run() [1]
-                0.00    0.00    2397/2397        ThreadPool::get() [38]
-                0.00    0.00       1/2396        TaskBuilder::~TaskBuilder() [42]
-                0.00    0.00       1/2396        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [48]
-                0.00    0.00       1/2396        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [47]
------------------------------------------------
-                0.01   33.21    2396/2396        TaskBuilder::run() [1]
-[3]     96.0    0.01   33.21    2396         TaskBuilder::compressSubtasks() [3]
-                0.00   33.21    2396/2396        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
-                0.00    0.00    2396/2396        encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [40]
------------------------------------------------
-                0.00   33.21    2396/2396        TaskBuilder::compressSubtasks() [3]
-[4]     96.0    0.00   33.21    2396         Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
-                0.00   33.20    2396/2396        Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [6]
-                0.01    0.00    2396/2400        LZ4_compressBound(int) [17]
-                0.00    0.00    2396/7186        MemoryPool::getPrimaryBuffer(unsigned long) [22]
------------------------------------------------
-                0.01   33.19    2396/2396        Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [6]
-[5]     96.0    0.01   33.19    2396         LZ4_compress_fast(char const*, char*, int, int, int) [5]
-               33.19    0.00    2396/2396        LZ4_compress_fast_extState(void*, char const*, char*, int, int, int) [7]
------------------------------------------------
-                0.00   33.20    2396/2396        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
-[6]     96.0    0.00   33.20    2396         Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [6]
-                0.01   33.19    2396/2396        LZ4_compress_fast(char const*, char*, int, int, int) [5]
-                0.00    0.00    2396/2396        LZ4_compress_default(char const*, char*, int, int) [41]
------------------------------------------------
-               33.19    0.00    2396/2396        LZ4_compress_fast(char const*, char*, int, int, int) [5]
-[7]     95.9   33.19    0.00    2396         LZ4_compress_fast_extState(void*, char const*, char*, int, int, int) [7]
------------------------------------------------
-                0.93    0.01    2396/2396        TaskBuilder::run() [1]
-[8]      2.7    0.93    0.01    2396         TaskBuilder::createRequests() [8]
-                0.01    0.00    2396/2396        void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&) [18]
-                0.00    0.00    2396/4790        MemoryPool::getSecondaryBuffer(unsigned long) [23]
-                0.00    0.00    2396/7186        MemoryPool::getPrimaryBuffer(unsigned long) [22]
-                0.00    0.00    2396/4792        TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [35]
------------------------------------------------
-                0.01    0.43       1/1           tcp::TcpClient::run() [10]
-[9]      1.3    0.01    0.43       1         Client::loop(ClientOptions const&) [9]
-                0.01    0.43    2395/2395        tcp::TcpClient::processTask() [11]
-                0.00    0.00    4790/4790        void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&) [37]
-                0.00    0.00    2396/4792        TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [35]
-                0.00    0.00    2396/2397        ThreadPool::push(std::shared_ptr<Runnable>) [39]
-                0.00    0.00    2395/2395        TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [51]
-                0.00    0.00    2395/2396        TaskBuilder::~TaskBuilder() [42]
-                0.00    0.00    2395/2396        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [48]
-                0.00    0.00    2395/2396        std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [47]
------------------------------------------------
-                                                 <spontaneous>
-[10]     1.3    0.00    0.44                 tcp::TcpClient::run() [10]
-                0.01    0.43       1/1           Client::loop(ClientOptions const&) [9]
+[10]     1.3    0.00    0.45                 tcp::TcpClient::run() [10]
+                0.00    0.45       1/1           Client::loop(ClientOptions const&) [9]
                 0.00    0.00       6/7           void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) [74]
                 0.00    0.00       5/5           std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release() [80]
                 0.00    0.00       4/6           boost::asio::detail::socket_ops::get_last_error(boost::system::error_code&, bool) [76]
@@ -232,81 +232,78 @@ index % time    self  children    called     name
                 0.00    0.00       1/1           boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>::create(addrinfo*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [126]
                 0.00    0.00       1/7           boost::asio::detail::posix_mutex::posix_mutex() [72]
 -----------------------------------------------
-                0.01    0.43    2395/2395        Client::loop(ClientOptions const&) [9]
-[11]     1.2    0.01    0.43    2395         tcp::TcpClient::processTask() [11]
-                0.01    0.41    2394/2394        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
-                0.01    0.00    2394/2394        decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool) [19]
-                0.01    0.00    2394/4788        unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [16]
-                0.00    0.00    2395/2395        unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [52]
+                0.00    0.44    2505/2505        Client::loop(ClientOptions const&) [9]
+[11]     1.3    0.00    0.44    2505         tcp::TcpClient::processTask() [11]
+                0.00    0.44    2504/2504        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
+                0.00    0.00    2505/2505        unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [51]
+                0.00    0.00    2504/2504        decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool) [53]
+                0.00    0.00    2503/5007        unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [36]
                 0.00    0.00       1/1           boost::system::error_code::what[abi:cxx11]() const [151]
 -----------------------------------------------
-                0.01    0.41    2394/2394        tcp::TcpClient::processTask() [11]
-[12]     1.2    0.01    0.41    2394         tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
-                0.00    0.40    2394/2394        Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [14]
-                0.01    0.00    2394/4788        unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [16]
-                0.00    0.00    2394/4790        MemoryPool::getSecondaryBuffer(unsigned long) [23]
+                0.00    0.44    2504/2504        tcp::TcpClient::processTask() [11]
+[12]     1.3    0.00    0.44    2504         tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
+                0.00    0.44    2504/2504        Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [14]
+                0.00    0.00    2504/5010        MemoryPool::getSecondaryBuffer(unsigned long) [21]
+                0.00    0.00    2504/5007        unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [36]
 -----------------------------------------------
-                0.00    0.40    2394/2394        Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [14]
-[13]     1.2    0.00    0.40    2394         Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
-                0.40    0.00    2394/2394        LZ4_decompress_safe(char const*, char*, int, int) [15]
-                0.00    0.00    2394/7186        MemoryPool::getPrimaryBuffer(unsigned long) [22]
+                0.00    0.44    2504/2504        Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [14]
+[13]     1.3    0.00    0.44    2504         Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
+                0.43    0.00    2504/2504        LZ4_decompress_safe(char const*, char*, int, int) [15]
+                0.01    0.00    2504/7516        MemoryPool::getPrimaryBuffer(unsigned long) [16]
 -----------------------------------------------
-                0.00    0.40    2394/2394        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
-[14]     1.2    0.00    0.40    2394         Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [14]
-                0.00    0.40    2394/2394        Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
+                0.00    0.44    2504/2504        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
+[14]     1.3    0.00    0.44    2504         Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [14]
+                0.00    0.44    2504/2504        Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
 -----------------------------------------------
-                0.40    0.00    2394/2394        Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
-[15]     1.2    0.40    0.00    2394         LZ4_decompress_safe(char const*, char*, int, int) [15]
+                0.43    0.00    2504/2504        Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
+[15]     1.2    0.43    0.00    2504         LZ4_decompress_safe(char const*, char*, int, int) [15]
 -----------------------------------------------
-                0.01    0.00    2394/4788        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
-                0.01    0.00    2394/4788        tcp::TcpClient::processTask() [11]
-[16]     0.0    0.01    0.00    4788         unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [16]
+                0.01    0.00    2504/7516        Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
+                0.01    0.00    2506/7516        TaskBuilder::createRequests() [8]
+                0.01    0.00    2506/7516        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
+[16]     0.1    0.03    0.00    7516         MemoryPool::getPrimaryBuffer(unsigned long) [16]
+                0.00    0.00       1/3           MemoryPool::setInitialSize(unsigned long) [20]
 -----------------------------------------------
-                0.00    0.00       4/2400        Compression::getCompressBound(unsigned long) [20]
-                0.01    0.00    2396/2400        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
-[17]     0.0    0.01    0.00    2400         LZ4_compressBound(int) [17]
+                0.00    0.00       2/2506        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [1]
+                0.00    0.01    2504/2506        Client::loop(ClientOptions const&) [9]
+[17]     0.0    0.00    0.01    2506         TaskBuilder::~TaskBuilder() [17]
+                0.01    0.00    2506/2506        std::__future_base::_Result<void>::~_Result() [18]
+                0.00    0.00    2506/2506        std::__future_base::_State_baseV2::~_State_baseV2() [42]
+                0.00    0.00    2506/2506        std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [48]
+                0.00    0.00    2506/2506        std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [47]
 -----------------------------------------------
-                0.01    0.00    2396/2396        TaskBuilder::createRequests() [8]
-[18]     0.0    0.01    0.00    2396         void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&) [18]
+                0.01    0.00    2506/2506        TaskBuilder::~TaskBuilder() [17]
+[18]     0.0    0.01    0.00    2506         std::__future_base::_Result<void>::~_Result() [18]
 -----------------------------------------------
-                0.01    0.00    2394/2394        tcp::TcpClient::processTask() [11]
-[19]     0.0    0.01    0.00    2394         decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool) [19]
+                0.01    0.00       4/4           MemoryPool::setInitialSize(unsigned long) [20]
+[19]     0.0    0.01    0.00       4         Compression::getCompressBound(unsigned long) [19]
+                0.00    0.00       4/2510        LZ4_compressBound(int) [37]
 -----------------------------------------------
-                0.00    0.00       4/4           MemoryPool::setInitialSize(unsigned long) [21]
-[20]     0.0    0.00    0.00       4         Compression::getCompressBound(unsigned long) [20]
-                0.00    0.00       4/2400        LZ4_compressBound(int) [17]
------------------------------------------------
-                0.00    0.00       1/3           Client::Client(unsigned long) [24]
-                0.00    0.00       1/3           MemoryPool::getPrimaryBuffer(unsigned long) [22]
-                0.00    0.00       1/3           MemoryPool::getSecondaryBuffer(unsigned long) [23]
-[21]     0.0    0.00    0.00       3         MemoryPool::setInitialSize(unsigned long) [21]
-                0.00    0.00       4/4           Compression::getCompressBound(unsigned long) [20]
+                0.00    0.00       1/3           MemoryPool::getPrimaryBuffer(unsigned long) [16]
+                0.00    0.00       1/3           Client::Client(unsigned long) [22]
+                0.00    0.00       1/3           MemoryPool::getSecondaryBuffer(unsigned long) [21]
+[20]     0.0    0.00    0.01       3         MemoryPool::setInitialSize(unsigned long) [20]
+                0.01    0.00       4/4           Compression::getCompressBound(unsigned long) [19]
                 0.00    0.00       4/6           std::vector<char, std::allocator<char> >::_M_default_append(unsigned long) [79]
 -----------------------------------------------
-                0.00    0.00    2394/7186        Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [13]
-                0.00    0.00    2396/7186        TaskBuilder::createRequests() [8]
-                0.00    0.00    2396/7186        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
-[22]     0.0    0.00    0.00    7186         MemoryPool::getPrimaryBuffer(unsigned long) [22]
-                0.00    0.00       1/3           MemoryPool::setInitialSize(unsigned long) [21]
+                0.00    0.00    2504/5010        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
+                0.00    0.00    2506/5010        TaskBuilder::createRequests() [8]
+[21]     0.0    0.00    0.00    5010         MemoryPool::getSecondaryBuffer(unsigned long) [21]
+                0.00    0.00       1/3           MemoryPool::setInitialSize(unsigned long) [20]
 -----------------------------------------------
-                0.00    0.00    2394/4790        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
-                0.00    0.00    2396/4790        TaskBuilder::createRequests() [8]
-[23]     0.0    0.00    0.00    4790         MemoryPool::getSecondaryBuffer(unsigned long) [23]
-                0.00    0.00       1/3           MemoryPool::setInitialSize(unsigned long) [21]
------------------------------------------------
-                0.00    0.00       1/1           tcp::TcpClient::TcpClient(TcpClientOptions const&) [25]
-[24]     0.0    0.00    0.00       1         Client::Client(unsigned long) [24]
-                0.00    0.00       1/3           MemoryPool::setInitialSize(unsigned long) [21]
+                0.00    0.00       1/1           tcp::TcpClient::TcpClient(TcpClientOptions const&) [23]
+[22]     0.0    0.00    0.00       1         Client::Client(unsigned long) [22]
+                0.00    0.00       1/3           MemoryPool::setInitialSize(unsigned long) [20]
                 0.00    0.00       1/1           ThreadPool::ThreadPool(unsigned int) [118]
 -----------------------------------------------
                                                  <spontaneous>
-[25]     0.0    0.00    0.00                 tcp::TcpClient::TcpClient(TcpClientOptions const&) [25]
-                0.00    0.00       1/1           Client::Client(unsigned long) [24]
+[23]     0.0    0.00    0.00                 tcp::TcpClient::TcpClient(TcpClientOptions const&) [23]
+                0.00    0.00       1/1           Client::Client(unsigned long) [22]
                 0.00    0.00       1/7           boost::asio::detail::posix_mutex::posix_mutex() [72]
                 0.00    0.00       1/2           boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&)) [87]
                 0.00    0.00       1/1           boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [138]
 -----------------------------------------------
-[26]     0.0    0.00    0.00      97+125     <cycle 1 as a whole> [26]
+[24]     0.0    0.00    0.00      97+125     <cycle 1 as a whole> [24]
                 0.00    0.00     158             std::_Deque_base<std::shared_ptr<Runnable>, std::allocator<std::shared_ptr<Runnable> > >::_M_initialize_map(unsigned long) <cycle 1> [56]
                 0.00    0.00      45             boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::basic_ptree(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) <cycle 1> [58]
                 0.00    0.00      16             boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::new_tree() <cycle 1> [61]
@@ -316,75 +313,78 @@ index % time    self  children    called     name
                 0.00    0.00      10/64          bool const ProgramOptions::get<bool>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool const&) [81]
                 0.00    0.00      16/64          ClientOptions::ClientOptions(std::ostream*) [121]
                 0.00    0.00      28/64          boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::reduce() [68]
-[27]     0.0    0.00    0.00      64         frame_dummy [27]
+[25]     0.0    0.00    0.00      64         frame_dummy [25]
 -----------------------------------------------
-                0.00    0.00    2396/4792        Client::loop(ClientOptions const&) [9]
-                0.00    0.00    2396/4792        TaskBuilder::createRequests() [8]
-[35]     0.0    0.00    0.00    4792         TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [35]
+                0.00    0.00    2506/5012        Client::loop(ClientOptions const&) [9]
+                0.00    0.00    2506/5012        TaskBuilder::createRequests() [8]
+[33]     0.0    0.00    0.00    5012         TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [33]
 -----------------------------------------------
-                0.00    0.00    4792/4792        encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [40]
-[36]     0.0    0.00    0.00    4792         bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long) [36]
+                0.00    0.00    5012/5012        encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [40]
+[34]     0.0    0.00    0.00    5012         bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long) [34]
 -----------------------------------------------
-                0.00    0.00    4790/4790        Client::loop(ClientOptions const&) [9]
-[37]     0.0    0.00    0.00    4790         void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&) [37]
+                0.00    0.00    5010/5010        Client::loop(ClientOptions const&) [9]
+[35]     0.0    0.00    0.00    5010         void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&) [35]
 -----------------------------------------------
-                0.00    0.00    2397/2397        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [2]
-[38]     0.0    0.00    0.00    2397         ThreadPool::get() [38]
+                0.00    0.00    2503/5007        tcp::TcpClient::processTask() [11]
+                0.00    0.00    2504/5007        tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [12]
+[36]     0.0    0.00    0.00    5007         unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [36]
 -----------------------------------------------
-                0.00    0.00       1/2397        ThreadPool::stop() [117]
-                0.00    0.00    2396/2397        Client::loop(ClientOptions const&) [9]
-[39]     0.0    0.00    0.00    2397         ThreadPool::push(std::shared_ptr<Runnable>) [39]
+                0.00    0.00       4/2510        Compression::getCompressBound(unsigned long) [19]
+                0.00    0.00    2506/2510        Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [4]
+[37]     0.0    0.00    0.00    2510         LZ4_compressBound(int) [37]
 -----------------------------------------------
-                0.00    0.00    2396/2396        TaskBuilder::compressSubtasks() [3]
-[40]     0.0    0.00    0.00    2396         encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [40]
-                0.00    0.00    4792/4792        bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long) [36]
+                0.00    0.00    2507/2507        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [1]
+[38]     0.0    0.00    0.00    2507         ThreadPool::get() [38]
 -----------------------------------------------
-                0.00    0.00    2396/2396        Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [6]
-[41]     0.0    0.00    0.00    2396         LZ4_compress_default(char const*, char*, int, int) [41]
+                0.00    0.00       1/2507        ThreadPool::stop() [117]
+                0.00    0.00    2506/2507        Client::loop(ClientOptions const&) [9]
+[39]     0.0    0.00    0.00    2507         ThreadPool::push(std::shared_ptr<Runnable>) [39]
 -----------------------------------------------
-                0.00    0.00       1/2396        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [2]
-                0.00    0.00    2395/2396        Client::loop(ClientOptions const&) [9]
-[42]     0.0    0.00    0.00    2396         TaskBuilder::~TaskBuilder() [42]
-                0.00    0.00    2396/2396        std::__future_base::_Result<void>::~_Result() [44]
-                0.00    0.00    2396/2396        std::__future_base::_State_baseV2::~_State_baseV2() [43]
-                0.00    0.00    2396/2396        std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [50]
-                0.00    0.00    2396/2396        std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [49]
+                0.00    0.00    2506/2506        TaskBuilder::compressSubtasks() [3]
+[40]     0.0    0.00    0.00    2506         encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [40]
+                0.00    0.00    5012/5012        bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long) [34]
 -----------------------------------------------
-                0.00    0.00    2396/2396        TaskBuilder::~TaskBuilder() [42]
-[43]     0.0    0.00    0.00    2396         std::__future_base::_State_baseV2::~_State_baseV2() [43]
+                0.00    0.00    2506/2506        Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [7]
+[41]     0.0    0.00    0.00    2506         LZ4_compress_default(char const*, char*, int, int) [41]
 -----------------------------------------------
-                0.00    0.00    2396/2396        TaskBuilder::~TaskBuilder() [42]
-[44]     0.0    0.00    0.00    2396         std::__future_base::_Result<void>::~_Result() [44]
+                0.00    0.00    2506/2506        TaskBuilder::~TaskBuilder() [17]
+[42]     0.0    0.00    0.00    2506         std::__future_base::_State_baseV2::~_State_baseV2() [42]
 -----------------------------------------------
-                0.00    0.00    2396/2396        TaskBuilder::run() [1]
-[45]     0.0    0.00    0.00    2396         std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation) [45]
+                0.00    0.00    2506/2506        TaskBuilder::run() [2]
+[43]     0.0    0.00    0.00    2506         std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation) [43]
 -----------------------------------------------
-                0.00    0.00    2396/2396        std::__future_base::_State_baseV2::_M_do_set(std::function<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> ()>*, bool*) [449]
-[46]     0.0    0.00    0.00    2396         std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_invoke(std::_Any_data const&) [46]
+                0.00    0.00    2506/2506        std::__future_base::_State_baseV2::_M_do_set(std::function<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> ()>*, bool*) [449]
+[44]     0.0    0.00    0.00    2506         std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_invoke(std::_Any_data const&) [44]
 -----------------------------------------------
-                0.00    0.00       1/2396        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [2]
-                0.00    0.00    2395/2396        Client::loop(ClientOptions const&) [9]
-[47]     0.0    0.00    0.00    2396         std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [47]
+                0.00    0.00       2/2506        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [1]
+                0.00    0.00    2504/2506        Client::loop(ClientOptions const&) [9]
+[45]     0.0    0.00    0.00    2506         std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [45]
 -----------------------------------------------
-                0.00    0.00       1/2396        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [2]
-                0.00    0.00    2395/2396        Client::loop(ClientOptions const&) [9]
-[48]     0.0    0.00    0.00    2396         std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [48]
+                0.00    0.00       2/2506        std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPool::start(unsigned long)::{lambda()#1}> > >::_M_run() [1]
+                0.00    0.00    2504/2506        Client::loop(ClientOptions const&) [9]
+[46]     0.0    0.00    0.00    2506         std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [46]
 -----------------------------------------------
-                0.00    0.00    2396/2396        TaskBuilder::~TaskBuilder() [42]
-[49]     0.0    0.00    0.00    2396         std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [49]
+                0.00    0.00    2506/2506        TaskBuilder::~TaskBuilder() [17]
+[47]     0.0    0.00    0.00    2506         std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy() [47]
 -----------------------------------------------
-                0.00    0.00    2396/2396        TaskBuilder::~TaskBuilder() [42]
-[50]     0.0    0.00    0.00    2396         std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [50]
+                0.00    0.00    2506/2506        TaskBuilder::~TaskBuilder() [17]
+[48]     0.0    0.00    0.00    2506         std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose() [48]
 -----------------------------------------------
-                0.00    0.00    2395/2395        Client::loop(ClientOptions const&) [9]
-[51]     0.0    0.00    0.00    2395         TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [51]
-                0.00    0.00    2395/2395        std::__future_base::_State_baseV2::_M_complete_async() [53]
+                0.00    0.00    2506/2506        TaskBuilder::createRequests() [8]
+[49]     0.0    0.00    0.00    2506         void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&) [49]
 -----------------------------------------------
-                0.00    0.00    2395/2395        tcp::TcpClient::processTask() [11]
-[52]     0.0    0.00    0.00    2395         unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [52]
+                0.00    0.00    2505/2505        Client::loop(ClientOptions const&) [9]
+[50]     0.0    0.00    0.00    2505         TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [50]
+                0.00    0.00    2505/2505        std::__future_base::_State_baseV2::_M_complete_async() [52]
 -----------------------------------------------
-                0.00    0.00    2395/2395        TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [51]
-[53]     0.0    0.00    0.00    2395         std::__future_base::_State_baseV2::_M_complete_async() [53]
+                0.00    0.00    2505/2505        tcp::TcpClient::processTask() [11]
+[51]     0.0    0.00    0.00    2505         unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [51]
+-----------------------------------------------
+                0.00    0.00    2505/2505        TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [50]
+[52]     0.0    0.00    0.00    2505         std::__future_base::_State_baseV2::_M_complete_async() [52]
+-----------------------------------------------
+                0.00    0.00    2504/2504        tcp::TcpClient::processTask() [11]
+[53]     0.0    0.00    0.00    2504         decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool) [53]
 -----------------------------------------------
                 0.00    0.00     246/246         boost::property_tree::json_parser::detail::parser<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, boost::property_tree::json_parser::detail::encoding<char>, std::istreambuf_iterator<char, std::char_traits<char> >, std::istreambuf_iterator<char, std::char_traits<char> > >::parse_string() [59]
 [54]     0.0    0.00    0.00     246         boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::on_code_unit(char) [54]
@@ -478,7 +478,7 @@ index % time    self  children    called     name
 -----------------------------------------------
                 0.00    0.00      14/14          boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::walk_path(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) const [70]
 [68]     0.0    0.00    0.00      14         boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::reduce() [68]
-                0.00    0.00      28/64          frame_dummy [27]
+                0.00    0.00      28/64          frame_dummy [25]
 -----------------------------------------------
                 0.00    0.00       1/14          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const ProgramOptions::get<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [71]
                 0.00    0.00       2/14          TcpClientOptions::TcpClientOptions(std::ostream*) [213]
@@ -504,7 +504,7 @@ index % time    self  children    called     name
                 0.00    0.00       1/14          boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::get_child_optional(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const [69]
                 0.00    0.00       1/6           boost::asio::detail::socket_ops::get_last_error(boost::system::error_code&, bool) [76]
 -----------------------------------------------
-                0.00    0.00       1/7           tcp::TcpClient::TcpClient(TcpClientOptions const&) [25]
+                0.00    0.00       1/7           tcp::TcpClient::TcpClient(TcpClientOptions const&) [23]
                 0.00    0.00       1/7           tcp::TcpClient::run() [10]
                 0.00    0.00       1/7           boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::resolver_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [137]
                 0.00    0.00       2/7           boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&)) [87]
@@ -543,7 +543,7 @@ index % time    self  children    called     name
 [78]     0.0    0.00    0.00       6         std::istreambuf_iterator<char, std::char_traits<char> >::_M_get() const [78]
 -----------------------------------------------
                 0.00    0.00       2/6           boost::system::error_code::what[abi:cxx11]() const [151]
-                0.00    0.00       4/6           MemoryPool::setInitialSize(unsigned long) [21]
+                0.00    0.00       4/6           MemoryPool::setInitialSize(unsigned long) [20]
 [79]     0.0    0.00    0.00       6         std::vector<char, std::allocator<char> >::_M_default_append(unsigned long) [79]
 -----------------------------------------------
                 0.00    0.00       5/5           tcp::TcpClient::run() [10]
@@ -553,7 +553,7 @@ index % time    self  children    called     name
 -----------------------------------------------
                 0.00    0.00       4/4           ClientOptions::ClientOptions(std::ostream*) [121]
 [81]     0.0    0.00    0.00       4         bool const ProgramOptions::get<bool>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool const&) [81]
-                0.00    0.00      10/64          frame_dummy [27]
+                0.00    0.00      10/64          frame_dummy [25]
                 0.00    0.00       5/14          ProgramOptions::instance[abi:cxx11]() [67]
                 0.00    0.00       5/14          boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::get_child_optional(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const [69]
 -----------------------------------------------
@@ -580,7 +580,7 @@ index % time    self  children    called     name
                 0.00    0.00       1/1           boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit0(char) const [150]
                                    1             boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::new_tree() <cycle 1> [61]
 -----------------------------------------------
-                0.00    0.00       1/2           tcp::TcpClient::TcpClient(TcpClientOptions const&) [25]
+                0.00    0.00       1/2           tcp::TcpClient::TcpClient(TcpClientOptions const&) [23]
                 0.00    0.00       1/2           boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::resolver_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [137]
 [87]     0.0    0.00    0.00       2         boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&)) [87]
                 0.00    0.00       2/7           boost::asio::detail::posix_mutex::posix_mutex() [72]
@@ -677,9 +677,9 @@ index % time    self  children    called     name
 -----------------------------------------------
                 0.00    0.00       1/1           Client::~Client() [397]
 [117]    0.0    0.00    0.00       1         ThreadPool::stop() [117]
-                0.00    0.00       1/2397        ThreadPool::push(std::shared_ptr<Runnable>) [39]
+                0.00    0.00       1/2507        ThreadPool::push(std::shared_ptr<Runnable>) [39]
 -----------------------------------------------
-                0.00    0.00       1/1           Client::Client(unsigned long) [24]
+                0.00    0.00       1/1           Client::Client(unsigned long) [22]
 [118]    0.0    0.00    0.00       1         ThreadPool::ThreadPool(unsigned int) [118]
                 0.00    0.00       1/97          std::_Deque_base<std::shared_ptr<Runnable>, std::allocator<std::shared_ptr<Runnable> > >::_M_initialize_map(unsigned long) <cycle 1> [56]
                 0.00    0.00       1/1           void std::vector<std::thread, std::allocator<std::thread> >::_M_realloc_insert<ThreadPool::start(unsigned long)::{lambda()#1}>(__gnu_cxx::__normal_iterator<std::thread*, std::vector<std::thread, std::allocator<std::thread> > >, ThreadPool::start(unsigned long)::{lambda()#1}&&) [159]
@@ -692,7 +692,7 @@ index % time    self  children    called     name
 -----------------------------------------------
                 0.00    0.00       1/1           TcpClientOptions::TcpClientOptions(std::ostream*) [213]
 [121]    0.0    0.00    0.00       1         ClientOptions::ClientOptions(std::ostream*) [121]
-                0.00    0.00      16/64          frame_dummy [27]
+                0.00    0.00      16/64          frame_dummy [25]
                 0.00    0.00       6/14          ProgramOptions::instance[abi:cxx11]() [67]
                 0.00    0.00       6/14          boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::get_child_optional(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const [69]
                 0.00    0.00       4/4           bool const ProgramOptions::get<bool>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool const&) [81]
@@ -780,7 +780,7 @@ index % time    self  children    called     name
                 0.00    0.00       1/7           boost::asio::detail::posix_mutex::posix_mutex() [72]
                 0.00    0.00       1/2           boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&)) [87]
 -----------------------------------------------
-                0.00    0.00       1/1           tcp::TcpClient::TcpClient(TcpClientOptions const&) [25]
+                0.00    0.00       1/1           tcp::TcpClient::TcpClient(TcpClientOptions const&) [23]
 [138]    0.0    0.00    0.00       1         boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [138]
                 0.00    0.00       1/1           boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::epoll_reactor, boost::asio::execution_context>(void*) [136]
                 0.00    0.00       1/1           boost::asio::detail::scheduler::get_default_task(boost::asio::execution_context&) [143]
@@ -875,39 +875,39 @@ Index by function name
  [114] _GLOBAL__sub_I__ZN6ClientC2Em (Client.cpp) [126] boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>::create(addrinfo*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [97] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_u(char) const
  [115] _GLOBAL__sub_I__ZN7utility8readFileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE (Utility.cpp) [127] std::basic_ostream<char, std::char_traits<char> >& boost::asio::ip::operator<< <char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, boost::asio::ip::address const&) [98] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_eE(char) const
  [116] _GLOBAL__sub_I_stopFlag (ClientMain.cpp) [128] std::basic_ostream<char, std::char_traits<char> >& boost::asio::ip::operator<< <char, std::char_traits<char>, boost::asio::ip::tcp>(std::basic_ostream<char, std::char_traits<char> >&, boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> const&) [55] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_ws(char) const
-  [19] decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool) [76] boost::asio::detail::socket_ops::get_last_error(boost::system::error_code&, bool) [99] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_dot(char) const
+  [53] decodeHeader(std::basic_string_view<char, std::char_traits<char> >, bool) [76] boost::asio::detail::socket_ops::get_last_error(boost::system::error_code&, bool) [99] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_dot(char) const
   [40] encodeHeader(char*, unsigned long, unsigned long, COMPRESSORS, bool) [72] boost::asio::detail::posix_mutex::posix_mutex() [65] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_colon(char) const
   [84] signalHandler(int)    [129] boost::asio::detail::throw_error(boost::system::error_code const&, char const*) [66] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_comma(char) const
-  [17] LZ4_compressBound(int) [130] boost::asio::detail::epoll_reactor::deregister_descriptor(int, boost::asio::detail::epoll_reactor::descriptor_state*&, bool) [73] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit(char) const
+  [37] LZ4_compressBound(int) [130] boost::asio::detail::epoll_reactor::deregister_descriptor(int, boost::asio::detail::epoll_reactor::descriptor_state*&, bool) [73] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit(char) const
    [5] LZ4_compress_fast(char const*, char*, int, int, int) [131] boost::asio::detail::epoll_reactor::shutdown() [100] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_minus(char) const
   [15] LZ4_decompress_safe(char const*, char*, int, int) [132] boost::asio::detail::epoll_reactor::~epoll_reactor() [60] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_quote(char) const
   [41] LZ4_compress_default(char const*, char*, int, int) [133] boost::asio::detail::resolver_service<boost::asio::ip::tcp>::shutdown() [150] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_digit0(char) const
-   [7] LZ4_compress_fast_extState(void*, char const*, char*, int, int, int) [134] boost::asio::detail::resolver_service<boost::asio::ip::tcp>::~resolver_service() [151] boost::system::error_code::what[abi:cxx11]() const
-  [21] MemoryPool::setInitialSize(unsigned long) [135] boost::asio::detail::service_registry::do_use_service(boost::asio::execution_context::service::key const&, boost::asio::execution_context::service* (*)(void*), void*) [152] boost::system::detail::system_error_category::name() const
-  [22] MemoryPool::getPrimaryBuffer(unsigned long) [136] boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::epoll_reactor, boost::asio::execution_context>(void*) [153] boost::system::detail::system_error_category::message[abi:cxx11](int) const
-  [23] MemoryPool::getSecondaryBuffer(unsigned long) [137] boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::resolver_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [78] std::istreambuf_iterator<char, std::char_traits<char> >::_M_get() const
+   [6] LZ4_compress_fast_extState(void*, char const*, char*, int, int, int) [134] boost::asio::detail::resolver_service<boost::asio::ip::tcp>::~resolver_service() [151] boost::system::error_code::what[abi:cxx11]() const
+  [20] MemoryPool::setInitialSize(unsigned long) [135] boost::asio::detail::service_registry::do_use_service(boost::asio::execution_context::service::key const&, boost::asio::execution_context::service* (*)(void*), void*) [152] boost::system::detail::system_error_category::name() const
+  [16] MemoryPool::getPrimaryBuffer(unsigned long) [136] boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::epoll_reactor, boost::asio::execution_context>(void*) [153] boost::system::detail::system_error_category::message[abi:cxx11](int) const
+  [21] MemoryPool::getSecondaryBuffer(unsigned long) [137] boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::resolver_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [78] std::istreambuf_iterator<char, std::char_traits<char> >::_M_get() const
   [38] ThreadPool::get()     [138] boost::asio::execution_context::service* boost::asio::detail::service_registry::create<boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>, boost::asio::io_context>(void*) [56] std::_Deque_base<std::shared_ptr<Runnable>, std::allocator<std::shared_ptr<Runnable> > >::_M_initialize_map(unsigned long)
-  [39] ThreadPool::push(std::shared_ptr<Runnable>) [16] unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [53] std::__future_base::_State_baseV2::_M_complete_async()
- [117] ThreadPool::stop()     [52] unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [43] std::__future_base::_State_baseV2::~_State_baseV2()
- [118] ThreadPool::ThreadPool(unsigned int) [139] boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::shutdown() [44] std::__future_base::_Result<void>::~_Result()
+  [39] ThreadPool::push(std::shared_ptr<Runnable>) [36] unsigned long boost::asio::detail::read_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::mutable_buffers_1, boost::asio::mutable_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::mutable_buffers_1 const&, boost::asio::mutable_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [52] std::__future_base::_State_baseV2::_M_complete_async()
+ [117] ThreadPool::stop()     [51] unsigned long boost::asio::detail::write_buffer_sequence<boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>, boost::asio::const_buffers_1, boost::asio::const_buffer const*, boost::asio::detail::transfer_all_t>(boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::any_io_executor>&, boost::asio::const_buffers_1 const&, boost::asio::const_buffer const* const&, boost::asio::detail::transfer_all_t, boost::system::error_code&) [42] std::__future_base::_State_baseV2::~_State_baseV2()
+ [118] ThreadPool::ThreadPool(unsigned int) [139] boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::shutdown() [18] std::__future_base::_Result<void>::~_Result()
  [119] ThreadPool::~ThreadPool() [140] boost::asio::detail::reactive_socket_service<boost::asio::ip::tcp>::~reactive_socket_service() [154] std::_Sp_counted_ptr<std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >*, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
   [13] Compression::uncompress(std::basic_string_view<char, std::char_traits<char> >, unsigned long, MemoryPool&) [141] boost::asio::detail::eventfd_select_interrupter::open_descriptors() [155] std::_Sp_counted_ptr<std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >*, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-   [6] Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [142] boost::asio::detail::op_queue<boost::asio::detail::scheduler_operation>::~op_queue() [80] std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
-  [20] Compression::getCompressBound(unsigned long) [143] boost::asio::detail::scheduler::get_default_task(boost::asio::execution_context&) [45] std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation)
- [120] Compression::isCompressionEnabled(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [144] boost::asio::detail::scheduler::wake_one_thread_and_unlock(boost::asio::detail::conditionally_enabled_mutex::scoped_lock&) [46] std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_invoke(std::_Any_data const&)
+   [7] Compression::compressInternal(std::basic_string_view<char, std::char_traits<char> >, char*, unsigned long) [142] boost::asio::detail::op_queue<boost::asio::detail::scheduler_operation>::~op_queue() [80] std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()
+  [19] Compression::getCompressBound(unsigned long) [143] boost::asio::detail::scheduler::get_default_task(boost::asio::execution_context&) [43] std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation)
+ [120] Compression::isCompressionEnabled(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [144] boost::asio::detail::scheduler::wake_one_thread_and_unlock(boost::asio::detail::conditionally_enabled_mutex::scoped_lock&) [44] std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_State_baseV2::_Setter<void, void> >::_M_invoke(std::_Any_data const&)
    [4] Compression::compress(std::basic_string_view<char, std::char_traits<char> >, MemoryPool&) [145] boost::asio::detail::scheduler::stop() [156] std::_Sp_counted_deleter<void*, boost::asio::detail::socket_ops::noop_deleter, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
    [8] TaskBuilder::createRequests() [146] boost::asio::detail::scheduler::shutdown() [157] std::_Sp_counted_deleter<void*, boost::asio::detail::socket_ops::noop_deleter, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-   [3] TaskBuilder::compressSubtasks() [87] boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&)) [47] std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
-   [1] TaskBuilder::run()    [147] boost::asio::detail::scheduler::~scheduler() [48] std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-  [51] TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [148] boost::asio::detail::scheduler::~scheduler() [49] std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
-  [35] TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [37] void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&) [50] std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
-  [42] TaskBuilder::~TaskBuilder() [88] void boost::asio::execution::detail::any_executor_base::destroy_object<boost::asio::io_context::basic_executor_type<std::allocator<void>, 0ul> >(boost::asio::execution::detail::any_executor_base&) [101] void std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> >::_M_realloc_insert<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&>(__gnu_cxx::__normal_iterator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer*, std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> > >, boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&)
+   [3] TaskBuilder::compressSubtasks() [87] boost::asio::detail::scheduler::scheduler(boost::asio::execution_context&, int, bool, boost::asio::detail::scheduler_task* (*)(boost::asio::execution_context&)) [45] std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
+   [2] TaskBuilder::run()    [147] boost::asio::detail::scheduler::~scheduler() [46] std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<TaskBuilder>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+  [50] TaskBuilder::getTask(std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >&) [148] boost::asio::detail::scheduler::~scheduler() [47] std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_destroy()
+  [33] TaskBuilder::TaskBuilder(ClientOptions const&, MemoryPool&) [35] void boost::asio::execution::detail::any_executor_base::execute_ex<boost::asio::io_context::basic_executor_type<std::allocator<void>, 4ul> >(boost::asio::execution::detail::any_executor_base const&, boost::asio::detail::executor_function&&) [48] std::_Sp_counted_ptr_inplace<std::__future_base::_State_baseV2, std::allocator<std::__future_base::_State_baseV2>, (__gnu_cxx::_Lock_policy)2>::_M_dispose()
+  [17] TaskBuilder::~TaskBuilder() [88] void boost::asio::execution::detail::any_executor_base::destroy_object<boost::asio::io_context::basic_executor_type<std::allocator<void>, 0ul> >(boost::asio::execution::detail::any_executor_base&) [101] void std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> >::_M_realloc_insert<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&>(__gnu_cxx::__normal_iterator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer*, std::vector<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer, std::allocator<boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer> > >, boost::property_tree::json_parser::detail::standard_callbacks<boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >::layer const&)
  [121] ClientOptions::ClientOptions(std::ostream*) [149] boost::system::detail::snprintf(char*, unsigned long, char const*, ...) [158] void std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > >::_M_realloc_insert<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> >(__gnu_cxx::__normal_iterator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>*, std::vector<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>, std::allocator<boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp> > > >, boost::asio::ip::basic_resolver_entry<boost::asio::ip::tcp>&&)
- [122] ProgramOptions::initialize(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) [89] boost::system::operator==(boost::system::error_code const&, boost::system::error_code const&) [18] void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&)
+ [122] ProgramOptions::initialize(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) [89] boost::system::operator==(boost::system::error_code const&, boost::system::error_code const&) [49] void std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > >::_M_realloc_insert<char*, char*>(__gnu_cxx::__normal_iterator<std::vector<char, std::allocator<char> >*, std::vector<std::vector<char, std::allocator<char> >, std::allocator<std::vector<char, std::allocator<char> > > > >, char*&&, char*&&)
   [71] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const ProgramOptions::get<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [14] Client::printReply(ClientOptions const&, std::vector<char, std::allocator<char> > const&, unsigned long, unsigned long, bool) [159] void std::vector<std::thread, std::allocator<std::thread> >::_M_realloc_insert<ThreadPool::start(unsigned long)::{lambda()#1}>(__gnu_cxx::__normal_iterator<std::thread*, std::vector<std::thread, std::allocator<std::thread> > >, ThreadPool::start(unsigned long)::{lambda()#1}&&) (vector.tcc)
   [81] bool const ProgramOptions::get<bool>(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool const&) [9] Client::loop(ClientOptions const&) [79] std::vector<char, std::allocator<char> >::_M_default_append(unsigned long)
-  [67] ProgramOptions::instance[abi:cxx11]() [24] Client::Client(unsigned long) [74] void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag)
-  [85] tcp::CloseSocket::~CloseSocket() [36] bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long) [160] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  [67] ProgramOptions::instance[abi:cxx11]() [22] Client::Client(unsigned long) [74] void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag)
+  [85] tcp::CloseSocket::~CloseSocket() [34] bool utility::toChars<unsigned long>(unsigned long, char*, unsigned long) [160] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
   [11] tcp::TcpClient::processTask() [69] boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::get_child_optional(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) const [102] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
-  [12] tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [70] boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::walk_path(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) const [27] frame_dummy
-  [58] boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::basic_ptree(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) [62] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_open_brace(char) const [26] <cycle 1>
+  [12] tcp::TcpClient::readReply(unsigned long, unsigned long, bool) [70] boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::walk_path(boost::property_tree::string_path<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, boost::property_tree::id_translator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&) const [25] frame_dummy
+  [58] boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::basic_ptree(boost::property_tree::basic_ptree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) [62] boost::property_tree::json_parser::detail::external_ascii_superset_encoding::is_open_brace(char) const [24] <cycle 1>

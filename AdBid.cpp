@@ -7,5 +7,5 @@
 AdBid::AdBid(std::string_view keyword, unsigned money) :
   _keyword(keyword), _money(money) {}
 
-AdBidMatched::AdBidMatched(std::string_view keyword, unsigned money, Ad* adPtr) :
-  _keyword(keyword), _money(money), _adPtr(adPtr) {}
+AdBidMatched::AdBidMatched(std::string_view keyword, unsigned money, const Ad* ad) :
+  _keyword(keyword), _money(money), _ad(ad) {}

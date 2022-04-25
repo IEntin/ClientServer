@@ -23,8 +23,11 @@ std::vector<Ad::Tuple> Ad::_tuples;
 SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;
 
-Ad::Ad(Tuple& keyValue) noexcept :
-_input(std::get<LINE>(keyValue)), _sizeKey(std::get<SIZEKEY>(keyValue)) {}
+Ad::Ad(Tuple& keyValue) :
+_input(std::get<LINE>(keyValue)), _sizeKey(std::get<SIZEKEY>(keyValue)) {
+    if (!(parseIntro() && parseArray()))
+      throw std::runtime_error("");
+}
 
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.begin(), _input.end(), '[');
@@ -74,9 +77,9 @@ bool Ad::parseArray() {
   return true;
 }
 
-const std::vector<AdPtr>& Ad::getAdsBySize(std::string_view key) {
-  static const std::vector<AdPtr> empty;
-  static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = empty;
+const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
+  static const std::vector<Ad> empty;
+  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
   static thread_local std::string prevKey;
   if (key != prevKey) {
     prevKey = key;
@@ -124,11 +127,13 @@ bool Ad::load(const std::string& filename) {
   if (!readAndSortAds(filename))
     return false;
   for (auto& t : _tuples) {
-    AdPtr ad = std::make_shared<Ad>(t);
-    if (!(ad->parseIntro() && ad->parseArray()))
+    auto [it, inserted] = _mapBySize.emplace(std::get<SIZEKEY>(t), std::vector<Ad>());
+    try {
+      it->second.emplace_back(t);
+    }
+    catch (std::exception& e) {
       continue;
-    auto [it, inserted] = _mapBySize.emplace(ad->_sizeKey, std::vector<AdPtr>());
-    it->second.push_back(ad);
+    }
   }
   _loaded = true;
   return true;
