@@ -121,19 +121,22 @@ $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 
 TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
-TESTPSEUDOTARGET := buildtests
+BUILDTESTPSEUDOTARGET := buildtests
 
-$(TESTPSEUDOTARGET) : $(TESTBIN)
+$(BUILDTESTPSEUDOTARGET) : $(TESTBIN)
 	(cd $(TESTBINDIR); ln -sf ../$(DATADIR))
-	touch $(TESTPSEUDOTARGET)
+	touch $(BUILDTESTPSEUDOTARGET)
 
 $(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
 	$(CXX) -o $(TESTBIN) $(TESTOBJ) -lgtest $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CPPFLAGS) -pthread
 
-.PHONY: clean cleanall runtests
+RUNTESTSPSEUDOTARGET := runtests
 
-runtests : $(TESTPSEUDOTARGET)
+$(RUNTESTSPSEUDOTARGET) : $(BUILDTESTPSEUDOTARGET)
 	@(cd $(TESTBINDIR); ./runtests)
+	touch $(RUNTESTSPSEUDOTARGET)
+
+.PHONY: clean cleanall
 
 clean:
 	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINDIR)/* *.gcov *.gcno *.gcda *~ */*~

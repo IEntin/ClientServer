@@ -81,9 +81,9 @@ By default all targets are built:\
 (you can specify any number of jobs).\
 Any combination of targets can be specified, e.g.\
 'make -j4 server client'\
-Note that empty file 'client' (as well as 'buildtests') in the root\
-is a pseudo target used by make. Binary client is created\
-in the client_bin directory.
+Note that empty file 'client' (as well as 'buildtests' and 'runtests') in\
+the root is a pseudo target used by make. Binary client is created in the\
+client_bin directory.
 
 3. run\
 server:

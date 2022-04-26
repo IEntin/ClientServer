@@ -48,19 +48,19 @@ struct CompressionTest : testing::Test {
   static void TearDownTestSuite() {}
 };
 
-TEST_F(CompressionTest, 1) {
+TEST_F(CompressionTest, 1_SOURCE) {
   testCompressionDecompression1(TestEnvironment::_source);
 }
 
-TEST_F(CompressionTest, 2) {
+TEST_F(CompressionTest, 1_OUTPUTD) {
   testCompressionDecompression1(TestEnvironment::_outputD);
 }
 
-TEST_F(CompressionTest, 3) {
+TEST_F(CompressionTest, 2_SOURCE) {
   testCompressionDecompression2(TestEnvironment::_source);
 }
 
-TEST_F(CompressionTest, 4) {
+TEST_F(CompressionTest, 2_OUTPUTD) {
   testCompressionDecompression2(TestEnvironment::_outputD);
 }
 

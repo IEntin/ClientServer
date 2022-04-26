@@ -29,8 +29,7 @@ class AdBidBackInserter {
     _container(container), _ad(ad) {}
 
   AdBidBackInserter& operator =(const AdBid& bid) {
-    const auto& [keyword, money] = bid;
-    _container.emplace_back(keyword, money, _ad);
+    _container.emplace_back(bid._keyword, bid._money, _ad);
     return *this;
   }
 

@@ -17,7 +17,7 @@ public:
   static void normalizeSizeKey(std::string& sizeKey, std::string_view request);
 private:
   Transaction(std::string_view sizeKey, std::string_view input);
-  explicit Transaction(const Transaction& other) = delete;
+  Transaction(const Transaction& other) = delete;
   ~Transaction();
   Transaction& operator =(const Transaction& other) = delete;
   void breakKeywords(std::string_view kwStr);
