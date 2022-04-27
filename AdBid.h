@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <iterator>
 #include <string_view>
 #include <vector>
 

@@ -6,6 +6,7 @@
 
 #include "AdBid.h"
 #include <unordered_map>
+#include <string>
 #include <vector>
 
 class Ad;
