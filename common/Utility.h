@@ -7,7 +7,6 @@
 #include <charconv>
 #include <iostream>
 #include <string_view>
-#include <vector>
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 
@@ -16,52 +15,31 @@ namespace utility {
 // INPUT can be a string or string_view
 // OUTPUT a string or string_view
 
-template <typename INPUT, typename OUTPUT>
-  void split(const INPUT& input, std::vector<OUTPUT>& lines, char delim = '\n') {
+template <typename INPUT, typename CONTAINER>
+  void split(const INPUT& input, CONTAINER& rows, char delim = '\n') {
     size_t start = 0;
     size_t next = 0;
     while (start < input.size()) {
       next = input.find(delim, start);
       if (next == std::string::npos) {
 	if (input.size() > start + 1)
-	  lines.emplace_back(input.data() + start, input.size() - start);
+	  rows.emplace_back(input.data() + start, input.size() - start);
 	break;
       }
       else if (next > start + 1)
-	lines.emplace_back(input.data() + start, next - start);
+	rows.emplace_back(input.data() + start, next - start);
       start = next + 1;
     }
 }
 
-template <typename VALUE, typename INPUT, typename ROW>
-  void split(VALUE ignore, const INPUT& input, std::vector<ROW>& rows, char delim = '\n') {
-    size_t start = 0;
-    size_t next = 0;
-    while (start < input.size()) {
-      next = input.find(delim, start);
-      if (next == std::string::npos) {
-	if (input.size() > start + 1) {
-	  VALUE value(input.data() + start, input.size() - start);
-	  rows.emplace_back(value);
-	}
-	break;
-      }
-      else if (next > start + 1) {
-	VALUE value(input.data() + start, next - start);
-	rows.emplace_back(value);
-      }
-      start = next + 1;
-    }
-}
-
-template <typename STRING1, typename STRING2>
-  void split(const STRING1& input, std::vector<STRING2>& lines, const char* separators) {
+template <typename INPUT, typename CONTAINER>
+  void split(const INPUT& input, CONTAINER& rows, const char* separators) {
     size_t start = input.find_first_not_of(separators);
     size_t end = 0;
-    while (start != STRING1::npos) {
+    while (start != INPUT::npos) {
       size_t pos = input.find_first_of(separators, start + 1);
-      end = pos == STRING1::npos ? input.size() : pos;
-      lines.emplace_back(input.data() + start, end - start);
+      end = pos == INPUT::npos ? input.size() : pos;
+      rows.emplace_back(input.data() + start, end - start);
       start = input.find_first_not_of(separators, end + 1);
     }
 }

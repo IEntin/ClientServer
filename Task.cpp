@@ -10,7 +10,7 @@ Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
   _header(header), _response(response)  {
   static thread_local std::vector<char> rawInput;
   input.swap(rawInput);
-  utility::split(std::string_view(), std::string_view(rawInput.data(), rawInput.size()), _rows);
+  utility::split(std::string_view(rawInput.data(), rawInput.size()), _rows);
   _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;

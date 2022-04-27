@@ -104,7 +104,7 @@ bool Ad::readAndSortAds(const std::string& filename) {
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  utility::split(std::string(), content, _rows, '\n');
+  utility::split(content, _rows);
   for (AdRow& row : _rows)
     row._key = extractSize(row._value);
   std::stable_sort(_rows.begin(), _rows.end(), [] (const AdRow& row1, const AdRow& row2) {

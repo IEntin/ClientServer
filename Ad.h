@@ -13,8 +13,8 @@ class Ad;
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
 struct AdRow {
-  explicit AdRow(std::string& value) {
-    _value.swap(value);
+  AdRow(const char* data, size_t size) {
+    std::string(data, size).swap(_value);
   }
   AdRow(AdRow&& other) {
     _key.swap(other._key);

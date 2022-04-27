@@ -21,8 +21,8 @@ using ExtractKey = void (*)(std::string&, std::string_view);
 using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 struct RequestRow {
-  explicit RequestRow(std::string_view value) {
-    _value = value;
+  RequestRow(const char* data, size_t size) {
+    _value = std::string_view(data, size);;
   }
   RequestRow(RequestRow&& other) {
     _key.swap(other._key);
