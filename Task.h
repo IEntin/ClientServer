@@ -20,17 +20,34 @@ using ExtractKey = void (*)(std::string&, std::string_view);
 
 using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
+struct RequestRow {
+  explicit RequestRow(std::string_view value) {
+    _value = value;
+  }
+  RequestRow(RequestRow&& other) {
+    _key.swap(other._key);
+    _value = other._value;
+    _index = other._index;
+  }
+  const RequestRow& operator =(RequestRow&& other) {
+    _key.swap(other._key);
+    _value = other._value;
+    _index = other._index;
+    return *this;
+  }
+  std::string _key;
+  std::string_view _value;
+  unsigned _index{};
+};
+
 class Task {
-  enum DATAINDEX { KEY, REQUEST, ORIGINALINDEX };
-  using Tuple = std::tuple<std::string, std::string_view, unsigned>;
-  using Tuples = std::vector<Tuple>;
   Task(const Task& other) = delete;
   Task& operator =(const Task& other) = delete;
 
-  size_t size() const { return _tuples.size(); }
-  bool empty() const { return _tuples.empty(); }
+  size_t size() const { return _rows.size(); }
+  bool empty() const { return _rows.empty(); }
 
-  Tuples _tuples;
+  std::vector<RequestRow> _rows;
   std::vector<unsigned> _indices;
   HEADER _header;
   std::atomic<size_t> _pointer = 0;

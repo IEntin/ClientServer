@@ -19,12 +19,12 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   return os;
 }
 
-std::vector<Ad::Tuple> Ad::_tuples;
+std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;
 
-Ad::Ad(Tuple& keyValue) :
-_input(std::get<LINE>(keyValue)), _sizeKey(std::get<SIZEKEY>(keyValue)) {
+Ad::Ad(AdRow& row) :
+_input(row._value), _sizeKey(row._key) {
     if (!(parseIntro() && parseArray()))
       throw std::runtime_error("parsing failed");
 }
@@ -104,11 +104,11 @@ bool Ad::readAndSortAds(const std::string& filename) {
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  utility::split(content, _tuples, '\n');
-  for (auto& t : _tuples)
-    std::get<SIZEKEY>(t) = extractSize(std::get<LINE>(t));
-  std::stable_sort(_tuples.begin(), _tuples.end(), [] (const Tuple& t1, const Tuple& t2) {
-		     return std::get<SIZEKEY>(t1) < std::get<SIZEKEY>(t2);
+  utility::split(std::string(), content, _rows, '\n');
+  for (AdRow& row : _rows)
+    row._key = extractSize(row._value);
+  std::stable_sort(_rows.begin(), _rows.end(), [] (const AdRow& row1, const AdRow& row2) {
+		     return row1._key < row2._key;
 		   });
   return true;
 }
@@ -118,14 +118,15 @@ bool Ad::load(const std::string& filename) {
     return true;
   if (!readAndSortAds(filename))
     return false;
-  for (auto& t : _tuples) {
-    auto [it, inserted] = _mapBySize.emplace(std::get<SIZEKEY>(t), std::vector<Ad>());
+  static std::vector<Ad> empty;
+  for (AdRow& row : _rows) {
+    auto [it, inserted] = _mapBySize.emplace(row._key, empty);
     try {
-      it->second.emplace_back(t);
+      it->second.emplace_back(row);
     }
     catch (std::exception& e) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
-		<< ":key-value=" << '\"' << it->first << "\":\"" << std::get<LINE>(t)
+		<< ":key-value=" << '\"' << it->first << "\":\"" << row._value
 		<< "\",skipping." << std::endl;
       if (it->second.empty())
 	_mapBySize.erase(it);

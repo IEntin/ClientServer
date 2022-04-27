@@ -11,6 +11,23 @@
 class Ad;
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
+struct AdRow {
+  explicit AdRow(std::string& value) {
+    _value.swap(value);
+  }
+  AdRow(AdRow&& other) {
+    _key.swap(other._key);
+    _value.swap(other._value);
+  }
+  const AdRow& operator =(AdRow&& other) {
+    _key.swap(other._key);
+    _value.swap(other._value);
+    return *this;
+  }
+  std::string _key;
+  std::string _value;
+};
+
 class Ad {
   friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
   enum Fields {
@@ -21,19 +38,14 @@ class Ad {
     ARRAY,
     NONE
   };
-  enum Pair {
-    SIZEKEY,
-    LINE
-  };
-  using Tuple = std::tuple<std::string, std::string, unsigned>;
-public:
-  explicit Ad(Tuple& t);
+ public:
+  explicit Ad(AdRow& row);
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(const std::string& filename);
   static const std::vector<Ad>& getAdsBySize(std::string_view key);
   static const unsigned _scaler = 100;
-private:
+ private:
   Ad& operator =(const Ad& other) = delete;
   bool parseIntro();
   bool parseArray();
@@ -44,7 +56,7 @@ private:
   std::vector<AdBid> _bids;
   std::string_view _id;
   unsigned _defaultBid{ 0 };
-  static std::vector<Tuple> _tuples;
+  static std::vector<AdRow> _rows;
   static SizeMap _mapBySize;
   static bool _loaded;
 };

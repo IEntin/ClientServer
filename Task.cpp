@@ -10,18 +10,18 @@ Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
   _header(header), _response(response)  {
   static thread_local std::vector<char> rawInput;
   input.swap(rawInput);
-  utility::split(std::string_view(rawInput.data(), rawInput.size()), _tuples);
-  _indices.resize(_tuples.size());
+  utility::split(std::string_view(), std::string_view(rawInput.data(), rawInput.size()), _rows);
+  _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;
-    std::get<ORIGINALINDEX>(_tuples[i]) = i;
+    _rows[i]._index = i;
   }
-  _response.resize(_tuples.size());
+  _response.resize(_rows.size());
 }
 
 void Task::sortIndices() {
   std::sort(_indices.begin(), _indices.end(), [this] (unsigned index1, unsigned index2) {
-	      return std::get<KEY>(_tuples[index1]) < std::get<KEY>(_tuples[index2]);
+	      return _rows[index1]._key < _rows[index2]._key;
 	    });
 }
 
@@ -29,10 +29,10 @@ bool Task::extractKeyNext() {
   if (!_extractKey)
     return false;
   size_t pointer = _pointer.fetch_add(1);
-  if (pointer < _tuples.size()) {
-    Tuple& t = _tuples[pointer];
-    std::string_view request = std::get<REQUEST>(t);
-    _extractKey(std::get<KEY>(t), request);
+  if (pointer < _rows.size()) {
+    RequestRow& row = _rows[pointer];
+    std::string_view request = row._value;
+    _extractKey(row._key, request);
     return true;
   }
   else
@@ -41,12 +41,12 @@ bool Task::extractKeyNext() {
 
 bool Task::processNext() {
   size_t pointer = _pointer.fetch_add(1);
-  if (pointer < _tuples.size()) {
-    Tuple& t = _tuples[_indices[pointer]];
-    std::string_view key = std::get<KEY>(t);
-    std::string_view request = std::get<REQUEST>(t);
+  if (pointer < _rows.size()) {
+    RequestRow& row = _rows[_indices[pointer]];
+    std::string_view key = row._key;
+    std::string_view request = row._value;
     std::string response = _processRequest(key, request);
-    _response[std::get<ORIGINALINDEX>(t)].swap(response);
+    _response[row._index].swap(response);
     return true;
   }
   else

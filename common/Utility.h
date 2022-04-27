@@ -7,7 +7,6 @@
 #include <charconv>
 #include <iostream>
 #include <string_view>
-#include <tuple>
 #include <vector>
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
@@ -16,6 +15,7 @@ namespace utility {
 
 // INPUT can be a string or string_view
 // OUTPUT a string or string_view
+
 template <typename INPUT, typename OUTPUT>
   void split(const INPUT& input, std::vector<OUTPUT>& lines, char delim = '\n') {
     size_t start = 0;
@@ -33,24 +33,22 @@ template <typename INPUT, typename OUTPUT>
     }
 }
 
-template <typename INPUT, typename OUTPUT1, typename OUTPUT2, typename OUTPUT3>
-  void split(const INPUT& input, std::vector<std::tuple<OUTPUT1, OUTPUT2, OUTPUT3>>& tuples, char delim = '\n') {
-    OUTPUT1 empty{};
-    OUTPUT3 ignored{};
+template <typename VALUE, typename INPUT, typename ROW>
+  void split(VALUE ignore, const INPUT& input, std::vector<ROW>& rows, char delim = '\n') {
     size_t start = 0;
     size_t next = 0;
     while (start < input.size()) {
       next = input.find(delim, start);
       if (next == std::string::npos) {
 	if (input.size() > start + 1) {
-	  OUTPUT2 output2(input.data() + start, input.size() - start);
-	  tuples.emplace_back(std::tie(empty, output2, ignored));
+	  VALUE value(input.data() + start, input.size() - start);
+	  rows.emplace_back(value);
 	}
 	break;
       }
       else if (next > start + 1) {
-	OUTPUT2 output2(input.data() + start, next - start);
-	tuples.emplace_back(std::tie(empty, output2, ignored));
+	VALUE value(input.data() + start, next - start);
+	rows.emplace_back(value);
       }
       start = next + 1;
     }
