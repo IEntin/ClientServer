@@ -12,8 +12,9 @@ inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 
 namespace utility {
 
-// INPUT can be a string or string_view
-// OUTPUT a string or string_view
+// INPUT can be a string or a string_view
+// CONTAINER can be a vector / deque / list
+// of strings or string_views
 
 template <typename INPUT, typename CONTAINER>
   void split(const INPUT& input, CONTAINER& rows, char delim = '\n') {

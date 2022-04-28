@@ -53,8 +53,8 @@ int main() {
   if (sigwait(&set, &sig))
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
-  fifoServer->stop();
   tcpServer->stop();
+  fifoServer->stop();
   int ret = fcloseall();
   assert(ret == 0);
   return 0;
