@@ -21,6 +21,7 @@ TcpConnection::TcpConnection(TaskControllerPtr taskController, unsigned timeout,
   _server(server) {
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
+  _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
 }
 
 TcpConnection::~TcpConnection() {

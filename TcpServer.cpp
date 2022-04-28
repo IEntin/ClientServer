@@ -30,7 +30,7 @@ bool TcpServer::start() {
   boost::system::error_code ec;
   _acceptor.open(_endpoint.protocol(), ec);
   if (!ec)
-    _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(false), ec);
+    _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
   if (!ec)
     _acceptor.set_option(boost::asio::socket_base::linger(false, 0), ec);
   if (!ec)
