@@ -189,16 +189,15 @@ bool FifoConnection::sendResponse(Batch& response) {
     _fdRead = -1;
   }
   if (!_server->stopped()) {
-    _fdWrite = open(_fifoName.c_str(), O_WRONLY);
+    _fdWrite = open(_fifoName.c_str(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
   }
-  std::string_view message = serverutility::buildReply(response,
-						       _compressor,
-						       _taskController->getMemoryPool());
+  std::string_view message =
+    serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
   if (message.empty())
     return false;
   return Fifo::writeString(_fdWrite, message);
