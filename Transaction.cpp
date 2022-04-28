@@ -172,7 +172,7 @@ void Transaction::matchAds(const std::vector<Ad>& adVector) {
   for (const Ad& ad : adVector) {
     std::set_intersection(ad.getBids().cbegin(), ad.getBids().cend(),
 			  _keywords.cbegin(), _keywords.cend(),
-			  AdBidBackInserter(_bids, &ad),
+			  AdBidBackEmplacer(_bids, &ad),
 			  Comparator());
   }
   if (_bids.empty())

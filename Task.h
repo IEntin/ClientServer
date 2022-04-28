@@ -22,16 +22,16 @@ using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 struct RequestRow {
   RequestRow(const char* data, size_t size) {
-    _value = std::string_view(data, size);;
+    std::string_view(data, size).swap(_value);
   }
   RequestRow(RequestRow&& other) {
     _key.swap(other._key);
-    _value = other._value;
+    _value.swap(other._value);
     _index = other._index;
   }
   const RequestRow& operator =(RequestRow&& other) {
     _key.swap(other._key);
-    _value = other._value;
+    _value.swap(other._value);
     _index = other._index;
     return *this;
   }

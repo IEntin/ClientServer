@@ -23,21 +23,21 @@ struct AdBidMatched {
   const Ad* _ad;
 };
 
-class AdBidBackInserter {
+class AdBidBackEmplacer {
  public:
-  AdBidBackInserter(std::vector<AdBidMatched>& container, const Ad* ad) :
+  AdBidBackEmplacer(std::vector<AdBidMatched>& container, const Ad* ad) :
     _container(container), _ad(ad) {}
 
-  AdBidBackInserter& operator =(const AdBid& bid) {
+  AdBidBackEmplacer& operator =(const AdBid& bid) {
     _container.emplace_back(bid._keyword, bid._money, _ad);
     return *this;
   }
 
-  AdBidBackInserter& operator*() {
+  AdBidBackEmplacer& operator*() {
     return *this;
   }
 
-  AdBidBackInserter& operator++() {
+  AdBidBackEmplacer& operator++() {
     return *this;
   }
  private:
