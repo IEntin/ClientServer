@@ -46,7 +46,7 @@ bool FifoClient::processTask() {
   for (const auto& subtask : _task) {
     close(_fdRead);
     _fdRead = -1;
-    _fdWrite = open(_fifoName.c_str(), O_WRONLY);
+    _fdWrite = open(_fifoName.data(), O_WRONLY);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
@@ -58,7 +58,7 @@ bool FifoClient::processTask() {
     }
     close(_fdWrite);
     _fdWrite = -1;
-    _fdRead = open(_fifoName.c_str(), O_RDONLY);
+    _fdRead = open(_fifoName.data(), O_RDONLY);
     if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;

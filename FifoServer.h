@@ -35,8 +35,8 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   void wakeupPipes();
  public:
   FifoServer(TaskControllerPtr taskController,
-	     const std::string& fifoDirName,
-	     const std::string& fifoBaseNames,
+	     std::string_view fifoDirName,
+	     std::string_view fifoBaseNames,
 	     COMPRESSORS compressor);
   ~FifoServer();
   bool start();
@@ -47,7 +47,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
 
 class FifoConnection : public Runnable {
   TaskControllerPtr _taskController;
-  std::string _fifoName;
+  const std::string_view _fifoName;
   COMPRESSORS _compressor;
   FifoServerPtr _server;
   int _fdRead = -1;
@@ -64,7 +64,7 @@ class FifoConnection : public Runnable {
   void run() noexcept override;
  public:
   FifoConnection(TaskControllerPtr taskController,
-		 const std::string& fifoName,
+		 std::string_view fifoName,
 		 COMPRESSORS compressor,
 		 FifoServerPtr server);
   ~FifoConnection() override;

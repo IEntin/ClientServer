@@ -21,7 +21,7 @@ struct EchoTest : testing::Test {
     TcpClientOptions options(&oss);
     options._compressor = clientCompressor;
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(_taskController, 1, std::atoi(options._tcpPort.c_str()), 1, serverCompressor);
+      std::make_shared<tcp::TcpServer>(_taskController, 1, std::atoi(options._tcpPort.data()), 1, serverCompressor);
     bool serverStart = tcpServer->start();
     // start client
     tcp::TcpClient client(options);

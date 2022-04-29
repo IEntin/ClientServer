@@ -14,13 +14,14 @@
 #include <cstring>
 #include <filesystem>
 #include <fcntl.h>
+#include <poll.h>
 #include <sys/stat.h>
 
 namespace fifo {
 
 FifoServer::FifoServer(TaskControllerPtr taskController,
-		       const std::string& fifoDirName,
-		       const std::string& fifoBaseNames,
+		       std::string_view fifoDirName,
+		       std::string_view fifoBaseNames,
 		       COMPRESSORS compressor) :
   _taskController(taskController), _fifoDirName(fifoDirName), _compressor(compressor) {
   // in case there was no proper shudown.
@@ -42,7 +43,7 @@ FifoServer::~FifoServer() {
 
 bool FifoServer::start() {
   for (const auto& fifoName : _fifoNames) {
-    if (mkfifo(fifoName.c_str(), 0620) == -1 && errno != EEXIST) {
+    if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << '-' << fifoName << std::endl;
       return false;
@@ -70,7 +71,7 @@ void FifoServer::removeFifoFiles() {
 
 void FifoServer::wakeupPipes() {
   for (const auto& fifoName : _fifoNames) {
-    int fd = open(fifoName.c_str(), O_WRONLY | O_NONBLOCK);
+    int fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd != -1) {
       char c = 's';
       int result = write(fd, &c, 1);
@@ -80,7 +81,7 @@ void FifoServer::wakeupPipes() {
       close(fd);
     }
     else {
-      fd = open(fifoName.c_str(), O_RDONLY | O_NONBLOCK);
+      fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
       if (fd == -1) {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		  << std::strerror(errno) << '-' << fifoName << std::endl;
@@ -100,7 +101,7 @@ void FifoServer::pushToThreadPool(FifoConnectionPtr connection) {
 // class FifoConnection
 
 FifoConnection::FifoConnection(TaskControllerPtr taskController,
-			       const std::string& fifoName,
+			       std::string_view fifoName,
 			       COMPRESSORS compressor,
 			       FifoServerPtr server) :
   _taskController(taskController), _fifoName(fifoName), _compressor(compressor), _server(server) {}
@@ -140,13 +141,14 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
     _fdWrite = -1;
   }
   if (!_server->stopped()) {
-    _fdRead = open(_fifoName.c_str(), O_RDONLY);
+    _fdRead = open(_fifoName.data(), O_RDONLY);
     if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
   }
+  //Fifo::pollFd(_fdRead, POLLIN, _fifoName);
   header = Fifo::readHeader(_fdRead);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
@@ -189,13 +191,14 @@ bool FifoConnection::sendResponse(Batch& response) {
     _fdRead = -1;
   }
   if (!_server->stopped()) {
-    _fdWrite = open(_fifoName.c_str(), O_WRONLY);
+    _fdWrite = open(_fifoName.data(), O_WRONLY);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
   }
+  //Fifo::pollFd(_fdWrite, POLLOUT, _fifoName);
   std::string_view message =
     serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
   if (message.empty())

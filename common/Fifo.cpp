@@ -7,6 +7,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
+#include <poll.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -100,6 +101,35 @@ bool Fifo::readString(int fd, char* received, size_t size) {
     return false;
   }
   return true;
+}
+
+bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName) {
+  unsigned rep = 0;
+  pollfd pfd{ fd, expected, -1 };
+  do {
+    pfd.revents = 0;
+    int presult = poll(&pfd, 1, -1);
+    if (errno == EINTR)
+      continue;
+    if (presult <= 0) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< '-' << std::strerror(errno) << std::endl;
+      return false;
+    }
+    else if (pfd.revents & POLLERR) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< '-' << std::strerror(errno) << std::endl;
+      return false;
+    }
+    else if (pfd.revents & POLLHUP) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":POLLHUP detected " << fifoName << std::endl;
+      close(fd);
+      fd = -1;
+      return false;
+    }
+  } while (errno == EINTR && rep++ < 3);
+  return pfd.revents & expected;
 }
 
 ssize_t Fifo::getDefaultPipeSize() {
