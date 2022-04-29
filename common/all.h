@@ -27,6 +27,7 @@
 #include <iterator>
 #include <memory>
 #include <mutex>
+#include <poll.h>
 #include <queue>
 #include <sstream>
 #include <stddef.h>
