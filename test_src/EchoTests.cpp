@@ -44,9 +44,8 @@ struct EchoTest : testing::Test {
     FifoClientOptions options(&oss);
     options._compressor = clientCompressor;
     fifo::FifoClient client(options);
-    bool clientRun = client.run();
+    client.run();
     ASSERT_TRUE(serverStart);
-    ASSERT_TRUE(clientRun);
     ASSERT_EQ(oss.str().size(), TestEnvironment::_source.size());
     ASSERT_EQ(oss.str(), TestEnvironment::_source);
     fifoServer->stop();

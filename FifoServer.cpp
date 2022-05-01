@@ -124,8 +124,9 @@ void FifoConnection::run() noexcept {
 	continue;
       _taskController->submitTask(header, _uncompressedRequest, _response);
       if (!sendResponse(_response))
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << std::strerror(errno) << '-' << _fifoName << std::endl;
+	if (errno)
+	  std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+		    << std::strerror(errno) << '-' << _fifoName << std::endl;
     }
     catch (...) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -148,7 +149,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
       return false;
     }
   }
-  //Fifo::pollFd(_fdRead, POLLIN, _fifoName);
+  Fifo::pollFd(_fdRead, POLLIN, _fifoName);
   header = Fifo::readHeader(_fdRead);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
@@ -190,15 +191,27 @@ bool FifoConnection::sendResponse(Batch& response) {
     close(_fdRead);
     _fdRead = -1;
   }
+  // Open write fd in NONBLOCK mode in order to protect the server
+  // from a client crashed or killed with SIGKILL and resume operation
+  // after a client restarted (in block mode the server will just hang on
+  // open(...) no matter what).
   if (!_server->stopped()) {
-    _fdWrite = open(_fifoName.data(), O_WRONLY);
-    if (_fdWrite == -1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
-      return false;
-    }
+    int rep = 0;
+    do {
+      _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+      if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+	std::this_thread::sleep_for(std::chrono::microseconds(1000));
+    } while (_fdWrite == -1 && !_server->stopped() && (errno == ENXIO || errno == EINTR) && rep++ < 3);
   }
-  //Fifo::pollFd(_fdWrite, POLLOUT, _fifoName);
+  if (_server->stopped())
+    return false;
+  if (_fdWrite == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    return false;
+  }
+  if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName))
+    return false;
   std::string_view message =
     serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
   if (message.empty())

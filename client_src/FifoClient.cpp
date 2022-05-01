@@ -12,6 +12,7 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
+#include <poll.h>
 
 namespace fifo {
 
@@ -52,6 +53,8 @@ bool FifoClient::processTask() {
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
+    if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName))
+      return false;
     if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;

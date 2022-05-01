@@ -9,10 +9,10 @@
 #include "TcpClient.h"
 #include <csignal>
 
-volatile std::sig_atomic_t stopFlag = false;
+std::atomic<bool> stopFlag = false;
 
 void signalHandler(int signum) {
-  stopFlag = true;
+  stopFlag.store(true);
   std::clog << "Interrupt signal (" << signum << ") received" << std::endl;
 }
 

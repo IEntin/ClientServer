@@ -7,7 +7,7 @@
 #include <csignal>
 #include <cstring>
 
-extern volatile std::sig_atomic_t stopFlag;
+extern std::atomic<bool> stopFlag;
 
 Client::Client(size_t bufferSize) : _threadPool(1) {
   _memoryPool.setInitialSize(bufferSize);

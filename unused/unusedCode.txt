@@ -58,3 +58,13 @@ template <typename INPUT, typename OUTPUT>
 				      return std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid1)
 					< std::get<static_cast<unsigned>(BID_INDEX::BID_MONEY)>(bid2);
 				    });
+
+
+flags = fcntl(fd,F_GETFL,0);
+flags &= ~O_NONBLOCK;
+fcntl(fd, F_SETFL, flags);
+
+
+  //auto flags = fcntl(_fdWrite, F_GETFL, 0);
+  //flags &= O_NONBLOCK;
+  //fcntl(_fdWrite, F_SETFL, flags);

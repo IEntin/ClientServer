@@ -69,9 +69,8 @@ struct LogicTest : testing::Test {
     clientOptions._compressor = clientCompressor;
     clientOptions._diagnostics = diagnostics;
     fifo::FifoClient client(clientOptions);
-    bool clientRun = client.run();
+    client.run();
     ASSERT_TRUE(serverStart);
-    ASSERT_TRUE(clientRun);
     std::string calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
     ASSERT_EQ(oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(oss.str(), calibratedOutput);

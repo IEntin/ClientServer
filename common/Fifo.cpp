@@ -122,10 +122,8 @@ bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName) {
       return false;
     }
     else if (pfd.revents & POLLHUP) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":POLLHUP detected " << fifoName << std::endl;
-      close(fd);
-      fd = -1;
       return false;
     }
   } while (errno == EINTR && rep++ < 3);
