@@ -35,7 +35,7 @@ public:
 
   static bool writeString(int fd, std::string_view str);
 
-  static bool pollFd(int& fd, short expected, std::string_view fifoName);
+  static bool pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR);
 
 };
 

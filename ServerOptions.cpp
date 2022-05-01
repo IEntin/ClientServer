@@ -22,7 +22,10 @@ ServerOptions::ServerOptions() :
   _tcpPort(ProgramOptions::get("TcpPort", 49172)),
   _tcpTimeout(ProgramOptions::get("TcpTimeout", 1)),
   _fifoDirectoryName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string())),
-  _fifoBaseNames(ProgramOptions::get("FifoBaseNames", std::string("client1"))) {
+  _fifoBaseNames(ProgramOptions::get("FifoBaseNames", std::string("client1"))),
+  _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)),
+  _numberRepeatENXIO(ProgramOptions::get("NumberRepeatENXIO", 3)),
+  _ENXIOwait(ProgramOptions::get("ENXIOwai", 1000)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

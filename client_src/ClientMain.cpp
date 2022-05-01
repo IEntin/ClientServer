@@ -9,13 +9,6 @@
 #include "TcpClient.h"
 #include <csignal>
 
-std::atomic<bool> stopFlag = false;
-
-void signalHandler(int signum) {
-  stopFlag.store(true);
-  std::clog << "Interrupt signal (" << signum << ") received" << std::endl;
-}
-
 int main() {
   const std::string communicationType = ProgramOptions::get("CommunicationType", std::string());
   const bool useFifo = communicationType == "FIFO";
@@ -26,7 +19,6 @@ int main() {
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
   signal(SIGPIPE, SIG_IGN);
-  signal(SIGINT, signalHandler);
   if (useFifo) {
     FifoClientOptions options;
     fifo::FifoClient client(options);

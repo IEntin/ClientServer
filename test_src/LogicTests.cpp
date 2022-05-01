@@ -13,8 +13,6 @@
 #include <gtest/gtest.h>
 
 struct LogicTest : testing::Test {
-  static TaskControllerPtr _taskController;
-
   void testLogicTcp(COMPRESSORS serverCompressor,
 		    COMPRESSORS clientCompressor,
 		    size_t serverMemPoolSize,
@@ -22,14 +20,10 @@ struct LogicTest : testing::Test {
 		    bool diagnostics = true) {
     // start server
     ServerOptions serverOptions;
+    serverOptions._compressor = serverCompressor;
     Ad::load(serverOptions._adsFileName);
-    _taskController->setMemoryPoolSize(serverMemPoolSize);
-    tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(_taskController,
-				       serverOptions._expectedTcpConnections,
-				       serverOptions._tcpPort,
-				       serverOptions._tcpTimeout,
-				       serverCompressor);
+    TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
+    tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, serverOptions);
     bool serverStart = tcpServer->start();
     // start client
     std::ostringstream oss;
@@ -38,9 +32,8 @@ struct LogicTest : testing::Test {
     clientOptions._compressor = clientCompressor;
     clientOptions._diagnostics = diagnostics;
     tcp::TcpClient client(clientOptions);
-    bool clientRun = client.run();
+    client.run();
     ASSERT_TRUE(serverStart);
-    ASSERT_TRUE(clientRun);
     std::string calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
     ASSERT_EQ(oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(oss.str(), calibratedOutput);
@@ -54,13 +47,10 @@ struct LogicTest : testing::Test {
 		     bool diagnostics = true) {
     // start server
     ServerOptions serverOptions;
+    serverOptions._compressor = serverCompressor;
     Ad::load(serverOptions._adsFileName);
-    _taskController->setMemoryPoolSize(serverMemPoolSize);
-    fifo::FifoServerPtr fifoServer =
-      std::make_shared<fifo::FifoServer>(_taskController,
-					 serverOptions._fifoDirectoryName,
-					 serverOptions._fifoBaseNames,
-					 serverCompressor);
+    TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
+    fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, serverOptions);
     bool serverStart = fifoServer->start();
     // start client
     std::ostringstream oss;
@@ -79,15 +69,16 @@ struct LogicTest : testing::Test {
 
   static void SetUpTestSuite() {
     // To change options modify defaults in
-    // ServerOptions.cpp and recompile the application
-    ServerOptions serverOptions;
+    // ServerOptions.cpp and rebuild application
     Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
-    _taskController = TaskController::instance(std::thread::hardware_concurrency());
   }
-  static void TearDownTestSuite() {}
+  static void TearDownTestSuite() {
+    // set task controller to default state
+    ServerOptions options;
+    TestEnvironment::_taskController->setMemoryPoolSize(options._bufferSize);    
+  }
 };
-TaskControllerPtr LogicTest::_taskController;
 
 TEST_F(LogicTest, TCP_LZ4_LZ4_100000_3600000_D) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 100000, 3600000);

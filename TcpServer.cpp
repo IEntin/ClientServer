@@ -3,22 +3,19 @@
  */
 
 #include "TcpServer.h"
+#include "ServerOptions.h"
 #include "TcpConnection.h"
 #include <iostream>
 
 namespace tcp {
 
-TcpServer::TcpServer(TaskControllerPtr taskController,
-		     unsigned expectedNumberConnections,
-		     unsigned port,
-		     unsigned timeout,
-		     COMPRESSORS compressor) :
+TcpServer::TcpServer(TaskControllerPtr taskController, const ServerOptions& options) :
   _taskController(taskController),
-  _numberConnections(expectedNumberConnections),
+  _numberConnections(options._expectedTcpConnections),
   _ioContext(1),
-  _tcpPort(port),
-  _timeout(timeout),
-  _compressor(compressor),
+  _tcpPort(options._tcpPort),
+  _timeout(options._tcpTimeout),
+  _compressor(options._compressor),
   _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
   _acceptor(_ioContext) {}
 

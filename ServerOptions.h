@@ -16,10 +16,16 @@ struct ServerOptions {
   const ProcessRequest _processRequest;
   const std::string _adsFileName;
   const unsigned _numberWorkThreads;
-  const COMPRESSORS _compressor;
+  COMPRESSORS _compressor;
   const unsigned _expectedTcpConnections;
   const unsigned _tcpPort;
   const unsigned _tcpTimeout;
   const std::string _fifoDirectoryName;
   const std::string _fifoBaseNames;
+  const int _numberRepeatEINTR;
+  const int _numberRepeatENXIO;
+  const int _ENXIOwait;
+  int getNumberRepeatEINTR() const { return _numberRepeatEINTR; }
+  int getNumberRepeatENXIO() const { return _numberRepeatENXIO; }
+  int getENXIOwait() const { return _ENXIOwait; }
 };

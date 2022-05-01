@@ -7,8 +7,6 @@
 #include <csignal>
 #include <cstring>
 
-extern std::atomic<bool> stopFlag;
-
 Client::Client(size_t bufferSize) : _threadPool(1) {
   _memoryPool.setInitialSize(bufferSize);
 }
@@ -41,7 +39,7 @@ bool Client::loop(const ClientOptions& options) {
       return false;
     if (options._maxNumberTasks > 0 && ++numberTasks == options._maxNumberTasks)
       break;
-  } while (options._runLoop && !stopFlag);
+  } while (options._runLoop);
   return true;
 }
 

@@ -18,6 +18,8 @@ using Batch = std::vector<std::string>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
+struct ServerOptions;
+
 namespace fifo {
 
 using FifoServerPtr = std::shared_ptr<class FifoServer>;
@@ -34,10 +36,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   std::vector<std::string> _fifoNames;
   void wakeupPipes();
  public:
-  FifoServer(TaskControllerPtr taskController,
-	     std::string_view fifoDirName,
-	     std::string_view fifoBaseNames,
-	     COMPRESSORS compressor);
+  FifoServer(TaskControllerPtr taskController, const ServerOptions& options);
   ~FifoServer();
   bool start();
   void stop();

@@ -31,22 +31,11 @@ int main() {
     Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   }
   Task::setProcessMethod(options._processRequest);
-  TaskControllerPtr taskController = TaskController::instance(options._numberWorkThreads,
-							      options._bufferSize,
-							      options._sortInput);
-  tcp::TcpServerPtr tcpServer =
-    std::make_shared<tcp::TcpServer>(taskController,
-				     options._expectedTcpConnections,
-				     options._tcpPort,
-				     options._tcpTimeout,
-				     options._compressor);
+  TaskControllerPtr taskController = TaskController::instance(&options);
+  tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(taskController, options);
   if (!tcpServer->start())
     return 2;
-  fifo::FifoServerPtr fifoServer =
-    std::make_shared<fifo::FifoServer>(taskController,
-				       options._fifoDirectoryName,
-				       options._fifoBaseNames,
-				       options._compressor);
+  fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(taskController, options);
   if (!fifoServer->start())
     return 3;
   int sig = 0;

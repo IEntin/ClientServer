@@ -6,6 +6,8 @@
 
 #include <gtest/gtest.h>
 
+using TaskControllerPtr = std::shared_ptr<class TaskController>;
+
 class TestEnvironment : public ::testing::Environment {
 public:
   virtual ~TestEnvironment() = default;
@@ -17,4 +19,5 @@ public:
   static std::string _source;
   static std::string _outputD;
   static std::string _outputND;
+  static TaskControllerPtr _taskController;
 };

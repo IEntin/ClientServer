@@ -103,7 +103,7 @@ bool Fifo::readString(int fd, char* received, size_t size) {
   return true;
 }
 
-bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName) {
+bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR) {
   unsigned rep = 0;
   pollfd pfd{ fd, expected, -1 };
   do {
@@ -126,7 +126,7 @@ bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName) {
 		<< ":POLLHUP detected " << fifoName << std::endl;
       return false;
     }
-  } while (errno == EINTR && rep++ < 3);
+  } while (errno == EINTR && rep++ < numberRepeatEINTR);
   return pfd.revents & expected;
 }
 

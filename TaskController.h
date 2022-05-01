@@ -24,16 +24,18 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
+struct ServerOptions;
+
 class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   using CompletionFunction = void (*) () noexcept;
-  TaskController(unsigned numberThreads, size_t bufferSize, bool sortInput);
+  TaskController(const ServerOptions* options);
   void initialize();
   void push(TaskPtr task);
   void setNextTask();
   bool stopped() const { return _stopped; }
-  static TaskControllerPtr create(unsigned numberThreads, size_t bufferSize, bool sortInput);
-  const unsigned _numberThreads;
+  static TaskControllerPtr create(const ServerOptions* options);
+  const unsigned _numberWorkThreads;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
   std::barrier<CompletionFunction> _barrier;
@@ -52,8 +54,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void submitTask(const HEADER& header, std::vector<char>& input, Batch& response);
   MemoryPool& getMemoryPool() { return _memoryPool; }
   void setMemoryPoolSize(size_t size);
-  static TaskControllerPtr instance(unsigned numberThreads = 0,
-				    size_t bufferSize = 0,
-				    bool sortInput = false);
+  static TaskControllerPtr instance(const ServerOptions* options = nullptr);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
 };

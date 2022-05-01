@@ -12,6 +12,8 @@
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
+struct ServerOptions;
+
 namespace tcp {
 
 using RunnablePtr = std::shared_ptr<Runnable>;
@@ -22,11 +24,7 @@ using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
 public:
-  TcpServer(TaskControllerPtr taskController,
-	    unsigned expectedNumberConnections,
-	    unsigned port,
-	    unsigned timeout,
-	    COMPRESSORS compressor);
+  TcpServer(TaskControllerPtr taskController, const ServerOptions& options);
   ~TcpServer() override;
   bool start();
   void stop();

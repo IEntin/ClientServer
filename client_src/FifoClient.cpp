@@ -53,7 +53,9 @@ bool FifoClient::processTask() {
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName))
+    static const ClientOptions options;
+    static const int numberRepeatEINTR = options.getNumberRepeatEINTR();
+    if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName, numberRepeatEINTR))
       return false;
     if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;

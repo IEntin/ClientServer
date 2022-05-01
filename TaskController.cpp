@@ -3,18 +3,19 @@
  */
 
 #include "TaskController.h"
+#include "ServerOptions.h"
 #include "Task.h"
 #include <cassert>
 
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 
-TaskController::TaskController(unsigned numberThreads, size_t bufferSize, bool sortInput) :
-  _numberThreads(numberThreads),
-  _sortInput(sortInput),
-  _barrier(numberThreads, onTaskCompletion),
-  _threadPool(numberThreads) {
-  _memoryPool.setInitialSize(bufferSize);
+TaskController::TaskController(const ServerOptions* options) :
+  _numberWorkThreads(options->_numberWorkThreads),
+  _sortInput(options->_sortInput),
+  _barrier(_numberWorkThreads, onTaskCompletion),
+  _threadPool(_numberWorkThreads) {
+  _memoryPool.setInitialSize(options->_bufferSize);
   // start with empty task
   static Batch emptyBatch;
   _task = std::make_shared<Task>(emptyBatch);
@@ -26,15 +27,15 @@ TaskController::~TaskController() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-TaskControllerPtr TaskController::create(unsigned numberThreads, size_t bufferSize, bool sortInput) {
+TaskControllerPtr TaskController::create(const ServerOptions* options) {
   // to have private constructor do not use make_shared
-  TaskControllerPtr taskController(new TaskController(numberThreads, bufferSize, sortInput));
+  TaskControllerPtr taskController(new TaskController(options));
   taskController->initialize();
   return taskController;
 }
 
-TaskControllerPtr TaskController::instance(unsigned numberThreads, size_t bufferSize, bool sortInput) {
-  static TaskControllerPtr instance = create(numberThreads, bufferSize, sortInput);
+TaskControllerPtr TaskController::instance(const ServerOptions* options) {
+  static TaskControllerPtr instance = create(options);
   return instance;
 }
 
@@ -60,7 +61,7 @@ void TaskController::onTaskCompletion() noexcept {
 }
 
 void TaskController::initialize() {
-  for (unsigned i = 0; i < _numberThreads; ++i)
+  for (unsigned i = 0; i < _numberWorkThreads; ++i)
     _threadPool.push(shared_from_this());
 }
 

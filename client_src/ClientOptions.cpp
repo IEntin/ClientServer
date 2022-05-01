@@ -38,7 +38,8 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
 		   return &instrFileStream;
 		 }
 		 return nullptr;
-	       }()) {
+	       }()),
+  _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

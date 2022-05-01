@@ -13,18 +13,17 @@
 #include <filesystem>
 
 struct EchoTest : testing::Test {
-  static TaskControllerPtr _taskController;
-
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    std::ostringstream oss;
-    TcpClientOptions options(&oss);
-    options._compressor = clientCompressor;
-    tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(_taskController, 1, std::atoi(options._tcpPort.data()), 1, serverCompressor);
+    ServerOptions serverOptions;
+    serverOptions._compressor = serverCompressor;
+    tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    tcp::TcpClient client(options);
+    std::ostringstream oss;
+    TcpClientOptions clientOptions(&oss);
+    clientOptions._compressor = clientCompressor;
+    tcp::TcpClient client(clientOptions);
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
@@ -36,14 +35,15 @@ struct EchoTest : testing::Test {
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     std::string fifoDirName = std::filesystem::current_path().string();
-    fifo::FifoServerPtr fifoServer =
-      std::make_shared<fifo::FifoServer>(_taskController, fifoDirName, std::string("client1"), serverCompressor);
+    ServerOptions serverOptions;
+    serverOptions._compressor = serverCompressor;
+    fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, serverOptions);
     bool serverStart = fifoServer->start();
     // start client
     std::ostringstream oss;
-    FifoClientOptions options(&oss);
-    options._compressor = clientCompressor;
-    fifo::FifoClient client(options);
+    FifoClientOptions clientOptions(&oss);
+    clientOptions._compressor = clientCompressor;
+    fifo::FifoClient client(clientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_EQ(oss.str().size(), TestEnvironment::_source.size());
@@ -52,15 +52,10 @@ struct EchoTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
-    ClientOptions clientOptions;
     Task::setProcessMethod(echo::Echo::processRequest);
-    _taskController = TaskController::instance(std::thread::hardware_concurrency());
-    ServerOptions serverOptions;
-    _taskController->setMemoryPoolSize(serverOptions._bufferSize);
   }
   static void TearDownTestSuite() {}
 };
-TaskControllerPtr EchoTest::_taskController;
 
 TEST_F(EchoTest, TCP_LZ4_LZ4) {
   testEchoTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4);

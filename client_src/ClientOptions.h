@@ -23,6 +23,8 @@ struct ClientOptions {
   // not to create big logs.
   const unsigned _maxNumberTasks;
   std::ostream* _instrStream;
+  const int _numberRepeatEINTR;
+  int getNumberRepeatEINTR() const { return _numberRepeatEINTR; }
 };
 
 struct TcpClientOptions : ClientOptions {
