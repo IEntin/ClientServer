@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <gtest/gtest.h>

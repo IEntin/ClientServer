@@ -8,7 +8,6 @@
 #valgrind --tool=massif ./server
 #ms_print massif.out.*
 #ps huH p <pid> | wc -l
-#~/ClientServer/test_bin$ ./runtests --gtest_repeat=10 --gtest_break_on_failure
 
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]

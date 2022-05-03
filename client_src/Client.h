@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #pragma once
 
 #include "MemoryPool.h"
@@ -14,21 +18,19 @@ class Client {
 
   Vectors _task;
 
+  const ClientOptions& _options;
+
   ThreadPool _threadPool;
 
   MemoryPool _memoryPool;
 
-  bool loop(const ClientOptions& options);
+  bool loop();
 
-  bool printReply(const ClientOptions& options,
-		  const std::vector<char>& buffer,
-		  size_t uncomprSize,
-		  size_t comprSize,
-		  bool bcompressed);
+  bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
  public:
 
-  Client(size_t bufferSize);
+  Client(const ClientOptions& options);
   ~Client();
 
   const Vectors& getTask() const { return _task; }

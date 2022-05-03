@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
@@ -7,8 +11,8 @@
 #include <csignal>
 #include <cstring>
 
-Client::Client(size_t bufferSize) : _threadPool(1) {
-  _memoryPool.setInitialSize(bufferSize);
+Client::Client(const ClientOptions& options) : _options(options), _threadPool(1) {
+  _memoryPool.setInitialSize(options._bufferSize);
 }
 
 Client::~Client() {
@@ -16,12 +20,12 @@ Client::~Client() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool Client::loop(const ClientOptions& options) {
+bool Client::loop() {
   unsigned numberTasks = 0;
-  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(options, _memoryPool);
+  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
   _threadPool.push(taskBuilder);
   do {
-    Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__, options._instrStream);
+    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
     // Blocks until task construction in another thread is finished
     bool success = taskBuilder->getTask(_task);
     if (!success) {
@@ -30,26 +34,22 @@ bool Client::loop(const ClientOptions& options) {
       return false;
     }
     // start construction of the next task in the background
-    if (options._runLoop) {
-      taskBuilder = std::make_shared<TaskBuilder>(options, _memoryPool);
+    if (_options._runLoop) {
+      taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
       _threadPool.push(taskBuilder);
     }
     // processes current task
     if (!processTask())
       return false;
-    if (options._maxNumberTasks > 0 && ++numberTasks == options._maxNumberTasks)
+    if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
       break;
-  } while (options._runLoop);
+  } while (_options._runLoop);
   return true;
 }
 
-bool Client::printReply(const ClientOptions& options,
-			const std::vector<char>& buffer,
-			size_t uncomprSize,
-			size_t comprSize,
-			bool bcompressed) {
+bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed) {
   std::string_view received(buffer.data(), comprSize);
-  std::ostream* pstream = options._dataStream;
+  std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__

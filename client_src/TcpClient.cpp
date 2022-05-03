@@ -20,7 +20,10 @@ CloseSocket::~CloseSocket() {
 }
 
 TcpClient::TcpClient(const TcpClientOptions& options) :
-  Client(options._bufferSize), _ioContext(1), _socket(_ioContext), _options(options) {}
+  Client(options), _ioContext(1), _socket(_ioContext) {
+  _serverHost = options._serverHost;
+  _tcpPort = options._tcpPort;
+}
 
 TcpClient::~TcpClient() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -53,8 +56,7 @@ bool TcpClient::run() {
     CloseSocket closeSocket(_socket);
     boost::asio::ip::tcp::resolver resolver(_ioContext);
     boost::system::error_code ec;
-    auto endpoint = boost::asio::connect(_socket,
-					 resolver.resolve(_options._serverHost, _options._tcpPort, ec));
+    auto endpoint = boost::asio::connect(_socket, resolver.resolve(_serverHost, _tcpPort, ec));
     if (!ec)
       _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
     if (!ec)
@@ -65,7 +67,7 @@ bool TcpClient::run() {
 		<< ':' << ec.what() << std::endl;
       return false;
     }
-    return loop(_options);
+    return loop();
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -84,7 +86,7 @@ bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
-  return printReply(_options, buffer, uncomprSize, comprSize, bcompressed);
+  return printReply(buffer, uncomprSize, comprSize, bcompressed);
 }
 
 } // end of namespace tcp

@@ -20,13 +20,12 @@ class FifoClient : protected Client {
 
   bool readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
-  const FifoClientOptions& _options;
   const std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
  public:
 
-  FifoClient(const FifoClientOptions& _options);
+  FifoClient(const FifoClientOptions& options);
 
   ~FifoClient();
 

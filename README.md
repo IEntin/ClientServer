@@ -170,7 +170,7 @@ for that client.
 To run the Google tests:\
 './runtests'\
 in the test_bin directory\
-or './runtests.sh'\
+or './runtests.sh <number repetitions>' \
 in the project root.
 
 To run the tests from any directory outside of the project\

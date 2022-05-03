@@ -27,7 +27,8 @@ class TcpClient : protected Client {
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
-  const TcpClientOptions& _options;
+  std::string_view _serverHost;
+  std::string_view _tcpPort;
  public:
   TcpClient(const TcpClientOptions& options);
   ~TcpClient();

@@ -17,7 +17,7 @@
 namespace fifo {
 
 FifoClient::FifoClient(const FifoClientOptions& options) :
-  Client(options._bufferSize), _options(options), _fifoName(options._fifoName) {}
+  Client(options), _fifoName(options._fifoName) {}
 
 FifoClient::~FifoClient() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -40,7 +40,7 @@ bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompresse
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
-  return printReply(_options, buffer, uncomprSize, comprSize, bcompressed);
+  return printReply(buffer, uncomprSize, comprSize, bcompressed);
 }
 
 bool FifoClient::processTask() {
@@ -53,8 +53,7 @@ bool FifoClient::processTask() {
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
       return false;
     }
-    static const ClientOptions options;
-    static const int numberRepeatEINTR = options.getNumberRepeatEINTR();
+    static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();
     if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName, numberRepeatEINTR))
       return false;
     if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
@@ -80,7 +79,7 @@ bool FifoClient::run() {
   CloseFileDescriptor raiiw(_fdWrite);
   _fdRead = -1;
   CloseFileDescriptor raiir(_fdRead);
-  return loop(_options);
+  return loop();
 }
 
 } // end of namespace fifo

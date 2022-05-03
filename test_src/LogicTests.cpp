@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Ad.h"
 #include "ClientOptions.h"
 #include "FifoClient.h"

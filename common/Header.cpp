@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "Header.h"
 #include "Utility.h"
 #include<cassert>
