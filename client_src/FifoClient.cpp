@@ -47,10 +47,17 @@ bool FifoClient::processTask() {
   for (const auto& subtask : _task) {
     close(_fdRead);
     _fdRead = -1;
-    _fdWrite = open(_fifoName.data(), O_WRONLY);
+    static const int repMax = _options.getNumberRepeatENXIO();
+    static const int ENXIOwait = _options.getENXIOwait();
+    int rep = 0;
+    do {
+      _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+      if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+	std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
+    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < repMax);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< _fifoName << '-' << std::strerror(errno) << std::endl;
+		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
     static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();

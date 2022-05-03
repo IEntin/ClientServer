@@ -12,6 +12,6 @@
   "TcpPort" : 49152,
   "TcpTimeout" : 5,
   "NumberRepeatEINTR" : 3,
-  "NumberRepeatENXIO" : 3,
-  "ENXIOwai" : 1000
+  "NumberRepeatENXIO" : 7,
+  "ENXIOwait" : 10000
 }

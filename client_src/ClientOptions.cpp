@@ -39,7 +39,9 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
 		 }
 		 return nullptr;
 	       }()),
-  _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)) {
+  _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)),
+  _numberRepeatENXIO(ProgramOptions::get("NumberRepeatENXIO", 10)),
+  _ENXIOwait(ProgramOptions::get("ENXIOwai", 20000)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);
