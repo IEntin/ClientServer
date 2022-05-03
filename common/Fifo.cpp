@@ -104,7 +104,7 @@ bool Fifo::readString(int fd, char* received, size_t size) {
 }
 
 bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR) {
-  unsigned rep = 0;
+  int rep = 0;
   pollfd pfd{ fd, expected, -1 };
   do {
     pfd.revents = 0;
@@ -151,6 +151,26 @@ ssize_t Fifo::getDefaultPipeSize() {
   }
   close(fd);
   return pipeSize;
+}
+
+void Fifo::setPipeSize(int fd, long requested) {
+  long currentSz = fcntl(fd, F_GETPIPE_SZ);
+  if (currentSz == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << '-' << std::strerror(errno) << std::endl;
+  }
+  if (requested > currentSz) {
+    int ret = fcntl(fd, F_SETPIPE_SZ, requested);
+    if (ret < 0) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< '-' << std::strerror(errno) << std::endl;
+    }
+  }
+  long newSz = fcntl(fd, F_GETPIPE_SZ);
+  if (newSz == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << '-' << std::strerror(errno) << std::endl;
+  }
 }
 
 } // end of namespace fifo

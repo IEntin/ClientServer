@@ -37,6 +37,8 @@ public:
 
   static bool pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR);
 
+  void setPipeSize(int fd, long requested);
+
 };
 
 } // end of namespace fifo

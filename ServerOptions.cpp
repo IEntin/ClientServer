@@ -24,8 +24,8 @@ ServerOptions::ServerOptions() :
   _fifoDirectoryName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string())),
   _fifoBaseNames(ProgramOptions::get("FifoBaseNames", std::string("client1"))),
   _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)),
-  _numberRepeatENXIO(ProgramOptions::get("NumberRepeatENXIO", 3)),
-  _ENXIOwait(ProgramOptions::get("ENXIOwai", 1000)) {
+  _numberRepeatENXIO(ProgramOptions::get("NumberRepeatENXIO", 10)),
+  _ENXIOwait(ProgramOptions::get("ENXIOwai", 10000)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

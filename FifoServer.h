@@ -38,13 +38,14 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
  public:
   FifoServer(TaskControllerPtr taskController, const ServerOptions& options);
   ~FifoServer();
-  bool start();
+  bool start(const ServerOptions& options);
   void stop();
   bool stopped() const { return _stopped; }
   void pushToThreadPool(FifoConnectionPtr connection);
 };
 
 class FifoConnection : public Runnable {
+  const ServerOptions& _options;
   TaskControllerPtr _taskController;
   const std::string_view _fifoName;
   COMPRESSORS _compressor;
@@ -62,7 +63,8 @@ class FifoConnection : public Runnable {
   Batch _response;
   void run() noexcept override;
  public:
-  FifoConnection(TaskControllerPtr taskController,
+  FifoConnection(const ServerOptions& options,
+		 TaskControllerPtr taskController,
 		 std::string_view fifoName,
 		 COMPRESSORS compressor,
 		 FifoServerPtr server);

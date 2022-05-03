@@ -15,40 +15,44 @@
 struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    ServerOptions serverOptions;
-    serverOptions._compressor = serverCompressor;
-    tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, serverOptions);
+    TestEnvironment::_serverOptions._compressor = serverCompressor;
+    tcp::TcpServerPtr tcpServer =
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    std::ostringstream oss;
-    TcpClientOptions clientOptions(&oss);
-    clientOptions._compressor = clientCompressor;
-    tcp::TcpClient client(clientOptions);
+    TestEnvironment::_tcpClientOptions._compressor = clientCompressor;
+    tcp::TcpClient client(TestEnvironment::_tcpClientOptions);
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
-    ASSERT_EQ(oss.str().size(), TestEnvironment::_source.size());
-    ASSERT_EQ(oss.str(), TestEnvironment::_source);
+    ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
+    ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     tcpServer->stop();
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    std::string fifoDirName = std::filesystem::current_path().string();
-    ServerOptions serverOptions;
-    serverOptions._compressor = serverCompressor;
-    fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, serverOptions);
-    bool serverStart = fifoServer->start();
+    TestEnvironment::_serverOptions._compressor = serverCompressor;
+    fifo::FifoServerPtr fifoServer =
+      std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+    bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
-    std::ostringstream oss;
-    FifoClientOptions clientOptions(&oss);
-    clientOptions._compressor = clientCompressor;
-    fifo::FifoClient client(clientOptions);
+    TestEnvironment::_fifoClientOptions._compressor = clientCompressor;
+    fifo::FifoClient client(TestEnvironment::_fifoClientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
-    ASSERT_EQ(oss.str().size(), TestEnvironment::_source.size());
-    ASSERT_EQ(oss.str(), TestEnvironment::_source);
+    ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
+    ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     fifoServer->stop();
+  }
+
+  void SetUp() {}
+
+  void TearDown() {
+    TestEnvironment::_serverOptions._compressor = TestEnvironment::_orgServerCompressor;
+    TestEnvironment::_oss.str("");
+    TestEnvironment::_tcpClientOptions._compressor = TestEnvironment::_orgTcpClientCompressor;
+    TestEnvironment::_fifoClientOptions._compressor = TestEnvironment::_orgFifoClientCompressor;
   }
 
   static void SetUpTestSuite() {

@@ -36,7 +36,7 @@ int main() {
   if (!tcpServer->start())
     return 2;
   fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(taskController, options);
-  if (!fifoServer->start())
+  if (!fifoServer->start(options))
     return 3;
   int sig = 0;
   if (sigwait(&set, &sig))

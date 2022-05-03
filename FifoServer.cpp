@@ -41,7 +41,7 @@ FifoServer::~FifoServer() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool FifoServer::start() {
+bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
@@ -49,7 +49,7 @@ bool FifoServer::start() {
       return false;
     }
     FifoConnectionPtr connection =
-      std::make_shared<FifoConnection>(_taskController, fifoName, _compressor, shared_from_this());
+      std::make_shared<FifoConnection>(options, _taskController, fifoName, _compressor, shared_from_this());
     pushToThreadPool(connection);
   }
   _threadPool.start(_fifoNames.size());
@@ -100,11 +100,12 @@ void FifoServer::pushToThreadPool(FifoConnectionPtr connection) {
 
 // class FifoConnection
 
-FifoConnection::FifoConnection(TaskControllerPtr taskController,
+FifoConnection::FifoConnection(const ServerOptions& options,
+			       TaskControllerPtr taskController,
 			       std::string_view fifoName,
 			       COMPRESSORS compressor,
 			       FifoServerPtr server) :
-  _taskController(taskController), _fifoName(fifoName), _compressor(compressor), _server(server) {}
+  _options(options), _taskController(taskController), _fifoName(fifoName), _compressor(compressor), _server(server) {}
 
 FifoConnection::~FifoConnection() {
   if (_fdRead != -1)
@@ -146,8 +147,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
       return false;
     }
   }
-  static const ServerOptions options;
-  static const int numberRepeatEINTR = options.getNumberRepeatEINTR();
+  static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();
   Fifo::pollFd(_fdRead, POLLIN, _fifoName, numberRepeatEINTR);
   header = Fifo::readHeader(_fdRead);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
@@ -195,9 +195,8 @@ bool FifoConnection::sendResponse(Batch& response) {
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
   if (!_server->stopped()) {
-    static const ServerOptions options;
-    static const int repMax = options.getNumberRepeatENXIO();
-    static const int ENXIOwait = options.getENXIOwait();
+    static const int repMax = _options.getNumberRepeatENXIO();
+    static const int ENXIOwait = _options.getENXIOwait();
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
@@ -212,8 +211,7 @@ bool FifoConnection::sendResponse(Batch& response) {
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  static const ServerOptions options;
-  static const int numberRepeatEINTR = options.getNumberRepeatEINTR();
+  static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();
   if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName, numberRepeatEINTR))
     return false;
   std::string_view message =

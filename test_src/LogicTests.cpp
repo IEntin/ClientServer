@@ -19,24 +19,22 @@ struct LogicTest : testing::Test {
 		    size_t clientMemPoolSize,
 		    bool diagnostics = true) {
     // start server
-    ServerOptions serverOptions;
-    serverOptions._compressor = serverCompressor;
-    Ad::load(serverOptions._adsFileName);
+    TestEnvironment::_serverOptions._compressor = serverCompressor;
+    TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
-    tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, serverOptions);
+    tcp::TcpServerPtr tcpServer =
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    std::ostringstream oss;
-    TcpClientOptions clientOptions(&oss);
-    clientOptions._bufferSize = clientMemPoolSize;
-    clientOptions._compressor = clientCompressor;
-    clientOptions._diagnostics = diagnostics;
-    tcp::TcpClient client(clientOptions);
+    TestEnvironment::_tcpClientOptions._compressor = clientCompressor;
+    TestEnvironment::_tcpClientOptions._bufferSize = clientMemPoolSize;
+    TestEnvironment::_tcpClientOptions._diagnostics = diagnostics;
+    tcp::TcpClient client(TestEnvironment::_tcpClientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     std::string calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-    ASSERT_EQ(oss.str().size(), calibratedOutput.size());
-    ASSERT_EQ(oss.str(), calibratedOutput);
+    ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     tcpServer->stop();
   }
 
@@ -46,30 +44,44 @@ struct LogicTest : testing::Test {
 		     size_t clientMemPoolSize,
 		     bool diagnostics = true) {
     // start server
-    ServerOptions serverOptions;
-    serverOptions._compressor = serverCompressor;
-    Ad::load(serverOptions._adsFileName);
+    TestEnvironment::_serverOptions._compressor = serverCompressor;
+    TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
-    fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, serverOptions);
-    bool serverStart = fifoServer->start();
+    fifo::FifoServerPtr fifoServer =
+      std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+    bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
-    std::ostringstream oss;
-    FifoClientOptions clientOptions(&oss);
-    clientOptions._bufferSize = clientMemPoolSize;
-    clientOptions._compressor = clientCompressor;
-    clientOptions._diagnostics = diagnostics;
-    fifo::FifoClient client(clientOptions);
+    TestEnvironment::_fifoClientOptions._compressor = clientCompressor;
+    TestEnvironment::_fifoClientOptions._bufferSize = clientMemPoolSize;
+    TestEnvironment::_fifoClientOptions._diagnostics = diagnostics;
+    fifo::FifoClient client(TestEnvironment::_fifoClientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     std::string calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-    ASSERT_EQ(oss.str().size(), calibratedOutput.size());
-    ASSERT_EQ(oss.str(), calibratedOutput);
+    ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     fifoServer->stop();
+  }
+
+  void SetUp() {}
+
+  void TearDown() {
+    TestEnvironment::_serverOptions._compressor = TestEnvironment::_orgServerCompressor;
+    TestEnvironment::_serverOptions._bufferSize = TestEnvironment::_orgServerBufferSize;
+    TestEnvironment::_taskController->setMemoryPoolSize(TestEnvironment::_orgServerBufferSize);
+    TestEnvironment::_oss.str("");
+    TestEnvironment::_tcpClientOptions._compressor = TestEnvironment::_orgTcpClientCompressor;
+    TestEnvironment::_tcpClientOptions._bufferSize = TestEnvironment::_orgTcpClientBufferSize;
+    TestEnvironment::_tcpClientOptions._diagnostics = TestEnvironment::_orgTcpClientDiagnostics;
+    TestEnvironment::_fifoClientOptions._compressor = TestEnvironment::_orgFifoClientCompressor;
+    TestEnvironment::_fifoClientOptions._bufferSize = TestEnvironment::_orgFifoClientBufferSize;
+    TestEnvironment::_fifoClientOptions._diagnostics = TestEnvironment::_orgFifoClientDiagnostics;
   }
 
   static void SetUpTestSuite() {
     // To change options modify defaults in
     // ServerOptions.cpp and rebuild application
+    Ad::load(TestEnvironment::_serverOptions._adsFileName);
     Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
   }
