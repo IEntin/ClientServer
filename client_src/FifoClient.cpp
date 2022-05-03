@@ -60,9 +60,6 @@ bool FifoClient::processTask() {
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
-    static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();
-    if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName, numberRepeatEINTR))
-      return false;
     if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;

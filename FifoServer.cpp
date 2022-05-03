@@ -147,8 +147,6 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
       return false;
     }
   }
-  static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();
-  Fifo::pollFd(_fdRead, POLLIN, _fifoName, numberRepeatEINTR);
   header = Fifo::readHeader(_fdRead);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
@@ -211,9 +209,6 @@ bool FifoConnection::sendResponse(Batch& response) {
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  static const int numberRepeatEINTR = _options.getNumberRepeatEINTR();
-  if (!Fifo::pollFd(_fdWrite, POLLOUT, _fifoName, numberRepeatEINTR))
-    return false;
   std::string_view message =
     serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
   if (message.empty())

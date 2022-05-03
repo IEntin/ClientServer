@@ -122,7 +122,7 @@ bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int number
       return false;
     }
     else if (pfd.revents & POLLHUP) {
-      std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":POLLHUP detected " << fifoName << std::endl;
       return false;
     }
