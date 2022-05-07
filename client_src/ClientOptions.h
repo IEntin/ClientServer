@@ -19,8 +19,8 @@ struct ClientOptions {
   const bool _runLoop;
   const bool _timing;
   std::ostream* _dataStream;
-  // if output file specified limit the number of invocations
-  // not to create big logs.
+  // max number iterations when _runLoop is true,
+  // unlimited if it is 0.
   const unsigned _maxNumberTasks;
   std::ostream* _instrStream;
   const int _numberRepeatEINTR;

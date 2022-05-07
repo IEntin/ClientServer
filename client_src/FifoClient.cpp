@@ -47,14 +47,14 @@ bool FifoClient::processTask() {
   for (const auto& subtask : _task) {
     close(_fdRead);
     _fdRead = -1;
-    static const int repMax = _options.getNumberRepeatENXIO();
+    static const int repMaxENXIO = _options.getNumberRepeatENXIO();
     static const int ENXIOwait = _options.getENXIOwait();
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
       if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
 	std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
-    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < repMax);
+    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < repMaxENXIO);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
@@ -70,6 +70,12 @@ bool FifoClient::processTask() {
     if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
+      return false;
+    }
+    static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+    auto flag = Fifo::pollFd(_fdRead, POLLIN, _fifoName, repMaxEINTR);
+    if (!(flag == POLLIN || flag == POLLHUP)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'<< flag;      
       return false;
     }
     if (!receive())

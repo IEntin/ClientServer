@@ -184,6 +184,10 @@ bool FifoConnection::readMsgBody(int fd,
 }
 
 bool FifoConnection::sendResponse(Batch& response) {
+  std::string_view message =
+    serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
+  if (message.empty())
+    return false;
   if (_fdRead != -1) {
     close(_fdRead);
     _fdRead = -1;
@@ -209,10 +213,6 @@ bool FifoConnection::sendResponse(Batch& response) {
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  std::string_view message =
-    serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
-  if (message.empty())
-    return false;
   return Fifo::writeString(_fdWrite, message);
 }
 

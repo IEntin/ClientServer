@@ -30,7 +30,7 @@ HEADER Fifo::readHeader(int fd) {
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK)
+      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -40,11 +40,16 @@ HEADER Fifo::readHeader(int fd) {
     }
     else if (result == 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-                << ":read(...) returns 0,EOF." << std::endl;
+		<< ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return { -1, -1, COMPRESSORS::NONE, false, false };
     }
     else
       readSoFar += result;
+  }
+  if (readSoFar != HEADER_SIZE) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
+	      << HEADER_SIZE << " readSoFar=" << readSoFar << std::endl;
+    return { -1, -1, COMPRESSORS::NONE, false, false };
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE), readSoFar == HEADER_SIZE);
 }
@@ -75,11 +80,11 @@ bool Fifo::writeString(int fd, std::string_view str) {
 }
 
 bool Fifo::readString(int fd, char* received, size_t size) {
-  size_t totalRead = 0;
-  while (totalRead < size) {
-    ssize_t result = read(fd, received + totalRead, size - totalRead);
+  size_t readSoFar = 0;
+  while (readSoFar < size) {
+    ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK)
+      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
 	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -88,24 +93,24 @@ bool Fifo::readString(int fd, char* received, size_t size) {
       }
     }
     else if (result == 0) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-read(...) returns 0,EOF,another end closed connection." << std::endl;
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+		<< (errno ? std::strerror(errno) : "EOF") << std::endl;
       return false;
     }
     else
-      totalRead += result;
+      readSoFar += result;
   }
-  if (totalRead != size) {
+  if (readSoFar != size) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " size="
-	      << size << " totalRead=" << totalRead << std::endl;
+	      << size << " readSoFar=" << readSoFar << std::endl;
     return false;
   }
   return true;
 }
 
-bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR) {
+short Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR) {
   int rep = 0;
-  pollfd pfd{ fd, expected, -1 };
+  pollfd pfd{ fd, expected, 0 };
   do {
     pfd.revents = 0;
     int presult = poll(&pfd, 1, -1);
@@ -114,20 +119,18 @@ bool Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int number
     if (presult <= 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< '-' << std::strerror(errno) << std::endl;
-      return false;
+      return POLLERR;
     }
     else if (pfd.revents & POLLERR) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< '-' << std::strerror(errno) << std::endl;
-      return false;
-    }
-    else if (pfd.revents & POLLHUP) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":POLLHUP detected " << fifoName << std::endl;
-      return false;
+      return POLLERR;
     }
   } while (errno == EINTR && rep++ < numberRepeatEINTR);
-  return pfd.revents & expected;
+  if (pfd.revents & POLLHUP)
+    return POLLHUP;
+  else
+    return pfd.revents;
 }
 
 ssize_t Fifo::getDefaultPipeSize() {
