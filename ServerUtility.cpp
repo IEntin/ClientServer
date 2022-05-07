@@ -1,3 +1,7 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "ServerUtility.h"
 #include "Compression.h"
 #include "Header.h"
