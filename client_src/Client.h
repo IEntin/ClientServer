@@ -24,7 +24,7 @@ class Client {
 
   MemoryPool _memoryPool;
 
-  virtual bool run();
+  virtual bool run() = 0;
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
