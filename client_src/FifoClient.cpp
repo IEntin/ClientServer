@@ -73,9 +73,9 @@ bool FifoClient::processTask() {
       return false;
     }
     static const int repMaxEINTR = _options.getNumberRepeatEINTR();
-    auto flag = Fifo::pollFd(_fdRead, POLLIN, _fifoName, repMaxEINTR);
-    if (!(flag == POLLIN || flag == POLLHUP)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'<< flag;      
+    auto event = Fifo::pollFd(_fdRead, POLLIN, _fifoName, repMaxEINTR);
+    if (!(event == POLLIN || event == POLLHUP)) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'<< event;
       return false;
     }
     if (!receive())
@@ -85,11 +85,9 @@ bool FifoClient::processTask() {
 }
 
 bool FifoClient::run() {
-  _fdWrite = -1;
   CloseFileDescriptor raiiw(_fdWrite);
-  _fdRead = -1;
   CloseFileDescriptor raiir(_fdRead);
-  return loop();
+  return Client::run();
 }
 
 } // end of namespace fifo

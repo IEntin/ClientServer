@@ -27,9 +27,9 @@ class FifoClient : protected Client {
 
   FifoClient(const FifoClientOptions& options);
 
-  ~FifoClient();
+  ~FifoClient() override;
 
-  bool run();
+  bool run() override;
 };
 
 } // end of namespace fifo

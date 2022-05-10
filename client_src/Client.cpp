@@ -20,7 +20,7 @@ Client::~Client() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool Client::loop() {
+bool Client::run() {
   unsigned numberTasks = 0;
   TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
   _threadPool.push(taskBuilder);

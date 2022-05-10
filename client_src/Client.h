@@ -24,14 +24,14 @@ class Client {
 
   MemoryPool _memoryPool;
 
-  bool loop();
+  virtual bool run();
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
  public:
 
   Client(const ClientOptions& options);
-  ~Client();
+  virtual ~Client();
 
   const Vectors& getTask() const { return _task; }
 };

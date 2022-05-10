@@ -50,7 +50,7 @@ bool FifoServer::start(const ServerOptions& options) {
     }
     FifoConnectionPtr connection =
       std::make_shared<FifoConnection>(options, _taskController, fifoName, _compressor, shared_from_this());
-    pushToThreadPool(connection);
+    _threadPool.push(connection);
   }
   _threadPool.start(_fifoNames.size());
   return true;

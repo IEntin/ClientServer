@@ -18,15 +18,15 @@ std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPo
   static auto& printOnce[[maybe_unused]] =
     std::clog << LZ4 << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
-  for (const auto& chunk : batch)
-    uncomprSize += chunk.size();
+  for (const auto& entry : batch)
+    uncomprSize += entry.size();
   size_t requestedSize = uncomprSize + HEADER_SIZE;
   std::vector<char>& buffer = memoryPool.getSecondaryBuffer(requestedSize);
   buffer.resize(uncomprSize + HEADER_SIZE);
   size_t pos = HEADER_SIZE;
-  for (const auto& chunk : batch) {
-    std::copy(chunk.cbegin(), chunk.cend(), buffer.begin() + pos);
-    pos += chunk.size();
+  for (const auto& entry : batch) {
+    std::copy(entry.cbegin(), entry.cend(), buffer.begin() + pos);
+    pos += entry.size();
   }
   std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
   if (bcompressed) {

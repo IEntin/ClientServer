@@ -31,9 +31,9 @@ class TcpClient : protected Client {
   std::string_view _tcpPort;
  public:
   TcpClient(const TcpClientOptions& options);
-  ~TcpClient();
+  ~TcpClient() override;
 
-  bool run();
+  bool run() override;
 
 };
 
