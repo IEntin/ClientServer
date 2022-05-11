@@ -12,25 +12,29 @@ using Vectors = std::vector<std::vector<char>>;
 struct ClientOptions;
 
 class Client {
+
  protected:
 
+  Client(const ClientOptions& options);
+
   virtual bool processTask() = 0;
-
-  Vectors _task;
-
-  const ClientOptions& _options;
-
-  ThreadPool _threadPool;
-
-  MemoryPool _memoryPool;
 
   virtual bool run() = 0;
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
+  const ClientOptions& _options;
+
+  Vectors _task;
+
+  MemoryPool _memoryPool;
+
+ private:
+
+  ThreadPool _threadPool;
+
  public:
 
-  Client(const ClientOptions& options);
   virtual ~Client();
 
   const Vectors& getTask() const { return _task; }

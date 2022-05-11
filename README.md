@@ -15,10 +15,19 @@ generic thread pool.
 In some cases fifo has better performance and possibly stronger security than tcp. Due to protocol\
 with predictable sequence of reads and writes, it is possible to make pipes bidirectional. This\
 situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
-After every write the code closes write file descriptor and opens read fd for the same end of the\
-pipe, and so on. This significantly simplifies the setup - one fifo per client. See below fragments\
-of configuration in ProgramOptions.json for the server and clients. Testing showed that performance\
-impact of fd reopening is small for large batches.
+In this application after every write the code closes write file descriptor and opens read fd for the\
+same end of the pipe, and so on. This significantly simplifies the setup - one fifo per client. See\
+below fragments of configuration in ProgramOptions.json for the server and clients. Testing\
+showed that performance impact of fd reopening is small especially for large batches.
+
+Special consideration was given to the shutdown process of fifo server and clients. The problem is that\
+in default blocking mode the process is hanging on open(fd, ...). To force the process to gracefully\
+shutdown it is nesessary to open another end appropriately for writing or reading. Related task is\
+to protect the server from client crashes/shutdowns. This was solved by partial use of non blocking mode:\
+write end is opened in non blocking mode - open(fd, O_RDONLY | O_NONBLOCK). As a result the client can\
+be cleanly shutdown not only by SIGINT (Ctrl C), but also by SIGKILL or other signal. After that the client\
+can be started again without restarting the server. These complications exist only for fifo server-client.\
+TCP does not have any of mentioned problems.
 
 If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
 stopping the server.
