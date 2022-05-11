@@ -24,7 +24,7 @@ Special consideration was given to the shutdown process of fifo server and clien
 in default blocking mode the process is hanging on open(fd, ...). To force the process to gracefully\
 shutdown it is nesessary to open another end appropriately for writing or reading. Related task is\
 to protect the server from client crashes/shutdowns. This was solved by partial use of non blocking mode:\
-write end is opened in non blocking mode - open(fd, O_RDONLY | O_NONBLOCK). As a result the client can\
+write end is opened in non blocking mode - open(fd, O_WRONLY | O_NONBLOCK). As a result the client can\
 be cleanly shutdown not only by SIGINT (Ctrl C), but also by SIGKILL or other signal. After that the client\
 can be started again without restarting the server. These complications exist only for fifo server-client.\
 TCP does not have any of mentioned problems.
