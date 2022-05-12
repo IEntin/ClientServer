@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include <boost/lockfree/queue.hpp>
 #include <atomic>
 #include <future>
 #include <iostream>

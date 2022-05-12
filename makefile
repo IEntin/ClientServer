@@ -80,7 +80,9 @@ WARNINGS := -Wall -pedantic-errors
 
 MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -DENABLEPCH=$(ENABLEPCH)
 
-INCLUDES := -I. -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTDIR) -I$(LZ4DIR)
+BOOST_INCLUDES := /usr/local/boost_1_79_0
+
+INCLUDES := -I. -I$(BOOST_INCLUDES) -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTDIR) -I$(LZ4DIR)
 
 CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a -MMD -MP $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
@@ -92,7 +94,7 @@ $(OBJDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
 $(PCH) : $(ALLH)
-	$(CXX) -g -x c++-header $(CPPFLAGS) $(ALLH) -o $@
+	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
 
 -include $(OBJDIR)/*.d
 

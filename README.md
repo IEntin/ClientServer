@@ -21,13 +21,17 @@ below fragments of configuration in ProgramOptions.json for the server and clien
 showed that performance impact of fd reopening is small especially for large batches.
 
 Special consideration was given to the shutdown process of fifo server and clients. The problem is that\
-in default blocking mode the process is hanging on open(fd, ...). To force the process to gracefully\
-shutdown it is nesessary to open another end appropriately for writing or reading. Related task is\
-to protect the server from client crashes/shutdowns. This was solved by partial use of non blocking mode:\
-write end is opened in non blocking mode - open(fd, O_WRONLY | O_NONBLOCK). As a result the client can\
-be cleanly shutdown not only by SIGINT (Ctrl C), but also by SIGKILL or other signal. After that the client\
-can be started again without restarting the server. These complications exist only for fifo server-client.\
-TCP does not have any of mentioned problems.
+in the default blocking mode the process is hanging on open(fd, ...) until another end of the pipe is open too.\
+The process can be gracefully shutdown in this cace if another end of the pipe opened for writing or reading\
+appropriately. Special code is necessary to handle this procedure, and it is successful only with controlled shutdown\
+initiated by SIGINT. This is a seriaous restriction, in particular, the server is not protected from client\
+crashes which put the server in a non responding state.
+
+To solve this problem the writing ends of the pipes are opened in a non blocking mode\
+- open(fd, O_WRONLY | O_NONBLOCK). With this modification the components are stopped\
+not only by SIGINT, but also by SIGKILL or any other signal. The server is in a valid state then,\
+and subsequently, the client is restarted. Of course, these complications apply only to FIFO\
+server-client. TCP mode does not have these issues.
 
 If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
 stopping the server.
@@ -70,7 +74,7 @@ sudo cp lib/*.a /usr/lib
 The compiler must support c++20\
 gcc  11.1.0\
 clang 12.0.0\
-boost_1_78_0
+boost_1_79_0
 
 make arguments:
 

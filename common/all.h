@@ -3,6 +3,7 @@
  */
 
 #include <boost/asio.hpp>
+#include <boost/lockfree/queue.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <gtest/gtest.h>
