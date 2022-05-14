@@ -10,6 +10,7 @@
 #include <atomic>
 #include <barrier>
 #include <memory>
+#include <queue>
 #include <vector>
 
 enum class COMPRESSORS : short unsigned int;

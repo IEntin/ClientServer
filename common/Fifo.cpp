@@ -118,8 +118,8 @@ short Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int numbe
       continue;
     if (presult <= 0) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
-      return POLLERR;
+		<< "-timeout,should not hit this" << std::endl;
+      return 0;
     }
     else if (pfd.revents & POLLERR) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

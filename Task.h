@@ -5,11 +5,10 @@
 #pragma once
 
 #include "Header.h"
-#include <boost/lockfree/queue.hpp>
 #include <atomic>
 #include <future>
 #include <iostream>
-#include <queue>
+#include <vector>
 
 using Batch = std::vector<std::string>;
 
