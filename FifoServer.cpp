@@ -15,7 +15,6 @@
 #include <cstring>
 #include <filesystem>
 #include <fcntl.h>
-#include <poll.h>
 #include <sys/stat.h>
 
 namespace fifo {
@@ -147,7 +146,8 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
       return false;
     }
   }
-  header = Fifo::readHeader(_fdRead);
+  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+  header = Fifo::readHeader(_fdRead, _fifoName, repMaxEINTR);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
     return false;
@@ -159,11 +159,13 @@ bool FifoConnection::readMsgBody(int fd,
 				 size_t comprSize,
 				 bool bcompressed,
 				 std::vector<char>& uncompressed) {
+  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+  static auto& printOnce[[maybe_unused]] =
+    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-						       << " received compressed" << std::endl;
     std::vector<char>& buffer = _taskController->getMemoryPool().getPrimaryBuffer(comprSize);
-    if (!Fifo::readString(fd, buffer.data(), comprSize))
+    if (!Fifo::readString(fd, buffer.data(), comprSize, _fifoName, repMaxEINTR))
       return false;
     std::string_view received(buffer.data(), comprSize);
     uncompressed.resize(uncomprSize);
@@ -174,10 +176,8 @@ bool FifoConnection::readMsgBody(int fd,
     }
   }
   else {
-    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-						       << " received not compressed" << std::endl;
     uncompressed.resize(uncomprSize);
-    if (!Fifo::readString(fd, uncompressed.data(), uncomprSize))
+    if (!Fifo::readString(fd, uncompressed.data(), uncomprSize, _fifoName, repMaxEINTR))
       return false;
   }
   return true;
@@ -197,14 +197,15 @@ bool FifoConnection::sendResponse(Batch& response) {
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
   if (!_server->stopped()) {
-    static const int repMax = _options.getNumberRepeatENXIO();
+    static const int repMaxENXIO = _options.getNumberRepeatENXIO();
     static const int ENXIOwait = _options.getENXIOwait();
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
       if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
 	std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
-    } while (_fdWrite == -1 && !_server->stopped() && (errno == ENXIO || errno == EINTR) && rep++ < repMax);
+    } while (_fdWrite == -1 && !_server->stopped() &&
+	     (errno == ENXIO || errno == EINTR) && rep++ < repMaxENXIO);
   }
   if (_server->stopped())
     return false;
@@ -213,6 +214,7 @@ bool FifoConnection::sendResponse(Batch& response) {
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
+  Fifo::setPipeSize(_fdWrite, message.size());
   return Fifo::writeString(_fdWrite, message);
 }
 

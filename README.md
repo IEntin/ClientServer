@@ -33,6 +33,19 @@ not only by SIGINT, but also by SIGKILL or any other signal. The server is in a 
 and subsequently, the client is restarted. Of course, these complications apply only to FIFO\
 server-client. TCP mode does not have these issues.
 
+Another note on named pipes:\
+The code is changing the pipe size to make read and write "atomic"\
+This operation requires sudo access. To enable it do:\
+sudo su\
+./server\
+and\
+sudo su\
+./client\
+in appropriate directories.\
+The same for scripts profile.sh and runtests.sh.\
+If you do not have sudo access binaries and scripts will still run but setPipeSize(...) will\
+log an error "Operation not permitted".
+
 If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
 stopping the server.
 

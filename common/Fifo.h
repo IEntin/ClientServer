@@ -25,19 +25,19 @@ class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;
 
+  static short pollFd(int& fd, short expected, std::string_view fifoName, int maxRepeatEINTR);
+
   static ssize_t getDefaultPipeSize();
 
   static const ssize_t _defaultPipeSize;
 public:
-  static HEADER readHeader(int fd);
+  static HEADER readHeader(int fd, std::string_view fifoName, int numberRepeatEINTR);
 
-  static bool readString(int fd, char* received, size_t size);
+  static bool readString(int fd, char* received, size_t size, std::string_view fifoName, int maxRepeatEINTR);
 
   static bool writeString(int fd, std::string_view str);
 
-  static short pollFd(int& fd, short expected, std::string_view fifoName, int numberRepeatEINTR);
-
-  void setPipeSize(int fd, long requested);
+  static bool setPipeSize(int fd, long requested);
 
 };
 

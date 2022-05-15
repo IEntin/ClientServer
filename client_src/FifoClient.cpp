@@ -12,7 +12,6 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
-#include <poll.h>
 
 namespace fifo {
 
@@ -24,7 +23,9 @@ FifoClient::~FifoClient() {
 }
 
 bool FifoClient::receive() {
-  auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] = Fifo::readHeader(_fdRead);
+  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+  auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] =
+    Fifo::readHeader(_fdRead, _fifoName, repMaxEINTR);
   if (!headerDone)
     return false;
   if (!readBatch(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
@@ -36,7 +37,8 @@ bool FifoClient::receive() {
 
 bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed) {
   std::vector<char>& buffer = _memoryPool.getSecondaryBuffer(comprSize + 1);
-  if (!Fifo::readString(_fdRead, buffer.data(), comprSize)) {
+  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+  if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _fifoName, repMaxEINTR)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -60,6 +62,7 @@ bool FifoClient::processTask() {
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
+    Fifo::setPipeSize(_fdWrite, subtask.size());
     if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;
@@ -70,12 +73,6 @@ bool FifoClient::processTask() {
     if (_fdRead == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< _fifoName << '-' << std::strerror(errno) << std::endl;
-      return false;
-    }
-    static const int repMaxEINTR = _options.getNumberRepeatEINTR();
-    auto event = Fifo::pollFd(_fdRead, POLLIN, _fifoName, repMaxEINTR);
-    if (!(event == POLLIN || event == POLLHUP)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'<< event;
       return false;
     }
     if (!receive())
