@@ -55,4 +55,5 @@ TcpClientOptions::TcpClientOptions(std::ostream* externalDataStream) :
 FifoClientOptions::FifoClientOptions(std::ostream* externalDataStream) :
   ClientOptions(externalDataStream),
   _fifoName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
-	    ProgramOptions::get("FifoBaseName", std::string("client1"))) {}
+	    ProgramOptions::get("FifoBaseName", std::string("client1"))),
+  _setPipeSize(ProgramOptions::get("SetPipeSize", true)) {}

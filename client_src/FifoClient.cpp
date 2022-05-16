@@ -16,7 +16,7 @@
 namespace fifo {
 
 FifoClient::FifoClient(const FifoClientOptions& options) :
-  Client(options), _fifoName(options._fifoName) {}
+  Client(options), _fifoName(options._fifoName), _setPipeSize(options._setPipeSize) {}
 
 FifoClient::~FifoClient() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -62,7 +62,8 @@ bool FifoClient::processTask() {
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
-    Fifo::setPipeSize(_fdWrite, subtask.size());
+    if (_setPipeSize)
+      Fifo::setPipeSize(_fdWrite, subtask.size());
     if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       return false;

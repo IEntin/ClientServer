@@ -42,4 +42,5 @@ struct FifoClientOptions : ClientOptions {
   explicit FifoClientOptions(std::ostream* externalDataStream = nullptr);
 
   const std::string _fifoName;
+  const bool _setPipeSize;
 };

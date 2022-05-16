@@ -13,5 +13,6 @@
   "TcpTimeout" : 5,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
-  "ENXIOwait" : 10000
+  "ENXIOwait" : 10000,
+  "SetPipeSize" : true
 }

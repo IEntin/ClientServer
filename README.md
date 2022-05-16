@@ -27,8 +27,8 @@ appropriately. Special code is necessary to handle this procedure, and it is suc
 initiated by SIGINT. This is a seriaous restriction, in particular, the server is not protected from client\
 crashes which put the server in a non responding state.
 
-To solve this problem the writing ends of the pipes are opened in a non blocking mode\
-- open(fd, O_WRONLY | O_NONBLOCK). With this modification the components are stopped\
+To solve this problem the writing ends of the pipes are opened in a non blocking\
+mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the components are stopped\
 not only by SIGINT, but also by SIGKILL or any other signal. The server is in a valid state then,\
 and subsequently, the client is restarted. Of course, these complications apply only to FIFO\
 server-client. TCP mode does not have these issues.
@@ -44,7 +44,10 @@ sudo su\
 in appropriate directories.\
 The same for scripts profile.sh and runtests.sh.\
 If you do not have sudo access binaries and scripts will still run but setPipeSize(...) will\
-log an error "Operation not permitted".
+log an error "Operation not permitted".\
+This option can be disabled by setting\
+"SetPipeSize", false\
+in ProgramOptions.json for the server and clients.
 
 If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
 stopping the server.

@@ -146,7 +146,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
       return false;
     }
   }
-  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+  static const int repMaxEINTR = _options._numberRepeatEINTR;
   header = Fifo::readHeader(_fdRead, _fifoName, repMaxEINTR);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
@@ -159,7 +159,7 @@ bool FifoConnection::readMsgBody(int fd,
 				 size_t comprSize,
 				 bool bcompressed,
 				 std::vector<char>& uncompressed) {
-  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
+  static const int repMaxEINTR = _options._numberRepeatEINTR;
   static auto& printOnce[[maybe_unused]] =
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
@@ -197,8 +197,8 @@ bool FifoConnection::sendResponse(Batch& response) {
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
   if (!_server->stopped()) {
-    static const int repMaxENXIO = _options.getNumberRepeatENXIO();
-    static const int ENXIOwait = _options.getENXIOwait();
+    static const int repMaxENXIO = _options._numberRepeatENXIO;
+    static const int ENXIOwait = _options._ENXIOwait;
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
@@ -214,7 +214,8 @@ bool FifoConnection::sendResponse(Batch& response) {
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  Fifo::setPipeSize(_fdWrite, message.size());
+  if (_options._setPipeSize)
+    Fifo::setPipeSize(_fdWrite, message.size());
   return Fifo::writeString(_fdWrite, message);
 }
 

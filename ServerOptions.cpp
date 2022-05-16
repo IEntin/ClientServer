@@ -29,7 +29,8 @@ ServerOptions::ServerOptions() :
   _fifoBaseNames(ProgramOptions::get("FifoBaseNames", std::string("client1"))),
   _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)),
   _numberRepeatENXIO(ProgramOptions::get("NumberRepeatENXIO", 10)),
-  _ENXIOwait(ProgramOptions::get("ENXIOwai", 10000)) {
+  _ENXIOwait(ProgramOptions::get("ENXIOwai", 10000)),
+  _setPipeSize(ProgramOptions::get("SetPipeSize", true)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

@@ -21,6 +21,7 @@ class FifoClient : protected Client {
   bool readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   const std::string _fifoName;
+  const bool _setPipeSize;
   int _fdRead = -1;
   int _fdWrite = -1;
  public:
