@@ -26,9 +26,6 @@ struct ClientOptions {
   const int _numberRepeatEINTR;
   const int _numberRepeatENXIO;
   const int _ENXIOwait;
-  int getNumberRepeatEINTR() const { return _numberRepeatEINTR; }
-  int getNumberRepeatENXIO() const { return _numberRepeatENXIO; }
-  int getENXIOwait() const { return _ENXIOwait; }
 };
 
 struct TcpClientOptions : ClientOptions {

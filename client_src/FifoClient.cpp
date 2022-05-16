@@ -23,9 +23,8 @@ FifoClient::~FifoClient() {
 }
 
 bool FifoClient::receive() {
-  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
   auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] =
-    Fifo::readHeader(_fdRead, _fifoName, repMaxEINTR);
+    Fifo::readHeader(_fdRead, _fifoName, _options._numberRepeatEINTR);
   if (!headerDone)
     return false;
   if (!readBatch(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
@@ -37,8 +36,7 @@ bool FifoClient::receive() {
 
 bool FifoClient::readBatch(size_t uncomprSize, size_t comprSize, bool bcompressed) {
   std::vector<char>& buffer = _memoryPool.getSecondaryBuffer(comprSize + 1);
-  static const int repMaxEINTR = _options.getNumberRepeatEINTR();
-  if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _fifoName, repMaxEINTR)) {
+  if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _fifoName, _options._numberRepeatEINTR)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
@@ -49,14 +47,12 @@ bool FifoClient::processTask() {
   for (const auto& subtask : _task) {
     close(_fdRead);
     _fdRead = -1;
-    static const int repMaxENXIO = _options.getNumberRepeatENXIO();
-    static const int ENXIOwait = _options.getENXIOwait();
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
       if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
-    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < repMaxENXIO);
+	std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
+    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
     if (_fdWrite == -1) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
