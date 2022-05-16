@@ -68,3 +68,26 @@ fcntl(fd, F_SETFL, flags);
   //auto flags = fcntl(_fdWrite, F_GETFL, 0);
   //flags &= O_NONBLOCK;
   //fcntl(_fdWrite, F_SETFL, flags);
+
+ssize_t Fifo::getDefaultPipeSize() {
+  std::string_view testPipeName = "/tmp/testpipe";
+  if (mkfifo(testPipeName.data(), 0620) == -1 && errno != EEXIST) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	      << std::strerror(errno) << '-' << testPipeName << std::endl;
+    return -1;
+  }
+  int fd = open(testPipeName.data(), O_RDWR);
+  if (fd == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	      << std::strerror(errno) << '-' << testPipeName << std::endl;
+    return -1;
+  }
+  ssize_t pipeSize = fcntl(fd, F_GETPIPE_SZ);
+  if (pipeSize == -1) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	      << std::strerror(errno) << '-' << testPipeName << std::endl;
+    return -1;
+  }
+  close(fd);
+  return pipeSize;
+}

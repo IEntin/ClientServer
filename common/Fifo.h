@@ -26,10 +26,6 @@ class Fifo {
   ~Fifo() = delete;
 
   static short pollFd(int& fd, short expected, std::string_view fifoName, int maxRepeatEINTR);
-
-  static ssize_t getDefaultPipeSize();
-
-  static const ssize_t _defaultPipeSize;
 public:
   static HEADER readHeader(int fd, std::string_view fifoName, int numberRepeatEINTR);
 
