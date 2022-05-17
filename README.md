@@ -34,8 +34,9 @@ and subsequently, the client is restarted. Of course, these complications apply 
 server-client. TCP mode does not have these issues.
 
 Another note on named pipes:\
-The code is changing the pipe size to make read and write "atomic"\
-This operation requires sudo access. To enable it do:\
+The code is increasing the pipe size to make read and write "atomic".\
+This operation requires sudo access if requested size exceeds 1MB\
+(with my configuration, original buffer size is 64 KB). If more than 1MB is necessary:\
 sudo su\
 ./server\
 and\
@@ -43,9 +44,10 @@ sudo su\
 ./client\
 in appropriate directories.\
 The same for scripts profile.sh and runtests.sh.\
-If you do not have sudo access binaries and scripts will still run but setPipeSize(...) will\
+If you do not have sudo access, binaries and scripts will still run for any\
+requested size but buffer size will not be changed and setPipeSize(...) will\
 log an error "Operation not permitted".\
-This option can be disabled by setting\
+This option can be disabled altogether by setting\
 "SetPipeSize", false\
 in ProgramOptions.json for the server and clients.
 
