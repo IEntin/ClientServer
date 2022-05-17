@@ -16,7 +16,7 @@
 all: server client buildtests runtests
 
 ifeq ($(CMPLR),)
-  CXX := g++
+  CXX := clang++
 else
   CXX := $(CMPLR)
 endif
