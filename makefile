@@ -8,6 +8,10 @@
 #valgrind --tool=massif ./server
 #ms_print massif.out.*
 #ps huH p <pid> | wc -l
+# cores in
+# /var/lib/systemd/coredump
+# latest core:
+# coredumpctl gdb -1
 
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]

@@ -44,19 +44,19 @@ TaskControllerPtr TaskController::instance(const ServerOptions* options) {
 
 void TaskController::onTaskCompletion() noexcept {
   auto taskController = instance();
-  if (_phase == PREPROCESSTASK) {
-    if (taskController->_sortInput) {
+  switch (_phase) {
+  case PREPROCESSTASK:
+    if (taskController->_sortInput)
       taskController->_task->sortIndices();
-    }
     taskController->_task->resetPointer();
     _phase = PROCESSTASK;
     return;
-  }
-  if (_phase == PROCESSTASK) {
+  case PROCESSTASK:
     taskController->_task->finish();
     // Blocks until the new task is available.
     taskController->setNextTask();
     _phase = PREPROCESSTASK;
+    return;
   }
 }
 
