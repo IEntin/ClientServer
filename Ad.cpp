@@ -95,7 +95,7 @@ std::string Ad::extractSize(std::string_view line) {
 // make SizeMap cache friendly
 
 bool Ad::readAndSortAds(const std::string& filename) {
-  std::string content;
+  static std::string content;
   try {
     content = utility::readFile(filename);
   }

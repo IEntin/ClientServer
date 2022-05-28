@@ -14,7 +14,7 @@ using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
 struct AdRow {
   AdRow(const char* beg, const char* end) {
-    std::string(beg, end).swap(_value);
+    std::string_view(beg, end).swap(_value);
   }
   AdRow(AdRow&& other) {
     _key.swap(other._key);
@@ -26,7 +26,7 @@ struct AdRow {
     return *this;
   }
   std::string _key;
-  std::string _value;
+  std::string_view _value;
 };
 
 class Ad {
