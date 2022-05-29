@@ -49,8 +49,7 @@ bool Task::processNext() {
     RequestRow& row = _rows[_indices[pointer]];
     std::string_view key = row._key;
     std::string_view request = row._value;
-    std::string response = _processRequest(key, request);
-    _response[row._index].swap(response);
+    _response[row._index] = _processRequest(key, request);
     return true;
   }
   else
