@@ -89,7 +89,7 @@ bool TaskBuilder::createRequests() {
   }
   size_t offset = 0;
   while (input) {
-    std::memset(single.data(), '[', 1);
+    *single.data() = '[';
     auto [ptr, ec] = std::to_chars(single.data() + 1, single.data() + CONV_BUFFER_SIZE, requestIndex++);
     if (ec != std::errc()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -97,7 +97,7 @@ bool TaskBuilder::createRequests() {
       continue;
     }
     size_t singleOffset = ptr - single.data();
-    std::memset(single.data() + singleOffset, ']', 1);
+    *(single.data() + singleOffset) = ']';
     ++singleOffset;
     // keep capacity
     static std::string line;
@@ -106,19 +106,19 @@ bool TaskBuilder::createRequests() {
       break;
     if (singleOffset + line.size() > single.capacity())
       single.reserve(singleOffset + line.size() + 1);
-    std::memcpy(single.data() + singleOffset, line.data(), line.size());
+    std::move(line.data(), line.data() + line.size(), single.data() + singleOffset);
     singleOffset += line.size();
-    std::memset(single.data() + singleOffset, '\n', 1);
+    *(single.data() + singleOffset) = '\n';
     size_t size = singleOffset + 1;
     if (offset + size < initialBufferSize - HEADER_SIZE || offset == 0) {
       if (initialBufferSize < size + HEADER_SIZE) {
 	std::vector<char> vect(size + HEADER_SIZE);
-	std::memcpy(vect.data() + HEADER_SIZE, single.data(), size);
+	std::move(single.data(), single.data() + size, vect.data() + HEADER_SIZE);
 	_task.emplace_back();
 	_task.back().swap(vect);
       }
       else {
-	std::memcpy(aggregated.data() + HEADER_SIZE + offset, single.data(), size);
+	std::move(single.data(), single.data() + size, aggregated.data() + HEADER_SIZE + offset);
 	offset += size;
       }
     }
@@ -126,13 +126,13 @@ bool TaskBuilder::createRequests() {
       _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
       if (single.size() + HEADER_SIZE > initialBufferSize) {
 	std::vector<char> vect(size + HEADER_SIZE);
-	std::memcpy(vect.data() + HEADER_SIZE, single.data(), size);
+	std::move(single.data(), single.data() + size, vect.data() + HEADER_SIZE);
 	_task.emplace_back();
 	_task.back().swap(vect);
 	offset = 0;
       }
       else {
-	std::memcpy(aggregated.data() + HEADER_SIZE, single.data(), size);
+	std::move(single.data(), single.data() + size, aggregated.data() + HEADER_SIZE);
 	offset = size;
       }
     }
@@ -165,7 +165,7 @@ bool TaskBuilder::compressSubtasks() {
       }
       else {
 	encodeHeader(item.data(), uncomprSize, dstView.size(), _compressor, _diagnostics);
-	std::memcpy(item.data() + HEADER_SIZE, dstView.data(), dstView.size());
+	std::move(dstView.data(), dstView.data() + dstView.size(), item.data() + HEADER_SIZE);
 	item.resize(HEADER_SIZE + dstView.size());
       }
     }

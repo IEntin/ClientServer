@@ -11,7 +11,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPool& memoryPool) {
+std::string_view buildReply(Batch&& batch, COMPRESSORS compressor, MemoryPool& memoryPool) {
   if (batch.empty())
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
@@ -25,7 +25,7 @@ std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPo
   buffer.resize(uncomprSize + HEADER_SIZE);
   size_t pos = HEADER_SIZE;
   for (const auto& entry : batch) {
-    std::copy(entry.cbegin(), entry.cend(), buffer.begin() + pos);
+    std::move(entry.begin(), entry.end(), buffer.begin() + pos);
     pos += entry.size();
   }
   std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
@@ -35,7 +35,7 @@ std::string_view buildReply(const Batch& batch, COMPRESSORS compressor, MemoryPo
       return std::string_view();
     buffer.resize(HEADER_SIZE + dstView.size());
     encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
-    std::copy(dstView.cbegin(), dstView.cend(), buffer.begin() + HEADER_SIZE);
+    std::move(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
   else
     encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false);

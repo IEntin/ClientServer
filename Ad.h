@@ -13,16 +13,15 @@ class Ad;
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
 struct AdRow {
-  AdRow(const char* beg, const char* end) {
-    std::string_view(beg, end).swap(_value);
-  }
-  AdRow(AdRow&& other) {
+  AdRow(const char* beg, const char* end) : _value(beg, end) {}
+
+  AdRow(AdRow&& other) : _value(other._value) {
     _key.swap(other._key);
-    _value.swap(other._value);
   }
+
   const AdRow& operator =(AdRow&& other) {
     _key.swap(other._key);
-    _value.swap(other._value);
+    _value = other._value;
     return *this;
   }
   std::string _key;

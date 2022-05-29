@@ -21,17 +21,15 @@ using ExtractKey = void (*)(std::string&, std::string_view);
 using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 struct RequestRow {
-  RequestRow(const char* beg, const char* end) {
-    std::string_view(beg, end).swap(_value);
-  }
-  RequestRow(RequestRow&& other) {
+  RequestRow(const char* beg, const char* end) : _value(beg, end) {}
+
+  RequestRow(RequestRow&& other) : _value(other._value), _index(other._index) {
     _key.swap(other._key);
-    _value.swap(other._value);
-    _index = other._index;
   }
+
   const RequestRow& operator =(RequestRow&& other) {
     _key.swap(other._key);
-    _value.swap(other._value);
+    _value = other._value;
     _index = other._index;
     return *this;
   }

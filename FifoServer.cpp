@@ -183,7 +183,7 @@ bool FifoConnection::readMsgBody(int fd,
 
 bool FifoConnection::sendResponse(Batch& response) {
   std::string_view message =
-    serverutility::buildReply(response,_compressor, _taskController->getMemoryPool());
+    serverutility::buildReply(std::move(response), _compressor, _taskController->getMemoryPool());
   if (message.empty())
     return false;
   if (_fdRead != -1) {
