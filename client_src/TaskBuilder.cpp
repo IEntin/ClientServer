@@ -14,8 +14,7 @@ TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
   _sourceName(options._sourceName),
   _compressor(options._compressor),
   _diagnostics(options._diagnostics),
-  _memoryPool(memoryPool) {
-}
+  _memoryPool(memoryPool) {}
 
 TaskBuilder::~TaskBuilder() {}
 
@@ -28,7 +27,7 @@ void TaskBuilder::run() noexcept {
       _promise.set_value();
       return;
     }
-    if (!(compressSubtasks())) {
+    if (!compressSubtasks()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       _done = false;
       _promise.set_value();
@@ -80,7 +79,6 @@ bool TaskBuilder::createRequests() {
   unsigned long long requestIndex = 0;
   std::vector<char>& aggregated = _memoryPool.getPrimaryBuffer();
   std::vector<char>& single(_memoryPool.getSecondaryBuffer());
-  size_t initialBufferSize = _memoryPool.getInitialBufferSize();
   size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
   if (single.capacity() < minimumCapacity) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -88,6 +86,7 @@ bool TaskBuilder::createRequests() {
     return false;
   }
   size_t offset = 0;
+  size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
   while (input) {
     *single.data() = '[';
     auto [ptr, ec] = std::to_chars(single.data() + 1, single.data() + CONV_BUFFER_SIZE, requestIndex++);
@@ -110,8 +109,8 @@ bool TaskBuilder::createRequests() {
     singleOffset += line.size();
     *(single.data() + singleOffset) = '\n';
     size_t size = singleOffset + 1;
-    if (offset + size < initialBufferSize - HEADER_SIZE || offset == 0) {
-      if (initialBufferSize < size + HEADER_SIZE) {
+    if (offset + size < maxSubtaskSize - HEADER_SIZE || offset == 0) {
+      if (maxSubtaskSize < size + HEADER_SIZE) {
 	std::vector<char> vect(size + HEADER_SIZE);
 	std::move(single.data(), single.data() + size, vect.data() + HEADER_SIZE);
 	_task.emplace_back();
@@ -124,7 +123,7 @@ bool TaskBuilder::createRequests() {
     }
     else {
       _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
-      if (single.size() + HEADER_SIZE > initialBufferSize) {
+      if (single.size() + HEADER_SIZE > maxSubtaskSize) {
 	std::vector<char> vect(size + HEADER_SIZE);
 	std::move(single.data(), single.data() + size, vect.data() + HEADER_SIZE);
 	_task.emplace_back();
@@ -151,27 +150,27 @@ bool TaskBuilder::compressSubtasks() {
   bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     std::clog << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  for (auto& item : _task) {
-    std::string_view line(item.data() + HEADER_SIZE, item.data() + item.size());
-    size_t uncomprSize = line.size();
-    std::string_view viewIn(line.data(), line.size());
+  for (auto& subtask : _task) {
+    std::string_view uncompressed(subtask.data() + HEADER_SIZE, subtask.data() + subtask.size());
+    size_t uncomprSize = uncompressed.size();
     if (bcompressed) {
-      std::string_view dstView = Compression::compress(viewIn, _memoryPool);
-      if (dstView.empty())
+      std::string_view compressed = Compression::compress(uncompressed, _memoryPool);
+      if (compressed.empty())
 	return false;
-      if (dstView.size() >= viewIn.size()) {
-	encodeHeader(item.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
-	item.resize(HEADER_SIZE + viewIn.size());
+      // LZ4 may generate compressed larger than uncompressed.
+      if (compressed.size() >= uncomprSize) {
+	encodeHeader(subtask.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
+	subtask.resize(HEADER_SIZE + uncomprSize);
       }
       else {
-	encodeHeader(item.data(), uncomprSize, dstView.size(), _compressor, _diagnostics);
-	std::move(dstView.data(), dstView.data() + dstView.size(), item.data() + HEADER_SIZE);
-	item.resize(HEADER_SIZE + dstView.size());
+	encodeHeader(subtask.data(), uncomprSize, compressed.size(), _compressor, _diagnostics);
+	std::move(compressed.data(), compressed.data() + compressed.size(), subtask.data() + HEADER_SIZE);
+	subtask.resize(HEADER_SIZE + compressed.size());
       }
     }
     else {
-      encodeHeader(item.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
-      item.resize(HEADER_SIZE + viewIn.size());
+      encodeHeader(subtask.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
+      subtask.resize(HEADER_SIZE + uncomprSize);
     }
   }
   return true;
