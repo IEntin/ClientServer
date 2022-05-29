@@ -1,0 +1,87 @@
+[0] Transaction size=300x250 #matches=5
+http://bid.simpli.fi/ck_bid?user_agent=Mozilla/5.0%20(compatible;%20MSIE%209.0;%20Windows%20NT%206.1;%20Win64;%20x64;%20Trident/5.0)&ad_width=300&ad_height=250&kw=hothyips+multiplication+cdxs2210+giltgroupe+netcapes&ip_address=74.126.123.162
+request keywords:
+ cdxs2210
+ giltgroupe
+ hothyips
+ multiplication
+ netcapes
+matching ads:
+Ad1533 size=300x250 defaultBid=180
+ 1533, 300, 250, 1.8, ["hothyips", 0.0, "complexcustoms", 4.4, "chathamparkwaylexus", 0.0, "alternativewireless", 2.0]
+  alternativewireless 200
+  chathamparkwaylexus 180
+  complexcustoms 440
+  hothyips 180
+ match:hothyips 180
+Ad1703 size=300x250 defaultBid=410
+ 1703, 300, 250, 4.1, ["netcapes", 0.8, "collisioncountryrepaircenter", 2.1, "4410l", 0.0, "baselineanimalhospital", 3.6]
+  4410l 410
+  baselineanimalhospital 360
+  collisioncountryrepaircenter 210
+  netcapes 80
+ match:netcapes 80
+Ad1822 size=300x250 defaultBid=310
+ 1822, 300, 250, 3.1, ["populace", 2.1, "c560", 0.1, "coxvalue", 0.0, "netcapes", 0.0, "desktp", 2.9]
+  c560 10
+  coxvalue 310
+  desktp 290
+  netcapes 310
+  populace 210
+ match:netcapes 310
+Ad1853 size=300x250 defaultBid=170
+ 1853, 300, 250, 1.7, ["horseplayer", 0.0, "multiplication", 0.0, "hothyips", 0.0, "livingreviews", 0.0]
+  horseplayer 170
+  hothyips 170
+  livingreviews 170
+  multiplication 170
+ match:hothyips 170
+Ad1853 size=300x250 defaultBid=170
+ 1853, 300, 250, 1.7, ["horseplayer", 0.0, "multiplication", 0.0, "hothyips", 0.0, "livingreviews", 0.0]
+  horseplayer 170
+  hothyips 170
+  livingreviews 170
+  multiplication 170
+ match:multiplication 170
+summary:1822, netcapes, 3.1
+*****
+[1] Transaction size=300x250 #matches=4
+http://bid.simpli.fi/ck_bid?keywords=chryslerdealerships+complexcustoms+fitrx+myfirstcitybank+connectdirect+surfing+eddegree&size=300x250&user_agent=Mozilla/5.0%20(compatible;%20MSIE%209.0;%20Windows%20NT%206.1;%20Win64;%20x64;%20Trident/5.0)&ip_address=152.179.98.198
+request keywords:
+ chryslerdealerships
+ complexcustoms
+ connectdirect
+ eddegree
+ fitrx
+ myfirstcitybank
+ surfing
+matching ads:
+Ad1042 size=300x250 defaultBid=70
+ 1042, 300, 250, 0.7, ["belmonte", 4.1, "dx115", 4.7, "chengdu", 3.1, "fitrx", 0.0, "routeone", 0.0]
+  belmonte 410
+  chengdu 310
+  dx115 470
+  fitrx 70
+  routeone 70
+ match:fitrx 70
+Ad1127 size=300x250 defaultBid=360
+ 1127, 300, 250, 3.6, ["tchibo", 0.0, "fitrx", 0.0]
+  fitrx 360
+  tchibo 360
+ match:fitrx 360
+Ad1493 size=300x250 defaultBid=300
+ 1493, 300, 250, 3.0, ["connectdirect", 0.0, "snowblower", 4.9, "3820", 0.4, "flatbush", 1.2]
+  3820 40
+  connectdirect 300
+  flatbush 120
+  snowblower 490
+ match:connectdirect 300
+Ad1533 size=300x250 defaultBid=180
+ 1533, 300, 250, 1.8, ["hothyips", 0.0, "complexcustoms", 4.4, "chathamparkwaylexus", 0.0, "alternativewireless", 2.0]
+  alternativewireless 200
+  chathamparkwaylexus 180
+  complexcustoms 440
+  hothyips 180
+ match:complexcustoms 440
+summary:1533, complexcustoms, 4.4
+*****

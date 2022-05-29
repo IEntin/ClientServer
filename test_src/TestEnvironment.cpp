@@ -14,6 +14,7 @@ volatile std::sig_atomic_t stopFlag = false;
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
+std::string TestEnvironment::_outputAltFormatD;
 TaskControllerPtr TestEnvironment::_taskController;
 ServerOptions TestEnvironment::_serverOptions;
 const COMPRESSORS TestEnvironment::_orgServerCompressor = TestEnvironment::_serverOptions._compressor;
@@ -34,6 +35,7 @@ void TestEnvironment::SetUp() {
     _source = utility::readFile(clientOptions._sourceName);
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
+    _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
     ServerOptions serverOptions;
     _taskController = TaskController::instance(&serverOptions);
   }

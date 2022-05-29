@@ -168,3 +168,22 @@ TEST_F(LogicTest, FIFO_LZ4_LZ4_100000_3600000_ND) {
 TEST_F(LogicTest, FIFO_LZ4_NONE_100000_3600000_ND) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, 100000, 3600000, false);
 }
+
+TEST(LogicTestAltFormat, Diagnostics) {
+    // start server
+    tcp::TcpServerPtr tcpServer =
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+    bool serverStart = tcpServer->start();
+    // start client
+    std::ostringstream oss;
+    TcpClientOptions tcpClientOptions(&oss);
+    tcpClientOptions._sourceName = "data/requestsDiffFormat.log";
+    tcpClientOptions._diagnostics = true;
+    tcp::TcpClient client(tcpClientOptions);
+    client.run();
+    ASSERT_TRUE(serverStart);
+    std::string calibratedOutput = TestEnvironment::_outputAltFormatD;
+    ASSERT_EQ(oss.str().size(), calibratedOutput.size());
+    ASSERT_EQ(oss.str(), calibratedOutput);
+    tcpServer->stop();
+}

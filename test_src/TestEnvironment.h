@@ -25,6 +25,7 @@ public:
   static std::string _source;
   static std::string _outputD;
   static std::string _outputND;
+  static std::string _outputAltFormatD;
   static TaskControllerPtr _taskController;
   static ServerOptions _serverOptions;
   static const COMPRESSORS _orgServerCompressor;
