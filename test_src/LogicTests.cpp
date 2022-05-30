@@ -70,16 +70,7 @@ struct LogicTest : testing::Test {
   void SetUp() {}
 
   void TearDown() {
-    TestEnvironment::_serverOptions._compressor = TestEnvironment::_orgServerCompressor;
-    TestEnvironment::_serverOptions._bufferSize = TestEnvironment::_orgServerBufferSize;
-    TestEnvironment::_taskController->setMemoryPoolSize(TestEnvironment::_orgServerBufferSize);
-    TestEnvironment::_oss.str("");
-    TestEnvironment::_tcpClientOptions._compressor = TestEnvironment::_orgTcpClientCompressor;
-    TestEnvironment::_tcpClientOptions._bufferSize = TestEnvironment::_orgTcpClientBufferSize;
-    TestEnvironment::_tcpClientOptions._diagnostics = TestEnvironment::_orgTcpClientDiagnostics;
-    TestEnvironment::_fifoClientOptions._compressor = TestEnvironment::_orgFifoClientCompressor;
-    TestEnvironment::_fifoClientOptions._bufferSize = TestEnvironment::_orgFifoClientBufferSize;
-    TestEnvironment::_fifoClientOptions._diagnostics = TestEnvironment::_orgFifoClientDiagnostics;
+    TestEnvironment::reset();
   }
 
   static void SetUpTestSuite() {
@@ -170,20 +161,50 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_100000_3600000_ND) {
 }
 
 TEST(LogicTestAltFormat, Diagnostics) {
+  // start server
+  tcp::TcpServerPtr tcpServer =
+    std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+  bool serverStart = tcpServer->start();
+  // start client
+  std::ostringstream oss;
+  TcpClientOptions tcpClientOptions(&oss);
+  tcpClientOptions._sourceName = "data/requestsDiffFormat.log";
+  tcpClientOptions._diagnostics = true;
+  tcp::TcpClient client(tcpClientOptions);
+  client.run();
+  ASSERT_TRUE(serverStart);
+  std::string calibratedOutput = TestEnvironment::_outputAltFormatD;
+  ASSERT_EQ(oss.str().size(), calibratedOutput.size());
+  ASSERT_EQ(oss.str(), calibratedOutput);
+  tcpServer->stop();
+}
+
+struct LogicTestSortInput : testing::Test {
+  void testLogicSortInput(bool sort) {
     // start server
+    ServerOptions serverOptions;
+    serverOptions._sortInput = sort;
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, serverOptions);
     bool serverStart = tcpServer->start();
     // start client
     std::ostringstream oss;
     TcpClientOptions tcpClientOptions(&oss);
-    tcpClientOptions._sourceName = "data/requestsDiffFormat.log";
     tcpClientOptions._diagnostics = true;
     tcp::TcpClient client(tcpClientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
-    std::string calibratedOutput = TestEnvironment::_outputAltFormatD;
+    std::string calibratedOutput = TestEnvironment::_outputD;
     ASSERT_EQ(oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(oss.str(), calibratedOutput);
     tcpServer->stop();
+  }
+};
+
+TEST_F(LogicTestSortInput, Sort) {
+  testLogicSortInput(true);
+}
+
+TEST_F(LogicTestSortInput, NoSort) {
+  testLogicSortInput(false);
 }

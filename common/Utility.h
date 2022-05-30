@@ -12,7 +12,7 @@ inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 
 namespace utility {
 
-// INPUT can be a string or a string_view.
+// INPUT can be a string or string_view.
 // CONTAINER can be a vector | deque | list of
 // string, string_view, vector<char> or objects of any class
 // with constructor arguments (const char*, const char*)
@@ -32,6 +32,11 @@ template <typename INPUT, typename CONTAINER>
 	rows.emplace_back(input.data() + start, input.data() + next);
       start = next + 1;
     }
+}
+
+template <typename CONTAINER>
+  void split(const std::vector<char>& input, CONTAINER& rows, char delim = '\n') {
+    split(std::string_view(input.data(), input.size()), rows, delim);
 }
 
 template <typename INPUT, typename CONTAINER>
@@ -107,5 +112,7 @@ template <Integral T>
 }
 
 std::string readFile(const std::string& name);
+
+void readFile(const std::string& name, std::vector<char>& buffer);
 
 } // end of namespace utility

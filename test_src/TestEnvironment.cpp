@@ -46,3 +46,16 @@ void TestEnvironment::SetUp() {
 }
 
 void TestEnvironment::TearDown() {}
+
+void TestEnvironment::reset() {
+  _serverOptions._compressor = _orgServerCompressor;
+  _serverOptions._bufferSize = _orgServerBufferSize;
+  _taskController->setMemoryPoolSize(_orgServerBufferSize);
+  _oss.str("");
+  _tcpClientOptions._compressor = _orgTcpClientCompressor;
+  _tcpClientOptions._bufferSize = _orgTcpClientBufferSize;
+  _tcpClientOptions._diagnostics = _orgTcpClientDiagnostics;
+  _fifoClientOptions._compressor = _orgFifoClientCompressor;
+  _fifoClientOptions._bufferSize = _orgFifoClientBufferSize;
+  _fifoClientOptions._diagnostics = _orgFifoClientDiagnostics;
+}

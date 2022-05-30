@@ -22,6 +22,8 @@ public:
 
   virtual void TearDown();
 
+  static void reset();
+
   static std::string _source;
   static std::string _outputD;
   static std::string _outputND;

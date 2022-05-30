@@ -5,6 +5,8 @@
 #include "Utility.h"
 #include <cstring>
 #include <iostream>
+#include <fcntl.h>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -18,6 +20,17 @@ std::string readFile(const std::string& name) {
   std::stringstream buffer;
   buffer << ifs.rdbuf();
   return buffer.str();
+}
+
+void readFile(const std::string& name, std::vector<char>& buffer) {
+  std::uintmax_t size = std::filesystem::file_size(name);
+  buffer.resize(size);
+  int fd = open(name.data(), O_RDONLY);
+  if (fd == -1)
+    throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
+  ssize_t result = read(fd, buffer.data(), size);
+  if (result == -1)
+    throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
 }
 
 } // end of namespace utility

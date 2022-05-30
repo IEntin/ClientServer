@@ -53,10 +53,7 @@ struct EchoTest : testing::Test {
   void SetUp() {}
 
   void TearDown() {
-    TestEnvironment::_serverOptions._compressor = TestEnvironment::_orgServerCompressor;
-    TestEnvironment::_oss.str("");
-    TestEnvironment::_tcpClientOptions._compressor = TestEnvironment::_orgTcpClientCompressor;
-    TestEnvironment::_fifoClientOptions._compressor = TestEnvironment::_orgFifoClientCompressor;
+    TestEnvironment::reset();
   }
 
   static void SetUpTestSuite() {

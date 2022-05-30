@@ -93,18 +93,17 @@ std::string Ad::extractSize(std::string_view line) {
 }
 
 // make SizeMap cache friendly
-
 bool Ad::readAndSortAds(const std::string& filename) {
-  static std::string content;
   try {
-    content = utility::readFile(filename);
+    static std::vector<char> buffer;
+    utility::readFile(filename, buffer);
+    utility::split(buffer, _rows);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  utility::split(content, _rows);
   for (AdRow& row : _rows)
     row._key = extractSize(row._value);
   std::stable_sort(_rows.begin(), _rows.end(), [] (const AdRow& row1, const AdRow& row2) {
