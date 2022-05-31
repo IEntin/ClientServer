@@ -8,6 +8,7 @@
 #include "Fifo.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "Utility.h"
 #include <atomic>
 #include <cstring>
 #include <fcntl.h>
@@ -79,8 +80,8 @@ bool FifoClient::processTask() {
 }
 
 bool FifoClient::run() {
-  CloseFileDescriptor raiiw(_fdWrite);
-  CloseFileDescriptor raiir(_fdRead);
+  utility::CloseFileDescriptor raiiw(_fdWrite);
+  utility::CloseFileDescriptor raiir(_fdRead);
   return Client::run();
 }
 

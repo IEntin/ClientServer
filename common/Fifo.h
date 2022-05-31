@@ -15,12 +15,6 @@ using Batch = std::vector<std::string>;
 
 namespace fifo {
 
-struct CloseFileDescriptor {
-  CloseFileDescriptor(int& fd);
-  ~CloseFileDescriptor();
-  int& _fd;
-};
-
 class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;

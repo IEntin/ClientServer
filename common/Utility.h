@@ -112,6 +112,12 @@ template <Integral T>
     return true;
 }
 
+struct CloseFileDescriptor {
+  CloseFileDescriptor(int& fd);
+  ~CloseFileDescriptor();
+  int& _fd;
+};
+
 std::string readFile(const std::string& name);
 
 void readFile(const std::string& name, std::vector<char>& buffer);
