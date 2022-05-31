@@ -4,22 +4,16 @@
 
 #include "Utility.h"
 #include <cstring>
-#include <iostream>
 #include <fcntl.h>
 #include <filesystem>
-#include <fstream>
-#include <sstream>
+#include <unistd.h>
 
 namespace utility {
 
 std::string readFile(const std::string& name) {
-  std::ifstream ifs(name, std::ifstream::in | std::ifstream::binary);
-  if (!ifs) {
-    throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
-  }
-  std::stringstream buffer;
-  buffer << ifs.rdbuf();
-  return buffer.str();
+  std::vector<char> buffer;
+  readFile(name, buffer);
+  return { std::make_move_iterator(buffer.begin()), std::make_move_iterator(buffer.end()) };
 }
 
 void readFile(const std::string& name, std::vector<char>& buffer) {

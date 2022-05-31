@@ -7,6 +7,7 @@
 #include <charconv>
 #include <iostream>
 #include <string_view>
+#include <vector>
 
 inline constexpr unsigned CONV_BUFFER_SIZE = 10;
 
