@@ -64,11 +64,22 @@ TEST_F(CompressionTest, 2_OUTPUTD) {
   testCompressionDecompression2(TestEnvironment::_outputD);
 }
 
-TEST(SplitTest, 1) {
+TEST(SplitTest, NoKeepDelim) {
   ClientOptions clientOptions;
   std::vector<std::string_view> lines;
   utility::split(TestEnvironment::_source, lines);
   ASSERT_EQ(lines.size(), 10000);
+  for (const auto& line : lines)
+    ASSERT_FALSE(line.ends_with('\n'));
+}
+
+TEST(SplitTest, KeepDelim) {
+  ClientOptions clientOptions;
+  std::vector<std::string_view> lines;
+  utility::split(TestEnvironment::_source, lines, '\n', 1);
+  ASSERT_EQ(lines.size(), 10000);
+  for (const auto& line : lines)
+    ASSERT_TRUE(line.ends_with('\n'));
 }
 
 TEST(FromCharsTest, Integral) {

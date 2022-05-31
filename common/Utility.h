@@ -19,7 +19,7 @@ namespace utility {
 // with constructor arguments (const char*, const char*)
 
 template <typename INPUT, typename CONTAINER>
-  void split(const INPUT& input, CONTAINER& rows, char delim = '\n') {
+  void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
     size_t start = 0;
     size_t next = 0;
     while (start < input.size()) {
@@ -30,14 +30,14 @@ template <typename INPUT, typename CONTAINER>
 	break;
       }
       else if (next > start + 1)
-	rows.emplace_back(input.data() + start, input.data() + next);
+	rows.emplace_back(input.data() + start, input.data() + next + keepDelim);
       start = next + 1;
     }
 }
 
 template <typename CONTAINER>
-  void split(const std::vector<char>& input, CONTAINER& rows, char delim = '\n') {
-    split(std::string_view(input.data(), input.size()), rows, delim);
+  void split(const std::vector<char>& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+    split(std::string_view(input.data(), input.size()), rows, delim, keepDelim);
 }
 
 template <typename INPUT, typename CONTAINER>

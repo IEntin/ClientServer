@@ -10,6 +10,15 @@
 
 namespace utility {
 
+struct CloseFile {
+  CloseFile(int& fd) : _fd(fd) {}
+  ~CloseFile() {
+    if (_fd != -1)
+      close(_fd);
+  }
+  int& _fd;
+};
+
 std::string readFile(const std::string& name) {
   std::vector<char> buffer;
   readFile(name, buffer);
@@ -19,7 +28,9 @@ std::string readFile(const std::string& name) {
 void readFile(const std::string& name, std::vector<char>& buffer) {
   std::uintmax_t size = std::filesystem::file_size(name);
   buffer.resize(size);
-  int fd = open(name.data(), O_RDONLY);
+  int fd = -1;
+  CloseFile cf(fd);
+  fd = open(name.data(), O_RDONLY);
   if (fd == -1)
     throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
   ssize_t result = read(fd, buffer.data(), size);
