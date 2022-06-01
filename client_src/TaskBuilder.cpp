@@ -67,7 +67,7 @@ bool TaskBuilder::getTask(Vectors& task) {
 // another device.
 // Aggregate requests to send them in one shot
 // to reduce the number of write/read system calls.
-// The size of the aggregate depends on the buffer size.
+// The size of the aggregate depends on the configured buffer size.
 
 bool TaskBuilder::createRequests() {
   static std::vector<std::string_view> lines;
@@ -82,8 +82,7 @@ bool TaskBuilder::createRequests() {
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  unsigned long long requestIndex = 0;
-  std::vector<char>& aggregated = _memoryPool.getPrimaryBuffer();
+  std::vector<char>& aggregate = _memoryPool.getPrimaryBuffer();
   std::vector<char>& single(_memoryPool.getSecondaryBuffer());
   size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
   if (single.capacity() < minimumCapacity) {
@@ -91,8 +90,9 @@ bool TaskBuilder::createRequests() {
 	      << ":Minimum size of the buffer is " << minimumCapacity << std::endl;
     return false;
   }
-  size_t offset = 0;
+  size_t aggregateSize = 0;
   size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
+  unsigned long long requestIndex = 0;
   for (const auto& line : lines) {
     *single.data() = '[';
     auto [ptr, ec] = std::to_chars(single.data() + 1, single.data() + CONV_BUFFER_SIZE, requestIndex++);
@@ -101,42 +101,26 @@ bool TaskBuilder::createRequests() {
 		<< "-error translating number:" << requestIndex << std::endl;
       continue;
     }
-    size_t singleOffset = ptr - single.data();
-    *(single.data() + singleOffset) = ']';
-    ++singleOffset;
-    if (singleOffset + line.size() > single.capacity())
-      single.reserve(singleOffset + line.size() + 1);
-    std::move(line.data(), line.data() + line.size(), single.data() + singleOffset);
-    singleOffset += line.size();
-    if (offset + singleOffset < maxSubtaskSize - HEADER_SIZE || offset == 0) {
-      if (maxSubtaskSize < singleOffset + HEADER_SIZE) {
-	std::vector<char> vect(singleOffset + HEADER_SIZE);
-	std::move(single.data(), single.data() + singleOffset, vect.data() + HEADER_SIZE);
-	_task.emplace_back();
-	_task.back().swap(vect);
-      }
-      else {
-	std::move(single.data(), single.data() + singleOffset, aggregated.data() + HEADER_SIZE + offset);
-	offset += singleOffset;
-      }
+    size_t singleSize = ptr - single.data();
+    *(single.data() + singleSize) = ']';
+    ++singleSize;
+    // in case single is too small for a line
+    single.reserve(singleSize + line.size());
+    std::move(line.data(), line.data() + line.size(), single.data() + singleSize);
+    singleSize += line.size();
+    // in case aggregate is too small for a single
+    aggregate.reserve(singleSize + HEADER_SIZE);
+    if (aggregateSize + singleSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
+      std::move(single.data(), single.data() + singleSize, aggregate.data() + HEADER_SIZE + aggregateSize);
+      aggregateSize += singleSize;
     }
     else {
-      _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
-      if (single.size() + HEADER_SIZE > maxSubtaskSize) {
-	std::vector<char> vect(singleOffset + HEADER_SIZE);
-	std::move(single.data(), single.data() + singleOffset, vect.data() + HEADER_SIZE);
-	_task.emplace_back();
-	_task.back().swap(vect);
-	offset = 0;
-      }
-      else {
-	std::move(single.data(), single.data() + singleOffset, aggregated.data() + HEADER_SIZE);
-	offset = singleOffset;
-      }
+      _task.emplace_back(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE);
+      std::move(single.data(), single.data() + singleSize, aggregate.data() + HEADER_SIZE);
+      aggregateSize = singleSize;
     }
   }
-  if (offset > 0)
-    _task.emplace_back(aggregated.data(), aggregated.data() + offset + HEADER_SIZE);
+  _task.emplace_back(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE);
   return true;
 }
 
