@@ -14,7 +14,7 @@ enum class COMPRESSORS : short unsigned int;
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
-using Batch = std::vector<std::string>;
+using Response = std::vector<std::string>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
@@ -58,9 +58,9 @@ class FifoConnection : public Runnable {
 		   size_t comprSize,
 		   bool bcompressed,
 		   std::vector<char>& uncompressed);
-  bool sendResponse(Batch& response);
+  bool sendResponse(Response& response);
   std::vector<char> _uncompressedRequest;
-  Batch _response;
+  Response _response;
   void run() noexcept override;
  public:
   FifoConnection(const ServerOptions& options,

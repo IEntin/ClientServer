@@ -4,14 +4,13 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <string_view>
+#include <sys/types.h>
+#include <tuple>
 
 enum class COMPRESSORS : short unsigned int;
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
-
-using Batch = std::vector<std::string>;
 
 namespace fifo {
 

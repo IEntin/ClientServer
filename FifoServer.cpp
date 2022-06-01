@@ -181,7 +181,7 @@ bool FifoConnection::readMsgBody(int fd,
   return true;
 }
 
-bool FifoConnection::sendResponse(Batch& response) {
+bool FifoConnection::sendResponse(Response& response) {
   std::string_view message =
     serverutility::buildReply(std::move(response), _compressor, _taskController->getMemoryPool());
   if (message.empty())

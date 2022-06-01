@@ -19,8 +19,6 @@ struct CloseSocket {
 
 class TcpClient : protected Client {
 
-  using Batch = std::vector<std::string>;
-
   bool processTask() override;
 
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);

@@ -9,7 +9,7 @@
 #include <boost/asio.hpp>
 #include <memory>
 
-using Batch = std::vector<std::string>;
+using Response = std::vector<std::string>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
@@ -40,7 +40,7 @@ private:
   void handleWriteReply(const boost::system::error_code& ec, size_t transferred);
   void asyncWait();
   bool onReceiveRequest();
-  bool sendReply(Batch& batch);
+  bool sendReply(Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
 
   TaskControllerPtr _taskController;
@@ -53,7 +53,7 @@ private:
   HEADER _header;
   std::vector<char> _request;
   std::vector<char> _uncompressed;
-  Batch _response;
+  Response _response;
   COMPRESSORS _compressor;
   TcpServerPtr _server;
 };

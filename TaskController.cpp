@@ -17,8 +17,8 @@ TaskController::TaskController(const ServerOptions* options) :
   _threadPool(_numberWorkThreads) {
   _memoryPool.setInitialSize(options->_bufferSize);
   // start with empty task
-  static Batch emptyBatch;
-  _task = std::make_shared<Task>(emptyBatch);
+  static Response emptyResponse;
+  _task = std::make_shared<Task>(emptyResponse);
 }
 
 TaskController::~TaskController() {
@@ -93,7 +93,7 @@ void TaskController::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-void TaskController::submitTask(const HEADER& header, std::vector<char>& input, Batch& response) {
+void TaskController::submitTask(const HEADER& header, std::vector<char>& input, Response& response) {
   try {
     TaskPtr task = std::make_shared<Task>(header, input, response);
     auto future = task->getPromise().get_future();

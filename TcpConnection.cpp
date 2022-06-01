@@ -77,10 +77,9 @@ bool TcpConnection::onReceiveRequest() {
   return true;
 }
 
-bool TcpConnection::sendReply(Batch& batch) {
-  std::string_view message = serverutility::buildReply(std::move(batch),
-						       _compressor,
-						       _taskController->getMemoryPool());
+bool TcpConnection::sendReply(Response& response) {
+  std::string_view message =
+    serverutility::buildReply(std::move(response), _compressor, _taskController->getMemoryPool());
   if (message.empty())
     return false;
   write(message);

@@ -11,10 +11,10 @@ enum class COMPRESSORS : short unsigned int;
 
 struct MemoryPool;
 
-using Batch = std::vector<std::string>;
+using Response = std::vector<std::string>;
 
 namespace serverutility {
 
-std::string_view buildReply(Batch&& batch, COMPRESSORS compressor, MemoryPool& memoryPool);
+std::string_view buildReply(Response&& response, COMPRESSORS compressor, MemoryPool& memoryPool);
 
 } // end of namespace serverutility

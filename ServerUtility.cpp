@@ -11,20 +11,20 @@
 
 namespace serverutility {
 
-std::string_view buildReply(Batch&& batch, COMPRESSORS compressor, MemoryPool& memoryPool) {
-  if (batch.empty())
+std::string_view buildReply(Response&& response, COMPRESSORS compressor, MemoryPool& memoryPool) {
+  if (response.empty())
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     std::clog << LZ4 << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
-  for (const auto& entry : batch)
+  for (const auto& entry : response)
     uncomprSize += entry.size();
   size_t requestedSize = uncomprSize + HEADER_SIZE;
   std::vector<char>& buffer = memoryPool.getSecondaryBuffer(requestedSize);
   buffer.resize(uncomprSize + HEADER_SIZE);
   size_t pos = HEADER_SIZE;
-  for (const auto& entry : batch) {
+  for (const auto& entry : response) {
     std::move(entry.begin(), entry.end(), buffer.begin() + pos);
     pos += entry.size();
   }

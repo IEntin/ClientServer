@@ -8,9 +8,9 @@
 ExtractKey Task::_extractKey = nullptr;
 ProcessRequest Task::_processRequest = nullptr;
 
-Task::Task(Batch& emptyBatch) : _response(emptyBatch) {}
+Task::Task(Response& emptyResponse) : _response(emptyResponse) {}
 
-Task::Task(const HEADER& header, std::vector<char>& input, Batch& response) :
+Task::Task(const HEADER& header, std::vector<char>& input, Response& response) :
   _header(header), _response(response)  {
   static thread_local std::vector<char> rawInput;
   input.swap(rawInput);

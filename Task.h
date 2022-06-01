@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 
-using Batch = std::vector<std::string>;
+using Response = std::vector<std::string>;
 
 class Task;
 
@@ -50,14 +50,14 @@ class Task {
   HEADER _header;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
-  Batch& _response;
+  Response& _response;
   static ExtractKey _extractKey;
   static ProcessRequest _processRequest;
 
  public:
-  Task(Batch& emptyBatch);
+  Task(Response& emptyResponse);
 
-  Task(const HEADER& header, std::vector<char>& input, Batch& response);
+  Task(const HEADER& header, std::vector<char>& input, Response& response);
 
   void sortIndices();
 
