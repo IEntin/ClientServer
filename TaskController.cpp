@@ -6,6 +6,7 @@
 #include "ServerOptions.h"
 #include "Task.h"
 #include <cassert>
+#include <iostream>
 
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
@@ -17,8 +18,7 @@ TaskController::TaskController(const ServerOptions* options) :
   _threadPool(_numberWorkThreads) {
   _memoryPool.setInitialSize(options->_bufferSize);
   // start with empty task
-  static Response emptyResponse;
-  _task = std::make_shared<Task>(emptyResponse);
+  _task = std::make_shared<Task>();
 }
 
 TaskController::~TaskController() {

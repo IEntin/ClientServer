@@ -5,10 +5,16 @@
 #include "Task.h"
 #include "Utility.h"
 
+namespace {
+
+Response emptyResponse;
+
+} // end of anonimous namespace
+
 ExtractKey Task::_extractKey = nullptr;
 ProcessRequest Task::_processRequest = nullptr;
 
-Task::Task(Response& emptyResponse) : _response(emptyResponse) {}
+Task::Task() : _response(emptyResponse) {}
 
 Task::Task(const HEADER& header, std::vector<char>& input, Response& response) :
   _header(header), _response(response)  {

@@ -33,6 +33,8 @@
     - LZ4 source repository : https://github.com/lz4/lz4
 */
 
+#pragma once
+
 #ifndef LZ4_H_2983827168210
 #define LZ4_H_2983827168210
 

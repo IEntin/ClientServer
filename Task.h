@@ -7,7 +7,6 @@
 #include "Header.h"
 #include <atomic>
 #include <future>
-#include <iostream>
 #include <vector>
 
 using Response = std::vector<std::string>;
@@ -55,7 +54,7 @@ class Task {
   static ProcessRequest _processRequest;
 
  public:
-  Task(Response& emptyResponse);
+  Task();
 
   Task(const HEADER& header, std::vector<char>& input, Response& response);
 
