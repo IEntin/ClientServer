@@ -3,12 +3,11 @@
  */
 
 #include "TaskBuilder.h"
+#include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
-#include <cassert>
-#include <cstring>
 
 TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
   _sourceName(options._sourceName),
@@ -22,12 +21,6 @@ void TaskBuilder::run() noexcept {
   try {
     _task.clear();
     if (!createRequests()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      _done = false;
-      _promise.set_value();
-      return;
-    }
-    if (!compressSubtasks()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       _done = false;
       _promise.set_value();
@@ -62,6 +55,15 @@ bool TaskBuilder::getTask(Vectors& task) {
   return _done;
 }
 
+unsigned TaskBuilder::createId(char* dst) {
+  *dst = '[';
+  auto [ptr, ec] = std::to_chars(dst + 1, dst + CONV_BUFFER_SIZE + 1, _requestIndex++);
+  if (ec != std::errc())
+    throw std::runtime_error(std::string("error translating number:") + std::to_string(_requestIndex));
+  *ptr = ']';
+  return ptr + 1 - dst;
+}
+
 // Read requests from the source, generate id for each.
 // The source can be a file or a message received from
 // another device.
@@ -72,89 +74,66 @@ bool TaskBuilder::getTask(Vectors& task) {
 bool TaskBuilder::createRequests() {
   static std::vector<std::string_view> lines;
   lines.clear();
+  static const unsigned short maxIdSize = CONV_BUFFER_SIZE + 2;
   try {
     static std::vector<char> buffer;
     utility::readFile(_sourceName, buffer);
     utility::split(buffer, lines, '\n', 1);
+    std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
+    size_t aggregateSize = 0;
+    size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
+    for (auto&& line : lines) {
+      // in case aggregate is too small for a single
+      aggregate.reserve(line.size() + HEADER_SIZE + maxIdSize);
+      if (aggregateSize + line.size() + maxIdSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
+	unsigned requestOffset = createId(aggregate.data() + HEADER_SIZE + aggregateSize); 
+	std::move(line.data(), line.data() + line.size(), aggregate.data() + HEADER_SIZE + requestOffset + aggregateSize);
+	aggregateSize += requestOffset + line.size();
+      }
+      else {
+	compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + HEADER_SIZE + aggregateSize));
+	unsigned requestOffset = createId(aggregate.data() + HEADER_SIZE); 
+	std::move(line.data(), line.data() + line.size(), aggregate.data() + HEADER_SIZE + requestOffset);
+	aggregateSize = requestOffset + line.size();
+      }
+    }
+    compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE));
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << e.what() <<std::endl;
     return false;
   }
-  std::vector<char>& aggregate = _memoryPool.getPrimaryBuffer();
-  std::vector<char>& single(_memoryPool.getSecondaryBuffer());
-  size_t minimumCapacity = HEADER_SIZE + CONV_BUFFER_SIZE + 2 + 1;
-  if (single.capacity() < minimumCapacity) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":Minimum size of the buffer is " << minimumCapacity << std::endl;
-    return false;
-  }
-  size_t aggregateSize = 0;
-  size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
-  unsigned long long requestIndex = 0;
-  for (const auto& line : lines) {
-    *single.data() = '[';
-    auto [ptr, ec] = std::to_chars(single.data() + 1, single.data() + CONV_BUFFER_SIZE, requestIndex++);
-    if (ec != std::errc()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-error translating number:" << requestIndex << std::endl;
-      continue;
-    }
-    size_t singleSize = ptr - single.data();
-    *(single.data() + singleSize) = ']';
-    ++singleSize;
-    // in case single is too small for a line
-    single.reserve(singleSize + line.size());
-    std::move(line.data(), line.data() + line.size(), single.data() + singleSize);
-    singleSize += line.size();
-    // in case aggregate is too small for a single
-    aggregate.reserve(singleSize + HEADER_SIZE);
-    if (aggregateSize + singleSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
-      std::move(single.data(), single.data() + singleSize, aggregate.data() + HEADER_SIZE + aggregateSize);
-      aggregateSize += singleSize;
-    }
-    else {
-      _task.emplace_back(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE);
-      std::move(single.data(), single.data() + singleSize, aggregate.data() + HEADER_SIZE);
-      aggregateSize = singleSize;
-    }
-  }
-  _task.emplace_back(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE);
   return true;
 }
 
-// Compress requests if options require this.
+// Compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-bool TaskBuilder::compressSubtasks() {
-  if (_task.empty())
-    return false;
+bool TaskBuilder::compressSubtask(std::vector<char>&& subtask) {
   bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     std::clog << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  for (auto& subtask : _task) {
-    std::string_view uncompressed(subtask.data() + HEADER_SIZE, subtask.data() + subtask.size());
-    size_t uncomprSize = uncompressed.size();
-    if (bcompressed) {
-      std::string_view compressed = Compression::compress(uncompressed, _memoryPool);
-      if (compressed.empty())
-	return false;
-      // LZ4 may generate compressed larger than uncompressed.
-      if (compressed.size() >= uncomprSize) {
-	encodeHeader(subtask.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
-	subtask.resize(HEADER_SIZE + uncomprSize);
-      }
-      else {
-	encodeHeader(subtask.data(), uncomprSize, compressed.size(), _compressor, _diagnostics);
-	std::move(compressed.data(), compressed.data() + compressed.size(), subtask.data() + HEADER_SIZE);
-	subtask.resize(HEADER_SIZE + compressed.size());
-      }
+  std::string_view uncompressed(subtask.data() + HEADER_SIZE, subtask.data() + subtask.size());
+  size_t uncomprSize = uncompressed.size();
+  if (bcompressed) {
+    std::string_view compressed = Compression::compress(uncompressed, _memoryPool);
+    if (compressed.empty())
+      return false;
+    // LZ4 may generate compressed larger than uncompressed.
+    if (compressed.size() >= uncomprSize) {
+      encodeHeader(subtask.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
+      _task.emplace_back(std::move(subtask));
     }
     else {
-      encodeHeader(subtask.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
-      subtask.resize(HEADER_SIZE + uncomprSize);
+      encodeHeader(subtask.data(), uncomprSize, compressed.size(), _compressor, _diagnostics);
+      std::move(compressed.data(), compressed.data() + compressed.size(), subtask.data() + HEADER_SIZE);
+      _task.emplace_back(subtask.data(), subtask.data() + HEADER_SIZE + compressed.size());
     }
+  }
+  else {
+    encodeHeader(subtask.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
+    _task.emplace_back(std::move(subtask));
   }
   return true;
 }
