@@ -7,6 +7,7 @@
 #include "Runnable.h"
 #include <future>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 using Vectors = std::vector<std::vector<char>>;
@@ -18,7 +19,7 @@ class TaskBuilder : public Runnable {
 
   bool compressSubtask(std::vector<char>&& subtask);
 
-  unsigned createId(char* dst);
+  unsigned copyRequestWithId(char* dst, std::string_view line);
 
   Vectors _task;
   const std::string _sourceName;
@@ -35,5 +36,5 @@ class TaskBuilder : public Runnable {
   ~TaskBuilder() override;
   void run() noexcept override;
   bool getTask(Vectors& task);
-  bool createRequests();
+  bool createTask();
 };

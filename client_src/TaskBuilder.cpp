@@ -20,7 +20,7 @@ TaskBuilder::~TaskBuilder() {}
 void TaskBuilder::run() noexcept {
   try {
     _task.clear();
-    if (!createRequests()) {
+    if (!createTask()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       _done = false;
       _promise.set_value();
@@ -55,13 +55,15 @@ bool TaskBuilder::getTask(Vectors& task) {
   return _done;
 }
 
-unsigned TaskBuilder::createId(char* dst) {
+unsigned TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
   *dst = '[';
   auto [ptr, ec] = std::to_chars(dst + 1, dst + CONV_BUFFER_SIZE + 1, _requestIndex++);
   if (ec != std::errc())
     throw std::runtime_error(std::string("error translating number:") + std::to_string(_requestIndex));
   *ptr = ']';
-  return ptr + 1 - dst;
+  unsigned offset = ptr + 1 - dst;
+  std::move(line.data(), line.data() + line.size(), dst + offset);
+  return offset + line.size();
 }
 
 // Read requests from the source, generate id for each.
@@ -71,7 +73,7 @@ unsigned TaskBuilder::createId(char* dst) {
 // to reduce the number of write/read system calls.
 // The size of the aggregate depends on the configured buffer size.
 
-bool TaskBuilder::createRequests() {
+bool TaskBuilder::createTask() {
   static std::vector<std::string_view> lines;
   lines.clear();
   static const unsigned short maxIdSize = CONV_BUFFER_SIZE + 2;
@@ -86,15 +88,13 @@ bool TaskBuilder::createRequests() {
       // in case aggregate is too small for a single
       aggregate.reserve(line.size() + HEADER_SIZE + maxIdSize);
       if (aggregateSize + line.size() + maxIdSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
-	unsigned requestOffset = createId(aggregate.data() + HEADER_SIZE + aggregateSize); 
-	std::move(line.data(), line.data() + line.size(), aggregate.data() + HEADER_SIZE + requestOffset + aggregateSize);
-	aggregateSize += requestOffset + line.size();
+	unsigned copied = copyRequestWithId(aggregate.data() + HEADER_SIZE + aggregateSize, line); 
+	aggregateSize += copied;
       }
       else {
 	compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + HEADER_SIZE + aggregateSize));
-	unsigned requestOffset = createId(aggregate.data() + HEADER_SIZE); 
-	std::move(line.data(), line.data() + line.size(), aggregate.data() + HEADER_SIZE + requestOffset);
-	aggregateSize = requestOffset + line.size();
+	unsigned copied = copyRequestWithId(aggregate.data() + HEADER_SIZE, line); 
+	aggregateSize = copied;
       }
     }
     compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE));
