@@ -6,6 +6,8 @@
 #include "Runnable.h"
 #include <iostream>
 
+Runnable::~Runnable() {}
+
 ThreadPool::ThreadPool() {}
 
 ThreadPool::ThreadPool(unsigned numberThreads) {

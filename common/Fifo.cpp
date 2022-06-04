@@ -14,14 +14,14 @@
 
 namespace fifo {
 
-HEADER Fifo::readHeader(int fd, std::string_view fifoName, int maxRepeatEINTR) {
+HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE + 1] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN, fifoName, maxRepeatEINTR);
+	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
 	  continue;
 	return { -1, -1, COMPRESSORS::NONE, false, false };
@@ -38,7 +38,7 @@ HEADER Fifo::readHeader(int fd, std::string_view fifoName, int maxRepeatEINTR) {
       return { -1, -1, COMPRESSORS::NONE, false, false };
     }
     else
-      readSoFar += result;
+      readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != HEADER_SIZE) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
@@ -48,13 +48,13 @@ HEADER Fifo::readHeader(int fd, std::string_view fifoName, int maxRepeatEINTR) {
   return decodeHeader(std::string_view(buffer, HEADER_SIZE), readSoFar == HEADER_SIZE);
 }
 
-bool Fifo::readString(int fd, char* received, size_t size, std::string_view fifoName, int maxRepeatEINTR) {
+bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
   size_t readSoFar = 0;
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN, fifoName, maxRepeatEINTR);
+	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
 	  continue;
       }
@@ -70,7 +70,7 @@ bool Fifo::readString(int fd, char* received, size_t size, std::string_view fifo
       return false;
     }
     else
-      readSoFar += result;
+      readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != size) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " size="
@@ -95,7 +95,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
       }
     }
     else
-      written += result;
+      written += static_cast<size_t>(result);
   }
   if (str.size() != written) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":str.size()="
@@ -105,7 +105,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
   return true;
 }
 
-short Fifo::pollFd(int& fd, short expected, std::string_view fifoName, int maxRepeatEINTR) {
+short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
   int rep = 0;
   pollfd pfd{ fd, expected, 0 };
   do {

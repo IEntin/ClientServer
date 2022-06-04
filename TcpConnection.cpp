@@ -97,7 +97,7 @@ void TcpConnection::readHeader() {
 			  });
 }
 
-void TcpConnection::handleReadHeader(const boost::system::error_code& ec, size_t transferred) {
+void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
   if (stopped())
     return;
   asyncWait();
@@ -136,7 +136,7 @@ void TcpConnection::write(std::string_view reply) {
 			   });
 }
 
-void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_t transferred) {
+void TcpConnection::handleReadRequest(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
   if (stopped())
     return;
   boost::system::error_code ignore;
@@ -151,7 +151,7 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, size_
   }
 }
 
-void TcpConnection::handleWriteReply(const boost::system::error_code& ec, size_t transferred) {
+void TcpConnection::handleWriteReply(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
   if (stopped())
     return;
   boost::system::error_code ignore;

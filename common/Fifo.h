@@ -18,11 +18,11 @@ class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;
 
-  static short pollFd(int& fd, short expected, std::string_view fifoName, int maxRepeatEINTR);
+  static short pollFd(int& fd, short expected, int maxRepeatEINTR);
 public:
-  static HEADER readHeader(int fd, std::string_view fifoName, int numberRepeatEINTR);
+  static HEADER readHeader(int fd, int numberRepeatEINTR);
 
-  static bool readString(int fd, char* received, size_t size, std::string_view fifoName, int maxRepeatEINTR);
+  static bool readString(int fd, char* received, size_t size, int maxRepeatEINTR);
 
   static bool writeString(int fd, std::string_view str);
 

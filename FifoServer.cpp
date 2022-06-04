@@ -146,7 +146,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
       return false;
     }
   }
-  header = Fifo::readHeader(_fdRead, _fifoName, _options._numberRepeatEINTR);
+  header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone)
     return false;
@@ -163,7 +163,7 @@ bool FifoConnection::readMsgBody(int fd,
 	      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
     std::vector<char>& buffer = _taskController->getMemoryPool().getPrimaryBuffer(comprSize);
-    if (!Fifo::readString(fd, buffer.data(), comprSize, _fifoName, _options._numberRepeatEINTR))
+    if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
       return false;
     std::string_view received(buffer.data(), comprSize);
     uncompressed.resize(uncomprSize);
@@ -175,7 +175,7 @@ bool FifoConnection::readMsgBody(int fd,
   }
   else {
     uncompressed.resize(uncomprSize);
-    if (!Fifo::readString(fd, uncompressed.data(), uncomprSize, _fifoName, _options._numberRepeatEINTR))
+    if (!Fifo::readString(fd, uncompressed.data(), uncomprSize, _options._numberRepeatEINTR))
       return false;
   }
   return true;

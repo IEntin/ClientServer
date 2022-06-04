@@ -12,7 +12,7 @@
 #include "Transaction.h"
 #include <csignal>
 
-void signalHandler(int signal) {}
+void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
   signal(SIGPIPE, SIG_IGN);

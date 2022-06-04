@@ -7,6 +7,6 @@
 class Runnable {
  public:
   Runnable() = default;
-  virtual ~Runnable() {}
+  virtual ~Runnable();
   virtual void run() = 0;
 };

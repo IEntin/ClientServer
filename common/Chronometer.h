@@ -29,7 +29,7 @@ struct Chronometer {
     }
   }
 
-  void stop(const char* file, const char* function, int line) {
+  void stop(const char* file, [[maybe_unused]] const char* function, int line) {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };
