@@ -58,7 +58,7 @@ class FifoConnection : public Runnable {
 		   size_t comprSize,
 		   bool bcompressed,
 		   std::vector<char>& uncompressed);
-  bool sendResponse(Response& response);
+  bool sendResponse(Response&& response);
   std::vector<char> _uncompressedRequest;
   Response _response;
   void run() noexcept override;

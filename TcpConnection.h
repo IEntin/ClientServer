@@ -40,7 +40,7 @@ private:
   void handleWriteReply(const boost::system::error_code& ec, size_t transferred);
   void asyncWait();
   bool onReceiveRequest();
-  bool sendReply(Response& response);
+  bool sendReply(Response&& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
 
   TaskControllerPtr _taskController;

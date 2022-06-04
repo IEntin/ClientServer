@@ -2,8 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#pragma once
-
 #include <boost/asio.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>

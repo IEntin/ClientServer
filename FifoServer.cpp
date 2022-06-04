@@ -123,7 +123,7 @@ void FifoConnection::run() noexcept {
       if (!receiveRequest(_uncompressedRequest, header))
 	continue;
       _taskController->submitTask(header, _uncompressedRequest, _response);
-      sendResponse(_response);
+      sendResponse(std::move(_response));
     }
     catch (...) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -181,7 +181,7 @@ bool FifoConnection::readMsgBody(int fd,
   return true;
 }
 
-bool FifoConnection::sendResponse(Response& response) {
+bool FifoConnection::sendResponse(Response&& response) {
   std::string_view message =
     serverutility::buildReply(std::move(response), _compressor, _taskController->getMemoryPool());
   if (message.empty())

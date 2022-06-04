@@ -72,12 +72,12 @@ bool TcpConnection::onReceiveRequest() {
     static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 						       << " received not compressed" << std::endl;
   _taskController->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
-  if (!sendReply(_response))
+  if (!sendReply(std::move(_response)))
     return false;
   return true;
 }
 
-bool TcpConnection::sendReply(Response& response) {
+bool TcpConnection::sendReply(Response&& response) {
   std::string_view message =
     serverutility::buildReply(std::move(response), _compressor, _taskController->getMemoryPool());
   if (message.empty())
