@@ -34,7 +34,7 @@ struct RequestRow {
   }
   std::string _key;
   std::string_view _value;
-  unsigned _index{};
+  int _index{};
 };
 
 class Task {
@@ -45,7 +45,7 @@ class Task {
   bool empty() const { return _rows.empty(); }
 
   std::vector<RequestRow> _rows;
-  std::vector<unsigned> _indices;
+  std::vector<int> _indices;
   HEADER _header;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;

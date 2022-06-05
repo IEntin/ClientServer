@@ -22,7 +22,7 @@ Task::Task(const HEADER& header, std::vector<char>& input, Response& response) :
   input.swap(rawInput);
   utility::split(std::string_view(rawInput.data(), rawInput.size()), _rows);
   _indices.resize(_rows.size());
-  for (unsigned i = 0; i < _indices.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(_indices.size()); ++i) {
     _indices[i] = i;
     _rows[i]._index = i;
   }
@@ -30,7 +30,7 @@ Task::Task(const HEADER& header, std::vector<char>& input, Response& response) :
 }
 
 void Task::sortIndices() {
-  std::sort(_indices.begin(), _indices.end(), [this] (unsigned index1, unsigned index2) {
+  std::sort(_indices.begin(), _indices.end(), [this] (int index1, int index2) {
 	      return _rows[index1]._key < _rows[index2]._key;
 	    });
 }

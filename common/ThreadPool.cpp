@@ -38,7 +38,7 @@ void ThreadPool::start(int numberThreads) {
 
 void ThreadPool::stop() {
   // wake up and join threads
-  for (unsigned i = 0; i < _threads.size(); ++i)
+  for (int i = 0; i < static_cast<int>(_threads.size()); ++i)
     push(RunnablePtr());
   for (auto& thread : _threads)
     if (thread.joinable())
