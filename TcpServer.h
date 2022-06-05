@@ -40,8 +40,8 @@ private:
   TaskControllerPtr _taskController;
   const size_t _numberConnections;
   boost::asio::io_context _ioContext;
-  unsigned _tcpPort;
-  unsigned _timeout;
+  int _tcpPort;
+  int _timeout;
   COMPRESSORS _compressor;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;

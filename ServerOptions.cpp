@@ -17,8 +17,8 @@ ServerOptions::ServerOptions() :
   _timingEnabled(ProgramOptions::get("Timing", false)),
   _processRequest(Transaction::processRequest),
   _adsFileName(ProgramOptions::get("AdsFileName", std::string("data/ads.txt"))),
-  _numberWorkThreads([] ()->unsigned {
-		       unsigned numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
+  _numberWorkThreads([] ()->int {
+		       int numberWorkThreadsCfg = ProgramOptions::get("NumberTaskThreads", 0);
 		       return numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
 			 std::thread::hardware_concurrency();}()),
   _compressor(Compression::isCompressionEnabled(ProgramOptions::get("Compression", std::string(LZ4)))),

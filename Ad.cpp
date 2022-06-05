@@ -65,7 +65,7 @@ bool Ad::parseArray() {
     double dblMoney = 0;
     if (!utility::fromChars(vect[i + 1], dblMoney))
       continue;
-    unsigned money = std::lround(dblMoney * _scaler);
+    long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
     _bids.emplace_back(vect[i], money);

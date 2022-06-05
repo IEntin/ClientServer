@@ -23,7 +23,7 @@ using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public Runnable {
 public:
-  TcpConnection(TaskControllerPtr taskController, unsigned timeout, COMPRESSORS compressor, TcpServerPtr server);
+  TcpConnection(TaskControllerPtr taskController, int timeout, COMPRESSORS compressor, TcpServerPtr server);
   ~TcpConnection() override;
 
   void run() noexcept override;
@@ -47,7 +47,7 @@ private:
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::socket _socket;
-  unsigned _timeout;
+  int _timeout;
   AsioTimer _timer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;

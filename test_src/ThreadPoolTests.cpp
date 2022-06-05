@@ -10,7 +10,7 @@ TEST(ThreadPoolTest, 1) {
   ThreadPoolPtr pool = std::make_shared<ThreadPool>(10);
   class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
   public:
-    TestRunnable(unsigned number, ThreadPoolPtr pool) :
+    TestRunnable(int number, ThreadPoolPtr pool) :
       Runnable(), _number(number), _pool(pool->shared_from_this()) {}
     ~TestRunnable() override {
       EXPECT_EQ(_id, std::this_thread::get_id());
@@ -22,11 +22,11 @@ TEST(ThreadPoolTest, 1) {
     void start() {
       _pool->push(shared_from_this());
     }
-    const unsigned _number;
+    const int _number;
     ThreadPoolPtr _pool;
     std::thread::id _id;
   };
-  for (unsigned i = 0; i < 20; ++i) {
+  for (int i = 0; i < 20; ++i) {
     auto runnable = std::make_shared<TestRunnable>(i, pool);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     runnable->start();

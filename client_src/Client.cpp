@@ -21,7 +21,7 @@ Client::~Client() {
 }
 
 bool Client::run() {
-  unsigned numberTasks = 0;
+  int numberTasks = 0;
   TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
   _threadPool.push(taskBuilder);
   do {

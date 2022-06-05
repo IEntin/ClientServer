@@ -61,7 +61,7 @@ void TaskController::onTaskCompletion() noexcept {
 }
 
 void TaskController::initialize() {
-  for (unsigned i = 0; i < _numberWorkThreads; ++i)
+  for (int i = 0; i < _numberWorkThreads; ++i)
     _threadPool.push(shared_from_this());
 }
 

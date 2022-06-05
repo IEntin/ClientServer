@@ -10,7 +10,7 @@ Runnable::~Runnable() {}
 
 ThreadPool::ThreadPool() {}
 
-ThreadPool::ThreadPool(unsigned numberThreads) {
+ThreadPool::ThreadPool(int numberThreads) {
   start(numberThreads);
 }
 
@@ -18,8 +18,8 @@ ThreadPool::~ThreadPool() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-void ThreadPool::start(size_t numberThreads) {
-  for (unsigned i = 0; i < numberThreads; ++i) {
+void ThreadPool::start(int numberThreads) {
+  for (int i = 0; i < numberThreads; ++i) {
     _threads.emplace_back([this] () {
 			    while (true) {
 			      // additional scope for the fast recycling

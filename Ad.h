@@ -44,7 +44,7 @@ class Ad {
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(const std::string& filename);
   static const std::vector<Ad>& getAdsBySize(std::string_view key);
-  static const unsigned _scaler = 100;
+  static const long _scaler = 100;
  private:
   Ad& operator =(const Ad& other) = delete;
   bool parseIntro();
@@ -55,7 +55,7 @@ class Ad {
   const std::string_view _sizeKey;
   std::vector<AdBid> _bids;
   std::string_view _id;
-  unsigned _defaultBid{ 0 };
+  long _defaultBid{ 0 };
   static std::vector<AdRow> _rows;
   static SizeMap _mapBySize;
   static bool _loaded;

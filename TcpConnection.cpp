@@ -11,7 +11,7 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(TaskControllerPtr taskController, unsigned timeout, COMPRESSORS compressor, TcpServerPtr server) :
+TcpConnection::TcpConnection(TaskControllerPtr taskController, int timeout, COMPRESSORS compressor, TcpServerPtr server) :
   _taskController(taskController),
   _ioContext(1),
   _socket(_ioContext),

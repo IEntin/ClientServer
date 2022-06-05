@@ -10,16 +10,16 @@
 class Ad;
 
 struct AdBid {
-  AdBid(std::string_view keyword, unsigned money);
+  AdBid(std::string_view keyword, long money);
   std::string_view _keyword;
-  unsigned _money = 0;
+  long _money = 0;
 };
 
 struct AdBidMatched {
-  AdBidMatched(std::string_view keyword, unsigned money, const Ad* ad);
+  AdBidMatched(std::string_view keyword, long money, const Ad* ad);
   const AdBidMatched& operator =(const AdBidMatched&) = delete;
   const std::string_view _keyword;
-  const unsigned _money;
+  const long _money;
   const Ad* _ad;
 };
 

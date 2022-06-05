@@ -36,7 +36,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void setNextTask();
   bool stopped() const { return _stopped; }
   static TaskControllerPtr create(const ServerOptions* options);
-  const unsigned _numberWorkThreads;
+  const int _numberWorkThreads;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
   std::barrier<CompletionFunction> _barrier;

@@ -28,7 +28,7 @@ class TaskBuilder : public Runnable {
   MemoryPool& _memoryPool;
   bool _done = false;
   std::promise<void> _promise;
-  unsigned long long _requestIndex = 0;
+  long long _requestIndex = 0;
 
  public:
 

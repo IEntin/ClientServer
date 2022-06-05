@@ -19,11 +19,11 @@ struct ServerOptions {
   const bool _timingEnabled;
   const ProcessRequest _processRequest;
   const std::string _adsFileName;
-  const unsigned _numberWorkThreads;
+  const int _numberWorkThreads;
   COMPRESSORS _compressor;
-  const unsigned _expectedTcpConnections;
-  const unsigned _tcpPort;
-  const unsigned _tcpTimeout;
+  const int _expectedTcpConnections;
+  const int _tcpPort;
+  const int _tcpTimeout;
   const std::string _fifoDirectoryName;
   const std::string _fifoBaseNames;
   const int _numberRepeatEINTR;

@@ -20,9 +20,9 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   std::queue<RunnablePtr> _queue;
  public:
   ThreadPool();
-  explicit ThreadPool(unsigned numberThreads);
+  explicit ThreadPool(int numberThreads);
   ~ThreadPool();
-  void start(size_t numberThreads);
+  void start(int numberThreads);
   void stop();
   void push(RunnablePtr runnable);
   RunnablePtr get();

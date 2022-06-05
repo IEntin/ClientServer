@@ -21,7 +21,7 @@ struct ClientOptions {
   std::ostream* _dataStream;
   // max number iterations when _runLoop is true,
   // unlimited if it is 0.
-  const unsigned _maxNumberTasks;
+  const int _maxNumberTasks;
   std::ostream* _instrStream;
   const int _numberRepeatEINTR;
   const int _numberRepeatENXIO;
