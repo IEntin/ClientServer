@@ -147,9 +147,9 @@ void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view reques
 
 inline const AdBidMatched* findWinningBid(const std::vector<AdBidMatched>& bids) {
   int index = 0;
-  double max = bids[0]._money;
+  int max = bids[0]._money;
   for (int i = 1; i < static_cast<int>(bids.size()); ++i) {
-    double money = bids[i]._money;
+    int money = bids[i]._money;
     if (money > max) {
       max = money;
       index = i;
