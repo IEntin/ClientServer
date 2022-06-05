@@ -6,7 +6,7 @@
 
 #include <string>
 
-enum class COMPRESSORS : short unsigned int;
+enum class COMPRESSORS : short;
 
 using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 

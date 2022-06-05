@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-inline constexpr unsigned CONV_BUFFER_SIZE = 10;
+inline constexpr int CONV_BUFFER_SIZE = 10;
 
 namespace utility {
 

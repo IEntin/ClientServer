@@ -12,14 +12,14 @@
 
 using Vectors = std::vector<std::vector<char>>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
-enum class COMPRESSORS : unsigned short;
+enum class COMPRESSORS : short;
 struct MemoryPool;
 
 class TaskBuilder : public Runnable {
 
   bool compressSubtask(std::vector<char>&& subtask);
 
-  unsigned copyRequestWithId(char* dst, std::string_view line);
+  int copyRequestWithId(char* dst, std::string_view line);
 
   Vectors _task;
   const std::string _sourceName;

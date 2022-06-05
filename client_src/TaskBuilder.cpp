@@ -55,13 +55,13 @@ bool TaskBuilder::getTask(Vectors& task) {
   return _done;
 }
 
-unsigned TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
+int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
   *dst = '[';
   auto [ptr, ec] = std::to_chars(dst + 1, dst + CONV_BUFFER_SIZE + 1, _requestIndex++);
   if (ec != std::errc())
     throw std::runtime_error(std::string("error translating number:") + std::to_string(_requestIndex));
   *ptr = ']';
-  unsigned offset = ptr + 1 - dst;
+  int offset = ptr + 1 - dst;
   std::move(line.data(), line.data() + line.size(), dst + offset);
   return offset + line.size();
 }
@@ -76,24 +76,24 @@ unsigned TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 bool TaskBuilder::createTask() {
   static std::vector<std::string_view> lines;
   lines.clear();
-  static const unsigned short maxIdSize = CONV_BUFFER_SIZE + 2;
+  static const short maxIdSize = CONV_BUFFER_SIZE + 2;
   try {
     static std::vector<char> buffer;
     utility::readFile(_sourceName, buffer);
     utility::split(buffer, lines, '\n', 1);
     std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
-    size_t aggregateSize = 0;
-    size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
+    long aggregateSize = 0;
+    long maxSubtaskSize = _memoryPool.getInitialBufferSize();
     for (auto&& line : lines) {
       // in case aggregate is too small for a single
       aggregate.reserve(line.size() + HEADER_SIZE + maxIdSize);
-      if (aggregateSize + line.size() + maxIdSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
-	unsigned copied = copyRequestWithId(aggregate.data() + HEADER_SIZE + aggregateSize, line); 
+      if (aggregateSize + static_cast<long>(line.size()) + maxIdSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
+	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE + aggregateSize, line); 
 	aggregateSize += copied;
       }
       else {
 	compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + HEADER_SIZE + aggregateSize));
-	unsigned copied = copyRequestWithId(aggregate.data() + HEADER_SIZE, line); 
+	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE, line); 
 	aggregateSize = copied;
       }
     }

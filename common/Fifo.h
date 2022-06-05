@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <tuple>
 
-enum class COMPRESSORS : short unsigned int;
+enum class COMPRESSORS : short;
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 

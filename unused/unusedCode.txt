@@ -91,3 +91,6 @@ ssize_t Fifo::getDefaultPipeSize() {
   close(fd);
   return pipeSize;
 }
+#include <sys/resource.h>
+
+       int getrusage(int who, struct rusage *usage);

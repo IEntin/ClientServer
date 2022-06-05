@@ -10,7 +10,7 @@
 struct ServerOptions;
 struct TcpClientOptions;
 struct FifoClientOptions;
-enum class COMPRESSORS : short unsigned int;
+enum class COMPRESSORS : short;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
