@@ -63,7 +63,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line, int& nextId
   *ptr = ']';
   int offset = ptr - dst + 1;
   nextIdSz = offset + 1;
-  std::move(line.data(), line.data() + line.size(), dst + offset);
+  std::copy(line.data(), line.data() + line.size(), dst + offset);
   return offset + line.size();
 }
 
@@ -85,7 +85,7 @@ bool TaskBuilder::createTask() {
     std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
     long aggregateSize = 0;
     long maxSubtaskSize = _memoryPool.getInitialBufferSize();
-    for (auto&& line : lines) {
+    for (const auto& line : lines) {
       // in case aggregate is too small for a single, does
       // nothing if configured buffer size is reasonable.
       aggregate.reserve(line.size() + HEADER_SIZE + nextIdSz);
