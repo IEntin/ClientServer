@@ -55,13 +55,14 @@ bool TaskBuilder::getTask(Vectors& task) {
   return _done;
 }
 
-int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
+int TaskBuilder::copyRequestWithId(char* dst, std::string_view line, int& nextIdSz) {
   *dst = '[';
   auto [ptr, ec] = std::to_chars(dst + 1, dst + CONV_BUFFER_SIZE + 1, _requestIndex++);
   if (ec != std::errc())
     throw std::runtime_error(std::string("error translating number:") + std::to_string(_requestIndex));
   *ptr = ']';
-  int offset = ptr + 1 - dst;
+  int offset = ptr - dst + 1;
+  nextIdSz = offset + 1;
   std::move(line.data(), line.data() + line.size(), dst + offset);
   return offset + line.size();
 }
@@ -76,7 +77,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 bool TaskBuilder::createTask() {
   static std::vector<std::string_view> lines;
   lines.clear();
-  static const short maxIdSize = CONV_BUFFER_SIZE + 2;
+  int nextIdSz = 4;
   try {
     static std::vector<char> buffer;
     utility::readFile(_sourceName, buffer);
@@ -85,15 +86,16 @@ bool TaskBuilder::createTask() {
     long aggregateSize = 0;
     long maxSubtaskSize = _memoryPool.getInitialBufferSize();
     for (auto&& line : lines) {
-      // in case aggregate is too small for a single
-      aggregate.reserve(line.size() + HEADER_SIZE + maxIdSize);
-      if (aggregateSize + static_cast<long>(line.size()) + maxIdSize < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
-	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE + aggregateSize, line); 
+      // in case aggregate is too small for a single, does
+      // nothing if configured buffer size is reasonable.
+      aggregate.reserve(line.size() + HEADER_SIZE + nextIdSz);
+      if (aggregateSize + static_cast<long>(line.size()) + nextIdSz < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
+	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE + aggregateSize, line, nextIdSz);
 	aggregateSize += copied;
       }
       else {
 	compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + HEADER_SIZE + aggregateSize));
-	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE, line); 
+	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE, line, nextIdSz);
 	aggregateSize = copied;
       }
     }
@@ -121,6 +123,7 @@ bool TaskBuilder::compressSubtask(std::vector<char>&& subtask) {
     if (compressed.empty())
       return false;
     // LZ4 may generate compressed larger than uncompressed.
+    // In this case an uncompressed task is sent.
     if (compressed.size() >= uncomprSize) {
       encodeHeader(subtask.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
       _task.emplace_back(std::move(subtask));

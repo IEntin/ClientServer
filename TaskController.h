@@ -13,7 +13,7 @@
 #include <queue>
 #include <vector>
 
-enum class COMPRESSORS : short;
+enum class COMPRESSORS : int;
 
 using Response = std::vector<std::string>;
 

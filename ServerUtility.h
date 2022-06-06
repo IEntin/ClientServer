@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-enum class COMPRESSORS : short;
+enum class COMPRESSORS : int;
 
 struct MemoryPool;
 

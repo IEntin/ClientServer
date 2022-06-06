@@ -10,7 +10,7 @@
 #include <thread>
 #include <vector>
 
-enum class COMPRESSORS : short;
+enum class COMPRESSORS : int;
 
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 

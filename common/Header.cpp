@@ -16,7 +16,7 @@ void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, COMPRESSORS co
   ok = utility::toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
   assert(ok);
   offset +=  NUM_FIELD_SIZE;
-  ok = utility::toChars(static_cast<short>(compressor), buffer + offset, COMPRESSOR_TYPE_SIZE);
+  ok = utility::toChars(static_cast<int>(compressor), buffer + offset, COMPRESSOR_TYPE_SIZE);
   assert(ok);
   offset += COMPRESSOR_TYPE_SIZE;
   buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);

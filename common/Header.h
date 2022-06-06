@@ -17,12 +17,12 @@ inline constexpr int HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + D
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 
-enum class COMPRESSORS : short {
+enum class COMPRESSORS : int {
   NONE,
   LZ4
 };
 
-enum class HEADER_INDEX : short {
+enum class HEADER_INDEX : int {
   UNCOMPRESSED_SIZE,
   COMPRESSED_SIZE,
   COMPRESSOR,

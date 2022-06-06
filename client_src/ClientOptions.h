@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-enum class COMPRESSORS : short;
+enum class COMPRESSORS : int;
 
 struct ClientOptions {
   explicit ClientOptions(std::ostream* externalDataStream = nullptr);
