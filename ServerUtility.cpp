@@ -11,7 +11,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(Response&& response, COMPRESSORS compressor, MemoryPool& memoryPool) {
+std::string_view buildReply(const Response& response, COMPRESSORS compressor, MemoryPool& memoryPool) {
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
@@ -35,7 +35,7 @@ std::string_view buildReply(Response&& response, COMPRESSORS compressor, MemoryP
       return std::string_view();
     buffer.resize(HEADER_SIZE + dstView.size());
     encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
-    std::move(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
+    std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
   else
     encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false);
