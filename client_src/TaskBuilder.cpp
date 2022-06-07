@@ -94,12 +94,12 @@ bool TaskBuilder::createTask() {
 	aggregateSize += copied;
       }
       else {
-	compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + HEADER_SIZE + aggregateSize));
+	compressSubtask(aggregate.data(), aggregate.data() + HEADER_SIZE + aggregateSize);
 	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE, line, nextIdSz);
 	aggregateSize = copied;
       }
     }
-    compressSubtask(std::vector<char>(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE));
+    compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -112,31 +112,31 @@ bool TaskBuilder::createTask() {
 // Compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-bool TaskBuilder::compressSubtask(std::vector<char>&& subtask) {
+bool TaskBuilder::compressSubtask(char* beg, char* end) {
   bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     std::clog << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  std::string_view uncompressed(subtask.data() + HEADER_SIZE, subtask.data() + subtask.size());
+  std::string_view uncompressed(beg + HEADER_SIZE, end);
   size_t uncomprSize = uncompressed.size();
   if (bcompressed) {
     std::string_view compressed = Compression::compress(uncompressed, _memoryPool);
     if (compressed.empty())
       return false;
     // LZ4 may generate compressed larger than uncompressed.
-    // In this case an uncompressed task is sent.
+    // In this case an uncompressed subtask is sent.
     if (compressed.size() >= uncomprSize) {
-      encodeHeader(subtask.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
-      _task.emplace_back(std::move(subtask));
+      encodeHeader(beg, uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics);
+      _task.emplace_back(beg, end);
     }
     else {
-      encodeHeader(subtask.data(), uncomprSize, compressed.size(), _compressor, _diagnostics);
-      std::move(compressed.data(), compressed.data() + compressed.size(), subtask.data() + HEADER_SIZE);
-      _task.emplace_back(subtask.data(), subtask.data() + HEADER_SIZE + compressed.size());
+      encodeHeader(beg, uncomprSize, compressed.size(), _compressor, _diagnostics);
+      std::copy(compressed.data(), compressed.data() + compressed.size(), beg + HEADER_SIZE);
+      _task.emplace_back(beg, beg + HEADER_SIZE + compressed.size());
     }
   }
   else {
-    encodeHeader(subtask.data(), uncomprSize, uncomprSize, _compressor, _diagnostics);
-    _task.emplace_back(std::move(subtask));
+    encodeHeader(beg, uncomprSize, uncomprSize, _compressor, _diagnostics);
+    _task.emplace_back(beg, end);
   }
   return true;
 }

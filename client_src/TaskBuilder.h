@@ -17,7 +17,7 @@ struct MemoryPool;
 
 class TaskBuilder : public Runnable {
 
-  bool compressSubtask(std::vector<char>&& subtask);
+  bool compressSubtask(char* beg, char* end);
 
   int copyRequestWithId(char* dst, std::string_view line, int& nextIdSz);
 
