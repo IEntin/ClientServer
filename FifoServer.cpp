@@ -123,7 +123,7 @@ void FifoConnection::run() noexcept {
       if (!receiveRequest(_uncompressedRequest, header))
 	continue;
       _taskController->submitTask(header, _uncompressedRequest, _response);
-      sendResponse(std::move(_response));
+      sendResponse(_response);
     }
     catch (...) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

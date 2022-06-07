@@ -24,8 +24,8 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, Me
   std::vector<char>& buffer = memoryPool.getSecondaryBuffer(requestedSize);
   buffer.resize(uncomprSize + HEADER_SIZE);
   ssize_t pos = HEADER_SIZE;
-  for (auto&& entry : response) {
-    std::move(entry.begin(), entry.end(), buffer.begin() + pos);
+  for (const auto& entry : response) {
+    std::copy(entry.begin(), entry.end(), buffer.begin() + pos);
     pos += entry.size();
   }
   std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
