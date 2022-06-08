@@ -44,7 +44,7 @@ bool Compression::uncompressInternal(std::string_view compressed,
   return true;
 }
 
-size_t Compression::getCompressBound(size_t uncomprSize) {
+int Compression::getCompressBound(int uncomprSize) {
   return LZ4_compressBound(uncomprSize);
 }
 

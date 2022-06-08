@@ -84,13 +84,13 @@ bool TaskBuilder::createTask() {
     utility::split(buffer, lines, '\n', 1);
     std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
     long aggregateSize = 0;
-    long maxSubtaskSize = _memoryPool.getInitialBufferSize();
+    size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
     for (const auto& line : lines) {
-      // in case aggregate is too small for a single, does
-      // nothing if configured buffer size is reasonable.
-      aggregate.reserve(line.size() + HEADER_SIZE + nextIdSz);
-      if (aggregateSize + static_cast<long>(line.size()) + nextIdSz < maxSubtaskSize - HEADER_SIZE || aggregateSize == 0) {
-	int copied = copyRequestWithId(aggregate.data() + HEADER_SIZE + aggregateSize, line, nextIdSz);
+      // in case aggregate is too small for a single line,
+      // does nothing if configured buffer size is reasonable.
+      aggregate.reserve(HEADER_SIZE + nextIdSz + line.size());
+      if (aggregateSize + HEADER_SIZE + nextIdSz + line.size() < maxSubtaskSize || aggregateSize == 0) {
+	int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line, nextIdSz);
 	aggregateSize += copied;
       }
       else {
