@@ -79,17 +79,6 @@ void FifoServer::wakeupPipes() {
 		  << result << ":expected result == 1 " << std::strerror(errno) << std::endl;
       close(fd);
     }
-    else {
-      fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
-      if (fd == -1) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		  << std::strerror(errno) << '-' << fifoName << std::endl;
-	continue;
-      }
-      char c{};
-      int result[[maybe_unused]] = read(fd, &c, 1);
-      close(fd);
-    }
   }
 }
 
@@ -107,10 +96,6 @@ FifoConnection::FifoConnection(const ServerOptions& options,
   _options(options), _taskController(taskController), _fifoName(fifoName), _compressor(compressor), _server(server) {}
 
 FifoConnection::~FifoConnection() {
-  if (_fdRead != -1)
-    close(_fdRead);
-  if (_fdWrite != -1)
-    close(_fdWrite);
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -134,10 +119,7 @@ void FifoConnection::run() noexcept {
 }
 
 bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) {
-  if (_fdWrite != -1) {
-    close(_fdWrite);
-    _fdWrite = -1;
-  }
+  utility::CloseFileDescriptor cfdr(_fdRead);
   if (!_server->stopped()) {
     _fdRead = open(_fifoName.data(), O_RDONLY);
     if (_fdRead == -1) {
@@ -186,14 +168,11 @@ bool FifoConnection::sendResponse(const Response& response) {
     serverutility::buildReply(response, _compressor, _taskController->getMemoryPool());
   if (message.empty())
     return false;
-  if (_fdRead != -1) {
-    close(_fdRead);
-    _fdRead = -1;
-  }
   // Open write fd in NONBLOCK mode in order to protect the server
   // from a client crashed or killed with SIGKILL and resume operation
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
+  utility::CloseFileDescriptor cfdw(_fdWrite);
   if (!_server->stopped()) {
     int rep = 0;
     do {
