@@ -4,9 +4,7 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
-#include "Compression.h"
 #include "Header.h"
-#include "MemoryPool.h"
 #include <iostream>
 
 namespace tcp {
@@ -29,25 +27,28 @@ TcpClient::~TcpClient() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool TcpClient::processTask() {
-  for (const auto& subtask : _task) {
-    boost::system::error_code ec;
-    size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
-    if (ec) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ':' << ec.what() << std::endl;
-      return false;
-    }
-    char header[HEADER_SIZE + 1] = {};
-    memset(header, 0, HEADER_SIZE);
-    boost::asio::read(_socket, boost::asio::buffer(header, HEADER_SIZE), ec);
-    auto [uncomprSize, comprSize, compressor, diagnostics, done] =
-      decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
-    if (!done)
-      return false;
-    if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
-      return false;
+bool TcpClient::send(const std::vector<char>& subtask) {
+  boost::system::error_code ec;
+  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
+  if (ec) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ':' << ec.what() << std::endl;
+    return false;
   }
+  return true;
+}
+
+bool TcpClient::receive() {
+  char header[HEADER_SIZE + 1] = {};
+  memset(header, 0, HEADER_SIZE);
+  boost::system::error_code ec;
+  boost::asio::read(_socket, boost::asio::buffer(header, HEADER_SIZE), ec);
+  auto [uncomprSize, comprSize, compressor, diagnostics, done] =
+    decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
+  if (!done)
+    return false;
+  if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
+    return false;
   return true;
 }
 

@@ -19,7 +19,9 @@ struct CloseSocket {
 
 class TcpClient : protected Client {
 
-  bool processTask() override;
+  bool send(const std::vector<char>& subtask) override;
+
+  bool receive() override;
 
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
@@ -27,8 +29,11 @@ class TcpClient : protected Client {
   boost::asio::ip::tcp::socket _socket;
   std::string_view _serverHost;
   std::string_view _tcpPort;
+
  public:
+
   TcpClient(const TcpClientOptions& options);
+
   ~TcpClient() override;
 
   bool run() override;

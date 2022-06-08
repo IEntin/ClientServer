@@ -17,9 +17,7 @@ class Client {
 
   Client(const ClientOptions& options);
 
-  virtual bool processTask() = 0;
-
-  virtual bool run() = 0;
+  bool processTask();
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
@@ -36,6 +34,12 @@ class Client {
  public:
 
   virtual ~Client();
+
+  virtual bool send(const std::vector<char>& subtask) = 0;
+
+  virtual bool receive() = 0;
+
+  virtual bool run();
 
   const Vectors& getTask() const { return _task; }
 };

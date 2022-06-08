@@ -20,6 +20,16 @@ Client::~Client() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
+bool Client::processTask() {
+  for (const auto& subtask : _task) {
+    if (!send(subtask))
+      return false;
+    if (!receive())
+      return false;
+  }
+  return true;
+}
+
 bool Client::run() {
   int numberTasks = 0;
   TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
