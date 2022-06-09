@@ -29,20 +29,9 @@ struct ClientOptions {
   const int _numberRepeatEINTR;
   const int _numberRepeatENXIO;
   const int _ENXIOwait;
-};
-
-struct TcpClientOptions : ClientOptions {
-  explicit TcpClientOptions(const std::string& jsonName = "",
-			    std::ostream* externalDataStream = nullptr);
 
   const std::string _serverHost;
   const std::string _tcpPort;
-};
-
-struct FifoClientOptions : ClientOptions {
-  explicit FifoClientOptions(const std::string& jsonName = "",
-			     std::ostream* externalDataStream = nullptr);
-
   const std::string _fifoName;
   const bool _setPipeSize;
 };

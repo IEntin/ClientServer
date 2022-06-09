@@ -19,13 +19,11 @@ int main() {
   std::cout.tie(nullptr);
   signal(SIGPIPE, SIG_IGN);
   if (useFifo) {
-    FifoClientOptions options("ClientOptions.json");
     fifo::FifoClient client(options);
     if (!client.run())
       return 1;
   }
   if (useTcp) {
-    TcpClientOptions options("ClientOptions.json");
     tcp::TcpClient client(options);
     if (!client.run())
       return 2;

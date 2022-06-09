@@ -13,7 +13,7 @@
 
 namespace fifo {
 
-FifoClient::FifoClient(const FifoClientOptions& options) :
+FifoClient::FifoClient(const ClientOptions& options) :
   Client(options), _fifoName(options._fifoName), _setPipeSize(options._setPipeSize) {}
 
 FifoClient::~FifoClient() {

@@ -24,8 +24,8 @@ struct EchoTest : testing::Test {
       std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    TestEnvironment::_tcpClientOptions._compressor = clientCompressor;
-    tcp::TcpClient client(TestEnvironment::_tcpClientOptions);
+    TestEnvironment::_clientOptions._compressor = clientCompressor;
+    tcp::TcpClient client(TestEnvironment::_clientOptions);
     bool clientRun = client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
@@ -41,8 +41,8 @@ struct EchoTest : testing::Test {
       std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
-    TestEnvironment::_fifoClientOptions._compressor = clientCompressor;
-    fifo::FifoClient client(TestEnvironment::_fifoClientOptions);
+    TestEnvironment::_clientOptions._compressor = clientCompressor;
+    fifo::FifoClient client(TestEnvironment::_clientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());

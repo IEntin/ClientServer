@@ -30,10 +30,10 @@ struct LogicTest : testing::Test {
       std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    TestEnvironment::_tcpClientOptions._compressor = clientCompressor;
-    TestEnvironment::_tcpClientOptions._bufferSize = clientMemPoolSize;
-    TestEnvironment::_tcpClientOptions._diagnostics = diagnostics;
-    tcp::TcpClient client(TestEnvironment::_tcpClientOptions);
+    TestEnvironment::_clientOptions._compressor = clientCompressor;
+    TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
+    TestEnvironment::_clientOptions._diagnostics = diagnostics;
+    tcp::TcpClient client(TestEnvironment::_clientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
@@ -55,10 +55,10 @@ struct LogicTest : testing::Test {
       std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
-    TestEnvironment::_fifoClientOptions._compressor = clientCompressor;
-    TestEnvironment::_fifoClientOptions._bufferSize = clientMemPoolSize;
-    TestEnvironment::_fifoClientOptions._diagnostics = diagnostics;
-    fifo::FifoClient client(TestEnvironment::_fifoClientOptions);
+    TestEnvironment::_clientOptions._compressor = clientCompressor;
+    TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
+    TestEnvironment::_clientOptions._diagnostics = diagnostics;
+    fifo::FifoClient client(TestEnvironment::_clientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
@@ -165,9 +165,9 @@ struct LogicTestAltFormat : testing::Test {
       std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    TestEnvironment::_tcpClientOptions._sourceName = "data/requestsDiffFormat.log";
-    TestEnvironment::_tcpClientOptions._diagnostics = true;
-    tcp::TcpClient client(TestEnvironment::_tcpClientOptions);
+    TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
+    TestEnvironment::_clientOptions._diagnostics = true;
+    tcp::TcpClient client(TestEnvironment::_clientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
@@ -201,8 +201,8 @@ struct LogicTestSortInput : testing::Test {
       std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
-    TestEnvironment::_tcpClientOptions._diagnostics = true;
-    tcp::TcpClient client(TestEnvironment::_tcpClientOptions);
+    TestEnvironment::_clientOptions._diagnostics = true;
+    tcp::TcpClient client(TestEnvironment::_clientOptions);
     client.run();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = TestEnvironment::_outputD;

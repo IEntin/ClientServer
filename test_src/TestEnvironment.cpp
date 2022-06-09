@@ -21,15 +21,11 @@ const bool TestEnvironment::_orgSortInput = TestEnvironment::_serverOptions._sor
 const COMPRESSORS TestEnvironment::_orgServerCompressor = TestEnvironment::_serverOptions._compressor;
 const size_t TestEnvironment::_orgServerBufferSize = TestEnvironment::_serverOptions._bufferSize;
 std::ostringstream TestEnvironment::_oss;
-TcpClientOptions TestEnvironment::_tcpClientOptions("", &_oss);
-const std::string TestEnvironment::_orgSourceName = TestEnvironment::_tcpClientOptions._sourceName;
-const COMPRESSORS TestEnvironment::_orgTcpClientCompressor = TestEnvironment::_tcpClientOptions._compressor;
-const size_t TestEnvironment::_orgTcpClientBufferSize = TestEnvironment::_tcpClientOptions._bufferSize;
-const bool TestEnvironment::_orgTcpClientDiagnostics = TestEnvironment::_tcpClientOptions._diagnostics;
-FifoClientOptions TestEnvironment::_fifoClientOptions("", &_oss);
-const COMPRESSORS TestEnvironment::_orgFifoClientCompressor = TestEnvironment::_fifoClientOptions._compressor;
-const size_t TestEnvironment::_orgFifoClientBufferSize = TestEnvironment::_fifoClientOptions._bufferSize;
-const bool TestEnvironment::_orgFifoClientDiagnostics = TestEnvironment::_fifoClientOptions._diagnostics;
+ClientOptions TestEnvironment::_clientOptions("", &_oss);
+const std::string TestEnvironment::_orgSourceName = TestEnvironment::_clientOptions._sourceName;
+const COMPRESSORS TestEnvironment::_orgClientCompressor = TestEnvironment::_clientOptions._compressor;
+const bool TestEnvironment::_orgClientDiagnostics = TestEnvironment::_clientOptions._diagnostics;
+const size_t TestEnvironment::_orgClientBufferSize = TestEnvironment::_clientOptions._bufferSize;
 
 void TestEnvironment::SetUp() {
   try {
@@ -55,12 +51,8 @@ void TestEnvironment::reset() {
   _serverOptions._bufferSize = _orgServerBufferSize;
   _taskController->setMemoryPoolSize(_orgServerBufferSize);
   _oss.str("");
-  _tcpClientOptions._sourceName = _orgSourceName;
-  _tcpClientOptions._compressor = _orgTcpClientCompressor;
-  _tcpClientOptions._bufferSize = _orgTcpClientBufferSize;
-  _tcpClientOptions._diagnostics = _orgTcpClientDiagnostics;
-  _fifoClientOptions._sourceName = _orgSourceName;
-  _fifoClientOptions._compressor = _orgFifoClientCompressor;
-  _fifoClientOptions._bufferSize = _orgFifoClientBufferSize;
-  _fifoClientOptions._diagnostics = _orgFifoClientDiagnostics;
+  _clientOptions._compressor = _orgClientCompressor;
+  _clientOptions._bufferSize = _orgClientBufferSize;
+  _clientOptions._sourceName = _orgSourceName;
+  _clientOptions._diagnostics = _orgClientDiagnostics;
 }

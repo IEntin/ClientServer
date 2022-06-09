@@ -8,6 +8,7 @@
 #include <sstream>
 
 struct ServerOptions;
+struct ClientOptions;
 struct TcpClientOptions;
 struct FifoClientOptions;
 enum class COMPRESSORS : int;
@@ -34,13 +35,9 @@ public:
   static const COMPRESSORS _orgServerCompressor;
   static const size_t _orgServerBufferSize;
   static std::ostringstream _oss;
-  static TcpClientOptions _tcpClientOptions;
-  static const COMPRESSORS _orgTcpClientCompressor;
+  static ClientOptions _clientOptions;
   static const std::string _orgSourceName;
-  static const size_t _orgTcpClientBufferSize;
-  static const bool _orgTcpClientDiagnostics;
-  static FifoClientOptions _fifoClientOptions;
-  static const COMPRESSORS _orgFifoClientCompressor;
-  static const size_t _orgFifoClientBufferSize;
-  static const bool _orgFifoClientDiagnostics;
+  static const size_t _orgClientBufferSize;
+  static const COMPRESSORS _orgClientCompressor;
+  static const bool _orgClientDiagnostics;
 };

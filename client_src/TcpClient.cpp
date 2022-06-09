@@ -17,7 +17,7 @@ CloseSocket::~CloseSocket() {
   _socket.close(ignore);
 }
 
-TcpClient::TcpClient(const TcpClientOptions& options) :
+TcpClient::TcpClient(const ClientOptions& options) :
   Client(options), _ioContext(1), _socket(_ioContext) {
   _serverHost = options._serverHost;
   _tcpPort = options._tcpPort;

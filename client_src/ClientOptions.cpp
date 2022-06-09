@@ -43,19 +43,13 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
 	       }()),
   _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
   _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),
-  _ENXIOwait(_appOptions.get("ENXIOwai", 20000)) {
+  _ENXIOwait(_appOptions.get("ENXIOwai", 20000)),
+  _serverHost(_appOptions.get("ServerHost", std::string("localhost"))),
+  _tcpPort(_appOptions.get("TcpPort", std::string("49172"))),
+  _fifoName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
+	    _appOptions.get("FifoBaseName", std::string("client1"))),
+  _setPipeSize(_appOptions.get("SetPipeSize", true)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);
 }
-
-TcpClientOptions::TcpClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
-  ClientOptions(jsonName, externalDataStream),
-  _serverHost(_appOptions.get("ServerHost", std::string("localhost"))),
-  _tcpPort(_appOptions.get("TcpPort", std::string("49172"))) {}
-
-FifoClientOptions::FifoClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
-  ClientOptions(jsonName, externalDataStream),
-  _fifoName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
-	    _appOptions.get("FifoBaseName", std::string("client1"))),
-  _setPipeSize(_appOptions.get("SetPipeSize", true)) {}

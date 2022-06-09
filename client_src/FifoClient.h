@@ -8,8 +8,6 @@
 #include <string>
 #include <vector>
 
-struct FifoClientOptions;
-
 namespace fifo {
 
 class FifoClient : public Client {
@@ -27,7 +25,7 @@ class FifoClient : public Client {
 
  public:
 
-  FifoClient(const FifoClientOptions& options);
+  FifoClient(const ClientOptions& options);
 
   ~FifoClient() override;
 };

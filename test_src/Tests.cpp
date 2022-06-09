@@ -120,10 +120,10 @@ TEST(HeaderTest, 1) {
 
 struct BuildTaskTest : testing::Test {
   void testBuildTask(COMPRESSORS compressor) {
-    TestEnvironment::_fifoClientOptions._compressor = compressor;
+    TestEnvironment::_clientOptions._compressor = compressor;
     MemoryPool memoryPool;
-    memoryPool.setInitialSize(TestEnvironment::_fifoClientOptions._bufferSize);
-    TaskBuilder taskBuilder(TestEnvironment::_fifoClientOptions, memoryPool);
+    memoryPool.setInitialSize(TestEnvironment::_clientOptions._bufferSize);
+    TaskBuilder taskBuilder(TestEnvironment::_clientOptions, memoryPool);
     taskBuilder.run();
     Vectors task;
     ASSERT_TRUE(taskBuilder.getTask(task));

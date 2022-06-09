@@ -7,8 +7,6 @@
 #include "Client.h"
 #include <boost/asio.hpp>
 
-struct TcpClientOptions;
-
 namespace tcp {
 
 struct CloseSocket {
@@ -32,7 +30,7 @@ class TcpClient : protected Client {
 
  public:
 
-  TcpClient(const TcpClientOptions& options);
+  TcpClient(const ClientOptions& options);
 
   ~TcpClient() override;
 
