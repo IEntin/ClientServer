@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "AppOptions.h"
 #include <string>
 
 enum class COMPRESSORS : int;
@@ -11,8 +12,9 @@ enum class COMPRESSORS : int;
 using ProcessRequest = std::string (*)(std::string_view, std::string_view);
 
 struct ServerOptions {
-  ServerOptions();
+  explicit ServerOptions(const std::string& jsonName = "");
   ~ServerOptions() = default;
+  AppOptions _appOptions;
   const bool _turnOffLogging;
   bool _sortInput;
   size_t _bufferSize;

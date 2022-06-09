@@ -30,11 +30,13 @@ public:
   static std::string _outputAltFormatD;
   static TaskControllerPtr _taskController;
   static ServerOptions _serverOptions;
+  static const bool _orgSortInput;
   static const COMPRESSORS _orgServerCompressor;
   static const size_t _orgServerBufferSize;
   static std::ostringstream _oss;
   static TcpClientOptions _tcpClientOptions;
   static const COMPRESSORS _orgTcpClientCompressor;
+  static const std::string _orgSourceName;
   static const size_t _orgTcpClientBufferSize;
   static const bool _orgTcpClientDiagnostics;
   static FifoClientOptions _fifoClientOptions;

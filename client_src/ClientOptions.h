@@ -4,14 +4,17 @@
 
 #pragma once
 
+#include "AppOptions.h"
 #include <fstream>
 
 enum class COMPRESSORS : int;
 
 struct ClientOptions {
-  explicit ClientOptions(std::ostream* externalDataStream = nullptr);
+  ClientOptions(const std::string& jsonName, std::ostream* externalDataStream);
 
+  AppOptions _appOptions;
   const bool _turnOffLogging;
+  const std::string _communicationType;
   std::string _sourceName;
   size_t _bufferSize;
   COMPRESSORS _compressor;
@@ -29,14 +32,16 @@ struct ClientOptions {
 };
 
 struct TcpClientOptions : ClientOptions {
-  explicit TcpClientOptions(std::ostream* externalDataStream = nullptr);
+  explicit TcpClientOptions(const std::string& jsonName = "",
+			    std::ostream* externalDataStream = nullptr);
 
   const std::string _serverHost;
   const std::string _tcpPort;
 };
 
 struct FifoClientOptions : ClientOptions {
-  explicit FifoClientOptions(std::ostream* externalDataStream = nullptr);
+  explicit FifoClientOptions(const std::string& jsonName = "",
+			     std::ostream* externalDataStream = nullptr);
 
   const std::string _fifoName;
   const bool _setPipeSize;

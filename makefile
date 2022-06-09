@@ -17,7 +17,7 @@
 #make SANITIZE=[  | aul | thread ]
 #make CMPLR=[ g++ | clang++ ]
 
-all: server client buildtests runtests
+all: server client testbin runtests
 
 ifeq ($(CMPLR),)
   CXX := clang++
@@ -32,13 +32,12 @@ CLIENTBINDIR := client_bin
 CLIENTPSEUDOTARGET := client
 COMMONDIR := common
 LZ4DIR := lz4
-TESTDIR := test_src
+TESTSRCDIR := test_src
 DATADIR := data
 
 SERVERBIN := server
 CLIENTBIN := $(CLIENTBINDIR)/client
-TESTBINDIR := test_bin
-TESTBIN := $(TESTBINDIR)/runtests
+TESTBIN := testbin
 
 # precompiled headers
 
@@ -86,13 +85,13 @@ MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -DE
 
 BOOST_INCLUDES := /usr/local/boost_1_79_0
 
-INCLUDES := -I. -I$(BOOST_INCLUDES) -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTDIR) -I$(LZ4DIR)
+INCLUDES := -I. -I$(BOOST_INCLUDES) -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTSRCDIR) -I$(LZ4DIR)
 
 CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a -MMD -MP $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
 OBJDIR := obj
 
-vpath %.cpp $(COMMONDIR) $(CLIENTSRCDIR) $(TESTDIR) $(LZ4DIR)
+vpath %.cpp $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR) $(LZ4DIR)
 
 $(OBJDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
@@ -124,27 +123,22 @@ $(CLIENTPSEUDOTARGET) : $(CLIENTBIN)
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread
 
-TESTSRC = $(wildcard $(TESTDIR)/*.cpp)
-TESTOBJ = $(patsubst $(TESTDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
-BUILDTESTPSEUDOTARGET := buildtests
-
-$(BUILDTESTPSEUDOTARGET) : $(TESTBIN)
-	(cd $(TESTBINDIR); ln -sf ../$(DATADIR))
-	touch $(BUILDTESTPSEUDOTARGET)
+TESTSRC = $(wildcard $(TESTSRCDIR)/*.cpp)
+TESTOBJ = $(patsubst $(TESTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
-	$(CXX) -o $(TESTBIN) $(TESTOBJ) -lgtest $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CPPFLAGS) -pthread
+	$(CXX) -o $@ $(TESTOBJ) -lgtest $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CPPFLAGS) -pthread
 
 RUNTESTSPSEUDOTARGET := runtests
 
-$(RUNTESTSPSEUDOTARGET) : $(BUILDTESTPSEUDOTARGET)
-	@(cd $(TESTBINDIR); ./runtests)
+$(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
+	./$(TESTBIN)
 	touch $(RUNTESTSPSEUDOTARGET)
 
 .PHONY: clean cleanall
 
 clean:
-	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out $(TESTBINDIR)/* *.gcov *.gcno *.gcda *~ */*~
+	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
 
 cleanall : clean
 	$(RM) *.gch */*.gch *.pch */*.pch

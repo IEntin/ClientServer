@@ -17,8 +17,8 @@ with predictable sequence of reads and writes, it is possible to make pipes bidi
 situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
 In this application after every write the code closes write file descriptor and opens read fd for the\
 same end of the pipe, and so on. This significantly simplifies the setup - one fifo per client. See\
-below fragments of configuration in ProgramOptions.json for the server and clients. Testing\
-showed that performance impact of fd reopening is small especially for large batches.
+below fragments of configuration in ServerOptions.json for the server and ClientOptions.json for clients.\
+Testing showed that performance impact of fd reopening is small especially for large batches.
 
 Special consideration was given to the shutdown process of fifo server and clients. The problem is that\
 in the default blocking mode the process is hanging on open(fd, ...) until another end of the pipe is open too.\
@@ -48,8 +48,7 @@ If you do not have sudo access, binaries and scripts will still run for any\
 requested size but buffer size will not be changed and setPipeSize(...) will\
 log an error "Operation not permitted".\
 This option can be disabled altogether by setting\
-"SetPipeSize", false\
-in ProgramOptions.json for the server and clients.
+"SetPipeSize", false in ServerOptions.json and ClientOptions.json.
 
 If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
 stopping the server.
@@ -106,20 +105,20 @@ OPTIMIZE = [ -O3 | any |  ] By default -O3.\
 CMPLR = [ clang++ | g++ |  ] By default clang++.
 
 There are four targets:\
-server client buildtests runtests.\
+server client testbin runtests.\
 By default all targets are built:\
 'make -j4'\
 (you can specify any number of jobs).\
 Any combination of targets can be specified, e.g.\
 'make -j4 server client'\
-Note that empty file 'client' (as well as 'buildtests' and 'runtests') in\
+Note that empty file 'client' (as well as 'runtests') in\
 the root is a pseudo target used by make. Binary client is created in the\
 client_bin directory.
 
 3. run\
 server:
 
-Change settings for FIFO and tcp in ProgramOptions.json:
+Change settings for FIFO and tcp in ServerOptions.json:
 
 server:\
 fifo:\
@@ -145,9 +144,9 @@ tcp:\
 
   ........
 
-Names of pipes and tcp ports should match on server and clients. For named pipes ProgramOptions.json\
+Names of pipes and tcp ports should match on server and clients. For named pipes ServerOptions.json\
 contains the list of known clients. The number and identity of tcp clients is not known in advance, only\
-their expected maximum number("ExpectedTcpConnections" in ProgramOptions.json).\
+their expected maximum number("ExpectedTcpConnections" in ServerOptions.json).\
 Generally, the number of clients is limited by hardware performance.\
 This server was tested with 5 clients with mixed client types.
 
@@ -166,16 +165,16 @@ cd project_root/client_bin\
 ./client
 
 To run the server outside of the project create a directory, copy server binary,\
-make a soft link to the project_root/data directory, copy server' ProgramOptions.json\
+make a soft link to the project_root/data directory, copy server' ServerOptions.json\
 to this directory, and issue './server' command.
 
 Similarly for the client. Create a directory, copy binary client, make a soft link to data\
-directory, copy client' ProgramOptions.json, and run './client'.
+directory, copy ClientOptions.json, and run './client'.
 
 No special requirements for the hardware.\
 Using laptop with 4 cores and 4GB RAM to run the server and up to 5 fifo and tcp clients.\
 Running Linux Mint 20.2.\
-Multiple runtime options are in ProgramOptions.json files for the server and client\
+Multiple runtime options are in ServerOptions.json and ClientOptions.json files\
 in corresponding directories.
 
 Some of these:
@@ -195,22 +194,20 @@ memory footprint of the application. The latter is important for embedded system
 value 0 means that the number of threads is std::hardware_concurrency
 
 Client can request diagnostics for a specific task to show details of all stages of business calculations.\
-This setting is '"Diagnostics" : true' in the client ProgramOptions.json. It enables diagnostics only\
+This setting is '"Diagnostics" : true' in the ClientOptions.json. It enables diagnostics only\
 for that client.
 
 To run the Google tests:\
-'./runtests'\
-in the test_bin directory\
+'./testbin'\
 or './runtests.sh <number repetitions>' \
 in the project root.
 
 To run the tests from any directory outside of the project\
 create a directory anywhere, make a soft link to the\
 project_root/data directory in this new directory and copy the binary\
-runtests from the project_root/test_bin, issue './runtests' command.\
-Note that runtests binary is not using program options. Instead, it is using\
-defaults. The presence of the ProgramOptions.json in the current\
-directory breaks the tests.
+testbin from the project_root, issue './testbin' command.\
+Note that testbin is not using program options. Instead, it is using\
+defaults.
 
 Script profile.sh runs automatic profiling of the server and clients.\
  The usage is\

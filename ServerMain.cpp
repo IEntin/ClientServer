@@ -22,7 +22,7 @@ int main() {
   if (sigaddset(&set, SIGINT) == -1)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << strerror(errno) << std::endl;
-  ServerOptions options;
+  ServerOptions options("ServerOptions.json");
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
   if (options._processRequest == Transaction::processRequest) {

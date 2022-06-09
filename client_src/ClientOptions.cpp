@@ -2,26 +2,28 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "AppOptions.h"
 #include "ClientOptions.h"
 #include "Compression.h"
-#include "ProgramOptions.h"
 #include <filesystem>
 #include <iostream>
 
-ClientOptions::ClientOptions(std::ostream* externalDataStream) :
-  _turnOffLogging(ProgramOptions::get("TurnOffLogging", true)),
-  _sourceName(ProgramOptions::get("SourceName", std::string("data/requests.log"))),
-  _bufferSize(ProgramOptions::get("DYNAMIC_BUFFER_SIZE", 100000)),
+ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
+  _appOptions(jsonName),
+  _turnOffLogging(_appOptions.get("TurnOffLogging", true)),
+  _communicationType(_appOptions.get("CommunicationType", std::string(""))),
+  _sourceName(_appOptions.get("SourceName", std::string("data/requests.log"))),
+  _bufferSize(_appOptions.get("DYNAMIC_BUFFER_SIZE", 100000)),
   _compressor(Compression::isCompressionEnabled(
-         ProgramOptions::get("Compression", std::string(LZ4)))),
-  _diagnostics(ProgramOptions::get("Diagnostics", false)),
-  _runLoop(ProgramOptions::get("RunLoop", false)),
-  _timing(ProgramOptions::get("Timing", false)),
+         _appOptions.get("Compression", std::string(LZ4)))),
+  _diagnostics(_appOptions.get("Diagnostics", false)),
+  _runLoop(_appOptions.get("RunLoop", false)),
+  _timing(_appOptions.get("Timing", false)),
   _dataStream([=]()->std::ostream* {
 		if (externalDataStream)
 		  return externalDataStream;
 		else {
-		  const std::string filename = ProgramOptions::get("OutputFileName", std::string());
+		  const std::string filename = _appOptions.get("OutputFileName", std::string());
 		  if (!filename.empty()) {
 		    static std::ofstream fileStream(filename, std::ofstream::binary);
 		    return &fileStream;
@@ -30,30 +32,30 @@ ClientOptions::ClientOptions(std::ostream* externalDataStream) :
 		    return nullptr;
 		}
 	      }()),
-  _maxNumberTasks(ProgramOptions::get("MaxNumberTasks", 0)),
-  _instrStream([]()->std::ostream* {
-		 const std::string filename = ProgramOptions::get("InstrumentationFn", std::string());
+  _maxNumberTasks(_appOptions.get("MaxNumberTasks", 0)),
+  _instrStream([this]()->std::ostream* {
+		 const std::string filename = _appOptions.get("InstrumentationFn", std::string());
 		 if (!filename.empty()) {
 		   static std::ofstream instrFileStream(filename, std::ofstream::binary);
 		   return &instrFileStream;
 		 }
 		 return nullptr;
 	       }()),
-  _numberRepeatEINTR(ProgramOptions::get("NumberRepeatEINTR", 3)),
-  _numberRepeatENXIO(ProgramOptions::get("NumberRepeatENXIO", 10)),
-  _ENXIOwait(ProgramOptions::get("ENXIOwai", 20000)) {
+  _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
+  _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),
+  _ENXIOwait(_appOptions.get("ENXIOwai", 20000)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);
 }
 
-TcpClientOptions::TcpClientOptions(std::ostream* externalDataStream) :
-  ClientOptions(externalDataStream),
-  _serverHost(ProgramOptions::get("ServerHost", std::string("localhost"))),
-  _tcpPort(ProgramOptions::get("TcpPort", std::string("49172"))) {}
+TcpClientOptions::TcpClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
+  ClientOptions(jsonName, externalDataStream),
+  _serverHost(_appOptions.get("ServerHost", std::string("localhost"))),
+  _tcpPort(_appOptions.get("TcpPort", std::string("49172"))) {}
 
-FifoClientOptions::FifoClientOptions(std::ostream* externalDataStream) :
-  ClientOptions(externalDataStream),
-  _fifoName(ProgramOptions::get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
-	    ProgramOptions::get("FifoBaseName", std::string("client1"))),
-  _setPipeSize(ProgramOptions::get("SetPipeSize", true)) {}
+FifoClientOptions::FifoClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
+  ClientOptions(jsonName, externalDataStream),
+  _fifoName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
+	    _appOptions.get("FifoBaseName", std::string("client1"))),
+  _setPipeSize(_appOptions.get("SetPipeSize", true)) {}

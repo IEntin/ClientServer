@@ -50,8 +50,6 @@ struct EchoTest : testing::Test {
     fifoServer->stop();
   }
 
-  void SetUp() {}
-
   void TearDown() {
     TestEnvironment::reset();
   }
@@ -59,7 +57,6 @@ struct EchoTest : testing::Test {
   static void SetUpTestSuite() {
     Task::setProcessMethod(echo::Echo::processRequest);
   }
-  static void TearDownTestSuite() {}
 };
 
 TEST_F(EchoTest, TCP_LZ4_LZ4) {

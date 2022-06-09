@@ -43,9 +43,6 @@ struct CompressionTest : testing::Test {
 		<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
     ASSERT_EQ(input, uncompressedView);
   }
-
-  static void SetUpTestSuite() {}
-  static void TearDownTestSuite() {}
 };
 
 TEST_F(CompressionTest, 1_SOURCE) {
@@ -65,7 +62,6 @@ TEST_F(CompressionTest, 2_OUTPUTD) {
 }
 
 TEST(SplitTest, NoKeepDelim) {
-  ClientOptions clientOptions;
   std::vector<std::string_view> lines;
   utility::split(TestEnvironment::_source, lines);
   ASSERT_EQ(lines.size(), 10000);
@@ -74,7 +70,6 @@ TEST(SplitTest, NoKeepDelim) {
 }
 
 TEST(SplitTest, KeepDelim) {
-  ClientOptions clientOptions;
   std::vector<std::string_view> lines;
   utility::split(TestEnvironment::_source, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10000);
@@ -125,11 +120,10 @@ TEST(HeaderTest, 1) {
 
 struct BuildTaskTest : testing::Test {
   void testBuildTask(COMPRESSORS compressor) {
-    ClientOptions options;
-    options._compressor = compressor;
+    TestEnvironment::_fifoClientOptions._compressor = compressor;
     MemoryPool memoryPool;
-    memoryPool.setInitialSize(options._bufferSize);
-    TaskBuilder taskBuilder(options, memoryPool);
+    memoryPool.setInitialSize(TestEnvironment::_fifoClientOptions._bufferSize);
+    TaskBuilder taskBuilder(TestEnvironment::_fifoClientOptions, memoryPool);
     taskBuilder.run();
     Vectors task;
     ASSERT_TRUE(taskBuilder.getTask(task));
@@ -163,9 +157,9 @@ struct BuildTaskTest : testing::Test {
     ASSERT_EQ(TestEnvironment::_source, restoredString);
   }
 
-  static void SetUpTestSuite() {}
-
-  static void TearDownTestSuite() {}
+  void TearDown() {
+    TestEnvironment::reset();
+  }
 };
 
 TEST_F(BuildTaskTest, Compression) {
