@@ -106,6 +106,8 @@ CMPLR = [ clang++ | g++ |  ] By default clang++.
 
 There are four targets:\
 server client testbin runtests.\
+runtests is a pseudo target which invokes running\
+tests if this target is older than test binary testbin.\
 By default all targets are built:\
 'make -j4'\
 (you can specify any number of jobs).\
