@@ -110,10 +110,7 @@ By default all targets are built:\
 'make -j4'\
 (you can specify any number of jobs).\
 Any combination of targets can be specified, e.g.\
-'make -j4 server client'\
-Note that empty file 'client' (as well as 'runtests') in\
-the root is a pseudo target used by make. Binary client is created in the\
-client_bin directory.
+'make -j4 server client'
 
 3. run\
 server:
@@ -160,8 +157,8 @@ in the server terminal\
 cd project_root\
 ./server
 
-in the client terminal\
-cd project_root/client_bin\
+in a separate client terminal\
+cd project_root\
 ./client
 
 To run the server outside of the project create a directory, copy server binary,\
@@ -212,7 +209,8 @@ defaults.
 Script profile.sh runs automatic profiling of the server and clients.\
  The usage is\
 './profile.sh'\
-in the project root.
+in the project root. Two directories for clients should exist with necessary files\
+and links. See profle.sh for details.
 
 The conventional procedure in this project includes thread and memory sanitizer runs and performance\
 profiling of every commit. Sanitizer warnings are considered failures and are not accepted.

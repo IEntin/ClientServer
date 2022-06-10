@@ -10,7 +10,7 @@
 enum class COMPRESSORS : int;
 
 struct ClientOptions {
-  ClientOptions(const std::string& jsonName, std::ostream* externalDataStream);
+  explicit ClientOptions(const std::string& jsonName = "", std::ostream* externalDataStream = nullptr);
 
   AppOptions _appOptions;
   const bool _turnOffLogging;
@@ -29,7 +29,6 @@ struct ClientOptions {
   const int _numberRepeatEINTR;
   const int _numberRepeatENXIO;
   const int _ENXIOwait;
-
   const std::string _serverHost;
   const std::string _tcpPort;
   const std::string _fifoName;

@@ -9,7 +9,7 @@
 #include <csignal>
 
 int main() {
-  ClientOptions options("ClientOptions.json", nullptr);
+  ClientOptions options("ClientOptions.json");
   const std::string communicationType = options._communicationType;
   const bool useFifo = communicationType == "FIFO";
   const bool useTcp = communicationType == "TCP";

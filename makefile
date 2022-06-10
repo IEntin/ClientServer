@@ -28,15 +28,13 @@ endif
 RM := rm -f
 
 CLIENTSRCDIR := client_src
-CLIENTBINDIR := client_bin
-CLIENTPSEUDOTARGET := client
 COMMONDIR := common
 LZ4DIR := lz4
 TESTSRCDIR := test_src
 DATADIR := data
 
 SERVERBIN := server
-CLIENTBIN := $(CLIENTBINDIR)/client
+CLIENTBIN := client
 TESTBIN := testbin
 
 # precompiled headers
@@ -116,10 +114,6 @@ CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJ))
 
-$(CLIENTPSEUDOTARGET) : $(CLIENTBIN)
-	(cd $(CLIENTBINDIR); ln -sf ../$(DATADIR))
-	touch $(CLIENTPSEUDOTARGET)
-
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread
 
@@ -138,7 +132,7 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 .PHONY: clean cleanall
 
 clean:
-	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) $(CLIENTBINDIR)/data gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
+	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
 
 cleanall : clean
 	$(RM) *.gch */*.gch *.pch */*.pch
