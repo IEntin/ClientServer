@@ -83,8 +83,8 @@ bool TaskBuilder::createTask() {
   int nextIdSz = 4;
   size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
   static std::string line;
-  std::ifstream input(_sourceName, std::ios::binary);
   try {
+    std::ifstream input(_sourceName, std::ios::binary);
     while (input) {
       line.clear();
       std::getline(input, line);
