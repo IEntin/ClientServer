@@ -8,6 +8,7 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
+#include <fstream>
 
 TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
   _sourceName(options._sourceName),
@@ -64,7 +65,9 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line, int& nextId
   int offset = ptr - dst + 1;
   nextIdSz = offset + 1;
   std::copy(line.data(), line.data() + line.size(), dst + offset);
-  return offset + line.size();
+  offset += line.size();
+  *(dst + offset) = '\n';
+  return ++offset;
 }
 
 // Read requests from the source, generate id for each.
@@ -75,21 +78,22 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line, int& nextId
 // The size of the aggregate depends on the configured buffer size.
 
 bool TaskBuilder::createTask() {
-  static std::vector<std::string_view> lines;
-  lines.clear();
+  std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
+  long aggregateSize = 0;
   int nextIdSz = 4;
+  size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
+  static std::string line;
+  std::ifstream input(_sourceName, std::ios::binary);
   try {
-    static std::vector<char> buffer;
-    utility::readFile(_sourceName, buffer);
-    utility::split(buffer, lines, '\n', 1);
-    std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
-    long aggregateSize = 0;
-    size_t maxSubtaskSize = _memoryPool.getInitialBufferSize();
-    for (const auto& line : lines) {
+    while (input) {
+      line.clear();
+      std::getline(input, line);
+      if (!input)
+	break;
       // in case aggregate is too small for a single line,
       // does nothing if configured buffer size is reasonable.
-      aggregate.reserve(HEADER_SIZE + nextIdSz + line.size());
-      if (aggregateSize + HEADER_SIZE + nextIdSz + line.size() < maxSubtaskSize || aggregateSize == 0) {
+      aggregate.reserve(HEADER_SIZE + nextIdSz + line.size() + 1);
+      if (aggregateSize + HEADER_SIZE + nextIdSz + line.size() + 1 < maxSubtaskSize || aggregateSize == 0) {
 	int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line, nextIdSz);
 	aggregateSize += copied;
       }

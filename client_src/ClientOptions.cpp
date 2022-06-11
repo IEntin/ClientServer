@@ -10,15 +10,9 @@
 
 ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
   _appOptions(jsonName),
-  _turnOffLogging(_appOptions.get("TurnOffLogging", true)),
   _communicationType(_appOptions.get("CommunicationType", std::string(""))),
   _sourceName(_appOptions.get("SourceName", std::string("data/requests.log"))),
   _bufferSize(_appOptions.get("DYNAMIC_BUFFER_SIZE", 100000)),
-  _compressor(Compression::isCompressionEnabled(
-         _appOptions.get("Compression", std::string(LZ4)))),
-  _diagnostics(_appOptions.get("Diagnostics", false)),
-  _runLoop(_appOptions.get("RunLoop", false)),
-  _timing(_appOptions.get("Timing", false)),
   _dataStream([=]()->std::ostream* {
 		if (externalDataStream)
 		  return externalDataStream;
@@ -32,7 +26,6 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
 		    return nullptr;
 		}
 	      }()),
-  _maxNumberTasks(_appOptions.get("MaxNumberTasks", 0)),
   _instrStream([this]()->std::ostream* {
 		 const std::string filename = _appOptions.get("InstrumentationFn", std::string());
 		 if (!filename.empty()) {
@@ -41,6 +34,7 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
 		 }
 		 return nullptr;
 	       }()),
+  _maxNumberTasks(_appOptions.get("MaxNumberTasks", 0)),
   _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
   _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),
   _ENXIOwait(_appOptions.get("ENXIOwai", 20000)),
@@ -48,7 +42,13 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _tcpPort(_appOptions.get("TcpPort", std::string("49172"))),
   _fifoName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string()) + '/' +
 	    _appOptions.get("FifoBaseName", std::string("client1"))),
-  _setPipeSize(_appOptions.get("SetPipeSize", true)) {
+  _compressor(Compression::isCompressionEnabled(
+         _appOptions.get("Compression", std::string(LZ4)))),
+  _diagnostics(_appOptions.get("Diagnostics", false)),
+  _runLoop(_appOptions.get("RunLoop", false)),
+  _timing(_appOptions.get("Timing", false)),
+  _setPipeSize(_appOptions.get("SetPipeSize", true)),
+  _turnOffLogging(_appOptions.get("TurnOffLogging", true)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

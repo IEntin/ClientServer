@@ -83,42 +83,42 @@ MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -DE
 
 BOOST_INCLUDES := /usr/local/boost_1_79_0
 
-INCLUDES := -I. -I$(BOOST_INCLUDES) -I$(COMMONDIR) -I$(CLIENTSRCDIR) -I$(TESTSRCDIR) -I$(LZ4DIR)
+INCLUDES := -I$(COMMONDIR) -I. -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) -I$(TESTSRCDIR) -I$(LZ4DIR)
 
 CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a -MMD -MP $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
-OBJDIR := obj
+BUILDDIR := build
 
 vpath %.cpp $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR) $(LZ4DIR)
 
-$(OBJDIR)/%.o : %.cpp $(PCH)
+$(BUILDDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
 $(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
 
--include $(OBJDIR)/*.d
+-include $(BUILDDIR)/*.d
 
 LZ4SRC := $(LZ4DIR)/lz4.cpp
 COMMONSRC := $(wildcard $(COMMONDIR)/*.cpp)
-COMMONOBJ := $(patsubst $(COMMONDIR)/%.cpp, $(OBJDIR)/%.o, $(COMMONSRC)) $(patsubst $(LZ4DIR)/%.cpp, $(OBJDIR)/%.o, $(LZ4SRC))
+COMMONOBJ := $(patsubst $(COMMONDIR)/%.cpp, $(BUILDDIR)/%.o, $(COMMONSRC)) $(patsubst $(LZ4DIR)/%.cpp, $(BUILDDIR)/%.o, $(LZ4SRC))
 
 SERVERSRC := $(wildcard *.cpp)
-SERVEROBJ := $(patsubst %.cpp, $(OBJDIR)/%.o, $(SERVERSRC))
-SERVERFILTEREDOBJ := $(filter-out $(OBJDIR)/ServerMain.o, $(SERVEROBJ))
+SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
+SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 server : $(COMMONOBJ) $(SERVEROBJ)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
-CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(CLIENTSRC))
-CLIENTFILTEREDOBJ := $(filter-out $(OBJDIR)/ClientMain.o, $(CLIENTOBJ))
+CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
+CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread
 
 TESTSRC = $(wildcard $(TESTSRCDIR)/*.cpp)
-TESTOBJ = $(patsubst $(TESTSRCDIR)/%.cpp, $(OBJDIR)/%.o, $(TESTSRC))
+TESTOBJ = $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(TESTOBJ) $(COMMONOBJ) $(CLIENTFILTEREDOBJ) $(SERVERFILTEREDOBJ)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(CLIENTFILTEREDOBJ) $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CPPFLAGS) -pthread
@@ -127,7 +127,7 @@ RUNTESTSPSEUDOTARGET := runtests
 
 $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 	./$(TESTBIN)
-	touch $(RUNTESTSPSEUDOTARGET)
+	@touch $(RUNTESTSPSEUDOTARGET)
 
 .PHONY: clean cleanall
 

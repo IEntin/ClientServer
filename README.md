@@ -159,15 +159,15 @@ in the server terminal\
 cd project_root\
 ./server
 
-in a separate client terminal\
+in another client terminal\
 cd project_root\
 ./client
 
 To run the server outside of the project create a directory, copy server binary,\
-make a soft link to the project_root/data directory, copy server' ServerOptions.json\
+make a soft link to the project_root/data directory, copy ServerOptions.json\
 to this directory, and issue './server' command.
 
-Similarly for the client. Create a directory, copy binary client, make a soft link to data\
+Similarly for the client: create a directory, copy binary client, make a soft link to data\
 directory, copy ClientOptions.json, and run './client'.
 
 No special requirements for the hardware.\
@@ -180,7 +180,7 @@ Some of these:
 
 Compression\
 "Compression" : "LZ4"\
-If this is empty or different the compression is disabled.
+If the value is empty or different the compression is disabled.
 
 "Timing" prints elapsed times between selected lines of the code. Currently it shows client latency\
 for the batch of 10000 requests and the total run time for the server. See Chronometer class in the code.
