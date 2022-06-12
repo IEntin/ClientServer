@@ -45,13 +45,20 @@ void TaskBuilder::run() noexcept {
 }
 
 bool TaskBuilder::getTask(Vectors& task) {
-  std::future<void> future = _promise.get_future();
-  future.get();
-  if (_done)
-    _task.swap(task);
-  else {
-    Vectors().swap(_task);
-    Vectors().swap(task);
+  try {
+    std::future<void> future = _promise.get_future();
+    future.get();
+    if (_done)
+      _task.swap(task);
+    else {
+      Vectors().swap(_task);
+      Vectors().swap(task);
+    }
+  }
+  catch (std::future_error& e) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << "-exception:" << e.what() << std::endl;
+    return false;
   }
   return _done;
 }
