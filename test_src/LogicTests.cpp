@@ -35,11 +35,11 @@ struct LogicTest : testing::Test {
     TestEnvironment::_clientOptions._diagnostics = diagnostics;
     tcp::TcpClient client(TestEnvironment::_clientOptions);
     client.run();
+    tcpServer->stop();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
     ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    tcpServer->stop();
   }
 
   void testLogicFifo(COMPRESSORS serverCompressor,
@@ -60,11 +60,11 @@ struct LogicTest : testing::Test {
     TestEnvironment::_clientOptions._diagnostics = diagnostics;
     fifo::FifoClient client(TestEnvironment::_clientOptions);
     client.run();
+    fifoServer->stop();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
     ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    fifoServer->stop();
   }
 
   void TearDown() {
@@ -169,11 +169,11 @@ struct LogicTestAltFormat : testing::Test {
     TestEnvironment::_clientOptions._diagnostics = true;
     tcp::TcpClient client(TestEnvironment::_clientOptions);
     client.run();
+    tcpServer->stop();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
     ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    tcpServer->stop();
   }
 
   void TearDown() {
@@ -204,11 +204,11 @@ struct LogicTestSortInput : testing::Test {
     TestEnvironment::_clientOptions._diagnostics = true;
     tcp::TcpClient client(TestEnvironment::_clientOptions);
     client.run();
+    tcpServer->stop();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = TestEnvironment::_outputD;
     ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    tcpServer->stop();
   }
 
   void TearDown() {

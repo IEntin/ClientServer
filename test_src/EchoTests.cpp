@@ -27,11 +27,11 @@ struct EchoTest : testing::Test {
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     tcp::TcpClient client(TestEnvironment::_clientOptions);
     bool clientRun = client.run();
+    tcpServer->stop();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
     ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
     ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
-    tcpServer->stop();
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
@@ -43,11 +43,12 @@ struct EchoTest : testing::Test {
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     fifo::FifoClient client(TestEnvironment::_clientOptions);
-    client.run();
+    bool clientRun = client.run();
+    fifoServer->stop();
     ASSERT_TRUE(serverStart);
+    ASSERT_TRUE(clientRun);
     ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
     ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
-    fifoServer->stop();
   }
 
   void TearDown() {

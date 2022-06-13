@@ -10,6 +10,7 @@
 #include <cassert>
 #include <csignal>
 #include <cstring>
+#include <filesystem>
 
 Client::Client(const ClientOptions& options) : _options(options), _threadPool(1) {
   _memoryPool.setInitialSize(options._bufferSize);
@@ -20,36 +21,66 @@ Client::~Client() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool Client::processTask() {
-  for (const auto& subtask : _task) {
-    if (!send(subtask))
+bool Client::processSubtask(std::vector<char>&& subtask) {
+  if (!send(subtask))
+    return false;
+  if (!receive())
+    return false;
+  return true;
+}
+
+bool Client::processTask(TaskBuilderPtr taskBuilder) {
+  std::vector<char> task;
+  // Blocks until task construction in another thread is finished
+  bool success = taskBuilder->getTask(task);
+  if (!success) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ":TaskBuilder failed" << std::endl;
+    return false;
+  }
+  ssize_t sourcePos = taskBuilder->getSourcePos();
+  ssize_t requestIndex = taskBuilder->getRequestIndex();
+  int nextIdSz = taskBuilder->getNextIdSz();
+  if (!processSubtask(std::move(task)))
+    return false;
+  while (sourcePos < _sourceSize) {
+    TaskBuilderPtr builder(std::make_shared<TaskBuilder>(_options, _memoryPool, sourcePos, requestIndex, nextIdSz));
+    _threadPool.push(builder);
+    bool success = builder->getTask(task);
+    if (!success) {
+      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		<< ":TaskBuilder failed" << std::endl;
       return false;
-    if (!receive())
+    }
+    sourcePos = builder->getSourcePos();
+    requestIndex = builder->getRequestIndex();
+    nextIdSz = builder->getNextIdSz();
+    if (!processSubtask(std::move(task)))
       return false;
   }
   return true;
 }
 
 bool Client::run() {
+  std::error_code ec;
+  _sourceSize = std::filesystem::file_size(_options._sourceName, ec);
+  if (ec) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ':' << ec.message() << ':' << _options._sourceName << '\n';
+    return false;
+  }
   int numberTasks = 0;
-  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
+  TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool, 0);
   _threadPool.push(taskBuilder);
   do {
     Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-    // Blocks until task construction in another thread is finished
-    bool success = taskBuilder->getTask(_task);
-    if (!success) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		 << ":TaskBuilder failed" << std::endl;
-      return false;
-    }
+    TaskBuilderPtr savedBuild(std::move(taskBuilder));
     // start construction of the next task in the background
     if (_options._runLoop) {
-      taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
+      taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool, 0);
       _threadPool.push(taskBuilder);
     }
-    // processes current task
-    if (!processTask())
+    if (!processTask(savedBuild))
       return false;
     if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
       break;

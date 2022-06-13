@@ -7,9 +7,9 @@
 #include "MemoryPool.h"
 #include "ThreadPool.h"
 
-using Vectors = std::vector<std::vector<char>>;
-
 struct ClientOptions;
+
+using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 
 class Client {
 
@@ -17,15 +17,17 @@ class Client {
 
   Client(const ClientOptions& options);
 
-  bool processTask();
+  bool processTask(TaskBuilderPtr taskBuilder);
+
+  bool processSubtask(std::vector<char>&& subtask);
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   const ClientOptions& _options;
 
-  Vectors _task;
-
   MemoryPool _memoryPool;
+
+  std::intmax_t _sourceSize = 0;
 
  private:
 
@@ -41,5 +43,4 @@ class Client {
 
   virtual bool run();
 
-  const Vectors& getTask() const { return _task; }
 };

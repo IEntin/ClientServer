@@ -117,59 +117,6 @@ TEST(HeaderTest, 1) {
   compressorResult = getCompressor(header);
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
-
-struct BuildTaskTest : testing::Test {
-  void testBuildTask(COMPRESSORS compressor) {
-    TestEnvironment::_clientOptions._compressor = compressor;
-    MemoryPool memoryPool;
-    memoryPool.setInitialSize(TestEnvironment::_clientOptions._bufferSize);
-    TaskBuilder taskBuilder(TestEnvironment::_clientOptions, memoryPool);
-    taskBuilder.run();
-    Vectors task;
-    ASSERT_TRUE(taskBuilder.getTask(task));
-    std::string uncompressedResult;
-    for (const auto& subtask : task) {
-      HEADER header = decodeHeader(subtask.data());
-      ASSERT_TRUE(isOk(header));
-      bool bcompressed = isInputCompressed(header);
-      ASSERT_EQ(bcompressed, compressor == COMPRESSORS::LZ4);
-      size_t comprSize = getCompressedSize(header);
-      ASSERT_EQ(comprSize + HEADER_SIZE, subtask.size());
-      if (bcompressed) {
-	std::string_view uncompressedView =
-	  Compression::uncompress(std::string_view(subtask.data() + HEADER_SIZE, subtask.size() - HEADER_SIZE),
-				  getUncompressedSize(header), memoryPool);
-	ASSERT_FALSE(uncompressedView.empty());
-	uncompressedResult.append(uncompressedView);
-      }
-      else
-	uncompressedResult.append(subtask.data() + HEADER_SIZE, subtask.size() - HEADER_SIZE);
-    }
-    std::vector<std::string_view> batchResult;
-    utility::split(uncompressedResult, batchResult);
-    std::string restoredString;
-    for (const auto& item : batchResult) {
-      std::string_view str(item.data(), item.size());
-      size_t pos = str.find(']');
-      restoredString.append(str.substr(pos + 1)).append(1, '\n');
-    }
-    ASSERT_EQ(TestEnvironment::_source.size(), restoredString.size());
-    ASSERT_EQ(TestEnvironment::_source, restoredString);
-  }
-
-  void TearDown() {
-    TestEnvironment::reset();
-  }
-};
-
-TEST_F(BuildTaskTest, Compression) {
-  testBuildTask(COMPRESSORS::LZ4);
-}
-
-TEST_F(BuildTaskTest, NoCompression) {
-  testBuildTask(COMPRESSORS::NONE);
-}
-
 int main(int argc, char** argv) {
   TestEnvironment* env = new TestEnvironment();
   ::testing::AddGlobalTestEnvironment(env);
