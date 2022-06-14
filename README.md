@@ -228,7 +228,7 @@ Memory pooling. Business logic, compression and most of fifo processing are not 
 
 Tuning the memory pool size allows to drastically reduce memory footprint of the software,\
 especially of the client, with moderate speed decrease, which can in turn reduce hardware\
- requirements.
+requirements.
 
 Business logic here is an example of financial calculations.\
 It can be replaced with any other batch processing from a different field, not necessarily financial.
