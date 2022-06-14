@@ -219,10 +219,16 @@ profiling of every commit. Sanitizer warnings are considered failures and are no
 
 =======
 ### Fast Lockless Linux Client-Server with TCP and FIFO clients
+
 Using both bidirectional named pipes and tcp.\
 Lockless. Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
 Business logic, tasks multithreading, and communication layer are completely decoupled.\
-Memory pooling. Business logic, compression and most of fifo processing are not allocating.\
+Memory pooling. Business logic, compression and most of fifo processing are not allocating.
+
+Manipulating memory pool size allows to drastically reduce memory footprint of the client\
+and less efficiently of the server with moderate speed decrease, which can in turn reduce\
+hardware requirements.
+
 Business logic here is an example of financial calculations.\
 It can be replaced with any other batch processing from a different field, not necessarily financial.
