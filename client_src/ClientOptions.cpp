@@ -13,7 +13,7 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _communicationType(_appOptions.get("CommunicationType", std::string(""))),
   _sourceName(_appOptions.get("SourceName", std::string("data/requests.log"))),
   _bufferSize(_appOptions.get("DYNAMIC_BUFFER_SIZE", 100000)),
-  _dataStream([=]()->std::ostream* {
+  _dataStream([=, this]()->std::ostream* {
 		if (externalDataStream)
 		  return externalDataStream;
 		else {
