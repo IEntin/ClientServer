@@ -49,14 +49,14 @@ void ThreadPool::stop() {
 
 void ThreadPool::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
-  _queue.push(runnable);
+  _queue.push(std::move(runnable));
   _queueCondition.notify_all();
 }
 
 RunnablePtr ThreadPool::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
-  RunnablePtr runnable = _queue.front();
+  RunnablePtr runnable = std::move(_queue.front());
   _queue.pop();
   return runnable;
 }

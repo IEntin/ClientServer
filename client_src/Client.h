@@ -17,9 +17,9 @@ class Client {
 
   Client(const ClientOptions& options);
 
-  bool processTask(TaskBuilderPtr taskBuilder);
+  bool processTask(TaskBuilderPtr&& taskBuilder);
 
-  bool processSubtask(std::vector<char>&& subtask);
+  bool processSubtask(const std::vector<char>& subtask);
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
@@ -27,7 +27,7 @@ class Client {
 
   MemoryPool _memoryPool;
 
-  std::intmax_t _sourceSize = 0;
+  ssize_t _sourceSize = 0;
 
  private:
 
