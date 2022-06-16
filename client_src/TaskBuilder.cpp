@@ -103,7 +103,6 @@ bool TaskBuilder::createTask() {
   std::string line;
   try {
     while (_sourcePos < _sourceSize) {
-      line.clear();
       std::getline(_input, line);
       if (!_input) {
 	assert(false);
