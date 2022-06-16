@@ -27,7 +27,6 @@ TaskBuilder::~TaskBuilder() {}
 
 void TaskBuilder::run() noexcept {
   try {
-    _task.clear();
     if (!createTask()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       _done = false;
@@ -95,14 +94,16 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // The size of the aggregate depends on the configured buffer size.
 
 bool TaskBuilder::createTask() {
+  _task.clear();
   ssize_t subtaskPos = 0;
-  std::vector<char>& aggregate = _memoryPool.getSecondaryBuffer();
+  thread_local static std::vector<char> aggregate(_memoryPool.getInitialBufferSize());
   ssize_t aggregateSize = 0;
-  // rough correction for id and header to avoid reallocation.
+  // rough estimate for id and header to avoid reallocation.
   ssize_t maxSubtaskSize = _memoryPool.getInitialBufferSize() * 0.9;
-  std::string line;
+  thread_local static std::string line;
   try {
     while (_sourcePos < _sourceSize) {
+      line.clear();
       std::getline(_input, line);
       if (!_input) {
 	assert(false);

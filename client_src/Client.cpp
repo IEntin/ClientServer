@@ -12,7 +12,7 @@
 #include <cstring>
 #include <filesystem>
 
-Client::Client(const ClientOptions& options) : _options(options), _threadPool(1) {
+Client::Client(const ClientOptions& options) : _options(options), _threadPool(options._numberBuilderThreads) {
   _memoryPool.setInitialSize(options._bufferSize);
 }
 
@@ -62,7 +62,7 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
     if (!processSubtask(task))
       return false;
   }
-  // process the last subtask:
+  // process the last subtask, state is TaskBuilderState::TASKDONE
   success = taskBuilder->getTask(task);
   if (!success) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__

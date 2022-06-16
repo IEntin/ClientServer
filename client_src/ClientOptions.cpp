@@ -48,7 +48,8 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _runLoop(_appOptions.get("RunLoop", false)),
   _timing(_appOptions.get("Timing", false)),
   _setPipeSize(_appOptions.get("SetPipeSize", true)),
-  _turnOffLogging(_appOptions.get("TurnOffLogging", true)) {
+  _turnOffLogging(_appOptions.get("TurnOffLogging", true)),
+  _numberBuilderThreads(_appOptions.get("NumberBuilderThreads", 2)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);
