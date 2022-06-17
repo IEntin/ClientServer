@@ -27,8 +27,6 @@ class Client {
 
   MemoryPool _memoryPool;
 
-  ssize_t _sourceSize = 0;
-
  private:
 
   ThreadPool _threadPool;

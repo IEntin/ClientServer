@@ -9,13 +9,11 @@
 #include "MemoryPool.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool, ssize_t sourceSize) :
+TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
   _sourceName(options._sourceName),
   _compressor(options._compressor),
   _diagnostics(options._diagnostics),
   _memoryPool(memoryPool),
-  _sourcePos(0),
-  _sourceSize(sourceSize),
   _requestIndex(0),
   _nextIdSz(4) {
   _input.open(_sourceName, std::ios::binary);
@@ -100,25 +98,24 @@ bool TaskBuilder::createTask() {
   ssize_t aggregateSize = 0;
   // rough estimate for id and header to avoid reallocation.
   ssize_t maxSubtaskSize = _memoryPool.getInitialBufferSize() * 0.9;
+  bool alldone = false;
   thread_local static std::string line;
   try {
-    while (_sourcePos < _sourceSize) {
-      line.clear();
-      std::getline(_input, line);
-      if (!_input) {
-	assert(false);
-	break;
-      }
+    while (std::getline(_input, line)) {
       subtaskPos += line.size() + 1;
-      _sourcePos += line.size() + 1;
       aggregate.reserve(HEADER_SIZE + aggregateSize + _nextIdSz + line.size() + 1);
       int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line);
+      line.clear();
       aggregateSize += copied;
-      if (_sourcePos == _sourceSize || subtaskPos >= maxSubtaskSize)
-	return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE);
+      if (subtaskPos >= maxSubtaskSize) {
+	alldone = _input.peek() == EOF;
+	return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, alldone);
+      }
       else
 	continue;
     }
+    if (!alldone)
+      return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, true);
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -132,7 +129,7 @@ bool TaskBuilder::createTask() {
 // Compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-bool TaskBuilder::compressSubtask(char* beg, char* end) {
+bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     std::clog << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
@@ -162,7 +159,7 @@ bool TaskBuilder::compressSubtask(char* beg, char* end) {
   }
   try {
     if (_state != TaskBuilderState::ERROR)
-      _state = _sourcePos == _sourceSize ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+      _state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
     _promise.set_value();
   }
   catch (std::future_error& e) {

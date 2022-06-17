@@ -24,7 +24,7 @@ enum class TaskBuilderState {
 
 class TaskBuilder : public Runnable {
 
-  bool compressSubtask(char* beg, char* end);
+  bool compressSubtask(char* beg, char* end, bool alldone);
 
   int copyRequestWithId(char* dst, std::string_view line);
 
@@ -35,15 +35,13 @@ class TaskBuilder : public Runnable {
   const bool _diagnostics;
   MemoryPool& _memoryPool;
   std::promise<void> _promise;
-  ssize_t _sourcePos;
-  ssize_t _sourceSize;
   ssize_t _requestIndex;
   int _nextIdSz;
   TaskBuilderState _state = TaskBuilderState::NONE;
 
  public:
 
-  TaskBuilder(const struct ClientOptions& options, MemoryPool& memoryPool, ssize_t sourceSize);
+  TaskBuilder(const struct ClientOptions& options, MemoryPool& memoryPool);
   ~TaskBuilder() override;
   void run() noexcept override;
   TaskBuilderState getTask(std::vector<char>& task);

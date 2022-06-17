@@ -10,7 +10,6 @@
 #include <cassert>
 #include <csignal>
 #include <cstring>
-#include <filesystem>
 
 Client::Client(const ClientOptions& options) : _options(options), _threadPool(options._numberBuilderThreads) {
   _memoryPool.setInitialSize(options._bufferSize);
@@ -74,22 +73,15 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
 
 bool Client::run() {
   try {
-    std::error_code ec;
-    _sourceSize = std::filesystem::file_size(_options._sourceName, ec);
-    if (ec) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ':' << ec.message() << ':' << _options._sourceName << '\n';
-      return false;
-    }
     int numberTasks = 0;
-    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool, _sourceSize);
+    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
     _threadPool.push(taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       TaskBuilderPtr savedBuild = std::move(taskBuilder);
       // start construction of the next task in the background
       if (_options._runLoop) {
-	taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool, _sourceSize);
+	taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
 	_threadPool.push(taskBuilder);
       }
       if (!processTask(std::move(savedBuild)))

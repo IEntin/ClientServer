@@ -12,6 +12,7 @@
 # /var/lib/systemd/coredump
 # latest core:
 # coredumpctl gdb -1
+# sudo du -a | sort -n -r | head -n 5
 
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]
