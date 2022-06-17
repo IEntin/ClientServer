@@ -29,9 +29,9 @@ void TaskBuilder::run() noexcept {
   try {
     if (!createTask()) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      _done = false;
       _state = TaskBuilderState::ERROR;
       _promise.set_value();
+      _state = TaskBuilderState::ERROR;
       return;
     }
   }
@@ -49,11 +49,11 @@ void TaskBuilder::run() noexcept {
   }
 }
 
-bool TaskBuilder::getTask(std::vector<char>& task) {
+TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   try {
     std::future<void> future = _promise.get_future();
     future.get();
-    if (_done)
+    if (_state != TaskBuilderState::ERROR)
       _task.swap(task);
     else {
       std::vector<char>().swap(_task);
@@ -63,13 +63,13 @@ bool TaskBuilder::getTask(std::vector<char>& task) {
   catch (std::future_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
              << "-exception:" << e.what() << std::endl;
-    return false;
+    return TaskBuilderState::ERROR;
   }
   if (_state == TaskBuilderState::SUBTASKDONE) {
     _promise = std::promise<void>();
     createTask();
   }
-  return _done;
+  return _state;
 }
 
 int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
@@ -123,6 +123,7 @@ bool TaskBuilder::createTask() {
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << e.what() <<std::endl;
+    _state = TaskBuilderState::ERROR;
     return false;
   }
   return true;
@@ -139,8 +140,10 @@ bool TaskBuilder::compressSubtask(char* beg, char* end) {
   size_t uncomprSize = uncompressed.size();
   if (bcompressed) {
     std::string_view compressed = Compression::compress(uncompressed, _memoryPool);
-    if (compressed.empty())
+    if (compressed.empty()) {
+      _state = TaskBuilderState::ERROR;
       return false;
+    }
     // LZ4 may generate compressed larger than uncompressed.
     // In this case an uncompressed subtask is sent.
     if (compressed.size() >= uncomprSize) {
@@ -158,13 +161,14 @@ bool TaskBuilder::compressSubtask(char* beg, char* end) {
     _task.assign(beg, end);
   }
   try {
-    _done = true;
-    _state = _sourcePos == _sourceSize ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+    if (_state != TaskBuilderState::ERROR)
+      _state = _sourcePos == _sourceSize ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
     _promise.set_value();
   }
   catch (std::future_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
              << "-exception:" << e.what() << std::endl;
+    _state = TaskBuilderState::ERROR;
     return false;
   }
   return true;

@@ -34,7 +34,6 @@ class TaskBuilder : public Runnable {
   const COMPRESSORS _compressor;
   const bool _diagnostics;
   MemoryPool& _memoryPool;
-  bool _done = false;
   std::promise<void> _promise;
   ssize_t _sourcePos;
   ssize_t _sourceSize;
@@ -47,7 +46,6 @@ class TaskBuilder : public Runnable {
   TaskBuilder(const struct ClientOptions& options, MemoryPool& memoryPool, ssize_t sourceSize);
   ~TaskBuilder() override;
   void run() noexcept override;
-  bool getTask(std::vector<char>& task);
-  TaskBuilderState getState() const { return _state; }
+  TaskBuilderState getTask(std::vector<char>& task);
   bool createTask();
 };

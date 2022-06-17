@@ -38,33 +38,31 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
   std::vector<char> task;
   TaskBuilderState state = TaskBuilderState::NONE;
   // process the first subtask (it can be the only one):
-  bool success = taskBuilder->getTask(task);
-  if (!success) {
+  state = taskBuilder->getTask(task);
+  if (state == TaskBuilderState::ERROR) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":TaskBuilder failed" << std::endl;
     return false;
   }
   if (!processSubtask(task))
     return false;
-  state = taskBuilder->getState();
   if (state == TaskBuilderState::TASKDONE)
     return true;
   // process all remaining subtasks except the last:
   while (state == TaskBuilderState::SUBTASKDONE) {
     // Blocks until task construction in another thread is finished
-    bool success = taskBuilder->getTask(task);
-    if (!success) {
+    state = taskBuilder->getTask(task);
+    if (state == TaskBuilderState::ERROR) {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":TaskBuilder failed" << std::endl;
       return false;
     }
-    state = taskBuilder->getState();
     if (!processSubtask(task))
       return false;
   }
   // process the last subtask, state is TaskBuilderState::TASKDONE
-  success = taskBuilder->getTask(task);
-  if (!success) {
+  state = taskBuilder->getTask(task);
+  if (state == TaskBuilderState::ERROR) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ":TaskBuilder failed" << std::endl;
     return false;
