@@ -79,7 +79,7 @@ bool TcpClient::run() {
 }
 
 bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed) {
-  std::vector<char>& buffer = _memoryPool.getSecondaryBuffer(comprSize);
+  thread_local static std::vector<char> buffer;
   buffer.resize(comprSize);
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] = boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);

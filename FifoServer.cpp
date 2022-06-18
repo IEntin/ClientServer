@@ -144,7 +144,7 @@ bool FifoConnection::readMsgBody(int fd,
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
-    std::vector<char>& buffer = _taskController->getMemoryPool().getPrimaryBuffer(comprSize);
+    std::vector<char>& buffer = _taskController->getMemoryPool().getBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
       return false;
     std::string_view received(buffer.data(), comprSize);

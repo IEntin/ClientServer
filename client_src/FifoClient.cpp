@@ -62,7 +62,8 @@ bool FifoClient::receive() {
 }
 
 bool FifoClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed) {
-  std::vector<char>& buffer = _memoryPool.getSecondaryBuffer(comprSize + 1);
+  thread_local static std::vector<char> buffer(comprSize + 1);
+  buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;

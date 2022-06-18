@@ -65,7 +65,7 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   }
   TaskBuilderState result = _state;
   if (_state == TaskBuilderState::SUBTASKDONE) {
-    // promise is one-shot, create a new one.
+    // promise is one-shot object, create a new one.
     std::promise<void>().swap(_promise);
     createTask();
   }

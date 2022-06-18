@@ -19,38 +19,23 @@ void MemoryPool::setInitialSize(size_t initialBufferSize) {
   _initialBufferSize = initialBufferSize;
 }
 
-std::vector<char>& MemoryPool::getPrimaryBuffer(size_t requested) {
+std::vector<char>& MemoryPool::getBuffer(size_t requested) {
   instance().resetBufferSize();
   if (requested == 0)
-    return instance()._primaryBuffer;
-  else if (requested > instance()._primaryBuffer.capacity()) {
+    return instance()._buffer;
+  else if (requested > instance()._buffer.capacity()) {
     std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " increased _primaryBuffer from " << instance()._primaryBuffer.capacity()
+	      << " increased _buffer from " << instance()._buffer.capacity()
 	      << " to " << requested << std::endl;
-    instance()._primaryBuffer.reserve(requested);
+    instance()._buffer.reserve(requested);
   }
-  return instance()._primaryBuffer;
-}
-
-std::vector<char>& MemoryPool::getSecondaryBuffer(size_t requested) {
-  instance().resetBufferSize();
-  if (requested == 0)
-    return instance()._secondaryBuffer;
-  else if (requested > instance()._secondaryBuffer.capacity()) {
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " increased _secondaryBuffer from " << instance()._secondaryBuffer.capacity()
-	      << " to " << requested << std::endl;
-    instance()._secondaryBuffer.reserve(requested);
-  }
-  return instance()._secondaryBuffer;
+  return instance()._buffer;
 }
 
 void MemoryPool::resetBufferSize() {
   if (_perThreadBufferSize != _initialBufferSize) {
-    _primaryBuffer.resize(Compression::getCompressBound(_initialBufferSize));
-    _primaryBuffer.shrink_to_fit();
-    _secondaryBuffer.resize(Compression::getCompressBound(_initialBufferSize));
-    _secondaryBuffer.shrink_to_fit();
+    _buffer.resize(Compression::getCompressBound(_initialBufferSize));
+    _buffer.shrink_to_fit();
     _perThreadBufferSize = _initialBufferSize;
   }
 }

@@ -10,11 +10,9 @@ struct MemoryPool {
   MemoryPool() = default;
   ~MemoryPool() = default;
   void setInitialSize(size_t initialBufferSize);
-  std::vector<char> _primaryBuffer;
-  std::vector<char> _secondaryBuffer;
+  std::vector<char> _buffer;
   size_t _perThreadBufferSize = 0;
-  std::vector<char>& getPrimaryBuffer(size_t capacity = 0);
-  std::vector<char>& getSecondaryBuffer(size_t capacity = 0);
+  std::vector<char>& getBuffer(size_t capacity = 0);
   size_t getInitialBufferSize() const { return _initialBufferSize; }
   private:
   void resetBufferSize();

@@ -21,7 +21,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, Me
   for (const auto& entry : response)
     uncomprSize += entry.size();
   size_t requestedSize = uncomprSize + HEADER_SIZE;
-  std::vector<char>& buffer = memoryPool.getSecondaryBuffer(requestedSize);
+  thread_local static std::vector<char> buffer(requestedSize);
   buffer.resize(uncomprSize + HEADER_SIZE);
   ssize_t pos = HEADER_SIZE;
   for (const auto& entry : response) {
