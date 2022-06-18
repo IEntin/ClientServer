@@ -63,11 +63,13 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
              << ':' << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
+  TaskBuilderState result = _state;
   if (_state == TaskBuilderState::SUBTASKDONE) {
-    _promise = std::promise<void>();
+    // promise is one-shot, create a new one.
+    std::promise<void>().swap(_promise);
     createTask();
   }
-  return _state;
+  return result;
 }
 
 int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
@@ -104,13 +106,11 @@ bool TaskBuilder::createTask() {
       subtaskPos += line.size() + 1;
       aggregate.reserve(HEADER_SIZE + aggregateSize + _nextIdSz + line.size() + 1);
       int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line);
-      line.clear();
       aggregateSize += copied;
       if (subtaskPos >= maxSubtaskSize) {
 	subtaskPos = 0;
-	return compressSubtask(aggregate.data(),
-			       aggregate.data() + aggregateSize + HEADER_SIZE,
-			       _input.peek() == EOF);
+	bool alldone = _input.peek() == std::istream::traits_type::eof();
+	return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, alldone);
       }
       else
 	continue;
