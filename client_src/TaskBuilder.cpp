@@ -35,11 +35,11 @@ void TaskBuilder::run() noexcept {
   }
   catch (std::future_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
+	      << ':' << e.what() << std::endl;
   }
   catch (std::system_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
+	      << ':' << e.what() << std::endl;
   }
   catch (...) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -60,7 +60,7 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   }
   catch (std::future_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-             << "-exception:" << e.what() << std::endl;
+             << ':' << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
   if (_state == TaskBuilderState::SUBTASKDONE) {
@@ -98,7 +98,6 @@ bool TaskBuilder::createTask() {
   ssize_t aggregateSize = 0;
   // rough estimate for id and header to avoid reallocation.
   ssize_t maxSubtaskSize = _memoryPool.getInitialBufferSize() * 0.9;
-  bool alldone = false;
   thread_local static std::string line;
   try {
     while (std::getline(_input, line)) {
@@ -108,13 +107,15 @@ bool TaskBuilder::createTask() {
       line.clear();
       aggregateSize += copied;
       if (subtaskPos >= maxSubtaskSize) {
-	alldone = _input.peek() == EOF;
-	return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, alldone);
+	subtaskPos = 0;
+	return compressSubtask(aggregate.data(),
+			       aggregate.data() + aggregateSize + HEADER_SIZE,
+			       _input.peek() == EOF);
       }
       else
 	continue;
     }
-    if (!alldone)
+    if (subtaskPos)
       return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, true);
   }
   catch (const std::exception& e) {
@@ -164,7 +165,7 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   }
   catch (std::future_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-             << "-exception:" << e.what() << std::endl;
+             << ':' << e.what() << std::endl;
     _state = TaskBuilderState::ERROR;
     return false;
   }
