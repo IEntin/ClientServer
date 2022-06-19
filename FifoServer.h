@@ -41,7 +41,6 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   bool start(const ServerOptions& options);
   void stop();
   bool stopped() const { return _stopped; }
-  void pushToThreadPool(FifoConnectionPtr connection);
 };
 
 class FifoConnection : public Runnable {

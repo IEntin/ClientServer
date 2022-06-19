@@ -20,14 +20,6 @@ Client::~Client() {
   std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool Client::processSubtask(const std::vector<char>& subtask) {
-  if (!send(subtask))
-    return false;
-  if (!receive())
-    return false;
-  return true;
-}
-
 // Allows to read and process the source in parts with sizes
 // determined by the buffer size. This reduces memory footprint.
 // For maximum speed the buffer is large and the content is
@@ -43,7 +35,8 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
 		<< ":TaskBuilder failed" << std::endl;
       return false;
     }
-    if (!processSubtask(task))
+    bool subtaskDone = send(task) && receive();
+    if (!subtaskDone)
       return false;
   } while (state != TaskBuilderState::TASKDONE);
   return true;

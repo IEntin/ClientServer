@@ -82,10 +82,6 @@ void FifoServer::wakeupPipes() {
   }
 }
 
-void FifoServer::pushToThreadPool(FifoConnectionPtr connection) {
-  _threadPool.push(connection);
-}
-
 // class FifoConnection
 
 FifoConnection::FifoConnection(const ServerOptions& options,

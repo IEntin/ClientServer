@@ -19,8 +19,6 @@ class Client {
 
   bool processTask(TaskBuilderPtr&& taskBuilder);
 
-  bool processSubtask(const std::vector<char>& subtask);
-
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   const ClientOptions& _options;
