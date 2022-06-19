@@ -29,7 +29,6 @@ void TaskBuilder::run() noexcept {
       std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
       _state = TaskBuilderState::ERROR;
       _promise.set_value();
-      _state = TaskBuilderState::ERROR;
       return;
     }
   }
