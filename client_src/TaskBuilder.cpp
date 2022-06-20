@@ -18,7 +18,7 @@ TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
   _nextIdSz(4) {
   _input.open(_sourceName, std::ios::binary);
   if(!_input)
-    throw std::ios::failure("Error opening file") ; 
+    throw std::ios::failure("Error opening file");
 }
 
 TaskBuilder::~TaskBuilder() {}
@@ -54,26 +54,27 @@ void TaskBuilder::run() {
 }
 
 TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
+  TaskBuilderState result = TaskBuilderState::NONE;
   try {
     std::future<void> future = _promise1.get_future();
     future.get();
-    if (_state != TaskBuilderState::ERROR)
-      _task.swap(task);
-    else {
+    if (_state == TaskBuilderState::ERROR) {
       std::vector<char>().swap(_task);
       std::vector<char>().swap(task);
+    }
+    else
+      _task.swap(task);
+    result = _state;
+    if (_state == TaskBuilderState::SUBTASKDONE) {
+      // promise is one-shot object, create a new one.
+      std::promise<void>().swap(_promise1);
+      _promise2.set_value();
     }
   }
   catch (std::future_error& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
              << ':' << e.what() << std::endl;
     return TaskBuilderState::ERROR;
-  }
-  TaskBuilderState result = _state;
-  if (_state == TaskBuilderState::SUBTASKDONE) {
-    // promise is one-shot object, create a new one.
-    std::promise<void>().swap(_promise1);
-    _promise2.set_value();
   }
   return result;
 }

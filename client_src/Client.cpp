@@ -22,8 +22,8 @@ Client::~Client() {
 
 // Allows to read and process the source in parts with sizes
 // determined by the buffer size. This reduces memory footprint.
-// For maximum speed the buffer is large and the content is
-// read in one shot.
+// For maximum speed the buffer should be large to read the
+// content in one shot.
 
 bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
   std::vector<char> task;
