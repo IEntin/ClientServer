@@ -53,6 +53,7 @@ void TcpConnection::run() noexcept {
   if (ec)
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
+  MemoryPool::destroyBuffer();
 }
 
 bool TcpConnection::onReceiveRequest() {

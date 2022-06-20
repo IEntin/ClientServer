@@ -183,6 +183,7 @@ bool FifoConnection::sendResponse(const Response& response) {
   if (_fdWrite == -1) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    MemoryPool::destroyBuffer();
     return false;
   }
   if (_options._setPipeSize)
