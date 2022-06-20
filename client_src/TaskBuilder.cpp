@@ -23,13 +23,20 @@ TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
 
 TaskBuilder::~TaskBuilder() {}
 
-void TaskBuilder::run() noexcept {
+void TaskBuilder::run() {
   try {
-    if (!createTask()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-      _state = TaskBuilderState::ERROR;
-      _promise.set_value();
-      return;
+    while (true) {
+      if (!createTask()) {
+	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+	std::exit(0);
+	return;
+      }
+      if (_state == TaskBuilderState::TASKDONE) {
+	_promise2.set_value();
+	return;
+      }
+      _promise2.get_future().get();
+      std::promise<void>().swap(_promise2);
     }
   }
   catch (std::future_error& e) {
@@ -48,7 +55,7 @@ void TaskBuilder::run() noexcept {
 
 TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   try {
-    std::future<void> future = _promise.get_future();
+    std::future<void> future = _promise1.get_future();
     future.get();
     if (_state != TaskBuilderState::ERROR)
       _task.swap(task);
@@ -65,8 +72,8 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   TaskBuilderState result = _state;
   if (_state == TaskBuilderState::SUBTASKDONE) {
     // promise is one-shot object, create a new one.
-    std::promise<void>().swap(_promise);
-    createTask();
+    std::promise<void>().swap(_promise1);
+    _promise2.set_value();
   }
   return result;
 }
@@ -160,12 +167,13 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   try {
     if (_state != TaskBuilderState::ERROR)
       _state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
-    _promise.set_value();
+    _promise1.set_value();
   }
-  catch (std::future_error& e) {
+  catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
              << ':' << e.what() << std::endl;
     _state = TaskBuilderState::ERROR;
+    throw;
     return false;
   }
   return true;

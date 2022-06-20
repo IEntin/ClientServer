@@ -45,15 +45,15 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
 bool Client::run() {
   try {
     int numberTasks = 0;
-    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
-    _threadPool.push(taskBuilder);
+    _taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
+    _threadPool.push(_taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-      TaskBuilderPtr savedBuild = std::move(taskBuilder);
+      TaskBuilderPtr savedBuild = std::move(_taskBuilder);
       // start construction of the next task in the background
       if (_options._runLoop) {
-	taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
-	_threadPool.push(taskBuilder);
+	_taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
+	_threadPool.push(_taskBuilder);
       }
       if (!processTask(std::move(savedBuild)))
 	return false;

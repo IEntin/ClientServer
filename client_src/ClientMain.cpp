@@ -18,15 +18,21 @@ int main() {
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
   signal(SIGPIPE, SIG_IGN);
-  if (useFifo) {
-    fifo::FifoClient client(options);
-    if (!client.run())
-      return 1;
+  try {
+    if (useFifo) {
+      fifo::FifoClient client(options);
+      if (!client.run())
+	return 1;
+    }
+    if (useTcp) {
+      tcp::TcpClient client(options);
+      if (!client.run())
+	return 2;
+    }
   }
-  if (useTcp) {
-    tcp::TcpClient client(options);
-    if (!client.run())
-      return 2;
+  catch (...) {
+    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	      << std::strerror(errno) << std::endl;
   }
   return 0;
 }

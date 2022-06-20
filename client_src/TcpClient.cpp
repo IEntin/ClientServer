@@ -33,6 +33,7 @@ bool TcpClient::send(const std::vector<char>& subtask) {
   if (ec) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
+    std::exit(0);
     return false;
   }
   return true;
@@ -72,7 +73,7 @@ bool TcpClient::run() {
   }
   catch (const std::exception& e) {
     std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":exception:" << e.what() << std::endl;
+	      << ':' << e.what() << std::endl;
     return false;
   }
   return true;

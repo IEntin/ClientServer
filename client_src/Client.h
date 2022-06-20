@@ -29,6 +29,8 @@ class Client {
 
   ThreadPool _threadPool;
 
+  TaskBuilderPtr _taskBuilder;
+
  public:
 
   virtual ~Client();
