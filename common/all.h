@@ -36,6 +36,7 @@
 #include <string>
 #include <string.h>
 #include <string_view>
+#include <syncstream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <thread>
