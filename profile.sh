@@ -59,7 +59,7 @@ sleep 2
 ( cd $SERVER_DIR/../PrjClient3; $SERVER_DIR/../PrjClient3/profile_client.sh& )
 date
 
-sleep 180
+sleep 60
 kill -SIGINT $SERVER_PID
 sleep 2
 
