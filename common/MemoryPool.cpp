@@ -31,15 +31,6 @@ std::vector<char>& MemoryPool::getBuffer(size_t requested) {
   return instance()._buffer;
 }
 
-void MemoryPool::resetBufferSize() {
-  if (_perThreadBufferSize != _initialBufferSize) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
-    _buffer.resize(Compression::getCompressBound(_initialBufferSize));
-    _buffer.shrink_to_fit();
-    _perThreadBufferSize = _initialBufferSize;
-  }
-}
-
 void MemoryPool::destroyBuffer() {
   std::vector<char>& buffer = instance().getBuffer();
   CLOG <<  __FILE__ << ':' << __LINE__ << ' ' << __func__

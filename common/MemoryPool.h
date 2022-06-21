@@ -11,12 +11,10 @@ struct MemoryPool {
   ~MemoryPool() = default;
   void setInitialSize(size_t initialBufferSize);
   std::vector<char> _buffer;
-  size_t _perThreadBufferSize = 0;
   std::vector<char>& getBuffer(size_t capacity = 0);
   size_t getInitialBufferSize() const { return _initialBufferSize; }
   static void destroyBuffer();
  private:
-  void resetBufferSize();
   static MemoryPool& instance();
   // _initialBufferSize must be static,
   // otherwise it will be set only in
