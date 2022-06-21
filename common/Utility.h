@@ -7,7 +7,12 @@
 #include <charconv>
 #include <iostream>
 #include <string_view>
+#include <syncstream>
 #include <vector>
+
+#define CLOG std::osyncstream(std::clog)
+
+#define CERR std::osyncstream(std::cerr)
 
 inline constexpr int CONV_BUFFER_SIZE = 10;
 

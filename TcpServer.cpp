@@ -5,6 +5,7 @@
 #include "TcpServer.h"
 #include "ServerOptions.h"
 #include "TcpConnection.h"
+#include "Utility.h"
 #include <iostream>
 
 namespace tcp {
@@ -20,7 +21,7 @@ TcpServer::TcpServer(TaskControllerPtr taskController, const ServerOptions& opti
   _acceptor(_ioContext) {}
 
 TcpServer::~TcpServer() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpServer::start() {
@@ -41,8 +42,8 @@ bool TcpServer::start() {
     _threadPool.push(shared_from_this());
   }
   if (ec)
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << ec.what() << " _tcpPort=" << _tcpPort << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ' ' << ec.what() << " _tcpPort=" << _tcpPort << std::endl;
   return !ec;
 }
 
@@ -58,7 +59,7 @@ void TcpServer::run() noexcept {
   boost::system::error_code ec;
   _ioContext.run(ec);
   if (ec)
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
 }
 
@@ -75,8 +76,7 @@ void TcpServer::accept() {
 void TcpServer::handleAccept(TcpConnectionPtr connection,
 			     const boost::system::error_code& ec) {
   if (ec)
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << std::endl;
   else {
     connection->start();
     accept();

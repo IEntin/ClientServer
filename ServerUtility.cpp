@@ -6,6 +6,7 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "Utility.h"
 #include <cassert>
 #include <iostream>
 
@@ -16,7 +17,8 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, Me
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    std::clog << LZ4 << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
+    CLOG << LZ4 << "compression "
+      << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();

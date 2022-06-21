@@ -7,7 +7,6 @@
 #include "Utility.h"
 #include "lz4.h"
 #include <iostream>
-#include <syncstream>
 
 size_t MemoryPool::_initialBufferSize(0);
 
@@ -24,10 +23,9 @@ std::vector<char>& MemoryPool::getBuffer(size_t requested) {
   if (requested == 0)
     return instance()._buffer;
   else if (requested > instance()._buffer.capacity()) {
-    std::osyncstream tslog(std::clog);
-    tslog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	  << " increased _buffer from " << instance()._buffer.capacity()
-	  << " to " << requested << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << " increased _buffer from " << instance()._buffer.capacity()
+      << " to " << requested << std::endl;
     instance()._buffer.reserve(requested);
   }
   return instance()._buffer;
@@ -35,8 +33,7 @@ std::vector<char>& MemoryPool::getBuffer(size_t requested) {
 
 void MemoryPool::resetBufferSize() {
   if (_perThreadBufferSize != _initialBufferSize) {
-    std::osyncstream tslog(std::clog);
-    tslog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
     _buffer.resize(Compression::getCompressBound(_initialBufferSize));
     _buffer.shrink_to_fit();
     _perThreadBufferSize = _initialBufferSize;
@@ -45,8 +42,7 @@ void MemoryPool::resetBufferSize() {
 
 void MemoryPool::destroyBuffer() {
   std::vector<char>& buffer = instance().getBuffer();
-  std::osyncstream tslog(std::clog);
-  tslog <<  __FILE__ << ':' << __LINE__ << ' ' << __func__
-	<< ' ' << buffer.capacity() << std::endl;
+  CLOG <<  __FILE__ << ':' << __LINE__ << ' ' << __func__
+			      << ' ' << buffer.capacity() << std::endl;
   std::vector<char>().swap(buffer);
 }

@@ -67,7 +67,6 @@ void Task::finish() {
     _promise.set_value();
   }
   catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
 }

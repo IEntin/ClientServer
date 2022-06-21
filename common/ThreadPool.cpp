@@ -4,6 +4,7 @@
 
 #include "ThreadPool.h"
 #include "Runnable.h"
+#include "Utility.h"
 #include <iostream>
 
 Runnable::~Runnable() {}
@@ -15,7 +16,7 @@ ThreadPool::ThreadPool(int numberThreads) {
 }
 
 ThreadPool::~ThreadPool() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void ThreadPool::start(int numberThreads) {
@@ -43,8 +44,8 @@ void ThreadPool::stop() {
   for (auto& thread : _threads)
     if (thread.joinable())
       thread.join();
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << " ... _threads joined ..." << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+       << " ... _threads joined ..." << std::endl;
 }
 
 void ThreadPool::push(RunnablePtr runnable) {

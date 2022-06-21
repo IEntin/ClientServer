@@ -15,6 +15,8 @@ class AppOptions {
 
   template<typename T>
     const T get(const std::string& name, const T& def) {
+    if (!_initialized)
+      return def;
     return _ptree.get(name, def);
   }
 
@@ -23,4 +25,5 @@ class AppOptions {
   AppOptions(const AppOptions& other) = delete;
   const std::string _fileName;
   boost::property_tree::ptree _ptree;
+  bool _initialized;
 };

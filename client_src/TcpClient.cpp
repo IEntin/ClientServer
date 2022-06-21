@@ -5,6 +5,7 @@
 #include "TcpClient.h"
 #include "ClientOptions.h"
 #include "Header.h"
+#include "Utility.h"
 #include <iostream>
 
 namespace tcp {
@@ -24,14 +25,14 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpClient::send(const std::vector<char>& subtask) {
   boost::system::error_code ec;
   size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
   if (ec) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << ec.what() << std::endl;
     std::exit(0);
     return false;
@@ -63,16 +64,17 @@ bool TcpClient::run() {
       _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
     if (!ec)
       _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << " endpoint: " << endpoint << std::endl;
     if (ec) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ':' << ec.what() << std::endl;
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ':' << ec.what() << std::endl;
       return false;
     }
     return Client::run();
   }
   catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << e.what() << std::endl;
     return false;
   }
@@ -85,7 +87,8 @@ bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] = boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);

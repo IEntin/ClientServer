@@ -14,8 +14,8 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << std::strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ':' << std::strerror(errno) << std::endl;
   _fd = -1;
 }
 

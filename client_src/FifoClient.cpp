@@ -17,7 +17,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
   Client(options), _fifoName(options._fifoName), _setPipeSize(options._setPipeSize) {}
 
 FifoClient::~FifoClient() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool FifoClient::send(const std::vector<char>& subtask) {
@@ -29,15 +29,16 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
   } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
     std::exit(0);
     return false;
   }
   if (_setPipeSize)
     Fifo::setPipeSize(_fdWrite, subtask.size());
   if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ":failed" << std::endl;
     return false;
   }
   return true;
@@ -47,7 +48,7 @@ bool FifoClient::receive() {
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	      << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
@@ -58,7 +59,8 @@ bool FifoClient::receive() {
     return false;
   }
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ":failed" << std::endl;
     return false;
   }
   return true;
@@ -68,7 +70,8 @@ bool FifoClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompresse
   thread_local static std::vector<char> buffer(comprSize + 1);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' '
+	 << __func__ << ":failed" << std::endl;
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);

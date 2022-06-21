@@ -28,7 +28,7 @@ FifoServer::FifoServer(TaskControllerPtr taskController, const ServerOptions& op
   std::vector<std::string> fifoBaseNameVector;
   utility::split(options._fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-empty fifo base names vector" << std::endl;
     return;
   }
@@ -37,13 +37,13 @@ FifoServer::FifoServer(TaskControllerPtr taskController, const ServerOptions& op
 }
 
 FifoServer::~FifoServer() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 		<< std::strerror(errno) << '-' << fifoName << std::endl;
       return false;
     }
@@ -75,7 +75,7 @@ void FifoServer::wakeupPipes() {
       char c = 's';
       int result = write(fd, &c, 1);
       if (result != 1)
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
 		  << result << ":expected result == 1 " << std::strerror(errno) << std::endl;
       close(fd);
     }
@@ -92,7 +92,7 @@ FifoConnection::FifoConnection(const ServerOptions& options,
   _options(options), _taskController(taskController), _fifoName(fifoName), _compressor(compressor), _server(server) {}
 
 FifoConnection::~FifoConnection() {
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void FifoConnection::run() noexcept {
@@ -107,7 +107,7 @@ void FifoConnection::run() noexcept {
       sendResponse(_response);
     }
     catch (...) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< " ! exception caught " << _fifoName << std::endl;
       break;
     }
@@ -119,7 +119,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
   if (!_server->stopped()) {
     _fdRead = open(_fifoName.data(), O_RDONLY);
     if (_fdRead == -1) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
@@ -137,8 +137,8 @@ bool FifoConnection::readMsgBody(int fd,
 				 bool bcompressed,
 				 std::vector<char>& uncompressed) {
   static auto& printOnce[[maybe_unused]] =
-    std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
     std::vector<char>& buffer = _taskController->getMemoryPool().getBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
@@ -146,7 +146,7 @@ bool FifoConnection::readMsgBody(int fd,
     std::string_view received(buffer.data(), comprSize);
     uncompressed.resize(uncomprSize);
     if (!Compression::uncompress(received, uncompressed)) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":failed to uncompress payload" << std::endl;
       return false;
     }
@@ -181,7 +181,7 @@ bool FifoConnection::sendResponse(const Response& response) {
   if (_server->stopped())
     return false;
   if (_fdWrite == -1) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffer();
     return false;

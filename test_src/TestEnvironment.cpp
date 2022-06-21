@@ -38,8 +38,8 @@ void TestEnvironment::SetUp() {
     _taskController = TaskController::instance(&serverOptions);
   }
   catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << e.what() <<std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ' ' << e.what() <<std::endl;
   }
 }
 

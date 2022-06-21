@@ -5,9 +5,8 @@
 #include "AppOptions.h"
 #include <iostream>
 
-AppOptions::AppOptions(const std::string& fileName) : _fileName(fileName) {
-  initialize();
-}
+AppOptions::AppOptions(const std::string& fileName) :
+  _fileName(fileName), _initialized(initialize()) {}
 
 bool AppOptions::initialize() {
   try {

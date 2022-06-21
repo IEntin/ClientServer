@@ -7,6 +7,7 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "TaskBuilder.h"
+#include "Utility.h"
 #include <cassert>
 #include <csignal>
 #include <cstring>
@@ -17,7 +18,7 @@ Client::Client(const ClientOptions& options) : _options(options), _threadPool(op
 
 Client::~Client() {
   _threadPool.stop();
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 // Allows to read and process the source in parts with sizes
@@ -31,7 +32,7 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
   do {
     state = taskBuilder->getTask(task);
     if (state == TaskBuilderState::ERROR) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":TaskBuilder failed" << std::endl;
       return false;
     }
@@ -62,7 +63,7 @@ bool Client::run() {
     } while (_options._runLoop);
   }
   catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
 	      << e.what() << ' ' << _options._sourceName << std::endl;
   }
   return true;
@@ -73,19 +74,21 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-						       << " received compressed" << std::endl;
+    static auto& printOnce[[maybe_unused]] =
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << " received compressed" << std::endl;
     std::string_view dstView = Compression::uncompress(received, uncomprSize, _memoryPool);
     if (dstView.empty()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ":failed to uncompress payload" << std::endl;
       return false;
     }
     stream << dstView; 
   }
   else {
-    static auto& printOnce[[maybe_unused]] = std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__
-						       << " received not compressed" << std::endl;
+    static auto& printOnce[[maybe_unused]] =
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << " received not compressed" << std::endl;
     stream << received;
   }
   return true;

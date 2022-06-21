@@ -22,10 +22,11 @@ struct CompressionTest : testing::Test {
     std::string compressed;
     compressed.assign(compressedView.data(), compressedView.size());
     std::string_view uncompressedView = Compression::uncompress(compressed, input.size(), memoryPool);
+    // cerr to make this log visible in gtest
     static auto& printOnce [[maybe_unused]] =
-      std::clog << "\n   input.size()=" << input.size()
-		<< " compressedView.size()=" << compressedView.size() << " restored to original:"
-		<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+      CERR << "\n   input.size()=" << input.size()
+	<< " compressedView.size()=" << compressedView.size() << " restored to original:"
+	<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
     ASSERT_EQ(input, uncompressedView);
   }
 
@@ -38,9 +39,9 @@ struct CompressionTest : testing::Test {
     ASSERT_TRUE(Compression::uncompress(compressedView, uncompressed));
     std::string_view uncompressedView(uncompressed.begin(), uncompressed.end());
     static auto& printOnce [[maybe_unused]] =
-      std::clog << "\n   input.size()=" << input.size()
-		<< " compressedView.size()=" << compressedView.size() << " restored to original:"
-		<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+      CERR << "\n   input.size()=" << input.size()
+	<< " compressedView.size()=" << compressedView.size() << " restored to original:"
+	<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
     ASSERT_EQ(input, uncompressedView);
   }
 };

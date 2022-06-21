@@ -5,6 +5,7 @@
 #include "TaskController.h"
 #include "ServerOptions.h"
 #include "Task.h"
+#include "Utility.h"
 #include <cassert>
 #include <iostream>
 
@@ -24,7 +25,7 @@ TaskController::TaskController(const ServerOptions* options) :
 TaskController::~TaskController() {
   _stopped.store(true);
   _threadPool.stop();
-  std::clog << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 TaskControllerPtr TaskController::create(const ServerOptions* options) {
@@ -78,11 +79,11 @@ void TaskController::run() noexcept {
     }
   }
   catch (std::system_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	      << ':' << e.what() << std::endl;
   }
   catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << " ! exception caught" << std::endl;
   }
 }
@@ -101,8 +102,8 @@ void TaskController::submitTask(const HEADER& header, std::vector<char>& input, 
     future.get();
   }
   catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception:" << e.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ':' << e.what() << std::endl;
   }
 }
 

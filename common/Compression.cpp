@@ -6,6 +6,7 @@
 #include "Header.h"
 #include "lz4.h"
 #include "MemoryPool.h"
+#include "Utility.h"
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -24,7 +25,7 @@ std::string_view Compression::compressInternal(std::string_view uncompressed,
 					       uncompressed.size(),
 					       dstCapacity);
   if (compressedSize == 0) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     return { nullptr, 0 };
   }
   return { buffer, compressedSize };
@@ -38,7 +39,7 @@ bool Compression::uncompressInternal(std::string_view compressed,
 					    compressed.size(),
 					    uncomprSize);
   if (decomprSize != static_cast<ssize_t>(uncomprSize)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     return false;
   }
   return true;
@@ -52,8 +53,8 @@ std::string_view Compression::compress(std::string_view uncompressed, MemoryPool
   std::vector<char>& buffer = memoryPool.getBuffer(LZ4_compressBound(uncompressed.size()));
   std::string_view dstView = compressInternal(uncompressed, buffer.data(), buffer.capacity());
   if (dstView.empty()) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":failed to compress payload" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ":failed to compress payload" << std::endl;
     return { nullptr, 0 };
   }
   return dstView;
@@ -64,8 +65,7 @@ std::string_view Compression::uncompress(std::string_view compressed,
 					 MemoryPool& memoryPool) {
   std::vector<char>& buffer = memoryPool.getBuffer(uncomprSize);
   if (!uncompressInternal(compressed, buffer.data(), uncomprSize)) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << std::endl;
     return { nullptr, 0 };
   }
   return { buffer.data(), uncomprSize };
@@ -73,8 +73,7 @@ std::string_view Compression::uncompress(std::string_view compressed,
 
 bool Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
   if (!uncompressInternal(compressed, uncompressed.data(), uncompressed.size())) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << std::endl;
     return false;
   }
   return true;

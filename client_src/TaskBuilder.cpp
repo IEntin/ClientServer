@@ -27,7 +27,8 @@ void TaskBuilder::run() {
   try {
     while (true) {
       if (!createTask()) {
-	std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+	CERR << __FILE__ << ':' << __LINE__ << ' '
+          << __func__ << ":failed" << std::endl;
 	std::exit(0);
 	return;
       }
@@ -40,15 +41,15 @@ void TaskBuilder::run() {
     }
   }
   catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << e.what() << std::endl;
   }
   catch (std::system_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ':' << e.what() << std::endl;
   }
   catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << "-exception caught" << std::endl;
   }
 }
@@ -72,7 +73,7 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
     }
   }
   catch (std::future_error& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
              << ':' << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
@@ -126,7 +127,7 @@ bool TaskBuilder::createTask() {
       return compressSubtask(aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, true);
   }
   catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	      << ' ' << e.what() <<std::endl;
     _state = TaskBuilderState::ERROR;
     return false;
@@ -140,7 +141,8 @@ bool TaskBuilder::createTask() {
 bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    std::clog << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
+    CLOG << "compression " << (bcompressed ? "enabled" : "disabled")
+      << std::endl;
   std::string_view uncompressed(beg + HEADER_SIZE, end);
   size_t uncomprSize = uncompressed.size();
   if (bcompressed) {
@@ -171,7 +173,7 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
     _promise1.set_value();
   }
   catch (const std::exception& e) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
              << ':' << e.what() << std::endl;
     _state = TaskBuilderState::ERROR;
     throw;
