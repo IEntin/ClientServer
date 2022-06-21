@@ -126,8 +126,10 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
   }
   header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
-  if (!headerDone)
+  if (!headerDone) {
+    MemoryPool::destroyBuffer();
     return false;
+  }
   return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
 }
 

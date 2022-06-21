@@ -8,7 +8,6 @@
 #include <cassert>
 #include <cstring>
 #include <fcntl.h>
-#include <iostream>
 #include <poll.h>
 #include <sys/stat.h>
 #include <unistd.h>

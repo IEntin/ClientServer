@@ -25,5 +25,5 @@ class AppOptions {
   AppOptions(const AppOptions& other) = delete;
   const std::string _fileName;
   boost::property_tree::ptree _ptree;
-  bool _initialized;
+  const bool _initialized;
 };
