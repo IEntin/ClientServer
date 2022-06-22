@@ -104,10 +104,10 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 bool TaskBuilder::createTask() {
   _task.clear();
   ssize_t subtaskPos = 0;
-  thread_local static std::vector<char> aggregate(_memoryPool.getInitialBufferSize());
+  thread_local static std::vector<char> aggregate(_memoryPool.getSuggestedSize());
   ssize_t aggregateSize = 0;
   // rough estimate for id and header to avoid reallocation.
-  ssize_t maxSubtaskSize = _memoryPool.getInitialBufferSize() * 0.9;
+  ssize_t maxSubtaskSize = _memoryPool.getSuggestedSize() * 0.9;
   thread_local static std::string line;
   try {
     while (std::getline(_input, line)) {

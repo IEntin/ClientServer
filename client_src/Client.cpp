@@ -13,7 +13,7 @@
 #include <cstring>
 
 Client::Client(const ClientOptions& options) : _options(options), _threadPool(options._numberBuilderThreads) {
-  _memoryPool.setInitialSize(options._bufferSize);
+  _memoryPool.setSuggestedSize(options._bufferSize);
 }
 
 Client::~Client() {
