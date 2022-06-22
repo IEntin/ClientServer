@@ -17,7 +17,7 @@ TaskController::TaskController(const ServerOptions* options) :
   _sortInput(options->_sortInput),
   _barrier(_numberWorkThreads, onTaskCompletion),
   _threadPool(_numberWorkThreads) {
-  _memoryPool.setSuggestedSize(options->_bufferSize);
+  _memoryPool.setExpectedSize(options->_bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();
 }
@@ -116,5 +116,5 @@ void TaskController::setNextTask() {
 }
 
 void TaskController::setMemoryPoolSize(size_t size) {
-  _memoryPool.setSuggestedSize(size);
+  _memoryPool.setExpectedSize(size);
 }

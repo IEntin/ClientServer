@@ -5,7 +5,6 @@
 #include "ThreadPool.h"
 #include "Runnable.h"
 #include "Utility.h"
-#include <iostream>
 
 Runnable::~Runnable() {}
 

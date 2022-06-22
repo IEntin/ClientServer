@@ -92,13 +92,13 @@ BUILDDIR := build
 
 vpath %.cpp $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR) $(LZ4DIR)
 
-$(BUILDDIR)/%.o : %.cpp $(PCH)
-	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
-
 $(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
 
 -include $(BUILDDIR)/*.d
+
+$(BUILDDIR)/%.o : %.cpp $(PCH)
+	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
 LZ4SRC := $(LZ4DIR)/lz4.cpp
 COMMONSRC := $(wildcard $(COMMONDIR)/*.cpp)

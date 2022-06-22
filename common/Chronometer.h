@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <syncstream>
 
 struct Chronometer {
   explicit Chronometer(bool enable = true,
@@ -25,7 +26,8 @@ struct Chronometer {
   void start(const char* file, const char* function, int line) {
     if (_enabled) {
       _localStart = std::chrono::steady_clock::now();
-      _stream << __func__ << '-' << file << ':' << line << ' ' << function << std::endl;
+      std::osyncstream(_stream) << __func__ << '-' << file << ':'
+        << line << ' ' << function << std::endl;
     }
   }
 
@@ -33,9 +35,9 @@ struct Chronometer {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };
-      _stream << __func__ << '-' << file << ':' << line << ' ' << _function
-	      << std::fixed << std::setprecision(3) << " elapsed="
-	      << elapsed_seconds.count() << 's' << std::endl;
+      std::osyncstream(_stream) << __func__ << '-' << file << ':' << line << ' '
+        << _function << std::fixed << std::setprecision(3) << " elapsed="
+	<< elapsed_seconds.count() << 's' << std::endl;
     }
   }
 
@@ -43,9 +45,9 @@ struct Chronometer {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _globalStart };
-      _stream << __func__ << ':' << _file << ':' << _line << ' ' << _function
-	      << ' ' << std::fixed << std::setprecision(3) << "elapsed="
-	      << elapsed_seconds.count() << 's' << std::endl;
+      std::osyncstream(_stream) << __func__ << ':' << _file << ':' << _line << ' '
+        << _function << ' ' << std::fixed << std::setprecision(3) << "elapsed="
+	<< elapsed_seconds.count() << 's' << std::endl;
     }
   }
 

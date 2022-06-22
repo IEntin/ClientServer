@@ -15,7 +15,7 @@ struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string_view input) {
     MemoryPool memoryPool;
-    memoryPool.setSuggestedSize(100000);
+    memoryPool.setExpectedSize(100000);
     std::string_view compressedView = Compression::compress(input, memoryPool);
     ASSERT_FALSE(compressedView.empty());
     // save to a string before buffer is reused in uncompress
@@ -32,7 +32,7 @@ struct CompressionTest : testing::Test {
 
   void testCompressionDecompression2(std::string_view input) {
     MemoryPool memoryPool;
-    memoryPool.setSuggestedSize(100000);
+    memoryPool.setExpectedSize(100000);
     std::string_view compressedView = Compression::compress(input, memoryPool);
     ASSERT_FALSE(compressedView.empty());
     std::vector<char> uncompressed(input.size());
