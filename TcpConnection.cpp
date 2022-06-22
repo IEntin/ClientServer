@@ -4,6 +4,7 @@
 
 #include "TcpConnection.h"
 #include "Compression.h"
+#include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
 #include "TcpServer.h"
@@ -12,13 +13,14 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(TaskControllerPtr taskController, int timeout, COMPRESSORS compressor, TcpServerPtr server) :
+TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, TcpServerPtr server) :
+  _options(options),
   _taskController(taskController),
   _ioContext(1),
   _socket(_ioContext),
-  _timeout(timeout),
+  _timeout(options._tcpTimeout),
   _timer(_ioContext),
-  _compressor(compressor),
+  _compressor(options._compressor),
   _server(server) {
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
@@ -54,7 +56,8 @@ void TcpConnection::run() noexcept {
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << ':' << ec.what() << std::endl;
-  MemoryPool::destroyBuffer();
+  if (_options._destroyBufferOnClientDisconnect)
+    MemoryPool::destroyBuffer();
 }
 
 bool TcpConnection::onReceiveRequest() {

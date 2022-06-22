@@ -36,7 +36,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   std::vector<std::string> _fifoNames;
   void wakeupPipes();
  public:
-  FifoServer(TaskControllerPtr taskController, const ServerOptions& options);
+  FifoServer(const ServerOptions& options, TaskControllerPtr taskController);
   ~FifoServer();
   bool start(const ServerOptions& options);
   void stop();

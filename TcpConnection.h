@@ -13,6 +13,8 @@ using Response = std::vector<std::string>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
+struct ServerOptions;
+
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
@@ -23,7 +25,7 @@ using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public Runnable {
 public:
-  TcpConnection(TaskControllerPtr taskController, int timeout, COMPRESSORS compressor, TcpServerPtr server);
+  TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, TcpServerPtr server);
   ~TcpConnection() override;
 
   void run() noexcept override;
@@ -43,6 +45,7 @@ private:
   bool sendReply(const Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
 
+  const ServerOptions& _options;
   TaskControllerPtr _taskController;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;

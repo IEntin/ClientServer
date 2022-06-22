@@ -27,7 +27,7 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -52,7 +52,7 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
     fifo::FifoServerPtr fifoServer =
-      std::make_shared<fifo::FifoServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -162,7 +162,7 @@ struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
@@ -198,7 +198,7 @@ struct LogicTestSortInput : testing::Test {
     // start server
     TestEnvironment::_serverOptions._sortInput = sort;
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_taskController, TestEnvironment::_serverOptions);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._diagnostics = true;

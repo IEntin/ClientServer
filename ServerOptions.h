@@ -32,4 +32,5 @@ struct ServerOptions {
   const bool _turnOffLogging;
   bool _sortInput;
   const bool _setPipeSize;
+  const bool _destroyBufferOnClientDisconnect;
 };

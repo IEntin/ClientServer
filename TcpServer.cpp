@@ -10,13 +10,12 @@
 
 namespace tcp {
 
-TcpServer::TcpServer(TaskControllerPtr taskController, const ServerOptions& options) :
+  TcpServer::TcpServer(const ServerOptions& options, TaskControllerPtr taskController) :
+  _options(options),
   _taskController(taskController),
   _numberConnections(options._expectedTcpConnections),
   _ioContext(1),
   _tcpPort(options._tcpPort),
-  _timeout(options._tcpTimeout),
-  _compressor(options._compressor),
   _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
   _acceptor(_ioContext) {}
 
@@ -65,7 +64,7 @@ void TcpServer::run() noexcept {
 
 void TcpServer::accept() {
   auto connection =
-    std::make_shared<TcpConnection>(_taskController, _timeout, _compressor, shared_from_this());
+    std::make_shared<TcpConnection>(_options, _taskController, shared_from_this());
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {

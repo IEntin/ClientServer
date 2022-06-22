@@ -19,7 +19,7 @@
 
 namespace fifo {
 
-FifoServer::FifoServer(TaskControllerPtr taskController, const ServerOptions& options) :
+  FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskController) :
   _taskController(taskController),
   _fifoDirName(options._fifoDirectoryName),
   _compressor(options._compressor) {
@@ -29,7 +29,7 @@ FifoServer::FifoServer(TaskControllerPtr taskController, const ServerOptions& op
   utility::split(options._fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-empty fifo base names vector" << std::endl;
+	 << "-empty fifo base names vector" << std::endl;
     return;
   }
   for (const auto& baseName : fifoBaseNameVector)
@@ -44,7 +44,7 @@ bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-		<< std::strerror(errno) << '-' << fifoName << std::endl;
+	   << std::strerror(errno) << '-' << fifoName << std::endl;
       return false;
     }
     FifoConnectionPtr connection =
@@ -76,7 +76,7 @@ void FifoServer::wakeupPipes() {
       int result = write(fd, &c, 1);
       if (result != 1)
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
-		  << result << ":expected result == 1 " << std::strerror(errno) << std::endl;
+	     << result << ":expected result == 1 " << std::strerror(errno) << std::endl;
       close(fd);
     }
   }
@@ -108,7 +108,7 @@ void FifoConnection::run() noexcept {
     }
     catch (...) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< " ! exception caught " << _fifoName << std::endl;
+	   << " ! exception caught " << _fifoName << std::endl;
       break;
     }
   }
@@ -120,14 +120,15 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
     _fdRead = open(_fifoName.data(), O_RDONLY);
     if (_fdRead == -1) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-		<< std::strerror(errno) << ' ' << _fifoName << std::endl;
+	   << std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
   }
   header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone) {
-    MemoryPool::destroyBuffer();
+    if (_options._destroyBufferOnClientDisconnect)
+      MemoryPool::destroyBuffer();
     return false;
   }
   return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
@@ -149,7 +150,7 @@ bool FifoConnection::readMsgBody(int fd,
     uncompressed.resize(uncomprSize);
     if (!Compression::uncompress(received, uncompressed)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":failed to uncompress payload" << std::endl;
+	   << ":failed to uncompress payload" << std::endl;
       return false;
     }
   }
@@ -184,8 +185,9 @@ bool FifoConnection::sendResponse(const Response& response) {
     return false;
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	      << std::strerror(errno) << ' ' << _fifoName << std::endl;
-    MemoryPool::destroyBuffer();
+	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    if (_options._destroyBufferOnClientDisconnect)
+      MemoryPool::destroyBuffer();
     return false;
   }
   if (_options._setPipeSize)

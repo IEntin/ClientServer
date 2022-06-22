@@ -32,10 +32,10 @@ int main() {
   }
   Task::setProcessMethod(options._processRequest);
   TaskControllerPtr taskController = TaskController::instance(&options);
-  tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(taskController, options);
+  tcp::TcpServerPtr tcpServer = std::make_shared<tcp::TcpServer>(options, taskController);
   if (!tcpServer->start())
     return 2;
-  fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(taskController, options);
+  fifo::FifoServerPtr fifoServer = std::make_shared<fifo::FifoServer>(options, taskController);
   if (!fifoServer->start(options))
     return 3;
   int sig = 0;
