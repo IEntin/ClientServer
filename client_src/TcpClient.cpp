@@ -29,11 +29,11 @@ TcpClient::~TcpClient() {
 
 bool TcpClient::send(const std::vector<char>& subtask) {
   boost::system::error_code ec;
-  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
+  size_t result[[maybe_unused]] =
+    boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << ec.what() << std::endl;
-    std::exit(0);
+	 << ':' << ec.what() << std::endl;
     return false;
   }
   return true;
@@ -64,7 +64,7 @@ bool TcpClient::run() {
     if (!ec)
       _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << " endpoint: " << endpoint << std::endl;
+	 << " endpoint: " << endpoint << std::endl;
     if (ec) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << ':' << ec.what() << std::endl;
@@ -74,7 +74,7 @@ bool TcpClient::run() {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << e.what() << std::endl;
+	 << ':' << e.what() << std::endl;
     return false;
   }
   return true;
@@ -84,10 +84,11 @@ bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed
   thread_local static std::vector<char> buffer;
   buffer.resize(comprSize);
   boost::system::error_code ec;
-  size_t transferred[[maybe_unused]] = boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
+  size_t transferred[[maybe_unused]] =
+    boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' '
-      << __func__ << ':' << ec.what() << std::endl;
+	 << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);

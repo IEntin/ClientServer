@@ -30,14 +30,12 @@ bool FifoClient::send(const std::vector<char>& subtask) {
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
-    std::exit(0);
     return false;
   }
   if (_setPipeSize)
     Fifo::setPipeSize(_fdWrite, subtask.size());
   if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   return true;
@@ -58,8 +56,7 @@ bool FifoClient::receive() {
     return false;
   }
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   return true;
@@ -69,8 +66,7 @@ bool FifoClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompresse
   thread_local static std::vector<char> buffer(comprSize + 1);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' '
-	 << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);
@@ -85,17 +81,14 @@ void FifoClient::onExit() {
       std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
   } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
-    std::exit(0);
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return;
   }
   std::vector<char> stopTask(1, 's');
   if (!Fifo::writeString(_fdWrite, std::string_view(stopTask.data(), stopTask.size()))) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
   }
-  return;
 }
 
 } // end of namespace fifo
