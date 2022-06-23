@@ -17,13 +17,13 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, Me
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << LZ4 << "compression "
-      << (bcompressed ? "enabled" : "disabled") << std::endl;
+	 << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();
   size_t requestedSize = uncomprSize + HEADER_SIZE;
-  thread_local static std::vector<char> buffer(requestedSize);
-  buffer.resize(uncomprSize + HEADER_SIZE);
+  std::vector<char>& buffer = memoryPool.getSecondBuffer(requestedSize);
+  buffer.resize(requestedSize);
   ssize_t pos = HEADER_SIZE;
   for (const auto& entry : response) {
     std::copy(entry.begin(), entry.end(), buffer.begin() + pos);

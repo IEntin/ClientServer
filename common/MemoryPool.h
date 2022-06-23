@@ -9,11 +9,15 @@
 struct MemoryPool {
   MemoryPool() = default;
   ~MemoryPool() = default;
+  std::vector<char> _firstBuffer;
+  std::vector<char> _secondBuffer;
+  std::vector<char> _thirdBuffer;
   void setExpectedSize(size_t expectedSize) { _expectedSize = expectedSize; }
-  std::vector<char> _buffer;
-  std::vector<char>& getBuffer(size_t capacity = 0);
+  std::vector<char>& getFirstBuffer(size_t capacity = 0);
+  std::vector<char>& getSecondBuffer(size_t capacity = 0);
+  std::vector<char>& getThirdBuffer(size_t capacity = 0);
   size_t getExpectedSize() const { return _expectedSize; }
-  static void destroyBuffer();
+  static void destroyBuffers();
  private:
   static MemoryPool& instance();
   // _expectedSize must be a static member,

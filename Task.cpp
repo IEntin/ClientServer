@@ -3,6 +3,7 @@
  */
 
 #include "Task.h"
+#include "MemoryPool.h"
 #include "Utility.h"
 
 namespace {
@@ -16,9 +17,12 @@ ProcessRequest Task::_processRequest = nullptr;
 
 Task::Task() : _response(emptyResponse) {}
 
-Task::Task(const HEADER& header, std::vector<char>& input, Response& response) :
-  _header(header), _response(response)  {
-  static thread_local std::vector<char> rawInput;
+Task::Task(const HEADER& header,
+	   std::vector<char>& input,
+	   Response& response,
+	   MemoryPool& memoryPool) :
+  _header(header), _response(response) {
+  std::vector<char>& rawInput = memoryPool.getThirdBuffer();
   input.swap(rawInput);
   utility::split(std::string_view(rawInput.data(), rawInput.size()), _rows);
   _indices.resize(_rows.size());

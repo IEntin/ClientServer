@@ -54,6 +54,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void run() noexcept override;
   void submitTask(const HEADER& header, std::vector<char>& input, Response& response);
   MemoryPool& getMemoryPool() { return _memoryPool; }
+  // used in tests
   void setMemoryPoolSize(size_t size);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }

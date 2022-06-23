@@ -128,7 +128,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
   if (!headerDone) {
     if (_options._destroyBufferOnClientDisconnect)
-      MemoryPool::destroyBuffer();
+      MemoryPool::destroyBuffers();
     return false;
   }
   return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
@@ -143,7 +143,7 @@ bool FifoConnection::readMsgBody(int fd,
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
-    std::vector<char>& buffer = _taskController->getMemoryPool().getBuffer(comprSize);
+    std::vector<char>& buffer = _taskController->getMemoryPool().getFirstBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
       return false;
     std::string_view received(buffer.data(), comprSize);
@@ -187,7 +187,7 @@ bool FifoConnection::sendResponse(const Response& response) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
     if (_options._destroyBufferOnClientDisconnect)
-      MemoryPool::destroyBuffer();
+      MemoryPool::destroyBuffers();
     return false;
   }
   if (_options._setPipeSize)

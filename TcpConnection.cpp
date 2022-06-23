@@ -56,7 +56,7 @@ void TcpConnection::run() noexcept {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << ':' << ec.what() << std::endl;
   if (_options._destroyBufferOnClientDisconnect)
-    MemoryPool::destroyBuffer();
+    MemoryPool::destroyBuffers();
 }
 
 bool TcpConnection::onReceiveRequest() {
