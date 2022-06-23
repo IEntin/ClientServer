@@ -11,7 +11,7 @@ set -e
 
 trap "exit" SIGHUP SIGINT SIGTERM
 
-for number in {1..50000}
+for number in {1..500}
 do
 ./client
 echo repeated $number times

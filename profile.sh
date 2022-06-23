@@ -7,6 +7,8 @@
 #usage:
 # './profile.sh' in the server directory
 
+set -e
+
 trap "exit" SIGHUP SIGINT SIGTERM
 
 date
