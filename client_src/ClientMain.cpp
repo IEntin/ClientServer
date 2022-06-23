@@ -6,6 +6,7 @@
 #include "ClientOptions.h"
 #include "FifoClient.h"
 #include "TcpClient.h"
+#include "Utility.h"
 #include <csignal>
 
 int main() {
@@ -31,8 +32,8 @@ int main() {
     }
   }
   catch (...) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	      << std::strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << std::endl;
   }
   return 0;
 }

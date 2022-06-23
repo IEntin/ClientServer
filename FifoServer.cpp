@@ -141,7 +141,7 @@ bool FifoConnection::readMsgBody(int fd,
 				 std::vector<char>& uncompressed) {
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
+	 << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
     std::vector<char>& buffer = _taskController->getMemoryPool().getBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))

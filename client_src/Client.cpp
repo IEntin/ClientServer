@@ -61,10 +61,11 @@ bool Client::run() {
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
     } while (_options._runLoop);
+    onExit();
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	      << e.what() << ' ' << _options._sourceName << std::endl;
+	 << e.what() << ' ' << _options._sourceName << std::endl;
   }
   return true;
 }
@@ -80,7 +81,7 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
     std::string_view dstView = Compression::uncompress(received, uncomprSize, _memoryPool);
     if (dstView.empty()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":failed to uncompress payload" << std::endl;
+	   << ":failed to uncompress payload" << std::endl;
       return false;
     }
     stream << dstView; 
@@ -93,3 +94,5 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   }
   return true;
 }
+
+void Client::onExit() {}

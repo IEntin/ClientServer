@@ -21,6 +21,8 @@ class Client {
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
+  virtual void onExit();
+
   const ClientOptions& _options;
 
   MemoryPool _memoryPool;

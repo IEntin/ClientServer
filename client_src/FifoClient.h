@@ -28,6 +28,9 @@ class FifoClient : public Client {
   FifoClient(const ClientOptions& options);
 
   ~FifoClient() override;
+
+  void onExit() override;
+
 };
 
 } // end of namespace fifo

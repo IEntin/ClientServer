@@ -6,7 +6,6 @@
 #include "ServerOptions.h"
 #include "TcpConnection.h"
 #include "Utility.h"
-#include <iostream>
 
 namespace tcp {
 

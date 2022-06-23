@@ -10,6 +10,7 @@
 #include "TaskController.h"
 #include "TcpServer.h"
 #include "Transaction.h"
+#include "Utility.h"
 #include <csignal>
 
 void signalHandler([[maybe_unused]] int signal) {}
@@ -20,8 +21,8 @@ int main() {
   sigset_t set;
   sigemptyset(&set);
   if (sigaddset(&set, SIGINT) == -1)
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ' ' << strerror(errno) << std::endl;
   ServerOptions options("ServerOptions.json");
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
@@ -40,8 +41,8 @@ int main() {
     return 3;
   int sig = 0;
   if (sigwait(&set, &sig))
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ' ' << strerror(errno) << std::endl;
   tcpServer->stop();
   fifoServer->stop();
   int ret = fcloseall();

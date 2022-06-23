@@ -7,7 +7,6 @@
 #include "Task.h"
 #include "Utility.h"
 #include <cassert>
-#include <iostream>
 
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
