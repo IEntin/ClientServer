@@ -21,9 +21,6 @@ class Client {
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
-  // not abstract b/c tcp client does not override it.
-  virtual void onExit();
-
   const ClientOptions& _options;
 
   MemoryPool _memoryPool;

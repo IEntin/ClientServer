@@ -18,6 +18,8 @@ class FifoClient : public Client {
 
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
+  void onExit();
+
   const std::string _fifoName;
   const bool _setPipeSize;
   int _fdRead = -1;
@@ -28,8 +30,6 @@ class FifoClient : public Client {
   FifoClient(const ClientOptions& options);
 
   ~FifoClient() override;
-
-  void onExit() override;
 
 };
 

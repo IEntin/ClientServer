@@ -17,6 +17,10 @@ FifoClient::FifoClient(const ClientOptions& options) :
 
 FifoClient::~FifoClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  try {
+    onExit();
+  }
+  catch (...) {}
 }
 
 bool FifoClient::send(const std::vector<char>& subtask) {
@@ -51,10 +55,8 @@ bool FifoClient::receive() {
   }
   auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] =
     Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
-  if (!headerDone) {
-    std::exit(0);
+  if (!headerDone)
     return false;
-  }
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
     return false;

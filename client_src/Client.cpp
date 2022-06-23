@@ -63,7 +63,6 @@ bool Client::run() {
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
     } while (_options._runLoop);
-    onExit();
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
@@ -96,5 +95,3 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   }
   return true;
 }
-
-void Client::onExit() {}
