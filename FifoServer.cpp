@@ -19,7 +19,8 @@
 
 namespace fifo {
 
-  FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskController) :
+FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskController) :
+  _options(options),
   _taskController(taskController),
   _fifoDirName(options._fifoDirectoryName),
   _compressor(options._compressor) {
@@ -69,17 +70,8 @@ void FifoServer::removeFifoFiles() {
 }
 
 void FifoServer::wakeupPipes() {
-  for (const auto& fifoName : _fifoNames) {
-    int fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (fd != -1) {
-      char c = 's';
-      int result = write(fd, &c, 1);
-      if (result != 1)
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " result="
-	     << result << ":expected result == 1 " << std::strerror(errno) << std::endl;
-      close(fd);
-    }
-  }
+  for (const auto& fifoName : _fifoNames)
+    Fifo::onExit(fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
 }
 
 // class FifoConnection

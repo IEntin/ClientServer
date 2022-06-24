@@ -79,7 +79,7 @@ TEST(SplitTest, KeepDelim) {
 }
 
 TEST(FromCharsTest, Integral) {
-  const std::string_view view = "123456789";
+  std::string_view view = "123456789";
   int value = {};
   bool ok = utility::fromChars(view, value);
   ASSERT_TRUE(ok);
@@ -87,7 +87,7 @@ TEST(FromCharsTest, Integral) {
 }
 
 TEST(FromCharsTest, FloatingPoint) {
-  const std::string_view view = "1234567.89";
+  std::string_view view = "1234567.89";
   double value = {};
   bool ok = utility::fromChars(view, value);
   ASSERT_TRUE(ok);

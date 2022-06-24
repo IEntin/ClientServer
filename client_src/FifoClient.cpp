@@ -18,7 +18,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 FifoClient::~FifoClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   try {
-    onExit();
+    Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
   }
   catch (...) {}
 }
@@ -72,25 +72,6 @@ bool FifoClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompresse
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);
-}
-
-void FifoClient::onExit() {
-  utility::CloseFileDescriptor cfdw(_fdWrite);
-  int rep = 0;
-  do {
-    _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
-  } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-  if (_fdWrite == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
-    return;
-  }
-  std::vector<char> stopTask(1, 's');
-  if (!Fifo::writeString(_fdWrite, std::string_view(stopTask.data(), stopTask.size()))) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
-  }
 }
 
 } // end of namespace fifo

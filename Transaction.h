@@ -34,7 +34,7 @@ private:
   static thread_local std::vector<AdBidMatched> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
-  const std::string_view _sizeKey;
+  std::string_view _sizeKey;
   const AdBidMatched* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };

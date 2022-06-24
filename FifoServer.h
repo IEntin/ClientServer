@@ -27,6 +27,7 @@ using FifoServerPtr = std::shared_ptr<class FifoServer>;
 using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
 
 class FifoServer : public std::enable_shared_from_this<FifoServer> {
+  const ServerOptions& _options;
   TaskControllerPtr _taskController;
   const std::string _fifoDirName;
   const COMPRESSORS _compressor;
@@ -46,7 +47,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
 class FifoConnection : public Runnable {
   const ServerOptions& _options;
   TaskControllerPtr _taskController;
-  const std::string_view _fifoName;
+  std::string_view _fifoName;
   COMPRESSORS _compressor;
   FifoServerPtr _server;
   int _fdRead = -1;

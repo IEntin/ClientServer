@@ -18,7 +18,7 @@ struct AdBid {
 struct AdBidMatched {
   AdBidMatched(std::string_view keyword, long money, const Ad* ad);
   const AdBidMatched& operator =(const AdBidMatched&) = delete;
-  const std::string_view _keyword;
+  std::string_view _keyword;
   const long _money;
   const Ad* _ad;
 };

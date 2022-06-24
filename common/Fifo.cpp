@@ -156,4 +156,24 @@ bool Fifo::setPipeSize(int fd, long requested) {
   return false;
 }
 
+void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOwait) {
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
+  int rep = 0;
+  do {
+    fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
+    if (fd == -1 && (errno == ENXIO || errno == EINTR))
+      std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
+  } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
+  if (fd == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << fifoName << std::endl;
+    return;
+  }
+  std::vector<char> stopMsg(1, 's');
+  if (!Fifo::writeString(fd, std::string_view(stopMsg.data(), stopMsg.size()))) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+  }
+}
+
 } // end of namespace fifo

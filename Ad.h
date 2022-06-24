@@ -51,8 +51,8 @@ class Ad {
   bool parseArray();
   static std::string extractSize(std::string_view line);
   static bool readAndSortAds(const std::string& filename);
-  const std::string_view _input;
-  const std::string_view _sizeKey;
+  std::string_view _input;
+  std::string_view _sizeKey;
   std::vector<AdBid> _bids;
   std::string_view _id;
   long _defaultBid{ 0 };
