@@ -6,10 +6,12 @@
 #include "Header.h"
 #include "Utility.h"
 #include <cassert>
+#include <chrono>
 #include <cstring>
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/stat.h>
+#include <thread>
 #include <unistd.h>
 
 namespace fifo {
