@@ -124,7 +124,7 @@ bool Ad::load(const std::string& filename) {
       it->second.emplace_back(row);
     }
     catch (std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
 	   << ":key-value=" << '\"' << it->first << "\":\"" << row._value
 	   << "\",skipping." << std::endl;
       if (it->second.empty())

@@ -74,7 +74,8 @@ void TcpServer::accept() {
 void TcpServer::handleAccept(TcpConnectionPtr connection,
 			     const boost::system::error_code& ec) {
   if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << std::endl;
+    (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
+      << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << std::endl;
   else {
     connection->start();
     accept();

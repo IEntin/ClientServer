@@ -13,8 +13,9 @@ bool AppOptions::initialize() {
     boost::property_tree::read_json(_fileName, _ptree);
   }
   catch (std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what()
-	 << ",default values will be returned" << std::endl;
+    static auto& printOnce[[maybe_unused]] =
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+	   << e.what() << ",default values will be returned.\n";
     return false;
   }
   catch (...) {

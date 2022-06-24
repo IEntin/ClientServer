@@ -143,8 +143,9 @@ bool Fifo::setPipeSize(int fd, long requested) {
   if (requested > currentSz) {
     int ret = fcntl(fd, F_SETPIPE_SZ, requested);
     if (ret < 0) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< '-' << std::strerror(errno) << std::endl;
+      static auto& printOnce[[maybe_unused]] =
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	     << std::strerror(errno) << ", you have to be a superuser, can be ignored.\n";
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
@@ -168,13 +169,13 @@ void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOw
       std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
   } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
   if (fd == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << fifoName << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << fifoName << '\n';
     return;
   }
   std::vector<char> stopMsg(1, 's');
   if (!Fifo::writeString(fd, std::string_view(stopMsg.data(), stopMsg.size()))) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << '\n';
   }
 }
 
