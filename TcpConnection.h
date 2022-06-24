@@ -25,12 +25,14 @@ using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public Runnable {
 public:
-  TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, TcpServerPtr server);
+  TcpConnection(const ServerOptions& options,
+		TaskControllerPtr taskController,
+		std::atomic<bool>& stopped,
+		TcpServerPtr server);
   ~TcpConnection() override;
 
   void run() noexcept override;
   void start();
-  bool stopped() const;
   auto& socket() { return _socket; }
   auto& endpoint() { return _endpoint; }
 private:
@@ -58,6 +60,7 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   COMPRESSORS _compressor;
+  std::atomic<bool>& _stopped;
   TcpServerPtr _server;
 };
 

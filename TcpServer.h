@@ -28,8 +28,6 @@ public:
   ~TcpServer() override;
   bool start();
   void stop();
-  bool stopped() const { return _stopped; }
-  void pushToThreadPool(RunnablePtr runnable);
 private:
   void accept();
 

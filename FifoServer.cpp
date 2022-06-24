@@ -25,7 +25,7 @@ FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskContr
   utility::split(options._fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "-empty fifo base names vector" << std::endl;
+	 << "-empty fifo base names vector.\n";
     return;
   }
   for (const auto& baseName : fifoBaseNameVector)
@@ -33,18 +33,18 @@ FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskContr
 }
 
 FifoServer::~FifoServer() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	   << std::strerror(errno) << '-' << fifoName << std::endl;
+	   << std::strerror(errno) << '-' << fifoName << '\n';
       return false;
     }
     FifoConnectionPtr connection =
-      std::make_shared<FifoConnection>(options, _taskController, fifoName, shared_from_this());
+      std::make_shared<FifoConnection>(options, _taskController, fifoName, _stopped, shared_from_this());
     _threadPool.push(connection);
   }
   _threadPool.start(_fifoNames.size());

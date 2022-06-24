@@ -19,7 +19,7 @@ namespace tcp {
   _acceptor(_ioContext) {}
 
 TcpServer::~TcpServer() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 bool TcpServer::start() {
@@ -40,8 +40,8 @@ bool TcpServer::start() {
     _threadPool.push(shared_from_this());
   }
   if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << ec.what() << " _tcpPort=" << _tcpPort << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
+	 << ec.what() << " _tcpPort=" << _tcpPort << '\n';
   return !ec;
 }
 
@@ -57,13 +57,12 @@ void TcpServer::run() {
   boost::system::error_code ec;
   _ioContext.run(ec);
   if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 }
 
 void TcpServer::accept() {
   auto connection =
-    std::make_shared<TcpConnection>(_options, _taskController, shared_from_this());
+    std::make_shared<TcpConnection>(_options, _taskController, _stopped, shared_from_this());
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {
@@ -75,15 +74,12 @@ void TcpServer::handleAccept(TcpConnectionPtr connection,
 			     const boost::system::error_code& ec) {
   if (ec)
     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
-      << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << std::endl;
+      << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
   else {
     connection->start();
+    _threadPool.push(connection);
     accept();
   }
-}
-
-void TcpServer::pushToThreadPool(RunnablePtr connection){
-  _threadPool.push(connection);
 }
 
 } // end of namespace tcp

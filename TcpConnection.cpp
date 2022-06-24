@@ -7,12 +7,14 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
-#include "TcpServer.h"
 #include "Utility.h"
 
 namespace tcp {
 
-TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, TcpServerPtr server) :
+TcpConnection::TcpConnection(const ServerOptions& options,
+			     TaskControllerPtr taskController,
+			     std::atomic<bool>& stopped,
+			     TcpServerPtr server) :
   _options(options),
   _taskController(taskController),
   _ioContext(1),
@@ -20,6 +22,8 @@ TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr tas
   _timeout(options._tcpTimeout),
   _timer(_ioContext),
   _compressor(options._compressor),
+  _stopped(stopped),
+  // need for reference count
   _server(server) {
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
@@ -31,21 +35,15 @@ TcpConnection::~TcpConnection() {
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
-}
-
-bool TcpConnection::stopped() const {
-  return _server->stopped();
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 void TcpConnection::start() {
   const auto& local = _socket.local_endpoint();
   const auto& remote = _socket.remote_endpoint();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-    << "-local " << local.address() << ':' << local.port()
-    << ",remote " << remote.address() << ':' << remote.port()
-    << std::endl;
-  _server->pushToThreadPool(shared_from_this());
+       << "-local " << local.address() << ':' << local.port()
+       << ",remote " << remote.address() << ':' << remote.port() << '\n';
 }
 
 void TcpConnection::run() noexcept {
@@ -54,7 +52,7 @@ void TcpConnection::run() noexcept {
   _ioContext.run(ec);
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << ec.what() << std::endl;
+	 << ':' << ec.what() << '\n';
   if (_options._destroyBufferOnClientDisconnect)
     MemoryPool::destroyBuffers();
 }
@@ -66,17 +64,17 @@ bool TcpConnection::onReceiveRequest() {
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	<< " received compressed" << std::endl;
+	   << " received compressed.\n";
     if (!decompress(_request, _uncompressed)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":decompression failed" << std::endl;
+	   << ":decompression failed.\n";
       return false;
     }
   }
   else
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	<< " received not compressed" << std::endl;
+	   << " received not compressed.\n";
   _taskController->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
@@ -93,7 +91,7 @@ bool TcpConnection::sendReply(const Response& response) {
 }
 
 void TcpConnection::readHeader() {
-  if (stopped())
+  if (_stopped)
     return;
   boost::system::error_code ignore;
   _timer.cancel(ignore);
@@ -111,7 +109,7 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[mayb
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
     if (!isOk(_header)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	   << "header is not valid" << std::endl;
+	   << "header is not valid.\n";
       return;
     }
     _request.clear();
@@ -119,7 +117,7 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[mayb
     readRequest();
   }
   else {
-    if (!_server->stopped())
+    if (!_stopped)
       CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
     boost::system::error_code ignore;
     _timer.cancel(ignore);
@@ -148,7 +146,7 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, [[may
   if (!ec)
     onReceiveRequest();
   else {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -160,8 +158,7 @@ void TcpConnection::handleWriteReply(const boost::system::error_code& ec, [[mayb
   if (!ec)
     readHeader();
   else {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
-	      << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
@@ -173,7 +170,7 @@ void TcpConnection::asyncWait() {
   _timer.async_wait([this](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			CERR << __FILE__ << ':' << __LINE__ << ' '
-                          << __func__ << ":timeout" << std::endl;
+			     << __func__ << ":timeout.\n";
 			boost::system::error_code ignore;
 			_socket.close(ignore);
 			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
@@ -186,7 +183,7 @@ bool TcpConnection::decompress(const std::vector<char>& input, std::vector<char>
   uncompressed.resize(getUncompressedSize(_header));
   if (!Compression::uncompress(received, uncompressed)) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ":failed to uncompress payload" << std::endl;
+	 << ":failed to uncompress payload.\n";
     return false;
   }
   return true;

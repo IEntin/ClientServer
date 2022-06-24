@@ -5,7 +5,6 @@
 #include "FifoConnection.h"
 #include "Compression.h"
 #include "Fifo.h"
-#include "FifoServer.h"
 #include "Header.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
@@ -21,15 +20,21 @@ namespace fifo {
 FifoConnection::FifoConnection(const ServerOptions& options,
 			       TaskControllerPtr taskController,
 			       std::string_view fifoName,
+			       std::atomic<bool>& stopped,
 			       FifoServerPtr server) :
-  _options(options), _taskController(taskController), _fifoName(fifoName), _server(server) {}
+  _options(options),
+  _taskController(taskController),
+  _fifoName(fifoName),
+  _stopped(stopped),
+  // need for reference count
+  _server(server) {}
 
 FifoConnection::~FifoConnection() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 void FifoConnection::run() {
-  while (!_server->stopped()) {
+  while (!_stopped) {
     _response.clear();
     HEADER header;
     _uncompressedRequest.clear();
@@ -45,7 +50,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
+	 << std::strerror(errno) << ' ' << _fifoName << '\n';
     return false;
   }
   header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
@@ -65,7 +70,7 @@ bool FifoConnection::readMsgBody(int fd,
 				 std::vector<char>& uncompressed) {
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
+	 << (bcompressed ? " received compressed" : " received not compressed") << '\n';
   if (bcompressed) {
     std::vector<char>& buffer = _taskController->getMemoryPool().getFirstBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
@@ -74,7 +79,7 @@ bool FifoConnection::readMsgBody(int fd,
     uncompressed.resize(uncomprSize);
     if (!Compression::uncompress(received, uncompressed)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":failed to uncompress payload" << std::endl;
+	   << ":failed to uncompress payload.\n";
       return false;
     }
   }
@@ -105,7 +110,7 @@ bool FifoConnection::sendResponse(const Response& response) {
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
+	 << std::strerror(errno) << ' ' << _fifoName << '\n';
     if (_options._destroyBufferOnClientDisconnect)
       MemoryPool::destroyBuffers();
     return false;
