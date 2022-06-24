@@ -35,7 +35,7 @@ private:
 
   void handleAccept(TcpConnectionPtr connection,
 		    const boost::system::error_code& ec);
-  void run() noexcept override;
+  void run() override;
 
   const ServerOptions& _options;
   TaskControllerPtr _taskController;

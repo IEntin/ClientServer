@@ -53,12 +53,12 @@ void TcpServer::stop() {
   _ioContext.stop();
 }
 
-void TcpServer::run() noexcept {
+void TcpServer::run() {
   boost::system::error_code ec;
   _ioContext.run(ec);
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << ec.what() << std::endl;
+	 << ':' << ec.what() << std::endl;
 }
 
 void TcpServer::accept() {

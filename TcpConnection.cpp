@@ -93,6 +93,8 @@ bool TcpConnection::sendReply(const Response& response) {
 }
 
 void TcpConnection::readHeader() {
+  if (stopped())
+    return;
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   std::memset(_headerBuffer, 0, HEADER_SIZE);
@@ -104,8 +106,6 @@ void TcpConnection::readHeader() {
 }
 
 void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  if (stopped())
-    return;
   asyncWait();
   if (!ec) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
@@ -143,8 +143,6 @@ void TcpConnection::write(std::string_view reply) {
 }
 
 void TcpConnection::handleReadRequest(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  if (stopped())
-    return;
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   if (!ec)
@@ -157,8 +155,6 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, [[may
 }
 
 void TcpConnection::handleWriteReply(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  if (stopped())
-    return;
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   if (!ec)
