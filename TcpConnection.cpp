@@ -117,8 +117,8 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[mayb
     readRequest();
   }
   else {
-    if (!_stopped)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
+    bool eof = ec == boost::asio::error::eof;
+    (eof ? CLOG : CERR) << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
     boost::system::error_code ignore;
     _timer.cancel(ignore);
   }
