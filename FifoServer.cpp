@@ -87,34 +87,25 @@ FifoConnection::~FifoConnection() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-void FifoConnection::run() noexcept {
+void FifoConnection::run() {
   while (!_server->stopped()) {
-    try {
-      _response.clear();
-      HEADER header;
-      _uncompressedRequest.clear();
-      if (!receiveRequest(_uncompressedRequest, header))
-	continue;
-      _taskController->submitTask(header, _uncompressedRequest, _response);
-      sendResponse(_response);
-    }
-    catch (...) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << " ! exception caught " << _fifoName << std::endl;
-      break;
-    }
+    _response.clear();
+    HEADER header;
+    _uncompressedRequest.clear();
+    if (!receiveRequest(_uncompressedRequest, header))
+      continue;
+    _taskController->submitTask(header, _uncompressedRequest, _response);
+    sendResponse(_response);
   }
 }
 
 bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) {
   utility::CloseFileDescriptor cfdr(_fdRead);
-  if (!_server->stopped()) {
-    _fdRead = open(_fifoName.data(), O_RDONLY);
-    if (_fdRead == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	   << std::strerror(errno) << ' ' << _fifoName << std::endl;
-      return false;
-    }
+  _fdRead = open(_fifoName.data(), O_RDONLY);
+  if (_fdRead == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    return false;
   }
   header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
@@ -164,17 +155,13 @@ bool FifoConnection::sendResponse(const Response& response) {
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  if (!_server->stopped()) {
-    int rep = 0;
-    do {
-      _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-      if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
-    } while (_fdWrite == -1 && !_server->stopped() &&
-	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-  }
-  if (_server->stopped())
-    return false;
+  int rep = 0;
+  do {
+    _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+    if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+      std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
+  } while (_fdWrite == -1 &&
+	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _fifoName << std::endl;

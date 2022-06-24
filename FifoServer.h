@@ -61,7 +61,7 @@ class FifoConnection : public Runnable {
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
   Response _response;
-  void run() noexcept override;
+  void run() override;
  public:
   FifoConnection(const ServerOptions& options,
 		 TaskControllerPtr taskController,
