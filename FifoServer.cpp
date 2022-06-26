@@ -18,11 +18,14 @@ namespace fifo {
 FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskController) :
   _options(options),
   _taskController(taskController),
-  _fifoDirName(options._fifoDirectoryName) {
+  _fifoDirName(_options._fifoDirectoryName),
+  _threadPool(_options._maxConnections),
+  _maxConnections(_options._maxConnections),
+  _numberConnections(0) {
   // in case there was no proper shudown.
   removeFifoFiles();
   std::vector<std::string> fifoBaseNameVector;
-  utility::split(options._fifoBaseNames, fifoBaseNameVector, ",\n ");
+  utility::split(_options._fifoBaseNames, fifoBaseNameVector, ",\n ");
   if (fifoBaseNameVector.empty()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "-empty fifo base names vector.\n";
@@ -43,11 +46,20 @@ bool FifoServer::start(const ServerOptions& options) {
 	   << std::strerror(errno) << '-' << fifoName << '\n';
       return false;
     }
+    if (_numberConnections > _maxConnections) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-max number connections exceeded. \n";
+      break;
+    }
     FifoConnectionPtr connection =
-      std::make_shared<FifoConnection>(options, _taskController, fifoName, _stopped, shared_from_this());
+      std::make_shared<FifoConnection>(options,
+				       _taskController,
+				       fifoName,
+				       _numberConnections,
+				       _stopped,
+				       shared_from_this());
     _threadPool.push(connection);
   }
-  _threadPool.start(_fifoNames.size());
   return true;
 }
 

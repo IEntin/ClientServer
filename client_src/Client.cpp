@@ -18,7 +18,7 @@ Client::Client(const ClientOptions& options) : _options(options), _threadPool(op
 
 Client::~Client() {
   _threadPool.stop();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 // Allows to read and process the source in parts with sizes
@@ -33,7 +33,7 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
     state = taskBuilder->getTask(task);
     if (state == TaskBuilderState::ERROR) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< ":TaskBuilder failed" << std::endl;
+	   << ":TaskBuilder failed.\n";
       return false;
     }
     bool subtaskDone = send(task) && receive();
@@ -66,7 +66,7 @@ bool Client::run() {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	 << e.what() << ' ' << _options._sourceName << std::endl;
+	 << e.what() << ' ' << _options._sourceName << '\n';
   }
   return true;
 }
@@ -78,11 +78,11 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << " received compressed" << std::endl;
+	   << " received compressed.\n";
     std::string_view dstView = Compression::uncompress(received, uncomprSize, _memoryPool);
     if (dstView.empty()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":failed to uncompress payload" << std::endl;
+	   << ":failed to uncompress payload.\n";
       return false;
     }
     stream << dstView; 
@@ -90,7 +90,7 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   else {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << " received not compressed" << std::endl;
+	   << " received not compressed.\n";
     stream << received;
   }
   return true;

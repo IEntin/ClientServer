@@ -145,7 +145,7 @@ bool Fifo::setPipeSize(int fd, long requested) {
     if (ret < 0) {
       static auto& printOnce[[maybe_unused]] =
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	     << std::strerror(errno) << ", you have to be a superuser, can be ignored.\n";
+	     << std::strerror(errno) << ": su privileges required, ignore.\n";
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);

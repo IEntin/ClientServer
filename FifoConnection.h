@@ -30,6 +30,7 @@ class FifoConnection : public Runnable {
   const ServerOptions& _options;
   TaskControllerPtr _taskController;
   std::string_view _fifoName;
+  std::atomic<int>& _numberConnections;
   std::atomic<bool>& _stopped;
   FifoServerPtr _server;
   int _fdRead = -1;
@@ -48,6 +49,7 @@ class FifoConnection : public Runnable {
   FifoConnection(const ServerOptions& options,
 		 TaskControllerPtr taskController,
 		 std::string_view fifoName,
+		 std::atomic<int>& numberConnections,
 		 std::atomic<bool>& stopped,
 		 FifoServerPtr server);
   ~FifoConnection() override;

@@ -8,7 +8,7 @@
   "Timing" : true,
   "FifoDirectoryName" : "/home/ilya/Fifos",
   "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5",
-  "ExpectedTcpConnections" : 5,
+  "MaxConnections" : 10,
   "TcpPort" : 49152,
   "TcpTimeout" : 5,
   "NumberRepeatEINTR" : 3,

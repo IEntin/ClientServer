@@ -33,7 +33,7 @@ int main() {
   }
   catch (...) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << std::endl;
+	 << std::strerror(errno) << '\n';
   }
   return 0;
 }

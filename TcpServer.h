@@ -37,7 +37,8 @@ private:
 
   const ServerOptions& _options;
   TaskControllerPtr _taskController;
-  const size_t _numberConnections;
+  const int _maxConnections;
+  std::atomic<int> _numberConnections;
   boost::asio::io_context _ioContext;
   int _tcpPort;
   boost::asio::ip::tcp::endpoint _endpoint;

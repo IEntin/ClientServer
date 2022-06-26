@@ -24,7 +24,7 @@ TaskController::TaskController(const ServerOptions* options) :
 TaskController::~TaskController() {
   _stopped.store(true);
   _threadPool.stop();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 TaskControllerPtr TaskController::create(const ServerOptions* options) {
@@ -79,11 +79,11 @@ void TaskController::run() noexcept {
   }
   catch (std::system_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << e.what() << std::endl;
+	 << ':' << e.what() << '\n';
   }
   catch (...) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " ! exception caught" << std::endl;
+	 << " ! exception caught.\n";
   }
 }
 
@@ -102,7 +102,7 @@ void TaskController::submitTask(const HEADER& header, std::vector<char>& input, 
   }
   catch (std::future_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << e.what() << std::endl;
+	 << ':' << e.what() << '\n';
   }
 }
 

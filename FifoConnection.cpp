@@ -20,16 +20,21 @@ namespace fifo {
 FifoConnection::FifoConnection(const ServerOptions& options,
 			       TaskControllerPtr taskController,
 			       std::string_view fifoName,
+			       std::atomic<int>& numberConnections,
 			       std::atomic<bool>& stopped,
 			       FifoServerPtr server) :
   _options(options),
   _taskController(taskController),
   _fifoName(fifoName),
+  _numberConnections(numberConnections),
   _stopped(stopped),
   // need for reference count
-  _server(server) {}
+  _server(server) {
+  _numberConnections++;
+}
 
 FifoConnection::~FifoConnection() {
+  _numberConnections--;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 

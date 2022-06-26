@@ -8,8 +8,6 @@
 
 Runnable::~Runnable() {}
 
-ThreadPool::ThreadPool() {}
-
 ThreadPool::ThreadPool(int numberThreads) {
   start(numberThreads);
 }

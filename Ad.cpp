@@ -31,9 +31,8 @@ _input(row._value), _sizeKey(row._key) {
 
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.begin(), _input.end(), '[');
-  if (introEnd == _input.end()) {
+  if (introEnd == _input.end())
     return false;
-  }
   std::string_view introStr(_input.begin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
@@ -101,7 +100,7 @@ bool Ad::readAndSortAds(const std::string& filename) {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << e.what() <<std::endl;
+	 << ' ' << e.what() << '\n';
     return false;
   }
   for (AdRow& row : _rows)
@@ -126,7 +125,7 @@ bool Ad::load(const std::string& filename) {
     catch (std::exception& e) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
 	   << ":key-value=" << '\"' << it->first << "\":\"" << row._value
-	   << "\",skipping." << std::endl;
+	   << "\",skipping.\n";
       if (it->second.empty())
 	_mapBySize.erase(it);
       continue;

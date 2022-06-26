@@ -27,6 +27,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public
 public:
   TcpConnection(const ServerOptions& options,
 		TaskControllerPtr taskController,
+		std::atomic<int>& numberConnections,
 		std::atomic<bool>& stopped,
 		TcpServerPtr server);
   ~TcpConnection() override;
@@ -46,7 +47,6 @@ private:
   bool onReceiveRequest();
   bool sendReply(const Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
-
   const ServerOptions& _options;
   TaskControllerPtr _taskController;
   boost::asio::io_context _ioContext;
@@ -60,6 +60,7 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   COMPRESSORS _compressor;
+  std::atomic<int>& _numberConnections;
   std::atomic<bool>& _stopped;
   TcpServerPtr _server;
 };

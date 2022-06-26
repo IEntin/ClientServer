@@ -33,7 +33,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
   } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
+	 << '-' << std::strerror(errno) << ' ' << _fifoName << '\n';
     return false;
   }
   if (_setPipeSize)
@@ -50,7 +50,7 @@ bool FifoClient::receive() {
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << _fifoName << '-' << std::strerror(errno) << std::endl;
+	 << _fifoName << '-' << std::strerror(errno) << '\n';
     return false;
   }
   auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] =
@@ -58,7 +58,7 @@ bool FifoClient::receive() {
   if (!headerDone)
     return false;
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
     return false;
   }
   return true;
@@ -68,7 +68,7 @@ bool FifoClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompresse
   thread_local static std::vector<char> buffer(comprSize + 1);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);

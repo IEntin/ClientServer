@@ -18,11 +18,10 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<RunnablePtr> _queue;
+  void start(int numberThreads);
  public:
-  ThreadPool();
   explicit ThreadPool(int numberThreads);
   ~ThreadPool();
-  void start(int numberThreads);
   void stop();
   void push(RunnablePtr runnable);
   RunnablePtr get();

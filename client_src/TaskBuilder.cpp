@@ -28,7 +28,7 @@ void TaskBuilder::run() {
     while (true) {
       if (!createTask()) {
 	CERR << __FILE__ << ':' << __LINE__ << ' '
-          << __func__ << ":failed" << std::endl;
+          << __func__ << ":failed.\n";
 	std::exit(0);
 	return;
       }
@@ -42,7 +42,7 @@ void TaskBuilder::run() {
   }
   catch (std::future_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << e.what() << std::endl;
+	 << ':' << e.what() << std::endl;
   }
   catch (std::system_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -50,7 +50,7 @@ void TaskBuilder::run() {
   }
   catch (...) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << "-exception caught" << std::endl;
+	 << "-exception caught.\n";
   }
 }
 
@@ -74,7 +74,7 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   }
   catch (std::future_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-             << ':' << e.what() << std::endl;
+	 << ':' << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
   return result;
@@ -128,7 +128,7 @@ bool TaskBuilder::createTask() {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ' ' << e.what() <<std::endl;
+	 << ' ' << e.what() <<std::endl;
     _state = TaskBuilderState::ERROR;
     return false;
   }
@@ -174,7 +174,7 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-             << ':' << e.what() << std::endl;
+             << ':' << e.what() << '\n';
     _state = TaskBuilderState::ERROR;
     throw;
     return false;
