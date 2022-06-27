@@ -21,20 +21,24 @@ FifoConnection::FifoConnection(const ServerOptions& options,
 			       TaskControllerPtr taskController,
 			       std::string_view fifoName,
 			       std::atomic<int>& numberConnections,
+			       std::atomic<int>& numberFifoConnections,
 			       std::atomic<bool>& stopped,
 			       FifoServerPtr server) :
   _options(options),
   _taskController(taskController),
   _fifoName(fifoName),
   _numberConnections(numberConnections),
+  _numberFifoConnections(numberFifoConnections),
   _stopped(stopped),
   // need for reference count
   _server(server) {
   _numberConnections++;
+  _numberFifoConnections++;
 }
 
 FifoConnection::~FifoConnection() {
   _numberConnections--;
+  _numberFifoConnections--;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 

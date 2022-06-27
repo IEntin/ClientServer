@@ -19,9 +19,9 @@ FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskContr
   _options(options),
   _taskController(taskController),
   _fifoDirName(_options._fifoDirectoryName),
-  _threadPool(_options._maxConnections),
-  _maxConnections(_options._maxConnections),
-  _numberConnections(_taskController->getNumberConnections()) {
+  _threadPool(_options._maxFifoConnections),
+  _numberConnections(_taskController->getNumberConnections()),
+  _numberFifoConnections(0) {
   // in case there was no proper shudown.
   removeFifoFiles();
   std::vector<std::string> fifoBaseNameVector;
@@ -41,10 +41,10 @@ FifoServer::~FifoServer() {
 
 bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
-    if (_numberConnections > _maxConnections) {
+    if (_numberConnections > _options._maxFifoConnections) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-max number connections exceeded,\n"
-	   << "increase \"MaxConnections\" in ServerOptions.json.\n";
+	   << "-max fifo connections exceeded,\n"
+	   << "increase \"MaxFifoConnections\" in ServerOptions.json.\n";
       break;
     }
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
@@ -57,6 +57,7 @@ bool FifoServer::start(const ServerOptions& options) {
 				       _taskController,
 				       fifoName,
 				       _numberConnections,
+				       _numberFifoConnections,
 				       _stopped,
 				       shared_from_this());
     _threadPool.push(connection);

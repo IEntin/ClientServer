@@ -21,8 +21,8 @@ struct ServerOptions {
   const std::string _fifoBaseNames;
   const ProcessRequest _processRequest;
   const int _numberWorkThreads;
-  const int _maxConnections;
   const int _maxTcpConnections;
+  const int _maxFifoConnections;
   const int _tcpPort;
   const int _tcpTimeout;
   const int _numberRepeatEINTR;
