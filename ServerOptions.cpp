@@ -21,6 +21,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
 		       return numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
 			 std::thread::hardware_concurrency();}()),
   _maxConnections(_appOptions.get("MaxConnections", 2)),
+  _maxTcpConnections(_appOptions.get("MaxTcpConnections", 2)),
   _tcpPort(_appOptions.get("TcpPort", 49172)),
   _tcpTimeout(_appOptions.get("TcpTimeout", 1)),
   _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),

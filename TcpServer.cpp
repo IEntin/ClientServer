@@ -3,6 +3,7 @@
  */
 
 #include "TcpServer.h"
+#include "TaskController.h"
 #include "ServerOptions.h"
 #include "TcpConnection.h"
 #include "Utility.h"
@@ -12,14 +13,14 @@ namespace tcp {
 TcpServer::TcpServer(const ServerOptions& options, TaskControllerPtr taskController) :
   _options(options),
   _taskController(taskController),
-  _maxConnections(_options._maxConnections),
-  _numberConnections(0),
+  _numberConnections(_taskController->getNumberConnections()),
+  _numberTcpConnections(0),
   _ioContext(1),
   _tcpPort(_options._tcpPort),
   _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
   _acceptor(_ioContext),
   // + 1 for 'this'
-  _threadPool(_maxConnections + 1) {}
+  _threadPool(_options._maxTcpConnections + 1) {}
 
 TcpServer::~TcpServer() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
@@ -66,6 +67,7 @@ void TcpServer::accept() {
     std::make_shared<TcpConnection>(_options,
 				    _taskController,
 				    _numberConnections,
+				    _numberTcpConnections,
 				    _stopped,
 				    shared_from_this());
   _acceptor.async_accept(connection->socket(),
@@ -82,12 +84,12 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
   else {
     connection->start();
     _threadPool.push(connection);
-    if (_numberConnections > _threadPool.size())
+    if (_numberTcpConnections > _threadPool.size() - 1)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-max number connections exceeded thread pool size\n"
-	   << "client will wait in a queu\n"
-	   << "increase \"MaxConnections\" in ServerOptions.json.\n";
-      ;
+	   << "\nnumber tcp connections=" << _numberTcpConnections
+	   << "\nexceeded thread pool capacity,\n"
+	   << "tcp client will wait in a pool queue.\n"
+	   << "increase \"MaxTcpConnections\" in ServerOptions.json.\n";
     accept();
   }
 }

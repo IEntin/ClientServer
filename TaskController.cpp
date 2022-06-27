@@ -15,7 +15,8 @@ TaskController::TaskController(const ServerOptions* options) :
   _numberWorkThreads(options->_numberWorkThreads),
   _sortInput(options->_sortInput),
   _barrier(_numberWorkThreads, onTaskCompletion),
-  _threadPool(_numberWorkThreads) {
+  _threadPool(_numberWorkThreads),
+  _numberConnections(0) {
   _memoryPool.setExpectedSize(options->_bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();

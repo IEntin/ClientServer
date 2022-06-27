@@ -28,6 +28,7 @@ public:
   TcpConnection(const ServerOptions& options,
 		TaskControllerPtr taskController,
 		std::atomic<int>& numberConnections,
+		std::atomic<int>& numberTcpConnections,
 		std::atomic<bool>& stopped,
 		TcpServerPtr server);
   ~TcpConnection() override;
@@ -61,6 +62,7 @@ private:
   Response _response;
   COMPRESSORS _compressor;
   std::atomic<int>& _numberConnections;
+  std::atomic<int>& _numberTcpConnections;
   std::atomic<bool>& _stopped;
   TcpServerPtr _server;
 };

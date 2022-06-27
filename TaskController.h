@@ -44,6 +44,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
+  std::atomic<int> _numberConnections;
   std::atomic<bool> _stopped = false;
   MemoryPool _memoryPool;
   static Phase _phase;
@@ -55,6 +56,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   MemoryPool& getMemoryPool() { return _memoryPool; }
   // used in tests
   void setMemoryPoolSize(size_t size);
+  std::atomic<int>& getNumberConnections() { return _numberConnections; }
   static TaskControllerPtr instance(const ServerOptions* options = nullptr);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
 };

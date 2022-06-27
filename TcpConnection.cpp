@@ -14,6 +14,7 @@ namespace tcp {
 TcpConnection::TcpConnection(const ServerOptions& options,
 			     TaskControllerPtr taskController,
 			     std::atomic<int>& numberConnections,
+			     std::atomic<int>& numberTcpConnections,
 			     std::atomic<bool>& stopped,
 			     TcpServerPtr server) :
   _options(options),
@@ -24,6 +25,7 @@ TcpConnection::TcpConnection(const ServerOptions& options,
   _timer(_ioContext),
   _compressor(options._compressor),
   _numberConnections(numberConnections),
+  _numberTcpConnections(numberTcpConnections),
   _stopped(stopped),
   // need for reference count
   _server(server) {
@@ -31,6 +33,7 @@ TcpConnection::TcpConnection(const ServerOptions& options,
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
   _numberConnections++;
+  _numberTcpConnections++;
 }
 
 TcpConnection::~TcpConnection() {
@@ -39,6 +42,7 @@ TcpConnection::~TcpConnection() {
   _socket.close(ignore);
   _timer.cancel(ignore);
   _numberConnections--;
+  _numberTcpConnections--;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 

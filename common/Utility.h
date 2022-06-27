@@ -60,7 +60,7 @@ template <typename INPUT, typename CONTAINER>
 inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
-    std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
     << " problem converting str:" << str << std::endl;
     return false;
   }
@@ -88,8 +88,8 @@ template <Integral N>
 	ec == std::errc())
       os.write(arr, ptr - arr);
     else
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-error translating number:" << value._number << std::endl;
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-error translating number:" << value._number << std::endl;
     return os;
 }
 
@@ -101,8 +101,8 @@ template <FloatingPoint N>
  	ec == std::errc())
       os.write(arr, ptr - arr);
     else
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-error translating number:" << value._number << std::endl;
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-error translating number:" << value._number << std::endl;
     return os;
 }
 
@@ -110,8 +110,8 @@ template <Integral T>
   bool toChars(T value, char* buffer, size_t size) {
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
-      std::cerr << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-problem converting to string:" << value << std::endl;
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-problem converting to string:" << value << std::endl;
       return false;
     }
     return true;
