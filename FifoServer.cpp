@@ -48,7 +48,8 @@ bool FifoServer::start(const ServerOptions& options) {
     }
     if (_numberConnections > _maxConnections) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-max number connections exceeded. \n";
+	   << "-max number connections exceeded,\n"
+	   << "increase \"MaxConnections\" in ServerOptions.json.\n";
       break;
     }
     FifoConnectionPtr connection =

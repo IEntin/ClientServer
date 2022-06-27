@@ -82,6 +82,12 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
   else {
     connection->start();
     _threadPool.push(connection);
+    if (_numberConnections > _threadPool.size())
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-max number connections exceeded thread pool size\n"
+	   << "client will wait in a queu\n"
+	   << "increase \"MaxConnections\" in ServerOptions.json.\n";
+      ;
     accept();
   }
 }

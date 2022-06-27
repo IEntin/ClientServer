@@ -15,7 +15,7 @@ bool AppOptions::initialize() {
   catch (std::exception& e) {
     static auto& printOnce[[maybe_unused]] =
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what()
-	   << ", default values will be returned, by design in tests.\n";
+	   << ",\n" << "default values will be returned, by design in tests.\n";
     return false;
   }
   catch (...) {

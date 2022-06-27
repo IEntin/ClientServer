@@ -70,7 +70,7 @@ void TaskController::initialize() {
 
 void TaskController::run() noexcept {
   try {
-    while (!stopped()) {
+    while (!_stopped) {
       while (_task->extractKeyNext());
       _barrier.arrive_and_wait();
       while (_task->processNext());
