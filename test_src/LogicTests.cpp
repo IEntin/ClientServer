@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Ad.h"
 #include "ClientOptions.h"
 #include "FifoClient.h"
 #include "FifoServer.h"
@@ -74,7 +73,6 @@ struct LogicTest : testing::Test {
   static void SetUpTestSuite() {
     // To change options modify defaults in
     // ServerOptions.cpp and rebuild application
-    Ad::load(TestEnvironment::_serverOptions._adsFileName);
     Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
   }
@@ -183,7 +181,6 @@ struct LogicTestAltFormat : testing::Test {
   static void SetUpTestSuite() {
     // To change options modify defaults in
     // ServerOptions.cpp and rebuild application
-    Ad::load(TestEnvironment::_serverOptions._adsFileName);
     Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
   }
@@ -218,7 +215,6 @@ struct LogicTestSortInput : testing::Test {
   static void SetUpTestSuite() {
     // To change options modify defaults in
     // ServerOptions.cpp and rebuild application
-    Ad::load(TestEnvironment::_serverOptions._adsFileName);
     Task::setPreprocessMethod(Transaction::normalizeSizeKey);
     Task::setProcessMethod(Transaction::processRequest);
   }

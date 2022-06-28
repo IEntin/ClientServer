@@ -15,8 +15,8 @@ std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
-TaskControllerPtr TestEnvironment::_taskController;
 ServerOptions TestEnvironment::_serverOptions;
+TaskControllerPtr TestEnvironment::_taskController;
 const bool TestEnvironment::_orgSortInput = TestEnvironment::_serverOptions._sortInput;
 const COMPRESSORS TestEnvironment::_orgServerCompressor = TestEnvironment::_serverOptions._compressor;
 const size_t TestEnvironment::_orgServerBufferSize = TestEnvironment::_serverOptions._bufferSize;
@@ -34,8 +34,7 @@ void TestEnvironment::SetUp() {
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
-    ServerOptions serverOptions;
-    _taskController = TaskController::instance(&serverOptions);
+    _taskController = TaskController::instance(&TestEnvironment::_serverOptions);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

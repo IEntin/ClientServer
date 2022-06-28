@@ -9,8 +9,6 @@
 
 enum class COMPRESSORS : int;
 
-using ProcessRequest = std::string (*)(std::string_view, std::string_view);
-
 struct ServerOptions {
   explicit ServerOptions(const std::string& jsonName = "");
   ~ServerOptions() = default;
@@ -19,7 +17,7 @@ struct ServerOptions {
   const std::string _adsFileName;
   const std::string _fifoDirectoryName;
   const std::string _fifoBaseNames;
-  const ProcessRequest _processRequest;
+  const std::string _processType;
   const int _numberWorkThreads;
   const int _maxTcpConnections;
   const int _maxFifoConnections;

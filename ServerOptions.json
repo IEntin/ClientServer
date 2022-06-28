@@ -1,4 +1,5 @@
 {
+  "ProcessType" : "Transaction",
   "TurnOffLogging" : false,
   "SortInput" : false,
   "AdsFileName" : "data/ads.txt",

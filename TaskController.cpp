@@ -3,23 +3,36 @@
  */
 
 #include "TaskController.h"
+#include "Ad.h"
+#include "Echo.h"
+#include "FifoServer.h"
 #include "ServerOptions.h"
 #include "Task.h"
+#include "TcpServer.h"
+#include "Transaction.h"
 #include "Utility.h"
 #include <cassert>
 
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 
-TaskController::TaskController(const ServerOptions* options) :
-  _numberWorkThreads(options->_numberWorkThreads),
-  _sortInput(options->_sortInput),
+TaskController::TaskController(const ServerOptions& options) :
+  _options(options),
+  _numberWorkThreads(_options._numberWorkThreads),
+  _sortInput(_options._sortInput),
   _barrier(_numberWorkThreads, onTaskCompletion),
   _threadPool(_numberWorkThreads),
   _numberConnections(0) {
-  _memoryPool.setExpectedSize(options->_bufferSize);
+  _memoryPool.setExpectedSize(_options._bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();
+  if (_options._processType == "Transaction") {
+    Ad::load(_options._adsFileName);
+    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
+    Task::setProcessMethod(Transaction::processRequest);
+  }
+  else if (options._processType == "Echo")
+    Task::setProcessMethod(echo::Echo::processRequest);
 }
 
 TaskController::~TaskController() {
@@ -28,7 +41,7 @@ TaskController::~TaskController() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
-TaskControllerPtr TaskController::create(const ServerOptions* options) {
+TaskControllerPtr TaskController::create(const ServerOptions& options) {
   // to have private constructor do not use make_shared
   TaskControllerPtr taskController(new TaskController(options));
   taskController->initialize();
@@ -36,7 +49,7 @@ TaskControllerPtr TaskController::create(const ServerOptions* options) {
 }
 
 TaskControllerPtr TaskController::instance(const ServerOptions* options) {
-  static TaskControllerPtr instance = create(options);
+  static TaskControllerPtr instance = create(*options);
   return instance;
 }
 
@@ -117,4 +130,21 @@ void TaskController::setNextTask() {
 
 void TaskController::setMemoryPoolSize(size_t size) {
   _memoryPool.setExpectedSize(size);
+}
+
+int TaskController::start() {
+  _tcpServer = std::make_shared<tcp::TcpServer>(_options, shared_from_this());
+  if (!_tcpServer->start())
+    return 2;
+  _fifoServer = std::make_shared<fifo::FifoServer>(_options, shared_from_this());
+  if (!_fifoServer->start(_options))
+    return 3;
+  return 0;
+}
+
+void TaskController::stop() {
+  if (_tcpServer)
+    _tcpServer->stop();
+  if (_fifoServer)
+    _fifoServer->stop();
 }
