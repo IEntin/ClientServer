@@ -5,6 +5,7 @@
 #pragma once
 
 #include "MemoryPool.h"
+#include "ProcessRequestStrategy.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <atomic>
@@ -24,16 +25,6 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
 struct ServerOptions;
-
-namespace tcp {
-  class TcpServer;
-  using TcpServerPtr = std::shared_ptr<TcpServer>;
-}
-
-namespace fifo {
-  class FifoServer;
-  using FifoServerPtr = std::shared_ptr<FifoServer>;
-}
 
 class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
@@ -58,8 +49,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   MemoryPool _memoryPool;
   static Phase _phase;
   static bool _diagnosticsEnabled;
-  tcp::TcpServerPtr _tcpServer;
-  fifo::FifoServerPtr _fifoServer;
+  ProcessRequestStrategy _strategy;
  public:
   ~TaskController() override;
   int start();

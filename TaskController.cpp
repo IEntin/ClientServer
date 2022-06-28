@@ -3,13 +3,8 @@
  */
 
 #include "TaskController.h"
-#include "Ad.h"
-#include "Echo.h"
-#include "FifoServer.h"
 #include "ServerOptions.h"
 #include "Task.h"
-#include "TcpServer.h"
-#include "Transaction.h"
 #include "Utility.h"
 #include <cassert>
 
@@ -26,13 +21,7 @@ TaskController::TaskController(const ServerOptions& options) :
   _memoryPool.setExpectedSize(_options._bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();
-  if (_options._processType == "Transaction") {
-    Ad::load(_options._adsFileName);
-    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
-    Task::setProcessMethod(Transaction::processRequest);
-  }
-  else if (options._processType == "Echo")
-    Task::setProcessMethod(echo::Echo::processRequest);
+  _strategy.onCreate(_options);
 }
 
 TaskController::~TaskController() {
@@ -133,18 +122,9 @@ void TaskController::setMemoryPoolSize(size_t size) {
 }
 
 int TaskController::start() {
-  _tcpServer = std::make_shared<tcp::TcpServer>(_options, shared_from_this());
-  if (!_tcpServer->start())
-    return 2;
-  _fifoServer = std::make_shared<fifo::FifoServer>(_options, shared_from_this());
-  if (!_fifoServer->start(_options))
-    return 3;
-  return 0;
+  return _strategy.onStart(_options, shared_from_this());
 }
 
 void TaskController::stop() {
-  if (_tcpServer)
-    _tcpServer->stop();
-  if (_fifoServer)
-    _fifoServer->stop();
+  _strategy.onStop();
 }
