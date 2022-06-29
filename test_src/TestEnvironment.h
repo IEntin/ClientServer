@@ -35,8 +35,4 @@ public:
   static std::ostringstream _oss;
   static ClientOptions _clientOptions;
   static const ClientOptions _clientOptionsOrg;
-  static const std::string _orgSourceName;
-  static const size_t _orgClientBufferSize;
-  static const COMPRESSORS _orgClientCompressor;
-  static const bool _orgClientDiagnostics;
 };

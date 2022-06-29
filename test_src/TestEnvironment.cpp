@@ -20,11 +20,7 @@ const ServerOptions TestEnvironment::_serverOptionsOrg;
 TaskControllerPtr TestEnvironment::_taskController;
 std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
-const ClientOptions TestEnvironment::_clientOptionsOrg;
-const std::string TestEnvironment::_orgSourceName = TestEnvironment::_clientOptions._sourceName;
-const COMPRESSORS TestEnvironment::_orgClientCompressor = TestEnvironment::_clientOptions._compressor;
-const bool TestEnvironment::_orgClientDiagnostics = TestEnvironment::_clientOptions._diagnostics;
-const size_t TestEnvironment::_orgClientBufferSize = TestEnvironment::_clientOptions._bufferSize;
+const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
 void TestEnvironment::SetUp() {
   try {
@@ -47,8 +43,5 @@ void TestEnvironment::reset() {
   _serverOptions = _serverOptionsOrg;
   _taskController->setMemoryPoolSize(_serverOptionsOrg._bufferSize);
   _oss.str("");
-  _clientOptions._compressor = _orgClientCompressor;
-  _clientOptions._bufferSize = _orgClientBufferSize;
-  _clientOptions._sourceName = _orgSourceName;
-  _clientOptions._diagnostics = _orgClientDiagnostics;
+  _clientOptions = _clientOptionsOrg;
 }
