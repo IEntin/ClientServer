@@ -25,8 +25,6 @@ TaskController::TaskController(const ServerOptions& options) :
 }
 
 TaskController::~TaskController() {
-  _stopped.store(true);
-  _threadPool.stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
@@ -37,8 +35,10 @@ TaskControllerPtr TaskController::create(const ServerOptions& options) {
   return taskController;
 }
 
-TaskControllerPtr TaskController::instance(const ServerOptions* options) {
+TaskControllerPtr TaskController::instance(const ServerOptions* options, Operations op) {
   static TaskControllerPtr instance = create(*options);
+  if (op == DESTROY)
+    TaskControllerPtr().swap(instance);
   return instance;
 }
 
@@ -127,4 +127,12 @@ int TaskController::start() {
 
 void TaskController::stop() {
   _strategy.onStop();
+  _stopped.store(true);
+  wakeupThreads();
+  _threadPool.stop();
+  instance(nullptr, DESTROY);
+}
+
+void TaskController::wakeupThreads() {
+  push(std::make_shared<Task>());
 }

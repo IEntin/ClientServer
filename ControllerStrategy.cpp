@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ProcessRequestStrategy.h"
+#include "ControllerStrategy.h"
 #include "Ad.h"
 #include "Echo.h"
 #include "FifoServer.h"
@@ -13,7 +13,7 @@
 #include "Transaction.h"
 #include "Utility.h"
 
-void ProcessRequestStrategy::onCreate(const ServerOptions& options) {
+void ControllerStrategy::onCreate(const ServerOptions& options) {
   if (options._processType == "Transaction") {
     if (!Ad::load(options._adsFileName))
       std::exit(4);
@@ -29,7 +29,7 @@ void ProcessRequestStrategy::onCreate(const ServerOptions& options) {
   }
 }
 
-int ProcessRequestStrategy::onStart(const ServerOptions& options, TaskControllerPtr taskController) {
+int ControllerStrategy::onStart(const ServerOptions& options, TaskControllerPtr taskController) {
   _tcpServer = std::make_shared<tcp::TcpServer>(options, taskController);
   if (!_tcpServer->start())
     return 2;
@@ -39,9 +39,13 @@ int ProcessRequestStrategy::onStart(const ServerOptions& options, TaskController
   return 0;
 }
 
-void ProcessRequestStrategy::onStop() {
-  if (_tcpServer)
+void ControllerStrategy::onStop() {
+  if (_tcpServer) {
     _tcpServer->stop();
-  if (_fifoServer)
+    tcp::TcpServerPtr().swap(_tcpServer);
+  }
+  if (_fifoServer) {
     _fifoServer->stop();
+    fifo::FifoServerPtr().swap(_fifoServer);
+  }
 }

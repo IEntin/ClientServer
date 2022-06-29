@@ -5,7 +5,7 @@
 #pragma once
 
 #include "MemoryPool.h"
-#include "ProcessRequestStrategy.h"
+#include "ControllerStrategy.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <atomic>
@@ -28,11 +28,13 @@ struct ServerOptions;
 
 class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
+  enum Operations { KEEP, DESTROY, RESET };
   using CompletionFunction = void (*) () noexcept;
   TaskController(const ServerOptions& options);
   void initialize();
   void push(TaskPtr task);
   void setNextTask();
+  void wakeupThreads();
   static TaskControllerPtr create(const ServerOptions& options);
   const ServerOptions& _options;
   const int _numberWorkThreads;
@@ -49,7 +51,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   MemoryPool _memoryPool;
   static Phase _phase;
   static bool _diagnosticsEnabled;
-  ProcessRequestStrategy _strategy;
+  ControllerStrategy _strategy;
  public:
   ~TaskController() override;
   int start();
@@ -60,6 +62,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   // used in tests
   void setMemoryPoolSize(size_t size);
   std::atomic<int>& getNumberConnections() { return _numberConnections; }
-  static TaskControllerPtr instance(const ServerOptions* options = nullptr);
+  static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
 };

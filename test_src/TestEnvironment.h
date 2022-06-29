@@ -31,11 +31,10 @@ public:
   static std::string _outputAltFormatD;
   static TaskControllerPtr _taskController;
   static ServerOptions _serverOptions;
-  static const bool _orgSortInput;
-  static const COMPRESSORS _orgServerCompressor;
-  static const size_t _orgServerBufferSize;
+  static const ServerOptions _serverOptionsOrg;
   static std::ostringstream _oss;
   static ClientOptions _clientOptions;
+  static const ClientOptions _clientOptionsOrg;
   static const std::string _orgSourceName;
   static const size_t _orgClientBufferSize;
   static const COMPRESSORS _orgClientCompressor;

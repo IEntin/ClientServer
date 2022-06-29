@@ -16,12 +16,11 @@ std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
 ServerOptions TestEnvironment::_serverOptions;
+const ServerOptions TestEnvironment::_serverOptionsOrg;
 TaskControllerPtr TestEnvironment::_taskController;
-const bool TestEnvironment::_orgSortInput = TestEnvironment::_serverOptions._sortInput;
-const COMPRESSORS TestEnvironment::_orgServerCompressor = TestEnvironment::_serverOptions._compressor;
-const size_t TestEnvironment::_orgServerBufferSize = TestEnvironment::_serverOptions._bufferSize;
 std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
+const ClientOptions TestEnvironment::_clientOptionsOrg;
 const std::string TestEnvironment::_orgSourceName = TestEnvironment::_clientOptions._sourceName;
 const COMPRESSORS TestEnvironment::_orgClientCompressor = TestEnvironment::_clientOptions._compressor;
 const bool TestEnvironment::_orgClientDiagnostics = TestEnvironment::_clientOptions._diagnostics;
@@ -45,10 +44,8 @@ void TestEnvironment::SetUp() {
 void TestEnvironment::TearDown() {}
 
 void TestEnvironment::reset() {
-  _serverOptions._sortInput = _orgSortInput;
-  _serverOptions._compressor = _orgServerCompressor;
-  _serverOptions._bufferSize = _orgServerBufferSize;
-  _taskController->setMemoryPoolSize(_orgServerBufferSize);
+  _serverOptions = _serverOptionsOrg;
+  _taskController->setMemoryPoolSize(_serverOptionsOrg._bufferSize);
   _oss.str("");
   _clientOptions._compressor = _orgClientCompressor;
   _clientOptions._bufferSize = _orgClientBufferSize;

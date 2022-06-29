@@ -20,16 +20,16 @@ namespace fifo {
   using FifoServerPtr = std::shared_ptr<FifoServer>;
 }
 
-class ProcessRequestStrategy {
+class ControllerStrategy {
 
   tcp::TcpServerPtr _tcpServer;
 
   fifo::FifoServerPtr _fifoServer;
 
  public:
-  ProcessRequestStrategy() = default;
+  ControllerStrategy() = default;
 
-  ~ProcessRequestStrategy() = default;
+  ~ControllerStrategy() = default;
 
   void onCreate(const ServerOptions& options);
 
