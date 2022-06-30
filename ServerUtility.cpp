@@ -17,7 +17,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, Me
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << LZ4 << "compression "
-	 << (bcompressed ? "enabled" : "disabled.\n");
+	 << (bcompressed ? "enabled\n" : "disabled.\n");
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();

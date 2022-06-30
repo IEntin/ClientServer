@@ -19,9 +19,9 @@
 struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    TestEnvironment::_serverOptionsEcho._compressor = serverCompressor;
+    TestEnvironment::_serverOptions._compressor = serverCompressor;
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptionsEcho, TestEnvironment::_taskControllerEcho);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -36,10 +36,10 @@ struct EchoTest : testing::Test {
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
-    TestEnvironment::_serverOptionsEcho._compressor = serverCompressor;
+    TestEnvironment::_serverOptions._compressor = serverCompressor;
     fifo::FifoServerPtr fifoServer =
-      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptionsEcho, TestEnvironment::_taskControllerEcho);
-    bool serverStart = fifoServer->start(TestEnvironment::_serverOptionsEcho);
+      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
+    bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     fifo::FifoClient client(TestEnvironment::_clientOptions);

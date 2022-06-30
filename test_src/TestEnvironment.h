@@ -32,9 +32,6 @@ public:
   static ServerOptions _serverOptions;
   static const ServerOptions _serverOptionsOrg;
   static TaskControllerPtr _taskController;
-  static ServerOptions _serverOptionsEcho;
-  static ServerOptions _serverOptionsEchoOrg;
-  static TaskControllerPtr _taskControllerEcho;
   static std::ostringstream _oss;
   static ClientOptions _clientOptions;
   static const ClientOptions _clientOptionsOrg;

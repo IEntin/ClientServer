@@ -18,9 +18,6 @@ std::string TestEnvironment::_outputAltFormatD;
 ServerOptions TestEnvironment::_serverOptions;
 const ServerOptions TestEnvironment::_serverOptionsOrg;
 TaskControllerPtr TestEnvironment::_taskController;
-ServerOptions TestEnvironment::_serverOptionsEcho;
-ServerOptions TestEnvironment::_serverOptionsEchoOrg;
-TaskControllerPtr TestEnvironment::_taskControllerEcho;
 std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
@@ -33,9 +30,6 @@ void TestEnvironment::SetUp() {
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
     _taskController = TaskController::instance(&TestEnvironment::_serverOptions);
-    _serverOptionsEcho._processType = "Echo";
-    _serverOptionsEchoOrg._processType = "Echo";
-    _taskControllerEcho = TaskController::instance(&TestEnvironment::_serverOptionsEcho);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -48,8 +42,6 @@ void TestEnvironment::TearDown() {}
 void TestEnvironment::reset() {
   _serverOptions = _serverOptionsOrg;
   _taskController->setMemoryPoolSize(_serverOptionsOrg._bufferSize);
-  _serverOptionsEcho = _serverOptionsEchoOrg;
-  _taskControllerEcho->setMemoryPoolSize(_serverOptionsEchoOrg._bufferSize);
   _oss.str("");
   _clientOptions = _clientOptionsOrg;
 }
