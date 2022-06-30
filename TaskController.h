@@ -5,7 +5,7 @@
 #pragma once
 
 #include "MemoryPool.h"
-#include "ControllerStrategy.h"
+#include "Strategy.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <atomic>
@@ -37,7 +37,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void wakeupThreads();
   static TaskControllerPtr create(const ServerOptions& options);
   const ServerOptions& _options;
-  const int _numberWorkThreads;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
   std::barrier<CompletionFunction> _barrier;
@@ -51,7 +50,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   MemoryPool _memoryPool;
   static Phase _phase;
   static bool _diagnosticsEnabled;
-  ControllerStrategy _strategy;
+  Strategy& _strategy;
  public:
   ~TaskController() override;
   int start();

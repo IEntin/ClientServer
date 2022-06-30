@@ -4,6 +4,7 @@
 
 #include "TaskController.h"
 #include "ServerOptions.h"
+#include "StrategySelector.h"
 #include "Task.h"
 #include "Utility.h"
 #include <cassert>
@@ -13,11 +14,11 @@ bool TaskController::_diagnosticsEnabled = false;
 
 TaskController::TaskController(const ServerOptions& options) :
   _options(options),
-  _numberWorkThreads(_options._numberWorkThreads),
   _sortInput(_options._sortInput),
-  _barrier(_numberWorkThreads, onTaskCompletion),
-  _threadPool(_numberWorkThreads),
-  _numberConnections(0) {
+  _barrier(_options._numberWorkThreads, onTaskCompletion),
+  _threadPool(_options._numberWorkThreads),
+  _numberConnections(0),
+  _strategy(StrategySelector::get(_options)) {
   _memoryPool.setExpectedSize(_options._bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();
@@ -64,7 +65,7 @@ void TaskController::onTaskCompletion() noexcept {
 }
 
 void TaskController::initialize() {
-  for (int i = 0; i < _numberWorkThreads; ++i)
+  for (int i = 0; i < _options._numberWorkThreads; ++i)
     _threadPool.push(shared_from_this());
 }
 
