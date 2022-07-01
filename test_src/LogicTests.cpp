@@ -5,6 +5,7 @@
 #include "ClientOptions.h"
 #include "FifoClient.h"
 #include "FifoServer.h"
+#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
@@ -24,7 +25,7 @@ struct LogicTest : testing::Test {
     // start server
     TestEnvironment::_serverOptions._compressor = serverCompressor;
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-    TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
+    MemoryPool::setExpectedSize(serverMemPoolSize);
     tcp::TcpServerPtr tcpServer =
       std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = tcpServer->start();
@@ -49,7 +50,7 @@ struct LogicTest : testing::Test {
     // start server
     TestEnvironment::_serverOptions._compressor = serverCompressor;
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-    TestEnvironment::_taskController->setMemoryPoolSize(serverMemPoolSize);
+    MemoryPool::setExpectedSize(serverMemPoolSize);
     fifo::FifoServerPtr fifoServer =
       std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
     bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);

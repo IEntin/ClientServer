@@ -76,7 +76,7 @@ bool FifoConnection::readMsgBody(int fd,
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << (bcompressed ? " received compressed" : " received not compressed") << '\n';
   if (bcompressed) {
-    std::vector<char>& buffer = _taskController->getMemoryPool().getFirstBuffer(comprSize);
+    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
     if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
       return false;
     std::string_view received(buffer.data(), comprSize);
@@ -97,7 +97,7 @@ bool FifoConnection::readMsgBody(int fd,
 
 bool FifoConnection::sendResponse(const Response& response) {
   std::string_view message =
-    serverutility::buildReply(response, _options._compressor, _taskController->getMemoryPool());
+    serverutility::buildReply(response, _options._compressor);
   if (message.empty())
     return false;
   // Open write fd in NONBLOCK mode in order to protect the server

@@ -3,6 +3,7 @@
  */
 
 #include "TestEnvironment.h"
+#include "MemoryPool.h"
 #include "TaskController.h"
 #include "Utility.h"
 #include "ClientOptions.h"
@@ -41,7 +42,7 @@ void TestEnvironment::TearDown() {}
 
 void TestEnvironment::reset() {
   _serverOptions = _serverOptionsOrg;
-  _taskController->setMemoryPoolSize(_serverOptionsOrg._bufferSize);
+  MemoryPool::setExpectedSize(_serverOptionsOrg._bufferSize);
   _oss.str("");
   _clientOptions = _clientOptionsOrg;
 }

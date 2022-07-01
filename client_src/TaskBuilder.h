@@ -13,7 +13,6 @@
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 enum class COMPRESSORS : int;
-struct MemoryPool;
 
 enum class TaskBuilderState {
   NONE,
@@ -33,7 +32,6 @@ class TaskBuilder : public Runnable {
   const std::string _sourceName;
   const COMPRESSORS _compressor;
   const bool _diagnostics;
-  MemoryPool& _memoryPool;
   std::promise<void> _promise1;
   std::promise<void> _promise2;
   ssize_t _requestIndex;
@@ -42,7 +40,7 @@ class TaskBuilder : public Runnable {
 
  public:
 
-  TaskBuilder(const struct ClientOptions& options, MemoryPool& memoryPool);
+  TaskBuilder(const struct ClientOptions& options);
   ~TaskBuilder() override;
   void run() override;
   TaskBuilderState getTask(std::vector<char>& task);

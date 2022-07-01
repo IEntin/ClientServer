@@ -3,6 +3,7 @@
  */
 
 #include "TaskController.h"
+#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "StrategySelector.h"
 #include "Task.h"
@@ -19,7 +20,7 @@ TaskController::TaskController(const ServerOptions& options) :
   _barrier(_options._numberWorkThreads, onTaskCompletion),
   _threadPool(_options._numberWorkThreads),
   _strategy(StrategySelector::get(_options)) {
-  _memoryPool.setExpectedSize(_options._bufferSize);
+  MemoryPool::setExpectedSize(_options._bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();
   _strategy.onCreate(_options);
@@ -99,7 +100,7 @@ void TaskController::push(TaskPtr task) {
 
 void TaskController::submitTask(const HEADER& header, std::vector<char>& input, Response& response) {
   try {
-    TaskPtr task = std::make_shared<Task>(header, input, response, _memoryPool);
+    TaskPtr task = std::make_shared<Task>(header, input, response);
     auto future = task->getPromise().get_future();
     push(task);
     future.get();
@@ -116,10 +117,6 @@ void TaskController::setNextTask() {
   _task = _queue.front();
   _diagnosticsEnabled = _task->diagnosticsEnabled();
   _queue.pop();
-}
-
-void TaskController::setMemoryPoolSize(size_t size) {
-  _memoryPool.setExpectedSize(size);
 }
 
 int TaskController::start() {

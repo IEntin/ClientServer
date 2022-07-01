@@ -14,14 +14,13 @@
 struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string_view input) {
-    MemoryPool memoryPool;
-    memoryPool.setExpectedSize(100000);
-    std::string_view compressedView = Compression::compress(input, memoryPool);
+    MemoryPool::setExpectedSize(100000);
+    std::string_view compressedView = Compression::compress(input);
     ASSERT_FALSE(compressedView.empty());
     // save to a string before buffer is reused in uncompress
     std::string compressed;
     compressed.assign(compressedView.data(), compressedView.size());
-    std::string_view uncompressedView = Compression::uncompress(compressed, input.size(), memoryPool);
+    std::string_view uncompressedView = Compression::uncompress(compressed, input.size());
     // cerr to make this log visible in gtest
     static auto& printOnce [[maybe_unused]] =
       CERR << "\n   input.size()=" << input.size()
@@ -31,9 +30,8 @@ struct CompressionTest : testing::Test {
   }
 
   void testCompressionDecompression2(std::string_view input) {
-    MemoryPool memoryPool;
-    memoryPool.setExpectedSize(100000);
-    std::string_view compressedView = Compression::compress(input, memoryPool);
+    MemoryPool::setExpectedSize(100000);
+    std::string_view compressedView = Compression::compress(input);
     ASSERT_FALSE(compressedView.empty());
     std::vector<char> uncompressed(input.size());
     ASSERT_TRUE(Compression::uncompress(compressedView, uncompressed));

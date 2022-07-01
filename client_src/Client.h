@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "MemoryPool.h"
 #include "ThreadPool.h"
 
 struct ClientOptions;
@@ -22,8 +21,6 @@ class Client {
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   const ClientOptions& _options;
-
-  MemoryPool _memoryPool;
 
  private:
 

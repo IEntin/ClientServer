@@ -12,8 +12,6 @@ inline constexpr std::string_view NOP = "NOP";
 
 enum class COMPRESSORS : int;
 
-struct MemoryPool;
-
 class Compression {
   Compression() = delete;
   ~Compression() = delete;
@@ -27,11 +25,9 @@ class Compression {
  public:
   static COMPRESSORS isCompressionEnabled(const std::string& compressorStr);
 
-  static std::string_view compress(std::string_view uncompressed, MemoryPool& memoryPool);
+  static std::string_view compress(std::string_view uncompressed);
 
-  static std::string_view uncompress(std::string_view compressed,
-				     size_t uncomprSize,
-				     MemoryPool& memoryPool);
+  static std::string_view uncompress(std::string_view compressed, size_t uncomprSize);
 
   static bool uncompress(std::string_view compressed, std::vector<char>& uncompressed);
 

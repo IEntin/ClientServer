@@ -6,6 +6,7 @@
 #include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Compression.h"
+#include "MemoryPool.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
 #include <cassert>
@@ -13,7 +14,7 @@
 #include <cstring>
 
 Client::Client(const ClientOptions& options) : _options(options), _threadPool(options._numberBuilderThreads) {
-  _memoryPool.setExpectedSize(options._bufferSize);
+  MemoryPool::setExpectedSize(options._bufferSize);
 }
 
 Client::~Client() {
@@ -48,14 +49,14 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
 bool Client::run() {
   try {
     int numberTasks = 0;
-    _taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
+    _taskBuilder = std::make_shared<TaskBuilder>(_options);
     _threadPool.push(_taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       TaskBuilderPtr savedBuild = std::move(_taskBuilder);
       // start construction of the next task in the background
       if (_options._runLoop) {
-	_taskBuilder = std::make_shared<TaskBuilder>(_options, _memoryPool);
+	_taskBuilder = std::make_shared<TaskBuilder>(_options);
 	_threadPool.push(_taskBuilder);
       }
       if (!processTask(std::move(savedBuild)))
@@ -79,7 +80,7 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << " received compressed.\n";
-    std::string_view dstView = Compression::uncompress(received, uncomprSize, _memoryPool);
+    std::string_view dstView = Compression::uncompress(received, uncomprSize);
     if (dstView.empty()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << ":failed to uncompress payload.\n";

@@ -9,11 +9,10 @@
 #include "MemoryPool.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(const ClientOptions& options, MemoryPool& memoryPool) :
+TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _sourceName(options._sourceName),
   _compressor(options._compressor),
   _diagnostics(options._diagnostics),
-  _memoryPool(memoryPool),
   _requestIndex(0),
   _nextIdSz(4) {
   _input.open(_sourceName, std::ios::binary);
@@ -104,10 +103,10 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 bool TaskBuilder::createTask() {
   _task.clear();
   ssize_t subtaskPos = 0;
-  thread_local static std::vector<char> aggregate(_memoryPool.getExpectedSize());
+  thread_local static std::vector<char> aggregate(MemoryPool::getExpectedSize());
   ssize_t aggregateSize = 0;
   // rough estimate for id and header to avoid reallocation.
-  ssize_t maxSubtaskSize = _memoryPool.getExpectedSize() * 0.9;
+  ssize_t maxSubtaskSize = MemoryPool::getExpectedSize() * 0.9;
   thread_local static std::string line;
   try {
     while (std::getline(_input, line)) {
@@ -146,7 +145,7 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   std::string_view uncompressed(beg + HEADER_SIZE, end);
   size_t uncomprSize = uncompressed.size();
   if (bcompressed) {
-    std::string_view compressed = Compression::compress(uncompressed, _memoryPool);
+    std::string_view compressed = Compression::compress(uncompressed);
     if (compressed.empty()) {
       _state = TaskBuilderState::ERROR;
       return false;

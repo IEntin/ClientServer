@@ -11,8 +11,6 @@
 
 using Response = std::vector<std::string>;
 
-struct MemoryPool;
-
 class Task;
 
 using TaskPtr = std::shared_ptr<Task>;
@@ -58,9 +56,7 @@ class Task {
  public:
   Task();
 
-  Task(const HEADER& header,
-       std::vector<char>& input, Response& response,
-       MemoryPool& memoryPool);
+  Task(const HEADER& header, std::vector<char>& input, Response& response);
 
   void sortIndices();
 

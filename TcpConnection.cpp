@@ -4,6 +4,7 @@
 
 #include "TcpConnection.h"
 #include "Compression.h"
+#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
@@ -86,7 +87,7 @@ bool TcpConnection::onReceiveRequest() {
 
 bool TcpConnection::sendReply(const Response& response) {
   std::string_view message =
-    serverutility::buildReply(response, _compressor, _taskController->getMemoryPool());
+    serverutility::buildReply(response, _compressor);
   if (message.empty())
     return false;
   write(message);
