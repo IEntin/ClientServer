@@ -12,8 +12,6 @@
 #include "Transaction.h"
 #include "Utility.h"
 
-TransactionStrategy::TransactionStrategy() {}
-  
 TransactionStrategy::~TransactionStrategy() {}
 
 void TransactionStrategy::onCreate(const ServerOptions& options) {

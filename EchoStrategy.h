@@ -9,7 +9,7 @@
 class EchoStrategy : public Strategy {
 
  public:
-  EchoStrategy();
+  EchoStrategy() = default;
   
   ~EchoStrategy() override;
 

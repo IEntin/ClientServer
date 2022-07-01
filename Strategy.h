@@ -24,9 +24,9 @@ class Strategy {
  public:
   Strategy() = default;
 
-  virtual ~Strategy() {};
+  virtual ~Strategy();
 
-   virtual void onCreate(const ServerOptions& options) = 0;
+  virtual void onCreate(const ServerOptions& options) = 0;
 
    virtual int onStart(const ServerOptions& options, TaskControllerPtr taskController) = 0;
 

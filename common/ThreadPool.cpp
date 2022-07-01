@@ -6,8 +6,6 @@
 #include "Runnable.h"
 #include "Utility.h"
 
-Runnable::~Runnable() {}
-
 ThreadPool::ThreadPool(int numberThreads) {
   start(numberThreads);
 }

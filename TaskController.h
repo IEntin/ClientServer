@@ -47,7 +47,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
-  std::atomic<int> _numberConnections;
+  std::atomic<int> _numberConnections = 0;
   std::atomic<bool> _stopped = false;
   MemoryPool _memoryPool;
   static Phase _phase;

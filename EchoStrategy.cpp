@@ -5,8 +5,6 @@
 #include "EchoStrategy.h"
 #include "Echo.h"
 #include "Task.h"
-
-EchoStrategy::EchoStrategy() {}
   
 EchoStrategy::~EchoStrategy() {}
 

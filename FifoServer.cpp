@@ -20,8 +20,7 @@ FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskContr
   _taskController(taskController),
   _fifoDirName(_options._fifoDirectoryName),
   _threadPool(_options._maxFifoConnections),
-  _numberConnections(_taskController->getNumberConnections()),
-  _numberFifoConnections(0) {
+  _numberConnections(_taskController->getNumberConnections()) {
   // in case there was no proper shudown.
   removeFifoFiles();
   std::vector<std::string> fifoBaseNameVector;

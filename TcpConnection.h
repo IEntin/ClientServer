@@ -61,8 +61,6 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   COMPRESSORS _compressor;
-  std::atomic<int>& _numberConnections;
-  std::atomic<int>& _numberTcpConnections;
   std::atomic<bool>& _stopped;
   TcpServerPtr _server;
 };

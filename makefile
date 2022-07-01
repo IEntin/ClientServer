@@ -136,4 +136,4 @@ clean:
 	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
 
 cleanall : clean
-	$(RM) *.gch */*.gch *.pch */*.pch
+	$(RM) *.gch */*.gch *.pch */*.pch checklog.txt

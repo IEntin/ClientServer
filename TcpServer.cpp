@@ -14,7 +14,6 @@ TcpServer::TcpServer(const ServerOptions& options, TaskControllerPtr taskControl
   _options(options),
   _taskController(taskController),
   _numberConnections(_taskController->getNumberConnections()),
-  _numberTcpConnections(0),
   _ioContext(1),
   _tcpPort(_options._tcpPort),
   _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
@@ -88,7 +87,7 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "\nnumber tcp connections=" << _numberTcpConnections
 	   << "\nexceeded thread pool capacity,\n"
-	   << "tcp client will wait in a pool queue.\n"
+	   << "tcp client will wait in the pool queue.\n"
 	   << "increase \"MaxTcpConnections\" in ServerOptions.json.\n";
     accept();
   }

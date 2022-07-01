@@ -13,11 +13,11 @@ TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 
 TaskController::TaskController(const ServerOptions& options) :
+  Runnable(_numberConnections),
   _options(options),
   _sortInput(_options._sortInput),
   _barrier(_options._numberWorkThreads, onTaskCompletion),
   _threadPool(_options._numberWorkThreads),
-  _numberConnections(0),
   _strategy(StrategySelector::get(_options)) {
   _memoryPool.setExpectedSize(_options._bufferSize);
   // start with empty task

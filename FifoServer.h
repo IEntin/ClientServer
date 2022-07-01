@@ -26,7 +26,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer> {
   const std::string _fifoDirName;
   ThreadPool _threadPool;
   std::atomic<int>& _numberConnections;
-  std::atomic<int> _numberFifoConnections;
+  std::atomic<int> _numberFifoConnections = 0;
   std::atomic<bool> _stopped = false;
   void removeFifoFiles();
   std::vector<std::string> _fifoNames;

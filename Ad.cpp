@@ -19,6 +19,18 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   return os;
 }
 
+AdRow::AdRow(const char* beg, const char* end) : _value(beg, end) {}
+
+AdRow::AdRow(AdRow&& other) : _value(other._value) {
+  _key.swap(other._key);
+}
+
+const AdRow& AdRow::operator =(AdRow&& other) {
+  _key.swap(other._key);
+  _value = other._value;
+  return *this;
+}
+
 std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 bool Ad::_loaded = false;

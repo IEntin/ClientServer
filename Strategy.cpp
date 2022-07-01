@@ -12,6 +12,8 @@
 #include "Transaction.h"
 #include "Utility.h"
 
+Strategy::~Strategy() {}
+
 int Strategy::onStart(const ServerOptions& options, TaskControllerPtr taskController) {
   _tcpServer = std::make_shared<tcp::TcpServer>(options, taskController);
   if (!_tcpServer->start())
