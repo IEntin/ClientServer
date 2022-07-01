@@ -78,8 +78,7 @@ struct LogicTest : testing::Test {
   }
 
   static void TearDownTestSuite() {
-    // set task controller to default state
-    TestEnvironment::_taskController->setMemoryPoolSize(TestEnvironment::_serverOptionsOrg._bufferSize);
+    TestEnvironment::reset();
   }
 };
 

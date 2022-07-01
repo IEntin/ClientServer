@@ -30,9 +30,10 @@ public:
   static std::string _outputND;
   static std::string _outputAltFormatD;
   static ServerOptions _serverOptions;
-  static const ServerOptions _serverOptionsOrg;
   static TaskControllerPtr _taskController;
   static std::ostringstream _oss;
   static ClientOptions _clientOptions;
+ private:
+  static const ServerOptions _serverOptionsOrg;
   static const ClientOptions _clientOptionsOrg;
 };

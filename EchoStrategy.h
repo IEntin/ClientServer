@@ -8,14 +8,17 @@
 
 class EchoStrategy : public Strategy {
 
- public:
-  EchoStrategy() = default;
-  
-  ~EchoStrategy() override;
+ protected:
 
    void onCreate(const ServerOptions& options) override;
 
    int onStart(const ServerOptions& options, TaskControllerPtr taskController) override;
 
    void onStop() override;
+
+ public:
+
+  EchoStrategy() = default;
+
+  ~EchoStrategy() override;
 };

@@ -50,7 +50,7 @@ struct Chronometer {
 	<< elapsed_seconds.count() << 's' << std::endl;
     }
   }
-
+ private:
   Chronometer(const Chronometer&) = delete;
   Chronometer& operator=(const Chronometer&) = delete;
   const bool _enabled;

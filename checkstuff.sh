@@ -26,7 +26,7 @@ make -j4 ENABLEPCH=0
 sleep 2
 
 echo
-echo "***** address + ub, leak sanitizer *****"
+echo "***** address + ub + leak sanitizer *****"
 echo
 make cleanall
 make -j4 SANITIZE=aul

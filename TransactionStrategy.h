@@ -12,6 +12,8 @@ class TransactionStrategy : public Strategy {
   
   ~TransactionStrategy() override;
 
+ protected:
+
    void onCreate(const ServerOptions& options) override;
 
    int onStart(const ServerOptions& options, TaskControllerPtr taskController) override;
