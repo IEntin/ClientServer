@@ -19,6 +19,8 @@ struct MemoryPool {
   size_t getExpectedSize() const { return _expectedSize; }
   static void destroyBuffers();
  private:
+  MemoryPool(const MemoryPool& other) = delete;
+  MemoryPool& operator =(const MemoryPool& other) = delete;
   static MemoryPool& instance();
   // _expectedSize must be a static member,
   // otherwise it will be set only in

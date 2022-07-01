@@ -31,6 +31,8 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   enum Operations { KEEP, DESTROY, RESET };
   using CompletionFunction = void (*) () noexcept;
   TaskController(const ServerOptions& options);
+  TaskController(const TaskController& other) = delete;
+  TaskController& operator =(const TaskController& other) = delete;
   void initialize();
   void push(TaskPtr task);
   void setNextTask();

@@ -22,6 +22,8 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
  public:
   explicit ThreadPool(int numberThreads);
   ~ThreadPool();
+  ThreadPool(const ThreadPool& other) = delete;
+  ThreadPool& operator =(const ThreadPool& other) = delete;
   void stop();
   void push(RunnablePtr runnable);
   RunnablePtr get();

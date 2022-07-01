@@ -29,7 +29,7 @@ void TestEnvironment::SetUp() {
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
-    _taskController = TaskController::instance(&TestEnvironment::_serverOptions);
+    _taskController = TaskController::instance(&_serverOptions);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
