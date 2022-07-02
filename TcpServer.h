@@ -37,13 +37,10 @@ private:
 
   const ServerOptions& _options;
   TaskControllerPtr _taskController;
-  std::atomic<int>& _numberConnections;
-  std::atomic<int> _numberTcpConnections = 0;
   boost::asio::io_context _ioContext;
   int _tcpPort;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
-  std::atomic<bool> _stopped = false;
   ThreadPool _threadPool;
 };
 

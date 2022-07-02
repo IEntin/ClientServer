@@ -46,8 +46,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
-  std::atomic<int> _numberConnections = 0;
-  std::atomic<bool> _stopped = false;
   static Phase _phase;
   static bool _diagnosticsEnabled;
   Strategy& _strategy;
@@ -57,8 +55,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void stop();
   void run() noexcept override;
   void submitTask(const HEADER& header, std::vector<char>& input, Response& response);
-  // used in tests
-  std::atomic<int>& getNumberConnections() { return _numberConnections; }
   static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
 };

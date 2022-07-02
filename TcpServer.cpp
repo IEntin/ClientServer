@@ -11,9 +11,9 @@
 namespace tcp {
 
 TcpServer::TcpServer(const ServerOptions& options, TaskControllerPtr taskController) :
+  Runnable(nullptr, &(taskController->_totalConnections)),
   _options(options),
   _taskController(taskController),
-  _numberConnections(_taskController->getNumberConnections()),
   _ioContext(1),
   _tcpPort(_options._tcpPort),
   _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
@@ -63,12 +63,7 @@ void TcpServer::run() {
 
 void TcpServer::accept() {
   auto connection =
-    std::make_shared<TcpConnection>(_options,
-				    _taskController,
-				    _numberConnections,
-				    _numberTcpConnections,
-				    _stopped,
-				    shared_from_this());
+    std::make_shared<TcpConnection>(_options, _taskController, shared_from_this());
   _acceptor.async_accept(connection->socket(),
 			 connection->endpoint(),
 			 [connection, this](boost::system::error_code ec) {
@@ -83,9 +78,9 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
   else {
     connection->start();
     _threadPool.push(connection);
-    if (_numberTcpConnections > _threadPool.size() - 1)
+    if (_typedConnections > _threadPool.size() - 1)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "\nnumber tcp connections=" << _numberTcpConnections
+	   << "\nnumber tcp connections=" << _typedConnections
 	   << "\nexceeded thread pool capacity,\n"
 	   << "tcp client will wait in the pool queue.\n"
 	   << "increase \"MaxTcpConnections\" in ServerOptions.json.\n";

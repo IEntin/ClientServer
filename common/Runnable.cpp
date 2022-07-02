@@ -4,17 +4,17 @@
 
 #include "Runnable.h"
 
-std::atomic<int> Runnable::_dummyInitializer1(0);
-std::atomic<int> Runnable::_dummyInitializer2(0);
-
-Runnable::Runnable(std::atomic<int>& numberInstances,
-		   std::atomic<int>& combinedNumberInstances) :
-  _combinedNumberInstances(combinedNumberInstances), _numberInstances(numberInstances) {
-  _combinedNumberInstances++;
-  _numberInstances++;
+Runnable::Runnable(std::atomic<bool>* stopped, std::atomic<int>* totalConnections, std::atomic<int>* typedConnections) :
+  _stopped(stopped ? *stopped : _stoppedParent),
+  _totalConnections(totalConnections ? *totalConnections : _totalConnectionsParent),
+  _typedConnections(typedConnections ? *typedConnections : _typedConnectionsParent) {
+  _totalConnections++;
+  _typedConnections++;
 }
 
 Runnable::~Runnable() {
-  _combinedNumberInstances--;
-  _numberInstances--;
+  _totalConnections--;
+  _typedConnections--;
 }
+
+void Runnable::run() {}

@@ -22,16 +22,13 @@ struct ServerOptions;
 
 namespace fifo {
 
-using FifoServerPtr = std::shared_ptr<class FifoServer>;
-
 using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
 
 class FifoConnection : public Runnable {
   const ServerOptions& _options;
   TaskControllerPtr _taskController;
   std::string_view _fifoName;
-  std::atomic<bool>& _stopped;
-  FifoServerPtr _server;
+  RunnablePtr _parent;
   int _fdRead = -1;
   int _fdWrite = -1;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
@@ -48,10 +45,7 @@ class FifoConnection : public Runnable {
   FifoConnection(const ServerOptions& options,
 		 TaskControllerPtr taskController,
 		 std::string_view fifoName,
-		 std::atomic<int>& numberConnections,
-		 std::atomic<int>& numberFifoConnections,
-		 std::atomic<bool>& stopped,
-		 FifoServerPtr server);
+		 RunnablePtr server);
   ~FifoConnection() override;
 };
 

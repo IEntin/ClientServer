@@ -14,7 +14,6 @@ TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 
 TaskController::TaskController(const ServerOptions& options) :
-  Runnable(_numberConnections),
   _options(options),
   _sortInput(_options._sortInput),
   _barrier(_options._numberWorkThreads, onTaskCompletion),

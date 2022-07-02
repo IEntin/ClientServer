@@ -38,3 +38,5 @@ echo "***** thread sanitizer *****"
 echo
 make cleanall
 make -j4 SANITIZE=thread
+
+make cleanall

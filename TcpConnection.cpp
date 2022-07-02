@@ -12,13 +12,8 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(const ServerOptions& options,
-			     TaskControllerPtr taskController,
-			     std::atomic<int>& numberConnections,
-			     std::atomic<int>& numberTcpConnections,
-			     std::atomic<bool>& stopped,
-			     TcpServerPtr server) :
-  Runnable(numberConnections, numberTcpConnections),
+TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, RunnablePtr parent) :
+  Runnable(&(parent->_stopped), &(taskController->_totalConnections), &(parent->_typedConnections)),
   _options(options),
   _taskController(taskController),
   _ioContext(1),
@@ -26,9 +21,8 @@ TcpConnection::TcpConnection(const ServerOptions& options,
   _timeout(options._tcpTimeout),
   _timer(_ioContext),
   _compressor(options._compressor),
-  _stopped(stopped),
-  // need for reference count
-  _server(server) {
+  // save for reference count
+  _parent(parent) {
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);

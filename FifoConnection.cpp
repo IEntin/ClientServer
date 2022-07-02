@@ -20,17 +20,13 @@ namespace fifo {
 FifoConnection::FifoConnection(const ServerOptions& options,
 			       TaskControllerPtr taskController,
 			       std::string_view fifoName,
-			       std::atomic<int>& numberConnections,
-			       std::atomic<int>& numberFifoConnections,
-			       std::atomic<bool>& stopped,
-			       FifoServerPtr server) :
-  Runnable(numberConnections, numberFifoConnections),
+			       RunnablePtr parent) :
+  Runnable(&(parent->_stopped), &(taskController->_totalConnections), &(parent->_typedConnections)),
   _options(options),
   _taskController(taskController),
   _fifoName(fifoName),
-  _stopped(stopped),
-  // need for reference count
-  _server(server) {
+  // save for reference count
+  _parent(parent) {
 }
 
 FifoConnection::~FifoConnection() {

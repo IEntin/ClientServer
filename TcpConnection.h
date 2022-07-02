@@ -19,18 +19,11 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-using TcpServerPtr = std::shared_ptr<class TcpServer>;
-
 using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public Runnable {
 public:
-  TcpConnection(const ServerOptions& options,
-		TaskControllerPtr taskController,
-		std::atomic<int>& numberConnections,
-		std::atomic<int>& numberTcpConnections,
-		std::atomic<bool>& stopped,
-		TcpServerPtr server);
+  TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, RunnablePtr parent);
   ~TcpConnection() override;
 
   void run() noexcept override;
@@ -61,8 +54,7 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   COMPRESSORS _compressor;
-  std::atomic<bool>& _stopped;
-  TcpServerPtr _server;
+  RunnablePtr _parent;
 };
 
 } // end of namespace tcp
