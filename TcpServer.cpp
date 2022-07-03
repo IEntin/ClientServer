@@ -11,7 +11,7 @@
 namespace tcp {
 
 TcpServer::TcpServer(const ServerOptions& options, TaskControllerPtr taskController) :
-  Runnable(nullptr, &(taskController->_totalConnections)),
+  Runnable(RunnablePtr(), taskController),
   _options(options),
   _taskController(taskController),
   _ioContext(1),
@@ -78,9 +78,7 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
   else {
     connection->start();
     _threadPool.push(connection);
-    // - TcpServer
-    int tcpConnections = _typedConnections - 1;
-    if (tcpConnections > _options._maxTcpConnections)
+    if (_typedConnections > _options._maxTcpConnections)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "\nnumber tcp connections=" << _typedConnections
 	   << "\nexceeded thread pool capacity,\n"

@@ -21,19 +21,17 @@ FifoConnection::FifoConnection(const ServerOptions& options,
 			       TaskControllerPtr taskController,
 			       std::string_view fifoName,
 			       RunnablePtr parent) :
-  Runnable(&(parent->_stopped), &(taskController->_totalConnections), &(parent->_typedConnections)),
+  Runnable(parent, taskController, parent),
   _options(options),
   _taskController(taskController),
   _fifoName(fifoName),
   // save for reference count
   _parent(parent) {
-  // - TaskController - FifoServer - TcpServer - waiting TcpConnection
-  int total = _totalConnections - 4;
-  // - FifoServer
-  int fifoConnections = _typedConnections - 1;
+  // - FifoServer - TcpServer - waiting TcpConnection
+  int total = _totalConnections - 3;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":total connections=" << total << ",fifo connections="
-       << fifoConnections << '\n';
+       << _typedConnections << '\n';
 }
 
 FifoConnection::~FifoConnection() {

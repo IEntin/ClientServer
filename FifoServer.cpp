@@ -16,7 +16,7 @@
 namespace fifo {
 
 FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskController) :
-  Runnable(nullptr, &(taskController->_totalConnections)),
+  Runnable(RunnablePtr(), taskController),
   _options(options),
   _taskController(taskController),
   _fifoDirName(_options._fifoDirectoryName),
@@ -40,9 +40,7 @@ FifoServer::~FifoServer() {
 
 bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
-    // - FifoServer
-    int fifoConnections = _typedConnections - 1;
-    if (fifoConnections > _options._maxFifoConnections) {
+    if (_typedConnections > _options._maxFifoConnections) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-max fifo connections exceeded,\n"
 	   << "increase \"MaxFifoConnections\" in ServerOptions.json.\n";

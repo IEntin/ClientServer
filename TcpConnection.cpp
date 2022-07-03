@@ -13,7 +13,7 @@
 namespace tcp {
 
 TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, RunnablePtr parent) :
-  Runnable(&(parent->_stopped), &(taskController->_totalConnections), &(parent->_typedConnections)),
+  Runnable(parent, taskController, parent),
   _options(options),
   _taskController(taskController),
   _ioContext(1),
@@ -26,10 +26,10 @@ TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr tas
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
-  // - TaskController - FifoServer - TcpServer - waiting TcpConnection
-  int total = _totalConnections - 4;
-  // - TcpServer - waiting tcp connection
-  int tcpConnections = _typedConnections - 2;
+  // - FifoServer - TcpServer - waiting TcpConnection
+  int total = _totalConnections - 3;
+  // - waiting tcp connection
+  int tcpConnections = _typedConnections - 1;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":total connections=" << total << ",tcp connections="
        << tcpConnections << '\n';

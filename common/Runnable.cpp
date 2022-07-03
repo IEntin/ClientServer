@@ -4,17 +4,27 @@
 
 #include "Runnable.h"
 
-Runnable::Runnable(std::atomic<bool>* stopped, std::atomic<int>* totalConnections, std::atomic<int>* typedConnections) :
-  _stopped(stopped ? *stopped : _stoppedParent),
-  _totalConnections(totalConnections ? *totalConnections : _totalConnectionsParent),
-  _typedConnections(typedConnections ? *typedConnections : _typedConnectionsParent) {
-  _totalConnections++;
-  _typedConnections++;
+Runnable::Runnable(RunnablePtr stoppedParent,
+		   RunnablePtr totalConnectionsParent,
+		   RunnablePtr typedConnectionsParent) :
+  _stopped(stoppedParent ? stoppedParent->_stopped : _stoppedThis),
+  _totalConnections(totalConnectionsParent ? totalConnectionsParent->_totalConnections : _totalConnectionsThis),
+  _typedConnections(typedConnectionsParent ? typedConnectionsParent->_typedConnections : _typedConnectionsThis),
+  _stoppedOwner(!stoppedParent),
+  _totalConnectionsOwner(!totalConnectionsParent),
+  _typedConnectionsOwner(!typedConnectionsParent) {
+  if (!_totalConnectionsOwner)
+    _totalConnections++;
+  if (!_typedConnectionsOwner)
+    _typedConnections++;
 }
 
 Runnable::~Runnable() {
-  _totalConnections--;
-  _typedConnections--;
+  if (!_totalConnectionsOwner)
+    _totalConnections--;
+  if (!_typedConnectionsOwner)
+    _typedConnections--;
 }
 
+// implemented for fake runnables
 void Runnable::run() {}

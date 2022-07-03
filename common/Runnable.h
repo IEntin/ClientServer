@@ -11,9 +11,9 @@ using RunnablePtr = std::shared_ptr<class Runnable>;
 
 class Runnable {
  public:
-  explicit Runnable(std::atomic<bool>* stopped = nullptr,
-		    std::atomic<int>* totalConnections = nullptr,
-		    std::atomic<int>* typedConnections = nullptr);
+  explicit Runnable(RunnablePtr stoppedParent = RunnablePtr(),
+		    RunnablePtr totalConnectionsParent = RunnablePtr(),
+		    RunnablePtr typedConnectionsParent = RunnablePtr());
   virtual ~Runnable();
   virtual void run();
   std::atomic<bool>& _stopped;
@@ -21,8 +21,11 @@ class Runnable {
   std::atomic<int>& _totalConnections;
   // used for specific connection type
   std::atomic<int>& _typedConnections;
- protected:
-  std::atomic<bool> _stoppedParent = false;
-  std::atomic<int> _totalConnectionsParent;
-  std::atomic<int> _typedConnectionsParent;
+ private:
+  std::atomic<bool> _stoppedThis = false;
+  std::atomic<int> _totalConnectionsThis = 0;
+  std::atomic<int> _typedConnectionsThis = 0;
+  const bool _stoppedOwner;
+  const bool _totalConnectionsOwner;
+  const bool _typedConnectionsOwner;
 };
