@@ -78,6 +78,9 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
   else {
     connection->start();
     _threadPool.push(connection);
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ":total connections=" << _totalConnections << ",tcp connections="
+	 << _typedConnections << '\n';
     if (_typedConnections > _options._maxTcpConnections)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "\nnumber tcp connections=" << _typedConnections

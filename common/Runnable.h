@@ -25,7 +25,5 @@ class Runnable {
   std::atomic<bool> _stoppedThis = false;
   std::atomic<int> _totalConnectionsThis = 0;
   std::atomic<int> _typedConnectionsThis = 0;
-  const bool _stoppedOwner;
-  const bool _totalConnectionsOwner;
-  const bool _typedConnectionsOwner;
+  const bool _incrementConnections = false;
 };

@@ -27,8 +27,8 @@ FifoConnection::FifoConnection(const ServerOptions& options,
   _fifoName(fifoName),
   // save for reference count
   _parent(parent) {
-  // - FifoServer - TcpServer - waiting TcpConnection
-  int total = _totalConnections - 3;
+  // - waiting connection
+  int total = _totalConnections - 1;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":total connections=" << total << ",fifo connections="
        << _typedConnections << '\n';

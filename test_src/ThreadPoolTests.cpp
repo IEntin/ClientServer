@@ -11,7 +11,7 @@ TEST(ThreadPoolTest, 1) {
   class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
   public:
     TestRunnable(int number, ThreadPoolPtr pool) :
-      Runnable(), _number(number), _pool(pool->shared_from_this()) {}
+      _number(number), _pool(pool->shared_from_this()) {}
     ~TestRunnable() override {
       EXPECT_EQ(_id, std::this_thread::get_id());
     }
