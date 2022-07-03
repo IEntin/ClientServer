@@ -12,8 +12,8 @@ void EchoStrategy::onCreate(const ServerOptions&) {
   Task::setProcessMethod(echo::Echo::processRequest);
 }
 
-int EchoStrategy::onStart(const ServerOptions& options, TaskControllerPtr taskController) {
-  return Strategy::onStart(options, taskController);
+int EchoStrategy::onStart(const ServerOptions& options) {
+  return Strategy::onStart(options);
 }
 
 void EchoStrategy::onStop() {

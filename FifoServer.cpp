@@ -15,10 +15,9 @@
 
 namespace fifo {
 
-FifoServer::FifoServer(const ServerOptions& options, TaskControllerPtr taskController) :
-  Runnable(RunnablePtr(), taskController),
+FifoServer::FifoServer(const ServerOptions& options) :
+  Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
-  _taskController(taskController),
   _fifoDirName(_options._fifoDirectoryName),
   _threadPool(_options._maxFifoConnections) {
   // in case there was no proper shudown.
@@ -52,7 +51,7 @@ bool FifoServer::start(const ServerOptions& options) {
       return false;
     }
     FifoConnectionPtr connection =
-      std::make_shared<FifoConnection>(options, _taskController, fifoName, shared_from_this());
+      std::make_shared<FifoConnection>(options, fifoName, shared_from_this());
     _threadPool.push(connection);
   }
   return true;

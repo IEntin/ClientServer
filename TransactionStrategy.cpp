@@ -21,8 +21,8 @@ void TransactionStrategy::onCreate(const ServerOptions& options) {
   Task::setProcessMethod(Transaction::processRequest);
 }
 
-int TransactionStrategy::onStart(const ServerOptions& options, TaskControllerPtr taskController) {
-  return Strategy::onStart(options, taskController);
+int TransactionStrategy::onStart(const ServerOptions& options) {
+  return Strategy::onStart(options);
 }
 
 void TransactionStrategy::onStop() {

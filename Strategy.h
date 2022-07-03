@@ -18,8 +18,6 @@ namespace fifo {
   using FifoServerPtr = std::shared_ptr<FifoServer>;
 }
 
-using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
 class Strategy {
 
  public:
@@ -28,7 +26,7 @@ class Strategy {
 
   virtual void onCreate(const ServerOptions& options) = 0;
 
-  virtual int onStart(const ServerOptions& options, TaskControllerPtr taskController) = 0;
+  virtual int onStart(const ServerOptions& options) = 0;
 
   virtual void onStop() = 0;
 

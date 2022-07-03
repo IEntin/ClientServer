@@ -12,10 +12,9 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(const ServerOptions& options, TaskControllerPtr taskController, RunnablePtr parent) :
-  Runnable(parent, taskController, parent),
+TcpConnection::TcpConnection(const ServerOptions& options, RunnablePtr parent) :
+  Runnable(parent, TaskController::instance(), parent),
   _options(options),
-  _taskController(taskController),
   _ioContext(1),
   _socket(_ioContext),
   _timeout(options._tcpTimeout),
@@ -73,7 +72,7 @@ bool TcpConnection::onReceiveRequest() {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << " received not compressed.\n";
-  _taskController->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
+  TaskController::instance()->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;

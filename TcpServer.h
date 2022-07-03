@@ -10,8 +10,6 @@
 #include <boost/asio.hpp>
 #include <memory>
 
-using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
 struct ServerOptions;
 
 using RunnablePtr = std::shared_ptr<Runnable>;
@@ -24,7 +22,7 @@ using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
 public:
-  TcpServer(const ServerOptions& options, TaskControllerPtr taskController);
+  TcpServer(const ServerOptions& options);
   ~TcpServer() override;
   bool start();
   void stop();
@@ -36,7 +34,6 @@ private:
   void run() override;
 
   const ServerOptions& _options;
-  TaskControllerPtr _taskController;
   boost::asio::io_context _ioContext;
   int _tcpPort;
   boost::asio::ip::tcp::endpoint _endpoint;

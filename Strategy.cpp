@@ -14,13 +14,13 @@
 
 Strategy::~Strategy() {}
 
-int Strategy::onStart(const ServerOptions& options, TaskControllerPtr taskController) {
-  _tcpServer = std::make_shared<tcp::TcpServer>(options, taskController);
-  if (!_tcpServer->start())
-    return 2;
-  _fifoServer = std::make_shared<fifo::FifoServer>(options, taskController);
+int Strategy::onStart(const ServerOptions& options) {
+  _fifoServer = std::make_shared<fifo::FifoServer>(options);
   if (!_fifoServer->start(options))
     return 3;
+  _tcpServer = std::make_shared<tcp::TcpServer>(options);
+  if (!_tcpServer->start())
+    return 2;
   return 0;
 }
 

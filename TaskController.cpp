@@ -119,7 +119,7 @@ void TaskController::setNextTask() {
 }
 
 int TaskController::start() {
-  return _strategy.onStart(_options, shared_from_this());
+  return _strategy.onStart(_options);
 }
 
 void TaskController::stop() {

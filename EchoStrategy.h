@@ -12,7 +12,7 @@ class EchoStrategy : public Strategy {
 
    void onCreate(const ServerOptions& options) override;
 
-   int onStart(const ServerOptions& options, TaskControllerPtr taskController) override;
+   int onStart(const ServerOptions& options) override;
 
    void onStop() override;
 

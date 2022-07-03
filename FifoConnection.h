@@ -16,8 +16,6 @@ using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
 
 using Response = std::vector<std::string>;
 
-using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
 struct ServerOptions;
 
 namespace fifo {
@@ -26,7 +24,6 @@ using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
 
 class FifoConnection : public Runnable {
   const ServerOptions& _options;
-  TaskControllerPtr _taskController;
   std::string_view _fifoName;
   RunnablePtr _parent;
   int _fdRead = -1;
@@ -42,10 +39,7 @@ class FifoConnection : public Runnable {
   Response _response;
   void run() override;
  public:
-  FifoConnection(const ServerOptions& options,
-		 TaskControllerPtr taskController,
-		 std::string_view fifoName,
-		 RunnablePtr server);
+  FifoConnection(const ServerOptions& options, std::string_view fifoName, RunnablePtr server);
   ~FifoConnection() override;
 };
 

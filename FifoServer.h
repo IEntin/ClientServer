@@ -11,8 +11,6 @@
 
 using Response = std::vector<std::string>;
 
-using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
 struct ServerOptions;
 
 namespace fifo {
@@ -23,14 +21,13 @@ using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
 
 class FifoServer : public std::enable_shared_from_this<FifoServer>, public Runnable {
   const ServerOptions& _options;
-  TaskControllerPtr _taskController;
   const std::string _fifoDirName;
   ThreadPool _threadPool;
   void removeFifoFiles();
   std::vector<std::string> _fifoNames;
   void wakeupPipes();
  public:
-  FifoServer(const ServerOptions& options, TaskControllerPtr taskController);
+  FifoServer(const ServerOptions& options);
   ~FifoServer();
   bool start(const ServerOptions& options);
   void stop();

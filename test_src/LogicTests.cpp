@@ -27,7 +27,7 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     MemoryPool::setExpectedSize(serverMemPoolSize);
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -52,7 +52,7 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     MemoryPool::setExpectedSize(serverMemPoolSize);
     fifo::FifoServerPtr fifoServer =
-      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
+      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
     bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -160,7 +160,7 @@ struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
@@ -195,7 +195,7 @@ struct LogicTestSortInput : testing::Test {
     // start server
     TestEnvironment::_serverOptions._sortInput = sort;
     tcp::TcpServerPtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions, TestEnvironment::_taskController);
+      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
     TestEnvironment::_clientOptions._diagnostics = true;

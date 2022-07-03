@@ -17,20 +17,14 @@
 
 namespace fifo {
 
-FifoConnection::FifoConnection(const ServerOptions& options,
-			       TaskControllerPtr taskController,
-			       std::string_view fifoName,
-			       RunnablePtr parent) :
-  Runnable(parent, taskController, parent),
+FifoConnection::FifoConnection(const ServerOptions& options, std::string_view fifoName, RunnablePtr parent) :
+  Runnable(parent, TaskController::instance(), parent),
   _options(options),
-  _taskController(taskController),
   _fifoName(fifoName),
   // save for reference count
   _parent(parent) {
-  // - waiting connection
-  int total = _totalConnections - 1;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << ":total connections=" << total << ",fifo connections="
+       << ":total connections=" << _totalConnections << ",fifo connections="
        << _typedConnections << '\n';
 }
 
@@ -45,7 +39,7 @@ void FifoConnection::run() {
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
       continue;
-    _taskController->submitTask(header, _uncompressedRequest, _response);
+    TaskController::instance()->submitTask(header, _uncompressedRequest, _response);
     sendResponse(_response);
   }
 }
