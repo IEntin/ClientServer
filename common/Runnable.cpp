@@ -23,6 +23,3 @@ Runnable::~Runnable() {
     _typedConnections--;
   }
 }
-
-// implemented for fake runnables
-void Runnable::run() {}

@@ -23,6 +23,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer>, public Runna
   const ServerOptions& _options;
   const std::string _fifoDirName;
   ThreadPool _threadPool;
+  void run() override;
   void removeFifoFiles();
   std::vector<std::string> _fifoNames;
   void wakeupPipes();

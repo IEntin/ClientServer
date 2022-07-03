@@ -37,6 +37,8 @@ FifoServer::~FifoServer() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
+void FifoServer::run() {}
+
 bool FifoServer::start(const ServerOptions& options) {
   for (const auto& fifoName : _fifoNames) {
     if (_typedConnections > _options._maxFifoConnections) {
