@@ -22,7 +22,7 @@ TaskController::TaskController(const ServerOptions& options) :
   MemoryPool::setExpectedSize(_options._bufferSize);
   // start with empty task
   _task = std::make_shared<Task>();
-  _strategy.onCreate(_options);
+  _strategy.create(_options);
 }
 
 TaskController::~TaskController() {
@@ -118,12 +118,12 @@ void TaskController::setNextTask() {
   _queue.pop();
 }
 
-int TaskController::start() {
-  return _strategy.onStart(_options);
+bool TaskController::start() {
+  return _strategy.start(_options);
 }
 
 void TaskController::stop() {
-  _strategy.onStop();
+  _strategy.stop();
   _stopped.store(true);
   wakeupThreads();
   _threadPool.stop();

@@ -16,6 +16,8 @@ class Runnable {
 		    RunnablePtr typedConnectionsParent = RunnablePtr());
   virtual ~Runnable();
   virtual void run() = 0;
+  virtual bool start() = 0;
+  virtual void stop() = 0;
   std::atomic<bool>& _stopped;
   // used for total connections
   std::atomic<int>& _totalConnections;

@@ -37,12 +37,14 @@ class TaskBuilder : public Runnable {
   ssize_t _requestIndex;
   int _nextIdSz;
   TaskBuilderState _state = TaskBuilderState::NONE;
+  void run() override;
+  bool start() override;
+  void stop() override;
 
  public:
 
   TaskBuilder(const struct ClientOptions& options);
   ~TaskBuilder() override;
-  void run() override;
   TaskBuilderState getTask(std::vector<char>& task);
   bool createTask();
 };

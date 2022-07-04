@@ -14,23 +14,23 @@
 
 Strategy::~Strategy() {}
 
-int Strategy::onStart(const ServerOptions& options) {
+bool Strategy::start(const ServerOptions& options) {
   _fifoServer = std::make_shared<fifo::FifoServer>(options);
-  if (!_fifoServer->start(options))
-    return 3;
+  if (!_fifoServer->start())
+    return false;
   _tcpServer = std::make_shared<tcp::TcpServer>(options);
   if (!_tcpServer->start())
-    return 2;
-  return 0;
+    return false;
+  return true;
 }
 
-void Strategy::onStop() {
+void Strategy::stop() {
   if (_tcpServer) {
     _tcpServer->stop();
-    tcp::TcpServerPtr().swap(_tcpServer);
+    RunnablePtr().swap(_tcpServer);
   }
   if (_fifoServer) {
     _fifoServer->stop();
-    fifo::FifoServerPtr().swap(_fifoServer);
+    RunnablePtr().swap(_fifoServer);
   }
 }

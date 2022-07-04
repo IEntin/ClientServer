@@ -38,6 +38,8 @@ class FifoConnection : public Runnable {
   std::vector<char> _uncompressedRequest;
   Response _response;
   void run() override;
+  bool start() override;
+  void stop() override;
  public:
   FifoConnection(const ServerOptions& options, std::string_view fifoName, RunnablePtr server);
   ~FifoConnection() override;

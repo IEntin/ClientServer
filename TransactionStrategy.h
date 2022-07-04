@@ -14,10 +14,10 @@ class TransactionStrategy : public Strategy {
 
  protected:
 
-   void onCreate(const ServerOptions& options) override;
+   void create(const ServerOptions& options) override;
 
-   int onStart(const ServerOptions& options) override;
+   bool start(const ServerOptions& options) override;
 
-   void onStop() override;
+   void stop() override;
  private:
 };

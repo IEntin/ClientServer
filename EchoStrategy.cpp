@@ -8,14 +8,14 @@
   
 EchoStrategy::~EchoStrategy() {}
 
-void EchoStrategy::onCreate(const ServerOptions&) {
+void EchoStrategy::create(const ServerOptions&) {
   Task::setProcessMethod(echo::Echo::processRequest);
 }
 
-int EchoStrategy::onStart(const ServerOptions& options) {
-  return Strategy::onStart(options);
+bool EchoStrategy::start(const ServerOptions& options) {
+  return Strategy::start(options);
 }
 
-void EchoStrategy::onStop() {
-  Strategy::onStop();
+void EchoStrategy::stop() {
+  Strategy::stop();
 }

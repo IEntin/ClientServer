@@ -22,9 +22,9 @@ int main() {
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
   TaskControllerPtr taskController = TaskController::instance(&options);
-  int error = taskController->start();
-  if (error)
-    std::exit(error);
+  bool ok = taskController->start();
+  if (!ok)
+    std::exit(3);
   int sig = 0;
   if (sigwait(&set, &sig))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

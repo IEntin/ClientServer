@@ -25,7 +25,8 @@ public:
   ~TcpConnection() override;
 
   void run() noexcept override;
-  void start();
+  bool start() override;
+  void stop() override;
   auto& socket() { return _socket; }
   auto& endpoint() { return _endpoint; }
 private:

@@ -53,7 +53,7 @@ struct LogicTest : testing::Test {
     MemoryPool::setExpectedSize(serverMemPoolSize);
     fifo::FifoServerPtr fifoServer =
       std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
-    bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
+    bool serverStart = fifoServer->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;

@@ -39,7 +39,7 @@ struct EchoTest : testing::Test {
     TestEnvironment::_serverOptions._compressor = serverCompressor;
     fifo::FifoServerPtr fifoServer =
       std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
-    bool serverStart = fifoServer->start(TestEnvironment::_serverOptions);
+    bool serverStart = fifoServer->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     fifo::FifoClient client(TestEnvironment::_clientOptions);

@@ -8,15 +8,7 @@
 
 struct ServerOptions;
 
-namespace tcp {
-  class TcpServer;
-  using TcpServerPtr = std::shared_ptr<TcpServer>;
-}
-
-namespace fifo {
-  class FifoServer;
-  using FifoServerPtr = std::shared_ptr<FifoServer>;
-}
+using RunnablePtr = std::shared_ptr<class Runnable>;
 
 class Strategy {
 
@@ -24,18 +16,18 @@ class Strategy {
 
   virtual ~Strategy();
 
-  virtual void onCreate(const ServerOptions& options) = 0;
+  virtual void create(const ServerOptions& options) = 0;
 
-  virtual int onStart(const ServerOptions& options) = 0;
+  virtual bool start(const ServerOptions& options) = 0;
 
-  virtual void onStop() = 0;
+  virtual void stop() = 0;
 
  protected:
 
   Strategy() = default;
 
-  tcp::TcpServerPtr _tcpServer;
+  RunnablePtr _tcpServer;
 
-  fifo::FifoServerPtr _fifoServer;
+  RunnablePtr _fifoServer;
 
 };

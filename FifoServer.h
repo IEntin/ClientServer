@@ -30,8 +30,8 @@ class FifoServer : public std::enable_shared_from_this<FifoServer>, public Runna
  public:
   FifoServer(const ServerOptions& options);
   ~FifoServer();
-  bool start(const ServerOptions& options);
-  void stop();
+  bool start() override;
+  void stop() override;
 };
 
 } // end of namespace fifo

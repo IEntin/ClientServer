@@ -19,9 +19,11 @@ TEST(ThreadPoolTest, 1) {
       _id = std::this_thread::get_id();
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    void start() {
+    bool start() override {
       _pool->push(shared_from_this());
+      return true;
     }
+    void stop() override {}
     const int _number;
     ThreadPoolPtr _pool;
     std::thread::id _id;

@@ -51,8 +51,8 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   Strategy& _strategy;
  public:
   ~TaskController() override;
-  int start();
-  void stop();
+  bool start() override;
+  void stop() override;
   void run() noexcept override;
   void submitTask(const HEADER& header, std::vector<char>& input, Response& response);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);

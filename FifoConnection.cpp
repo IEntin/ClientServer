@@ -44,6 +44,12 @@ void FifoConnection::run() {
   }
 }
 
+bool FifoConnection::start() {
+  return true;
+}
+
+void FifoConnection::stop() {}
+
 bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) {
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);

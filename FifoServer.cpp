@@ -39,7 +39,7 @@ FifoServer::~FifoServer() {
 
 void FifoServer::run() {}
 
-bool FifoServer::start(const ServerOptions& options) {
+bool FifoServer::start() {
   for (const auto& fifoName : _fifoNames) {
     if (_typedConnections > _options._maxFifoConnections) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -53,7 +53,7 @@ bool FifoServer::start(const ServerOptions& options) {
       return false;
     }
     FifoConnectionPtr connection =
-      std::make_shared<FifoConnection>(options, fifoName, shared_from_this());
+      std::make_shared<FifoConnection>(_options, fifoName, shared_from_this());
     _threadPool.push(connection);
   }
   return true;

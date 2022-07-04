@@ -14,17 +14,17 @@
 
 TransactionStrategy::~TransactionStrategy() {}
 
-void TransactionStrategy::onCreate(const ServerOptions& options) {
+void TransactionStrategy::create(const ServerOptions& options) {
   if (!Ad::load(options._adsFileName))
     std::exit(4);
   Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   Task::setProcessMethod(Transaction::processRequest);
 }
 
-int TransactionStrategy::onStart(const ServerOptions& options) {
-  return Strategy::onStart(options);
+bool TransactionStrategy::start(const ServerOptions& options) {
+  return Strategy::start(options);
 }
 
-void TransactionStrategy::onStop() {
-  Strategy::onStop();
+void TransactionStrategy::stop() {
+  Strategy::stop();
 }

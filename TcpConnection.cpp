@@ -35,12 +35,13 @@ TcpConnection::~TcpConnection() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
-void TcpConnection::start() {
+bool TcpConnection::start() {
   const auto& local = _socket.local_endpoint();
   const auto& remote = _socket.remote_endpoint();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << "-local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << '\n';
+  return true;
 }
 
 void TcpConnection::run() noexcept {
@@ -53,6 +54,8 @@ void TcpConnection::run() noexcept {
   if (_options._destroyBufferOnClientDisconnect)
     MemoryPool::destroyBuffers();
 }
+
+void TcpConnection::stop() {}
 
 bool TcpConnection::onReceiveRequest() {
   _response.clear();

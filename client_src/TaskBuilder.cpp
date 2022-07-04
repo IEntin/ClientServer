@@ -53,6 +53,12 @@ void TaskBuilder::run() {
   }
 }
 
+bool TaskBuilder::start() {
+  return true;
+}
+
+void TaskBuilder::stop() {}
+
 TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   TaskBuilderState result = TaskBuilderState::NONE;
   try {
