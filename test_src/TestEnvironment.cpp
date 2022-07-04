@@ -18,7 +18,7 @@ std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
 ServerOptions TestEnvironment::_serverOptions;
 const ServerOptions TestEnvironment::_serverOptionsOrg;
-TaskControllerPtr TestEnvironment::_taskController;
+RunnablePtr TestEnvironment::_taskController;
 std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);

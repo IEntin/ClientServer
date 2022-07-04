@@ -21,7 +21,7 @@ int main() {
   ServerOptions options("ServerOptions.json");
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
-  TaskControllerPtr taskController = TaskController::instance(&options);
+  RunnablePtr taskController = TaskController::instance(&options);
   bool ok = taskController->start();
   if (!ok)
     std::exit(3);

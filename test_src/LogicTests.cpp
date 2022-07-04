@@ -26,7 +26,7 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._compressor = serverCompressor;
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     MemoryPool::setExpectedSize(serverMemPoolSize);
-    tcp::TcpServerPtr tcpServer =
+    RunnablePtr tcpServer =
       std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
@@ -51,7 +51,7 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._compressor = serverCompressor;
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     MemoryPool::setExpectedSize(serverMemPoolSize);
-    fifo::FifoServerPtr fifoServer =
+    RunnablePtr fifoServer =
       std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
     bool serverStart = fifoServer->start();
     // start client
@@ -159,7 +159,7 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_100000_3600000_ND) {
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
-    tcp::TcpServerPtr tcpServer =
+    RunnablePtr tcpServer =
       std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
@@ -194,7 +194,7 @@ struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
     // start server
     TestEnvironment::_serverOptions._sortInput = sort;
-    tcp::TcpServerPtr tcpServer =
+    RunnablePtr tcpServer =
       std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client

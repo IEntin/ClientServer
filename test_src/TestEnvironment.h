@@ -13,7 +13,7 @@ struct TcpClientOptions;
 struct FifoClientOptions;
 enum class COMPRESSORS : int;
 
-using TaskControllerPtr = std::shared_ptr<class TaskController>;
+using RunnablePtr = std::shared_ptr<class Runnable>;
 
 class TestEnvironment : public ::testing::Environment {
 public:
@@ -30,7 +30,7 @@ public:
   static std::string _outputND;
   static std::string _outputAltFormatD;
   static ServerOptions _serverOptions;
-  static TaskControllerPtr _taskController;
+  static RunnablePtr _taskController;
   static std::ostringstream _oss;
   static ClientOptions _clientOptions;
  private:

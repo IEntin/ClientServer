@@ -20,7 +20,7 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     TestEnvironment::_serverOptions._compressor = serverCompressor;
-    tcp::TcpServerPtr tcpServer =
+    RunnablePtr tcpServer =
       std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
     bool serverStart = tcpServer->start();
     // start client
@@ -37,7 +37,7 @@ struct EchoTest : testing::Test {
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     TestEnvironment::_serverOptions._compressor = serverCompressor;
-    fifo::FifoServerPtr fifoServer =
+    RunnablePtr fifoServer =
       std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
     bool serverStart = fifoServer->start();
     // start client

@@ -20,8 +20,6 @@ struct ServerOptions;
 
 namespace fifo {
 
-using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
-
 class FifoConnection : public Runnable {
   const ServerOptions& _options;
   std::string_view _fifoName;

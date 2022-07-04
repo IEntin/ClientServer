@@ -52,7 +52,7 @@ bool FifoServer::start() {
 	   << std::strerror(errno) << '-' << fifoName << '\n';
       return false;
     }
-    FifoConnectionPtr connection =
+    RunnablePtr connection =
       std::make_shared<FifoConnection>(_options, fifoName, shared_from_this());
     _threadPool.push(connection);
   }

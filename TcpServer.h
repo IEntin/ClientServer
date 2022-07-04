@@ -16,8 +16,6 @@ using RunnablePtr = std::shared_ptr<Runnable>;
 
 namespace tcp {
 
-using TcpServerPtr = std::shared_ptr<class TcpServer>;
-
 using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
 
 class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {

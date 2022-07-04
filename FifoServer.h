@@ -15,10 +15,6 @@ struct ServerOptions;
 
 namespace fifo {
 
-using FifoServerPtr = std::shared_ptr<class FifoServer>;
-
-using FifoConnectionPtr = std::shared_ptr<class FifoConnection>;
-
 class FifoServer : public std::enable_shared_from_this<FifoServer>, public Runnable {
   const ServerOptions& _options;
   const std::string _fifoDirName;

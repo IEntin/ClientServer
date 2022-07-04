@@ -11,7 +11,6 @@
 #include <vector>
 #include <fstream>
 
-using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 enum class COMPRESSORS : int;
 
 enum class TaskBuilderState {
