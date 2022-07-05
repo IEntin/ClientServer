@@ -4,13 +4,9 @@
 
 #include "TransactionStrategy.h"
 #include "Ad.h"
-#include "FifoServer.h"
 #include "Task.h"
-#include "TaskController.h"
 #include "ServerOptions.h"
-#include "TcpServer.h"
 #include "Transaction.h"
-#include "Utility.h"
 
 TransactionStrategy::~TransactionStrategy() {}
 

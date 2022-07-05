@@ -8,9 +8,7 @@
 #include "FifoServer.h"
 #include "ServerOptions.h"
 #include "Task.h"
-#include "TaskController.h"
 #include "TcpClient.h"
-#include "TcpConnection.h"
 #include "TcpServer.h"
 #include "TestEnvironment.h"
 #include <gtest/gtest.h>

@@ -10,7 +10,6 @@
 #include "Task.h"
 #include "TaskController.h"
 #include "TcpClient.h"
-#include "TcpConnection.h"
 #include "TcpServer.h"
 #include "TestEnvironment.h"
 #include "Transaction.h"

@@ -6,7 +6,6 @@
 #include "Compression.h"
 #include "Header.h"
 #include "MemoryPool.h"
-#include "TaskBuilder.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
