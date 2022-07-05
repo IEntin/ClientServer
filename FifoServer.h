@@ -25,7 +25,7 @@ class FifoServer : public std::enable_shared_from_this<FifoServer>, public Runna
   void wakeupPipes();
  public:
   FifoServer(const ServerOptions& options);
-  ~FifoServer();
+  ~FifoServer() override;
   bool start() override;
   void stop() override;
 };

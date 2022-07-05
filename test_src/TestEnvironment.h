@@ -17,11 +17,14 @@ using RunnablePtr = std::shared_ptr<class Runnable>;
 
 class TestEnvironment : public ::testing::Environment {
 public:
-  virtual ~TestEnvironment() = default;
 
-  virtual void SetUp();
+  TestEnvironment();
 
-  virtual void TearDown();
+  ~TestEnvironment() override;
+
+  void SetUp() override;
+
+  void TearDown() override;
 
   static void reset();
 

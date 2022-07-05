@@ -23,6 +23,10 @@ std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
+TestEnvironment::TestEnvironment() {}
+
+TestEnvironment::~TestEnvironment() {}
+
 void TestEnvironment::SetUp() {
   try {
     ClientOptions clientOptions("", nullptr);
