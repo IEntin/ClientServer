@@ -27,6 +27,7 @@ struct ClientOptions {
   std::string _serverHost;
   std::string _tcpPort;
   std::string _fifoName;
+  std::string _acceptorName;
   COMPRESSORS _compressor;
   bool _diagnostics;
   bool _runLoop;

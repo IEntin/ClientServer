@@ -27,10 +27,14 @@ TcpClient::~TcpClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool TcpClient::send(const std::vector<char>& subtask) {
+bool TcpClient::requestConnection() {
+  return true;
+}
+
+bool TcpClient::send(const std::string&, const std::vector<char>& msg) {
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
-    boost::asio::write(_socket, boost::asio::buffer(subtask), ec);
+    boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << ':' << ec.what() << std::endl;

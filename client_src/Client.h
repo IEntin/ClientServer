@@ -32,9 +32,11 @@ class Client {
 
   virtual ~Client();
 
-  virtual bool send(const std::vector<char>& subtask) = 0;
+  virtual bool send(const std::string& fifoName, const std::vector<char>& msg) = 0;
 
   virtual bool receive() = 0;
+
+  virtual bool requestConnection() = 0;
 
   virtual bool run();
 

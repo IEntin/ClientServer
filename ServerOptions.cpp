@@ -14,6 +14,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _adsFileName(_appOptions.get("AdsFileName", std::string("data/ads.txt"))),
   _fifoDirectoryName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string())),
   _fifoBaseNames(_appOptions.get("FifoBaseNames", std::string("client1"))),
+  _acceptorBaseName(_appOptions.get("AcceptorBaseName", std::string("acceptor"))),
   _processType(_appOptions.get("ProcessType", std::string("Transaction"))),
   _numberWorkThreads([this] ()->int {
 		       int numberWorkThreadsCfg = _appOptions.get("NumberTaskThreads", 0);

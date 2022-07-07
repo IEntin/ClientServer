@@ -37,7 +37,7 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
 	   << ":TaskBuilder failed.\n";
       return false;
     }
-    bool subtaskDone = send(task) && receive();
+    bool subtaskDone = send(_options._fifoName, task) && receive();
     if (!subtaskDone) {
       std::exit(1);
       return false;
@@ -47,6 +47,7 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
 }
 
 bool Client::run() {
+  requestConnection();
   try {
     int numberTasks = 0;
     _taskBuilder = std::make_shared<TaskBuilder>(_options);

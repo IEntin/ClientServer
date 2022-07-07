@@ -12,7 +12,9 @@ namespace fifo {
 
 class FifoClient : public Client {
 
-  bool send(const std::vector<char>& subtask) override;
+  bool requestConnection() override;
+
+  bool send(const std::string& fifoName, const std::vector<char>& msg) override;
 
   bool receive() override;
 

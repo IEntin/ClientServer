@@ -15,11 +15,11 @@ using ThreadPoolPtr = std::shared_ptr<class ThreadPool>;
 
 class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   ThreadPool& operator =(const ThreadPool& other) = delete;
+  void start(int numberThreads);
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<RunnablePtr> _queue;
-  void start(int numberThreads);
  public:
   explicit ThreadPool(int numberThreads);
   ~ThreadPool();

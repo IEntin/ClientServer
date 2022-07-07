@@ -13,7 +13,7 @@
 namespace tcp {
 
 TcpConnection::TcpConnection(const ServerOptions& options, RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent),
+  Runnable(parent, TaskController::instance(), parent, "tcp", options._maxTcpConnections),
   _options(options),
   _ioContext(1),
   _socket(_ioContext),
@@ -39,18 +39,18 @@ bool TcpConnection::start() {
   const auto& local = _socket.local_endpoint();
   const auto& remote = _socket.remote_endpoint();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << "-local " << local.address() << ':' << local.port()
+       << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << '\n';
   return true;
 }
 
 void TcpConnection::run() noexcept {
+  setRunning();
   readHeader();
   boost::system::error_code ec;
   _ioContext.run(ec);
-  if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << ec.what() << '\n';
+  (ec ? CERR : CLOG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		     << ':' << ec.what() << '\n';
   if (_options._destroyBufferOnClientDisconnect)
     MemoryPool::destroyBuffers();
 }

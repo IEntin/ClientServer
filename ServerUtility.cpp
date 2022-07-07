@@ -4,8 +4,10 @@
 
 #include "ServerUtility.h"
 #include "Compression.h"
+#include "Fifo.h"
 #include "Header.h"
 #include "MemoryPool.h"
+#include "ServerOptions.h"
 #include "Utility.h"
 #include <cassert>
 
@@ -42,6 +44,46 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor) {
     encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
+}
+
+bool readMsgBody(int fd,
+		 size_t uncomprSize,
+		 size_t comprSize,
+		 bool bcompressed,
+		 std::vector<char>& uncompressed,
+		 const ServerOptions& options) {
+  static auto& printOnce[[maybe_unused]] =
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << (bcompressed ? " received compressed" : " received not compressed") << '\n';
+  if (bcompressed) {
+    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
+    if (!fifo::Fifo::readString(fd, buffer.data(), comprSize, options._numberRepeatEINTR))
+      return false;
+    std::string_view received(buffer.data(), comprSize);
+    uncompressed.resize(uncomprSize);
+    if (!Compression::uncompress(received, uncompressed)) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ":failed to uncompress payload.\n";
+      return false;
+    }
+  }
+  else {
+    uncompressed.resize(uncomprSize);
+    if (!fifo::Fifo::readString(fd, uncompressed.data(), uncomprSize, options._numberRepeatEINTR))
+      return false;
+  }
+  return true;
+}
+
+bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
+  header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
+  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
+  if (!headerDone) {
+    if (options._destroyBufferOnClientDisconnect)
+      MemoryPool::destroyBuffers();
+    return false;
+  }
+  return readMsgBody(fd, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message, options);
 }
 
 } // end of namespace serverutility

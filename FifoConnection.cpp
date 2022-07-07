@@ -18,21 +18,18 @@
 namespace fifo {
 
 FifoConnection::FifoConnection(const ServerOptions& options, std::string_view fifoName, RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent),
+  Runnable(parent, TaskController::instance(), parent, "fifo", options._maxFifoConnections),
   _options(options),
   _fifoName(fifoName),
   // save for reference count
-  _parent(parent) {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << ":total connections=" << _totalConnections << ",fifo connections="
-       << _typedConnections << '\n';
-}
+  _parent(parent) {}
 
 FifoConnection::~FifoConnection() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 void FifoConnection::run() {
+  setRunning();
   while (!_stopped) {
     _response.clear();
     HEADER header;

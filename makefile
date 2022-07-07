@@ -78,7 +78,7 @@ ifeq ($(PROFILE), 1)
   PROFBLD := -pg
 endif
 
-WARNINGS := -Wall -Wextra -Werror -pedantic-errors
+WARNINGS := -Wall -Wextra -pedantic-errors
 
 MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -DENABLEPCH=$(ENABLEPCH)
 
