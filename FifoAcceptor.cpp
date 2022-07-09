@@ -12,7 +12,6 @@
 #include "ThreadPool.h"
 #include "Utility.h"
 #include <fcntl.h>
-#include <filesystem>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -23,8 +22,6 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options, FifoServerPtr server, T
   _options(options),
   _server(server),
   _threadPool(threadPool) {
-  // in case there was no proper shudown.
-  removeFifoFiles();
 }
 
 void FifoAcceptor::run() {
@@ -95,17 +92,10 @@ void FifoAcceptor::stop() {
     if (runnable)
       runnable->stop();
   }
-  removeFifoFiles();
 }
 
 void FifoAcceptor::wakeupPipe() {
   Fifo::onExit(_acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
-}
-
-void FifoAcceptor::removeFifoFiles() {
-  for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
-    if (entry.is_fifo())
-      std::filesystem::remove(entry);
 }
 
 } // end of namespace fifo

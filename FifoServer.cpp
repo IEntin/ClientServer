@@ -7,6 +7,7 @@
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"
+#include <filesystem>
 
 namespace fifo {
 
@@ -24,6 +25,8 @@ FifoServer::~FifoServer() {
 void FifoServer::run() {}
 
 bool FifoServer::start() {
+  // in case there was no proper shudown.
+  removeFifoFiles();
   _acceptor = std::make_shared<FifoAcceptor>(_options, shared_from_this(), _threadPool);
   _acceptor->start();
   _threadPool.push(_acceptor);
@@ -35,6 +38,13 @@ void FifoServer::stop() {
   _acceptor->stop();
   RunnablePtr().swap(_acceptor);
   _threadPool.stop();
+  removeFifoFiles();
+}
+
+void FifoServer::removeFifoFiles() {
+  for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
+    if (entry.is_fifo())
+      std::filesystem::remove(entry);
 }
 
 } // end of namespace fifo

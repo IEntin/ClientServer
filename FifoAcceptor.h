@@ -17,7 +17,6 @@ using FifoServerPtr = std::shared_ptr<class FifoServer>;
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
   void wakeupPipe();
-  void removeFifoFiles();
   const ServerOptions& _options;
   FifoServerPtr _server;
   ThreadPool& _threadPool;
