@@ -31,7 +31,24 @@ To solve this problem the writing ends of the pipes are opened in a non blocking
 mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the components are stopped\
 not only by SIGINT, but also by SIGKILL or any other signal. The server is in a valid state then,\
 and subsequently, the client is restarted. Of course, these complications apply only to FIFO\
-server-client. TCP mode does not have these issues.
+server-client. TCP mode does not have these issues.\
+........
+
+The number and identity of fifo and tcp clients is not known in advance.\
+Tcp clients are using the standard ephemeral port mechanism.\
+For fifo clients an analogous acceptor method was designed.\
+Fifo acceptor is waiting for a request of a new session\
+on a blocking fd read open call. The acceptor loop is unblocked when a\
+new client opens the writing end. Acceptor creates then a new session\
+object and sends the client the unique name of the new pipe.
+
+Max number of sessions of every type is specified for the server protection.\
+Generally, the number of clients is limited by hardware performance.\
+This server was tested with 5 clients with mixed client types.
+
+By design, the clients should not create or remove FIFO files. The code does not do\
+this, besides fifo directory permissions do not allow this.\
+........
 
 Another note on named pipes:\
 The code is increasing the pipe size to make read and write "atomic".\
@@ -139,17 +156,6 @@ fifo:\
 tcp:\
   "ServerHost" : "server hostname",\
   "TcpPort" : "49152"
-
-  ........
-
-The number and identity of fifo and tcp clients is not known in advance,\
-only max number of connections of every type is specified.\
-Generally, the number of clients is limited by hardware performance.\
-This server was tested with 5 clients with mixed client types.
-
-By design, the clients should not create or remove FIFO files. The code does not do\
-this, besides fifo directory permissions do not allow this.\
-........
 
 To start:\
 in the server terminal\

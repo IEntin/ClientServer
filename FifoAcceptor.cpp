@@ -85,16 +85,6 @@ bool FifoAcceptor::start() {
 	 << std::strerror(errno) << '-' << _acceptorName << '\n';
     return false;
   }
-  // create some connection named pipes in advance.
-  // mkfifo is tolerant to double creation.
-  for (int i = 0; i < 10; ++i) {
-    std::string fifoName = utility::createAbsolutePath(i, _options._fifoDirectoryName);
-    if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	   << std::strerror(errno) << '-' << fifoName << '\n';
-      return false;
-    }
-  }
   return true;
 }
 
