@@ -12,6 +12,7 @@
 #include "ThreadPool.h"
 #include "Utility.h"
 #include <fcntl.h>
+#include <filesystem>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -76,6 +77,8 @@ void FifoAcceptor::run() {
 }
 
 bool FifoAcceptor::start() {
+  // in case there was no proper shudown.
+  removeFifoFiles();
   _acceptorName = _options._fifoDirectoryName + '/' + _options._acceptorBaseName;
   if (mkfifo(_acceptorName.data(), 0620) == -1 && errno != EEXIST) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
@@ -92,10 +95,17 @@ void FifoAcceptor::stop() {
     if (runnable)
       runnable->stop();
   }
+  removeFifoFiles();
 }
 
 void FifoAcceptor::wakeupPipe() {
   Fifo::onExit(_acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
+}
+
+void FifoAcceptor::removeFifoFiles() {
+  for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
+    if (entry.is_fifo())
+      std::filesystem::remove(entry);
 }
 
 } // end of namespace fifo

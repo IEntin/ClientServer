@@ -14,6 +14,7 @@
 #include <cassert>
 #include <cstring>
 #include <fcntl.h>
+#include <filesystem>
 
 namespace fifo {
 
@@ -34,10 +35,12 @@ void FifoConnection::run() {
     HEADER header;
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
-      continue;
+      break;;
     TaskController::instance()->submitTask(header, _uncompressedRequest, _response);
-    sendResponse(_response);
+    if (!sendResponse(_response))
+      break;
   }
+  std::filesystem::remove(_fifoName);
 }
 
 bool FifoConnection::start() {

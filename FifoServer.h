@@ -19,7 +19,6 @@ class FifoServer : public std::enable_shared_from_this<FifoServer>, public Runna
   ThreadPool _threadPool;
   void run() override;
   RunnablePtr _acceptor;
-  void removeFifoFiles();
  public:
   FifoServer(const ServerOptions& options);
   ~FifoServer() override;
