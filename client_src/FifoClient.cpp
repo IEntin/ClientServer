@@ -13,44 +13,62 @@
 namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
-  Client(options), _fifoName(options._fifoName), _setPipeSize(options._setPipeSize) {}
+  Client(options), _setPipeSize(options._setPipeSize) {
+  // wake up acceptor
+  int fd = -1;
+  utility::CloseFileDescriptor closefd(fd);
+  int rep = 0;
+  do {
+    fd = open(options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    if (fd == -1 && (errno == ENXIO || errno == EINTR))
+      std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
+  } while (fd == -1 &&
+	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  if (fd == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << options._acceptorName << '\n';
+  }
+  close(fd);
+  fd = -1;
+  // receive ephemeral
+  fd = open(options._acceptorName.data(), O_RDONLY);
+  if (fd == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	 << std::strerror(errno) << ' ' << options._acceptorName << '\n';
+    return;
+  }
+  HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+  _ephemeralIndex = getEphemeral(header);
+  _fifoName = utility::createAbsolutePath(_ephemeralIndex, _options._fifoDirectoryName);
+
+  CLOG  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _fifoName =" << _fifoName << '\n';
+}
 
 FifoClient::~FifoClient() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
   try {
     Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
   }
   catch (...) {}
 }
 
-bool FifoClient::requestConnection() {
-  std::string_view msgBody = _options._fifoName;
-  size_t uncomprSize = msgBody.size();
-  std::vector<char> msg(HEADER_SIZE + uncomprSize);
-  encodeHeader(msg.data(), uncomprSize, uncomprSize, COMPRESSORS::NONE, false);
-  std::copy(msgBody.data(), msgBody.data() + uncomprSize, msg.data() + HEADER_SIZE);
-  if (!send(_options._acceptorName, msg))
-    return false;
-  return true;
-}
-
-bool FifoClient::send(const std::string& fifoName, const std::vector<char>& subtask) {
+bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   int rep = 0;
   do {
-    _fdWrite = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
+    _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
       std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
   } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << '-' << std::strerror(errno) << ' ' << fifoName << '\n';
+	 << '-' << std::strerror(errno) << ' ' << _fifoName << '\n';
     return false;
   }
   if (_setPipeSize)
     Fifo::setPipeSize(_fdWrite, subtask.size());
   if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << '\n';
     return false;
   }
   return true;
@@ -64,7 +82,7 @@ bool FifoClient::receive() {
 	 << _fifoName << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  auto [uncomprSize, comprSize, compressor, diagnostics, headerDone] =
+  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, headerDone] =
     Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   if (!headerDone)
     return false;

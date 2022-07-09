@@ -3,7 +3,6 @@
   "CommunicationType" : "FIFO",
   "Diagnostics" : false,
   "FifoDirectoryName" : "/home/ilya/Fifos",
-  "FifoBaseName" : "Client1",
   "AcceptorName" : "Acceptor",
   "SourceName" : "data/requests.log",
   "OutputFileName" : "",

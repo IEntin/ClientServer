@@ -13,13 +13,12 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, COMPRESSORS compressor) {
+std::string_view buildReply(const Response& response, COMPRESSORS compressor, unsigned short ephemeral) {
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    CLOG << LZ4 << "compression "
-	 << (bcompressed ? "enabled\n" : "disabled.\n");
+    CLOG << LZ4 << "compression " << (bcompressed ? "enabled\n" : "disabled.\n");
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();
@@ -37,11 +36,11 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor) {
     if (dstView.empty())
       return std::string_view();
     buffer.resize(HEADER_SIZE + dstView.size());
-    encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false);
+    encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false, 0);
     std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
   else
-    encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false);
+    encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false, ephemeral);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }
@@ -77,7 +76,7 @@ bool readMsgBody(int fd,
 
 bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
   header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
-  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
+  const auto& [uncomprSize, comprSize, compressor, diagnostics, ephemeral, headerDone] = header;
   if (!headerDone) {
     if (options._destroyBufferOnClientDisconnect)
       MemoryPool::destroyBuffers();

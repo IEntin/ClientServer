@@ -10,7 +10,7 @@
 
 enum class COMPRESSORS : int;
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
 
 namespace fifo {
 

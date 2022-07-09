@@ -17,12 +17,11 @@
 
 namespace fifo {
 
-FifoConnection::FifoConnection(const ServerOptions& options, std::string_view fifoName, RunnablePtr parent) :
+FifoConnection::FifoConnection(const ServerOptions& options,
+			       std::string_view fifoName,
+			       RunnablePtr parent) :
   Runnable(parent, TaskController::instance(), parent, "fifo", options._maxFifoConnections),
-  _options(options),
-  _fifoName(fifoName),
-  // save for reference count
-  _parent(parent) {}
+  _options(options), _fifoName(fifoName), _parent(parent) {}
 
 FifoConnection::~FifoConnection() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
@@ -45,7 +44,13 @@ bool FifoConnection::start() {
   return true;
 }
 
-void FifoConnection::stop() {}
+void FifoConnection::stop() {
+  wakeupPipe();
+}
+
+void FifoConnection::wakeupPipe() {
+  Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
+}
 
 bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) {
   utility::CloseFileDescriptor cfdr(_fdRead);
@@ -55,47 +60,12 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
 	 << std::strerror(errno) << ' ' << _fifoName << '\n';
     return false;
   }
-  header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
-  const auto& [uncomprSize, comprSize, compressor, diagnostics, headerDone] = header;
-  if (!headerDone) {
-    if (_options._destroyBufferOnClientDisconnect)
-      MemoryPool::destroyBuffers();
-    return false;
-  }
-  return readMsgBody(_fdRead, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message);
-}
-
-bool FifoConnection::readMsgBody(int fd,
-				 size_t uncomprSize,
-				 size_t comprSize,
-				 bool bcompressed,
-				 std::vector<char>& uncompressed) {
-  static auto& printOnce[[maybe_unused]] =
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << (bcompressed ? " received compressed" : " received not compressed") << '\n';
-  if (bcompressed) {
-    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
-    if (!Fifo::readString(fd, buffer.data(), comprSize, _options._numberRepeatEINTR))
-      return false;
-    std::string_view received(buffer.data(), comprSize);
-    uncompressed.resize(uncomprSize);
-    if (!Compression::uncompress(received, uncompressed)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":failed to uncompress payload.\n";
-      return false;
-    }
-  }
-  else {
-    uncompressed.resize(uncomprSize);
-    if (!Fifo::readString(fd, uncompressed.data(), uncomprSize, _options._numberRepeatEINTR))
-      return false;
-  }
-  return true;
+  return serverutility::receiveRequest(_fdRead, message, header, _options);
 }
 
 bool FifoConnection::sendResponse(const Response& response) {
   std::string_view message =
-    serverutility::buildReply(response, _options._compressor);
+    serverutility::buildReply(response, _options._compressor, 0);
   if (message.empty())
     return false;
   // Open write fd in NONBLOCK mode in order to protect the server

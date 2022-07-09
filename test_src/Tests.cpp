@@ -75,6 +75,24 @@ TEST(SplitTest, KeepDelim) {
     ASSERT_TRUE(line.ends_with('\n'));
 }
 
+TEST(ToCharsTest, Integral) {
+  int value = 7;
+  int shift = 2;
+  constexpr int size = 7;
+  char array[size] = {};
+  bool ok = utility::toChars(value, array + shift, sizeof(array));
+  ASSERT_TRUE(ok);
+  ASSERT_TRUE(*(array + shift) == '0' + value);
+}
+
+TEST(FromCharsTest, Integral0) {
+  std::string_view view = "0000";
+  int value = 7;
+  bool ok = utility::fromChars(view, value);
+  ASSERT_TRUE(ok);
+  ASSERT_EQ(value, 0);
+}
+
 TEST(FromCharsTest, Integral) {
   std::string_view view = "123456789";
   int value = {};
@@ -97,8 +115,9 @@ TEST(HeaderTest, 1) {
   size_t comprSz = 12345;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   bool diagnostics = true;
-  encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
-  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
+  unsigned short ephemeral = 0;
+  encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics, ephemeral);
+  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
   ASSERT_TRUE(isOk(header));
   size_t uncomprSzResult = getUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);
@@ -108,13 +127,19 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
   bool diagnosticsResult = isDiagnosticsEnabled(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
+  unsigned short ephemeralOut = getEphemeral(header);
+  ASSERT_EQ(ephemeralOut, ephemeral);
   compressor = COMPRESSORS::NONE;
-  encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics);
-  header = decodeHeader(std::string_view(buffer, HEADER_SIZE), true);
+  ephemeral = 83;
+  encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics, ephemeral);
+  header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
   ASSERT_TRUE(isOk(header));
   compressorResult = getCompressor(header);
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
+  ephemeralOut = getEphemeral(header);
+  ASSERT_EQ(ephemeralOut, ephemeral);
 }
+
 int main(int argc, char** argv) {
   TestEnvironment* env = new TestEnvironment();
   ::testing::AddGlobalTestEnvironment(env);

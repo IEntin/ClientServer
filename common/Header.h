@@ -9,13 +9,19 @@
 #include <tuple>
 
 inline constexpr int NUM_FIELD_SIZE = 10;
-inline constexpr int COMPRESSOR_TYPE_SIZE = 2;
-inline constexpr int DIAGNOSTICS_SIZE = 2;
+inline constexpr int COMPRESSOR_TYPE_SIZE = 1;
+inline constexpr int DIAGNOSTICS_SIZE = 1;
+inline constexpr int EPH_INDEX_SIZE = 5;
+inline constexpr int DONE_SIZE = 1;
 inline constexpr int UNUSED_SIZE = 4;
-inline constexpr int HEADER_SIZE = NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + UNUSED_SIZE;
+inline constexpr int HEADER_SIZE =
+  NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + EPH_INDEX_SIZE + DONE_SIZE + UNUSED_SIZE;
 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
+
+inline constexpr char DONE_CHAR = 'D';
+inline constexpr char NDONE_CHAR = 'N';
 
 enum class COMPRESSORS : int {
   NONE,
@@ -27,14 +33,11 @@ enum class HEADER_INDEX : int {
   COMPRESSED_SIZE,
   COMPRESSOR,
   DIAGNOSTICS,
+  EPHEMERAL,
   DONE
 };
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
-
-inline bool isOk(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::DONE)>(header);
-}
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
 
 inline ssize_t getUncompressedSize(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED_SIZE)>(header);
@@ -56,6 +59,20 @@ inline bool isDiagnosticsEnabled(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::DIAGNOSTICS)>(header);
 }
 
-void encodeHeader(char* buffer, size_t uncomprSz, size_t comprSz, COMPRESSORS, bool diagnostics);
+inline unsigned short getEphemeral(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::EPHEMERAL)>(header);
+}
 
-HEADER decodeHeader(std::string_view buffer, bool done = true);
+inline bool isOk(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::DONE)>(header);
+}
+
+void encodeHeader(char* buffer,
+		  size_t uncomprSz,
+		  size_t comprSz,
+		  COMPRESSORS,
+		  bool diagnostics,
+		  unsigned short ephemeral,
+		  bool done = true);
+
+HEADER decodeHeader(std::string_view buffer);

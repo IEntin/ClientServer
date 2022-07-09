@@ -122,12 +122,11 @@ Change settings for FIFO and tcp in ServerOptions.json:
 server:\
 fifo:\
   "FifoDirectoryName" : "directory anywhere with appropriate permissions",\
-  "FifoBaseNames" : "Client1 Client2 Client3 Client4 Client5"
+  "AcceptorName" : "Acceptor", named pipe for fifo acceptor.
 
 tcp:
   "TcpPort" : "49152",\
-  "Timeout" : 5,\
-  "ExpectedTcpConnections" : 5 // this must be equal or greater than the number of tcp clients
+  "Timeout" : 5,
 
 client #1:\
 communication type:\
@@ -135,7 +134,7 @@ communication type:\
 
 fifo:\
   "FifoDirectoryName" : "the same as for the server",\
-  "FifoBaseName" : "Client1",
+  "AcceptorName" : "Acceptor", the same as for the server
 
 tcp:\
   "ServerHost" : "server hostname",\
@@ -143,13 +142,11 @@ tcp:\
 
   ........
 
-Names of pipes and tcp ports should match on server and clients. For named pipes ServerOptions.json\
-contains the list of known clients. The number and identity of tcp clients is not known in advance, only\
-their expected maximum number("ExpectedTcpConnections" in ServerOptions.json).\
+The number and identity of fifo and tcp clients is not known in advance,\
+only max number of connections of every type is specified.\
 Generally, the number of clients is limited by hardware performance.\
 This server was tested with 5 clients with mixed client types.
 
-FIFO files are created on server startup and removed on server shutdown with Ctrl-C.\
 By design, the clients should not create or remove FIFO files. The code does not do\
 this, besides fifo directory permissions do not allow this.\
 ........

@@ -27,11 +27,7 @@ TcpClient::~TcpClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool TcpClient::requestConnection() {
-  return true;
-}
-
-bool TcpClient::send(const std::string&, const std::vector<char>& msg) {
+bool TcpClient::send(const std::vector<char>& msg) {
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
@@ -48,8 +44,8 @@ bool TcpClient::receive() {
   memset(header, 0, HEADER_SIZE);
   boost::system::error_code ec;
   boost::asio::read(_socket, boost::asio::buffer(header, HEADER_SIZE), ec);
-  auto [uncomprSize, comprSize, compressor, diagnostics, done] =
-    decodeHeader(std::string_view(header, HEADER_SIZE), !ec);
+  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, done] =
+    decodeHeader(std::string_view(header, HEADER_SIZE));
   if (!done)
     return false;
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
@@ -67,18 +63,15 @@ bool TcpClient::run() {
       _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
     if (!ec)
       _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << " endpoint: " << endpoint << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << '\n';
     if (ec) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ':' << ec.what() << std::endl;
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
       return false;
     }
     return Client::run();
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << e.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
     return false;
   }
   return true;
@@ -91,8 +84,7 @@ bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' '
-	 << __func__ << ':' << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);

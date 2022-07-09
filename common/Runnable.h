@@ -8,7 +8,11 @@
 #include <memory>
 #include <string>
 
-using RunnablePtr = std::shared_ptr<class Runnable>;
+class Runnable;
+
+using RunnablePtr = std::shared_ptr<Runnable>;
+
+using RunnableWeakPtr = std::weak_ptr<Runnable>;
 
 class Runnable {
  public:

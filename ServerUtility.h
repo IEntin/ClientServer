@@ -13,11 +13,11 @@ using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, COMPRESSORS compressor);
+std::string_view buildReply(const Response& response, COMPRESSORS compressor, unsigned short ephemeral);
 
 bool readMsgBody(int fd,
 		 size_t uncomprSize,

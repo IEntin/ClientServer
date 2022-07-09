@@ -16,7 +16,6 @@ struct ServerOptions {
   size_t _bufferSize;
   std::string _adsFileName;
   std::string _fifoDirectoryName;
-  std::string _fifoBaseNames;
   std::string _acceptorBaseName;
   std::string _processType;
   int _numberWorkThreads;

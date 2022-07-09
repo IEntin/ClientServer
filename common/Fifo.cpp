@@ -26,18 +26,18 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
 	  continue;
-	return { -1, -1, COMPRESSORS::NONE, false, false };
+	return { -1, -1, COMPRESSORS::NONE, false, 0, false };
       }
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	     << ':' << std::strerror(errno) << std::endl;
-	return { -1, -1, COMPRESSORS::NONE, false, false };
+	return { -1, -1, COMPRESSORS::NONE, false, 0, false };
       }
     }
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	<< ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
-      return { -1, -1, COMPRESSORS::NONE, false, false };
+      return { -1, -1, COMPRESSORS::NONE, false, 0, false };
     }
     else
       readSoFar += static_cast<size_t>(result);
@@ -45,9 +45,9 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   if (readSoFar != HEADER_SIZE) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
 	 << HEADER_SIZE << " readSoFar=" << readSoFar << std::endl;
-    return { -1, -1, COMPRESSORS::NONE, false, false };
+    return { -1, -1, COMPRESSORS::NONE, false, 0, false };
   }
-  return decodeHeader(std::string_view(buffer, HEADER_SIZE), readSoFar == HEADER_SIZE);
+  return decodeHeader(std::string_view(buffer, HEADER_SIZE));
 }
 
 bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {

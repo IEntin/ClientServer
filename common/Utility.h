@@ -89,7 +89,7 @@ template <Integral N>
       os.write(arr, ptr - arr);
     else
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-error translating number:" << value._number << std::endl;
+	   << "-error translating number:" << value._number << '\n';
     return os;
 }
 
@@ -102,7 +102,7 @@ template <FloatingPoint N>
       os.write(arr, ptr - arr);
     else
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-error translating number:" << value._number << std::endl;
+	   << "-error translating number:" << value._number << '\n';
     return os;
 }
 
@@ -111,7 +111,7 @@ template <Integral T>
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-problem converting to string:" << value << std::endl;
+	   << "-problem converting to string:" << value << '\n';
       return false;
     }
     return true;
@@ -126,5 +126,7 @@ struct CloseFileDescriptor {
 std::string readFile(const std::string& name);
 
 void readFile(const std::string& name, std::vector<char>& buffer);
+
+std::string createAbsolutePath(int value, const std::string& directoryName);
 
 } // end of namespace utility

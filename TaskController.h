@@ -21,7 +21,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, bool>;
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
 
 struct ServerOptions;
 

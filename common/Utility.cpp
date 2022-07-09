@@ -38,4 +38,12 @@ void readFile(const std::string& name, std::vector<char>& buffer) {
     throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
 }
 
+std::string createAbsolutePath(int value, const std::string& directoryName) {
+  constexpr int size = 10;
+  char array[size] = {};
+  utility::toChars(value, array, sizeof(array));
+  std::string baseName(array, sizeof(array));
+  return directoryName + '/' + baseName;
+}
+
 } // end of namespace utility
