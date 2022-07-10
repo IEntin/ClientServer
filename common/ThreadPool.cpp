@@ -43,18 +43,19 @@ void ThreadPool::stop() {
        << " ... _threads joined ..." << std::endl;
 }
 
-void ThreadPool::push(RunnablePtr runnable) {
+bool ThreadPool::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
+  if (runnable && runnable->checkCapacity())
+    return false;
   _queue.push(std::move(runnable));
   _queueCondition.notify_all();
+  return true;
 }
 
 RunnablePtr ThreadPool::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   RunnablePtr runnable = std::move(_queue.front());
-  if (runnable)
-    runnable->setRunning();
   _queue.pop();
   return runnable;
 }

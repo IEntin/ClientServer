@@ -21,7 +21,7 @@ namespace fifo {
 FifoConnection::FifoConnection(const ServerOptions& options,
 			       std::string_view fifoName,
 			       RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent, "fifo", options._maxFifoConnections),
+  Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoConnections),
   _options(options), _fifoName(fifoName), _parent(parent) {}
 
 FifoConnection::~FifoConnection() {

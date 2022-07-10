@@ -25,7 +25,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;
   void stop();
-  void push(RunnablePtr runnable);
+  bool push(RunnablePtr runnable);
   RunnablePtr get();
   int size() const { return _threads.size(); }
   // used in tests

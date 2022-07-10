@@ -16,16 +16,17 @@ using RunnableWeakPtr = std::weak_ptr<Runnable>;
 
 class Runnable {
  public:
+  enum Type { NONE, FIFO, TCP };
   explicit Runnable(RunnablePtr stoppedParent = RunnablePtr(),
 		    RunnablePtr totalConnectionsParent = RunnablePtr(),
 		    RunnablePtr typedConnectionsParent = RunnablePtr(),
-		    const std::string& name = "",
+		    Type type = NONE,
 		    int max = 0);
   virtual ~Runnable();
   virtual void run() = 0;
   virtual bool start() = 0;
   virtual void stop() = 0;
-  void setRunning();
+  bool checkCapacity();
   std::atomic<bool>& _stopped;
   // used for total connections
   std::atomic<int>& _totalConnections;
@@ -36,7 +37,7 @@ class Runnable {
   std::atomic<int> _totalConnectionsThis = 0;
   std::atomic<int> _typedConnectionsThis = 0;
   const bool _countingConnections = false;
-  std::atomic<bool> _running = false;
+  const Type _type;
   std::string _name;
   int _max = 0;
 };

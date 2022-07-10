@@ -13,7 +13,7 @@
 namespace tcp {
 
 TcpConnection::TcpConnection(const ServerOptions& options, RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent, "tcp", options._maxTcpConnections),
+  Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpConnections),
   _options(options),
   _ioContext(1),
   _socket(_ioContext),
