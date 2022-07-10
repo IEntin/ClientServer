@@ -30,7 +30,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
   }
   close(fd);
   fd = -1;
-  // receive ephemeral
+  // receive ephemeral or denial
   fd = open(options._acceptorName.data(), O_RDONLY);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
@@ -38,10 +38,17 @@ FifoClient::FifoClient(const ClientOptions& options) :
     return;
   }
   HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
-  _ephemeralIndex = getEphemeral(header);
-  _fifoName = utility::createAbsolutePath(_ephemeralIndex, _options._fifoDirectoryName);
-
-  CLOG  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _fifoName =" << _fifoName << '\n';
+  if (isOk(header)) {
+    _ephemeralIndex = getEphemeral(header);
+    _fifoName = utility::createAbsolutePath(_ephemeralIndex, _options._fifoDirectoryName);
+    CLOG  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _fifoName =" << _fifoName << '\n';
+  }
+  else {
+    char msg[1000] = {};
+    Fifo::readString(fd, msg, getUncompressedSize(header), options._numberRepeatEINTR);
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n' << msg << '\n';
+    _fifoName.clear();
+  }
 }
 
 FifoClient::~FifoClient() {

@@ -117,6 +117,15 @@ template <Integral T>
     return true;
 }
 
+template <Integral T>
+  struct IncrementIndex {
+    IncrementIndex(T& index) : _index(index) {}
+    ~IncrementIndex() {
+      ++_index;
+    }
+    T& _index;
+  };
+
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);
   ~CloseFileDescriptor();

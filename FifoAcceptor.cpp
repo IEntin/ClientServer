@@ -16,6 +16,12 @@
 
 namespace fifo {
 
+namespace {
+
+std::string_view denial("\t\t!!!!!\n\tThe server is busy at the moment.\n\tTry again later.\n\t\t!!!!!");
+
+} // end of anonimous namespace
+
 FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
@@ -25,6 +31,7 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
 
 void FifoAcceptor::run() {
   while (!_stopped) {
+    utility::IncrementIndex incr(_ephemeralIndex);
     utility::CloseFileDescriptor closeFile(_fd);
     // blocks until the client opens writing end
     _fd = open(_acceptorName.data(), O_RDONLY);
@@ -33,10 +40,7 @@ void FifoAcceptor::run() {
 	   << std::strerror(errno) << ' ' << _acceptorName << '\n';
       return;
     }
-    char array[HEADER_SIZE] = {};
-    utility::toChars(_ephemeralIndex, array, sizeof(array));
-    std::string fiFoBaseName(array, sizeof(array));
-    std::string fifoName = _options._fifoDirectoryName + '/' + fiFoBaseName;
+    std::string fifoName = utility::createAbsolutePath(_ephemeralIndex, _options._fifoDirectoryName);
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	   << std::strerror(errno) << '-' << fifoName << '\n';
@@ -47,7 +51,7 @@ void FifoAcceptor::run() {
     RunnablePtr connection =
       std::make_shared<FifoConnection>(_options, fifoName, shared_from_this());
     _connections.emplace_back(connection);
-    _threadPool.push(connection);
+    bool success = _threadPool.push(connection);
     close(_fd);
     _fd = -1;
     int rep = 0;
@@ -62,12 +66,22 @@ void FifoAcceptor::run() {
 	   << std::strerror(errno) << ' ' << _acceptorName << '\n';
       return;
     }
-    encodeHeader(array, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex);
-    std::string_view str(array, HEADER_SIZE);
-    bool done = Fifo::writeString(_fd, str);
-    if (!done)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
-    ++_ephemeralIndex;
+    char array[1000] = {};
+    ssize_t replySz = success ? 0 : denial.size();
+    encodeHeader(array, replySz, replySz, COMPRESSORS::NONE, false, _ephemeralIndex, success);
+    if (success) {
+      std::string_view str(array, HEADER_SIZE);
+      bool done = Fifo::writeString(_fd, str);
+      if (!done)
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
+    }
+    else {
+      std::copy(denial.data(), denial.data() + denial.size(), array + HEADER_SIZE);
+      std::string_view str(array, HEADER_SIZE + denial.size());
+      bool done = Fifo::writeString(_fd, str);
+      if (!done)
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
+    }
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
 }
