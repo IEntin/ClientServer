@@ -3,8 +3,8 @@
  */
 
 #include "ClientOptions.h"
+#include "FifoAcceptor.h"
 #include "FifoClient.h"
-#include "FifoServer.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "Task.h"
@@ -50,16 +50,16 @@ struct LogicTest : testing::Test {
     TestEnvironment::_serverOptions._compressor = serverCompressor;
     TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
     MemoryPool::setExpectedSize(serverMemPoolSize);
-    RunnablePtr fifoServer =
-      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
-    bool serverStart = fifoServer->start();
+    fifo::FifoAcceptorPtr fifoAcceptor =
+      std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
+    bool serverStart = fifoAcceptor->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
     TestEnvironment::_clientOptions._diagnostics = diagnostics;
     fifo::FifoClient client(TestEnvironment::_clientOptions);
     client.run();
-    fifoServer->stop();
+    fifoAcceptor->stop();
     ASSERT_TRUE(serverStart);
     std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
     ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());

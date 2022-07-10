@@ -5,11 +5,9 @@
 #include "FifoAcceptor.h"
 #include "Fifo.h"
 #include "FifoConnection.h"
-#include "FifoServer.h"
 #include "Header.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
-#include "ThreadPool.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -18,11 +16,11 @@
 
 namespace fifo {
 
-FifoAcceptor::FifoAcceptor(const ServerOptions& options, FifoServerPtr server, ThreadPool& threadPool) :
-  Runnable(server, TaskController::instance()),
+FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
+  Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
-  _server(server),
-  _threadPool(threadPool) {
+  // + 1 for this
+  _threadPool(_options._maxFifoConnections + 1) {
 }
 
 void FifoAcceptor::run() {
@@ -47,7 +45,7 @@ void FifoAcceptor::run() {
     if (_stopped)
       break;
     RunnablePtr connection =
-      std::make_shared<FifoConnection>(_options, fifoName, _server);
+      std::make_shared<FifoConnection>(_options, fifoName, shared_from_this());
     _connections.emplace_back(connection);
     _threadPool.push(connection);
     close(_fd);
@@ -83,16 +81,19 @@ bool FifoAcceptor::start() {
 	 << std::strerror(errno) << '-' << _acceptorName << '\n';
     return false;
   }
+  _threadPool.push(shared_from_this());
   return true;
 }
 
 void FifoAcceptor::stop() {
+  _stopped.store(true);
   wakeupPipe();
   for (RunnableWeakPtr weakPtr : _connections) {
     RunnablePtr runnable = weakPtr.lock();
     if (runnable)
       runnable->stop();
   }
+  _threadPool.stop();
   removeFifoFiles();
 }
 

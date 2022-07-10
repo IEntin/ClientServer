@@ -28,6 +28,6 @@ class Strategy {
 
   RunnablePtr _tcpServer;
 
-  RunnablePtr _fifoServer;
+  RunnablePtr _fifoAcceptor;
 
 };

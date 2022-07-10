@@ -3,15 +3,15 @@
  */
 
 #include "Strategy.h"
-#include "FifoServer.h"
+#include "FifoAcceptor.h"
 #include "ServerOptions.h"
 #include "TcpServer.h"
 
 Strategy::~Strategy() {}
 
 bool Strategy::start(const ServerOptions& options) {
-  _fifoServer = std::make_shared<fifo::FifoServer>(options);
-  if (!_fifoServer->start())
+  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(options);
+  if (!_fifoAcceptor->start())
     return false;
   _tcpServer = std::make_shared<tcp::TcpServer>(options);
   if (!_tcpServer->start())
@@ -24,8 +24,8 @@ void Strategy::stop() {
     _tcpServer->stop();
     RunnablePtr().swap(_tcpServer);
   }
-  if (_fifoServer) {
-    _fifoServer->stop();
-    RunnablePtr().swap(_fifoServer);
+  if (_fifoAcceptor) {
+    _fifoAcceptor->stop();
+    RunnablePtr().swap(_fifoAcceptor);
   }
 }

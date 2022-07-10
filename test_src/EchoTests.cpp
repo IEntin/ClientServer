@@ -4,8 +4,8 @@
 
 #include "Echo.h"
 #include "ClientOptions.h"
+#include "FifoAcceptor.h"
 #include "FifoClient.h"
-#include "FifoServer.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TcpClient.h"
@@ -35,14 +35,14 @@ struct EchoTest : testing::Test {
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     TestEnvironment::_serverOptions._compressor = serverCompressor;
-    RunnablePtr fifoServer =
-      std::make_shared<fifo::FifoServer>(TestEnvironment::_serverOptions);
-    bool serverStart = fifoServer->start();
+    fifo::FifoAcceptorPtr fifoAcceptor =
+      std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
+    bool serverStart = fifoAcceptor->start();
     // start client
     TestEnvironment::_clientOptions._compressor = clientCompressor;
     fifo::FifoClient client(TestEnvironment::_clientOptions);
     bool clientRun = client.run();
-    fifoServer->stop();
+    fifoAcceptor->stop();
     ASSERT_TRUE(serverStart);
     ASSERT_TRUE(clientRun);
     ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
