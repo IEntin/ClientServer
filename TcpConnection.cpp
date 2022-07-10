@@ -45,7 +45,6 @@ bool TcpConnection::start() {
 }
 
 void TcpConnection::run() noexcept {
-  setRunning();
   readHeader();
   boost::system::error_code ec;
   _ioContext.run(ec);

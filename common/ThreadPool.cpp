@@ -53,6 +53,8 @@ RunnablePtr ThreadPool::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   RunnablePtr runnable = std::move(_queue.front());
+  if (runnable)
+    runnable->setRunning();
   _queue.pop();
   return runnable;
 }

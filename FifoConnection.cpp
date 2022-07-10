@@ -29,7 +29,6 @@ FifoConnection::~FifoConnection() {
 }
 
 void FifoConnection::run() {
-  setRunning();
   while (!_stopped) {
     _response.clear();
     HEADER header;

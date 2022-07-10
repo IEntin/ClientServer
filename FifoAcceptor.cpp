@@ -26,8 +26,6 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options, FifoServerPtr server, T
 }
 
 void FifoAcceptor::run() {
-  assert(_server);
-  setRunning();
   while (!_stopped) {
     utility::CloseFileDescriptor closeFile(_fd);
     // blocks until the client opens writing end
@@ -49,7 +47,7 @@ void FifoAcceptor::run() {
     if (_stopped)
       break;
     RunnablePtr connection =
-      std::make_shared<FifoConnection>(_options, fifoName, _server->shared_from_this());
+      std::make_shared<FifoConnection>(_options, fifoName, _server);
     _connections.emplace_back(connection);
     _threadPool.push(connection);
     close(_fd);
