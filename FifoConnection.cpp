@@ -47,10 +47,8 @@ bool FifoConnection::start() {
 }
 
 void FifoConnection::stop() {
-  wakeupPipe();
-}
-
-void FifoConnection::wakeupPipe() {
+  // thread is blocked on open(...O_RDONLY)
+  // need to open write end to have things moving)
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
 }
 

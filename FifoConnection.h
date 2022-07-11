@@ -27,7 +27,6 @@ class FifoConnection : public Runnable {
   int _fdWrite = -1;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);
-  void wakeupPipe();
   std::vector<char> _uncompressedRequest;
   Response _response;
   void run() override;

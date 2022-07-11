@@ -106,19 +106,18 @@ bool FifoAcceptor::start() {
 }
 
 void FifoAcceptor::stop() {
-  _stopped.store(true);
-  wakeupPipe();
+  // stop the children
   for (RunnableWeakPtr weakPtr : _connections) {
     RunnablePtr runnable = weakPtr.lock();
     if (runnable)
       runnable->stop();
   }
+  // stop the acceptor
+  _stopped.store(true);
+  Fifo::onExit(_acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
+  // have threads join
   _threadPool.stop();
   removeFifoFiles();
-}
-
-void FifoAcceptor::wakeupPipe() {
-  Fifo::onExit(_acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
 }
 
 void FifoAcceptor::removeFifoFiles() {

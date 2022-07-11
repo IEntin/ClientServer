@@ -16,8 +16,7 @@ int main() {
   sigset_t set;
   sigemptyset(&set);
   if (sigaddset(&set, SIGINT) == -1)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << '\n';
   ServerOptions options("ServerOptions.json");
   // optionally record elapsed times
   Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
@@ -27,8 +26,7 @@ int main() {
     std::exit(3);
   int sig = 0;
   if (sigwait(&set, &sig))
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << '\n';
   taskController->stop();
   int ret = fcloseall();
   assert(ret == 0);

@@ -13,6 +13,7 @@ Runnable::Runnable(RunnablePtr stoppedParent,
   _stopped(stoppedParent ? stoppedParent->_stopped : _stoppedThis),
   _totalConnections(totalConnectionsParent ? totalConnectionsParent->_totalConnections : _totalConnectionsThis),
   _typedConnections(typedConnectionsParent ? typedConnectionsParent->_typedConnections : _typedConnectionsThis),
+  // only connections (sessions), children of children, have both parents.
   _countingConnections(totalConnectionsParent && typedConnectionsParent),
   _type(type),
   _max(max) {
@@ -43,6 +44,8 @@ bool Runnable::checkCapacity() {
 	     << "tcp client will wait in the pool queue.\n"
 	     << "close one of running tcp connections\n"
 	     << "or increase \"MaxTcpConnections\" in ServerOptions.json.\n";
+	// returning false will allow the client wait for available thread,
+	// client will not close by itself and run when possible.
 	return false;
       }
       else if (_type == FIFO) {
@@ -50,6 +53,7 @@ bool Runnable::checkCapacity() {
 	     << "\nnumber running fifo connections=" << _typedConnections 
 	     << " at thread pool capacity, client will close.\n"
 	     << "increase \"MaxTcpConnections\" in ServerOptions.json.\n";
+	// returning true will throw away connection and close the client.
 	return true;
       }
     }

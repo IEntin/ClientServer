@@ -123,10 +123,13 @@ bool TaskController::start() {
 }
 
 void TaskController::stop() {
+  // stop children
   _strategy.stop();
+  // stop threads
   _stopped.store(true);
   wakeupThreads();
   _threadPool.stop();
+  // destroy controller
   instance(nullptr, DESTROY);
 }
 

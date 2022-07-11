@@ -52,11 +52,8 @@ FifoClient::FifoClient(const ClientOptions& options) :
 }
 
 FifoClient::~FifoClient() {
+  Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
-  try {
-    Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
-  }
-  catch (...) {}
 }
 
 bool FifoClient::send(const std::vector<char>& subtask) {
