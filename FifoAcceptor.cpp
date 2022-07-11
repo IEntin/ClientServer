@@ -29,6 +29,38 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   _threadPool(_options._maxFifoConnections + 1) {
 }
 
+bool FifoAcceptor::replyToClient(bool success) {
+  int rep = 0;
+  do {
+    _fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    if (_fd == -1 && (errno == ENXIO || errno == EINTR))
+      std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
+  } while (_fd == -1 &&
+	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  if (_fd == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << _acceptorName << '\n';
+    return false;
+  }
+  char array[1000] = {};
+  ssize_t replySz = success ? 0 : denial.size();
+  encodeHeader(array, replySz, replySz, COMPRESSORS::NONE, false, _ephemeralIndex, success);
+  if (success) {
+    std::string_view str(array, HEADER_SIZE);
+    bool done = Fifo::writeString(_fd, str);
+    if (!done)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
+  }
+  else {
+    std::copy(denial.data(), denial.data() + denial.size(), array + HEADER_SIZE);
+    std::string_view str(array, HEADER_SIZE + denial.size());
+    bool done = Fifo::writeString(_fd, str);
+    if (!done)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
+  }
+  return true;
+}
+
 void FifoAcceptor::run() {
   while (!_stopped) {
     utility::IncrementIndex incr(_ephemeralIndex);
@@ -54,34 +86,8 @@ void FifoAcceptor::run() {
     bool success = _threadPool.push(connection);
     close(_fd);
     _fd = -1;
-    int rep = 0;
-    do {
-      _fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
-      if (_fd == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
-    } while (_fd == -1 &&
-	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-    if (_fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	   << std::strerror(errno) << ' ' << _acceptorName << '\n';
-      return;
-    }
-    char array[1000] = {};
-    ssize_t replySz = success ? 0 : denial.size();
-    encodeHeader(array, replySz, replySz, COMPRESSORS::NONE, false, _ephemeralIndex, success);
-    if (success) {
-      std::string_view str(array, HEADER_SIZE);
-      bool done = Fifo::writeString(_fd, str);
-      if (!done)
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
-    }
-    else {
-      std::copy(denial.data(), denial.data() + denial.size(), array + HEADER_SIZE);
-      std::string_view str(array, HEADER_SIZE + denial.size());
-      bool done = Fifo::writeString(_fd, str);
-      if (!done)
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
-    }
+    if (!replyToClient(success))
+      return; 
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
 }

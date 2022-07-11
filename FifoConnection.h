@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Runnable.h"
-#include "ThreadPool.h"
 #include <memory>
 #include <thread>
 #include <vector>

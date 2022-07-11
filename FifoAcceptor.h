@@ -10,13 +10,12 @@
 
 struct ServerOptions;
 
-class ThreadPool;
-
 namespace fifo {
 
 using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
+  bool replyToClient(bool success);
   void wakeupPipe();
   void removeFifoFiles();
   const ServerOptions& _options;
