@@ -12,6 +12,12 @@
 
 namespace fifo {
 
+namespace {
+
+std::string_view denial("\t\t!!!!!\n\tThe server is busy at the moment.\n\tTry again later.\n\t\t!!!!!");
+
+} // end of anonimous namespace
+
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options), _setPipeSize(options._setPipeSize) {
   // wake up acceptor
@@ -38,16 +44,15 @@ FifoClient::FifoClient(const ClientOptions& options) :
     return;
   }
   HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
-  if (isOk(header)) {
+  PROBLEMS problem = getProblem(header);
+  if (problem == PROBLEMS::MAX_FIFO_CONNECTIONS) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n' << denial << '\n';
+    _fifoName.clear();
+  }
+  else {
     _ephemeralIndex = getEphemeral(header);
     _fifoName = utility::createAbsolutePath(_ephemeralIndex, _options._fifoDirectoryName);
     CLOG  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _fifoName =" << _fifoName << '\n';
-  }
-  else {
-    char msg[1000] = {};
-    Fifo::readString(fd, msg, getUncompressedSize(header), options._numberRepeatEINTR);
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n' << msg << '\n';
-    _fifoName.clear();
   }
 }
 
@@ -86,9 +91,9 @@ bool FifoClient::receive() {
 	 << _fifoName << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, headerDone] =
+  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
     Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
-  if (!headerDone)
+  if (problem != PROBLEMS::NONE)
     return false;
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";

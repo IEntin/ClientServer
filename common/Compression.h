@@ -10,7 +10,7 @@
 inline constexpr std::string_view LZ4 = "LZ4";
 inline constexpr std::string_view NOP = "NOP";
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
 class Compression {
   Compression() = delete;

@@ -13,7 +13,7 @@
 #include <queue>
 #include <vector>
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
 using Response = std::vector<std::string>;
 
@@ -21,7 +21,9 @@ using TaskPtr = std::shared_ptr<class Task>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
+enum class PROBLEMS : char;
+
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;
 
 struct ServerOptions;
 

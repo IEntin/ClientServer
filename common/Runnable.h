@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+enum class PROBLEMS : char;
+
 class Runnable;
 
 using RunnablePtr = std::shared_ptr<Runnable>;
@@ -26,7 +28,7 @@ class Runnable {
   virtual void run() = 0;
   virtual bool start() = 0;
   virtual void stop() = 0;
-  bool checkCapacity();
+  PROBLEMS checkCapacity();
   std::atomic<bool>& _stopped;
   // used for total connections
   std::atomic<int>& _totalConnections;

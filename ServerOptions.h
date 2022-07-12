@@ -7,7 +7,7 @@
 #include "AppOptions.h"
 #include <string>
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
 struct ServerOptions {
   explicit ServerOptions(const std::string& jsonName = "");

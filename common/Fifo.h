@@ -8,9 +8,11 @@
 #include <sys/types.h>
 #include <tuple>
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
+enum class PROBLEMS : char;
+
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;
 
 namespace fifo {
 

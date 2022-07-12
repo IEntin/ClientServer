@@ -26,18 +26,18 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
 	  continue;
-	return { -1, -1, COMPRESSORS::NONE, false, 0, false };
+	return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::FIFO_PROBLEM };
       }
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	     << ':' << std::strerror(errno) << '\n';
-	return { -1, -1, COMPRESSORS::NONE, false, 0, false };
+	return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::FIFO_PROBLEM };
       }
     }
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	<< ':' << (errno ? std::strerror(errno) : "EOF") << '\n';
-      return { -1, -1, COMPRESSORS::NONE, false, 0, false };
+      return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::FIFO_PROBLEM };
     }
     else
       readSoFar += static_cast<size_t>(result);
@@ -45,7 +45,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   if (readSoFar != HEADER_SIZE) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
 	 << HEADER_SIZE << " readSoFar=" << readSoFar << '\n';
-    return { -1, -1, COMPRESSORS::NONE, false, 0, false };
+    return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::BAD_HEADER };
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
 }

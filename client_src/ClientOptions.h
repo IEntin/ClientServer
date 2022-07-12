@@ -7,7 +7,7 @@
 #include "AppOptions.h"
 #include <fstream>
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
 struct ClientOptions {
   explicit ClientOptions(const std::string& jsonName = "", std::ostream* externalDataStream = nullptr);

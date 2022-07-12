@@ -12,20 +12,26 @@ inline constexpr int NUM_FIELD_SIZE = 10;
 inline constexpr int COMPRESSOR_TYPE_SIZE = 1;
 inline constexpr int DIAGNOSTICS_SIZE = 1;
 inline constexpr int EPH_INDEX_SIZE = 5;
-inline constexpr int DONE_SIZE = 1;
+inline constexpr int PROBLEM_SIZE = 1;
 inline constexpr int UNUSED_SIZE = 4;
 inline constexpr int HEADER_SIZE =
-  NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + EPH_INDEX_SIZE + DONE_SIZE + UNUSED_SIZE;
+  NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + EPH_INDEX_SIZE + PROBLEM_SIZE + UNUSED_SIZE;
 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 
-inline constexpr char DONE_CHAR = 'D';
-inline constexpr char NDONE_CHAR = 'N';
-
-enum class COMPRESSORS : int {
+enum class COMPRESSORS : char {
   NONE,
   LZ4
+};
+
+enum class PROBLEMS : char {
+  NONE,
+  BAD_HEADER,
+  MAX_FIFO_CONNECTIONS,
+  FIFO_PROBLEM,
+  MAX_TCP_CONNECTIONS,
+  MAX_TOTAL_CONNECTIONS
 };
 
 enum class HEADER_INDEX : int {
@@ -34,10 +40,10 @@ enum class HEADER_INDEX : int {
   COMPRESSOR,
   DIAGNOSTICS,
   EPHEMERAL,
-  DONE
+  PROBLEMS
 };
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;
 
 inline ssize_t getUncompressedSize(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED_SIZE)>(header);
@@ -64,7 +70,11 @@ inline unsigned short getEphemeral(const HEADER& header) {
 }
 
 inline bool isOk(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::DONE)>(header);
+  return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header) == PROBLEMS::NONE;
+}
+
+inline PROBLEMS getProblem(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header);
 }
 
 void encodeHeader(char* buffer,
@@ -73,6 +83,6 @@ void encodeHeader(char* buffer,
 		  COMPRESSORS,
 		  bool diagnostics,
 		  unsigned short ephemeral,
-		  bool done = true);
+		  PROBLEMS = PROBLEMS::NONE);
 
 HEADER decodeHeader(std::string_view buffer);

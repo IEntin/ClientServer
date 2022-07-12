@@ -11,7 +11,7 @@
 #include <vector>
 #include <fstream>
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
 enum class TaskBuilderState {
   NONE,

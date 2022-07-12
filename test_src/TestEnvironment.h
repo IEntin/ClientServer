@@ -11,7 +11,7 @@ struct ServerOptions;
 struct ClientOptions;
 struct TcpClientOptions;
 struct FifoClientOptions;
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 

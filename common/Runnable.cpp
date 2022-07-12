@@ -3,6 +3,7 @@
  */
 
 #include "Runnable.h"
+#include "Header.h"
 #include "Utility.h"
 
 Runnable::Runnable(RunnablePtr stoppedParent,
@@ -30,7 +31,7 @@ Runnable::~Runnable() {
   }
 }
 
-bool Runnable::checkCapacity() {
+PROBLEMS Runnable::checkCapacity() {
   if (_countingConnections) {
     _totalConnections++;
     _typedConnections++;
@@ -44,19 +45,19 @@ bool Runnable::checkCapacity() {
 	     << "tcp client will wait in the pool queue.\n"
 	     << "close one of running tcp connections\n"
 	     << "or increase \"MaxTcpConnections\" in ServerOptions.json.\n";
-	// returning false will allow the client wait for available thread,
+	// this will allow the client wait for available thread,
 	// client will not close by itself and run when possible.
-	return false;
+	return PROBLEMS::MAX_TCP_CONNECTIONS;
       }
       else if (_type == FIFO) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << "\nnumber running fifo connections=" << _typedConnections 
+	     << "\nnumber fifo connections=" << _typedConnections 
 	     << " at thread pool capacity, client will close.\n"
-	     << "increase \"MaxTcpConnections\" in ServerOptions.json.\n";
-	// returning true will throw away connection and close the client.
-	return true;
+	     << "increase \"MaxFifoConnections\" in ServerOptions.json.\n";
+	// this will throw away connection and close the client.
+	return PROBLEMS::MAX_FIFO_CONNECTIONS;
       }
     }
   }
-  return false;
+  return PROBLEMS::NONE;
 }

@@ -7,13 +7,15 @@
 #include <string>
 #include <vector>
 
-enum class COMPRESSORS : int;
+enum class COMPRESSORS : char;
+
+enum class PROBLEMS : char;
 
 using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, bool>;
+using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;
 
 namespace serverutility {
 

@@ -39,4 +39,4 @@ echo
 make cleanall
 make -j4 SANITIZE=thread
 
-make cleanall
+#make cleanall

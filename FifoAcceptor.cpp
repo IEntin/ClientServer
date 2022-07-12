@@ -16,12 +16,6 @@
 
 namespace fifo {
 
-namespace {
-
-std::string_view denial("\t\t!!!!!\n\tThe server is busy at the moment.\n\tTry again later.\n\t\t!!!!!");
-
-} // end of anonimous namespace
-
 FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
@@ -29,7 +23,7 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   _threadPool(_options._maxFifoConnections + 1) {
 }
 
-bool FifoAcceptor::replyToClient(bool success) {
+bool FifoAcceptor::replyToClient(PROBLEMS problem) {
   int rep = 0;
   do {
     _fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
@@ -42,22 +36,11 @@ bool FifoAcceptor::replyToClient(bool success) {
 	 << std::strerror(errno) << ' ' << _acceptorName << '\n';
     return false;
   }
-  char array[1000] = {};
-  ssize_t replySz = success ? 0 : denial.size();
-  encodeHeader(array, replySz, replySz, COMPRESSORS::NONE, false, _ephemeralIndex, success);
-  if (success) {
-    std::string_view str(array, HEADER_SIZE);
-    bool done = Fifo::writeString(_fd, str);
-    if (!done)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
-  }
-  else {
-    std::copy(denial.data(), denial.data() + denial.size(), array + HEADER_SIZE);
-    std::string_view str(array, HEADER_SIZE + denial.size());
-    bool done = Fifo::writeString(_fd, str);
-    if (!done)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
-  }
+  char array[HEADER_SIZE] = {};
+  encodeHeader(array, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, problem);
+  std::string_view str(array, HEADER_SIZE);
+  if (!Fifo::writeString(_fd, str))
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
   return true;
 }
 
@@ -83,11 +66,11 @@ void FifoAcceptor::run() {
     RunnablePtr connection =
       std::make_shared<FifoConnection>(_options, fifoName, shared_from_this());
     _connections.emplace_back(connection);
-    bool success = _threadPool.push(connection);
-    close(_fd);
-    _fd = -1;
-    if (!replyToClient(success))
+    PROBLEMS problem = _threadPool.push(connection);
+    if (!replyToClient(problem))
       return; 
+    if (problem != PROBLEMS::NONE)
+      connection->stop();
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
 }

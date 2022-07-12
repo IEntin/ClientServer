@@ -10,6 +10,8 @@
 #include <thread>
 #include <vector>
 
+enum class PROBLEMS : char;
+
 using RunnablePtr = std::shared_ptr<class Runnable>;
 using ThreadPoolPtr = std::shared_ptr<class ThreadPool>;
 
@@ -25,7 +27,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;
   void stop();
-  bool push(RunnablePtr runnable);
+  PROBLEMS push(RunnablePtr runnable);
   RunnablePtr get();
   int size() const { return _threads.size(); }
   // used in tests

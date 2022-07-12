@@ -3,6 +3,7 @@
  */
 
 #include "ThreadPool.h"
+#include "Header.h"
 #include "Runnable.h"
 #include "Utility.h"
 
@@ -43,13 +44,17 @@ void ThreadPool::stop() {
        << " ... _threads joined ..." << std::endl;
 }
 
-bool ThreadPool::push(RunnablePtr runnable) {
+PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
-  if (runnable && runnable->checkCapacity())
-    return false;
+  PROBLEMS problem = PROBLEMS::NONE;
+  if (runnable) {
+    problem = runnable->checkCapacity();
+    if (problem == PROBLEMS::MAX_FIFO_CONNECTIONS)
+      return problem;
+  }
   _queue.push(std::move(runnable));
   _queueCondition.notify_all();
-  return true;
+  return problem;
 }
 
 RunnablePtr ThreadPool::get() {

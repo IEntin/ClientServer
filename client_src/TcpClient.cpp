@@ -44,9 +44,9 @@ bool TcpClient::receive() {
   memset(header, 0, HEADER_SIZE);
   boost::system::error_code ec;
   boost::asio::read(_socket, boost::asio::buffer(header, HEADER_SIZE), ec);
-  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, done] =
+  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
     decodeHeader(std::string_view(header, HEADER_SIZE));
-  if (!done)
+  if (problem != PROBLEMS::NONE)
     return false;
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
     return false;
