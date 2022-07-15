@@ -49,7 +49,7 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   PROBLEMS problem = PROBLEMS::NONE;
   if (runnable) {
     problem = runnable->checkCapacity();
-    if (problem == PROBLEMS::MAX_FIFO_CONNECTIONS)
+    if (problem == PROBLEMS::MAX_FIFO_SESSIONS)
       return problem;
   }
   _queue.push(std::move(runnable));

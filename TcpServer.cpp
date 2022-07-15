@@ -5,7 +5,7 @@
 #include "TcpServer.h"
 #include "TaskController.h"
 #include "ServerOptions.h"
-#include "TcpConnection.h"
+#include "TcpSession.h"
 #include "Utility.h"
 
 namespace tcp {
@@ -18,7 +18,7 @@ TcpServer::TcpServer(const ServerOptions& options) :
   _endpoint(boost::asio::ip::address_v4::any(), _tcpAcceptorPort),
   _acceptor(_ioContext),
   // + 1 for 'this'
-  _threadPool(_options._maxTcpConnections + 1) {}
+  _threadPool(_options._maxTcpSessions + 1) {}
 
 TcpServer::~TcpServer() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
@@ -61,22 +61,22 @@ void TcpServer::run() {
 }
 
 void TcpServer::accept() {
-  auto connection =
-    std::make_shared<TcpConnection>(_options, shared_from_this());
-  _acceptor.async_accept(connection->socket(),
-			 connection->endpoint(),
-			 [connection, this](boost::system::error_code ec) {
-			   handleAccept(connection, ec);
+  auto session =
+    std::make_shared<TcpSession>(_options, shared_from_this());
+  _acceptor.async_accept(session->socket(),
+			 session->endpoint(),
+			 [session, this](boost::system::error_code ec) {
+			   handleAccept(session, ec);
 			 });
 }
 
-void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::error_code& ec) {
+void TcpServer::handleAccept(TcpSessionPtr session, const boost::system::error_code& ec) {
   if (ec)
     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
       << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
   else {
-    connection->start();
-    [[maybe_unused]] PROBLEMS problem = _threadPool.push(connection);
+    session->start();
+    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
     accept();
   }
 }

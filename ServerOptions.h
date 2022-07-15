@@ -19,8 +19,8 @@ struct ServerOptions {
   std::string _acceptorBaseName;
   std::string _processType;
   int _numberWorkThreads;
-  int _maxTcpConnections;
-  int _maxFifoConnections;
+  int _maxTcpSessions;
+  int _maxFifoSessions;
   unsigned short _tcpAcceptorPort;
   unsigned short _tcpStatusPort;
   int _tcpTimeout;

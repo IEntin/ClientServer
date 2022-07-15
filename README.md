@@ -4,12 +4,12 @@ Copyright (C) 2021 Ilya Entin.
 
 This server can work with multiple mixed tcp and fifo clients.
 
-Tcp communication layer is using boost Asio library. Every connection is running in its own thread\
-(io_context per connection). Connections can be extremely short-lived, e.g. it might service one\
+Tcp communication layer is using boost Asio library. Every session is running in its own thread\
+(io_context per session). Sessions can be extremely short-lived, e.g. it might service one\
 submillisecond request or in another extreme it can run for the life time of the server. With this\
 architecture it is important to avoid creating new threads and use thread pools.
 
-This server is using thread pools for both tcp and fifo connections, see ThreadPool class for a\
+This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
 generic thread pool.
 
 In some cases fifo has better performance and possibly stronger security than tcp. Due to protocol\
@@ -70,7 +70,7 @@ This option can be disabled altogether by setting\
 If fifo is not an option the client can switch to the tcp mode and reconnect to the server without\
 stopping the server.
 
-Lockless. Processing batches of requests is lockless. Queues of tasks and connections are\
+Lockless. Processing batches of requests is lockless. Queues of tasks and sessions are\
 still using locks, but this type of locking is relatively rare for large tasks and does not\
 affect overall performance.
 

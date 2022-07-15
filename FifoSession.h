@@ -21,7 +21,7 @@ struct ServerOptions;
 
 namespace fifo {
 
-class FifoConnection : public Runnable {
+class FifoSession : public Runnable {
   const ServerOptions& _options;
   std::string _fifoName;
   RunnablePtr _parent;
@@ -35,10 +35,8 @@ class FifoConnection : public Runnable {
   bool start() override;
   void stop() override;
  public:
-  FifoConnection(const ServerOptions& options,
-		 std::string_view fifoName,
-		 RunnablePtr server);
-  ~FifoConnection() override;
+  FifoSession(const ServerOptions& options, std::string_view fifoName, RunnablePtr server);
+  ~FifoSession() override;
 };
 
 } // end of namespace fifo

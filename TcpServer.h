@@ -16,7 +16,7 @@ using RunnablePtr = std::shared_ptr<Runnable>;
 
 namespace tcp {
 
-using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
+using TcpSessionPtr = std::shared_ptr<class TcpSession>;
 
 class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
 public:
@@ -25,7 +25,7 @@ public:
 private:
   void accept();
 
-  void handleAccept(TcpConnectionPtr connection, const boost::system::error_code& ec);
+  void handleAccept(TcpSessionPtr session, const boost::system::error_code& ec);
   void run() override;
 
   bool start() override;

@@ -19,8 +19,8 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
 		       int numberWorkThreadsCfg = _appOptions.get("NumberTaskThreads", 0);
 		       return numberWorkThreadsCfg > 0 ? numberWorkThreadsCfg :
 			 std::thread::hardware_concurrency();}()),
-  _maxTcpConnections(_appOptions.get("MaxTcpConnections", 2)),
-  _maxFifoConnections(_appOptions.get("MaxFifoConnections", 2)),
+  _maxTcpSessions(_appOptions.get("MaxTcpSessions", 2)),
+  _maxFifoSessions(_appOptions.get("MaxFifoSessions", 2)),
   _tcpAcceptorPort(_appOptions.get("TcpAcceptorPort", 49172)),
   _tcpStatusPort(_appOptions.get("TcpStatusPort", 49173)),
   _tcpTimeout(_appOptions.get("TcpTimeout", 1)),

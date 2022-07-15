@@ -17,12 +17,12 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-using TcpConnectionPtr = std::shared_ptr<class TcpConnection>;
+using TcpSessionPtr = std::shared_ptr<class TcpSession>;
 
-class TcpConnection : public std::enable_shared_from_this<TcpConnection>, public Runnable {
+class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
 public:
-  TcpConnection(const ServerOptions& options, RunnablePtr parent);
-  ~TcpConnection() override;
+  TcpSession(const ServerOptions& options, RunnablePtr parent);
+  ~TcpSession() override;
 
   void run() noexcept override;
   bool start() override;

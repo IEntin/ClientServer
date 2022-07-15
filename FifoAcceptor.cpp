@@ -4,7 +4,7 @@
 
 #include "FifoAcceptor.h"
 #include "Fifo.h"
-#include "FifoConnection.h"
+#include "FifoSession.h"
 #include "Header.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
@@ -20,7 +20,7 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   // + 1 for this
-  _threadPool(_options._maxFifoConnections + 1) {
+  _threadPool(_options._maxFifoSessions + 1) {
 }
 
 bool FifoAcceptor::replyToClient(PROBLEMS problem) {
@@ -63,14 +63,14 @@ void FifoAcceptor::run() {
     }
     if (_stopped)
       break;
-    RunnablePtr connection =
-      std::make_shared<FifoConnection>(_options, fifoName, shared_from_this());
-    _connections.emplace_back(connection);
-    PROBLEMS problem = _threadPool.push(connection);
+    RunnablePtr session =
+      std::make_shared<FifoSession>(_options, fifoName, shared_from_this());
+    _sessions.emplace_back(session);
+    PROBLEMS problem = _threadPool.push(session);
     if (!replyToClient(problem))
       return; 
-    if (problem == PROBLEMS::MAX_FIFO_CONNECTIONS)
-      connection->stop();
+    if (problem == PROBLEMS::MAX_FIFO_SESSIONS)
+      session->stop();
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
 }
@@ -90,7 +90,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   // stop the children
-  for (RunnableWeakPtr weakPtr : _connections) {
+  for (RunnableWeakPtr weakPtr : _sessions) {
     RunnablePtr runnable = weakPtr.lock();
     if (runnable)
       runnable->stop();

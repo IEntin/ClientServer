@@ -45,7 +45,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
   }
   HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
   PROBLEMS problem = getProblem(header);
-  if (problem == PROBLEMS::MAX_FIFO_CONNECTIONS) {
+  if (problem == PROBLEMS::MAX_FIFO_SESSIONS) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n' << denial << '\n';
     _fifoName.clear();
   }

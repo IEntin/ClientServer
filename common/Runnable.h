@@ -20,8 +20,8 @@ class Runnable {
  public:
   enum Type { NONE, FIFO, TCP };
   explicit Runnable(RunnablePtr stoppedParent = RunnablePtr(),
-		    RunnablePtr totalConnectionsParent = RunnablePtr(),
-		    RunnablePtr typedConnectionsParent = RunnablePtr(),
+		    RunnablePtr totalSessionsParent = RunnablePtr(),
+		    RunnablePtr typedSessionsParent = RunnablePtr(),
 		    Type type = NONE,
 		    int max = 0);
   virtual ~Runnable();
@@ -30,15 +30,15 @@ class Runnable {
   virtual void stop() = 0;
   PROBLEMS checkCapacity();
   std::atomic<bool>& _stopped;
-  // used for total connections
-  std::atomic<int>& _totalConnections;
-  // used for specific connection type
-  std::atomic<int>& _typedConnections;
+  // used for total sessions
+  std::atomic<int>& _totalSessions;
+  // used for specific session type
+  std::atomic<int>& _typedSessions;
  protected:
   std::atomic<bool> _stoppedThis = false;
-  std::atomic<int> _totalConnectionsThis = 0;
-  std::atomic<int> _typedConnectionsThis = 0;
-  const bool _countingConnections = false;
+  std::atomic<int> _totalSessionsThis = 0;
+  std::atomic<int> _typedSessionsThis = 0;
+  const bool _countingSessions = false;
   const Type _type;
   std::string _name;
   int _max = 0;

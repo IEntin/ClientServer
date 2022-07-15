@@ -7,15 +7,15 @@
 #include "Utility.h"
 
 Runnable::Runnable(RunnablePtr stoppedParent,
-		   RunnablePtr totalConnectionsParent,
-		   RunnablePtr typedConnectionsParent,
+		   RunnablePtr totalSessionsParent,
+		   RunnablePtr typedSessionsParent,
 		   Type type,
 		   int max) :
   _stopped(stoppedParent ? stoppedParent->_stopped : _stoppedThis),
-  _totalConnections(totalConnectionsParent ? totalConnectionsParent->_totalConnections : _totalConnectionsThis),
-  _typedConnections(typedConnectionsParent ? typedConnectionsParent->_typedConnections : _typedConnectionsThis),
-  // only connections (sessions), children of children, have both parents.
-  _countingConnections(totalConnectionsParent && typedConnectionsParent),
+  _totalSessions(totalSessionsParent ? totalSessionsParent->_totalSessions : _totalSessionsThis),
+  _typedSessions(typedSessionsParent ? typedSessionsParent->_typedSessions : _typedSessionsThis),
+  // only sessions, children of children, have both parents.
+  _countingSessions(totalSessionsParent && typedSessionsParent),
   _type(type),
   _max(max) {
   if (_type == FIFO)
@@ -25,37 +25,37 @@ Runnable::Runnable(RunnablePtr stoppedParent,
 }
 
 Runnable::~Runnable() {
-  if (_countingConnections) {
-    _totalConnections--;
-    _typedConnections--;
+  if (_countingSessions) {
+    _totalSessions--;
+    _typedSessions--;
   }
 }
 
 PROBLEMS Runnable::checkCapacity() {
-  if (_countingConnections) {
-    _totalConnections++;
-    _typedConnections++;
+  if (_countingSessions) {
+    _totalSessions++;
+    _typedSessions++;
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":\ntotal connections=" << _totalConnections << ',' << _name
-	 << " connections=" << _typedConnections << '\n';
-    if (_max > 0 && _typedConnections > _max) {
+	 << ":\ntotal sessions=" << _totalSessions << ',' << _name
+	 << " sessions=" << _typedSessions << '\n';
+    if (_max > 0 && _typedSessions > _max) {
       if (_type == TCP) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << "\nnumber running tcp connections=" << _typedConnections << " at thread pool capacity,\n"
+	     << "\nnumber running tcp sessions=" << _typedSessions << " at thread pool capacity,\n"
 	     << "tcp client will wait in the pool queue.\n"
-	     << "close one of running tcp connections\n"
-	     << "or increase \"MaxTcpConnections\" in ServerOptions.json.\n";
+	     << "close one of running tcp sessions\n"
+	     << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n";
 	// this will allow the client wait for available thread,
 	// client will not close by itself and run when possible.
-	return PROBLEMS::MAX_TCP_CONNECTIONS;
+	return PROBLEMS::MAX_TCP_SESSIONS;
       }
       else if (_type == FIFO) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << "\nnumber fifo connections=" << _typedConnections 
+	     << "\nnumber fifo sessions=" << _typedSessions 
 	     << " at thread pool capacity, client will close.\n"
-	     << "increase \"MaxFifoConnections\" in ServerOptions.json.\n";
-	// this will throw away connection and close the client.
-	return PROBLEMS::MAX_FIFO_CONNECTIONS;
+	     << "increase \"MaxFifoSessions\" in ServerOptions.json.\n";
+	// this will throw away session and close the client.
+	return PROBLEMS::MAX_FIFO_SESSIONS;
       }
     }
   }

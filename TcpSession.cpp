@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "TcpConnection.h"
+#include "TcpSession.h"
 #include "Compression.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
@@ -12,8 +12,8 @@
 
 namespace tcp {
 
-TcpConnection::TcpConnection(const ServerOptions& options, RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpConnections),
+TcpSession::TcpSession(const ServerOptions& options, RunnablePtr parent) :
+  Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),
   _options(options),
   _ioContext(1),
   _socket(_ioContext),
@@ -27,7 +27,7 @@ TcpConnection::TcpConnection(const ServerOptions& options, RunnablePtr parent) :
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
 }
 
-TcpConnection::~TcpConnection() {
+TcpSession::~TcpSession() {
   boost::system::error_code ignore;
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
@@ -35,7 +35,7 @@ TcpConnection::~TcpConnection() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
-bool TcpConnection::start() {
+bool TcpSession::start() {
   const auto& local = _socket.local_endpoint();
   const auto& remote = _socket.remote_endpoint();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -44,7 +44,7 @@ bool TcpConnection::start() {
   return true;
 }
 
-void TcpConnection::run() noexcept {
+void TcpSession::run() noexcept {
   readHeader();
   boost::system::error_code ec;
   _ioContext.run(ec);
@@ -54,9 +54,9 @@ void TcpConnection::run() noexcept {
     MemoryPool::destroyBuffers();
 }
 
-void TcpConnection::stop() {}
+void TcpSession::stop() {}
 
-bool TcpConnection::onReceiveRequest() {
+bool TcpSession::onReceiveRequest() {
   _response.clear();
   _uncompressed.clear();
   bool bcompressed = isInputCompressed(_header);
@@ -80,7 +80,7 @@ bool TcpConnection::onReceiveRequest() {
   return true;
 }
 
-bool TcpConnection::sendReply(const Response& response) {
+bool TcpSession::sendReply(const Response& response) {
   std::string_view message =
     serverutility::buildReply(response, _compressor, 0);
   if (message.empty())
@@ -89,7 +89,7 @@ bool TcpConnection::sendReply(const Response& response) {
   return true;
 }
 
-void TcpConnection::readHeader() {
+void TcpSession::readHeader() {
   if (_stopped)
     return;
   boost::system::error_code ignore;
@@ -102,7 +102,7 @@ void TcpConnection::readHeader() {
 			  });
 }
 
-void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
+void TcpSession::handleReadHeader(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
   asyncWait();
   if (!ec) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
@@ -123,7 +123,7 @@ void TcpConnection::handleReadHeader(const boost::system::error_code& ec, [[mayb
   }
 }
 
-void TcpConnection::readRequest() {
+void TcpSession::readRequest() {
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_request),
 			  [this] (const boost::system::error_code& ec, size_t transferred) {
@@ -131,7 +131,7 @@ void TcpConnection::readRequest() {
 			  });
 }
 
-void TcpConnection::write(std::string_view reply) {
+void TcpSession::write(std::string_view reply) {
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
 			   [this](boost::system::error_code ec, size_t transferred) {
@@ -139,7 +139,7 @@ void TcpConnection::write(std::string_view reply) {
 			   });
 }
 
-void TcpConnection::handleReadRequest(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
+void TcpSession::handleReadRequest(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   if (!ec)
@@ -151,7 +151,7 @@ void TcpConnection::handleReadRequest(const boost::system::error_code& ec, [[may
   }
 }
 
-void TcpConnection::handleWriteReply(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
+void TcpSession::handleWriteReply(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   if (!ec)
@@ -163,7 +163,7 @@ void TcpConnection::handleWriteReply(const boost::system::error_code& ec, [[mayb
   }
 }
 
-void TcpConnection::asyncWait() {
+void TcpSession::asyncWait() {
   boost::system::error_code ignore;
   _timer.expires_from_now(std::chrono::seconds(_timeout), ignore);
   _timer.async_wait([this](const boost::system::error_code& err) {
@@ -177,7 +177,7 @@ void TcpConnection::asyncWait() {
 		    });
 }
 
-bool TcpConnection::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
+bool TcpSession::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
   std::string_view received(input.data(), input.size());
   uncompressed.resize(getUncompressedSize(_header));
   if (!Compression::uncompress(received, uncompressed)) {

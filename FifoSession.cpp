@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "FifoConnection.h"
+#include "FifoSession.h"
 #include "Compression.h"
 #include "Fifo.h"
 #include "Header.h"
@@ -18,17 +18,17 @@
 
 namespace fifo {
 
-FifoConnection::FifoConnection(const ServerOptions& options,
-			       std::string_view fifoName,
-			       RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoConnections),
+FifoSession::FifoSession(const ServerOptions& options,
+			 std::string_view fifoName,
+			 RunnablePtr parent) :
+  Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoSessions),
   _options(options), _fifoName(fifoName), _parent(parent) {}
 
-FifoConnection::~FifoConnection() {
+FifoSession::~FifoSession() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
-void FifoConnection::run() {
+void FifoSession::run() {
   while (!_stopped) {
     _response.clear();
     HEADER header;
@@ -42,17 +42,17 @@ void FifoConnection::run() {
   std::filesystem::remove(_fifoName);
 }
 
-bool FifoConnection::start() {
+bool FifoSession::start() {
   return true;
 }
 
-void FifoConnection::stop() {
+void FifoSession::stop() {
   // thread is blocked on open(...O_RDONLY)
   // need to open write end to have things moving)
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
 }
 
-bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) {
+bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
@@ -63,7 +63,7 @@ bool FifoConnection::receiveRequest(std::vector<char>& message, HEADER& header) 
   return serverutility::receiveRequest(_fdRead, message, header, _options);
 }
 
-bool FifoConnection::sendResponse(const Response& response) {
+bool FifoSession::sendResponse(const Response& response) {
   std::string_view message =
     serverutility::buildReply(response, _options._compressor, 0);
   if (message.empty())

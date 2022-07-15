@@ -20,7 +20,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   const ServerOptions& _options;
   ThreadPool _threadPool;
   std::string _acceptorName;
-  std::vector<RunnableWeakPtr> _connections;
+  std::vector<RunnableWeakPtr> _sessions;
   int _fd = -1;
   unsigned short _ephemeralIndex = 0;
  public:
