@@ -13,6 +13,7 @@
 #include "TcpServer.h"
 #include "TestEnvironment.h"
 #include "Transaction.h"
+#include "Utility.h"
 #include <gtest/gtest.h>
 
 struct LogicTest : testing::Test {
@@ -21,24 +22,30 @@ struct LogicTest : testing::Test {
 		    size_t serverMemPoolSize,
 		    size_t clientMemPoolSize,
 		    bool diagnostics = true) {
-    // start server
-    TestEnvironment::_serverOptions._compressor = serverCompressor;
-    TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-    MemoryPool::setExpectedSize(serverMemPoolSize);
-    RunnablePtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
-    bool serverStart = tcpServer->start();
-    // start client
-    TestEnvironment::_clientOptions._compressor = clientCompressor;
-    TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
-    TestEnvironment::_clientOptions._diagnostics = diagnostics;
-    tcp::TcpClient client(TestEnvironment::_clientOptions);
-    client.run();
-    tcpServer->stop();
-    ASSERT_TRUE(serverStart);
-    std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-    ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    try {
+      // start server
+      TestEnvironment::_serverOptions._compressor = serverCompressor;
+      TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
+      MemoryPool::setExpectedSize(serverMemPoolSize);
+      RunnablePtr tcpServer =
+	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
+      bool serverStart = tcpServer->start();
+      // start client
+      TestEnvironment::_clientOptions._compressor = clientCompressor;
+      TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
+      TestEnvironment::_clientOptions._diagnostics = diagnostics;
+      tcp::TcpClient client(TestEnvironment::_clientOptions);
+      client.run();
+      tcpServer->stop();
+      ASSERT_TRUE(serverStart);
+      std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ':' << e.what();
+    }
   }
 
   void testLogicFifo(COMPRESSORS serverCompressor,
@@ -157,20 +164,26 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_100000_3600000_ND) {
 
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
-    // start server
-    RunnablePtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
-    bool serverStart = tcpServer->start();
-    // start client
-    TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
-    TestEnvironment::_clientOptions._diagnostics = true;
-    tcp::TcpClient client(TestEnvironment::_clientOptions);
-    client.run();
-    tcpServer->stop();
-    ASSERT_TRUE(serverStart);
-    std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
-    ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    try {
+      // start server
+      RunnablePtr tcpServer =
+	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
+      bool serverStart = tcpServer->start();
+      // start client
+      TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
+      TestEnvironment::_clientOptions._diagnostics = true;
+      tcp::TcpClient client(TestEnvironment::_clientOptions);
+      client.run();
+      tcpServer->stop();
+      ASSERT_TRUE(serverStart);
+      std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ':' << e.what();
+    }
   }
 
   void TearDown() {
@@ -191,20 +204,26 @@ TEST_F(LogicTestAltFormat, Diagnostics) {
 
 struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
-    // start server
-    TestEnvironment::_serverOptions._sortInput = sort;
-    RunnablePtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
-    bool serverStart = tcpServer->start();
-    // start client
-    TestEnvironment::_clientOptions._diagnostics = true;
-    tcp::TcpClient client(TestEnvironment::_clientOptions);
-    client.run();
-    tcpServer->stop();
-    ASSERT_TRUE(serverStart);
-    std::string_view calibratedOutput = TestEnvironment::_outputD;
-    ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    try {
+      // start server
+      TestEnvironment::_serverOptions._sortInput = sort;
+      RunnablePtr tcpServer =
+	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
+      bool serverStart = tcpServer->start();
+      // start client
+      TestEnvironment::_clientOptions._diagnostics = true;
+      tcp::TcpClient client(TestEnvironment::_clientOptions);
+      client.run();
+      tcpServer->stop();
+      ASSERT_TRUE(serverStart);
+      std::string_view calibratedOutput = TestEnvironment::_outputD;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ':' << e.what();
+    }
   }
 
   void TearDown() {

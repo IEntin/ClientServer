@@ -41,6 +41,16 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << '\n';
+  PROBLEMS problem = _typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE;
+  std::vector<char> buffer(HEADER_SIZE);
+  encodeHeader(buffer.data(), 0, 0, COMPRESSORS::NONE, false, 0, problem);
+  boost::system::error_code ec;
+  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ':' << ec.what() << std::endl;
+    return false;
+  }
   return true;
 }
 

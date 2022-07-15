@@ -12,7 +12,37 @@ namespace tcp {
 
 TcpClient::TcpClient(const ClientOptions& options) :
   Client(options),
-  _socket(_ioContext) {}
+  _socket(_ioContext) {
+  if (!setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort))
+    throw(std::runtime_error(std::string(std::strerror(errno))));
+  char buffer[HEADER_SIZE] = {};
+  boost::system::error_code ec;
+  boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  if (ec)
+    throw(std::runtime_error(std::string(std::strerror(errno))));
+  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  PROBLEMS problem = getProblem(header);
+  switch (problem) {
+  case PROBLEMS::NONE :
+    CLOG << "NO PROBLEMS\n";
+    break;
+  case PROBLEMS::MAX_TCP_SESSIONS:
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << "\n\t\t!!!!!!!\n"
+	 << "\tThe number of running tcp sessions is at the thread pool capacity.\n"
+	 << "\tYou do not have to close the client, it will wait in the pool queue\n"
+	 << "\tfor the next available thread freed when someone closes already running tcp client.\n"
+	 << "\tYou can also close this client and try again later.\n"
+	 << "\tAnother option is to increase \"MaxTcpSessions\" in ServerOptions.json.\n"
+	 << "\t\t!!!!!!!\n";
+    break;
+  case PROBLEMS::MAX_TOTAL_SESSIONS:
+    // TBD
+    break;
+  default:
+    break;
+  }
+}
 
 TcpClient::~TcpClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -50,8 +80,6 @@ bool TcpClient::receive() {
 bool TcpClient::run() {
   try {
     CloseSocket closeSocket(_socket);
-    if (!setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort))
-      return false;
     return Client::run();
   }
   catch (const std::exception& e) {

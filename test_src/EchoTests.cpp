@@ -11,25 +11,32 @@
 #include "TcpClient.h"
 #include "TcpServer.h"
 #include "TestEnvironment.h"
+#include "Utility.h"
 #include <gtest/gtest.h>
 #include <filesystem>
 
 struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
-    // start server
-    TestEnvironment::_serverOptions._compressor = serverCompressor;
-    RunnablePtr tcpServer =
-      std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
-    bool serverStart = tcpServer->start();
-    // start client
-    TestEnvironment::_clientOptions._compressor = clientCompressor;
-    tcp::TcpClient client(TestEnvironment::_clientOptions);
-    bool clientRun = client.run();
-    tcpServer->stop();
-    ASSERT_TRUE(serverStart);
-    ASSERT_TRUE(clientRun);
-    ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
-    ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+    try {
+      // start server
+      TestEnvironment::_serverOptions._compressor = serverCompressor;
+      RunnablePtr tcpServer =
+	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
+      bool serverStart = tcpServer->start();
+      // start client
+      TestEnvironment::_clientOptions._compressor = clientCompressor;
+      tcp::TcpClient client(TestEnvironment::_clientOptions);
+      bool clientRun = client.run();
+      tcpServer->stop();
+      ASSERT_TRUE(serverStart);
+      ASSERT_TRUE(clientRun);
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ':' << e.what();
+    }
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
