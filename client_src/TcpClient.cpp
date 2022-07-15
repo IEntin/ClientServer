@@ -32,7 +32,6 @@ bool TcpClient::send(const std::vector<char>& msg) {
 
 bool TcpClient::receive() {
   char buffer[HEADER_SIZE] = {};
-  memset(buffer, 0, HEADER_SIZE);
   boost::system::error_code ec;
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {

@@ -56,7 +56,6 @@ bool sendHeader(boost::asio::ip::tcp::socket& socket, HEADER header){
 
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {
   char buffer[HEADER_SIZE] = {};
-  memset(buffer, 0, HEADER_SIZE);
   boost::system::error_code ec;
   boost::asio::read(socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
