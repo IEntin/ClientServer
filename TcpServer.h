@@ -22,18 +22,19 @@ class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnabl
 public:
   TcpServer(const ServerOptions& options);
   ~TcpServer() override;
-  bool start() override;
-  void stop() override;
 private:
   void accept();
 
-  void handleAccept(TcpConnectionPtr connection,
-		    const boost::system::error_code& ec);
+  void handleAccept(TcpConnectionPtr connection, const boost::system::error_code& ec);
   void run() override;
+
+  bool start() override;
+
+  void stop() override;
 
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
-  int _tcpPort;
+  unsigned short _tcpAcceptorPort;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   ThreadPool _threadPool;

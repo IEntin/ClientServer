@@ -22,14 +22,14 @@ void encodeHeader(char* buffer,
   ok = utility::toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
   assert(ok);
   offset += NUM_FIELD_SIZE;
-  buffer[offset] = static_cast<char>(compressor);
+  buffer[offset] = std::underlying_type_t<COMPRESSORS>(compressor);
   offset += COMPRESSOR_TYPE_SIZE;
   buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
   offset += DIAGNOSTICS_SIZE;
   ok = utility::toChars(ephemeral, buffer + offset, EPH_INDEX_SIZE);
   assert(ok);
   offset += EPH_INDEX_SIZE;
-  buffer[offset] = static_cast<char>(problem);
+  buffer[offset] = std::underlying_type_t<PROBLEMS>(problem);
 }
 
 HEADER decodeHeader(std::string_view buffer) {

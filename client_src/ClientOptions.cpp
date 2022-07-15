@@ -39,7 +39,8 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),
   _ENXIOwait(_appOptions.get("ENXIOwai", 20000)),
   _serverHost(_appOptions.get("ServerHost", std::string("localhost"))),
-  _tcpPort(_appOptions.get("TcpPort", std::string("49172"))),
+  _tcpAcceptorPort(_appOptions.get("TcpAcceptorPort", std::string("49172"))),
+  _tcpStatusPort(_appOptions.get("TcpStatusPort", 49173)),
   _fifoDirectoryName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string())),
   _acceptorName(_fifoDirectoryName + '/' + _appOptions.get("AcceptorName", std::string("acceptor"))),
   _compressor(Compression::isCompressionEnabled(

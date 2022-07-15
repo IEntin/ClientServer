@@ -14,8 +14,8 @@ TcpServer::TcpServer(const ServerOptions& options) :
   Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   _ioContext(1),
-  _tcpPort(_options._tcpPort),
-  _endpoint(boost::asio::ip::address_v4::any(), _tcpPort),
+  _tcpAcceptorPort(_options._tcpAcceptorPort),
+  _endpoint(boost::asio::ip::address_v4::any(), _tcpAcceptorPort),
   _acceptor(_ioContext),
   // + 1 for 'this'
   _threadPool(_options._maxTcpConnections + 1) {}
@@ -41,7 +41,7 @@ bool TcpServer::start() {
   }
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
-	 << ec.what() << " _tcpPort=" << _tcpPort << '\n';
+	 << ec.what() << " _tcpAcceptorPort=" << _tcpAcceptorPort << '\n';
   return !ec;
 }
 
@@ -76,7 +76,7 @@ void TcpServer::handleAccept(TcpConnectionPtr connection, const boost::system::e
       << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
   else {
     connection->start();
-    _threadPool.push(connection);
+    [[maybe_unused]] PROBLEMS problem = _threadPool.push(connection);
     accept();
   }
 }

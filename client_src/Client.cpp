@@ -38,10 +38,8 @@ bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
       return false;
     }
     bool subtaskDone = send(task) && receive();
-    if (!subtaskDone) {
-      std::exit(1);
+    if (!subtaskDone)
       return false;
-    }
   } while (state != TaskBuilderState::TASKDONE);
   return true;
 }

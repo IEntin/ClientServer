@@ -5,23 +5,14 @@
 #include "TcpClient.h"
 #include "ClientOptions.h"
 #include "Header.h"
+#include "Tcp.h"
 #include "Utility.h"
 
 namespace tcp {
 
-CloseSocket::CloseSocket(boost::asio::ip::tcp::socket& socket) : _socket(socket) {}
-
-CloseSocket::~CloseSocket() {
-  boost::system::error_code ignore;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-  _socket.close(ignore);
-}
-
 TcpClient::TcpClient(const ClientOptions& options) :
-  Client(options), _ioContext(1), _socket(_ioContext) {
-  _serverHost = options._serverHost;
-  _tcpPort = options._tcpPort;
-}
+  Client(options),
+  _socket(_ioContext) {}
 
 TcpClient::~TcpClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -40,12 +31,16 @@ bool TcpClient::send(const std::vector<char>& msg) {
 }
 
 bool TcpClient::receive() {
-  char header[HEADER_SIZE] = {};
-  memset(header, 0, HEADER_SIZE);
+  char buffer[HEADER_SIZE] = {};
+  memset(buffer, 0, HEADER_SIZE);
   boost::system::error_code ec;
-  boost::asio::read(_socket, boost::asio::buffer(header, HEADER_SIZE), ec);
+  boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return false;
+  }
   auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
-    decodeHeader(std::string_view(header, HEADER_SIZE));
+    decodeHeader(std::string_view(buffer, HEADER_SIZE));
   if (problem != PROBLEMS::NONE)
     return false;
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
@@ -56,18 +51,8 @@ bool TcpClient::receive() {
 bool TcpClient::run() {
   try {
     CloseSocket closeSocket(_socket);
-    boost::asio::ip::tcp::resolver resolver(_ioContext);
-    boost::system::error_code ec;
-    auto endpoint = boost::asio::connect(_socket, resolver.resolve(_serverHost, _tcpPort, ec));
-    if (!ec)
-      _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
-    if (!ec)
-      _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << '\n';
-    if (ec) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    if (!setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort))
       return false;
-    }
     return Client::run();
   }
   catch (const std::exception& e) {

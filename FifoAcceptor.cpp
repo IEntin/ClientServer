@@ -69,7 +69,7 @@ void FifoAcceptor::run() {
     PROBLEMS problem = _threadPool.push(connection);
     if (!replyToClient(problem))
       return; 
-    if (problem != PROBLEMS::NONE)
+    if (problem == PROBLEMS::MAX_FIFO_CONNECTIONS)
       connection->stop();
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
