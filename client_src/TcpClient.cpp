@@ -31,7 +31,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
 	 << "\n\t\t!!!!!!!\n"
 	 << "\tThe number of running tcp sessions is at the thread pool capacity.\n"
 	 << "\tYou do not have to close the client, it will wait in the pool queue\n"
-	 << "\tfor the next available thread freed when someone closes already running tcp client.\n"
+	 << "\tfor the next available thread freed when some already running tcp client is closed.\n"
+	 << "\tThen this client wil resume running.\n"
 	 << "\tYou can also close this client and try again later.\n"
 	 << "\tAnother option is to increase \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "\t\t!!!!!!!\n";

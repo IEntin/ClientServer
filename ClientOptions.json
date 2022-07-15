@@ -14,7 +14,6 @@
   "MaxNumberTasks" : 0,
   "ServerHost" : "localhost",
   "TcpAcceptorPort" : "49152",
-  "TcpStatusPort" : "49153",
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10000,
