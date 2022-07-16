@@ -12,7 +12,7 @@ TransactionStrategy::~TransactionStrategy() {}
 
 void TransactionStrategy::create(const ServerOptions& options) {
   if (!Ad::load(options._adsFileName))
-    std::exit(4);
+    return;
   Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   Task::setProcessMethod(Transaction::processRequest);
 }

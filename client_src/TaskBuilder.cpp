@@ -28,7 +28,6 @@ void TaskBuilder::run() {
       if (!createTask()) {
 	CERR << __FILE__ << ':' << __LINE__ << ' '
           << __func__ << ":failed.\n";
-	std::exit(0);
 	return;
       }
       if (_state == TaskBuilderState::TASKDONE) {

@@ -23,7 +23,7 @@ int main() {
   RunnablePtr taskController = TaskController::instance(&options);
   bool ok = taskController->start();
   if (!ok)
-    std::exit(3);
+    return 3;
   int sig = 0;
   if (sigwait(&set, &sig))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << '\n';

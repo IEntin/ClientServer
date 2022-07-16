@@ -17,7 +17,7 @@ Strategy& StrategySelector::get(const ServerOptions& options) {
     return _echoStrategy;
   else {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":process or preprocess methods not specified.\n"; 
-    std::exit(1);
+	 << ":Strategy is not specified. Setting Transaction strategy.\n"; 
+    return _transactionStrategy;
   }
 }

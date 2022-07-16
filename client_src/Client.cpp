@@ -13,6 +13,8 @@
 #include <csignal>
 #include <cstring>
 
+volatile std::sig_atomic_t stopSignal = 0;
+
 Client::Client(const ClientOptions& options) : _options(options), _threadPool(options._numberBuilderThreads) {
   MemoryPool::setExpectedSize(options._bufferSize);
 }
@@ -61,7 +63,7 @@ bool Client::run() {
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
-    } while (_options._runLoop);
+    } while (_options._runLoop && !stopSignal);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
@@ -84,7 +86,7 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
 	   << ":failed to uncompress payload.\n";
       return false;
     }
-    stream << dstView; 
+    stream << dstView;
   }
   else {
     static auto& printOnce[[maybe_unused]] =
