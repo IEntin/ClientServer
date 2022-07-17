@@ -23,7 +23,7 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   _threadPool(_options._maxFifoSessions + 1) {
 }
 
-bool FifoAcceptor::replyToClient(PROBLEMS problem) {
+bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
   int rep = 0;
   do {
     _fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
@@ -67,7 +67,7 @@ void FifoAcceptor::run() {
       std::make_shared<FifoSession>(_options, fifoName, shared_from_this());
     _sessions.emplace_back(session);
     PROBLEMS problem = _threadPool.push(session);
-    if (!replyToClient(problem))
+    if (!sendStatusToClient(problem))
       return; 
     if (problem == PROBLEMS::MAX_FIFO_SESSIONS)
       session->stop();

@@ -15,7 +15,7 @@ namespace fifo {
 using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
-  bool replyToClient(PROBLEMS problem);
+  bool sendStatusToClient(PROBLEMS problem);
   void removeFifoFiles();
   const ServerOptions& _options;
   ThreadPool _threadPool;

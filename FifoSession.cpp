@@ -14,7 +14,6 @@
 #include <cassert>
 #include <cstring>
 #include <fcntl.h>
-#include <filesystem>
 
 namespace fifo {
 
@@ -39,7 +38,6 @@ void FifoSession::run() {
     if (!sendResponse(_response))
       break;
   }
-  std::filesystem::remove(_fifoName);
 }
 
 bool FifoSession::start() {
