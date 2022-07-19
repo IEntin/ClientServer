@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Client.h"
+#include "Header.h"
 #include <string>
 #include <vector>
 
@@ -19,10 +20,10 @@ class FifoClient : public Client {
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   std::string _fifoName;
-  const bool _setPipeSize;
   int _fdRead = -1;
   int _fdWrite = -1;
   unsigned short _ephemeralIndex = 0;
+  PROBLEMS _problem = PROBLEMS::NONE;
 
  public:
 

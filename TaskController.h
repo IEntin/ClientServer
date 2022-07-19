@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Strategy.h"
+#include "Header.h"
 #include "Runnable.h"
+#include "Strategy.h"
 #include "ThreadPool.h"
 #include <atomic>
 #include <barrier>
@@ -13,17 +14,11 @@
 #include <queue>
 #include <vector>
 
-enum class COMPRESSORS : char;
-
 using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
-enum class PROBLEMS : char;
-
-using HEADER = std::tuple<ssize_t, ssize_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;
 
 struct ServerOptions;
 

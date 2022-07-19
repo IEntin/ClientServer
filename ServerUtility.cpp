@@ -5,7 +5,6 @@
 #include "ServerUtility.h"
 #include "Compression.h"
 #include "Fifo.h"
-#include "Header.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -36,21 +35,21 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, un
     if (dstView.empty())
       return std::string_view();
     buffer.resize(HEADER_SIZE + dstView.size());
-    encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false, 0);
+    encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false, ephemeral, 'R');
     std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
   else
-    encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false, ephemeral);
+    encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false, ephemeral, 'R');
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }
 
 bool readMsgBody(int fd,
-		 size_t uncomprSize,
-		 size_t comprSize,
-		 bool bcompressed,
+		 HEADER header,
 		 std::vector<char>& uncompressed,
 		 const ServerOptions& options) {
+  const auto& [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] = header;
+  bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << (bcompressed ? " received compressed" : " received not compressed") << '\n';
@@ -76,13 +75,12 @@ bool readMsgBody(int fd,
 
 bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
   header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
-  const auto& [uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] = header;
-  if (problem != PROBLEMS::NONE) {
+  if (getProblem(header) != PROBLEMS::NONE) {
     if (options._destroyBufferOnClientDisconnect)
       MemoryPool::destroyBuffers();
     return false;
   }
-  return readMsgBody(fd, uncomprSize, comprSize, compressor == COMPRESSORS::LZ4, message, options);
+  return readMsgBody(fd, header, message, options);
 }
 
 } // end of namespace serverutility

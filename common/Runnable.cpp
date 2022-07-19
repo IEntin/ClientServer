@@ -61,3 +61,8 @@ PROBLEMS Runnable::checkCapacity() {
   }
   return PROBLEMS::NONE;
 }
+
+PROBLEMS Runnable::getStatus() {
+  return _typedSessions >= _max ?
+    (_type == FIFO ? PROBLEMS::MAX_FIFO_SESSIONS : PROBLEMS::MAX_TCP_SESSIONS) : PROBLEMS::NONE;
+}

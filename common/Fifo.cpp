@@ -3,7 +3,6 @@
  */
 
 #include "Fifo.h"
-#include "Header.h"
 #include "Utility.h"
 #include <cassert>
 #include <chrono>
@@ -26,18 +25,18 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
 	  continue;
-	return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::FIFO_PROBLEM };
+	return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::FIFO_PROBLEM };
       }
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	     << ':' << std::strerror(errno) << '\n';
-	return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::FIFO_PROBLEM };
+	return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::FIFO_PROBLEM };
       }
     }
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	<< ':' << (errno ? std::strerror(errno) : "EOF") << '\n';
-      return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::FIFO_PROBLEM };
+      return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::FIFO_PROBLEM };
     }
     else
       readSoFar += static_cast<size_t>(result);
@@ -45,7 +44,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   if (readSoFar != HEADER_SIZE) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
 	 << HEADER_SIZE << " readSoFar=" << readSoFar << '\n';
-    return { -1, -1, COMPRESSORS::NONE, false, 0, PROBLEMS::BAD_HEADER };
+    return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::FIFO_PROBLEM };
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
 }
@@ -168,7 +167,7 @@ void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOw
   do {
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::microseconds(ENXIOwait));
+      std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
   } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
   if (fd == -1)
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'

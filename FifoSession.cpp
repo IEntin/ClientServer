@@ -5,7 +5,6 @@
 #include "FifoSession.h"
 #include "Compression.h"
 #include "Fifo.h"
-#include "Header.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
@@ -14,14 +13,25 @@
 #include <cassert>
 #include <cstring>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options,
-			 std::string_view fifoName,
+			 unsigned short ephemeralIndex,
 			 RunnablePtr parent) :
   Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoSessions),
-  _options(options), _fifoName(fifoName), _parent(parent) {}
+  _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
+  char array[5] = {};
+  std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
+  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
+  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << '-' << _fifoName << '\n';
+    _problem = getStatus();
+  }
+}
 
 FifoSession::~FifoSession() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
@@ -45,8 +55,6 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
-  // thread is blocked on open(...O_RDONLY)
-  // need to open write end to have things moving)
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
 }
 
@@ -75,7 +83,7 @@ bool FifoSession::sendResponse(const Response& response) {
   do {
     _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
+      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
   } while (_fdWrite == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {

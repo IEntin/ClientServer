@@ -25,7 +25,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _tcpTimeout(_appOptions.get("TcpTimeout", 1)),
   _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
   _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),
-  _ENXIOwait(_appOptions.get("ENXIOwai", 10000)),
+  _ENXIOwait(_appOptions.get("ENXIOwai", 10)),
   _compressor(Compression::isCompressionEnabled(_appOptions.get("Compression", std::string(LZ4)))),
   _timingEnabled(_appOptions.get("Timing", false)),
   _turnOffLogging(_appOptions.get("TurnOffLogging", true)),

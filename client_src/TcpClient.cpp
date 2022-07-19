@@ -69,7 +69,7 @@ bool TcpClient::receive() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
+  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
     decodeHeader(std::string_view(buffer, HEADER_SIZE));
   if (problem != PROBLEMS::NONE)
     return false;

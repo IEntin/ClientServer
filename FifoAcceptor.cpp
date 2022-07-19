@@ -28,7 +28,7 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
   do {
     _fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
     if (_fd == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::microseconds(_options._ENXIOwait));
+      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
   } while (_fd == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fd == -1) {
@@ -37,7 +37,7 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
     return false;
   }
   char array[HEADER_SIZE] = {};
-  encodeHeader(array, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, problem);
+  encodeHeader(array, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, 'R', problem);
   std::string_view str(array, HEADER_SIZE);
   if (!Fifo::writeString(_fd, str))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
@@ -55,7 +55,11 @@ void FifoAcceptor::run() {
 	   << std::strerror(errno) << ' ' << _acceptorName << '\n';
       return;
     }
-    std::string fifoName = utility::createAbsolutePath(_ephemeralIndex, _options._fifoDirectoryName);
+    Fifo::readHeader(_fd, _options._numberRepeatEINTR);
+    std::string fifoName;
+    char array[5] = {};
+    std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
+    fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
     if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	   << std::strerror(errno) << '-' << fifoName << '\n';
@@ -64,11 +68,12 @@ void FifoAcceptor::run() {
     if (_stopped)
       break;
     RunnablePtr session =
-      std::make_shared<FifoSession>(_options, fifoName, shared_from_this());
+      std::make_shared<FifoSession>(_options, _ephemeralIndex, shared_from_this());
+    PROBLEMS problem = session->getStatus();
     _sessions.emplace_back(session);
-    PROBLEMS problem = _threadPool.push(session);
     if (!sendStatusToClient(problem))
-      return; 
+      return;
+    _threadPool.push(session);
     if (problem == PROBLEMS::MAX_FIFO_SESSIONS)
       session->stop();
   }
