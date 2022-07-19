@@ -69,14 +69,12 @@ FifoClient::~FifoClient() {
 
 bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  unsigned sleepTime = _options._ENXIOwait;
-  int numberRepeat = _options._numberRepeatENXIO;
   int rep = 0;
   do {
     _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-  } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeat);
+      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+  } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << '-' << std::strerror(errno) << ' ' << _fifoName << '\n';

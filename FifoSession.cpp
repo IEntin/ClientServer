@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cstring>
 #include <fcntl.h>
+#include <filesystem>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -34,6 +35,7 @@ FifoSession::FifoSession(const ServerOptions& options,
 }
 
 FifoSession::~FifoSession() {
+  std::filesystem::remove(_fifoName);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 

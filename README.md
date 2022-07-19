@@ -34,20 +34,27 @@ and subsequently, the client is restarted. Of course, these complications apply 
 server-client. TCP mode does not have these issues.\
 ........
 
-The number and identity of fifo and tcp clients is not known in advance.\
+The number and identity of fifo and tcp clients are not known in advance.\
 Tcp clients are using the standard ephemeral port mechanism.\
-For fifo clients an analogous acceptor method was designed.\
-Fifo acceptor is waiting for a request of a new session\
-on a blocking fd read open call. The acceptor loop is unblocked when a\
-new client opens the writing end. Acceptor creates then a new session\
-object and sends the client the unique name of the new pipe.
+For the fifo clients an analogous acceptor method was designed.\
+The fifo acceptor is a special pipe waiting for a request of a new session\
+from the new client on a blocking fd read open(...) call. The acceptor loop\
+is unblocked when the starting client opens the writing end of the acceptor pipe.\
+Acceptor creates then a new pipe, a new session object, and sends to the the client\
+the unique index which is analogous to the  ephemeral port in the tcp case.\
+The client starts running.
 
-Max number of sessions of every type is specified for the server protection.\
-Generally, the number of clients is limited by hardware performance.\
+The maximum number of sessions of every type is specified for the server protection.\
+In the tcp case the client which exceeds the specified maximum number of tcp\
+sessions is sittng idle until any of the previously started clients is closed.\
+At this point the new client starts running.\
+A fifo client is closing in this situation and has to be started again later on.
+
+Generally, the number of clients is limited only by hardware performance.\
 This server was tested with 5 clients with mixed client types.
 
 By design, the clients should not create or remove FIFO files. The code does not do\
-this, besides fifo directory permissions do not allow this.\
+this, and fifo directory permissions do not allow this.\
 ........
 
 Another note on named pipes:\
