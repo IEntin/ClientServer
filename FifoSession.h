@@ -23,7 +23,6 @@ class FifoSession : public Runnable {
   int _fdRead = -1;
   int _fdWrite = -1;
   unsigned short _ephemeralIndex;
-  PROBLEMS _problem;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;

@@ -19,19 +19,12 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options,
-			 unsigned short ephemeralIndex,
-			 RunnablePtr parent) :
+FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr parent) :
   Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoSessions),
   _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
   char array[5] = {};
   std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
-  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _fifoName << '\n';
-    _problem = getStatus();
-  }
 }
 
 FifoSession::~FifoSession() {
@@ -45,7 +38,7 @@ void FifoSession::run() {
     HEADER header;
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
-      break;;
+      break;
     TaskController::instance()->submitTask(header, _uncompressedRequest, _response);
     if (!sendResponse(_response))
       break;
@@ -53,6 +46,11 @@ void FifoSession::run() {
 }
 
 bool FifoSession::start() {
+  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << '-' << _fifoName << '\n';
+    return false;
+  }
   return true;
 }
 

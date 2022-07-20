@@ -59,21 +59,14 @@ void FifoAcceptor::run() {
 	return;
       }
     }
-    std::string fifoName;
-    char array[5] = {};
-    std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
-    fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
-    if (mkfifo(fifoName.data(), 0620) == -1 && errno != EEXIST) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	   << std::strerror(errno) << '-' << fifoName << '\n';
-      return;
-    }
     if (_stopped)
       break;
     RunnablePtr session =
       std::make_shared<FifoSession>(_options, _ephemeralIndex, shared_from_this());
     PROBLEMS problem = session->getStatus();
     _sessions.emplace_back(session);
+    if (!session->start())
+      return;
     if (!sendStatusToClient(problem))
       return;
     _threadPool.push(session);
