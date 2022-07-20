@@ -28,14 +28,14 @@ TcpClient::TcpClient(const ClientOptions& options) :
     break;
   case PROBLEMS::MAX_TCP_SESSIONS:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\n\t\t!!!!!!!\n"
+	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions is at the thread pool capacity.\n"
-	 << "\tYou do not have to close the client, it will wait in the pool queue\n"
-	 << "\tfor the next available thread freed when some already running tcp client is closed.\n"
-	 << "\tThen this client wil resume running.\n"
-	 << "\tYou can also close this client and try again later.\n"
+	 << "\tThe user does not have to close the client, it will wait in the pool\n"
+	 << "\tqueue for the next available thread freed when some already running\n"
+	 << "\ttcp client is closed. Then this client wil resume the run.\n"
+	 << "\tIt is also possible to close this client and to try again later.\n"
 	 << "\tAnother option is to increase \"MaxTcpSessions\" in ServerOptions.json.\n"
-	 << "\t\t!!!!!!!\n";
+	 << "\t!!!!!!!!!\n";
     break;
   case PROBLEMS::MAX_TOTAL_SESSIONS:
     // TBD
