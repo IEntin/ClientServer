@@ -77,8 +77,6 @@ void FifoAcceptor::run() {
     if (!sendStatusToClient(problem))
       return;
     _threadPool.push(session);
-    if (problem == PROBLEMS::MAX_FIFO_SESSIONS)
-      session->stop();
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
 }
