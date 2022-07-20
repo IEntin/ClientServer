@@ -24,14 +24,16 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
 }
 
 bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
+  int fd = -1;
+  utility::CloseFileDescriptor closeFd(fd);
   int rep = 0;
   do {
-    _fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
-    if (_fd == -1 && (errno == ENXIO || errno == EINTR))
+    fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    if (fd == -1 && (errno == ENXIO || errno == EINTR))
       std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (_fd == -1 &&
+  } while (fd == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-  if (_fd == -1) {
+  if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _acceptorName << '\n';
     return false;
@@ -39,7 +41,7 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
   char array[HEADER_SIZE] = {};
   encodeHeader(array, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, 'R', problem);
   std::string_view str(array, HEADER_SIZE);
-  if (!Fifo::writeString(_fd, str))
+  if (!Fifo::writeString(fd, str))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
   return true;
 }
@@ -47,15 +49,16 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
 void FifoAcceptor::run() {
   while (!_stopped) {
     utility::IncrementIndex incr(_ephemeralIndex);
-    utility::CloseFileDescriptor closeFile(_fd);
-    // blocks until the client opens writing end
-    _fd = open(_acceptorName.data(), O_RDONLY);
-    if (_fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	   << std::strerror(errno) << ' ' << _acceptorName << '\n';
-      return;
+    {
+      utility::CloseFileDescriptor closeFile(_fd);
+      // blocks until the client opens writing end
+      _fd = open(_acceptorName.data(), O_RDONLY);
+      if (_fd == -1) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	     << std::strerror(errno) << ' ' << _acceptorName << '\n';
+	return;
+      }
     }
-    Fifo::readHeader(_fd, _options._numberRepeatEINTR);
     std::string fifoName;
     char array[5] = {};
     std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 

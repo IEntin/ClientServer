@@ -23,36 +23,33 @@ FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
   // wake up acceptor
   int fd = -1;
-  utility::CloseFileDescriptor closefd(fd);
-  int rep = 0;
-  do {
-    fd = open(options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-    if (fd == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (fd == -1 &&
-	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-  if (fd == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << options._acceptorName << '\n';
+  {
+    utility::CloseFileDescriptor closefd(fd);
+    int rep = 0;
+    do {
+      fd = open(options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+      if (fd == -1 && (errno == ENXIO || errno == EINTR))
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+    } while (fd == -1 &&
+	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+    if (fd == -1) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	   << std::strerror(errno) << ' ' << options._acceptorName << '\n';
+    }
   }
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, 0, 0, COMPRESSORS::NONE, false, 0, 'R', PROBLEMS::NONE);
-  std::string_view view(buffer, HEADER_SIZE);
-  if (!Fifo::writeString(fd, view))
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":write failed\n";
   // receive status
-  HEADER header;
-  close(fd);
-  fd = -1;
-  fd = open(options._acceptorName.data(), O_RDONLY);
-  if (fd == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << options._acceptorName << '\n';
-    return;
+  {
+    utility::CloseFileDescriptor closefd(fd);
+    fd = open(options._acceptorName.data(), O_RDONLY);
+    if (fd == -1) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	   << std::strerror(errno) << ' ' << options._acceptorName << '\n';
+      return;
+    }
+    HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+    _problem = getProblem(header);
+    _ephemeralIndex = getEphemeral(header);
   }
-  header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
-  _problem = getProblem(header);
-  _ephemeralIndex = getEphemeral(header);
   char array[5] = {};
   std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
