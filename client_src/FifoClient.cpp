@@ -7,17 +7,14 @@
 #include "Fifo.h"
 #include "Header.h"
 #include "Utility.h"
+#include <csignal>
 #include <cstring>
 #include <fcntl.h>
+#include <filesystem>
+
+extern volatile std::sig_atomic_t stopSignal;
 
 namespace fifo {
-
-namespace {
-
-std::string_view denial("\t\t!!!!!!!!!!!!!!\n\tThe server is busy at the moment.\n"
-			"\t\tTry again later.\n\t\t!!!!!!!!!!!!!!\n");
-
-} // end of anonimous namespace
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
@@ -55,8 +52,27 @@ FifoClient::FifoClient(const ClientOptions& options) :
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _ephemeralIndex:"
        << _ephemeralIndex << ", _fifoName =" << _fifoName << '\n';
-  if (_problem == PROBLEMS::MAX_FIFO_SESSIONS)
-    CERR << denial;
+  switch (_problem) {
+  case PROBLEMS::NONE :
+    CLOG << "NO PROBLEMS\n";
+    break;
+  case PROBLEMS::MAX_FIFO_SESSIONS:
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << "\n\t!!!!!!!!!\n"
+	 << "\tThe number of running fifo sessions is at the thread pool capacity.\n"
+	 << "\tThe user does not have to close the client, it will wait in the pool\n"
+	 << "\tqueue for the next available thread freed when some already running\n"
+	 << "\tfifo client is closed. Then this client wil resume the run.\n"
+	 << "\tIt is also possible to close this client and to try again later.\n"
+	 << "\tAnother option is to increase \"MaxFifoSessions\" in ServerOptions.json.\n"
+	 << "\t!!!!!!!!!\n";
+    break;
+  case PROBLEMS::MAX_TOTAL_SESSIONS:
+    // TBD
+    break;
+  default:
+    break;
+  }
 }
 
 FifoClient::~FifoClient() {
@@ -66,12 +82,34 @@ FifoClient::~FifoClient() {
 
 bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  int rep = 0;
-  do {
-    _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  // already running
+  if (_running.test_and_set()) {
+    int rep = 0;
+    do {
+      _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+      if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  }
+  // waiting in queue
+  else {
+    while (_fdWrite == -1) {
+      int rep = 0;
+      do {
+	_fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+	if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+	  std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+      } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+      // client stopping
+      if (stopSignal)
+	break;
+      // server stopped
+      if (!std::filesystem::exists(_fifoName))
+	break;
+      if (_fdWrite == -1)
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  }
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << '-' << std::strerror(errno) << ' ' << _fifoName << '\n';

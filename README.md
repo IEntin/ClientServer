@@ -45,10 +45,9 @@ the unique index which is analogous to the  ephemeral port in the tcp case.\
 The client starts running.
 
 The maximum number of sessions of every type is specified for the server protection.\
-In the tcp case the client which exceeds the specified maximum number of tcp\
+In both tcp and fifo cases the client which exceeds the specified maximum number of\
 sessions is sittng idle until any of the previously started clients is closed.\
-At this point the new client starts running.\
-A fifo client is closing in this situation and has to be started again later on.
+At this point the new client starts running.
 
 Generally, the number of clients is limited only by hardware performance.\
 This server was tested with 5 clients with mixed client types.

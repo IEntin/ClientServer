@@ -47,11 +47,8 @@ void ThreadPool::stop() {
 PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   PROBLEMS problem = PROBLEMS::NONE;
-  if (runnable) {
+  if (runnable)
     problem = runnable->checkCapacity();
-    if (problem == PROBLEMS::MAX_FIFO_SESSIONS)
-      return problem;
-  }
   _queue.push(std::move(runnable));
   _queueCondition.notify_all();
   return problem;

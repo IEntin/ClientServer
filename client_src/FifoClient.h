@@ -24,6 +24,7 @@ class FifoClient : public Client {
   int _fdWrite = -1;
   unsigned short _ephemeralIndex = 0;
   PROBLEMS _problem = PROBLEMS::NONE;
+  std::atomic_flag _running = ATOMIC_FLAG_INIT;
 
  public:
 
