@@ -83,7 +83,7 @@ FifoClient::~FifoClient() {
 bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   // already running
-  if (_running.test_and_set()) {
+  if (_running.test_and_set() || _problem == PROBLEMS::NONE) {
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
