@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <poll.h>

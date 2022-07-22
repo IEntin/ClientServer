@@ -151,10 +151,6 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   size_t uncomprSize = uncompressed.size();
   if (bcompressed) {
     std::string_view compressed = Compression::compress(uncompressed);
-    if (compressed.empty()) {
-      _state = TaskBuilderState::ERROR;
-      return false;
-    }
     // LZ4 may generate compressed larger than uncompressed.
     // In this case an uncompressed subtask is sent.
     if (compressed.size() >= uncomprSize) {

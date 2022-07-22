@@ -5,6 +5,7 @@
 #pragma once
 
 #include <charconv>
+#include <cstring>
 #include <iostream>
 #include <string_view>
 #include <syncstream>
@@ -62,7 +63,7 @@ inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value)
       ec != std::errc()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
     << " problem converting str:" << str << std::endl;
-    return false;
+    throw std::runtime_error(std::string(std::strerror(errno)));
   }
   return true;
 };
@@ -107,14 +108,13 @@ template <FloatingPoint N>
 }
 
 template <Integral T>
-  bool toChars(T value, char* buffer, size_t size) {
+  void toChars(T value, char* buffer, size_t size) {
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-problem converting to string:" << value << '\n';
-      return false;
+      throw std::runtime_error(std::string(std::strerror(errno)));
     }
-    return true;
 }
 
 template <Integral T>
@@ -123,11 +123,10 @@ template <Integral T>
 	ec != std::errc()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-problem converting to string:" << value << '\n';
-      return std::string_view();
+      throw std::runtime_error(std::string(std::strerror(errno)));
     }
-    else {
+    else
       return std::string_view(buffer, ptr - buffer);
-    }
 }
 
 template <Integral T>

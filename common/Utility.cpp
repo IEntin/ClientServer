@@ -3,7 +3,6 @@
  */
 
 #include "Utility.h"
-#include <cstring>
 #include <fcntl.h>
 #include <filesystem>
 #include <unistd.h>

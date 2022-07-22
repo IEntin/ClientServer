@@ -8,7 +8,6 @@
 #include "Header.h"
 #include "Utility.h"
 #include <csignal>
-#include <cstring>
 #include <fcntl.h>
 #include <filesystem>
 

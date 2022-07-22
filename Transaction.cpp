@@ -7,7 +7,6 @@
 #include "TaskController.h"
 #include "Utility.h"
 #include <cassert>
-#include <cstring>
 #include <iomanip>
 
 namespace {

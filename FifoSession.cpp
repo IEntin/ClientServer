@@ -11,7 +11,6 @@
 #include "TaskController.h"
 #include "Utility.h"
 #include <cassert>
-#include <cstring>
 #include <fcntl.h>
 #include <filesystem>
 #include <sys/types.h>

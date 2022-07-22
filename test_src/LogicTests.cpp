@@ -43,8 +43,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ':' << e.what();
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
     }
   }
 
@@ -53,24 +52,29 @@ struct LogicTest : testing::Test {
 		     size_t serverMemPoolSize,
 		     size_t clientMemPoolSize,
 		     bool diagnostics = true) {
-    // start server
-    TestEnvironment::_serverOptions._compressor = serverCompressor;
-    TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-    MemoryPool::setExpectedSize(serverMemPoolSize);
-    fifo::FifoAcceptorPtr fifoAcceptor =
-      std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
-    bool serverStart = fifoAcceptor->start();
-    // start client
-    TestEnvironment::_clientOptions._compressor = clientCompressor;
-    TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
-    TestEnvironment::_clientOptions._diagnostics = diagnostics;
-    fifo::FifoClient client(TestEnvironment::_clientOptions);
-    client.run();
-    fifoAcceptor->stop();
-    ASSERT_TRUE(serverStart);
-    std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-    ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    try {
+      // start server
+      TestEnvironment::_serverOptions._compressor = serverCompressor;
+      TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
+      MemoryPool::setExpectedSize(serverMemPoolSize);
+      fifo::FifoAcceptorPtr fifoAcceptor =
+	std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
+      bool serverStart = fifoAcceptor->start();
+      // start client
+      TestEnvironment::_clientOptions._compressor = clientCompressor;
+      TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
+      TestEnvironment::_clientOptions._diagnostics = diagnostics;
+      fifo::FifoClient client(TestEnvironment::_clientOptions);
+      client.run();
+      fifoAcceptor->stop();
+      ASSERT_TRUE(serverStart);
+      std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    }
   }
 
   void TearDown() {
@@ -181,8 +185,7 @@ struct LogicTestAltFormat : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ':' << e.what();
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
     }
   }
 
@@ -221,8 +224,7 @@ struct LogicTestSortInput : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ':' << e.what();
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
     }
   }
 

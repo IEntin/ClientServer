@@ -11,7 +11,6 @@
 #include "Utility.h"
 #include <cassert>
 #include <csignal>
-#include <cstring>
 
 volatile std::sig_atomic_t stopSignal = 0;
 
@@ -82,12 +81,7 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << " received compressed.\n";
     std::string_view dstView = Compression::uncompress(received, uncomprSize);
-    if (dstView.empty()) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":failed to uncompress payload.\n";
-      return false;
-    }
-    stream << dstView;
+   stream << dstView;
   }
   else {
     static auto& printOnce[[maybe_unused]] =

@@ -38,9 +38,13 @@ int main() {
 	return 2;
     }
   }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << e.what() << '\n';
+    return 3;
+  }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << std::strerror(errno) << '\n';
+    return 4;
   }
   return 0;
 }

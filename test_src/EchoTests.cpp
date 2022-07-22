@@ -34,26 +34,30 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ':' << e.what();
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
     }
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
-    // start server
-    TestEnvironment::_serverOptions._compressor = serverCompressor;
-    fifo::FifoAcceptorPtr fifoAcceptor =
-      std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
-    bool serverStart = fifoAcceptor->start();
-    // start client
-    TestEnvironment::_clientOptions._compressor = clientCompressor;
-    fifo::FifoClient client(TestEnvironment::_clientOptions);
-    bool clientRun = client.run();
-    fifoAcceptor->stop();
-    ASSERT_TRUE(serverStart);
-    ASSERT_TRUE(clientRun);
-    ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
-    ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+    try {
+      // start server
+      TestEnvironment::_serverOptions._compressor = serverCompressor;
+      fifo::FifoAcceptorPtr fifoAcceptor =
+	std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
+      bool serverStart = fifoAcceptor->start();
+      // start client
+      TestEnvironment::_clientOptions._compressor = clientCompressor;
+      fifo::FifoClient client(TestEnvironment::_clientOptions);
+      bool clientRun = client.run();
+      fifoAcceptor->stop();
+      ASSERT_TRUE(serverStart);
+      ASSERT_TRUE(clientRun);
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    }
   }
 
   void TearDown() {

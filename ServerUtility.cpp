@@ -32,8 +32,6 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, un
   std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
   if (bcompressed) {
     std::string_view dstView = Compression::compress(uncompressedView);
-    if (dstView.empty())
-      return std::string_view();
     buffer.resize(HEADER_SIZE + dstView.size());
     encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false, ephemeral, 'R');
     std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
@@ -59,11 +57,7 @@ bool readMsgBody(int fd,
       return false;
     std::string_view received(buffer.data(), comprSize);
     uncompressed.resize(uncomprSize);
-    if (!Compression::uncompress(received, uncompressed)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":failed to uncompress payload.\n";
-      return false;
-    }
+    Compression::uncompress(received, uncompressed);
   }
   else {
     uncompressed.resize(uncomprSize);

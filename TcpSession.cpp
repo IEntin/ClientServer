@@ -190,11 +190,7 @@ void TcpSession::asyncWait() {
 bool TcpSession::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
   std::string_view received(input.data(), input.size());
   uncompressed.resize(getUncompressedSize(_header));
-  if (!Compression::uncompress(received, uncompressed)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":failed to uncompress payload.\n";
-    return false;
-  }
+  Compression::uncompress(received, uncompressed);
   return true;
 }
 

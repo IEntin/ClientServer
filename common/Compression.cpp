@@ -8,8 +8,6 @@
 #include "MemoryPool.h"
 #include "Utility.h"
 #include <cassert>
-#include <cstring>
-#include <iostream>
 
 COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) {
   bool enabled = compressorStr.starts_with(LZ4);
@@ -26,7 +24,7 @@ std::string_view Compression::compressInternal(std::string_view uncompressed,
 					       dstCapacity);
   if (compressedSize == 0) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
-    return { nullptr, 0 };
+    throw std::runtime_error(std::string(std::strerror(errno)));
   }
   return { buffer, compressedSize };
 }
@@ -54,8 +52,8 @@ std::string_view Compression::compress(std::string_view uncompressed) {
   std::string_view dstView = compressInternal(uncompressed, buffer.data(), buffer.capacity());
   if (dstView.empty()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":failed to compress payload" << std::endl;
-    return { nullptr, 0 };
+	 << ":failed to compress payload" << '\n';
+    throw std::runtime_error("Failed to compress payload.");
   }
   return dstView;
 }
@@ -63,16 +61,15 @@ std::string_view Compression::compress(std::string_view uncompressed) {
 std::string_view Compression::uncompress(std::string_view compressed, size_t uncomprSize) {
   std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(uncomprSize);
   if (!uncompressInternal(compressed, buffer.data(), uncomprSize)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << std::endl;
-    return { nullptr, 0 };
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << '\n';
+    throw std::runtime_error("Failed to uncompress string.");
   }
   return { buffer.data(), uncomprSize };
 }
 
-bool Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
+void Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
   if (!uncompressInternal(compressed, uncompressed.data(), uncompressed.size())) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << std::endl;
-    return false;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << '\n';
+    throw std::runtime_error("Failed to uncompress string.");
   }
-  return true;
 }
