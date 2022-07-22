@@ -100,8 +100,10 @@ bool FifoClient::send(const std::vector<char>& subtask) {
 	  std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
       } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
       // client stopping
-      if (stopSignal)
+      if (stopSignal) {
+	std::filesystem::remove(_fifoName);
 	break;
+      }
       // server stopped
       if (!std::filesystem::exists(_fifoName))
 	break;

@@ -52,8 +52,6 @@ At this point the new client starts running.
 Generally, the number of clients is limited only by hardware performance.\
 This server was tested with 5 clients with mixed client types.
 
-By design, the clients should not create or remove FIFO files. The code does not do\
-this, and fifo directory permissions do not allow this.\
 ........
 
 Another note on named pipes:\

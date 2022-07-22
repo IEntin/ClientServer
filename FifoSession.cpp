@@ -32,6 +32,9 @@ FifoSession::~FifoSession() {
 }
 
 void FifoSession::run() {
+  if (!std::filesystem::exists(_fifoName))
+    // waiting client was closed
+    return;
   while (!_stopped) {
     _response.clear();
     HEADER header;
