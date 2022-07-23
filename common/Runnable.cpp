@@ -41,20 +41,22 @@ PROBLEMS Runnable::checkCapacity() {
     if (_max > 0 && _typedSessions > _max) {
       if (_type == TCP) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << "\nnumber running tcp sessions=" << _typedSessions << " at thread pool capacity,\n"
-	     << "tcp client will wait in the pool queue.\n"
-	     << "close one of running tcp sessions\n"
-	     << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n";
-	// this will allow the client wait for available thread,
-	// client will not close by itself and run when possible.
+	     << "\nNumber of running tcp sessions=" << _typedSessions
+	     << " at thread pool capacity.\n"
+	     << "The client will wait in the queue.\n"
+	     << "Close one of running tcp clients\n"
+	     << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n"
+	     << "You can also close this client and try again later.\n";
 	return PROBLEMS::MAX_TCP_SESSIONS;
       }
       else if (_type == FIFO) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << "\nnumber fifo sessions=" << _typedSessions 
-	     << " at thread pool capacity, client will close.\n"
-	     << "increase \"MaxFifoSessions\" in ServerOptions.json.\n";
-	// this will throw away session and close the client.
+	     << "\nNumber of running fifo sessions=" << _typedSessions
+	     << " at thread pool capacity.\n"
+	     << "The client will wait in the queue.\n"
+	     << "Close one of running fifo clients\n"
+	     << "or increase \"MaxFifoSessions\" in ServerOptions.json.\n"
+	     << "You can also close this client and try again later.\n";
 	return PROBLEMS::MAX_FIFO_SESSIONS;
       }
     }
