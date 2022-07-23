@@ -22,8 +22,7 @@ int main() {
     // optionally record elapsed times
     Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
     RunnablePtr taskController = TaskController::instance(&options);
-    bool ok = taskController->start();
-    if (!ok)
+    if (!taskController->start())
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
