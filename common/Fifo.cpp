@@ -4,7 +4,6 @@
 
 #include "Fifo.h"
 #include "Utility.h"
-#include <cassert>
 #include <chrono>
 #include <fcntl.h>
 #include <poll.h>
@@ -116,7 +115,6 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
     if (presult <= 0) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< "-timeout,should not hit this" << '\n';
-      assert(false);
       return 0;
     }
     else if (pfd.revents & POLLERR) {

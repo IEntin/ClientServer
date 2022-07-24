@@ -60,7 +60,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running fifo sessions is at thread pool capacity.\n"
 	 << "\tIf you do not close the client, it will wait in the queue for\n"
-	 << "\tthe thread available after one of already running fifo clients\n"
+	 << "\ta thread available after one of already running fifo clients\n"
 	 << "\tis closed. At this point the client will resume the run.\n"
 	 << "\tYou can also close the client and try again later.\n"
 	 << "\tThe setting is \"MaxFifoSessions\" in ServerOptions.json.\n"

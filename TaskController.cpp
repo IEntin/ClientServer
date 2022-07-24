@@ -8,7 +8,6 @@
 #include "StrategySelector.h"
 #include "Task.h"
 #include "Utility.h"
-#include <cassert>
 
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;

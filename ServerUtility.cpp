@@ -8,7 +8,6 @@
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "Utility.h"
-#include <cassert>
 
 namespace serverutility {
 

@@ -11,8 +11,8 @@
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 namespace fifo {
 

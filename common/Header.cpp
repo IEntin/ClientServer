@@ -4,7 +4,6 @@
 
 #include "Header.h"
 #include "Utility.h"
-#include<cassert>
 
 void encodeHeader(char* buffer,
 		  size_t uncomprSz,

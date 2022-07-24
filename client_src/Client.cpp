@@ -9,7 +9,6 @@
 #include "MemoryPool.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
-#include <cassert>
 #include <csignal>
 
 volatile std::sig_atomic_t stopSignal = 0;
