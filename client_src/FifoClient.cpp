@@ -58,12 +58,12 @@ FifoClient::FifoClient(const ClientOptions& options) :
   case PROBLEMS::MAX_FIFO_SESSIONS:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of running fifo sessions is at the thread pool capacity.\n"
-	 << "\tThe user does not have to close the client, it will wait in the pool\n"
-	 << "\tqueue for the next available thread freed when some already running\n"
-	 << "\tfifo client is closed. Then this client wil resume the run.\n"
-	 << "\tIt is also possible to close this client and to try again later.\n"
-	 << "\tAnother option is to increase \"MaxFifoSessions\" in ServerOptions.json.\n"
+	 << "\tThe number of running fifo sessions is at thread pool capacity.\n"
+	 << "\tIf you do not close the client, it will wait in the queue for\n"
+	 << "\tthe thread available after one of already running fifo clients\n"
+	 << "\tis closed. At this point the client will resume the run.\n"
+	 << "\tYou can also close the client and try again later.\n"
+	 << "\tThe setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!\n";
     break;
   case PROBLEMS::MAX_TOTAL_SESSIONS:

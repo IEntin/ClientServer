@@ -11,11 +11,7 @@
 
 extern volatile std::sig_atomic_t stopSignal;
 
-void signalHandlerTcp([[maybe_unused]] int signal) {
-  std::exit(0);
-}
-
-void signalHandlerFifo([[maybe_unused]] int signal) {
+void signalHandler(int signal) {
   stopSignal = signal;
 }
 
@@ -28,10 +24,7 @@ int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  if (useTcp)
-    signal(SIGINT, signalHandlerTcp);
-  else if (useFifo)
-    signal(SIGINT, signalHandlerFifo);
+  signal(SIGINT, signalHandler);
   signal(SIGPIPE, SIG_IGN);
   try {
     if (useFifo) {
