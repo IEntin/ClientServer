@@ -116,7 +116,12 @@ void TcpSession::handleReadHeader(const boost::system::error_code& ec, [[maybe_u
   asyncWait();
   if (!ec) {
     _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
-   _request.clear();
+    if (!isOk(_header)) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':'
+	   << "header is not valid.\n";
+      return;
+    }
+    _request.clear();
     _request.resize(getCompressedSize(_header));
     readRequest();
   }

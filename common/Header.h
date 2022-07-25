@@ -79,6 +79,10 @@ inline PROBLEMS getProblem(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header);
 }
 
+inline bool isOk(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header) == PROBLEMS::NONE;
+}
+
 void encodeHeader(char* buffer,
 		  size_t uncomprSz,
 		  size_t comprSz,
