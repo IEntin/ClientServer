@@ -34,27 +34,6 @@ bool setSocket(boost::asio::io_context& ioContext,
   return true;
 }
 
-bool sendHeader(boost::asio::ip::tcp::socket& socket, HEADER header){
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer,
-	       HEADER_SIZE,
-	       HEADER_SIZE,
-	       getCompressor(header),
-	       isDiagnosticsEnabled(header),
-	       getEphemeral(header),
-	       getReserved(header),
-	       getProblem(header));
-  boost::system::error_code ec;
-  size_t result[[maybe_unused]] =
-    boost::asio::write(socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << ec.what() << std::endl;
-    return false;
-  }
-  return true;
-}
-
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {
   char buffer[HEADER_SIZE] = {};
   boost::system::error_code ec;

@@ -20,8 +20,6 @@ bool setSocket(boost::asio::io_context& ioContext,
 	       std::string_view host,
 	       std::string_view port);
 
-bool sendHeader(boost::asio::ip::tcp::socket& socket, HEADER header);
-
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket);
 
 } // end of namespace tcp

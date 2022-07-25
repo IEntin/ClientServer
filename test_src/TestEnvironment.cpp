@@ -8,9 +8,6 @@
 #include "Utility.h"
 #include "ClientOptions.h"
 #include "ServerOptions.h"
-#include <csignal>
-
-volatile std::sig_atomic_t stopFlag = false;
 
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
