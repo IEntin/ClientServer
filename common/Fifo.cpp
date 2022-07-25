@@ -65,7 +65,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
     }
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	<< ':' << (errno ? std::strerror(errno) : "EOF") << '\n';
+	   << ':' << (errno ? std::strerror(errno) : "EOF") << '\n';
       return false;
     }
     else

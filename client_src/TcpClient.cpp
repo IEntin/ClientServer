@@ -34,7 +34,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 	 << "\ta thread available after one of already running tcp clients\n"
 	 << "\tis closed. At this point the client will resume the run.\n"
 	 << "\tYou can also close the client and try again later.\n"
-	 << "\tThe setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
+	 << "\tThe relevant setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!\n";
     break;
   case PROBLEMS::MAX_TOTAL_SESSIONS:

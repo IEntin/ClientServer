@@ -73,7 +73,7 @@ void TcpServer::accept() {
 void TcpServer::handleAccept(TcpSessionPtr session, const boost::system::error_code& ec) {
   if (ec)
     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
-      << __FILE__ << ':' << __LINE__ << ' ' <<__func__ << ':' << ec.what() << '\n';
+      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
   else {
     session->start();
     [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
