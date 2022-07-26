@@ -21,6 +21,8 @@ class TcpClient : protected Client {
 
   boost::asio::ip::tcp::socket _socket;
 
+  boost::asio::ip::tcp::endpoint _endpoint;
+
  public:
 
   TcpClient(const ClientOptions& options);

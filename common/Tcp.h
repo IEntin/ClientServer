@@ -15,10 +15,11 @@ struct CloseSocket {
   boost::asio::ip::tcp::socket& _socket;
 };
 
-bool setSocket(boost::asio::io_context& ioContext,
-	       boost::asio::ip::tcp::socket& socket,
-	       std::string_view host,
-	       std::string_view port);
+std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
+  setSocket(boost::asio::io_context& ioContext,
+	     boost::asio::ip::tcp::socket& socket,
+	     std::string_view host,
+	     std::string_view port);
 
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket);
 

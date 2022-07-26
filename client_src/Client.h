@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Header.h"
 #include "ThreadPool.h"
 
 struct ClientOptions;
@@ -21,6 +22,10 @@ class Client {
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   const ClientOptions& _options;
+
+  PROBLEMS _problem = PROBLEMS::NONE;
+
+  std::atomic_flag _running = ATOMIC_FLAG_INIT;
 
  private:
 

@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Client.h"
-#include "Header.h"
 #include <string>
 #include <vector>
 
@@ -23,8 +22,6 @@ class FifoClient : public Client {
   int _fdRead = -1;
   int _fdWrite = -1;
   unsigned short _ephemeralIndex = 0;
-  PROBLEMS _problem = PROBLEMS::NONE;
-  std::atomic_flag _running = ATOMIC_FLAG_INIT;
 
  public:
 

@@ -15,10 +15,11 @@ CloseSocket::~CloseSocket() {
   _socket.close(ignore);
 }
 
-bool setSocket(boost::asio::io_context& ioContext,
-	       boost::asio::ip::tcp::socket& socket,
-	       std::string_view host,
-	       std::string_view port) {
+std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
+setSocket(boost::asio::io_context& ioContext,
+	  boost::asio::ip::tcp::socket& socket,
+	  std::string_view host,
+	  std::string_view port) {
   boost::asio::ip::tcp::resolver resolver(ioContext);
   boost::system::error_code ec;
   auto endpoint = boost::asio::connect(socket, resolver.resolve(host, port, ec));
@@ -27,11 +28,9 @@ bool setSocket(boost::asio::io_context& ioContext,
   if (!ec)
     socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << '\n';
-  if (ec) {
+  if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
-  }
-  return true;
+  return { endpoint, ec };
 }
 
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {

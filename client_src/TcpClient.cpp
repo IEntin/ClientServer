@@ -8,21 +8,27 @@
 #include "Tcp.h"
 #include "Utility.h"
 
+extern volatile std::sig_atomic_t stopSignal;
+
 namespace tcp {
 
 TcpClient::TcpClient(const ClientOptions& options) :
   Client(options),
   _socket(_ioContext) {
-  if (!setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort))
-    throw(std::runtime_error(std::string(std::strerror(errno))));
+  auto [endpoint, error] =
+    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort);
+  if (error)
+    throw(std::runtime_error(error.what()));
+  _endpoint = endpoint;
   char buffer[HEADER_SIZE] = {};
   boost::system::error_code ec;
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec)
     throw(std::runtime_error(std::string(std::strerror(errno))));
+  _endpoint = endpoint;
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
-  PROBLEMS problem = getProblem(header);
-  switch (problem) {
+  _problem = getProblem(header);
+  switch (_problem) {
   case PROBLEMS::NONE :
     CLOG << "NO PROBLEMS\n";
     break;
@@ -46,7 +52,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 bool TcpClient::send(const std::vector<char>& msg) {
@@ -54,27 +60,49 @@ bool TcpClient::send(const std::vector<char>& msg) {
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << ec.what() << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
   return true;
 }
 
 bool TcpClient::receive() {
-  char buffer[HEADER_SIZE] = {};
-  boost::system::error_code ec;
-  boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
+  // already running
+  if (_running.test_and_set() || _problem == PROBLEMS::NONE) {
+    char buffer[HEADER_SIZE] = {};
+    boost::system::error_code ec;
+    boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+    if (ec) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+      return false;
+    }
+    auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
+      decodeHeader(std::string_view(buffer, HEADER_SIZE));
+    if (problem != PROBLEMS::NONE)
+      return false;
+    if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
+      return false;
   }
-  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
-    decodeHeader(std::string_view(buffer, HEADER_SIZE));
-  if (problem != PROBLEMS::NONE)
-    return false;
-  if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
-    return false;
+  // waiting in queue
+  else {
+    std::size_t bytes_readable = 0;
+    do {
+      // client stopping
+      if (stopSignal)
+	break;
+      // server stopped
+      boost::asio::ip::tcp::socket socket(_ioContext);
+      boost::system::error_code ec;
+      socket.connect(_endpoint, ec);
+      if (ec)
+	break;
+      boost::asio::socket_base::bytes_readable command(true);
+      _socket.io_control(command);
+      bytes_readable = command.get();
+      if (bytes_readable == 0)
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+    } while (bytes_readable == 0);
+  }
   return true;
 }
 
