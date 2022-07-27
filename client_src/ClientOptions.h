@@ -26,6 +26,7 @@ struct ClientOptions {
   int _ENXIOwait;
   std::string _serverHost;
   std::string _tcpAcceptorPort;
+  std::string _tcpHeartbeatPort;
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   COMPRESSORS _compressor;

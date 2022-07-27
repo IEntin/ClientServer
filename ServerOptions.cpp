@@ -22,6 +22,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _maxTcpSessions(_appOptions.get("MaxTcpSessions", 2)),
   _maxFifoSessions(_appOptions.get("MaxFifoSessions", 2)),
   _tcpAcceptorPort(_appOptions.get("TcpAcceptorPort", 49172)),
+  _tcpHeartbeatPort(_appOptions.get("TcpHeartbeatPort", 49173)),
   _tcpTimeout(_appOptions.get("TcpTimeout", 1)),
   _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
   _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),

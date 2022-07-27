@@ -27,7 +27,6 @@ setSocket(boost::asio::io_context& ioContext,
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (!ec)
     socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " endpoint: " << endpoint << '\n';
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
   return { endpoint, ec };

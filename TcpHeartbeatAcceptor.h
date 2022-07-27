@@ -6,35 +6,32 @@
 
 #include "Runnable.h"
 #include "ThreadPool.h"
-#include "Compression.h"
 #include <boost/asio.hpp>
-#include <memory>
 
 struct ServerOptions;
 
-using RunnablePtr = std::shared_ptr<Runnable>;
-
 namespace tcp {
 
-using TcpSessionPtr = std::shared_ptr<class TcpSession>;
+using TcpHeartbeatPtr = std::shared_ptr<class TcpHeartbeat>;
 
-class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
+class TcpHeartbeatAcceptor : public std::enable_shared_from_this<TcpHeartbeatAcceptor>, public Runnable {
 public:
-  TcpServer(const ServerOptions& options);
-  ~TcpServer() override;
+  TcpHeartbeatAcceptor(const ServerOptions& options);
+  ~TcpHeartbeatAcceptor() override;
 private:
-  void accept();
-
-  void handleAccept(TcpSessionPtr session, const boost::system::error_code& ec);
   void run() override;
 
   bool start() override;
 
   void stop() override;
 
+  void accept();
+
+  void handleAccept(TcpHeartbeatPtr heartbeat, const boost::system::error_code& ec);
+
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
-  unsigned short _tcpAcceptorPort;
+  unsigned short _tcpHeartbeatPort;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   RunnablePtr _heartbeatAcceptor;

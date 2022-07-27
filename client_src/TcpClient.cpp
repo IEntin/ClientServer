@@ -25,7 +25,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec)
     throw(std::runtime_error(std::string(std::strerror(errno))));
-  _endpoint = endpoint;
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
   _problem = getProblem(header);
   switch (_problem) {
@@ -56,6 +55,7 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::send(const std::vector<char>& msg) {
+  heartbeat();
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
@@ -91,11 +91,7 @@ bool TcpClient::receive() {
       if (stopSignal)
 	break;
       // server stopped
-      boost::asio::ip::tcp::socket socket(_ioContext);
-      boost::system::error_code ec;
-      socket.connect(_endpoint, ec);
-      if (ec)
-	break;
+     heartbeat();
       boost::asio::socket_base::bytes_readable command(true);
       _socket.io_control(command);
       bytes_readable = command.get();
@@ -129,6 +125,26 @@ bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed
     return false;
   }
   return printReply(buffer, uncomprSize, comprSize, bcompressed);
+}
+
+bool TcpClient::heartbeat() {
+  boost::asio::io_context ioContext;
+  boost::asio::ip::tcp::socket heartbeatSocket(ioContext);
+  CloseSocket closeSocket(heartbeatSocket);
+  auto [endpoint, error] =
+    setSocket(_ioContext, heartbeatSocket, _options._serverHost, _options._tcpHeartbeatPort);
+  if (error)
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << error.what() << '\n';
+  boost::system::error_code ec;
+  char data = '\n';
+  size_t transferred = boost::asio::write(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+  if (!ec) {
+    data = '\0';
+    transferred = boost::asio::read(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+  }
+  if (ec)
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+  return !ec;
 }
 
 } // end of namespace tcp

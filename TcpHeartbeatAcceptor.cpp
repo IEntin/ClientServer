@@ -2,30 +2,29 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "TcpServer.h"
+#include "TcpHeartbeatAcceptor.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "TcpHeartbeatAcceptor.h"
-#include "TcpSession.h"
+#include "TcpHeartbeat.h"
 #include "Utility.h"
 
 namespace tcp {
 
-TcpServer::TcpServer(const ServerOptions& options) :
+TcpHeartbeatAcceptor::TcpHeartbeatAcceptor(const ServerOptions& options) :
   Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   _ioContext(1),
-  _tcpAcceptorPort(_options._tcpAcceptorPort),
-  _endpoint(boost::asio::ip::address_v4::any(), _tcpAcceptorPort),
+  _tcpHeartbeatPort(_options._tcpHeartbeatPort),
+  _endpoint(boost::asio::ip::address_v4::any(), _tcpHeartbeatPort),
   _acceptor(_ioContext),
-  // + 1 for 'this'
-  _threadPool(_options._maxTcpSessions + 1) {}
+  _threadPool(2) {}
 
-TcpServer::~TcpServer() {
+TcpHeartbeatAcceptor::~TcpHeartbeatAcceptor() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
-bool TcpServer::start() {
+bool TcpHeartbeatAcceptor::start() {
   boost::system::error_code ec;
   _acceptor.open(_endpoint.protocol(), ec);
   if (!ec)
@@ -40,48 +39,45 @@ bool TcpServer::start() {
     accept();
     _threadPool.push(shared_from_this());
   }
-  _heartbeatAcceptor = std::make_shared<TcpHeartbeatAcceptor>(_options);
-  _heartbeatAcceptor->start();
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
-	 << ec.what() << " _tcpAcceptorPort=" << _tcpAcceptorPort << '\n';
+	 << ec.what() << " _tcpHeartbeatPort=" << _tcpHeartbeatPort << '\n';
 
   return !ec;
 }
 
-void TcpServer::stop() {
+void TcpHeartbeatAcceptor::stop() {
   _stopped.store(true);
   boost::system::error_code ignore;
   _acceptor.close(ignore);
   _threadPool.stop();
   _ioContext.stop();
-  _heartbeatAcceptor->stop();
 }
 
-void TcpServer::run() {
+void TcpHeartbeatAcceptor::run() {
   boost::system::error_code ec;
   _ioContext.run(ec);
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 }
 
-void TcpServer::accept() {
-  auto session =
-    std::make_shared<TcpSession>(_options, shared_from_this());
-  _acceptor.async_accept(session->socket(),
-			 session->endpoint(),
-			 [session, this](boost::system::error_code ec) {
-			   handleAccept(session, ec);
+void TcpHeartbeatAcceptor::accept() {
+  TcpHeartbeatPtr heartbeat =
+    std::make_shared<TcpHeartbeat>(_options, shared_from_this());
+  _acceptor.async_accept(heartbeat->socket(),
+			 heartbeat->endpoint(),
+			 [heartbeat, this](boost::system::error_code ec) {
+			   handleAccept(heartbeat, ec);
 			 });
 }
 
-void TcpServer::handleAccept(TcpSessionPtr session, const boost::system::error_code& ec) {
+void TcpHeartbeatAcceptor::handleAccept(TcpHeartbeatPtr heartbeat, const boost::system::error_code& ec) {
   if (ec)
     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
   else {
-    session->start();
-    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+    heartbeat->start();
+    [[maybe_unused]] PROBLEMS problem = _threadPool.push(heartbeat);
     accept();
   }
 }

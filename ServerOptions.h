@@ -22,6 +22,7 @@ struct ServerOptions {
   int _maxTcpSessions;
   int _maxFifoSessions;
   unsigned short _tcpAcceptorPort;
+  unsigned short _tcpHeartbeatPort;
   int _tcpTimeout;
   int _numberRepeatEINTR;
   int _numberRepeatENXIO;
