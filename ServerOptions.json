@@ -12,6 +12,7 @@
   "MaxTcpSessions" : 10,
   "MaxFifoSessions" : 10,
   "TcpAcceptorPort" : 49152,
+  "TcpHeartbeatPort" : 49153,
   "TcpTimeout" : 5,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,

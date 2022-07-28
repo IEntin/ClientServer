@@ -12,8 +12,6 @@ struct ServerOptions;
 
 namespace tcp {
 
-using TcpHeartbeatPtr = std::shared_ptr<class TcpHeartbeat>;
-
 class TcpHeartbeatAcceptor : public std::enable_shared_from_this<TcpHeartbeatAcceptor>, public Runnable {
 public:
   TcpHeartbeatAcceptor(const ServerOptions& options);
@@ -27,7 +25,7 @@ private:
 
   void accept();
 
-  void handleAccept(TcpHeartbeatPtr heartbeat, const boost::system::error_code& ec);
+  void handleAccept(RunnablePtr heartbeat, const boost::system::error_code& ec);
 
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;

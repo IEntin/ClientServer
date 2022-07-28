@@ -66,8 +66,7 @@ void TcpServer::run() {
 }
 
 void TcpServer::accept() {
-  auto session =
-    std::make_shared<TcpSession>(_options, shared_from_this());
+  auto session = std::make_shared<TcpSession>(_options, shared_from_this());
   _acceptor.async_accept(session->socket(),
 			 session->endpoint(),
 			 [session, this](boost::system::error_code ec) {

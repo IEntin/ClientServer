@@ -9,14 +9,11 @@
 
 namespace tcp {
 
-TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent),
+TcpHeartbeat::TcpHeartbeat(const ServerOptions& options) :
   _options(options),
   _ioContext(1),
   _socket(_ioContext),
-  _timer(_ioContext),
-  // save for reference count
-  _parent(parent) {
+  _timer(_ioContext) {
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);

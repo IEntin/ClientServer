@@ -12,7 +12,6 @@
 namespace tcp {
 
 TcpHeartbeatAcceptor::TcpHeartbeatAcceptor(const ServerOptions& options) :
-  Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   _ioContext(1),
   _tcpHeartbeatPort(_options._tcpHeartbeatPort),
@@ -62,8 +61,7 @@ void TcpHeartbeatAcceptor::run() {
 }
 
 void TcpHeartbeatAcceptor::accept() {
-  TcpHeartbeatPtr heartbeat =
-    std::make_shared<TcpHeartbeat>(_options, shared_from_this());
+  auto heartbeat = std::make_shared<TcpHeartbeat>(_options);
   _acceptor.async_accept(heartbeat->socket(),
 			 heartbeat->endpoint(),
 			 [heartbeat, this](boost::system::error_code ec) {
@@ -71,7 +69,7 @@ void TcpHeartbeatAcceptor::accept() {
 			 });
 }
 
-void TcpHeartbeatAcceptor::handleAccept(TcpHeartbeatPtr heartbeat, const boost::system::error_code& ec) {
+void TcpHeartbeatAcceptor::handleAccept(RunnablePtr heartbeat, const boost::system::error_code& ec) {
   if (ec)
     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';

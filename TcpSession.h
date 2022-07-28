@@ -7,7 +7,6 @@
 #include "Header.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
-#include <memory>
 
 using Response = std::vector<std::string>;
 

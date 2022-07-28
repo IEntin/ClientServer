@@ -6,7 +6,6 @@
 
 #include "Runnable.h"
 #include <boost/asio.hpp>
-#include <memory>
 
 struct ServerOptions;
 
@@ -18,7 +17,7 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
 public:
-  TcpHeartbeat(const ServerOptions& options, RunnablePtr parent);
+  TcpHeartbeat(const ServerOptions& options);
   ~TcpHeartbeat() override;
 
   void run() noexcept override;

@@ -8,9 +8,7 @@
 #include "Runnable.h"
 #include "Strategy.h"
 #include "ThreadPool.h"
-#include <atomic>
 #include <barrier>
-#include <memory>
 #include <queue>
 #include <vector>
 
