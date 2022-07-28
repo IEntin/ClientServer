@@ -17,8 +17,6 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-using TcpSessionPtr = std::shared_ptr<class TcpSession>;
-
 class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
 public:
   TcpSession(const ServerOptions& options, RunnablePtr parent);

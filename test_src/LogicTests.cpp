@@ -57,7 +57,7 @@ struct LogicTest : testing::Test {
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
       MemoryPool::setExpectedSize(serverMemPoolSize);
-      fifo::FifoAcceptorPtr fifoAcceptor =
+      RunnablePtr fifoAcceptor =
 	std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
       bool serverStart = fifoAcceptor->start();
       // start client

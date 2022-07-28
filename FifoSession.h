@@ -6,8 +6,6 @@
 
 #include "Header.h"
 #include "Runnable.h"
-#include <memory>
-#include <thread>
 #include <vector>
 
 using Response = std::vector<std::string>;

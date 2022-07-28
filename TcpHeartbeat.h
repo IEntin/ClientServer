@@ -14,8 +14,6 @@ class ThreadPool;
 
 namespace tcp {
 
-using TcpHeartbeatPtr = std::shared_ptr<class TcpHeartbeat>;
-
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {

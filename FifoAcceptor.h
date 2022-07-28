@@ -12,8 +12,6 @@ struct ServerOptions;
 
 namespace fifo {
 
-using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
-
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
   bool sendStatusToClient(PROBLEMS problem);
   void removeFifoFiles();

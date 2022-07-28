@@ -137,7 +137,7 @@ bool TcpClient::heartbeat() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << error.what() << '\n';
   boost::system::error_code ec;
   char data = '\n';
-  size_t transferred = boost::asio::write(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+  size_t transferred[[maybe_unused]] = boost::asio::write(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
   if (!ec) {
     data = '\0';
     transferred = boost::asio::read(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
