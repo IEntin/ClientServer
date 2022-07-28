@@ -3,6 +3,7 @@
  */
 
 #include "Tcp.h"
+#include "ClientOptions.h"
 #include "Utility.h"
 
 namespace tcp {
@@ -41,6 +42,26 @@ HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {
     return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::TCP_PROBLEM };
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
+}
+
+bool heartbeat(const ClientOptions& options) {
+  boost::asio::io_context ioContext;
+  boost::asio::ip::tcp::socket heartbeatSocket(ioContext);
+  CloseSocket closeSocket(heartbeatSocket);
+  auto [endpoint, error] =
+    setSocket(ioContext, heartbeatSocket, options._serverHost, options._tcpHeartbeatPort);
+  if (error)
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << error.what() << '\n';
+  boost::system::error_code ec;
+  char data = '\n';
+  size_t transferred[[maybe_unused]] = boost::asio::write(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+  if (!ec) {
+    data = '\0';
+    transferred = boost::asio::read(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+  }
+  if (ec)
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+  return !ec;
 }
 
 } // end of namespace tcp

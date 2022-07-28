@@ -7,6 +7,8 @@
 #include "Header.h"
 #include <boost/asio.hpp>
 
+struct ClientOptions;
+
 namespace tcp {
 
 struct CloseSocket {
@@ -22,5 +24,7 @@ std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 	     std::string_view port);
 
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket);
+
+bool heartbeat(const ClientOptions& options);
 
 } // end of namespace tcp

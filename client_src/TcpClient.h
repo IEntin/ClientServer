@@ -17,8 +17,6 @@ class TcpClient : protected Client {
 
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
-  bool heartbeat();
-
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
