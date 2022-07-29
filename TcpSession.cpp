@@ -55,9 +55,8 @@ bool TcpSession::start() {
 
 void TcpSession::run() noexcept {
   readHeader();
-  boost::system::error_code ec;
-  _ioContext.run(ec);
-  (ec ? CERR : CLOG) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+  _ioContext.run();
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":io_context::run() exit\n";
   if (_options._destroyBufferOnClientDisconnect)
     MemoryPool::destroyBuffers();
 }
@@ -101,68 +100,56 @@ void TcpSession::readHeader() {
   std::memset(_headerBuffer, 0, HEADER_SIZE);
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_headerBuffer),
-			  [this] (const boost::system::error_code& ec, size_t transferred) {
-			    handleReadHeader(ec, transferred);
+			  [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			    asyncWait();
+			    if (!ec) {
+			      _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
+			      if (!isOk(_header)) {
+				CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid.\n";
+				return;
+			      }
+			      _request.clear();
+			      _request.resize(getCompressedSize(_header));
+			      readRequest();
+			    }
+			    else {
+			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			      boost::system::error_code ignore;
+			      _timer.cancel(ignore);
+			    }
 			  });
-}
-
-void TcpSession::handleReadHeader(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  asyncWait();
-  if (!ec) {
-    _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
-    if (!isOk(_header)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid.\n";
-      return;
-    }
-    _request.clear();
-    _request.resize(getCompressedSize(_header));
-    readRequest();
-  }
-  else {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    boost::system::error_code ignore;
-    _timer.cancel(ignore);
-  }
 }
 
 void TcpSession::readRequest() {
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_request),
-			  [this] (const boost::system::error_code& ec, size_t transferred) {
-			    handleReadRequest(ec, transferred);
+			  [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			    boost::system::error_code ignore;
+			    _timer.cancel(ignore);
+			    if (!ec)
+			      onReceiveRequest();
+			    else {
+			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			      boost::system::error_code ignore;
+			      _timer.cancel(ignore);
+			    }
 			  });
 }
 
 void TcpSession::write(std::string_view reply) {
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
-			   [this](boost::system::error_code ec, size_t transferred) {
-			     handleWriteReply(ec, transferred);
+			   [this](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
+			     boost::system::error_code ignore;
+			     _timer.cancel(ignore);
+			     if (!ec)
+			       readHeader();
+			     else {
+			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			       boost::system::error_code ignore;
+			       _timer.cancel(ignore);
+			     }
 			   });
-}
-
-void TcpSession::handleReadRequest(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  if (!ec)
-    onReceiveRequest();
-  else {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    boost::system::error_code ignore;
-    _timer.cancel(ignore);
-  }
-}
-
-void TcpSession::handleWriteReply(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  if (!ec)
-    readHeader();
-  else {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    boost::system::error_code ignore;
-    _timer.cancel(ignore);
-  }
 }
 
 void TcpSession::asyncWait() {

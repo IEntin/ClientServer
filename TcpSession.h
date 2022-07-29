@@ -30,9 +30,6 @@ private:
   void readHeader();
   void readRequest();
   void write(std::string_view reply);
-  void handleReadHeader(const boost::system::error_code& ec, size_t transferred);
-  void handleReadRequest(const boost::system::error_code& ec, size_t transferred);
-  void handleWriteReply(const boost::system::error_code& ec, size_t transferred);
   void asyncWait();
   bool onReceiveRequest();
   bool sendReply(const Response& response);

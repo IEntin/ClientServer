@@ -21,7 +21,6 @@ public:
 private:
   void accept();
 
-  void handleAccept(RunnablePtr session, const boost::system::error_code& ec);
   void run() override;
 
   bool start() override;

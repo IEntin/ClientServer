@@ -20,17 +20,16 @@ public:
   TcpHeartbeat(const ServerOptions& options);
   ~TcpHeartbeat() override;
 
-  void run() noexcept override;
   bool start() override;
-  void stop() override;
 
   auto& endpoint() { return _endpoint; }
   auto& socket() { return _socket; }
 private:
+  void run() noexcept override;
+  void stop() override;
+
   void readToken();
   void write(std::string_view reply);
-  void handleReadToken(const boost::system::error_code& ec, size_t transferred);
-  void handleWriteReply(const boost::system::error_code& ec, size_t transferred);
   void asyncWait();
   bool sendToken();
   const ServerOptions& _options;

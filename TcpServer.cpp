@@ -59,10 +59,8 @@ void TcpServer::stop() {
 }
 
 void TcpServer::run() {
-  boost::system::error_code ec;
-  _ioContext.run(ec);
-  if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+  _ioContext.run();
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": io_context::run() exit.\n";
 }
 
 void TcpServer::accept() {
@@ -70,19 +68,15 @@ void TcpServer::accept() {
   _acceptor.async_accept(session->socket(),
 			 session->endpoint(),
 			 [session, this](boost::system::error_code ec) {
-			   handleAccept(session, ec);
+			   if (ec)
+			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
+			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			   else {
+			     session->start();
+			     [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+			     accept();
+			   }
 			 });
-}
-
-void TcpServer::handleAccept(RunnablePtr session, const boost::system::error_code& ec) {
-  if (ec)
-    (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
-      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-  else {
-    session->start();
-    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
-    accept();
-  }
 }
 
 } // end of namespace tcp

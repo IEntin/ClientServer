@@ -54,10 +54,8 @@ void TcpHeartbeatAcceptor::stop() {
 }
 
 void TcpHeartbeatAcceptor::run() {
-  boost::system::error_code ec;
-  _ioContext.run(ec);
-  if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+  _ioContext.run();
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":io_context::run() exit\n";
 }
 
 void TcpHeartbeatAcceptor::accept() {
@@ -65,19 +63,15 @@ void TcpHeartbeatAcceptor::accept() {
   _acceptor.async_accept(heartbeat->socket(),
 			 heartbeat->endpoint(),
 			 [heartbeat, this](boost::system::error_code ec) {
-			   handleAccept(heartbeat, ec);
+			   if (ec)
+			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
+			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			   else {
+			     heartbeat->start();
+			     [[maybe_unused]] PROBLEMS problem = _threadPool.push(heartbeat);
+			     accept();
+			   }
 			 });
-}
-
-void TcpHeartbeatAcceptor::handleAccept(RunnablePtr heartbeat, const boost::system::error_code& ec) {
-  if (ec)
-    (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
-      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-  else {
-    heartbeat->start();
-    [[maybe_unused]] PROBLEMS problem = _threadPool.push(heartbeat);
-    accept();
-  }
 }
 
 } // end of namespace tcp

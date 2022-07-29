@@ -25,14 +25,11 @@ private:
 
   void accept();
 
-  void handleAccept(RunnablePtr heartbeat, const boost::system::error_code& ec);
-
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
   unsigned short _tcpHeartbeatPort;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
-  RunnablePtr _heartbeatAcceptor;
   ThreadPool _threadPool;
 };
 

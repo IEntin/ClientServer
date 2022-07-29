@@ -41,9 +41,8 @@ bool TcpHeartbeat::start() {
 
 void TcpHeartbeat::run() noexcept {
   readToken();
-  boost::system::error_code ec;
-  _ioContext.run(ec);
-  (ec ? CERR : CLOG) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+  _ioContext.run();
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":io_context::run() exit\n";
 }
 
 void TcpHeartbeat::stop() {}
@@ -65,35 +64,28 @@ void TcpHeartbeat::readToken() {
   _buffer = '\0';
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(&_buffer, 1),
-			  [this] (const boost::system::error_code& ec, size_t transferred) {
-			    handleReadToken(ec, transferred);
+			  [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			    if (!ec)
+			      sendToken();
+			    else
+			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			    boost::system::error_code ignore;
+			    _timer.cancel(ignore);
 			  });
-}
-
-void TcpHeartbeat::handleReadToken(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  if (!ec)
-   sendToken();
-  else
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
 }
 
 void TcpHeartbeat::write(std::string_view reply) {
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
-			   [this](boost::system::error_code ec, size_t transferred) {
-			     handleWriteReply(ec, transferred);
+			   [this](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
+			     if (ec)
+			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			     boost::system::error_code ignore;
+			     _timer.cancel(ignore);
+			     _socket.close(ignore);
 			   });
 }
 
-void TcpHeartbeat::handleWriteReply(const boost::system::error_code& ec, [[maybe_unused]] size_t transferred) {
-  if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  _socket.close(ignore);
-}
 
 void TcpHeartbeat::asyncWait() {
   boost::system::error_code ignore;

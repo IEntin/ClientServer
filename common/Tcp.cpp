@@ -46,18 +46,18 @@ HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {
 
 bool heartbeat(const ClientOptions& options) {
   boost::asio::io_context ioContext;
-  boost::asio::ip::tcp::socket heartbeatSocket(ioContext);
-  CloseSocket closeSocket(heartbeatSocket);
+  boost::asio::ip::tcp::socket socket(ioContext);
+  CloseSocket closeSocket(socket);
   auto [endpoint, error] =
-    setSocket(ioContext, heartbeatSocket, options._serverHost, options._tcpHeartbeatPort);
+    setSocket(ioContext, socket, options._serverHost, options._tcpHeartbeatPort);
   if (error)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << error.what() << '\n';
   boost::system::error_code ec;
   char data = '\n';
-  size_t transferred[[maybe_unused]] = boost::asio::write(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+  size_t transferred[[maybe_unused]] = boost::asio::write(socket, boost::asio::buffer(&data, 1), ec);
   if (!ec) {
     data = '\0';
-    transferred = boost::asio::read(heartbeatSocket, boost::asio::buffer(&data, 1), ec);
+    transferred = boost::asio::read(socket, boost::asio::buffer(&data, 1), ec);
   }
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
