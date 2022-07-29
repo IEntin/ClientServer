@@ -17,9 +17,7 @@ TcpSession::TcpSession(const ServerOptions& options, RunnablePtr parent) :
   _options(options),
   _ioContext(1),
   _socket(_ioContext),
-  _timeout(options._tcpTimeout),
   _timer(_ioContext),
-  _compressor(options._compressor),
   // save for reference count
   _parent(parent) {
   boost::system::error_code ignore;
@@ -85,7 +83,7 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view message = serverutility::buildReply(response, _compressor, 0);
+  std::string_view message = serverutility::buildReply(response, _options._compressor, 0);
   if (message.empty())
     return false;
   write(message);
@@ -154,7 +152,7 @@ void TcpSession::write(std::string_view reply) {
 
 void TcpSession::asyncWait() {
   boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::seconds(_timeout), ignore);
+  _timer.expires_from_now(std::chrono::seconds(_options._tcpTimeout), ignore);
   _timer.async_wait([this](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";

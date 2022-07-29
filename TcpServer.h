@@ -29,7 +29,6 @@ private:
 
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
-  unsigned short _tcpAcceptorPort;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   RunnablePtr _heartbeatAcceptor;

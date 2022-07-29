@@ -55,7 +55,6 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::send(const std::vector<char>& msg) {
-  heartbeat(_options);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);

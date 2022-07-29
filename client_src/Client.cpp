@@ -65,8 +65,7 @@ bool Client::run() {
     } while (_options._runLoop && !stopSignal);
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	 << e.what() << ' ' << _options._sourceName << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
   return true;
 }
@@ -77,15 +76,13 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << " received compressed.\n";
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed.\n";
     std::string_view dstView = Compression::uncompress(received, uncomprSize);
-   stream << dstView;
+    stream << dstView;
   }
   else {
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << " received not compressed.\n";
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed.\n";
     stream << received;
   }
   return true;

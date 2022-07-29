@@ -13,6 +13,10 @@ struct ServerOptions;
 namespace fifo {
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
+  void run() override;
+  bool start() override;
+  void stop() override;
+
   bool sendStatusToClient(PROBLEMS problem);
   void removeFifoFiles();
   const ServerOptions& _options;
@@ -24,9 +28,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() = default;
-  void run() override;
-  bool start() override;
-  void stop() override;
 };
 
 } // end of namespace fifo

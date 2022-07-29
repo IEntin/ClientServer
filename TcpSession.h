@@ -38,14 +38,12 @@ private:
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::socket _socket;
-  int _timeout;
   AsioTimer _timer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Response _response;
-  COMPRESSORS _compressor;
   RunnablePtr _parent;
 };
 

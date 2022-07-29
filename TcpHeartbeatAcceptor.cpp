@@ -14,8 +14,7 @@ namespace tcp {
 TcpHeartbeatAcceptor::TcpHeartbeatAcceptor(const ServerOptions& options) :
   _options(options),
   _ioContext(1),
-  _tcpHeartbeatPort(_options._tcpHeartbeatPort),
-  _endpoint(boost::asio::ip::address_v4::any(), _tcpHeartbeatPort),
+  _endpoint(boost::asio::ip::address_v4::any(), _options._tcpHeartbeatPort),
   _acceptor(_ioContext),
   _threadPool(2) {}
 
@@ -39,8 +38,8 @@ bool TcpHeartbeatAcceptor::start() {
     _threadPool.push(shared_from_this());
   }
   if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
-	 << ec.what() << " _tcpHeartbeatPort=" << _tcpHeartbeatPort << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what()
+	 << " tcpHeartbeatPort=" << _options._tcpHeartbeatPort << '\n';
 
   return !ec;
 }

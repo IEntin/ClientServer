@@ -27,6 +27,7 @@ struct ClientOptions {
   std::string _serverHost;
   std::string _tcpAcceptorPort;
   std::string _tcpHeartbeatPort;
+  int _heartbeatPeriod;
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   COMPRESSORS _compressor;

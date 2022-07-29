@@ -9,8 +9,6 @@
 
 struct ServerOptions;
 
-class ThreadPool;
-
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
