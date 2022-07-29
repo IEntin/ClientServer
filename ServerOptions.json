@@ -1,6 +1,6 @@
 {
   "ProcessType" : "Transaction",
-  "TurnOffLogging" : true,
+  "TurnOffLogging" : false,
   "SortInput" : false,
   "AdsFileName" : "data/ads.txt",
   "NumberTaskThreads" : 0,
