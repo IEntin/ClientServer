@@ -22,34 +22,40 @@ Testing showed that performance impact of fd reopening is small especially for l
 
 Special consideration was given to the shutdown process of fifo server and clients. The problem is that\
 in the default blocking mode the process is hanging on open(fd, ...) until another end of the pipe is open too.\
-The process can be gracefully shutdown in this cace if another end of the pipe opened for writing or reading\
+The process can be gracefully shutdown in this case if another end of the pipe opened for writing or reading\
 appropriately. Special code is necessary to handle this procedure, and it is successful only with controlled shutdown\
-initiated by SIGINT. This is a seriaous restriction, in particular, the server is not protected from client\
+initiated by SIGINT. This is a serious restriction, in particular, the server cannot be protected from client\
 crashes which put the server in a non responding state.
 
 To solve this problem the writing ends of the pipes are opened in a non blocking\
-mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the components are stopped\
+mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the components can be stopped\
 not only by SIGINT, but also by SIGKILL or any other signal. The server is in a valid state then,\
-and subsequently, the client is restarted. Of course, these complications apply only to FIFO\
-server-client. TCP mode does not have these issues.\
+and subsequently, the client can be restarted. These complications apply only to the FIFO case.\
+TCP clients do not have these issues.\
 ........
 
 The number and identity of fifo and tcp clients are not known in advance.\
 Tcp clients are using the standard ephemeral port mechanism.\
 For the fifo clients an analogous acceptor method was designed.\
 The fifo acceptor is a special pipe waiting for a request of a new session\
-from the new client on a blocking fd read open(...) call. The acceptor loop\
-is unblocked when the starting client opens the writing end of the acceptor pipe.\
+from the starting client on a blocking fd read open(...) call. The acceptor loop\
+is unblocked when the the client opens the writing end of the acceptor pipe.\
 Acceptor creates then a new pipe, a new session object, and sends to the the client\
 the unique index which is analogous to the  ephemeral port in the tcp case.\
 The client starts running.
 
-The maximum number of sessions of every type is specified for the server protection.\
-In both tcp and fifo cases the client which exceeds the specified maximum number of\
-sessions is sittng idle until any of the previously started clients is closed.\
-At this point the new client starts running.
+.........
 
-Generally, the number of clients is limited only by hardware performance.\
+It is possible to put restrictions on the number of tcp and/or fifo sessions the server\
+is handling. If a new client exceeds this limit it remains up but enrers a waiting mode.\
+When one of the previously started clients exits, the waiting client at the head of the\
+queue starts running.\
+There can be any number of waiting clients.\
+Of course, a waiting client can also be closed and tried again later.\
+The relevant settings are "MaxTcpSessions" and "MaxFifoSessions" in the ServerOptions.json.
+
+Generally, the number of clients is limited only by hardware performance, in particular\
+by the number of cpu cores.\
 This server was tested with 5 clients with mixed client types.
 
 ........
@@ -57,7 +63,7 @@ This server was tested with 5 clients with mixed client types.
 Another note on named pipes:\
 The code is increasing the pipe size to make read and write "atomic".\
 This operation requires sudo access if requested size exceeds 1MB\
-(with my configuration, original buffer size is 64 KB). If more than 1MB is necessary:\
+(with used configuration, original buffer size is 64 KB). If more than 1MB is necessary:\
 sudo su\
 ./server\
 and\
@@ -87,7 +93,7 @@ is generation of the specific key and sorting requests by this key.
 
 Business logic, compression, task multithreading, and communication layers are completely decoupled.
 
-Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referreded in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
+Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
 To measure the performance of the system the same batch was repeated in an infinite loop, but every time it was created anew from a source file. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes about 30 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal doubles the latency.
 
