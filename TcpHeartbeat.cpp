@@ -62,9 +62,10 @@ void TcpHeartbeat::readToken() {
   boost::system::error_code ignore;
   _timer.cancel(ignore);
   _buffer = '\0';
+  auto self = shared_from_this();
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(&_buffer, 1),
-			  [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
 			    if (!ec)
 			      sendToken();
 			    else
@@ -75,9 +76,10 @@ void TcpHeartbeat::readToken() {
 }
 
 void TcpHeartbeat::write(std::string_view reply) {
+  auto self = shared_from_this();
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
-			   [this](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
+			   [this, self](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
 			     if (ec)
 			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 			     boost::system::error_code ignore;
@@ -86,11 +88,11 @@ void TcpHeartbeat::write(std::string_view reply) {
 			   });
 }
 
-
 void TcpHeartbeat::asyncWait() {
   boost::system::error_code ignore;
   _timer.expires_from_now(std::chrono::seconds(_options._tcpTimeout), ignore);
-  _timer.async_wait([this](const boost::system::error_code& err) {
+  auto self = shared_from_this();
+  _timer.async_wait([this, self](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
 			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";
 			boost::system::error_code ignore;
