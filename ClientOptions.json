@@ -15,6 +15,7 @@
   "ServerHost" : "127.0.0.1",
   "TcpAcceptorPort" : "49152",
   "TcpHeartbeatPort" : "49153",
+  "HeartbeatPeriod" : 300,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 20,
   "ENXIOwait" : 10,
