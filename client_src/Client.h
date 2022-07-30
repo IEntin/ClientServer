@@ -27,9 +27,9 @@ class Client {
 
   std::atomic_flag _running = ATOMIC_FLAG_INIT;
 
- private:
-
   ThreadPool _threadPool;
+
+ private:
 
   TaskBuilderPtr _taskBuilder;
 

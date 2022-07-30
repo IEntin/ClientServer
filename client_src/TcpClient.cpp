@@ -6,6 +6,7 @@
 #include "ClientOptions.h"
 #include "Header.h"
 #include "Tcp.h"
+#include "TcpHeartbeatClient.h"
 #include "Utility.h"
 
 extern volatile std::sig_atomic_t stopSignal;
@@ -48,9 +49,13 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
+  _tcpHeartbeatClient = std::make_shared<TcpHeartbeatClient>(_options);
+  _threadPool.push(_tcpHeartbeatClient);
 }
 
 TcpClient::~TcpClient() {
+  if (_tcpHeartbeatClient)
+    _tcpHeartbeatClient->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
@@ -86,11 +91,13 @@ bool TcpClient::receive() {
   else {
     std::size_t bytes_readable = 0;
     do {
-      // client stopping
+      // client stopping ?
       if (stopSignal)
 	break;
-      // server stopped
-      heartbeat(_options);
+      // server down ?
+      if (TcpHeartbeatClient::_serverDown)
+	return false;
+      // client can run ?
       boost::asio::socket_base::bytes_readable command(true);
       _socket.io_control(command);
       bytes_readable = command.get();

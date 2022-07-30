@@ -14,7 +14,9 @@
 volatile std::sig_atomic_t stopSignal = 0;
 
 Client::Client(const ClientOptions& options) : 
-  _options(options), _threadPool(options._numberBuilderThreads) {
+  _options(options),
+  // + 1 for heartbeat
+  _threadPool(options._numberBuilderThreads + 1) {
   MemoryPool::setExpectedSize(options._bufferSize);
 }
 
