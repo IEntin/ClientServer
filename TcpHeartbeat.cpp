@@ -57,8 +57,6 @@ void TcpHeartbeat::readToken() {
   asyncWait();
   if (_stopped)
     return;
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
   _buffer = '\0';
   auto self = shared_from_this();
   boost::asio::async_read(_socket,
@@ -66,10 +64,12 @@ void TcpHeartbeat::readToken() {
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
 			    if (!ec)
 			      sendToken();
-			    else
+			    else {
 			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			    boost::system::error_code ignore;
-			    _timer.cancel(ignore);
+			      boost::system::error_code ignore;
+			      _timer.cancel(ignore);
+			      _socket.close(ignore);
+			    }
 			  });
 }
 
@@ -78,11 +78,16 @@ void TcpHeartbeat::write(std::string_view reply) {
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
 			   [this, self](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
-			     if (ec)
+			     if (ec) {
 			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			     boost::system::error_code ignore;
-			     _timer.cancel(ignore);
-			     _socket.close(ignore);
+			       boost::system::error_code ignore;
+			       _timer.cancel(ignore);
+			       _socket.close(ignore);
+			     }
+			     else {
+			       boost::system::error_code ignore;
+			       _timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
+			     }
 			   });
 }
 
@@ -91,12 +96,11 @@ void TcpHeartbeat::asyncWait() {
   _timer.expires_from_now(std::chrono::seconds(_options._tcpTimeout), ignore);
   auto self = shared_from_this();
   _timer.async_wait([this, self](const boost::system::error_code& err) {
-		      if (err != boost::asio::error::operation_aborted) {
-			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";
-			boost::system::error_code ignore;
-			_socket.close(ignore);
-			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
-		      }
+		      if (err != boost::asio::error::operation_aborted)
+			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << err.what() << '\n';
+		      boost::system::error_code ignore;
+		      _socket.close(ignore);
+		      _timer.cancel(ignore);
 		    });
 }
 

@@ -21,7 +21,7 @@ TcpHeartbeatClient::~TcpHeartbeatClient() {
 void TcpHeartbeatClient::run() {
   while (!_stop) {
     try {
-      heartbeat(_options);
+      heartbeat();
       std::this_thread::sleep_for(std::chrono::milliseconds(_options._heartbeatPeriod));
       if (_stop)
 	break;
@@ -32,6 +32,28 @@ void TcpHeartbeatClient::run() {
       break;
     }
   }
+}
+
+bool TcpHeartbeatClient::heartbeat() {
+  boost::asio::io_context ioContext;
+  boost::asio::ip::tcp::socket socket(ioContext);
+  CloseSocket closeSocket(socket);
+  auto [endpoint, error] =
+    setSocket(ioContext, socket, _options._serverHost, _options._tcpHeartbeatPort);
+  if (error)
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << error.what() << '\n';
+  boost::system::error_code ec;
+  char data = '\n';
+  size_t transferred = boost::asio::write(socket, boost::asio::buffer(&data, 1), ec);
+  if (!ec) {
+    data = '\0';
+    transferred = boost::asio::read(socket, boost::asio::buffer(&data, 1), ec);
+  }
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return false;
+  }
+  return transferred == 1 && data == '\n';
 }
 
 bool TcpHeartbeatClient::start() {

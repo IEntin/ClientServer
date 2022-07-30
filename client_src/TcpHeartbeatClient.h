@@ -17,6 +17,8 @@ class TcpHeartbeatClient : public Runnable {
   bool start() override;
   void stop() override;
 
+  bool heartbeat();
+
   const ClientOptions & _options;
   std::atomic<bool> _stop = false;
 

@@ -7,8 +7,6 @@
 #include "Header.h"
 #include <boost/asio.hpp>
 
-struct ClientOptions;
-
 namespace tcp {
 
 struct CloseSocket {
@@ -19,12 +17,10 @@ struct CloseSocket {
 
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
   setSocket(boost::asio::io_context& ioContext,
-	     boost::asio::ip::tcp::socket& socket,
-	     std::string_view host,
-	     std::string_view port);
+	    boost::asio::ip::tcp::socket& socket,
+	    std::string_view host,
+	    std::string_view port);
 
 HEADER receiveHeader(boost::asio::ip::tcp::socket& socket);
-
-bool heartbeat(const ClientOptions& options);
 
 } // end of namespace tcp
