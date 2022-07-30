@@ -54,7 +54,6 @@ bool TcpSession::start() {
 void TcpSession::run() noexcept {
   readHeader();
   _ioContext.run();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":io_context::run() exit\n";
   if (_options._destroyBufferOnClientDisconnect)
     MemoryPool::destroyBuffers();
 }

@@ -24,7 +24,6 @@ TcpHeartbeat::~TcpHeartbeat() {
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 bool TcpHeartbeat::start() {
@@ -42,7 +41,6 @@ bool TcpHeartbeat::start() {
 void TcpHeartbeat::run() noexcept {
   readToken();
   _ioContext.run();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":io_context::run() exit\n";
 }
 
 void TcpHeartbeat::stop() {}

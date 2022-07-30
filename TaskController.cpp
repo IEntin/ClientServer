@@ -80,13 +80,11 @@ void TaskController::run() noexcept {
       _barrier.arrive_and_wait();
     }
   }
-  catch (std::system_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << e.what() << '\n';
+  catch (std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << " ! exception caught.\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! exception caught.\n";
   }
 }
 
@@ -104,8 +102,7 @@ void TaskController::submitTask(const HEADER& header, std::vector<char>& input, 
     future.get();
   }
   catch (std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
 }
 

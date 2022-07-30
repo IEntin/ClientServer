@@ -59,7 +59,6 @@ void TcpServer::stop() {
 
 void TcpServer::run() {
   _ioContext.run();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": io_context::run() exit.\n";
 }
 
 void TcpServer::accept() {

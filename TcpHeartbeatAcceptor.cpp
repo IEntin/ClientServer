@@ -54,7 +54,6 @@ void TcpHeartbeatAcceptor::stop() {
 
 void TcpHeartbeatAcceptor::run() {
   _ioContext.run();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":io_context::run() exit\n";
 }
 
 void TcpHeartbeatAcceptor::accept() {
