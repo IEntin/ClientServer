@@ -39,8 +39,13 @@ bool TcpHeartbeat::start() {
 }
 
 void TcpHeartbeat::run() noexcept {
-  readToken();
-  _ioContext.run();
+  try{
+    readToken();
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+  }
 }
 
 void TcpHeartbeat::stop() {}

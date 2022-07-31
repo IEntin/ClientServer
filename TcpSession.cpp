@@ -52,10 +52,15 @@ bool TcpSession::start() {
 }
 
 void TcpSession::run() noexcept {
-  readHeader();
-  _ioContext.run();
-  if (_options._destroyBufferOnClientDisconnect)
-    MemoryPool::destroyBuffers();
+  try {
+    readHeader();
+    _ioContext.run();
+    if (_options._destroyBufferOnClientDisconnect)
+      MemoryPool::destroyBuffers();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+  }
 }
 
 void TcpSession::stop() {}

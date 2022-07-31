@@ -58,7 +58,12 @@ void TcpServer::stop() {
 }
 
 void TcpServer::run() {
-  _ioContext.run();
+  try {
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+  }
 }
 
 void TcpServer::accept() {
