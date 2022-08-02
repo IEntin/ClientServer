@@ -7,22 +7,22 @@
 #include "Runnable.h"
 #include "Utility.h"
 
-ThreadPool::ThreadPool(int numberThreads) {
-  start(numberThreads);
+ThreadPool::ThreadPool(unsigned maxNumberThreads) : _maxNumberThreads(maxNumberThreads) {
+  start();
 }
 
 ThreadPool::~ThreadPool() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
-void ThreadPool::start(int numberThreads) {
-  for (int i = 0; i < numberThreads; ++i) {
+void ThreadPool::start() {
+  for (unsigned i = 0; i < _maxNumberThreads; ++i) {
     _threads.emplace_back([this] () {
 			    while (true) {
-			      // additional scope for the fast recycling
+			      // additional scope for fast recycling
 			      // of the finished runnable
 			      {
-				// this blocks waiting for the new runnable
+				// this blocks waiting for a new runnable
 				RunnablePtr runnable = get();
 				if (!runnable)
 				  break;
@@ -35,13 +35,12 @@ void ThreadPool::start(int numberThreads) {
 
 void ThreadPool::stop() {
   // wake up and join threads
-  for (int i = 0; i < static_cast<int>(_threads.size()); ++i)
+  for (unsigned i = 0; i < _threads.size(); ++i)
     push(RunnablePtr());
   for (auto& thread : _threads)
     if (thread.joinable())
       thread.join();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << " ... _threads joined ..." << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ... _threads joined ..." << '\n';
 }
 
 PROBLEMS ThreadPool::push(RunnablePtr runnable) {

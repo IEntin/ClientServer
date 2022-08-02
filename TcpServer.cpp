@@ -44,7 +44,6 @@ bool TcpServer::start() {
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
 	 << ec.what() << " tcpAcceptorPort=" << _options._tcpAcceptorPort << '\n';
-
   return !ec;
 }
 
@@ -67,14 +66,15 @@ void TcpServer::run() {
 }
 
 void TcpServer::accept() {
-  auto session = std::make_shared<TcpSession>(_options, shared_from_this());
-  _acceptor.async_accept(session->socket(),
-			 session->endpoint(),
-			 [session, this](boost::system::error_code ec) {
+  auto details = std::make_shared<SessionDetails>();
+  _acceptor.async_accept(details->_socket,
+			 details->_endpoint,
+			 [details, this](boost::system::error_code ec) {
 			   if (ec)
 			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 			   else {
+			     RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
 			     session->start();
 			     [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
 			     accept();

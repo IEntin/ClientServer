@@ -89,21 +89,12 @@ bool TcpClient::receive() {
   }
   // waiting in queue
   else {
-    std::size_t bytes_readable = 0;
-    do {
-      // client stopping ?
-      if (stopSignal)
-	break;
-      // server down ?
-      if (TcpHeartbeatClient::_serverDown)
-	return false;
-      // client can run ?
-      boost::asio::socket_base::bytes_readable command(true);
-      _socket.io_control(command);
-      bytes_readable = command.get();
-      if (bytes_readable == 0)
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-    } while (bytes_readable == 0);
+    boost::system::error_code ec;
+    _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
+    if (ec) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+      return false;
+    }
   }
   return true;
 }

@@ -12,11 +12,14 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options, RunnablePtr parent) :
+SessionDetails::SessionDetails() : _ioContext(1), _socket(_ioContext) {}
+
+TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent) :
   Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),
   _options(options),
-  _ioContext(1),
-  _socket(_ioContext),
+  _details(details),
+  _ioContext(details->_ioContext),
+  _socket(details->_socket),
   _timer(_ioContext),
   // save for reference count
   _parent(parent) {

@@ -16,16 +16,23 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
+struct SessionDetails {
+  SessionDetails();
+  boost::asio::io_context _ioContext;
+  boost::asio::ip::tcp::endpoint _endpoint;
+  boost::asio::ip::tcp::socket _socket;
+ };
+
+using SessionDetailsPtr = std::shared_ptr<SessionDetails>;
+
 class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
 public:
-  TcpSession(const ServerOptions& options, RunnablePtr parent);
+  TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent);
   ~TcpSession() override;
 
   void run() noexcept override;
   bool start() override;
   void stop() override;
-  auto& socket() { return _socket; }
-  auto& endpoint() { return _endpoint; }
 private:
   void readHeader();
   void readRequest();
@@ -35,9 +42,9 @@ private:
   bool sendReply(const Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
   const ServerOptions& _options;
-  boost::asio::io_context _ioContext;
-  boost::asio::ip::tcp::endpoint _endpoint;
-  boost::asio::ip::tcp::socket _socket;
+  SessionDetailsPtr _details;
+  boost::asio::io_context& _ioContext;
+  boost::asio::ip::tcp::socket& _socket;
   AsioTimer _timer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;

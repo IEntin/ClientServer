@@ -109,7 +109,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     os << transaction;
     return os.str();
   }
-  catch(...) {
+  catch (...) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
 	 << std::strerror(errno) << std::endl;
   }

@@ -26,7 +26,7 @@ void TcpHeartbeatClient::run() {
       if (_stop)
 	break;
     }
-    catch(const std::exception& e) {
+    catch (const std::exception& e) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
       _serverDown.store(true);
       break;
