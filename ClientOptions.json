@@ -14,6 +14,7 @@
   "MaxNumberTasks" : 0,
   "ServerHost" : "127.0.0.1",
   "TcpAcceptorPort" : "49152",
+  "TcpHeartbeatEnabled" : false,
   "TcpHeartbeatPort" : "49153",
   "HeartbeatPeriod" : 500,
   "NumberRepeatEINTR" : 3,

@@ -40,6 +40,7 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _ENXIOwait(_appOptions.get("ENXIOwai", 20)),
   _serverHost(_appOptions.get("ServerHost", std::string("127.0.0.1"))),
   _tcpAcceptorPort(_appOptions.get("TcpAcceptorPort", std::string("49172"))),
+  _tcpHeartbeatEnabled(_appOptions.get("TcpHeartbeatEnabled", true)),
   _tcpHeartbeatPort(_appOptions.get("TcpHeartbeatPort", std::string("49173"))),
   _heartbeatPeriod(_appOptions.get("HeartbeatPeriod", 100)),
   _fifoDirectoryName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string())),

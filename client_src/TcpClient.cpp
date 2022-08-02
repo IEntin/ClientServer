@@ -49,8 +49,10 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  _tcpHeartbeatClient = std::make_shared<TcpHeartbeatClient>(_options);
-  _threadPool.push(_tcpHeartbeatClient);
+  if (_options._tcpHeartbeatEnabled) {
+    _tcpHeartbeatClient = std::make_shared<TcpHeartbeatClient>(_options);
+    _threadPool.push(_tcpHeartbeatClient);
+  }
 }
 
 TcpClient::~TcpClient() {
@@ -71,10 +73,10 @@ bool TcpClient::send(const std::vector<char>& msg) {
 }
 
 bool TcpClient::receive() {
+  boost::system::error_code ec;
   // already running
   if (_running.test_and_set() || _problem == PROBLEMS::NONE) {
     char buffer[HEADER_SIZE] = {};
-    boost::system::error_code ec;
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
     if (ec) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
@@ -89,7 +91,6 @@ bool TcpClient::receive() {
   }
   // waiting in queue
   else {
-    boost::system::error_code ec;
     _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
     if (ec) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
