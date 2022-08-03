@@ -23,8 +23,6 @@ void TcpHeartbeatClient::run() {
     try {
       heartbeat();
       std::this_thread::sleep_for(std::chrono::milliseconds(_options._heartbeatPeriod));
-      if (_stop)
-	break;
     }
     catch (const std::exception& e) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
