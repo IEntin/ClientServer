@@ -23,8 +23,6 @@ class Client {
 
   const ClientOptions& _options;
 
-  PROBLEMS _problem = PROBLEMS::NONE;
-
   std::atomic_flag _running = ATOMIC_FLAG_INIT;
 
   ThreadPool _threadPool;

@@ -9,8 +9,6 @@
 #include "TcpHeartbeatClient.h"
 #include "Utility.h"
 
-extern volatile std::sig_atomic_t stopSignal;
-
 namespace tcp {
 
 TcpClient::TcpClient(const ClientOptions& options) :
@@ -27,8 +25,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (ec)
     throw(std::runtime_error(std::string(std::strerror(errno))));
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
-  _problem = getProblem(header);
-  switch (_problem) {
+  PROBLEMS problem = getProblem(header);
+  switch (problem) {
   case PROBLEMS::NONE :
     CLOG << "NO PROBLEMS\n";
     break;
@@ -74,29 +72,26 @@ bool TcpClient::send(const std::vector<char>& msg) {
 
 bool TcpClient::receive() {
   boost::system::error_code ec;
-  // already running
-  if (_running.test_and_set() || _problem == PROBLEMS::NONE) {
-    char buffer[HEADER_SIZE] = {};
-    boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
-    if (ec) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-      return false;
-    }
-    auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
-      decodeHeader(std::string_view(buffer, HEADER_SIZE));
-    if (problem != PROBLEMS::NONE)
-      return false;
-    if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
-      return false;
-  }
-  // waiting in queue
-  else {
+  // first run with possible wait
+  if (!_running.test_and_set()) {
     _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
     if (ec) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
       return false;
     }
   }
+  char buffer[HEADER_SIZE] = {};
+  boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return false;
+  }
+  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
+    decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  if (problem != PROBLEMS::NONE)
+    return false;
+  if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
+    return false;
   return true;
 }
 

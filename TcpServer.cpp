@@ -53,7 +53,8 @@ void TcpServer::stop() {
   _acceptor.close(ignore);
   _threadPool.stop();
   _ioContext.stop();
-  _heartbeatAcceptor->stop();
+  if (_heartbeatAcceptor)
+    _heartbeatAcceptor->stop();
 }
 
 void TcpServer::run() {
