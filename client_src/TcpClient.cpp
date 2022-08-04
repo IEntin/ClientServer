@@ -72,13 +72,10 @@ bool TcpClient::send(const std::vector<char>& msg) {
 
 bool TcpClient::receive() {
   boost::system::error_code ec;
-  // first run with possible wait
-  if (!_running.test_and_set()) {
-    _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-    if (ec) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-      return false;
-    }
+  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return false;
   }
   char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
