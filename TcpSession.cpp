@@ -25,6 +25,7 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
+  _timer.expires_from_now(std::chrono::seconds(std::numeric_limits<int>::max()), ignore);
 }
 
 TcpSession::~TcpSession() {
@@ -168,7 +169,7 @@ void TcpSession::asyncWait() {
 			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";
 			boost::system::error_code ignore;
 			_socket.close(ignore);
-			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
+			_timer.cancel(ignore);
 		      }
 		    });
 }

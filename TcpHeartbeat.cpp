@@ -20,9 +20,14 @@ TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr detai
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
+  _timer.expires_from_now(std::chrono::seconds(std::numeric_limits<int>::max()), ignore);
 }
 
 TcpHeartbeat::~TcpHeartbeat() {
+  boost::system::error_code ignore;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+  _socket.close(ignore);
+  _timer.cancel(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
@@ -48,16 +53,9 @@ void TcpHeartbeat::run() noexcept {
   }
 }
 
-void TcpHeartbeat::stop() {
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-  _socket.close(ignore);
-}
+void TcpHeartbeat::stop() {}
 
 void TcpHeartbeat::sendToken() {
-  if (_stopped)
-    return;
   auto self = shared_from_this();
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(&_buffer, 1),
@@ -104,7 +102,6 @@ void TcpHeartbeat::asyncWait() {
 			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";
 			boost::system::error_code ignore;
 			_socket.close(ignore);
-			_timer.expires_at(boost::asio::steady_timer::time_point::max(), ignore);
 		      }
 		    });
 }
