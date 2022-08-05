@@ -17,7 +17,7 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
 public:
-  TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details);
+  TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent);
   ~TcpHeartbeat() override;
 
   bool start() override;

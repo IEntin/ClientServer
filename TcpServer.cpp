@@ -87,7 +87,7 @@ void TcpServer::accept() {
 			       [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
 			     }
 			     else if (type == 'h') {
-			       RunnablePtr heartbeat = std::make_shared<TcpHeartbeat>(_options, details);
+			       RunnablePtr heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
 			       heartbeat->start();
 			       [[maybe_unused]] PROBLEMS problem = _heartbeatThreadPool.push(heartbeat);
 			     }

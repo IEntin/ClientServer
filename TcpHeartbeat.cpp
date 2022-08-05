@@ -10,7 +10,8 @@
 
 namespace tcp {
 
-TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details) :
+TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent) :
+  Runnable(parent, TaskController::instance()),
   _options(options),
   _details(details),
   _ioContext(details->_ioContext),
