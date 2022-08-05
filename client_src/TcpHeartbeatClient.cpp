@@ -12,9 +12,26 @@ namespace tcp {
 std::atomic<bool> TcpHeartbeatClient::_serverDown;
 
 TcpHeartbeatClient::TcpHeartbeatClient(const ClientOptions& options) :
-  _options(options){}
+  _options(options),
+  _socket(_ioContext) {
+  auto [endpoint, error] =
+    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort);
+  if (error)
+    throw(std::runtime_error(error.what()));
+  boost::system::error_code ec;
+  char type = 'h';
+  size_t result[[maybe_unused]] =
+    boost::asio::write(_socket, boost::asio::buffer(&type, 1), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    throw(std::runtime_error(ec.what()));
+  }
+}
 
 TcpHeartbeatClient::~TcpHeartbeatClient() {
+  boost::system::error_code ignore;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+  _socket.close(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
@@ -33,20 +50,11 @@ void TcpHeartbeatClient::run() {
 }
 
 bool TcpHeartbeatClient::heartbeat() {
-  boost::asio::io_context ioContext;
-  boost::asio::ip::tcp::socket socket(ioContext);
-  CloseSocket closeSocket(socket);
-  auto [endpoint, error] =
-    setSocket(ioContext, socket, _options._serverHost, _options._tcpHeartbeatPort);
-  if (error)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << error.what() << '\n';
   boost::system::error_code ec;
   char data = '\n';
-  size_t transferred = boost::asio::write(socket, boost::asio::buffer(&data, 1), ec);
-  if (!ec) {
-    data = '\0';
-    transferred = boost::asio::read(socket, boost::asio::buffer(&data, 1), ec);
-  }
+  size_t transferred = boost::asio::write(_socket, boost::asio::buffer(&data, 1), ec);
+  if (!ec)
+    transferred = boost::asio::read(_socket, boost::asio::buffer(&data, 1), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;

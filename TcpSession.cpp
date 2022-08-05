@@ -7,12 +7,11 @@
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
+#include "SessionDetails.h"
 #include "TaskController.h"
 #include "Utility.h"
 
 namespace tcp {
-
-SessionDetails::SessionDetails() : _ioContext(1), _socket(_ioContext) {}
 
 TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent) :
   Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),

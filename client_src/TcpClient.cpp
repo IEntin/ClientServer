@@ -19,8 +19,15 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (error)
     throw(std::runtime_error(error.what()));
   _endpoint = endpoint;
-  char buffer[HEADER_SIZE] = {};
   boost::system::error_code ec;
+  char type = 's';
+  size_t result[[maybe_unused]] =
+    boost::asio::write(_socket, boost::asio::buffer(&type, 1), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    throw(std::runtime_error(ec.what()));
+  }
+  char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec)
     throw(std::runtime_error(std::string(std::strerror(errno))));

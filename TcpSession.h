@@ -16,14 +16,7 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-struct SessionDetails {
-  SessionDetails();
-  boost::asio::io_context _ioContext;
-  boost::asio::ip::tcp::endpoint _endpoint;
-  boost::asio::ip::tcp::socket _socket;
- };
-
-using SessionDetailsPtr = std::shared_ptr<SessionDetails>;
+using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
 class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
 public:

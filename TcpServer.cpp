@@ -4,8 +4,9 @@
 
 #include "TcpServer.h"
 #include "ServerOptions.h"
+#include "SessionDetails.h"
 #include "TaskController.h"
-#include "TcpHeartbeatAcceptor.h"
+#include "TcpHeartbeat.h"
 #include "TcpSession.h"
 #include "Utility.h"
 
@@ -18,7 +19,9 @@ TcpServer::TcpServer(const ServerOptions& options) :
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpAcceptorPort),
   _acceptor(_ioContext),
   // + 1 for 'this'
-  _threadPool(_options._maxTcpSessions + 1) {}
+  _threadPool(_options._maxTcpSessions + 1),
+  _heartbeatThreadPool(10) {
+}
 
 TcpServer::~TcpServer() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
@@ -39,8 +42,6 @@ bool TcpServer::start() {
     accept();
     _threadPool.push(shared_from_this());
   }
-  _heartbeatAcceptor = std::make_shared<TcpHeartbeatAcceptor>(_options);
-  _heartbeatAcceptor->start();
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
 	 << ec.what() << " tcpAcceptorPort=" << _options._tcpAcceptorPort << '\n';
@@ -51,10 +52,9 @@ void TcpServer::stop() {
   _stopped.store(true);
   boost::system::error_code ignore;
   _acceptor.close(ignore);
+  _heartbeatThreadPool.stop();
   _threadPool.stop();
   _ioContext.stop();
-  if (_heartbeatAcceptor)
-    _heartbeatAcceptor->stop();
 }
 
 void TcpServer::run() {
@@ -75,9 +75,22 @@ void TcpServer::accept() {
 			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 			   else {
-			     RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
-			     session->start();
-			     [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+			     char type = '\0';
+			     boost::asio::read(details->_socket, boost::asio::buffer(&type, 1), ec);
+			     if (ec) {
+			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
+			       return;
+			     }
+			     if (type == 's') {
+			       RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
+			       session->start();
+			       [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+			     }
+			     else if (type == 'h') {
+			       RunnablePtr heartbeat = std::make_shared<TcpHeartbeat>(_options, details);
+			       heartbeat->start();
+			       [[maybe_unused]] PROBLEMS problem = _heartbeatThreadPool.push(heartbeat);
+			     }
 			     accept();
 			   }
 			 });

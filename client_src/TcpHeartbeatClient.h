@@ -6,6 +6,7 @@
 
 #include "Runnable.h"
 #include <exception>
+#include <boost/asio.hpp>
 
 struct ClientOptions;
 
@@ -20,7 +21,12 @@ class TcpHeartbeatClient : public Runnable {
   bool heartbeat();
 
   const ClientOptions & _options;
+
   std::atomic<bool> _stop = false;
+
+  boost::asio::io_context _ioContext;
+
+  boost::asio::ip::tcp::socket _socket;
 
  public:
 
