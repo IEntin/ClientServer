@@ -10,6 +10,7 @@
 #include "Task.h"
 #include "TaskController.h"
 #include "TcpClient.h"
+#include "TcpHeartbeatClient.h"
 #include "TcpServer.h"
 #include "TestEnvironment.h"
 #include "Transaction.h"
@@ -246,4 +247,44 @@ TEST_F(LogicTestSortInput, Sort) {
 
 TEST_F(LogicTestSortInput, NoSort) {
   testLogicSortInput(false);
+}
+
+struct LogicTestHeartbeat : testing::Test {
+  void testLogicHeartbeat() {
+    try {
+      // start server
+      RunnablePtr tcpServer =
+	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
+      bool serverStart = tcpServer->start();
+      // start client
+      TestEnvironment::_clientOptions._diagnostics = true;
+      TestEnvironment::_clientOptions._tcpHeartbeatEnabled = true;
+      tcp::TcpClient client(TestEnvironment::_clientOptions);
+      client.run();
+      tcpServer->stop();
+      ASSERT_TRUE(serverStart);
+      std::string_view calibratedOutput = TestEnvironment::_outputD;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+      ASSERT_FALSE(tcp::TcpHeartbeatClient::_serverDown);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    }
+  }
+
+  void TearDown() {
+    TestEnvironment::reset();
+  }
+
+  static void SetUpTestSuite() {
+    // To change options modify defaults in
+    // ServerOptions.cpp and rebuild application
+    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
+    Task::setProcessMethod(Transaction::processRequest);
+  }
+};
+
+TEST_F(LogicTestHeartbeat, Heartbeat) {
+  testLogicHeartbeat();
 }
