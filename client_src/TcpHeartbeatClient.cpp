@@ -4,6 +4,7 @@
 
 #include "TcpHeartbeatClient.h"
 #include "ClientOptions.h"
+#include "SessionDetails.h"
 #include "Tcp.h"
 #include "Utility.h"
 
@@ -19,7 +20,7 @@ TcpHeartbeatClient::TcpHeartbeatClient(const ClientOptions& options) :
   if (error)
     throw(std::runtime_error(error.what()));
   boost::system::error_code ec;
-  char type = 'h';
+  SESSIONTYPE type = SESSIONTYPE::HEARTBEAT;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(&type, 1), ec);
   if (ec) {

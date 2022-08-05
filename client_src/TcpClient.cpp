@@ -5,6 +5,7 @@
 #include "TcpClient.h"
 #include "ClientOptions.h"
 #include "Header.h"
+#include "SessionDetails.h"
 #include "Tcp.h"
 #include "TcpHeartbeatClient.h"
 #include "Utility.h"
@@ -20,7 +21,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
     throw(std::runtime_error(error.what()));
   _endpoint = endpoint;
   boost::system::error_code ec;
-  char type = 's';
+  SESSIONTYPE type = SESSIONTYPE::SESSION;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(&type, 1), ec);
   if (ec) {

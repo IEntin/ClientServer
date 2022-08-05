@@ -75,21 +75,30 @@ void TcpServer::accept() {
 			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 			   else {
-			     char type = '\0';
-			     boost::asio::read(details->_socket, boost::asio::buffer(&type, 1), ec);
+			     char ch = '\0';
+			     boost::asio::read(details->_socket, boost::asio::buffer(&ch, 1), ec);
 			     if (ec) {
 			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
 			       return;
 			     }
-			     if (type == 's') {
-			       RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
-			       session->start();
-			       [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
-			     }
-			     else if (type == 'h') {
-			       RunnablePtr heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
-			       heartbeat->start();
-			       [[maybe_unused]] PROBLEMS problem = _heartbeatThreadPool.push(heartbeat);
+			     SESSIONTYPE type = static_cast<SESSIONTYPE>(ch);
+			     switch (type) {
+			     case SESSIONTYPE::SESSION:
+			       {
+				 RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
+				 session->start();
+				 [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+			       }
+			       break;
+			     case SESSIONTYPE::HEARTBEAT:
+			       {
+				 RunnablePtr heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
+				 heartbeat->start();
+				 [[maybe_unused]] PROBLEMS problem = _heartbeatThreadPool.push(heartbeat);
+			       }
+			       break;
+			     default:
+			       break;
 			     }
 			     accept();
 			   }
