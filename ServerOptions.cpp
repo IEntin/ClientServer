@@ -21,7 +21,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
 			 std::thread::hardware_concurrency();}()),
   _maxTcpSessions(_appOptions.get("MaxTcpSessions", 2)),
   _maxFifoSessions(_appOptions.get("MaxFifoSessions", 2)),
-  _tcpAcceptorPort(_appOptions.get("TcpAcceptorPort", 49172)),
+  _tcpPort(_appOptions.get("TcpPort", 49172)),
   _tcpTimeout(_appOptions.get("TcpTimeout", 5)),
   _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
   _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),

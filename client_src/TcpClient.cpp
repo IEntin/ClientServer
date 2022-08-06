@@ -16,7 +16,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   Client(options),
   _socket(_ioContext) {
   auto [endpoint, error] =
-    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpAcceptorPort);
+    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
     throw(std::runtime_error(error.what()));
   _endpoint = endpoint;

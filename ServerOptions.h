@@ -21,7 +21,7 @@ struct ServerOptions {
   int _numberWorkThreads;
   int _maxTcpSessions;
   int _maxFifoSessions;
-  unsigned short _tcpAcceptorPort;
+  unsigned short _tcpPort;
   int _tcpTimeout;
   int _numberRepeatEINTR;
   int _numberRepeatENXIO;

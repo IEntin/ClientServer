@@ -11,7 +11,7 @@
   "AcceptorBaseName" : "Acceptor",
   "MaxTcpSessions" : 10,
   "MaxFifoSessions" : 10,
-  "TcpAcceptorPort" : 49152,
+  "TcpPort" : 49152,
   "TcpTimeout" : 5,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,

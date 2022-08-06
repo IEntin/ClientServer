@@ -16,7 +16,7 @@ TcpServer::TcpServer(const ServerOptions& options) :
   Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   _ioContext(1),
-  _endpoint(boost::asio::ip::address_v4::any(), _options._tcpAcceptorPort),
+  _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
   // + 1 for 'this'
   _threadPool(_options._maxTcpSessions + 1),
@@ -44,7 +44,7 @@ bool TcpServer::start() {
   }
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
-	 << ec.what() << " tcpAcceptorPort=" << _options._tcpAcceptorPort << '\n';
+	 << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
   return !ec;
 }
 
