@@ -12,11 +12,15 @@ struct ClientOptions;
 
 namespace tcp {
 
+using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
+
 class TcpHeartbeatClient : public Runnable {
 
   void run() override;
   bool start() override;
   void stop() override;
+
+  void asyncWait();
 
   bool heartbeat();
 
@@ -27,6 +31,8 @@ class TcpHeartbeatClient : public Runnable {
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
+
+  AsioTimer _timer;
 
  public:
 

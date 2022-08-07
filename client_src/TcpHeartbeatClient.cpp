@@ -14,7 +14,8 @@ std::atomic<bool> TcpHeartbeatClient::_serverDown;
 
 TcpHeartbeatClient::TcpHeartbeatClient(const ClientOptions& options) :
   _options(options),
-  _socket(_ioContext) {
+  _socket(_ioContext),
+  _timer(_ioContext) {
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
@@ -33,20 +34,18 @@ TcpHeartbeatClient::~TcpHeartbeatClient() {
   boost::system::error_code ignore;
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
+  _timer.cancel(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
 void TcpHeartbeatClient::run() {
-  while (!_stop) {
-    try {
-      heartbeat();
-      std::this_thread::sleep_for(std::chrono::milliseconds(_options._heartbeatPeriod));
-    }
-    catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
-      _serverDown.store(true);
-      break;
-    }
+  try {
+    asyncWait();
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+    _serverDown.store(true);
   }
 }
 
@@ -63,12 +62,34 @@ bool TcpHeartbeatClient::heartbeat() {
   return transferred == 1 && data == '\n';
 }
 
+void TcpHeartbeatClient::asyncWait() {
+  boost::system::error_code ec;
+  _timer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return;
+  }
+  _timer.async_wait([this](const boost::system::error_code& e) {
+		      if (e) {
+			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+			return;
+		      }
+		      if (!heartbeat())
+			return;
+		      asyncWait();
+		    });
+}
+
 bool TcpHeartbeatClient::start() {
+  boost::system::error_code ec;
+  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()), ec);
   return true;
 }
 
 void TcpHeartbeatClient::stop() {
   _stop.store(true);
+  _ioContext.stop();
+  _socket.close();
 }
 
 } // end of namespace tcp

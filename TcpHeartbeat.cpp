@@ -16,12 +16,7 @@ TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr detai
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),
-  _timer(_ioContext) {
-  boost::system::error_code ignore;
-  _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
-  _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
-  _timer.expires_from_now(std::chrono::seconds(std::numeric_limits<int>::max()), ignore);
-}
+  _timer(_ioContext) {}
 
 TcpHeartbeat::~TcpHeartbeat() {
   boost::system::error_code ignore;
@@ -33,7 +28,9 @@ TcpHeartbeat::~TcpHeartbeat() {
 
 bool TcpHeartbeat::start() {
   boost::system::error_code ec;
-  _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
+  _timer.expires_from_now(std::chrono::seconds(std::numeric_limits<int>::max()), ec);
+  if (!ec)
+    _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
   if (!ec)
     _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
   if (ec) {
