@@ -54,12 +54,14 @@ bool TcpHeartbeatClient::heartbeat() {
   char data = '\n';
   size_t transferred = boost::asio::write(_socket, boost::asio::buffer(&data, 1), ec);
   if (!ec)
-    transferred = boost::asio::read(_socket, boost::asio::buffer(&data, 1), ec);
+    transferred += boost::asio::read(_socket, boost::asio::buffer(&data, 1), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  return transferred == 1 && data == '\n';
+  bool success = transferred == 2 && data == '\n';
+  _serverDown.store(!success);
+  return success;
 }
 
 void TcpHeartbeatClient::asyncWait() {
