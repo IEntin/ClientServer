@@ -69,13 +69,17 @@ void TcpHeartbeatClient::asyncWait() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return;
   }
-  _timer.async_wait([this](const boost::system::error_code& e) {
-		      if (e) {
-			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-			return;
+  auto self(weak_from_this());
+  _timer.async_wait([this, self](const boost::system::error_code& e) {
+		      auto ptr = self.lock();
+		      if (ptr) {
+			if (e) {
+			  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+			  return;
+			}
+			if (!heartbeat())
+			  return;
 		      }
-		      if (!heartbeat())
-			return;
 		      asyncWait();
 		    });
 }
