@@ -250,9 +250,11 @@ TEST_F(LogicTestSortInput, NoSort) {
 }
 
 struct LogicTestHeartbeat : testing::Test {
-  void testLogicHeartbeat() {
+  void testLogicHeartbeat(bool btimeout = false) {
     try {
       // start server
+      if (btimeout)
+	TestEnvironment::_serverOptions._tcpHeartbeatTimeout = 0;
       RunnablePtr tcpServer =
 	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
       bool serverStart = tcpServer->start();
@@ -263,10 +265,14 @@ struct LogicTestHeartbeat : testing::Test {
       client.run();
       tcpServer->stop();
       ASSERT_TRUE(serverStart);
-      std::string_view calibratedOutput = TestEnvironment::_outputD;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-      ASSERT_FALSE(tcp::TcpHeartbeatClient::_serverDown);
+      if (btimeout)
+	 ASSERT_TRUE(tcp::TcpHeartbeatClient::_serverDown);
+      else {
+	std::string_view calibratedOutput = TestEnvironment::_outputD;
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
+	ASSERT_FALSE(tcp::TcpHeartbeatClient::_serverDown);
+      }
     }
     catch (const std::exception& e) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
@@ -287,4 +293,8 @@ struct LogicTestHeartbeat : testing::Test {
 
 TEST_F(LogicTestHeartbeat, Heartbeat) {
   testLogicHeartbeat();
+}
+
+TEST_F(LogicTestHeartbeat, Timeout) {
+  testLogicHeartbeat(true);
 }

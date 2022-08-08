@@ -26,8 +26,6 @@ class TcpHeartbeatClient : public std::enable_shared_from_this<TcpHeartbeatClien
 
   const ClientOptions & _options;
 
-  std::atomic<bool> _stop = false;
-
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;

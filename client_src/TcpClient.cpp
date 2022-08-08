@@ -57,6 +57,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
   }
   if (_options._tcpHeartbeatEnabled) {
     _tcpHeartbeatClient = std::make_shared<TcpHeartbeatClient>(_options);
+    if (!_tcpHeartbeatClient->start())
+      return;;
     _threadPool.push(_tcpHeartbeatClient);
   }
 }

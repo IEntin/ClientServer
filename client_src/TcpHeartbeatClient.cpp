@@ -10,7 +10,7 @@
 
 namespace tcp {
 
-std::atomic<bool> TcpHeartbeatClient::_serverDown;
+std::atomic<bool> TcpHeartbeatClient::_serverDown = false;
 
 TcpHeartbeatClient::TcpHeartbeatClient(const ClientOptions& options) :
   _options(options),
@@ -40,7 +40,6 @@ TcpHeartbeatClient::~TcpHeartbeatClient() {
 
 void TcpHeartbeatClient::run() {
   try {
-    asyncWait();
     _ioContext.run();
   }
   catch (const std::exception& e) {
@@ -57,6 +56,7 @@ bool TcpHeartbeatClient::heartbeat() {
     transferred += boost::asio::read(_socket, boost::asio::buffer(&data, 1), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    _serverDown.store(true);
     return false;
   }
   bool success = transferred == 2 && data == '\n';
@@ -66,7 +66,6 @@ bool TcpHeartbeatClient::heartbeat() {
 
 void TcpHeartbeatClient::asyncWait() {
   boost::system::error_code ec;
-  _timer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return;
@@ -82,18 +81,25 @@ void TcpHeartbeatClient::asyncWait() {
 			if (!heartbeat())
 			  return;
 		      }
+		      boost::system::error_code ec;
+		      _timer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
 		      asyncWait();
 		    });
 }
 
 bool TcpHeartbeatClient::start() {
   boost::system::error_code ec;
-  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()), ec);
+  if (!heartbeat())
+    return false;
+  asyncWait();
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return false;
+  }
   return true;
 }
 
 void TcpHeartbeatClient::stop() {
-  _stop.store(true);
   _ioContext.stop();
   _socket.close();
 }

@@ -72,15 +72,14 @@ void TcpHeartbeat::sendToken() {
 void TcpHeartbeat::readToken() {
   if (_stopped)
     return;
+  asyncWait();
   _buffer = '\0';
   auto self = shared_from_this();
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(&_buffer, 1),
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-			    asyncWait();
-			    if (!ec) {
+			    if (!ec)
 			      sendToken();
-			    }
 			    else {
 			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 			      boost::system::error_code ignore;
@@ -92,7 +91,7 @@ void TcpHeartbeat::readToken() {
 
 void TcpHeartbeat::asyncWait() {
   boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::seconds(_options._tcpTimeout), ignore);
+  _timer.expires_from_now(std::chrono::seconds(_options._tcpHeartbeatTimeout), ignore);
   auto self = shared_from_this();
   _timer.async_wait([this, self](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {
