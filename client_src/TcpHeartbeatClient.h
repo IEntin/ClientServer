@@ -37,7 +37,7 @@ class TcpHeartbeatClient : public std::enable_shared_from_this<TcpHeartbeatClien
   TcpHeartbeatClient(const ClientOptions& options);
   ~TcpHeartbeatClient() override;
 
-  static std::atomic<bool> _serverDown;
+  static std::atomic<bool> _heartbeatFailed;
 };
 
 } // end of namespace tcp

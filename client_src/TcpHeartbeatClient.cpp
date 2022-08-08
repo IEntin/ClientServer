@@ -10,7 +10,7 @@
 
 namespace tcp {
 
-std::atomic<bool> TcpHeartbeatClient::_serverDown = false;
+std::atomic<bool> TcpHeartbeatClient::_heartbeatFailed = false;
 
 TcpHeartbeatClient::TcpHeartbeatClient(const ClientOptions& options) :
   _options(options),
@@ -44,7 +44,7 @@ void TcpHeartbeatClient::run() {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
-    _serverDown.store(true);
+    _heartbeatFailed.store(true);
   }
 }
 
@@ -56,11 +56,11 @@ bool TcpHeartbeatClient::heartbeat() {
     transferred += boost::asio::read(_socket, boost::asio::buffer(&data, 1), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    _serverDown.store(true);
+    _heartbeatFailed.store(true);
     return false;
   }
   bool success = transferred == 2 && data == '\n';
-  _serverDown.store(!success);
+  _heartbeatFailed.store(!success);
   return success;
 }
 

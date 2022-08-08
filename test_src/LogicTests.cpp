@@ -266,12 +266,12 @@ struct LogicTestHeartbeat : testing::Test {
       tcpServer->stop();
       ASSERT_TRUE(serverStart);
       if (btimeout)
-	 ASSERT_TRUE(tcp::TcpHeartbeatClient::_serverDown);
+	 ASSERT_TRUE(tcp::TcpHeartbeatClient::_heartbeatFailed);
       else {
 	std::string_view calibratedOutput = TestEnvironment::_outputD;
 	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
 	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-	ASSERT_FALSE(tcp::TcpHeartbeatClient::_serverDown);
+	ASSERT_FALSE(tcp::TcpHeartbeatClient::_heartbeatFailed);
       }
     }
     catch (const std::exception& e) {
