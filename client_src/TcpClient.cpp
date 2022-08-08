@@ -64,8 +64,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
-  if (_tcpHeartbeatClient)
-    _tcpHeartbeatClient->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
 }
 
@@ -105,7 +103,10 @@ bool TcpClient::receive() {
 bool TcpClient::run() {
   try {
     CloseSocket closeSocket(_socket);
-    return Client::run();
+    bool success = Client::run();
+    if (_tcpHeartbeatClient)
+      _tcpHeartbeatClient->stop();
+    return success;
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
