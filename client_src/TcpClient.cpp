@@ -36,7 +36,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
   PROBLEMS problem = getProblem(header);
   switch (problem) {
   case PROBLEMS::NONE :
-    CLOG << "NO PROBLEMS\n";
     break;
   case PROBLEMS::MAX_TCP_SESSIONS:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -58,7 +57,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (_options._tcpHeartbeatEnabled) {
     _tcpHeartbeatClient = std::make_shared<TcpHeartbeatClient>(_options);
     if (!_tcpHeartbeatClient->start())
-      return;;
+      return;
     _threadPool.push(_tcpHeartbeatClient);
   }
 }

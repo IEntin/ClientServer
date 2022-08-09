@@ -65,11 +65,6 @@ bool TcpHeartbeatClient::heartbeat() {
 }
 
 void TcpHeartbeatClient::asyncWait() {
-  boost::system::error_code ec;
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return;
-  }
   auto self(weak_from_this());
   _timer.async_wait([this, self](const boost::system::error_code& e) {
 		      auto ptr = self.lock();
@@ -88,20 +83,16 @@ void TcpHeartbeatClient::asyncWait() {
 }
 
 bool TcpHeartbeatClient::start() {
-  boost::system::error_code ec;
   if (!heartbeat())
     return false;
   asyncWait();
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
-  }
   return true;
 }
 
 void TcpHeartbeatClient::stop() {
   _ioContext.stop();
-  _socket.close();
+  boost::system::error_code ec;
+  _socket.close(ec);
 }
 
 } // end of namespace tcp

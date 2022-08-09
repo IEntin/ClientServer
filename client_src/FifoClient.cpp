@@ -53,7 +53,6 @@ FifoClient::FifoClient(const ClientOptions& options) :
        << _ephemeralIndex << ", _fifoName =" << _fifoName << '\n';
   switch (_problem) {
   case PROBLEMS::NONE :
-    CLOG << "NO PROBLEMS\n";
     break;
   case PROBLEMS::MAX_FIFO_SESSIONS:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
