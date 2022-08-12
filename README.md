@@ -118,7 +118,7 @@ sudo cp lib/*.a /usr/lib
 The compiler must support c++20\
 gcc  11.1.0\
 clang 12.0.0\
-boost_1_79_0
+boost_1_80_0
 
 make arguments:
 
