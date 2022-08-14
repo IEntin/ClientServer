@@ -14,15 +14,21 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
+using DeadlineTimer = boost::asio::deadline_timer;
+
 class TcpHeartbeatClient : public std::enable_shared_from_this<TcpHeartbeatClient>, public Runnable {
 
   void run() override;
   bool start() override;
   void stop() override;
 
-  void asyncWait();
+  void asyncWaitPeriod();
 
-  bool heartbeat();
+  void asyncWaitTimeout();
+
+  void sendToken();
+
+  void readToken();
 
   const ClientOptions & _options;
 
@@ -30,12 +36,16 @@ class TcpHeartbeatClient : public std::enable_shared_from_this<TcpHeartbeatClien
 
   boost::asio::ip::tcp::socket _socket;
 
-  AsioTimer _timer;
+  AsioTimer _timerPeriod;
+
+  DeadlineTimer _timerTimeout;
 
  public:
 
   TcpHeartbeatClient(const ClientOptions& options);
   ~TcpHeartbeatClient() override;
+
+  char _buffer = '\n';
 
   static std::atomic<bool> _heartbeatFailed;
 };

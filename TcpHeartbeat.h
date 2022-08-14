@@ -25,7 +25,6 @@ public:
 private:
   void run() noexcept override;
   void stop() override;
-
   void readToken();
   void asyncWait();
   void sendToken();

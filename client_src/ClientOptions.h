@@ -28,6 +28,7 @@ struct ClientOptions {
   std::string _tcpPort;
   bool _tcpHeartbeatEnabled;
   int _heartbeatPeriod;
+  int _tcpHeartbeatTimeout;
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   COMPRESSORS _compressor;
