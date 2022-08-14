@@ -50,7 +50,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
   std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _ephemeralIndex:"
-       << _ephemeralIndex << ", _fifoName =" << _fifoName << '\n';
+       << _ephemeralIndex << ", _fifoName =" << _fifoName << std::endl;
   switch (_problem) {
   case PROBLEMS::NONE :
     break;
@@ -75,7 +75,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 
 FifoClient::~FifoClient() {
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool FifoClient::send(const std::vector<char>& subtask) {

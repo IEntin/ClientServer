@@ -144,7 +144,7 @@ bool TaskBuilder::createTask() {
 bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
   bool bcompressed = _compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    CLOG << "compression " << (bcompressed ? "enabled" : "disabled") << '\n';
+    CLOG << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   std::string_view uncompressed(beg + HEADER_SIZE, end);
   size_t uncomprSize = uncompressed.size();
   if (bcompressed) {

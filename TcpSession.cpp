@@ -25,7 +25,7 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   boost::system::error_code ignore;
   _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
-  _timer.expires_from_now(std::chrono::seconds(std::numeric_limits<int>::max()), ignore);
+  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()), ignore);
 }
 
 TcpSession::~TcpSession() {
@@ -33,7 +33,7 @@ TcpSession::~TcpSession() {
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
   _timer.cancel(ignore);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpSession::start() {
@@ -41,7 +41,7 @@ bool TcpSession::start() {
   const auto& remote = _socket.remote_endpoint();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
-       << ",remote " << remote.address() << ':' << remote.port() << '\n';
+       << ",remote " << remote.address() << ':' << remote.port() << std::endl;
   PROBLEMS problem = _typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE;
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, 0, 0, COMPRESSORS::NONE, false, 0, 'R', problem);
@@ -74,7 +74,7 @@ bool TcpSession::onReceiveRequest() {
   bool bcompressed = isInputCompressed(_header);
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed.\n";
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     if (!decompress(_request, _uncompressed)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":decompression failed.\n";
       return false;
@@ -82,7 +82,7 @@ bool TcpSession::onReceiveRequest() {
   }
   else
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed.\n";
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
   TaskController::instance()->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
@@ -162,7 +162,7 @@ void TcpSession::write(std::string_view reply) {
 
 void TcpSession::asyncWait() {
   boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::seconds(_options._tcpTimeout), ignore);
+  _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ignore);
   auto self = shared_from_this();
   _timer.async_wait([this, self](const boost::system::error_code& err) {
 		      if (err != boost::asio::error::operation_aborted) {

@@ -33,7 +33,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
     }
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	<< ':' << (errno ? std::strerror(errno) : "EOF") << '\n';
+	   << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::FIFO_PROBLEM };
     }
     else
@@ -65,7 +65,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
     }
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ':' << (errno ? std::strerror(errno) : "EOF") << '\n';
+	   << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return false;
     }
     else
@@ -168,7 +168,7 @@ void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOw
   } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
   if (fd == -1)
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << fifoName << '\n';
+	 << std::strerror(errno) << ' ' << fifoName << std::endl;
 }
 
 } // end of namespace fifo

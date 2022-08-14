@@ -67,7 +67,7 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
   if (sizeKey.empty()) {
     _invalid = true;
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "-invalid request:" << _request << '\n';
+	 << "-invalid request:" << _request << std::endl;
     return;
   }
   size_t pos = input.find(']');

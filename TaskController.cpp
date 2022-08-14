@@ -25,7 +25,7 @@ TaskController::TaskController(const ServerOptions& options) :
 }
 
 TaskController::~TaskController() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 TaskControllerPtr TaskController::create(const ServerOptions& options) {

@@ -71,7 +71,7 @@ void FifoAcceptor::run() {
       return;
     _threadPool.push(session);
   }
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit\n";
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit" << std::endl;
 }
 
 bool FifoAcceptor::start() {

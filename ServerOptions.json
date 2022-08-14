@@ -12,7 +12,7 @@
   "MaxTcpSessions" : 10,
   "MaxFifoSessions" : 10,
   "TcpPort" : 49152,
-  "TcpTimeout" : 5,
+  "TcpTimeout" : 5000,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,

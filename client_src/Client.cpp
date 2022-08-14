@@ -22,7 +22,7 @@ Client::Client(const ClientOptions& options) :
 
 Client::~Client() {
   _threadPool.stop();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 // Allows to read and process the source in parts with sizes
@@ -78,13 +78,13 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed.\n";
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     std::string_view dstView = Compression::uncompress(received, uncomprSize);
     stream << dstView;
   }
   else {
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed.\n";
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
     stream << received;
   }
   return true;

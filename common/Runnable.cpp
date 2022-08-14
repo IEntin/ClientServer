@@ -37,7 +37,7 @@ PROBLEMS Runnable::checkCapacity() {
     _typedSessions++;
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << ":\ntotal sessions=" << _totalSessions << ',' << _name
-	 << " sessions=" << _typedSessions << '\n';
+	 << " sessions=" << _typedSessions << std::endl;
     if (_max > 0 && _typedSessions > _max) {
       if (_type == TCP) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

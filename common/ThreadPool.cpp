@@ -12,7 +12,7 @@ ThreadPool::ThreadPool(unsigned maxNumberThreads) : _maxNumberThreads(maxNumberT
 }
 
 ThreadPool::~ThreadPool() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void ThreadPool::start() {
@@ -40,7 +40,7 @@ void ThreadPool::stop() {
   for (auto& thread : _threads)
     if (thread.joinable())
       thread.join();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ... _threads joined ..." << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ... _threads joined ..." << std::endl;
 }
 
 PROBLEMS ThreadPool::push(RunnablePtr runnable) {

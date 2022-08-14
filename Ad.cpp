@@ -136,7 +136,7 @@ bool Ad::load(const std::string& filename) {
     catch (std::exception& e) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
 	   << ":key-value=" << '\"' << it->first << "\":\"" << row._value
-	   << "\",skipping.\n";
+	   << "\",skipping." << std::endl;
       if (it->second.empty())
 	_mapBySize.erase(it);
       continue;

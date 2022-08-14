@@ -37,7 +37,7 @@ TcpHeartbeatClient::~TcpHeartbeatClient() {
   _socket.close(ignore);
   _timerPeriod.cancel(ignore);
   _timerTimeout.cancel(ignore);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void TcpHeartbeatClient::run() {

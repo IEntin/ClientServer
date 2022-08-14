@@ -61,7 +61,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpClient::send(const std::vector<char>& msg) {
