@@ -15,7 +15,7 @@
   "ServerHost" : "127.0.0.1",
   "TcpPort" : "49152",
   "TcpHeartbeatEnabled" : true,
-  "HeartbeatPeriod" : 1000,
+  "HeartbeatPeriod" : 5000,
   "TcpHeartbeatTimeout" : 300,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 20,

@@ -66,10 +66,10 @@ void TcpHeartbeatClient::asyncWaitPeriod() {
 			  _heartbeatFailed.store(true);
 			  sendToken();
 			}
+			boost::system::error_code ec;
+			_timerPeriod.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
+			asyncWaitPeriod();
 		      }
-		      boost::system::error_code ec;
-		      _timerPeriod.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
-		      asyncWaitPeriod();
 		    });
 }
 
@@ -98,7 +98,7 @@ void TcpHeartbeatClient::readToken() {
 			    if (!ec) {
 			      if (_buffer == '\n') {
 				_heartbeatFailed.store(false);
-				CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": heartbeat success\n";
+				CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": heartbeat success" << std::endl;
 			      }
 			    }
 			    else
