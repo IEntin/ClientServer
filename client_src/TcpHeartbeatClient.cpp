@@ -53,24 +53,21 @@ void TcpHeartbeatClient::run() {
 
 void TcpHeartbeatClient::asyncWaitPeriod() {
   auto self(weak_from_this());
-  _timerPeriod.async_wait([this, self](const boost::system::error_code& e) {
-		      auto ptr = self.lock();
-		      if (ptr) {
-			if (e) {
-			  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-			  return;
-			}
-			else {
-			  asyncWaitTimeout();
-			  // assume the worst
-			  _heartbeatFailed.store(true);
-			  sendToken();
-			}
-			boost::system::error_code ec;
-			_timerPeriod.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
-			asyncWaitPeriod();
-		      }
-		    });
+  _timerPeriod.async_wait([this, self](const boost::system::error_code& ec) {
+	    if (ec) {
+	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	      return;
+	    }
+	    auto ptr = self.lock();
+	    if (ptr) {
+	      asyncWaitTimeout();
+	      // assume the worst
+	      _heartbeatFailed.store(true);
+	      sendToken();
+	      _timerPeriod.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+	      asyncWaitPeriod();
+	    }
+			  });
 }
 
 void TcpHeartbeatClient::sendToken() {

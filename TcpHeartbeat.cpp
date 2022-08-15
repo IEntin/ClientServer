@@ -74,7 +74,7 @@ void TcpHeartbeat::readToken() {
 			      return;
 			    if (ec) {
 			      (ec == boost::asio::error::eof ? CLOG : CERR)
-				<< __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+				<< __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 			      return;
 			    }
 			    asyncWait();
