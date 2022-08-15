@@ -28,9 +28,7 @@ TcpHeartbeat::~TcpHeartbeat() {
 
 bool TcpHeartbeat::start() {
   boost::system::error_code ec;
-  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()), ec);
-  if (!ec)
-    _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
+  _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
   if (!ec)
     _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
   if (ec) {
@@ -59,40 +57,37 @@ void TcpHeartbeat::sendToken() {
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
 			     if (ec)
 			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			     boost::system::error_code ignore;
-			     _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()), ignore);
+			     size_t canceled =
+			       _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+			     if (canceled == 0)
+			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
 			     readToken();
 			   });
 }
 
 void TcpHeartbeat::readToken() {
-  if (_stopped)
-    return;
   auto self = shared_from_this();
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(&_buffer, 1),
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-			    if (!ec) {
-			      asyncWait();
-			      sendToken();
+			    if (_stopped)
+			      return;
+			    if (ec) {
+			      (ec == boost::asio::error::eof ? CLOG : CERR)
+				<< __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			      return;
 			    }
-			    else {
-			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			      boost::system::error_code ignore;
-			      _timer.cancel(ignore);
-			    }
+			    asyncWait();
+			    sendToken();
 			  });
 }
 
 void TcpHeartbeat::asyncWait() {
-  boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ignore);
+  _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
   auto self = shared_from_this();
-  _timer.async_wait([this, self](const boost::system::error_code& err) {
-		      if (err && err != boost::asio::error::operation_aborted)
-			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
-		      boost::system::error_code ignore;
-		      _timer.cancel(ignore);
+  _timer.async_wait([self](const boost::system::error_code& err) {
+		      if (err != boost::asio::error::operation_aborted)
+			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";
 		    });
 }
 

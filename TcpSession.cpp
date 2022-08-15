@@ -22,10 +22,9 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _timer(_ioContext),
   // save for reference count
   _parent(parent) {
-  boost::system::error_code ignore;
-  _socket.set_option(boost::asio::socket_base::linger(false, 0), ignore);
-  _socket.set_option(boost::asio::socket_base::reuse_address(true), ignore);
-  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()), ignore);
+  _socket.set_option(boost::asio::socket_base::linger(false, 0));
+  _socket.set_option(boost::asio::socket_base::reuse_address(true));
+  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
 
 TcpSession::~TcpSession() {
@@ -100,29 +99,29 @@ bool TcpSession::sendReply(const Response& response) {
 void TcpSession::readHeader() {
   if (_stopped)
     return;
-  boost::system::error_code ignore;
-  _timer.cancel(ignore);
   std::memset(_headerBuffer, 0, HEADER_SIZE);
   auto self = shared_from_this();
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_headerBuffer),
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			    if (_stopped)
+			      return;
+			    if (ec) {
+			      (ec == boost::asio::error::eof ? CLOG : CERR)
+				<< __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			      _socket.close();
+			      return;
+			    }
 			    asyncWait();
-			    if (!ec) {
-			      _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
-			      if (!isOk(_header)) {
-				CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid.\n";
-				return;
-			      }
-			      _request.clear();
-			      _request.resize(getCompressedSize(_header));
-			      readRequest();
+			    _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
+			    if (!isOk(_header)) {
+			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid.\n";
+			      _socket.close();
+			      return;
 			    }
-			    else {
-			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			      boost::system::error_code ignore;
-			      _timer.cancel(ignore);
-			    }
+			    _request.clear();
+			    _request.resize(getCompressedSize(_header));
+			    readRequest();
 			  });
 }
 
@@ -131,46 +130,48 @@ void TcpSession::readRequest() {
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_request),
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-			    boost::system::error_code ignore;
-			    _timer.cancel(ignore);
-			    if (!ec)
-			      onReceiveRequest();
-			    else {
+			    if (ec) {
 			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			      boost::system::error_code ignore;
-			      _timer.cancel(ignore);
+			      _socket.close();
+			      return;
 			    }
+			    size_t canceled = _timer.cancel();
+			    if (canceled == 0) {
+			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
+			      _socket.close();
+			      return;
+			    }
+			    onReceiveRequest();
 			  });
 }
 
 void TcpSession::write(std::string_view reply) {
+  asyncWait();
   auto self = shared_from_this();
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()),
 			   [this, self](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
-			     boost::system::error_code ignore;
-			     _timer.cancel(ignore);
-			     if (!ec)
-			       readHeader();
-			     else {
+			     if (ec) {
 			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-			       boost::system::error_code ignore;
-			       _timer.cancel(ignore);
+			       _socket.close();
+			       return;
 			     }
+			     size_t canceled = _timer.cancel();
+			     if (canceled == 0) {
+			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
+			       _socket.close();
+			       return;
+			     }
+			     readHeader();
 			   });
 }
 
 void TcpSession::asyncWait() {
-  boost::system::error_code ignore;
-  _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ignore);
+  _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
   auto self = shared_from_this();
-  _timer.async_wait([this, self](const boost::system::error_code& err) {
-		      if (err != boost::asio::error::operation_aborted) {
+  _timer.async_wait([self](const boost::system::error_code& err) {
+		      if (err != boost::asio::error::operation_aborted)
 			CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout.\n";
-			boost::system::error_code ignore;
-			_socket.close(ignore);
-			_timer.cancel(ignore);
-		      }
 		    });
 }
 
