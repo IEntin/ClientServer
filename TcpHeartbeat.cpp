@@ -27,16 +27,10 @@ TcpHeartbeat::~TcpHeartbeat() {
 }
 
 bool TcpHeartbeat::start() {
-  boost::system::error_code ec;
-  _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
-  if (!ec)
-    _socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
-  }
+  _socket.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+  _socket.set_option(boost::asio::socket_base::linger(false, 0));
   readToken();
-  return !ec;
+  return true;
 }
 
 void TcpHeartbeat::run() noexcept {

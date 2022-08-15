@@ -15,8 +15,7 @@ std::atomic<bool> TcpHeartbeatClient::_heartbeatFailed = false;
 TcpHeartbeatClient::TcpHeartbeatClient(const ClientOptions& options) :
   _options(options),
   _socket(_ioContext),
-  _timerPeriod(_ioContext),
-  _timerTimeout(_ioContext) {
+  _periodTimer(_ioContext) {
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
@@ -35,8 +34,7 @@ TcpHeartbeatClient::~TcpHeartbeatClient() {
   boost::system::error_code ignore;
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
-  _timerPeriod.cancel(ignore);
-  _timerTimeout.cancel(ignore);
+  _periodTimer.cancel(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -53,18 +51,17 @@ void TcpHeartbeatClient::run() {
 
 void TcpHeartbeatClient::asyncWaitPeriod() {
   auto self(weak_from_this());
-  _timerPeriod.async_wait([this, self](const boost::system::error_code& ec) {
+  _periodTimer.async_wait([this, self](const boost::system::error_code& ec) {
 	    if (ec) {
-	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	      _heartbeatFailed.store(true);
+	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what()
+		   << ", heartbeat failed" << '\n';
 	      return;
 	    }
 	    auto ptr = self.lock();
 	    if (ptr) {
-	      asyncWaitTimeout();
-	      // assume the worst
-	      _heartbeatFailed.store(true);
 	      sendToken();
-	      _timerPeriod.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+	      _periodTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
 	      asyncWaitPeriod();
 	    }
 			  });
@@ -75,10 +72,14 @@ void TcpHeartbeatClient::sendToken() {
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(&_buffer, 1),
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-			     if (!ec)
-			       readToken();
+			     if (ec) {
+			       _heartbeatFailed.store(true);
+			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what()
+				    << ", heartbeat failed" << '\n';
+			       return;
+			     }
 			     else
-			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			       readToken();
 			   });
 }
 
@@ -90,29 +91,17 @@ void TcpHeartbeatClient::readToken() {
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(&_buffer, 1),
 			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-			    boost::system::error_code error;
-			    size_t canceled[[maybe_unused]] =_timerTimeout.cancel(error);
-			    if (!ec) {
-			      if (_buffer == '\n') {
-				_heartbeatFailed.store(false);
-				CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": heartbeat success" << std::endl;
-			      }
+			    if (ec) {
+			      _heartbeatFailed.store(true);
+			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what()
+				   << ", heartbeat failed" << '\n';
+			      return;
 			    }
-			    else
-			      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			    if (_buffer == '\n') {
+			      _heartbeatFailed.store(false);
+			      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": heartbeat success" << std::endl;
+			    }
 			  });
-}
-
-void TcpHeartbeatClient::asyncWaitTimeout() {
-  boost::system::error_code ec;
-  if (_timerTimeout.expires_from_now(boost::posix_time::milliseconds(_options._tcpHeartbeatTimeout), ec) > 0) {
-    _timerTimeout.async_wait([] (const boost::system::error_code& error){
-			       if (error != boost::asio::error::operation_aborted) {
-				 CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " timeout\n";
-				 _heartbeatFailed.store(true);
-			       }
-			     });
-  }
 }
 
 bool TcpHeartbeatClient::start() {
@@ -121,10 +110,8 @@ bool TcpHeartbeatClient::start() {
 
 void TcpHeartbeatClient::stop() {
   _ioContext.stop();
-  boost::system::error_code ec;
-  _timerPeriod.cancel(ec);
-  _timerTimeout.cancel(ec);
-  _socket.close(ec);
+  _periodTimer.cancel();
+  _socket.close();
 }
 
 } // end of namespace tcp

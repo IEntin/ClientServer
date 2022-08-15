@@ -42,7 +42,6 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _tcpPort(_appOptions.get("TcpPort", std::string("49172"))),
   _tcpHeartbeatEnabled(_appOptions.get("TcpHeartbeatEnabled", true)),
   _heartbeatPeriod(_appOptions.get("HeartbeatPeriod", 1000)),
-  _tcpHeartbeatTimeout(_appOptions.get("TcpHeartbeatTimeout", 100)),
   _fifoDirectoryName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string())),
   _acceptorName(_fifoDirectoryName + '/' + _appOptions.get("AcceptorName", std::string("acceptor"))),
   _compressor(Compression::isCompressionEnabled(
