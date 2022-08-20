@@ -32,7 +32,6 @@ private:
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   ThreadPool _threadPool;
-  ThreadPool _heartbeatThreadPool;
 };
 
 } // end of namespace tcp

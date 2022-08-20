@@ -23,8 +23,6 @@ class TcpClient : protected Client {
 
   boost::asio::ip::tcp::endpoint _endpoint;
 
-  RunnablePtr _tcpHeartbeatClient;
-
  public:
 
   TcpClient(const ClientOptions& options);

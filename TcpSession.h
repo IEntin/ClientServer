@@ -31,20 +31,26 @@ private:
   void readRequest();
   void write(std::string_view reply);
   void asyncWait();
+  void heartbeatWait();
   bool onReceiveRequest();
   bool sendReply(const Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
+  bool heartbeat();
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;
+  boost::asio::strand<boost::asio::io_context::executor_type> _strand;
   AsioTimer _timer;
+  AsioTimer _heartbeatTimer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;
+  char _heartbeatBuffer[HEADER_SIZE] = {};
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Response _response;
   RunnablePtr _parent;
+  std::thread _heartbeatThread;
 };
 
 } // end of namespace tcp

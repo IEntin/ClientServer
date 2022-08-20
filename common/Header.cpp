@@ -6,16 +6,18 @@
 #include "Utility.h"
 
 void encodeHeader(char* buffer,
+		  HEADERTYPE headerType,
 		  size_t uncomprSz,
 		  size_t comprSz,
 		  COMPRESSORS compressor,
 		  bool diagnostics,
 		  unsigned short ephemeral,
-		  unsigned short reserved,
 		  PROBLEMS problem) {
   try {
     std::memset(buffer, 0, HEADER_SIZE);
     size_t offset = 0;
+    buffer[offset] = std::underlying_type_t<HEADERTYPE>(headerType);
+    offset += HEADERTYPE_SIZE;
     utility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
     offset += NUM_FIELD_SIZE;
     utility::toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
@@ -26,8 +28,6 @@ void encodeHeader(char* buffer,
     offset += DIAGNOSTICS_SIZE;
     utility::toChars(ephemeral, buffer + offset, EPH_INDEX_SIZE);
     offset += EPH_INDEX_SIZE;
-    utility::toChars(reserved, buffer + offset, RESERVED_SIZE);
-    offset += RESERVED_SIZE;
     buffer[offset] = std::underlying_type_t<PROBLEMS>(problem);
   }
   catch (const std::exception& e) {
@@ -38,8 +38,10 @@ void encodeHeader(char* buffer,
 HEADER decodeHeader(std::string_view buffer) {
   try {
     size_t offset = 0;
+    HEADERTYPE headerType = static_cast<HEADERTYPE>(buffer[offset]);
+    offset += HEADERTYPE_SIZE;
     size_t uncomprSize = 0;
-    std::string_view stru(buffer.data(), NUM_FIELD_SIZE);
+    std::string_view stru(buffer.data() + offset, NUM_FIELD_SIZE);
     utility::fromChars(stru, uncomprSize);
     offset += NUM_FIELD_SIZE;
     size_t comprSize = 0;
@@ -54,12 +56,8 @@ HEADER decodeHeader(std::string_view buffer) {
     unsigned short ephemeral = 0;
     utility::fromChars(streph, ephemeral);
     offset += EPH_INDEX_SIZE;
-    unsigned short reserved = 0;
-    std::string_view strReserved(buffer.data() + offset, RESERVED_SIZE);
-    utility::fromChars(strReserved, reserved);
-    offset +=  RESERVED_SIZE;
     PROBLEMS problem = static_cast<PROBLEMS>(buffer[offset]);
-    return { uncomprSize, comprSize, compressor, diagnostics, ephemeral, reserved, problem };
+    return { headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem };
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';

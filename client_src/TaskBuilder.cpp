@@ -152,17 +152,17 @@ bool TaskBuilder::compressSubtask(char* beg, char* end, bool alldone) {
     // LZ4 may generate compressed larger than uncompressed.
     // In this case an uncompressed subtask is sent.
     if (compressed.size() >= uncomprSize) {
-      encodeHeader(beg, uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics, 0, 'R');
+      encodeHeader(beg, HEADERTYPE::REQUEST, uncomprSize, uncomprSize, COMPRESSORS::NONE, _diagnostics, 0);
       _task.assign(beg, end);
     }
     else {
-      encodeHeader(beg, uncomprSize, compressed.size(), _compressor, _diagnostics, 0, 'R');
+      encodeHeader(beg, HEADERTYPE::REQUEST, uncomprSize, compressed.size(), _compressor, _diagnostics, 0);
       std::copy(compressed.data(), compressed.data() + compressed.size(), beg + HEADER_SIZE);
       _task.assign(beg, beg + HEADER_SIZE + compressed.size());
     }
   }
   else {
-    encodeHeader(beg, uncomprSize, uncomprSize, _compressor, _diagnostics, 0, 'R');
+    encodeHeader(beg, HEADERTYPE::REQUEST, uncomprSize, uncomprSize, _compressor, _diagnostics, 0);
     _task.assign(beg, end);
   }
   try {

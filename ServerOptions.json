@@ -13,6 +13,8 @@
   "MaxFifoSessions" : 10,
   "TcpPort" : 49152,
   "TcpTimeout" : 5000,
+  "TcpHeartbeatEnabled" : true,
+  "HeartbeatPeriod" : 5000,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,

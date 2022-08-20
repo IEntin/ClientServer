@@ -63,7 +63,8 @@ date
 
 sleep 60
 kill -SIGINT $SERVER_PID
-sleep 2
+
+sleep 10
 
 gprof -b ./server gmon.out > profile_server.txt
 gprof -b $SERVER_DIR/../PrjClient2/client \

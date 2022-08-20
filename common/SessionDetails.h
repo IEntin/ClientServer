@@ -8,8 +8,6 @@
 
 namespace tcp {
 
-enum class SESSIONTYPE : char { SESSION = 's', HEARTBEAT = 'h' };
-
 struct SessionDetails {
 
   SessionDetails() : _ioContext(1), _socket(_ioContext) {}

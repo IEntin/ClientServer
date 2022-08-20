@@ -38,7 +38,7 @@ HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {
   boost::asio::read(socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return { 0, 0, COMPRESSORS::NONE, false, 0, 0, PROBLEMS::TCP_PROBLEM };
+    return { HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, PROBLEMS::TCP_PROBLEM };
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
 }

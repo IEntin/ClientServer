@@ -14,8 +14,6 @@
   "MaxNumberTasks" : 0,
   "ServerHost" : "127.0.0.1",
   "TcpPort" : "49152",
-  "TcpHeartbeatEnabled" : true,
-  "HeartbeatPeriod" : 10000,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 20,
   "ENXIOwait" : 10,

@@ -32,11 +32,11 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, un
   if (bcompressed) {
     std::string_view dstView = Compression::compress(uncompressedView);
     buffer.resize(HEADER_SIZE + dstView.size());
-    encodeHeader(buffer.data(), uncomprSize, dstView.size(), compressor, false, ephemeral, 'R');
+    encodeHeader(buffer.data(), HEADERTYPE::REQUEST, uncomprSize, dstView.size(), compressor, false, ephemeral);
     std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
   else
-    encodeHeader(buffer.data(), uncomprSize, uncomprSize, compressor, false, ephemeral, 'R');
+    encodeHeader(buffer.data(), HEADERTYPE::REQUEST, uncomprSize, uncomprSize, compressor, false, ephemeral);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }
@@ -45,7 +45,7 @@ bool readMsgBody(int fd,
 		 HEADER header,
 		 std::vector<char>& uncompressed,
 		 const ServerOptions& options) {
-  const auto& [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] = header;
+  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] = header;
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__

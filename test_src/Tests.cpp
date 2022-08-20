@@ -113,8 +113,7 @@ TEST(HeaderTest, 1) {
     COMPRESSORS compressor = COMPRESSORS::LZ4;
     bool diagnostics = true;
     unsigned short ephemeral = 0;
-    unsigned short reserved = 12345;
-    encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics, ephemeral, reserved);
+    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics, ephemeral);
     HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
     size_t uncomprSzResult = getUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
@@ -126,11 +125,9 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(diagnostics, diagnosticsResult);
     unsigned short ephemeralOut = getEphemeral(header);
     ASSERT_EQ(ephemeralOut, ephemeral);
-    unsigned short reservedOut = getReserved(header);
-    ASSERT_EQ(reservedOut, reserved);
     compressor = COMPRESSORS::NONE;
     ephemeral = 83;
-    encodeHeader(buffer, uncomprSz, comprSz, compressor, diagnostics, ephemeral, reserved);
+    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics, ephemeral);
     header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
     compressorResult = getCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);

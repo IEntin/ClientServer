@@ -132,7 +132,7 @@ bool FifoClient::receive() {
 	 << _fifoName << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
+  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
     Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   if (problem != PROBLEMS::NONE)
     return false;

@@ -39,7 +39,7 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
     return false;
   }
   char array[HEADER_SIZE] = {};
-  encodeHeader(array, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, 'R', problem);
+  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, problem);
   std::string_view str(array, HEADER_SIZE);
   if (!Fifo::writeString(fd, str))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";

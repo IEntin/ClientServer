@@ -8,17 +8,23 @@
 #include <sys/types.h>
 #include <tuple>
 
+inline constexpr int HEADERTYPE_SIZE = 1;
 inline constexpr int NUM_FIELD_SIZE = 10;
 inline constexpr int COMPRESSOR_TYPE_SIZE = 1;
 inline constexpr int DIAGNOSTICS_SIZE = 1;
 inline constexpr int EPH_INDEX_SIZE = 5;
-inline constexpr int RESERVED_SIZE = 5;
 inline constexpr int PROBLEM_SIZE = 1;
 inline constexpr int HEADER_SIZE =
-  NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + EPH_INDEX_SIZE + RESERVED_SIZE + PROBLEM_SIZE;
+  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + EPH_INDEX_SIZE + PROBLEM_SIZE;
 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
+inline constexpr char HEADERTYPE_REQUEST_CHAR = 'R';
+inline constexpr char HEADERTYPE_HEARTBEAT_CHAR = 'H';
+
+enum class SESSIONTYPE : char { SESSION = 'S' };
+
+enum class HEADERTYPE : char { REQUEST = HEADERTYPE_REQUEST_CHAR, HEARTBEAT = HEADERTYPE_HEARTBEAT_CHAR };
 
 enum class COMPRESSORS : char {
   NONE,
@@ -36,23 +42,27 @@ enum class PROBLEMS : char {
 };
 
 enum class HEADER_INDEX : int {
-  UNCOMPRESSED_SIZE,
-  COMPRESSED_SIZE,
+  HEADERTYPE,
+  UNCOMPRESSED,
+  COMPRESSED,
   COMPRESSOR,
   DIAGNOSTICS,
   EPHEMERAL,
-  RESERVED,
   PROBLEMS
 };
 
-using HEADER = std::tuple<size_t, size_t, COMPRESSORS, bool, unsigned short, unsigned short, PROBLEMS>;
+using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;
+
+inline HEADERTYPE getHeaderType(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
+}
 
 inline ssize_t getUncompressedSize(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED_SIZE)>(header);
+  return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED)>(header);
 }
 
 inline ssize_t getCompressedSize(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::COMPRESSED_SIZE)>(header);
+  return std::get<static_cast<int>(HEADER_INDEX::COMPRESSED)>(header);
 }
 
 inline COMPRESSORS getCompressor(const HEADER& header) {
@@ -71,10 +81,6 @@ inline unsigned short getEphemeral(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::EPHEMERAL)>(header);
 }
 
-inline unsigned short getReserved(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::RESERVED)>(header);
-}
-
 inline PROBLEMS getProblem(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header);
 }
@@ -84,12 +90,12 @@ inline bool isOk(const HEADER& header) {
 }
 
 void encodeHeader(char* buffer,
+		  HEADERTYPE headerType,
 		  size_t uncomprSz,
 		  size_t comprSz,
 		  COMPRESSORS,
 		  bool diagnostics,
 		  unsigned short ephemeral,
-		  unsigned short reserved,
 		  PROBLEMS = PROBLEMS::NONE);
 
 HEADER decodeHeader(std::string_view buffer);

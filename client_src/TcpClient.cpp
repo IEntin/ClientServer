@@ -7,8 +7,9 @@
 #include "Header.h"
 #include "SessionDetails.h"
 #include "Tcp.h"
-#include "TcpHeartbeatClient.h"
 #include "Utility.h"
+
+extern volatile std::sig_atomic_t stopSignal;
 
 namespace tcp {
 
@@ -54,13 +55,12 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  if (_options._tcpHeartbeatEnabled) {
-    _tcpHeartbeatClient = std::make_shared<TcpHeartbeatClient>(_options);
-    _threadPool.push(_tcpHeartbeatClient);
-  }
 }
 
 TcpClient::~TcpClient() {
+  boost::system::error_code ignore;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+  _socket.close(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -79,6 +79,9 @@ bool TcpClient::receive() {
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
+    boost::system::error_code ignore;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+    _socket.close(ignore);
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
@@ -86,12 +89,21 @@ bool TcpClient::receive() {
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    boost::system::error_code ignore;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+    _socket.close(ignore);
     return false;
   }
-  auto [uncomprSize, comprSize, compressor, diagnostics, ephemeral, clientId, problem] =
+  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
     decodeHeader(std::string_view(buffer, HEADER_SIZE));
   if (problem != PROBLEMS::NONE)
     return false;
+  if (headerType == HEADERTYPE::HEARTBEAT) {
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! heartbeat received !\n";
+    // now receive the request
+    receive();
+    return true;
+  }
   if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
     return false;
   return true;
@@ -101,8 +113,6 @@ bool TcpClient::run() {
   try {
     CloseSocket closeSocket(_socket);
     bool success = Client::run();
-    if (_tcpHeartbeatClient)
-      _tcpHeartbeatClient->stop();
     return success;
   }
   catch (const std::exception& e) {

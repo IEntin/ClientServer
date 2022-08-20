@@ -6,7 +6,6 @@
 #include "ServerOptions.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
-#include "TcpHeartbeat.h"
 #include "TcpSession.h"
 #include "Utility.h"
 
@@ -19,9 +18,7 @@ TcpServer::TcpServer(const ServerOptions& options) :
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
   // + 1 for 'this'
-  _threadPool(_options._maxTcpSessions + 1),
-  _heartbeatThreadPool(10) {
-}
+  _threadPool(_options._maxTcpSessions + 1) {}
 
 TcpServer::~TcpServer() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
@@ -52,7 +49,6 @@ void TcpServer::stop() {
   _stopped.store(true);
   boost::system::error_code ignore;
   _acceptor.close(ignore);
-  _heartbeatThreadPool.stop();
   _threadPool.stop();
   _ioContext.stop();
 }
@@ -88,13 +84,6 @@ void TcpServer::accept() {
 				 RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
 				 session->start();
 				 [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
-			       }
-			       break;
-			     case SESSIONTYPE::HEARTBEAT:
-			       {
-				 RunnablePtr heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
-				 heartbeat->start();
-				 [[maybe_unused]] PROBLEMS problem = _heartbeatThreadPool.push(heartbeat);
 			       }
 			       break;
 			     default:
