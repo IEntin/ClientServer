@@ -117,7 +117,7 @@ void TcpSession::readHeader() {
 			      _socket.close(ignore);
 			      _timer.cancel(ignore);
 			      _heartbeatTimer.cancel(ignore);
-			      return;			      
+			      return;
 			    }
 			    _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
 			    if (!isOk(_header)) {
@@ -213,7 +213,11 @@ void TcpSession::heartbeatWait() {
   auto self = shared_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
 		     [this, self](const boost::system::error_code& err) {
-		       if (!err) {
+		       if (err) {
+			 CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << err.what() << '\n';
+			 return;
+		       }
+		       else {
 			 if (!heartbeat())
 			   return;
 			 _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
