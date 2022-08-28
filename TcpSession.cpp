@@ -185,27 +185,22 @@ void TcpSession::asyncWait() {
 bool TcpSession::heartbeat() {
   if (_stopped)
     return false;
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
-  asyncWait();
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
-  auto self = shared_from_this();
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  boost::asio::async_write(_socket,
-    boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE),
-    boost::asio::bind_executor(_strand,
-      [this, self](boost::system::error_code ec, size_t transferred[[maybe_unused]])->auto {
-	if (ec || _stopped) {
-	  if (ec)
-	    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	  return false;
-	}
-	return true;
-      }));
+  boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
+  if (ec || _stopped) {
+    if (ec)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    return false;
+  }
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  heartbeatWait();
   return true;
 }
 
@@ -213,12 +208,8 @@ void TcpSession::heartbeatWait() {
   auto self = shared_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
 		     [this, self](const boost::system::error_code& err) {
-		       if (!err) {
-			 if (!heartbeat())
-			   return;
-			 _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
-			 heartbeatWait();
-		       }
+		       if (!err)
+			 heartbeat();
 		     }));
 }
 

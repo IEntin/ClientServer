@@ -28,7 +28,7 @@ FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralI
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void FifoSession::run() {

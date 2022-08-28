@@ -21,7 +21,7 @@ TcpServer::TcpServer(const ServerOptions& options) :
   _threadPool(_options._maxTcpSessions + 1) {}
 
 TcpServer::~TcpServer() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '\n';
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpServer::start() {
@@ -69,7 +69,7 @@ void TcpServer::accept() {
 			 [details, this](boost::system::error_code ec) {
 			   if (ec)
 			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
-			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 			   else {
 			     char ch = '\0';
 			     boost::asio::read(details->_socket, boost::asio::buffer(&ch, 1), ec);

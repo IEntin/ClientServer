@@ -99,7 +99,7 @@ bool TcpClient::receive() {
   if (problem != PROBLEMS::NONE)
     return false;
   if (headerType == HEADERTYPE::HEARTBEAT) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! heartbeat received !\n";
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! heartbeat received !" << std::endl;
     // now receive the request
     receive();
     return true;
