@@ -117,7 +117,7 @@ void TcpSession::readHeader() {
 			      _socket.close(ignore);
 			      _timer.cancel(ignore);
 			      _heartbeatTimer.cancel(ignore);
-			      return;			      
+			      return;
 			    }
 			    _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
 			    if (!isOk(_header)) {
@@ -182,26 +182,25 @@ void TcpSession::asyncWait() {
    }));
 }
 
-bool TcpSession::heartbeat() {
+void TcpSession::heartbeat() {
   if (_stopped)
-    return false;
+    return;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
+    return;
   }
   boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
   if (ec || _stopped) {
     if (ec)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
+    return;
   }
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
   heartbeatWait();
-  return true;
 }
 
 void TcpSession::heartbeatWait() {

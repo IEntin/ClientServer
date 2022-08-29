@@ -35,7 +35,7 @@ private:
   bool onReceiveRequest();
   bool sendReply(const Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
-  bool heartbeat();
+  void heartbeat();
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
