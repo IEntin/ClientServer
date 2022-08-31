@@ -12,7 +12,7 @@
   "MaxTcpSessions" : 10,
   "MaxFifoSessions" : 10,
   "TcpPort" : 49152,
-  "TcpTimeout" : 5000,
+  "TcpTimeout" : 1000,
   "TcpHeartbeatEnabled" : true,
   "HeartbeatPeriod" : 5000,
   "NumberRepeatEINTR" : 3,
