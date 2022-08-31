@@ -23,7 +23,7 @@ std::string_view Compression::compressInternal(std::string_view uncompressed,
 					       dstCapacity);
   if (compressedSize == 0) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
-    throw std::runtime_error(std::string(std::strerror(errno)));
+    throw std::runtime_error(std::strerror(errno));
   }
   return { buffer, compressedSize };
 }

@@ -32,7 +32,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec)
-    throw(std::runtime_error(std::string(std::strerror(errno))));
+    throw(std::runtime_error(std::strerror(errno)));
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
   PROBLEMS problem = getProblem(header);
   switch (problem) {

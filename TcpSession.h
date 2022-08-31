@@ -51,6 +51,8 @@ private:
   Response _response;
   RunnablePtr _parent;
   std::thread _heartbeatThread;
+  void heartbeatThreadFunc();
+  PROBLEMS _problem = PROBLEMS::NONE;
 };
 
 } // end of namespace tcp

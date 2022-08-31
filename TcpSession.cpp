@@ -27,12 +27,15 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _socket.set_option(boost::asio::socket_base::linger(false, 0));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
 
 TcpSession::~TcpSession() {
-  boost::system::error_code ignore;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-  _socket.close(ignore);
+  if (_socket.is_open()) {
+    boost::system::error_code ignore;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+    _socket.close(ignore);
+  }
   if (_heartbeatThread.joinable())
     _heartbeatThread.join();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -44,9 +47,9 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
-  PROBLEMS problem = _typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE;
+  _problem = _typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE;
   char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, problem);
+  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
@@ -54,7 +57,7 @@ bool TcpSession::start() {
     return false;
   }
   if (_options._tcpHeartbeatEnabled)
-    _heartbeatThread = std::thread(&TcpSession::heartbeatWait, this);
+    _heartbeatThread = std::thread(&TcpSession::heartbeatThreadFunc, this);
   return true;
 }
 
@@ -104,10 +107,13 @@ bool TcpSession::sendReply(const Response& response) {
 void TcpSession::readHeader() {
   asyncWait();
   std::memset(_headerBuffer, 0, HEADER_SIZE);
-  auto self = shared_from_this();
+  auto weak = weak_from_this();
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
-			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			  [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			    auto self = weak.lock();
+			    if (!self)
+			      return;
 			    if (_stopped || ec) {
 			      if (ec)
 				(ec == boost::asio::error::eof ? CLOG : CERR)
@@ -131,10 +137,13 @@ void TcpSession::readHeader() {
 }
 
 void TcpSession::readRequest() {
-  auto self = shared_from_this();
+  auto weak = weak_from_this();
   boost::asio::async_read(_socket,
 			  boost::asio::buffer(_request), boost::asio::bind_executor(_strand,
-			  [this, self] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			  [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			    auto self = weak.lock();
+			    if (!self)
+			      return;
 			    if (_stopped || ec) {
 			      if (ec)
 				CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
@@ -150,10 +159,13 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::write(std::string_view reply) {
-  auto self = shared_from_this();
+  auto weak = weak_from_this();
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(reply.data(), reply.size()), boost::asio::bind_executor(_strand,
-			   [this, self](boost::system::error_code ec, size_t transferred[[maybe_unused]]) {
+			   [this, weak](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+			     auto self = weak.lock();
+			     if (!self)
+			       return;
 			     if (_stopped || ec) {
 			       if (ec)
 				 CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
@@ -172,12 +184,15 @@ void TcpSession::asyncWait() {
   if (_stopped)
     return;
   _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
-  auto self = shared_from_this();
+  auto weak = weak_from_this();
   _timer.async_wait(boost::asio::bind_executor(_strand,
-    [this, self](const boost::system::error_code& err) {
+    [this, weak](const boost::system::error_code& ec) {
       if (_stopped)
 	return;
-      if (err != boost::asio::error::operation_aborted)
+      auto self = weak.lock();
+      if (!self)
+	return;
+      if (ec != boost::asio::error::operation_aborted)
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout.\n";
    }));
 }
@@ -187,29 +202,68 @@ void TcpSession::heartbeat() {
     return;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
-  boost::system::error_code ec;
-  _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return;
-  }
-  boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
-  if (ec || _stopped) {
-    if (ec)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return;
-  }
-  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
-  heartbeatWait();
+  auto weak = weak_from_this();
+  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write,
+    boost::asio::bind_executor(_strand,
+      [this, weak] (const boost::system::error_code& ec) {
+	if (_stopped)
+	  return;
+	auto self = weak.lock();
+	if (!self)
+	  return;
+	if (ec) {
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	  return;
+	}
+	boost::asio::async_write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE),
+	  boost::asio::bind_executor(_strand,
+	    [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+	      auto self = weak.lock();
+	      if (!self)
+		return;
+	      if (ec || _stopped) {
+		if (ec)
+		  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+		boost::system::error_code ignore;
+		_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+		_socket.close(ignore);
+		return;
+	      }
+	      heartbeatWait();
+	    }));
+	}));
 }
 
 void TcpSession::heartbeatWait() {
-  auto self = shared_from_this();
+  if (_stopped)
+    return;
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  auto weak = weak_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
-		     [this, self](const boost::system::error_code& err) {
-		       if (!err)
+		     [this, weak](const boost::system::error_code& ec) {
+		       auto self = weak.lock();
+		       if (!self)
+			 return;
+		       if (ec || _stopped) {
+			 if (ec)
+			   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+			 boost::system::error_code ignore;
+			 _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+			 _socket.close(ignore);
+		       }
+		       else
 			 heartbeat();
 		     }));
+}
+
+void TcpSession::heartbeatThreadFunc() {
+  try {
+    heartbeatWait();
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+  }
 }
 
 bool TcpSession::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {

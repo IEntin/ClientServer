@@ -23,12 +23,12 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
 	  continue;
-	throw std::runtime_error(std::string(std::strerror(errno)));
+	throw std::runtime_error(std::strerror(errno));
       }
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	     << ':' << std::strerror(errno) << '\n';
-	throw std::runtime_error(std::string(std::strerror(errno)));
+	throw std::runtime_error(std::strerror(errno));
       }
     }
     else if (result == 0) {
@@ -42,7 +42,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   if (readSoFar != HEADER_SIZE) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
 	 << HEADER_SIZE << " readSoFar=" << readSoFar << '\n';
-    throw std::runtime_error(std::string(std::strerror(errno)));
+    throw std::runtime_error(std::strerror(errno));
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
 }
