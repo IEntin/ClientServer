@@ -6,13 +6,14 @@
 
 #include <condition_variable>
 #include <memory>
-#include <queue>
+#include <deque>
 #include <thread>
 #include <vector>
 
 enum class PROBLEMS : char;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
+
 using ThreadPoolPtr = std::shared_ptr<class ThreadPool>;
 
 class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
@@ -21,7 +22,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
-  std::queue<RunnablePtr> _queue;
+  std::deque<RunnablePtr> _queue;
   const unsigned _maxNumberThreads;
  public:
   explicit ThreadPool(unsigned maxNumberThreads);

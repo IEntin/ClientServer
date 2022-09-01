@@ -36,6 +36,7 @@ private:
   bool sendReply(const Response& response);
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
   void heartbeat();
+  void heartbeatThreadFunc();
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
@@ -51,8 +52,7 @@ private:
   Response _response;
   RunnablePtr _parent;
   std::thread _heartbeatThread;
-  void heartbeatThreadFunc();
-  PROBLEMS _problem = PROBLEMS::NONE;
+  std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
 };
 
 } // end of namespace tcp

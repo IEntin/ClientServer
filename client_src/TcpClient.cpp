@@ -43,8 +43,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions is at thread pool capacity.\n"
 	 << "\tIf you do not close the client, it will wait in the queue for\n"
-	 << "\ta thread available after one of already running tcp clients\n"
-	 << "\tis closed. At this point the client will resume the run.\n"
+	 << "\tavailable thread (one of already running tcp clients must be closed).\n"
+	 << "\tAt this point the client will resume run.\n"
 	 << "\tYou can also close the client and try again later.\n"
 	 << "\tThe relevant setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!\n";

@@ -47,7 +47,7 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
-  _problem = _typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE;
+  _problem.store(_typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
   boost::system::error_code ec;
@@ -64,6 +64,8 @@ bool TcpSession::start() {
 void TcpSession::run() noexcept {
   try {
     readHeader();
+    if (_problem.load() == PROBLEMS::MAX_TCP_SESSIONS)
+      _problem.store(PROBLEMS::NONE);
     _ioContext.run();
     if (_options._destroyBufferOnClientDisconnect)
       MemoryPool::destroyBuffers();
@@ -141,6 +143,8 @@ void TcpSession::readRequest() {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request), boost::asio::bind_executor(_strand,
     [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      if (_stopped)
+	return;
       boost::system::error_code err;
       size_t canceled = _timer.cancel(err);
       if (canceled == 0) {
@@ -154,13 +158,11 @@ void TcpSession::readRequest() {
       auto self = weak.lock();
       if (!self)
 	return;
-      if (_stopped || ec) {
-	if (ec)
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+      if (ec) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	boost::system::error_code ignore;
 	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
 	_socket.close(ignore);
-	_timer.cancel(ignore);
 	_heartbeatTimer.cancel(ignore);
 	return;
       }
@@ -174,8 +176,10 @@ void TcpSession::write(std::string_view reply) {
   boost::asio::async_write(_socket,
     boost::asio::buffer(reply.data(), reply.size()), boost::asio::bind_executor(_strand,
     [this, weak](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      boost::system::error_code err;
-      size_t canceled = _timer.cancel(err);
+      if (_stopped)
+	return;
+      boost::system::error_code ignore;
+      size_t canceled = _timer.cancel(ignore);
       if (canceled == 0) {
 	if (!_stopped)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " timeout.\n";
@@ -184,13 +188,11 @@ void TcpSession::write(std::string_view reply) {
       auto self = weak.lock();
       if (!self)
 	return;
-      if (_stopped || ec) {
-	if (ec)
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+      if (ec) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	boost::system::error_code ignore;
 	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
 	_socket.close(ignore);
-	_timer.cancel(ignore);
 	_heartbeatTimer.cancel(ignore);
 	return;
       }
@@ -221,34 +223,19 @@ void TcpSession::heartbeat() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
   auto weak = weak_from_this();
-  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write,
-    boost::asio::bind_executor(_strand,
-      [this, weak] (const boost::system::error_code& ec) {
-	if (_stopped)
-	  return;
-	auto self = weak.lock();
-	if (!self)
-	  return;
-	if (ec) {
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	  return;
-	}
-	boost::asio::async_write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE),
-	  boost::asio::bind_executor(_strand,
-	    [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-	      auto self = weak.lock();
-	      if (!self)
-		return;
-	      if (ec || _stopped) {
-		if (ec)
-		  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-		boost::system::error_code ignore;
-		_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-		_socket.close(ignore);
-		return;
-	      }
-	      heartbeatWait();
-	    }));
+    boost::asio::async_write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE),
+      boost::asio::bind_executor(_strand,
+        [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+	  if (_stopped)
+	    return;
+	  auto self = weak.lock();
+	  if (!self)
+	    return;
+	  if (ec) {
+	    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	    return;
+	  }
+	  heartbeatWait();
 	}));
 }
 
@@ -259,18 +246,16 @@ void TcpSession::heartbeatWait() {
   auto weak = weak_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
     [this, weak](const boost::system::error_code& ec) {
+      if (_stopped)
+	return;
       auto self = weak.lock();
       if (!self)
 	return;
-      if (ec || _stopped) {
-	if (ec)
-	  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	boost::system::error_code ignore;
-	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-	_socket.close(ignore);
+      if (ec) {
+	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	return;
       }
-      else
-	heartbeat();
+      heartbeat();
     }));
 }
 
@@ -278,6 +263,8 @@ void TcpSession::heartbeatThreadFunc() {
   try {
     heartbeatWait();
     _ioContext.run();
+    if (_problem == PROBLEMS::MAX_TCP_SESSIONS && !_stopped)
+      _removeFlag.store(true);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';

@@ -14,7 +14,7 @@
   "TcpPort" : 49152,
   "TcpTimeout" : 1000,
   "TcpHeartbeatEnabled" : true,
-  "HeartbeatPeriod" : 5000,
+  "HeartbeatPeriod" : 2000,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,

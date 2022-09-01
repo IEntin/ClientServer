@@ -45,10 +45,17 @@ void ThreadPool::stop() {
 
 PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
+  for (auto it = _queue.begin(); it != _queue.end(); ) {
+    RunnablePtr ptr = *it;
+    if (ptr && ptr->_removeFlag)
+      it = _queue.erase(it);
+    else
+      ++it;
+  }
   PROBLEMS problem = PROBLEMS::NONE;
   if (runnable)
     problem = runnable->checkCapacity();
-  _queue.push(std::move(runnable));
+  _queue.emplace_back(std::move(runnable));
   _queueCondition.notify_all();
   return problem;
 }
@@ -57,6 +64,6 @@ RunnablePtr ThreadPool::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   RunnablePtr runnable = std::move(_queue.front());
-  _queue.pop();
+  _queue.pop_front();
   return runnable;
 }
