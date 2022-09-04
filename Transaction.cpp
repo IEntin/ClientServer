@@ -27,23 +27,23 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   os << transaction._id << ' ';
   if (TaskController::isDiagnosticsEnabled()) {
     os <<"Transaction size=" << transaction._sizeKey << " #matches=" << utility::Print(transaction._bids.size())
-       << '\n' << transaction._request << "\nrequest keywords:\n";
+       << '\n' << transaction._request << "\nrequest keywords:" << std::endl;
     for (std::string_view keyword : transaction._keywords)
-      os << ' ' << keyword << '\n';
-    os << "matching ads:\n";
+      os << ' ' << keyword << std::endl;
+    os << "matching ads:" << std::endl;
     for (const auto& [kw, money, adPtr] : transaction._bids)
-      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
+      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << std::endl;
     os << "summary:";
     if (transaction._noMatch)
-      os << Transaction::EMPTY_REPLY << "*****\n";
+      os << Transaction::EMPTY_REPLY << "*****" << std::endl;
     else if (transaction._invalid)
-      os << Transaction::INVALID_REQUEST << "*****\n";
+      os << Transaction::INVALID_REQUEST << "*****" << std::endl;
     else {
       auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << winningBid->_keyword
 	 << ", " << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
-	 << "\n*****\n";
+	 << "\n*****" << std::endl;
     }
   }
   else {
@@ -54,7 +54,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else {
       const Ad* winningAdPtr = winningBid->_ad;
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
+	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << std::endl;
     }
   }
   return os;

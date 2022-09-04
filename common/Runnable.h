@@ -35,7 +35,6 @@ class Runnable {
   std::atomic<int>& _totalSessions;
   // used for specific session type
   std::atomic<int>& _typedSessions;
-  std::atomic<bool> _removeFlag = false;
  protected:
   std::atomic<bool> _stoppedThis = false;
   std::atomic<int> _totalSessionsThis = 0;

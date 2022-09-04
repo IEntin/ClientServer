@@ -39,9 +39,12 @@ bool TcpServer::start() {
     accept();
     _threadPool.push(shared_from_this());
   }
-  if (ec)
+  if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
 	 << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
+    _stopped.store(true);
+    _threadPool.stop();
+  }
   return !ec;
 }
 
@@ -51,6 +54,10 @@ void TcpServer::stop() {
   _acceptor.close(ignore);
   _threadPool.stop();
   _ioContext.stop();
+}
+
+void TcpServer::remove(RunnablePtr runnable) {
+  _threadPool.remove(runnable);
 }
 
 void TcpServer::run() {

@@ -31,6 +31,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   void stop();
   PROBLEMS push(RunnablePtr runnable);
   RunnablePtr get();
+  void remove(RunnablePtr runnable);
   int size() const { return _threads.size(); }
   // used in tests
   std::vector<std::thread>& getThreads() { return _threads; }

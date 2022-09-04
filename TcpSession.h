@@ -29,7 +29,7 @@ public:
 private:
   void readHeader();
   void readRequest();
-  void write(std::string_view reply);
+  void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = &TcpSession::readHeader);
   void asyncWait();
   void heartbeatWait();
   bool onReceiveRequest();
@@ -37,6 +37,7 @@ private:
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
   void heartbeat();
   void heartbeatThreadFunc();
+  void doNothing() {}
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
@@ -53,6 +54,8 @@ private:
   RunnablePtr _parent;
   std::thread _heartbeatThread;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
+  std::chrono::time_point<std::chrono::steady_clock> _currentHeartbeat;
+  std::chrono::time_point<std::chrono::steady_clock> _nextHeartbeat;
 };
 
 } // end of namespace tcp

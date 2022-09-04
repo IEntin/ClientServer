@@ -18,6 +18,9 @@ class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnabl
 public:
   TcpServer(const ServerOptions& options);
   ~TcpServer() override;
+
+  void remove(RunnablePtr runnable);
+
 private:
   void accept();
 
