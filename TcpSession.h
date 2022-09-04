@@ -37,7 +37,6 @@ private:
   bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
   void heartbeat();
   void heartbeatThreadFunc();
-  void doNothing() {}
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;

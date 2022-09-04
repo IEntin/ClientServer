@@ -182,7 +182,8 @@ void TcpSession::write(std::string_view reply, std::function<void(TcpSession*)> 
 	_heartbeatTimer.cancel(ignore);
 	return;
       }
-      nextFunc(this);
+      if (nextFunc)
+	nextFunc(this);
     }));
 }
 
@@ -214,7 +215,7 @@ void TcpSession::heartbeat() {
     return;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
-  write(std::string_view(_heartbeatBuffer, HEADER_SIZE), &TcpSession::doNothing);
+  write(std::string_view(_heartbeatBuffer, HEADER_SIZE), nullptr);
 }
 
 void TcpSession::heartbeatWait() {
