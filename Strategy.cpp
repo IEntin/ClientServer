@@ -20,12 +20,8 @@ bool Strategy::start(const ServerOptions& options) {
 }
 
 void Strategy::stop() {
-  if (_fifoAcceptor) {
-    _fifoAcceptor->stop();
-    RunnablePtr().swap(_fifoAcceptor);
-  }
-  if (_tcpServer) {
+  if (_tcpServer)
     _tcpServer->stop();
-    RunnablePtr().swap(_tcpServer);
-  }
+  if (_fifoAcceptor)
+    _fifoAcceptor->stop();
 }

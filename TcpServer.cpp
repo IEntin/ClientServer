@@ -56,10 +56,6 @@ void TcpServer::stop() {
   _ioContext.stop();
 }
 
-void TcpServer::remove(RunnablePtr runnable) {
-  _threadPool.remove(runnable);
-}
-
 void TcpServer::run() {
   try {
     _ioContext.run();

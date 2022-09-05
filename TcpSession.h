@@ -7,6 +7,7 @@
 #include "Header.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
+#include <thread>
 
 using Response = std::vector<std::string>;
 
@@ -29,7 +30,7 @@ public:
 private:
   void readHeader();
   void readRequest();
-  void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = &TcpSession::readHeader);
+  void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = nullptr);
   void asyncWait();
   void heartbeatWait();
   bool onReceiveRequest();
@@ -51,10 +52,8 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   RunnablePtr _parent;
-  std::thread _heartbeatThread;
+  std::jthread _heartbeatThread;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
-  std::chrono::time_point<std::chrono::steady_clock> _currentHeartbeat;
-  std::chrono::time_point<std::chrono::steady_clock> _nextHeartbeat;
 };
 
 } // end of namespace tcp

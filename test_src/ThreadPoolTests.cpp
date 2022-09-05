@@ -26,7 +26,7 @@ TEST(ThreadPoolTest, 1) {
     void stop() override {}
     const int _number;
     ThreadPoolPtr _pool;
-    std::thread::id _id;
+    std::jthread::id _id;
   };
   for (int i = 0; i < 20; ++i) {
     auto runnable = std::make_shared<TestRunnable>(i, pool);

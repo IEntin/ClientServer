@@ -22,10 +22,7 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _strand(boost::asio::make_strand(_ioContext)),
   _timer(_ioContext),
   _heartbeatTimer(_ioContext),
-  // save for reference count
-  _parent(parent),
-  _currentHeartbeat(std::chrono::steady_clock::now()),
-  _nextHeartbeat(_currentHeartbeat + std::chrono::milliseconds(_options._heartbeatPeriod)) {
+  _parent(parent) {
   _socket.set_option(boost::asio::socket_base::linger(false, 0));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
@@ -38,8 +35,6 @@ TcpSession::~TcpSession() {
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
     _socket.close(ignore);
   }
-  if (_heartbeatThread.joinable())
-    _heartbeatThread.join();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -58,7 +53,7 @@ bool TcpSession::start() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  _heartbeatThread = std::thread(&TcpSession::heartbeatThreadFunc, this);
+  _heartbeatThread = std::jthread(&TcpSession::heartbeatThreadFunc, this);
   return true;
 }
 
@@ -104,7 +99,7 @@ bool TcpSession::sendReply(const Response& response) {
   if (message.empty())
     return false;
   asyncWait();
-  write(message);
+  write(message, &TcpSession::readHeader);
   return true;
 }
 
@@ -215,13 +210,12 @@ void TcpSession::heartbeat() {
     return;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
-  write(std::string_view(_heartbeatBuffer, HEADER_SIZE), nullptr);
+  write(std::string_view(_heartbeatBuffer, HEADER_SIZE));
 }
 
 void TcpSession::heartbeatWait() {
   if (_stopped)
     return;
-  _nextHeartbeat += std::chrono::milliseconds(_options._heartbeatPeriod);
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
   auto weak = weak_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
@@ -232,7 +226,8 @@ void TcpSession::heartbeatWait() {
       if (!self)
 	return;
       if (ec) {
-	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	if (ec != boost::asio::error::operation_aborted)
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	boost::system::error_code ignore;
 	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
 	_socket.close(ignore);
