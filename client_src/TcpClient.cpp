@@ -75,7 +75,7 @@ bool TcpClient::send(const std::vector<char>& msg) {
   return true;
 }
 
-bool TcpClient::receive() {
+HEADERTYPE TcpClient::readReply() {
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
@@ -83,7 +83,7 @@ bool TcpClient::receive() {
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
     _socket.close(ignore);
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return false;
+    return HEADERTYPE::ERROR;
   }
   char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
@@ -92,21 +92,33 @@ bool TcpClient::receive() {
     boost::system::error_code ignore;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
     _socket.close(ignore);
-    return false;
+    return HEADERTYPE::ERROR;
   }
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
     decodeHeader(std::string_view(buffer, HEADER_SIZE));
   if (problem != PROBLEMS::NONE)
-    return false;
+    return HEADERTYPE::ERROR;
   if (headerType == HEADERTYPE::HEARTBEAT) {
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! heartbeat received !" << std::endl;
-    // now receive the request
-    receive();
-    return true;
+    return HEADERTYPE::HEARTBEAT;
   }
-  if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4))
+  else {
+    bool result = readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4);
+    return result ? HEADERTYPE::REQUEST : HEADERTYPE::ERROR;
+  }
+}
+
+bool TcpClient::receive() {
+  HEADERTYPE result;
+  while ((result = readReply()) == HEADERTYPE::HEARTBEAT);
+  switch (result) {
+  case HEADERTYPE::REQUEST:
+    return true;
+  case HEADERTYPE::ERROR:
     return false;
-  return true;
+  default:
+    return false;
+  }
 }
 
 bool TcpClient::run() {

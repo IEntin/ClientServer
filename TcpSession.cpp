@@ -20,12 +20,12 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _ioContext(details->_ioContext),
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
-  _timer(_ioContext),
+  _timeoutTimer(_ioContext),
   _heartbeatTimer(_ioContext),
   _parent(parent) {
   _socket.set_option(boost::asio::socket_base::linger(false, 0));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
-  _timer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
 
@@ -60,8 +60,6 @@ bool TcpSession::start() {
 void TcpSession::run() noexcept {
   try {
     readHeader();
-    if (_problem.load() == PROBLEMS::MAX_TCP_SESSIONS)
-      _problem.store(PROBLEMS::NONE);
     _ioContext.run();
     if (_options._destroyBufferOnClientDisconnect)
       MemoryPool::destroyBuffers();
@@ -112,6 +110,8 @@ void TcpSession::readHeader() {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this, weak] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      if (_problem == PROBLEMS::MAX_TCP_SESSIONS)
+	_problem.store(PROBLEMS::NONE);
       auto self = weak.lock();
       if (!self)
 	return;
@@ -122,7 +122,7 @@ void TcpSession::readHeader() {
 	boost::system::error_code ignore;
 	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
 	_socket.close(ignore);
-	_timer.cancel(ignore);
+	_timeoutTimer.cancel(ignore);
 	_heartbeatTimer.cancel(ignore);
 	return;
       }
@@ -185,9 +185,9 @@ void TcpSession::write(std::string_view reply, std::function<void(TcpSession*)> 
 void TcpSession::asyncWait() {
   if (_stopped)
     return;
-  _timer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
   auto weak = weak_from_this();
-  _timer.async_wait(boost::asio::bind_executor(_strand,
+  _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
     [this, weak](const boost::system::error_code& ec) {
       if (_stopped)
 	return;

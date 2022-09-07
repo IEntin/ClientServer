@@ -43,7 +43,7 @@ private:
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;
   boost::asio::strand<boost::asio::io_context::executor_type> _strand;
-  AsioTimer _timer;
+  AsioTimer _timeoutTimer;
   AsioTimer _heartbeatTimer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;

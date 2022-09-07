@@ -22,7 +22,8 @@ std::string_view Compression::compressInternal(std::string_view uncompressed,
 					       uncompressed.size(),
 					       dstCapacity);
   if (compressedSize == 0) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+    if (errno)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
   return { buffer, compressedSize };
@@ -36,7 +37,8 @@ bool Compression::uncompressInternal(std::string_view compressed,
 					    compressed.size(),
 					    uncomprSize);
   if (decomprSize != static_cast<ssize_t>(uncomprSize)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+    if (errno)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     return false;
   }
   return true;
