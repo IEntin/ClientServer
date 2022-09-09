@@ -99,7 +99,7 @@ HEADERTYPE TcpClient::readReply() {
   if (problem != PROBLEMS::NONE)
     return HEADERTYPE::ERROR;
   if (headerType == HEADERTYPE::HEARTBEAT) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! heartbeat received !" << std::endl;
+    CLOG << '.' << std::flush;
     return HEADERTYPE::HEARTBEAT;
   }
   else {

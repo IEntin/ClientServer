@@ -61,8 +61,7 @@ void TcpSession::run() noexcept {
   try {
     readHeader();
     _ioContext.run();
-    if (_options._destroyBufferOnClientDisconnect)
-      MemoryPool::destroyBuffers();
+    MemoryPool::destroyBuffers();
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
@@ -122,11 +121,7 @@ void TcpSession::readHeader() {
       if (ec) {
 	(ec == boost::asio::error::eof ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	boost::system::error_code ignore;
-	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-	_socket.close(ignore);
-	_timeoutTimer.cancel(ignore);
-	_heartbeatTimer.cancel(ignore);
+	_ioContext.stop();
 	return;
       }
       _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
@@ -154,10 +149,7 @@ void TcpSession::readRequest() {
 	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	boost::system::error_code ignore;
-	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-	_socket.close(ignore);
-	_heartbeatTimer.cancel(ignore);
+	_ioContext.stop();
 	return;
       }
       onReceiveRequest();
@@ -178,10 +170,7 @@ void TcpSession::write(std::string_view reply, std::function<void(TcpSession*)> 
 	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	boost::system::error_code ignore;
-	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-	_socket.close(ignore);
-	_heartbeatTimer.cancel(ignore);
+	_ioContext.stop();
 	return;
       }
       if (nextFunc)
@@ -245,9 +234,7 @@ void TcpSession::heartbeatWait() {
       if (ec) {
 	if (ec != boost::asio::error::operation_aborted)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	boost::system::error_code ignore;
-	_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-	_socket.close(ignore);
+	_ioContext.stop();
 	return;
       }
       if (_problem == PROBLEMS::MAX_TCP_SESSIONS)

@@ -69,8 +69,7 @@ bool readMsgBody(int fd,
 bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
   header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
   if (getProblem(header) != PROBLEMS::NONE) {
-    if (options._destroyBufferOnClientDisconnect)
-      MemoryPool::destroyBuffers();
+    MemoryPool::destroyBuffers();
     return false;
   }
   return readMsgBody(fd, header, message, options);

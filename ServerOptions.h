@@ -32,5 +32,4 @@ struct ServerOptions {
   bool _turnOffLogging;
   bool _sortInput;
   bool _setPipeSize;
-  bool _destroyBufferOnClientDisconnect;
 };

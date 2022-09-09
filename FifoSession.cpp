@@ -91,8 +91,7 @@ bool FifoSession::sendResponse(const Response& response) {
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _fifoName << '\n';
-    if (_options._destroyBufferOnClientDisconnect)
-      MemoryPool::destroyBuffers();
+    MemoryPool::destroyBuffers();
     return false;
   }
   if (_options._setPipeSize)

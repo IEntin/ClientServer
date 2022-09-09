@@ -31,8 +31,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _timingEnabled(_appOptions.get("Timing", false)),
   _turnOffLogging(_appOptions.get("TurnOffLogging", true)),
   _sortInput(_appOptions.get("SortInput", true)),
-  _setPipeSize(_appOptions.get("SetPipeSize", true)),
-  _destroyBufferOnClientDisconnect(_appOptions.get("DestroyBufferOnClientDisconnect", true)) {
+  _setPipeSize(_appOptions.get("SetPipeSize", true)) {
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

@@ -17,6 +17,5 @@
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,
-  "SetPipeSize" : true,
-  "DestroyBufferOnClientDisconnect" : true
+  "SetPipeSize" : true
 }
