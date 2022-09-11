@@ -23,7 +23,7 @@ inline constexpr char HEADERTYPE_REQUEST_CHAR = 'R';
 inline constexpr char HEADERTYPE_HEARTBEAT_CHAR = 'H';
 inline constexpr char HEADERTYPE_ERROR_CHAR = 'E';
 
-enum class SESSIONTYPE : char { SESSION = 'S' };
+enum class SESSIONTYPE : char { SESSION = 'S', HEARTBEAT = 'H' };
 
 enum class HEADERTYPE : char {
   REQUEST = HEADERTYPE_REQUEST_CHAR,
@@ -54,6 +54,13 @@ enum class HEADER_INDEX : int {
   DIAGNOSTICS,
   EPHEMERAL,
   PROBLEMS
+};
+
+constexpr unsigned short CLIENT_ID_SIZE = 100;
+
+enum class ID_INDEX : int {
+  SESSION,
+  ID
 };
 
 using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, unsigned short, PROBLEMS>;

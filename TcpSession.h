@@ -21,14 +21,21 @@ using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
 using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
+using TcpSessionPtr = std::shared_ptr<class TcpSession>;
+
 class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
 public:
-  TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent);
+  TcpSession(const ServerOptions& options,
+	     SessionDetailsPtr details,
+	     std::string_view clientId,
+	     TcpServerPtr parent);
   ~TcpSession() override;
 
   void run() noexcept override;
   bool start() override;
   void stop() override;
+
+  const std::string_view getClientId() const { return _clientId; }
 private:
   void readHeader();
   void readRequest();
@@ -54,6 +61,7 @@ private:
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Response _response;
+  const std::string _clientId;
   TcpServerPtr _parent;
   std::jthread _heartbeatThread;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;

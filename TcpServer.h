@@ -8,6 +8,7 @@
 #include "ThreadPool.h"
 #include "Compression.h"
 #include <boost/asio.hpp>
+#include <map>
 #include <memory>
 
 struct ServerOptions;
@@ -35,6 +36,7 @@ private:
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   ThreadPool _threadPool;
+  std::map<std::string_view, std::weak_ptr<class TcpSession>> _sessions;
 };
 
 } // end of namespace tcp

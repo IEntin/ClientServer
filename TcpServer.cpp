@@ -74,20 +74,31 @@ void TcpServer::accept() {
 			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 			   else {
-			     char ch = '\0';
-			     boost::asio::read(details->_socket, boost::asio::buffer(&ch, 1), ec);
+			     char buffer[CLIENT_ID_SIZE] = {};
+			     boost::asio::read(details->_socket, boost::asio::buffer(buffer, CLIENT_ID_SIZE), ec);
 			     if (ec) {
 			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
 			       return;
 			     }
+			     std::string_view received(buffer, CLIENT_ID_SIZE);
+			     std::vector<std::string_view> fields;
+			     utility::split(received, fields, '|');
+			     char ch = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::SESSION)][0];
 			     SESSIONTYPE type = static_cast<SESSIONTYPE>(ch);
 			     switch (type) {
 			     case SESSIONTYPE::SESSION:
 			       {
-				 RunnablePtr session = std::make_shared<TcpSession>(_options, details, shared_from_this());
+				 std::string_view id = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::ID)];
+				 TcpSessionPtr session = std::make_shared<TcpSession>(_options,
+										      details,
+										      id,
+										      shared_from_this());
+				 _sessions.emplace(id, session);
 				 session->start();
 				 [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
 			       }
+			       break;
+			     case SESSIONTYPE::HEARTBEAT:
 			       break;
 			     default:
 			       break;

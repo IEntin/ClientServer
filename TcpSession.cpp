@@ -14,7 +14,10 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
+TcpSession::TcpSession(const ServerOptions& options,
+		       SessionDetailsPtr details,
+		       std::string_view clientId,
+		       TcpServerPtr parent) :
   Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),
   _options(options),
   _details(details),
@@ -24,6 +27,7 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _timeoutTimer(_ioContext),
   _heartbeatTimer(_ioContext),
   _heartbeatPeriod(_options._heartbeatPeriod),
+  _clientId(clientId),
   _parent(parent) {
   _socket.set_option(boost::asio::socket_base::linger(false, 0));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));

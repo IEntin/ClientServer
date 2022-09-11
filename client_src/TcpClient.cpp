@@ -21,10 +21,15 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (error)
     throw(std::runtime_error(error.what()));
   _endpoint = endpoint;
-  boost::system::error_code ec;
   SESSIONTYPE type = SESSIONTYPE::SESSION;
+  std::ostringstream os;
+  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _socket.local_endpoint()
+     << '*' << getpid() << '|' << std::flush;
+  std::string id = os.str();
+  id.append(CLIENT_ID_SIZE - id.size(), '\0');
+  boost::system::error_code ec;
   size_t result[[maybe_unused]] =
-    boost::asio::write(_socket, boost::asio::buffer(&type, 1), ec);
+    boost::asio::write(_socket, boost::asio::buffer(id), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     throw(std::runtime_error(ec.what()));

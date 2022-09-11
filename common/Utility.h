@@ -31,11 +31,11 @@ template <typename INPUT, typename CONTAINER>
     while (start < input.size()) {
       next = input.find(delim, start);
       if (next == std::string::npos) {
-	if (input.size() > start + 1)
+	if (input.size() > start)
 	  rows.emplace_back(input.data() + start, input.data() + input.size());
 	break;
       }
-      else if (next > start + 1)
+      else if (next > start)
 	rows.emplace_back(input.data() + start, input.data() + next + keepDelim);
       start = next + 1;
     }
