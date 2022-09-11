@@ -19,9 +19,11 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
+using TcpServerPtr = std::shared_ptr<class TcpServer>;
+
 class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
 public:
-  TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent);
+  TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent);
   ~TcpSession() override;
 
   void run() noexcept override;
@@ -45,13 +47,14 @@ private:
   boost::asio::strand<boost::asio::io_context::executor_type> _strand;
   AsioTimer _timeoutTimer;
   AsioTimer _heartbeatTimer;
+  unsigned _heartbeatPeriod;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;
   char _heartbeatBuffer[HEADER_SIZE] = {};
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Response _response;
-  RunnablePtr _parent;
+  TcpServerPtr _parent;
   std::jthread _heartbeatThread;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
 };

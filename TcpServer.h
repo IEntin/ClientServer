@@ -19,6 +19,8 @@ public:
   TcpServer(const ServerOptions& options);
   ~TcpServer() override;
 
+  void remove(RunnablePtr runnable);
+
 private:
   void accept();
 

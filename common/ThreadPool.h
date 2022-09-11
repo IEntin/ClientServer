@@ -6,7 +6,7 @@
 
 #include <condition_variable>
 #include <memory>
-#include <queue>
+#include <deque>
 #include <thread>
 #include <vector>
 
@@ -21,7 +21,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   std::vector<std::jthread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
-  std::queue<RunnablePtr> _queue;
+  std::deque<RunnablePtr> _queue;
   const unsigned _maxNumberThreads;
  public:
   explicit ThreadPool(unsigned maxNumberThreads);
@@ -31,6 +31,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   PROBLEMS push(RunnablePtr runnable);
   RunnablePtr get();
   int size() const { return _threads.size(); }
+  void remove(RunnablePtr runnable);
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };

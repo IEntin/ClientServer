@@ -9,11 +9,12 @@
 #include "ServerUtility.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
+#include "TcpServer.h"
 #include "Utility.h"
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent) :
+TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
   Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),
   _options(options),
   _details(details),
@@ -22,6 +23,7 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext),
   _heartbeatTimer(_ioContext),
+  _heartbeatPeriod(_options._heartbeatPeriod),
   _parent(parent) {
   _socket.set_option(boost::asio::socket_base::linger(false, 0));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
@@ -156,10 +158,10 @@ void TcpSession::readRequest() {
     }));
 }
 
-void TcpSession::write(std::string_view reply, std::function<void(TcpSession*)> nextFunc) {
+void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> nextFunc) {
   auto weak = weak_from_this();
   boost::asio::async_write(_socket,
-    boost::asio::buffer(reply.data(), reply.size()), boost::asio::bind_executor(_strand,
+    boost::asio::buffer(msg.data(), msg.size()), boost::asio::bind_executor(_strand,
     [this, weak, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       if (_stopped) {
 	_ioContext.stop();
@@ -170,6 +172,7 @@ void TcpSession::write(std::string_view reply, std::function<void(TcpSession*)> 
 	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	_heartbeatPeriod = 1;
 	_ioContext.stop();
 	return;
       }
@@ -199,8 +202,7 @@ void TcpSession::asyncWait() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	else
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
-	boost::system::error_code ignore;
-	_heartbeatTimer.cancel(ignore);
+	_ioContext.stop();
       }
    }));
 }
@@ -210,7 +212,7 @@ void TcpSession::heartbeat() {
     _ioContext.stop();
     return;
   }
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  CLOG << '.' << std::flush;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
   write(std::string_view(_heartbeatBuffer, HEADER_SIZE));
 }
@@ -220,7 +222,7 @@ void TcpSession::heartbeatWait() {
     _ioContext.stop();
     return;
   }
-  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_heartbeatPeriod));
   auto weak = weak_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
     [this, weak](const boost::system::error_code& ec) {
@@ -250,6 +252,11 @@ void TcpSession::heartbeatThreadFunc() {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+  }
+  if (_problem == PROBLEMS::MAX_TCP_SESSIONS && !_stopped) {
+    auto self = shared_from_this();
+    _heartbeatThread.detach();
+    _parent->remove(shared_from_this());
   }
 }
 

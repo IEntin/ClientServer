@@ -21,6 +21,8 @@ TcpServer::TcpServer(const ServerOptions& options) :
   _threadPool(_options._maxTcpSessions + 1) {}
 
 TcpServer::~TcpServer() {
+  boost::system::error_code ignore;
+  _acceptor.close(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -50,10 +52,8 @@ bool TcpServer::start() {
 
 void TcpServer::stop() {
   _stopped.store(true);
-  boost::system::error_code ignore;
-  _acceptor.close(ignore);
-  _threadPool.stop();
   _ioContext.stop();
+  _threadPool.stop();
 }
 
 void TcpServer::run() {
@@ -95,6 +95,10 @@ void TcpServer::accept() {
 			     accept();
 			   }
 			 });
+}
+
+void TcpServer::remove(RunnablePtr runnable) {
+  _threadPool.remove(runnable);
 }
 
 } // end of namespace tcp

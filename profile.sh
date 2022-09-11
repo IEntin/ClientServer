@@ -52,13 +52,15 @@ echo $SERVER_PID
 sleep 2
 
 # Start tcp or fifo client.
-# The directory $SERVER_DIR/../PrjClient2 (you can change it) must exist and have a copy of
-# profile_client.sh, ClientOptions.json, and the link to SERVER_DIR/data directory.
+# The directory $SERVER_DIR/../PrjClient2 (you can change it) must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
+
 ( cd $SERVER_DIR/../PrjClient2; $SERVER_DIR/../PrjClient2/client > /dev/null& )
+
 # Start another fifo or tcp client to have a mix in server profile
-# The directory $SERVER_DIR/../PrjClient3 (you can change it) must exist and have a copy of
-# profile_client.sh, ClientOptions.json, and the link to SERVER_DIR/data directory.
+# The directory $SERVER_DIR/../PrjClient3 (you can change it) must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
+
 ( cd $SERVER_DIR/../PrjClient3; $SERVER_DIR/../PrjClient3/client > /dev/null& )
+
 date
 
 sleep 60
