@@ -72,6 +72,23 @@ TEST(SplitTest, KeepDelim) {
     ASSERT_TRUE(line.ends_with('\n'));
 }
 
+TEST(SplitTest, Chars) {
+  std::vector<std::string_view> chars;
+  std::string source("A|B|C|D|E");
+  utility::split(source, chars, '|', 1);
+  std::erase(source, '|');
+  ASSERT_EQ(chars.size(), source.size());
+}
+
+TEST(SplitTest, MultiDelims) {
+  std::vector<std::string_view> chars;
+  std::string source("A|*B|*C|D|*E");
+  utility::split(source, chars, "|*");
+  std::erase(source, '|');
+  std::erase(source, '*');
+  ASSERT_EQ(chars.size(), source.size());
+}
+
 TEST(ToCharsTest, Integral) {
   int value = 7;
   int shift = 2;

@@ -36,7 +36,7 @@ private:
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   ThreadPool _threadPool;
-  std::map<std::string_view, std::weak_ptr<class TcpSession>> _sessions;
+  std::map<std::string, std::weak_ptr<class TcpSession>> _sessions;
 };
 
 } // end of namespace tcp

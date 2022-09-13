@@ -56,7 +56,7 @@ enum class HEADER_INDEX : int {
   PROBLEMS
 };
 
-constexpr unsigned short CLIENT_ID_SIZE = 100;
+constexpr unsigned short CLIENT_ID_SIZE = 40;
 
 enum class ID_INDEX : int {
   SESSION,

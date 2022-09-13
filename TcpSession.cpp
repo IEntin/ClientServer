@@ -257,11 +257,6 @@ void TcpSession::heartbeatThreadFunc() {
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
   }
-  if (_problem == PROBLEMS::MAX_TCP_SESSIONS && !_stopped) {
-    auto self = shared_from_this();
-    _heartbeatThread.detach();
-    _parent->remove(shared_from_this());
-  }
 }
 
 bool TcpSession::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {

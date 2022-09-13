@@ -23,8 +23,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   _endpoint = endpoint;
   SESSIONTYPE type = SESSIONTYPE::SESSION;
   std::ostringstream os;
-  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _socket.local_endpoint()
-     << '*' << getpid() << '|' << std::flush;
+  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _socket.local_endpoint() << '|' << std::flush;
   std::string id = os.str();
   id.append(CLIENT_ID_SIZE - id.size(), '\0');
   boost::system::error_code ec;

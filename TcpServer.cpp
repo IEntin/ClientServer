@@ -84,21 +84,28 @@ void TcpServer::accept() {
 			     std::vector<std::string_view> fields;
 			     utility::split(received, fields, '|');
 			     char ch = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::SESSION)][0];
+			     std::string_view idView = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::ID)];
 			     SESSIONTYPE type = static_cast<SESSIONTYPE>(ch);
 			     switch (type) {
 			     case SESSIONTYPE::SESSION:
 			       {
-				 std::string_view id = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::ID)];
-				 TcpSessionPtr session = std::make_shared<TcpSession>(_options,
-										      details,
-										      id,
-										      shared_from_this());
-				 _sessions.emplace(id, session);
+				 auto session = std::make_shared<TcpSession>(_options,
+									     details,
+									     idView,
+									     shared_from_this());
+				 auto [it, inserted] = _sessions.emplace(idView, session->weak_from_this());
+				 if (!inserted) {
+				   CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-not inserted\n";
+				   return;
+				 }
 				 session->start();
 				 [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
 			       }
 			       break;
 			     case SESSIONTYPE::HEARTBEAT:
+			       {
+				  [[maybe_unused]] std::string id(idView.data(), idView.size());
+			       }
 			       break;
 			     default:
 			       break;
