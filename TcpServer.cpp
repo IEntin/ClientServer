@@ -32,8 +32,6 @@ bool TcpServer::start() {
   if (!ec)
     _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
   if (!ec)
-    _acceptor.set_option(boost::asio::socket_base::linger(false, 0), ec);
-  if (!ec)
     _acceptor.bind(_endpoint, ec);
   if (!ec)
     _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
@@ -45,7 +43,6 @@ bool TcpServer::start() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
 	 << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
     _stopped.store(true);
-    _threadPool.stop();
   }
   return !ec;
 }
@@ -53,6 +50,7 @@ bool TcpServer::start() {
 void TcpServer::stop() {
   _stopped.store(true);
   _ioContext.stop();
+  _threadPoolHeartbeat.stop();
   _threadPool.stop();
 }
 
@@ -65,58 +63,58 @@ void TcpServer::run() {
   }
 }
 
+void TcpServer::pushHeartbeat(RunnablePtr heartbeat) {
+  _threadPoolHeartbeat.push(heartbeat);
+}
+
 void TcpServer::accept() {
   auto details = std::make_shared<SessionDetails>();
   _acceptor.async_accept(details->_socket,
 			 details->_endpoint,
-			 [details, this](boost::system::error_code ec) {
-			   if (ec)
-			     (ec == boost::asio::error::operation_aborted ? CLOG : CERR)
-			       << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-			   else {
-			     char buffer[CLIENT_ID_SIZE] = {};
-			     boost::asio::read(details->_socket, boost::asio::buffer(buffer, CLIENT_ID_SIZE), ec);
-			     if (ec) {
-			       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
-			       return;
-			     }
-			     std::string_view received(buffer, CLIENT_ID_SIZE);
-			     std::vector<std::string_view> fields;
-			     utility::split(received, fields, '|');
-			     char ch = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::SESSION)][0];
-			     std::string_view idView = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::ID)];
-			     SESSIONTYPE type = static_cast<SESSIONTYPE>(ch);
-			     switch (type) {
-			     case SESSIONTYPE::SESSION:
-			       {
-				 auto session = std::make_shared<TcpSession>(_options,
-									     details,
-									     idView,
-									     shared_from_this());
-				 auto [it, inserted] = _sessions.emplace(idView, session->weak_from_this());
-				 if (!inserted) {
-				   CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-not inserted\n";
-				   return;
-				 }
-				 session->start();
-				 [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
-			       }
-			       break;
-			     case SESSIONTYPE::HEARTBEAT:
-			       {
-				  [[maybe_unused]] std::string id(idView.data(), idView.size());
-			       }
-			       break;
-			     default:
-			       break;
-			     }
-			     accept();
-			   }
-			 });
-}
-
-void TcpServer::remove(RunnablePtr runnable) {
-  _threadPool.remove(runnable);
+    [details, this](boost::system::error_code ec) {
+      if (ec)
+	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
+	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+      else {
+	char buffer[CLIENT_ID_SIZE] = {};
+	boost::asio::read(details->_socket, boost::asio::buffer(buffer, CLIENT_ID_SIZE), ec);
+	if (ec) {
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
+	  return;
+	}
+	std::string_view received(buffer, CLIENT_ID_SIZE);
+	std::vector<std::string_view> fields;
+	utility::split(received, fields, '|');
+	char ch = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::SESSION)][0];
+	std::string_view idView = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::ID)];
+	SESSIONTYPE type = static_cast<SESSIONTYPE>(ch);
+	switch (type) {
+	case SESSIONTYPE::SESSION:
+	  {
+	    auto session = std::make_shared<TcpSession>(_options,
+							details,
+							idView,
+							shared_from_this());
+	    auto [it, inserted] = _sessions.emplace(idView, session->weak_from_this());
+	    if (!inserted) {
+	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-not inserted\n";
+	      return;
+	    }
+	    session->start();
+	    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session->shared_from_this());
+	  }
+	  break;
+	case SESSIONTYPE::HEARTBEAT:
+	  {
+	    [[maybe_unused]] std::string id(idView.data(), idView.size());
+	  }
+	  break;
+	default:
+	  break;
+	}
+	accept();
+      }
+    });
 }
 
 } // end of namespace tcp

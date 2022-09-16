@@ -20,7 +20,7 @@ public:
   TcpServer(const ServerOptions& options);
   ~TcpServer() override;
 
-  void remove(RunnablePtr runnable);
+  void pushHeartbeat(RunnablePtr heartbeat);
 
 private:
   void accept();
@@ -35,6 +35,7 @@ private:
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
+  ThreadPool _threadPoolHeartbeat;
   ThreadPool _threadPool;
   std::map<std::string, std::weak_ptr<class TcpSession>> _sessions;
 };

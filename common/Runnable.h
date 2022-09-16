@@ -28,6 +28,7 @@ class Runnable {
   virtual void run() = 0;
   virtual bool start() = 0;
   virtual void stop() = 0;
+  virtual bool killThread() const { return false; }
   PROBLEMS getStatus();
   PROBLEMS checkCapacity();
   std::atomic<bool>& _stopped;
