@@ -27,6 +27,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   const unsigned _maxNumberThreads;
   static std::shared_ptr<class KillThread> _killThread;
  public:
+  // default 0 means can grow
   explicit ThreadPool(unsigned maxNumberThreads = 0);
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;

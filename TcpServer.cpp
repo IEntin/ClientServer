@@ -42,7 +42,7 @@ bool TcpServer::start() {
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
 	 << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
-    _stopped.store(true);
+    stop();
   }
   return !ec;
 }

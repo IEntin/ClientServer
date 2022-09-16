@@ -36,5 +36,4 @@ struct ClientOptions {
   bool _timing;
   bool _setPipeSize;
   bool _turnOffLogging;
-  int _numberBuilderThreads;
 };

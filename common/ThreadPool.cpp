@@ -51,7 +51,7 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   PROBLEMS problem = PROBLEMS::NONE;
   if (runnable) {
     problem = runnable->checkCapacity();
-    if (_maxNumberThreads == 0 && runnable.use_count() >= static_cast<long>(_threads.size()))
+    if (_maxNumberThreads == 0 && runnable.use_count() > static_cast<long>(_threads.size()))
       createThread();
   }
   _queue.push(runnable);

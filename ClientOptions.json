@@ -17,6 +17,5 @@
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 20,
   "ENXIOwait" : 10,
-  "SetPipeSize" : true,
-  "NumberBuilderThreads" : 2
+  "SetPipeSize" : true
 }

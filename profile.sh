@@ -49,7 +49,7 @@ SERVER_PID=$!
 echo $SERVER_PID
 /bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient2
 /bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient3
-sleep 2
+sleep 5
 
 # Start tcp or fifo client.
 # The directory $SERVER_DIR/../PrjClient2 (you can change it) must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
