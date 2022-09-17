@@ -8,19 +8,24 @@
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
+struct ServerOptions;
+
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-class TcpSession;
-
-using TcpSessionPtr = std::shared_ptr<TcpSession>;
+using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
 using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
 class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
+
  public:
-  TcpHeartbeat(TcpSessionPtr session, TcpServerPtr parent);
+
+  TcpHeartbeat(const ServerOptions& options,
+	       SessionDetailsPtr details,
+	       std::string_view clientId,
+	       TcpServerPtr parent);
   ~TcpHeartbeat() override;
 
   bool start() override;
@@ -34,14 +39,15 @@ class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public R
 
   void heartbeat();
 
-  TcpSessionPtr _session;
+  const ServerOptions& _options;
+  SessionDetailsPtr _details;
+  const std::string _clientId;
   TcpServerPtr _parent;
-  std::atomic<PROBLEMS>& _problem;
   boost::asio::io_context& _ioContext;
-  boost::asio::strand<boost::asio::io_context::executor_type>& _strand;
+  boost::asio::strand<boost::asio::io_context::executor_type> _strand;
   boost::asio::ip::tcp::socket& _socket;
   AsioTimer _heartbeatTimer;
-  unsigned& _heartbeatPeriod;
+  int _heartbeatPeriod;
   char _heartbeatBuffer[HEADER_SIZE] = {};
 };
 

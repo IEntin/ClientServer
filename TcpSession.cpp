@@ -9,7 +9,6 @@
 #include "ServerUtility.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
-#include "TcpHeartbeat.h"
 #include "TcpServer.h"
 #include "Utility.h"
 
@@ -29,7 +28,6 @@ TcpSession::TcpSession(const ServerOptions& options,
   _clientId(clientId),
   _heartbeatPeriod(_options._heartbeatPeriod),
   _parent(parent) {
-  _socket.set_option(boost::asio::socket_base::linger(false, 0));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
@@ -58,8 +56,6 @@ bool TcpSession::start() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  auto heartbeat = std::make_shared<TcpHeartbeat>(shared_from_this(), _parent);
-  heartbeat->start();
   return true;
 }
 

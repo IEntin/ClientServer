@@ -21,14 +21,12 @@ inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 inline constexpr char HEADERTYPE_REQUEST_CHAR = 'R';
 inline constexpr char HEADERTYPE_HEARTBEAT_CHAR = 'H';
-inline constexpr char HEADERTYPE_ERROR_CHAR = 'E';
 
 enum class SESSIONTYPE : char { SESSION = 'S', HEARTBEAT = 'H' };
 
 enum class HEADERTYPE : char {
   REQUEST = HEADERTYPE_REQUEST_CHAR,
-  HEARTBEAT = HEADERTYPE_HEARTBEAT_CHAR,
-  ERROR = HEADERTYPE_ERROR_CHAR
+  HEARTBEAT = HEADERTYPE_HEARTBEAT_CHAR
 };
 
 enum class COMPRESSORS : char {
@@ -56,10 +54,10 @@ enum class HEADER_INDEX : int {
   PROBLEMS
 };
 
-constexpr unsigned short CLIENT_ID_SIZE = 40;
+constexpr unsigned short HSMSG_SIZE = 50;
 
-enum class ID_INDEX : int {
-  SESSION,
+enum class HSMSG_INDEX : int {
+  TYPE,
   ID
 };
 

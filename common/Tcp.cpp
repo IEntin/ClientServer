@@ -25,8 +25,6 @@ setSocket(boost::asio::io_context& ioContext,
   auto endpoint = boost::asio::connect(socket, resolver.resolve(host, port, ec));
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
-  if (!ec)
-    socket.set_option(boost::asio::socket_base::linger(false, 0), ec);
   if (ec)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
   return { endpoint, ec };

@@ -4,30 +4,41 @@
 
 #include "TcpHeartbeat.h"
 #include "ServerOptions.h"
+#include "SessionDetails.h"
 #include "TcpServer.h"
 #include "TcpSession.h"
 #include "Utility.h"
 
 namespace tcp {
 
-TcpHeartbeat::TcpHeartbeat(TcpSessionPtr session, TcpServerPtr parent) :
-  _session(session),
+TcpHeartbeat::TcpHeartbeat(const ServerOptions& options,
+			   SessionDetailsPtr details,
+			   std::string_view clientId,
+			   TcpServerPtr parent) :
+  Runnable(parent),
+  _options(options),
+  _details(details),
+  _clientId(clientId),
   _parent(parent),
-  _problem(session->_problem),
-  _ioContext(session->_ioContext),
-  _strand(session->_strand),
-  _socket(session->_socket),
+  _ioContext(_details->_ioContext),
+  _strand(boost::asio::make_strand(_ioContext)),
+  _socket(_details->_socket),
   _heartbeatTimer(_ioContext),
-  _heartbeatPeriod(session->_heartbeatPeriod) {
+  _heartbeatPeriod(_options._heartbeatPeriod) {
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+  _socket.set_option(boost::asio::socket_base::reuse_address(true));
 }
 
 TcpHeartbeat::~TcpHeartbeat() {
+  if (_socket.is_open()) {
+    boost::system::error_code ignore;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
+    _socket.close(ignore);
+  }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpHeartbeat::start() {
-  _parent->pushHeartbeat(shared_from_this());
   return true;
 }
 
@@ -59,8 +70,7 @@ void TcpHeartbeat::heartbeatWait() {
 	_ioContext.stop();
 	return;
       }
-      if (_problem == PROBLEMS::MAX_TCP_SESSIONS)
-	heartbeat();
+      heartbeat();
       heartbeatWait();
     }));
 }
@@ -70,9 +80,24 @@ void TcpHeartbeat::heartbeat() {
     _ioContext.stop();
     return;
   }
-  CLOG << '.' << std::flush;
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
-  _session->write(std::string_view(_heartbeatBuffer, HEADER_SIZE));
+  boost::system::error_code ec;
+  size_t result[[maybe_unused]] =
+    boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
+  if (ec) {
+    if (ec != boost::asio::error::operation_aborted)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    _ioContext.stop();
+    return;
+  }
+  char buffer[HEADER_SIZE] = {};
+  boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    _ioContext.stop();
+    return;
+  }
+  CLOG << '*' << std::flush;
 }
 
 } // end of namespace tcp

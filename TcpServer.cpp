@@ -6,6 +6,7 @@
 #include "ServerOptions.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
+#include "TcpHeartbeat.h"
 #include "TcpSession.h"
 #include "Utility.h"
 
@@ -76,37 +77,47 @@ void TcpServer::accept() {
 	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
       else {
-	char buffer[CLIENT_ID_SIZE] = {};
-	boost::asio::read(details->_socket, boost::asio::buffer(buffer, CLIENT_ID_SIZE), ec);
+	char buffer[HSMSG_SIZE] = {};
+	boost::asio::read(details->_socket, boost::asio::buffer(buffer, HSMSG_SIZE), ec);
 	if (ec) {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
 	  return;
 	}
-	std::string_view received(buffer, CLIENT_ID_SIZE);
+	std::string_view received(buffer, HSMSG_SIZE);
 	std::vector<std::string_view> fields;
 	utility::split(received, fields, '|');
-	char ch = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::SESSION)][0];
-	std::string_view idView = fields[std::underlying_type_t<ID_INDEX>(ID_INDEX::ID)];
-	SESSIONTYPE type = static_cast<SESSIONTYPE>(ch);
+	char typeChar = fields[std::underlying_type_t<HSMSG_INDEX>(HSMSG_INDEX::TYPE)][0];
+	std::string_view idView = fields[std::underlying_type_t<HSMSG_INDEX>(HSMSG_INDEX::ID)];
+	SESSIONTYPE type = static_cast<SESSIONTYPE>(typeChar);
 	switch (type) {
 	case SESSIONTYPE::SESSION:
 	  {
-	    auto session = std::make_shared<TcpSession>(_options,
-							details,
-							idView,
-							shared_from_this());
+	    auto session = std::make_shared<TcpSession>(_options, details, idView, shared_from_this());
 	    auto [it, inserted] = _sessions.emplace(idView, session->weak_from_this());
 	    if (!inserted) {
 	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-not inserted\n";
 	      return;
 	    }
 	    session->start();
-	    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session->shared_from_this());
+	    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
 	  }
 	  break;
 	case SESSIONTYPE::HEARTBEAT:
 	  {
 	    [[maybe_unused]] std::string id(idView.data(), idView.size());
+	    auto it = _sessions.find(id);
+	    if (it == _sessions.end()) {
+	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":corresponding session not found\n";
+	      return;
+	    }
+	    auto session = it->second.lock();
+	    if (!session) {
+	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-corresponding session destroyed\n";
+	      return;
+	    }
+	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, idView, shared_from_this());
+	    heartbeat->start();
+	    [[maybe_unused]] PROBLEMS problem = _threadPoolHeartbeat.push(heartbeat);
 	  }
 	  break;
 	default:

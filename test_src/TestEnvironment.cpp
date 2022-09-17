@@ -25,6 +25,7 @@ TestEnvironment::TestEnvironment() {}
 TestEnvironment::~TestEnvironment() {}
 
 void TestEnvironment::SetUp() {
+  signal(SIGPIPE, SIG_IGN);
   try {
     ClientOptions clientOptions("", nullptr);
     _source = utility::readFile(clientOptions._sourceName);

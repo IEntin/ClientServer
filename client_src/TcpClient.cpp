@@ -7,9 +7,8 @@
 #include "Header.h"
 #include "SessionDetails.h"
 #include "Tcp.h"
+#include "TcpClientHeartbeat.h"
 #include "Utility.h"
-
-extern volatile std::sig_atomic_t stopSignal;
 
 namespace tcp {
 
@@ -23,12 +22,15 @@ TcpClient::TcpClient(const ClientOptions& options) :
   _endpoint = endpoint;
   SESSIONTYPE type = SESSIONTYPE::SESSION;
   std::ostringstream os;
-  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _socket.local_endpoint() << '|' << std::flush;
-  std::string id = os.str();
-  id.append(CLIENT_ID_SIZE - id.size(), '\0');
+  os << _socket.local_endpoint() << std::flush;
+  _clientId = os.str();
+  os.str("");
+  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _clientId << '|' << std::flush;
+  std::string msg = os.str();
+  msg.append(HSMSG_SIZE - msg.size(), '\0');
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
-    boost::asio::write(_socket, boost::asio::buffer(id), ec);
+    boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     throw(std::runtime_error(ec.what()));
@@ -59,6 +61,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
+  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
+  heartbeat->start();
 }
 
 TcpClient::~TcpClient() {
@@ -79,50 +83,20 @@ bool TcpClient::send(const std::vector<char>& msg) {
   return true;
 }
 
-HEADERTYPE TcpClient::readReply() {
+bool TcpClient::receive() {
   boost::system::error_code ec;
-  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-  if (ec) {
-    boost::system::error_code ignore;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-    _socket.close(ignore);
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    return HEADERTYPE::ERROR;
-  }
   char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-    boost::system::error_code ignore;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-    _socket.close(ignore);
-    return HEADERTYPE::ERROR;
+    return false;
   }
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
     decodeHeader(std::string_view(buffer, HEADER_SIZE));
   if (problem != PROBLEMS::NONE)
-    return HEADERTYPE::ERROR;
-  if (headerType == HEADERTYPE::HEARTBEAT) {
-    CLOG << '.' << std::flush;
-    return HEADERTYPE::HEARTBEAT;
-  }
-  else {
-    bool result = readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4);
-    return result ? HEADERTYPE::REQUEST : HEADERTYPE::ERROR;
-  }
-}
-
-bool TcpClient::receive() {
-  HEADERTYPE result;
-  while ((result = readReply()) == HEADERTYPE::HEARTBEAT);
-  switch (result) {
-  case HEADERTYPE::REQUEST:
-    return true;
-  case HEADERTYPE::ERROR:
     return false;
-  default:
-    return false;
-  }
+  else
+    return readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4);
 }
 
 bool TcpClient::run() {

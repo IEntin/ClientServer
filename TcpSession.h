@@ -56,7 +56,7 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   const std::string _clientId;
-  unsigned _heartbeatPeriod;
+  int _heartbeatPeriod;
   TcpServerPtr _parent;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
 };

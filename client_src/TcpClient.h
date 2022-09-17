@@ -15,8 +15,6 @@ class TcpClient : protected Client {
 
   bool receive() override;
 
-  HEADERTYPE readReply();
-
   bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   boost::asio::io_context _ioContext;
@@ -24,6 +22,8 @@ class TcpClient : protected Client {
   boost::asio::ip::tcp::socket _socket;
 
   boost::asio::ip::tcp::endpoint _endpoint;
+
+  std::string _clientId;
 
  public:
 

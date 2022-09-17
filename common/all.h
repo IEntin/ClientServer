@@ -30,6 +30,7 @@
 #include <mutex>
 #include <poll.h>
 #include <queue>
+#include <signal.h>
 #include <sstream>
 #include <stddef.h>
 #include <stdexcept>

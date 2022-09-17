@@ -63,7 +63,7 @@ inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value)
       ec != std::errc()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
     << " problem converting str:" << str << std::endl;
-    throw std::runtime_error(std::string(std::strerror(errno)));
+    throw std::runtime_error("problem converting str");
   }
   return true;
 };
@@ -113,7 +113,7 @@ template <Integral T>
 	ec != std::errc()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-problem converting to string:" << value << '\n';
-      throw std::runtime_error(std::string(std::strerror(errno)));
+      throw std::runtime_error("problem converting to string");
     }
 }
 
@@ -123,7 +123,7 @@ template <Integral T>
 	ec != std::errc()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-problem converting to string:" << value << '\n';
-      throw std::runtime_error(std::string(std::strerror(errno)));
+      throw std::runtime_error("problem converting to string");
     }
     else
       return std::string_view(buffer, ptr - buffer);
