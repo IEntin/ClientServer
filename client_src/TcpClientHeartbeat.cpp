@@ -10,6 +10,8 @@
 
 namespace tcp {
 
+TcpClientHeartbeatPtr TcpClientHeartbeat::_heartbeat;
+
 TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string_view clientId) :
   _options(options),
   _clientId(clientId),
@@ -36,6 +38,11 @@ TcpClientHeartbeat::~TcpClientHeartbeat() {
   if (_thread.joinable())
     _thread.join();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+void TcpClientHeartbeat::create(const ClientOptions& options, std::string_view clientId) {
+  _heartbeat = std::make_shared<TcpClientHeartbeat>(options, clientId);
+  _heartbeat->start();
 }
 
 bool TcpClientHeartbeat::start() {
@@ -66,7 +73,11 @@ void TcpClientHeartbeat::run() noexcept {
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
-  _thread.detach();
+  catch (...) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": unexpected exception\n";
+  }
+  if (_thread.joinable())
+    _thread.detach();
 }
 
 } // end of namespace tcp

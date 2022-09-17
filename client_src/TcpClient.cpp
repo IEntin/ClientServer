@@ -61,8 +61,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
-  heartbeat->start();
+  TcpClientHeartbeat::create(_options, _clientId);
 }
 
 TcpClient::~TcpClient() {
