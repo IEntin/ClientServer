@@ -11,8 +11,6 @@
 #include <fcntl.h>
 #include <filesystem>
 
-extern volatile std::sig_atomic_t stopSignal;
-
 namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
@@ -98,11 +96,6 @@ bool FifoClient::send(const std::vector<char>& subtask) {
 	if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
 	  std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
       } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-      // client stopping
-      if (stopSignal) {
-	std::filesystem::remove(_fifoName);
-	break;
-      }
       // server stopped
       if (!std::filesystem::exists(_fifoName))
 	break;

@@ -8,9 +8,6 @@
 #include "Utility.h"
 #include "ClientOptions.h"
 #include "ServerOptions.h"
-#include <csignal>
-
-volatile std::sig_atomic_t stopSignal = 0;
 
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
@@ -38,8 +35,7 @@ void TestEnvironment::SetUp() {
     _taskController = TaskController::instance(&_serverOptions);
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << e.what() <<std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() <<std::endl;
   }
 }
 

@@ -92,7 +92,7 @@ void TcpServer::accept() {
 	switch (type) {
 	case SESSIONTYPE::SESSION:
 	  {
-	    auto session = std::make_shared<TcpSession>(_options, details, idView, shared_from_this());
+	    auto session = std::make_shared<TcpSession>(_options, details, shared_from_this());
 	    auto [it, inserted] = _sessions.emplace(idView, session->weak_from_this());
 	    if (!inserted) {
 	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-not inserted\n";
@@ -106,16 +106,14 @@ void TcpServer::accept() {
 	  {
 	    [[maybe_unused]] std::string id(idView.data(), idView.size());
 	    auto it = _sessions.find(id);
-	    if (it == _sessions.end()) {
-	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":corresponding session not found\n";
-	      return;
+	    if (it == _sessions.end())
+	      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":corresponding session not found" << std::endl;
+	    else {
+	      auto session = it->second.lock();
+	      if (!session)
+		CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-corresponding session destroyed" << std::endl;
 	    }
-	    auto session = it->second.lock();
-	    if (!session) {
-	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-corresponding session destroyed\n";
-	      return;
-	    }
-	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, idView, shared_from_this());
+	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
 	    heartbeat->start();
 	    [[maybe_unused]] PROBLEMS problem = _threadPoolHeartbeat.push(heartbeat);
 	  }

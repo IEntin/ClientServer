@@ -9,12 +9,6 @@
 #include "Utility.h"
 #include <csignal>
 
-volatile std::sig_atomic_t stopSignal = 0;
-
-void signalHandler(int signal) {
-  stopSignal = signal;
-}
-
 int main() {
   ClientOptions options("ClientOptions.json");
   const std::string communicationType = options._communicationType;
@@ -24,7 +18,6 @@ int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  signal(SIGINT, signalHandler);
   signal(SIGPIPE, SIG_IGN);
   try {
     if (useFifo) {

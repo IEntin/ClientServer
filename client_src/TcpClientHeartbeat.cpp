@@ -49,8 +49,8 @@ void TcpClientHeartbeat::run() noexcept {
       boost::system::error_code ec;
       boost::asio::read(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
       if (ec) {
-	if (ec != boost::asio::error::eof)
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	(ec == boost::asio::error::eof ? CLOG : CERR)
+	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	break;
       }
       CLOG << '*' << std::flush;

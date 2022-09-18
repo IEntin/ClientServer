@@ -11,14 +11,10 @@
 
 namespace tcp {
 
-TcpHeartbeat::TcpHeartbeat(const ServerOptions& options,
-			   SessionDetailsPtr details,
-			   std::string_view clientId,
-			   TcpServerPtr parent) :
+TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
   Runnable(parent),
   _options(options),
   _details(details),
-  _clientId(clientId),
   _parent(parent),
   _ioContext(_details->_ioContext),
   _strand(boost::asio::make_strand(_ioContext)),

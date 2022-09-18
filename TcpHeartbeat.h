@@ -22,10 +22,7 @@ class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public R
 
  public:
 
-  TcpHeartbeat(const ServerOptions& options,
-	       SessionDetailsPtr details,
-	       std::string_view clientId,
-	       TcpServerPtr parent);
+  TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent);
   ~TcpHeartbeat() override;
 
   bool start() override;
@@ -41,7 +38,6 @@ class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public R
 
   const ServerOptions& _options;
   SessionDetailsPtr _details;
-  const std::string _clientId;
   TcpServerPtr _parent;
   boost::asio::io_context& _ioContext;
   boost::asio::strand<boost::asio::io_context::executor_type> _strand;
