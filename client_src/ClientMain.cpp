@@ -9,7 +9,7 @@
 #include "Utility.h"
 #include <csignal>
 
-extern volatile std::sig_atomic_t stopSignal;
+volatile std::sig_atomic_t stopSignal = 0;
 
 void signalHandler(int signal) {
   stopSignal = signal;

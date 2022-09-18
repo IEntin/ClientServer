@@ -11,7 +11,7 @@
 #include "Utility.h"
 #include <csignal>
 
-volatile std::sig_atomic_t stopSignal = 0;
+extern volatile std::sig_atomic_t stopSignal;
 
 Client::Client(const ClientOptions& options) : 
   _options(options) {

@@ -13,8 +13,6 @@ struct ClientOptions;
 
 namespace tcp {
 
-using TcpClientHeartbeatPtr = std::shared_ptr<class TcpClientHeartbeat>;
-
 class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbeat>, public Runnable {
 
   void stop() override {}
@@ -32,8 +30,6 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   char _heartbeatBuffer[HEADER_SIZE] = {};
 
-  static TcpClientHeartbeatPtr _heartbeat;
-
  public:
 
   TcpClientHeartbeat(const ClientOptions& options, std::string_view clientId);
@@ -42,7 +38,6 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   bool start() override;
 
-  static void create(const ClientOptions& options, std::string_view clientId);
 };
 
 } // end of namespace tcp
