@@ -20,7 +20,7 @@ enum class TaskBuilderState {
   ERROR
 };
 
-class TaskBuilder : public Runnable {
+class TaskBuilder final : public Runnable {
 
   bool compressSubtask(char* beg, char* end, bool alldone);
 
@@ -44,6 +44,8 @@ class TaskBuilder : public Runnable {
 
   TaskBuilder(const struct ClientOptions& options);
   ~TaskBuilder() override;
+  unsigned getNumberObjects() const override;
   TaskBuilderState getTask(std::vector<char>& task);
   bool createTask();
+  static std::atomic<unsigned> _numberObjects;
 };

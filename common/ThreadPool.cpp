@@ -50,9 +50,10 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   PROBLEMS problem = PROBLEMS::NONE;
   if (runnable) {
-    problem = runnable->checkCapacity();
-    if (_maxNumberThreads == 0 && runnable.use_count() > static_cast<long>(_threads.size()))
+    if (_maxNumberThreads == 0 && runnable->getNumberObjects() > _threads.size())
       createThread();
+    else
+      problem = runnable->checkCapacity();
   }
   _queue.push(runnable);
   _queueCondition.notify_all();

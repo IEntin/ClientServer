@@ -11,6 +11,8 @@
 
 namespace tcp {
 
+std::atomic<unsigned> TcpHeartbeat::_numberObjects;
+
 TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
   Runnable(parent),
   _options(options),
@@ -21,11 +23,13 @@ TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr detai
   _socket(_details->_socket),
   _heartbeatTimer(_ioContext),
   _heartbeatPeriod(_options._heartbeatPeriod) {
+  _numberObjects++;
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
 }
 
 TcpHeartbeat::~TcpHeartbeat() {
+  _numberObjects--;
   if (_socket.is_open()) {
     boost::system::error_code ignore;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
@@ -46,6 +50,10 @@ void TcpHeartbeat::run() noexcept {
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
   }
+}
+
+unsigned TcpHeartbeat::getNumberObjects() const {
+  return _numberObjects;
 }
 
 void TcpHeartbeat::heartbeatWait() {

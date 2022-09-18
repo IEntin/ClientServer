@@ -18,7 +18,7 @@ using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
 using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
-class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
+class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
 
  public:
 
@@ -32,10 +32,11 @@ class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public R
 
   void run() noexcept override;
 
+  unsigned getNumberObjects() const override;
+
   void heartbeatWait();
 
   void heartbeat();
-
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   TcpServerPtr _parent;
@@ -45,6 +46,7 @@ class TcpHeartbeat : public std::enable_shared_from_this<TcpHeartbeat>, public R
   AsioTimer _heartbeatTimer;
   int _heartbeatPeriod;
   char _heartbeatBuffer[HEADER_SIZE] = {};
+  static std::atomic<unsigned> _numberObjects;
 };
 
 } // end of namespace tcp

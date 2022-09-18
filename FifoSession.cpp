@@ -18,15 +18,19 @@
 
 namespace fifo {
 
+std::atomic<unsigned> FifoSession::_numberObjects;
+
 FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr parent) :
   Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoSessions),
   _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
+  _numberObjects++;
   char array[5] = {};
   std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
 }
 
 FifoSession::~FifoSession() {
+  _numberObjects--;
   std::filesystem::remove(_fifoName);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
@@ -45,6 +49,10 @@ void FifoSession::run() {
     if (!sendResponse(_response))
       break;
   }
+}
+
+unsigned FifoSession::getNumberObjects() const {
+  return _numberObjects;
 }
 
 bool FifoSession::start() {

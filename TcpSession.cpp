@@ -14,6 +14,8 @@
 
 namespace tcp {
 
+std::atomic<unsigned> TcpSession::_numberObjects;
+
 TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
   Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),
   _options(options),
@@ -24,11 +26,13 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _timeoutTimer(_ioContext),
   _heartbeatPeriod(_options._heartbeatPeriod),
   _parent(parent) {
+  _numberObjects++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
 
 TcpSession::~TcpSession() {
+  _numberObjects--;
   if (_socket.is_open()) {
     boost::system::error_code ignore;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
@@ -64,6 +68,10 @@ void TcpSession::run() noexcept {
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
   }
+}
+
+unsigned TcpSession::getNumberObjects() const {
+  return _numberObjects;
 }
 
 bool TcpSession::onReceiveRequest() {

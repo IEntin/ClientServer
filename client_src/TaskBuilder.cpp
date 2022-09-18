@@ -9,18 +9,23 @@
 #include "MemoryPool.h"
 #include "Utility.h"
 
+std::atomic<unsigned> TaskBuilder::_numberObjects;
+
 TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _sourceName(options._sourceName),
   _compressor(options._compressor),
   _diagnostics(options._diagnostics),
   _requestIndex(0),
   _nextIdSz(4) {
+  _numberObjects++;
   _input.open(_sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
 }
 
-TaskBuilder::~TaskBuilder() {}
+TaskBuilder::~TaskBuilder() {
+  _numberObjects--;
+}
 
 void TaskBuilder::run() {
   try {
@@ -50,6 +55,10 @@ void TaskBuilder::run() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "-exception caught.\n";
   }
+}
+
+unsigned TaskBuilder::getNumberObjects() const {
+  return _numberObjects;
 }
 
 bool TaskBuilder::start() {

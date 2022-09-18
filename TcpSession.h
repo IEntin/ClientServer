@@ -22,7 +22,7 @@ using TcpServerPtr = std::shared_ptr<class TcpServer>;
 
 using TcpSessionPtr = std::shared_ptr<class TcpSession>;
 
-class TcpSession : public std::enable_shared_from_this<TcpSession>, public Runnable {
+class TcpSession final : public std::enable_shared_from_this<TcpSession>, public Runnable {
   friend class TcpHeartbeat;
 public:
   TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent);
@@ -31,6 +31,7 @@ public:
   void run() noexcept override;
   bool start() override;
   void stop() override {}
+  unsigned getNumberObjects() const override;
 private:
   void readHeader();
   void readRequest();
@@ -53,6 +54,7 @@ private:
   int _heartbeatPeriod;
   TcpServerPtr _parent;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
+  static std::atomic<unsigned> _numberObjects;
 };
 
 } // end of namespace tcp

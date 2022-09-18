@@ -14,7 +14,7 @@ struct ServerOptions;
 
 namespace fifo {
 
-class FifoSession : public Runnable {
+class FifoSession final : public Runnable {
   const ServerOptions& _options;
   std::string _fifoName;
   RunnablePtr _parent;
@@ -25,9 +25,11 @@ class FifoSession : public Runnable {
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
   Response _response;
+  static std::atomic<unsigned> _numberObjects;
   void run() override;
   bool start() override;
   void stop() override;
+  unsigned getNumberObjects() const override;
  public:
   FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr server);
   ~FifoSession() override;
