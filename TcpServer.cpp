@@ -87,30 +87,35 @@ void TcpServer::accept() {
 	utility::split(received, fields, '|');
 	char typeChar = fields[std::underlying_type_t<HSMSG_INDEX>(HSMSG_INDEX::TYPE)][0];
 	std::string_view idView = fields[std::underlying_type_t<HSMSG_INDEX>(HSMSG_INDEX::ID)];
+	std::string id(idView.data(), idView.size());
 	SESSIONTYPE type = static_cast<SESSIONTYPE>(typeChar);
+	for (auto it = _sessions.begin(); it != _sessions.end();)
+	  if (!it->second.lock())
+	    it = _sessions.erase(it);
+	  else
+	    ++it;
 	switch (type) {
 	case SESSIONTYPE::SESSION:
 	  {
 	    auto session = std::make_shared<TcpSession>(_options, details, shared_from_this());
-	    auto [it, inserted] = _sessions.emplace(idView, session->weak_from_this());
-	    if (!inserted) {
-	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-not inserted\n";
-	      return;
-	    }
+	    _sessions[id] = session->weak_from_this();
 	    session->start();
 	    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
 	  }
 	  break;
 	case SESSIONTYPE::HEARTBEAT:
 	  {
-	    [[maybe_unused]] std::string id(idView.data(), idView.size());
 	    auto it = _sessions.find(id);
-	    if (it == _sessions.end())
-	      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":corresponding session not found" << std::endl;
-	    else {
-	      auto session = it->second.lock();
-	      if (!session)
-		CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-corresponding session destroyed" << std::endl;
+	    if (it == _sessions.end()) {
+	      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		   << ":corresponding session not found" << std::endl;
+	      break;
+	    }
+	    auto session = it->second.lock();
+	    if (!session) {
+	      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		   << ":corresponding session destroyed" << std::endl;
+	      break;
 	    }
 	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
 	    heartbeat->start();

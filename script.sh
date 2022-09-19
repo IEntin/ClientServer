@@ -4,7 +4,7 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
-# To use this script disable infinite loop in ProgramOptions.json
+# To use this script disable infinite loop in ClientOptions.json
 # for the client: set "RunLoop" : false,
 
 set -e

@@ -9,7 +9,6 @@
 #include "Compression.h"
 #include <boost/asio.hpp>
 #include <map>
-#include <memory>
 
 struct ServerOptions;
 
