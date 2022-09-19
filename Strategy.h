@@ -26,7 +26,7 @@ class Strategy {
 
   Strategy() = default;
 
-  RunnablePtr _tcpServer;
+  RunnablePtr _tcpAcceptor;
 
   RunnablePtr _fifoAcceptor;
 

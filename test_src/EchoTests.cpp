@@ -9,7 +9,7 @@
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TcpClient.h"
-#include "TcpServer.h"
+#include "TcpAcceptor.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
@@ -20,14 +20,14 @@ struct EchoTest : testing::Test {
     try {
       // start server
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      RunnablePtr tcpServer =
-	std::make_shared<tcp::TcpServer>(TestEnvironment::_serverOptions);
-      bool serverStart = tcpServer->start();
+      RunnablePtr tcpAcceptor =
+	std::make_shared<tcp::TcpAcceptor>(TestEnvironment::_serverOptions);
+      bool serverStart = tcpAcceptor->start();
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       bool clientRun = client.run();
-      tcpServer->stop();
+      tcpAcceptor->stop();
       ASSERT_TRUE(serverStart);
       ASSERT_TRUE(clientRun);
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());

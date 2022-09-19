@@ -5,7 +5,7 @@
 #include "TcpHeartbeat.h"
 #include "ServerOptions.h"
 #include "SessionDetails.h"
-#include "TcpServer.h"
+#include "TcpAcceptor.h"
 #include "TcpSession.h"
 #include "Utility.h"
 
@@ -13,7 +13,7 @@ namespace tcp {
 
 std::atomic<unsigned> TcpHeartbeat::_numberObjects;
 
-TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
+TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
   _options(options),
   _details(details),
   _parent(parent),

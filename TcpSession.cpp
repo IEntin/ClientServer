@@ -9,14 +9,14 @@
 #include "ServerUtility.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
-#include "TcpServer.h"
+#include "TcpAcceptor.h"
 #include "Utility.h"
 
 namespace tcp {
 
 std::atomic<unsigned> TcpSession::_numberObjects;
 
-TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
+TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
   _options(options),
   _details(details),
   _ioContext(details->_ioContext),

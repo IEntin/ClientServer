@@ -14,10 +14,10 @@ struct ServerOptions;
 
 namespace tcp {
 
-class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
+class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Runnable {
  public:
-  TcpServer(const ServerOptions& options);
-  ~TcpServer() override;
+  TcpAcceptor(const ServerOptions& options);
+  ~TcpAcceptor() override;
 
   void pushHeartbeat(RunnablePtr heartbeat);
 

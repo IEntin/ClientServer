@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "TcpServer.h"
+#include "TcpAcceptor.h"
 #include "ServerOptions.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
@@ -12,7 +12,7 @@
 
 namespace tcp {
 
-TcpServer::TcpServer(const ServerOptions& options) :
+TcpAcceptor::TcpAcceptor(const ServerOptions& options) :
   _options(options),
   _ioContext(1),
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
@@ -20,13 +20,13 @@ TcpServer::TcpServer(const ServerOptions& options) :
   // + 1 for 'this'
   _threadPool(_options._maxTcpSessions + 1) {}
 
-TcpServer::~TcpServer() {
+TcpAcceptor::~TcpAcceptor() {
   boost::system::error_code ignore;
   _acceptor.close(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool TcpServer::start() {
+bool TcpAcceptor::start() {
   boost::system::error_code ec;
   _acceptor.open(_endpoint.protocol(), ec);
   if (!ec)
@@ -47,14 +47,14 @@ bool TcpServer::start() {
   return !ec;
 }
 
-void TcpServer::stop() {
+void TcpAcceptor::stop() {
   _stopped.store(true);
   _ioContext.stop();
   _threadPoolHeartbeat.stop();
   _threadPool.stop();
 }
 
-void TcpServer::run() {
+void TcpAcceptor::run() {
   try {
     _ioContext.run();
   }
@@ -63,11 +63,11 @@ void TcpServer::run() {
   }
 }
 
-void TcpServer::pushHeartbeat(RunnablePtr heartbeat) {
+void TcpAcceptor::pushHeartbeat(RunnablePtr heartbeat) {
   _threadPoolHeartbeat.push(heartbeat);
 }
 
-void TcpServer::accept() {
+void TcpAcceptor::accept() {
   auto details = std::make_shared<SessionDetails>();
   _acceptor.async_accept(details->_socket,
 			 details->_endpoint,
