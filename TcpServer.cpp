@@ -13,7 +13,6 @@
 namespace tcp {
 
 TcpServer::TcpServer(const ServerOptions& options) :
-  Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   _ioContext(1),
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),

@@ -32,6 +32,7 @@ public:
   bool start() override;
   void stop() override {}
   unsigned getNumberObjects() const override;
+  PROBLEMS checkCapacity() const override;
 private:
   void readHeader();
   void readRequest();

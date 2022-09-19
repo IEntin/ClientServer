@@ -17,7 +17,6 @@
 namespace fifo {
 
 FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
-  Runnable(RunnablePtr(), TaskController::instance()),
   _options(options),
   // + 1 for this
   _threadPool(_options._maxFifoSessions + 1) {

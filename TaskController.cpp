@@ -11,6 +11,7 @@
 
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
+std::atomic<unsigned>  TaskController::_totalSessions;
 
 TaskController::TaskController(const ServerOptions& options) :
   _options(options),

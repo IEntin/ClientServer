@@ -16,11 +16,13 @@ struct ServerOptions;
 namespace tcp {
 
 class TcpServer : public std::enable_shared_from_this<TcpServer>, public Runnable {
-public:
+ public:
   TcpServer(const ServerOptions& options);
   ~TcpServer() override;
 
   void pushHeartbeat(RunnablePtr heartbeat);
+
+  bool stopped() const { return _stopped; }
 
 private:
   void accept();
@@ -38,6 +40,7 @@ private:
   ThreadPool _threadPool;
   ThreadPool _threadPoolHeartbeat;
   std::map<std::string, std::weak_ptr<class TcpSession>> _sessions;
+  std::atomic<bool> _stopped = false;
 };
 
 } // end of namespace tcp

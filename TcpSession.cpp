@@ -17,7 +17,6 @@ namespace tcp {
 std::atomic<unsigned> TcpSession::_numberObjects;
 
 TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
-  Runnable(parent, TaskController::instance(), parent, TCP, options._maxTcpSessions),
   _options(options),
   _details(details),
   _ioContext(details->_ioContext),
@@ -27,12 +26,14 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _heartbeatPeriod(_options._heartbeatPeriod),
   _parent(parent) {
   _numberObjects++;
+  TaskController::_totalSessions++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
 
 TcpSession::~TcpSession() {
   _numberObjects--;
+  TaskController::_totalSessions--;
   if (_socket.is_open()) {
     boost::system::error_code ignore;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
@@ -47,7 +48,7 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
-  _problem.store(_typedSessions >= _max ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
+  _problem.store(_numberObjects > _options._maxTcpSessions ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
   boost::system::error_code ec;
@@ -72,6 +73,23 @@ void TcpSession::run() noexcept {
 
 unsigned TcpSession::getNumberObjects() const {
   return _numberObjects;
+}
+
+PROBLEMS TcpSession::checkCapacity() const {
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+       << " total sessions=" << TaskController::_totalSessions << ' '
+       << "tcp sessions=" << _numberObjects << std::endl;
+  if (_numberObjects > _options._maxTcpSessions) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << "\nNumber of running tcp sessions=" << _numberObjects
+	 << " at thread pool capacity.\n"
+	 << "The client will wait in the queue.\n"
+	 << "Close one of running tcp clients\n"
+	 << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n"
+	 << "You can also close this client and try again later.\n";
+    return PROBLEMS::MAX_TCP_SESSIONS;
+  }
+  return PROBLEMS::NONE;
 }
 
 bool TcpSession::onReceiveRequest() {
@@ -114,7 +132,7 @@ void TcpSession::readHeader() {
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       if (_problem == PROBLEMS::MAX_TCP_SESSIONS)
 	_problem.store(PROBLEMS::NONE);
-      if (_stopped) {
+      if (_parent->stopped()) {
 	_ioContext.stop();
 	return;
       }
@@ -139,7 +157,7 @@ void TcpSession::readRequest() {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      if (_stopped) {
+      if (_parent->stopped()) {
 	_ioContext.stop();
 	return;
       }
@@ -156,7 +174,7 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
   boost::asio::async_write(_socket,
     boost::asio::buffer(msg.data(), msg.size()), boost::asio::bind_executor(_strand,
     [this, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      if (_stopped) {
+      if (_parent->stopped()) {
 	_ioContext.stop();
 	return;
       }
@@ -172,14 +190,14 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
 }
 
 void TcpSession::asyncWait() {
-  if (_stopped) {
+  if (_parent->stopped()) {
     _ioContext.stop();
     return;
   }
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
     [this](const boost::system::error_code& ec) {
-      if (_stopped) {
+      if (_parent->stopped()) {
 	_ioContext.stop();
 	return;
       }

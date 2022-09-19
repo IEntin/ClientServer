@@ -3,6 +3,7 @@
  */
 
 #include "FifoSession.h"
+#include "FifoAcceptor.h"
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
@@ -20,10 +21,10 @@ namespace fifo {
 
 std::atomic<unsigned> FifoSession::_numberObjects;
 
-FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr parent) :
-  Runnable(parent, TaskController::instance(), parent, FIFO, options._maxFifoSessions),
+FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, FifoAcceptorPtr parent) :
   _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
   _numberObjects++;
+  TaskController::_totalSessions++;
   char array[5] = {};
   std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
@@ -31,6 +32,7 @@ FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralI
 
 FifoSession::~FifoSession() {
   _numberObjects--;
+  TaskController::_totalSessions--;
   std::filesystem::remove(_fifoName);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
@@ -39,7 +41,7 @@ void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     // waiting client was closed
     return;
-  while (!_stopped) {
+  while (!_parent->stopped()) {
     _response.clear();
     HEADER header;
     _uncompressedRequest.clear();
@@ -53,6 +55,28 @@ void FifoSession::run() {
 
 unsigned FifoSession::getNumberObjects() const {
   return _numberObjects;
+}
+
+PROBLEMS FifoSession::checkCapacity() const {
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+       << " total sessions=" << TaskController::_totalSessions << ' '
+       << "fifo sessions=" << _numberObjects << std::endl;
+  if (_numberObjects > _options._maxFifoSessions) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << "\nNumber of running fifo sessions=" << _numberObjects
+	 << " at thread pool capacity.\n"
+	 << "The client will wait in the queue.\n"
+	 << "Close one of running fifo clients\n"
+	 << "or increase \"MaxFifoSessions\" in ServerOptions.json.\n"
+	 << "You can also close this client and try again later.\n";
+    return PROBLEMS::MAX_FIFO_SESSIONS;
+  }
+  return PROBLEMS::NONE;
+}
+
+PROBLEMS FifoSession::getStatus() const {
+  return _numberObjects > _options._maxFifoSessions ?
+    PROBLEMS::MAX_FIFO_SESSIONS : PROBLEMS::NONE;
 }
 
 bool FifoSession::start() {

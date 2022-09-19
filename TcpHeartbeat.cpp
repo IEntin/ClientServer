@@ -14,7 +14,6 @@ namespace tcp {
 std::atomic<unsigned> TcpHeartbeat::_numberObjects;
 
 TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpServerPtr parent) :
-  Runnable(parent),
   _options(options),
   _details(details),
   _parent(parent),
@@ -57,14 +56,14 @@ unsigned TcpHeartbeat::getNumberObjects() const {
 }
 
 void TcpHeartbeat::heartbeatWait() {
-  if (_stopped) {
+  if (_parent->stopped()) {
     _ioContext.stop();
     return;
   }
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_heartbeatPeriod));
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
     [this](const boost::system::error_code& ec) {
-      if (_stopped) {
+      if (_parent->stopped()) {
 	_ioContext.stop();
 	return;
       }
@@ -80,7 +79,7 @@ void TcpHeartbeat::heartbeatWait() {
 }
 
 void TcpHeartbeat::heartbeat() {
-  if (_stopped) {
+  if (_parent->stopped()) {
     _ioContext.stop();
     return;
   }

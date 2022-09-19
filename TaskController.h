@@ -44,6 +44,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   static Phase _phase;
   static bool _diagnosticsEnabled;
   Strategy& _strategy;
+  std::atomic<bool> _stopped;
  public:
   ~TaskController() override;
   bool start() override;
@@ -52,4 +53,5 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   void submitTask(const HEADER& header, std::vector<char>& input, Response& response);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
+  static std::atomic<unsigned> _totalSessions;
 };

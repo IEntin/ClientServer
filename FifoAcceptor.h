@@ -10,6 +10,8 @@
 
 struct ServerOptions;
 
+using RunnableWeakPtr = std::weak_ptr<Runnable>;
+
 namespace fifo {
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
@@ -25,9 +27,12 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   std::vector<RunnableWeakPtr> _sessions;
   int _fd = -1;
   unsigned short _ephemeralIndex = 0;
+  std::atomic<bool> _stopped = false;
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() = default;
+
+  bool stopped() const { return _stopped; }
 };
 
 } // end of namespace fifo
