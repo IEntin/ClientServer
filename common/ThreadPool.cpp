@@ -19,11 +19,16 @@ ThreadPool::~ThreadPool() {
 
 void ThreadPool::stop() {
   // wake up and join threads
-  for (unsigned i = 0; i < _threads.size(); ++i)
-    push(_killThread);
-  for (auto& thread : _threads)
-    if (thread.joinable())
-      thread.join();
+  try {
+    for (unsigned i = 0; i < _threads.size(); ++i)
+      push(_killThread);
+    for (auto& thread : _threads)
+      if (thread.joinable())
+	thread.join();
+  }
+  catch (const std::system_error& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+  }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ... _threads joined ..." << std::endl;
 }
 

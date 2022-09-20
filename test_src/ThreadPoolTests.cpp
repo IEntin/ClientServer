@@ -15,7 +15,7 @@ public:
     _numberObjects--;
   }
   void run() override {
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   bool start() override {
     return true;
@@ -41,7 +41,10 @@ TEST(ThreadPoolTest, Fixed) {
   ThreadPool pool(TestRunnable::_maxNumberThreads);
   for (unsigned i = 0; i < 2 * TestRunnable::_maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>();
-    PROBLEMS problem[[maybe_unused]] = pool.push(runnable);
+    runnable->start();
+    PROBLEMS problem = pool.push(runnable);
+    if (i < TestRunnable::_maxNumberThreads)
+      ASSERT_TRUE(problem == PROBLEMS::NONE);
   }
   ASSERT_TRUE(pool.getThreads().size() == pool.size());
   pool.stop();
@@ -56,10 +59,16 @@ TEST(ThreadPoolTest, Variable) {
   const unsigned numberObjects = 20;
   for (unsigned i = 0; i < numberObjects; ++i) {
     auto runnable = std::make_shared<TestRunnable>();
-    ASSERT_EQ(runnable->getNumberObjects(), i + 1);
-    pool.push(runnable);
+    runnable->start();
+    // if run() did not return yet in some runnables,
+    // it should be pool.getThreads().size() == i + 1
+    ASSERT_TRUE(runnable->getNumberObjects() <= i + 1);
+    PROBLEMS problem = pool.push(runnable);
+    ASSERT_TRUE(problem == PROBLEMS::NONE);
   }
-  ASSERT_TRUE(pool.getThreads().size() == numberObjects);
+  // if run() did not return yet in some runnables,
+  // it should be pool.getThreads().size() == numberObjects
+  ASSERT_TRUE(pool.getThreads().size() <= numberObjects);
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
