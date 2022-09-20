@@ -11,11 +11,46 @@ set -e
 
 trap "exit" SIGHUP SIGINT SIGTERM
 
+sleep 2
+
 echo
 echo "***** use g++ compiler *****"
 echo
 make cleanall
 make -j4 CMPLR=g++
+
+sleep 2
+
+echo
+echo "***** disable precompiled headers *****"
+echo
+make cleanall
+make -j4 CMPLR=g++ ENABLEPCH=0
+
+sleep 2
+
+echo
+echo "***** address + ub + leak sanitizer *****"
+make cleanall
+make -j4 CMPLR=g++ SANITIZE=aul
+
+sleep 2
+
+echo
+echo "***** thread sanitizer *****"
+echo
+make cleanall
+make -j4 CMPLR=g++ SANITIZE=thread
+
+sleep 2
+
+echo
+echo "***** use clang++ compiler *****"
+echo
+make cleanall
+make -j4
+
+sleep 2
 
 echo
 echo "***** disable precompiled headers *****"

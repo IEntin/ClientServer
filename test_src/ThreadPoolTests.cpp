@@ -43,8 +43,9 @@ TEST(ThreadPoolTest, Fixed) {
     auto runnable = std::make_shared<TestRunnable>();
     runnable->start();
     PROBLEMS problem = pool.push(runnable);
-    if (i < TestRunnable::_maxNumberThreads)
+    if (i < TestRunnable::_maxNumberThreads) {
       ASSERT_TRUE(problem == PROBLEMS::NONE);
+    }
   }
   ASSERT_TRUE(pool.getThreads().size() == pool.size());
   pool.stop();
