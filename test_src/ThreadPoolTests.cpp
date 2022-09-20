@@ -8,7 +8,7 @@
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
 public:
-  TestRunnable(unsigned maxNumberThreads) : _maxNumberThreads(maxNumberThreads) {
+  TestRunnable() {
     _numberObjects++;
   }
   ~TestRunnable() override {
@@ -32,16 +32,15 @@ public:
     else
       return PROBLEMS::NONE;
   }
-  const unsigned _maxNumberThreads;
+  static const unsigned _maxNumberThreads = 10;
   static std::atomic<unsigned> _numberObjects;
 };
 std::atomic<unsigned> TestRunnable::_numberObjects;
 
 TEST(ThreadPoolTest, Fixed) {
-  const unsigned maxNumberThreads = 10;
-  ThreadPool pool(maxNumberThreads);
-  for (unsigned i = 0; i < 2 * maxNumberThreads; ++i) {
-    auto runnable = std::make_shared<TestRunnable>(i);
+  ThreadPool pool(TestRunnable::_maxNumberThreads);
+  for (unsigned i = 0; i < 2 * TestRunnable::_maxNumberThreads; ++i) {
+    auto runnable = std::make_shared<TestRunnable>();
     PROBLEMS problem[[maybe_unused]] = pool.push(runnable);
   }
   ASSERT_TRUE(pool.getThreads().size() == pool.size());
@@ -56,7 +55,7 @@ TEST(ThreadPoolTest, Variable) {
   ThreadPool pool;
   const unsigned numberObjects = 20;
   for (unsigned i = 0; i < numberObjects; ++i) {
-    auto runnable = std::make_shared<TestRunnable>(i);
+    auto runnable = std::make_shared<TestRunnable>();
     ASSERT_EQ(runnable->getNumberObjects(), i + 1);
     pool.push(runnable);
   }
