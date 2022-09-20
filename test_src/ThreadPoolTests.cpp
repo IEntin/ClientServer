@@ -6,36 +6,64 @@
 #include "ThreadPool.h"
 #include <gtest/gtest.h>
 
-TEST(ThreadPoolTest, 1) {
-  ThreadPoolPtr pool = std::make_shared<ThreadPool>(10);
-  class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
-  public:
-    TestRunnable(int number, ThreadPoolPtr pool) :
-      _number(number), _pool(pool->shared_from_this()) {}
-    ~TestRunnable() override {
-      EXPECT_EQ(_id, std::this_thread::get_id());
-    }
-    void run() override {
-      _id = std::this_thread::get_id();
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    bool start() override {
-      _pool->push(shared_from_this());
-      return true;
-    }
-    void stop() override {}
-    const int _number;
-    ThreadPoolPtr _pool;
-    std::jthread::id _id;
-  };
-  for (int i = 0; i < 20; ++i) {
-    auto runnable = std::make_shared<TestRunnable>(i, pool);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    runnable->start();
+class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
+public:
+  TestRunnable(unsigned maxNumberThreads) : _maxNumberThreads(maxNumberThreads) {
+    _numberObjects++;
   }
-  pool->stop();
+  ~TestRunnable() override {
+    _numberObjects--;
+  }
+  void run() override {
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+  bool start() override {
+    return true;
+  }
+  void stop() override {}
+
+  unsigned getNumberObjects() const override {
+    return _numberObjects;
+  }
+
+  PROBLEMS checkCapacity() const override {
+    if (_numberObjects > _maxNumberThreads)
+      return PROBLEMS::MAX_NUMBER_RUNNABLES;
+    else
+      return PROBLEMS::NONE;
+  }
+  const unsigned _maxNumberThreads;
+  static std::atomic<unsigned> _numberObjects;
+};
+std::atomic<unsigned> TestRunnable::_numberObjects;
+
+TEST(ThreadPoolTest, Fixed) {
+  const unsigned maxNumberThreads = 10;
+  ThreadPool pool(maxNumberThreads);
+  for (unsigned i = 0; i < 2 * maxNumberThreads; ++i) {
+    auto runnable = std::make_shared<TestRunnable>(i);
+    PROBLEMS problem[[maybe_unused]] = pool.push(runnable);
+  }
+  ASSERT_TRUE(pool.getThreads().size() == pool.size());
+  pool.stop();
   bool allJoined = true;
-  for (auto& thread : pool->getThreads())
+  for (auto& thread : pool.getThreads())
+    allJoined = allJoined && !thread.joinable();
+  ASSERT_TRUE(allJoined);
+}
+
+TEST(ThreadPoolTest, Variable) {
+  ThreadPool pool;
+  const unsigned numberObjects = 20;
+  for (unsigned i = 0; i < numberObjects; ++i) {
+    auto runnable = std::make_shared<TestRunnable>(i);
+    ASSERT_EQ(runnable->getNumberObjects(), i + 1);
+    pool.push(runnable);
+  }
+  ASSERT_TRUE(pool.getThreads().size() == numberObjects);
+  pool.stop();
+  bool allJoined = true;
+  for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
 }

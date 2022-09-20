@@ -5,7 +5,6 @@
 #pragma once
 
 #include <condition_variable>
-#include <memory>
 #include <queue>
 #include <thread>
 #include <vector>
@@ -15,9 +14,7 @@ enum class PROBLEMS : char;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 
-using ThreadPoolPtr = std::shared_ptr<class ThreadPool>;
-
-class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
+class ThreadPool {
   void createThread();
   ThreadPool& operator =(const ThreadPool& other) = delete;
   std::vector<std::jthread> _threads;
@@ -34,7 +31,7 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
   void stop();
   PROBLEMS push(RunnablePtr runnable);
   RunnablePtr get();
-  int size() const { return _threads.size(); }
+  unsigned size() const { return _threads.size(); }
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };

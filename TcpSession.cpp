@@ -81,9 +81,9 @@ PROBLEMS TcpSession::checkCapacity() const {
        << "tcp sessions=" << _numberObjects << std::endl;
   if (_numberObjects > _options._maxTcpSessions) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nNumber of running tcp sessions=" << _numberObjects
+	 << "\nThe number of tcp clients=" << _numberObjects
 	 << " at thread pool capacity.\n"
-	 << "The client will wait in the queue.\n"
+	 << "This client will wait in the queue.\n"
 	 << "Close one of running tcp clients\n"
 	 << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "You can also close this client and try again later.\n";

@@ -63,9 +63,9 @@ PROBLEMS FifoSession::checkCapacity() const {
        << "fifo sessions=" << _numberObjects << std::endl;
   if (_numberObjects > _options._maxFifoSessions) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nNumber of running fifo sessions=" << _numberObjects
+	 << "\nThe number of fifo clients=" << _numberObjects
 	 << " at thread pool capacity.\n"
-	 << "The client will wait in the queue.\n"
+	 << "This client will wait in the queue.\n"
 	 << "Close one of running fifo clients\n"
 	 << "or increase \"MaxFifoSessions\" in ServerOptions.json.\n"
 	 << "You can also close this client and try again later.\n";
