@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include "ObjectCount.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
@@ -55,7 +56,7 @@ private:
   int _heartbeatPeriod;
   TcpAcceptorPtr _parent;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
-  static std::atomic<unsigned> _numberObjects;
+  ObjectCount<TcpSession> _objectCount;
 };
 
 } // end of namespace tcp

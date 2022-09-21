@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include "ObjectCount.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
@@ -46,7 +47,7 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, pu
   AsioTimer _heartbeatTimer;
   int _heartbeatPeriod;
   char _heartbeatBuffer[HEADER_SIZE] = {};
-  static std::atomic<unsigned> _numberObjects;
+  ObjectCount<TcpHeartbeat> _objectCount;
 };
 
 } // end of namespace tcp

@@ -19,11 +19,8 @@
 
 namespace fifo {
 
-std::atomic<unsigned> FifoSession::_numberObjects;
-
 FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, FifoAcceptorPtr parent) :
   _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
-  _numberObjects++;
   TaskController::_totalSessions++;
   char array[5] = {};
   std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
@@ -31,7 +28,6 @@ FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralI
 }
 
 FifoSession::~FifoSession() {
-  _numberObjects--;
   TaskController::_totalSessions--;
   std::filesystem::remove(_fifoName);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -54,16 +50,16 @@ void FifoSession::run() {
 }
 
 unsigned FifoSession::getNumberObjects() const {
-  return _numberObjects;
+  return _objectCount._numberObjects;
 }
 
 PROBLEMS FifoSession::checkCapacity() const {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
-       << "fifo sessions=" << _numberObjects << std::endl;
-  if (_numberObjects > _options._maxFifoSessions) {
+       << "fifo sessions=" << _objectCount._numberObjects << std::endl;
+  if (_objectCount._numberObjects > _options._maxFifoSessions) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of fifo clients=" << _numberObjects
+	 << "\nThe number of fifo clients=" << _objectCount._numberObjects
 	 << " at thread pool capacity.\n"
 	 << "This client will wait in the queue.\n"
 	 << "Close one of running fifo clients\n"
@@ -75,7 +71,7 @@ PROBLEMS FifoSession::checkCapacity() const {
 }
 
 PROBLEMS FifoSession::getStatus() const {
-  return _numberObjects > _options._maxFifoSessions ?
+  return _objectCount._numberObjects > _options._maxFifoSessions ?
     PROBLEMS::MAX_FIFO_SESSIONS : PROBLEMS::NONE;
 }
 

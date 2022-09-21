@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCount.h"
 #include "Runnable.h"
 #include <future>
 #include <memory>
@@ -47,5 +48,5 @@ class TaskBuilder final : public Runnable {
   unsigned getNumberObjects() const override;
   TaskBuilderState getTask(std::vector<char>& task);
   bool createTask();
-  static std::atomic<unsigned> _numberObjects;
+  ObjectCount<TaskBuilder> _objectCount;
 };

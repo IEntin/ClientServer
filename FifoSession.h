@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include "ObjectCount.h"
 #include "Runnable.h"
 #include <vector>
 
@@ -27,7 +28,7 @@ class FifoSession final : public Runnable {
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
   Response _response;
-  static std::atomic<unsigned> _numberObjects;
+  ObjectCount<FifoSession> _objectCount;
   void run() override;
   bool start() override;
   void stop() override;

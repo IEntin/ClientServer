@@ -92,6 +92,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
   }
   // waiting in queue
   else {
+    unsigned numberSesonds = 0;
     while (_fdWrite == -1) {
       int rep = 0;
       do {
@@ -103,11 +104,17 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       if (!std::filesystem::exists(_fifoName))
 	break;
       // client closed
-      if (stopSignal)
+      if (stopSignal) {
 	std::filesystem::remove(_fifoName);
+	break;
+      }
       if (_fdWrite == -1) {
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	CLOG << '.' << std::flush;
+	++numberSesonds;
+	if (numberSesonds % 5 == 0) {
+	  CLOG << '.' << std::flush;
+	  numberSesonds = 0;
+	}
       }
     }
   }

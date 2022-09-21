@@ -4,6 +4,12 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+if [[ ( $@ == "--help") ||  $@ == "-h" ]]
+then 
+    echo "Usage: ./checkmulticlients.sh 2>&1 | tee checkmclog.txt"
+	exit 0
+fi 
+
 trap "exit" SIGHUP SIGINT SIGTERM
 
 set -e
@@ -33,10 +39,12 @@ $SERVER_DIR/client > /dev/null&
 ( cd $SERVER_DIR/../PrjClient2; $SERVER_DIR/../PrjClient4/client > /dev/null& )
 ( cd $SERVER_DIR/../PrjClient2; $SERVER_DIR/../PrjClient5/client > /dev/null& )
 
-sleep 60
+sleep 300
 
 kill -SIGINT $SERVER_PID
 
 sleep 10
 
 date
+
+exit

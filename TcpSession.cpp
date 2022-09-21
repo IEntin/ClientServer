@@ -14,8 +14,6 @@
 
 namespace tcp {
 
-std::atomic<unsigned> TcpSession::_numberObjects;
-
 TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
   _options(options),
   _details(details),
@@ -25,14 +23,12 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _timeoutTimer(_ioContext),
   _heartbeatPeriod(_options._heartbeatPeriod),
   _parent(parent) {
-  _numberObjects++;
   TaskController::_totalSessions++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
 
 TcpSession::~TcpSession() {
-  _numberObjects--;
   TaskController::_totalSessions--;
   if (_socket.is_open()) {
     boost::system::error_code ignore;
@@ -48,7 +44,7 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
-  _problem.store(_numberObjects > _options._maxTcpSessions ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
+  _problem.store(_objectCount._numberObjects > _options._maxTcpSessions ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
   boost::system::error_code ec;
@@ -72,16 +68,16 @@ void TcpSession::run() noexcept {
 }
 
 unsigned TcpSession::getNumberObjects() const {
-  return _numberObjects;
+  return _objectCount._numberObjects;
 }
 
 PROBLEMS TcpSession::checkCapacity() const {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
-       << "tcp sessions=" << _numberObjects << std::endl;
-  if (_numberObjects > _options._maxTcpSessions) {
+       << "tcp sessions=" << _objectCount._numberObjects << std::endl;
+  if (_objectCount._numberObjects > _options._maxTcpSessions) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of tcp clients=" << _numberObjects
+	 << "\nThe number of tcp clients=" << _objectCount._numberObjects
 	 << " at thread pool capacity.\n"
 	 << "This client will wait in the queue.\n"
 	 << "Close one of running tcp clients\n"

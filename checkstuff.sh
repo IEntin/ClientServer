@@ -4,8 +4,11 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
-#usage:
-# ./checkstuff.sh  2>&1 | tee checklog.txt
+if [[ ( $@ == "--help") ||  $@ == "-h" ]]
+then 
+    echo "Usage: ./checkstuff.sh 2>&1 | tee checklog.txt"
+	exit 0
+fi 
 
 set -e
 

@@ -2,18 +2,16 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "ObjectCount.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <gtest/gtest.h>
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
 public:
-  TestRunnable() {
-    _numberObjects++;
-  }
-  ~TestRunnable() override {
-    _numberObjects--;
-  }
+  TestRunnable() {}
+
+  ~TestRunnable() override {}
   void run() override {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
@@ -23,19 +21,18 @@ public:
   void stop() override {}
 
   unsigned getNumberObjects() const override {
-    return _numberObjects;
+    return _objectCount._numberObjects;
   }
 
   PROBLEMS checkCapacity() const override {
-    if (_numberObjects > _maxNumberThreads)
+    if (_objectCount._numberObjects > _maxNumberThreads)
       return PROBLEMS::MAX_NUMBER_RUNNABLES;
     else
       return PROBLEMS::NONE;
   }
   static const unsigned _maxNumberThreads = 10;
-  static std::atomic<unsigned> _numberObjects;
+  ObjectCount<TestRunnable> _objectCount;
 };
-std::atomic<unsigned> TestRunnable::_numberObjects;
 
 TEST(ThreadPoolTest, Fixed) {
   ThreadPool pool(TestRunnable::_maxNumberThreads);
