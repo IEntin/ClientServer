@@ -10,6 +10,9 @@
 #include <csignal>
 #include <fcntl.h>
 #include <filesystem>
+#include <csignal>
+
+extern volatile std::sig_atomic_t stopSignal;
 
 namespace fifo {
 
@@ -99,8 +102,13 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       // server stopped
       if (!std::filesystem::exists(_fifoName))
 	break;
-      if (_fdWrite == -1)
+      // client closed
+      if (stopSignal)
+	std::filesystem::remove(_fifoName);
+      if (_fdWrite == -1) {
 	std::this_thread::sleep_for(std::chrono::seconds(1));
+	CLOG << '.' << std::flush;
+      }
     }
   }
   if (_fdWrite == -1) {

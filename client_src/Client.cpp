@@ -11,6 +11,8 @@
 #include "Utility.h"
 #include <csignal>
 
+extern volatile std::sig_atomic_t stopSignal;
+
 Client::Client(const ClientOptions& options) : 
   _options(options) {
   MemoryPool::setExpectedSize(options._bufferSize);
@@ -60,7 +62,7 @@ bool Client::run() {
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
-    } while (_options._runLoop);
+    } while (_options._runLoop && !stopSignal);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
