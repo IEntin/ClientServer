@@ -44,7 +44,7 @@ TEST(ThreadPoolTest, Fixed) {
       ASSERT_TRUE(problem == PROBLEMS::NONE);
     }
   }
-  ASSERT_TRUE(pool.getThreads().size() == pool.size());
+  ASSERT_TRUE(pool.size() == pool.initialCapacity());
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
@@ -59,14 +59,14 @@ TEST(ThreadPoolTest, Variable) {
     auto runnable = std::make_shared<TestRunnable>();
     runnable->start();
     // if run() did not return yet in some runnables,
-    // it should be pool.getThreads().size() == i + 1
+    // it should be pool.size() == i + 1
     ASSERT_TRUE(runnable->getNumberObjects() <= i + 1);
     PROBLEMS problem = pool.push(runnable);
     ASSERT_TRUE(problem == PROBLEMS::NONE);
   }
   // if run() did not return yet in some runnables,
-  // it should be pool.getThreads().size() == numberObjects
-  ASSERT_TRUE(pool.getThreads().size() <= numberObjects);
+  // it should be pool.size() == numberObjects
+  ASSERT_TRUE(pool.size() <= numberObjects);
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())

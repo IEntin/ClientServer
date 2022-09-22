@@ -32,6 +32,7 @@ class ThreadPool {
   PROBLEMS push(RunnablePtr runnable);
   RunnablePtr get();
   unsigned size() const { return _threads.size(); }
+  unsigned initialCapacity() const { return _maxNumberThreads; }
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };
