@@ -7,15 +7,15 @@
 #include <atomic>
 
 template <typename T>
-struct ObjectCount {
-  ObjectCount() {
+struct ObjectCounter {
+  ObjectCounter() {
     _numberObjects++;
   }
-  ~ObjectCount() {
+  ~ObjectCounter() {
     _numberObjects--;
   }
   static std::atomic<unsigned> _numberObjects;
 };
 
 template <typename T>
-std::atomic<unsigned> ObjectCount<T>::_numberObjects;
+std::atomic<unsigned> ObjectCounter<T>::_numberObjects;

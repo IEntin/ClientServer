@@ -48,7 +48,7 @@ void TcpHeartbeat::run() noexcept {
 }
 
 unsigned TcpHeartbeat::getNumberObjects() const {
-  return _objectCount._numberObjects;
+  return _objectCounter._numberObjects;
 }
 
 void TcpHeartbeat::heartbeatWait() {

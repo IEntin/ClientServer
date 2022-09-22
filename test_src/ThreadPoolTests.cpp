@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ObjectCount.h"
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <gtest/gtest.h>
@@ -21,17 +21,17 @@ public:
   void stop() override {}
 
   unsigned getNumberObjects() const override {
-    return _objectCount._numberObjects;
+    return _objectCounter._numberObjects;
   }
 
   PROBLEMS checkCapacity() const override {
-    if (_objectCount._numberObjects > _maxNumberThreads)
+    if (_objectCounter._numberObjects > _maxNumberThreads)
       return PROBLEMS::MAX_NUMBER_RUNNABLES;
     else
       return PROBLEMS::NONE;
   }
   static const unsigned _maxNumberThreads = 10;
-  ObjectCount<TestRunnable> _objectCount;
+  ObjectCounter<TestRunnable> _objectCounter;
 };
 
 TEST(ThreadPoolTest, Fixed) {

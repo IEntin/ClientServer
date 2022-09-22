@@ -44,7 +44,8 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
-  _problem.store(_objectCount._numberObjects > _options._maxTcpSessions ? PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
+  _problem.store(_objectCounter._numberObjects > _options._maxTcpSessions ?
+		 PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
   boost::system::error_code ec;
@@ -68,16 +69,16 @@ void TcpSession::run() noexcept {
 }
 
 unsigned TcpSession::getNumberObjects() const {
-  return _objectCount._numberObjects;
+  return _objectCounter._numberObjects;
 }
 
 PROBLEMS TcpSession::checkCapacity() const {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
-       << "tcp sessions=" << _objectCount._numberObjects << std::endl;
-  if (_objectCount._numberObjects > _options._maxTcpSessions) {
+       << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
+  if (_objectCounter._numberObjects > _options._maxTcpSessions) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of tcp clients=" << _objectCount._numberObjects
+	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
 	 << " at thread pool capacity.\n"
 	 << "This client will wait in the queue.\n"
 	 << "Close one of running tcp clients\n"

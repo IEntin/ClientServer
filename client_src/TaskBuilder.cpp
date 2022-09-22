@@ -53,7 +53,7 @@ void TaskBuilder::run() {
 }
 
 unsigned TaskBuilder::getNumberObjects() const {
-  return _objectCount._numberObjects;
+  return _objectCounter._numberObjects;
 }
 
 bool TaskBuilder::start() {

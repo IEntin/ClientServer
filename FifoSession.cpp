@@ -50,16 +50,16 @@ void FifoSession::run() {
 }
 
 unsigned FifoSession::getNumberObjects() const {
-  return _objectCount._numberObjects;
+  return _objectCounter._numberObjects;
 }
 
 PROBLEMS FifoSession::checkCapacity() const {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
-       << "fifo sessions=" << _objectCount._numberObjects << std::endl;
-  if (_objectCount._numberObjects > _options._maxFifoSessions) {
+       << "fifo sessions=" << _objectCounter._numberObjects << std::endl;
+  if (_objectCounter._numberObjects > _options._maxFifoSessions) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of fifo clients=" << _objectCount._numberObjects
+	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
 	 << " at thread pool capacity.\n"
 	 << "This client will wait in the queue.\n"
 	 << "Close one of running fifo clients\n"
@@ -71,7 +71,7 @@ PROBLEMS FifoSession::checkCapacity() const {
 }
 
 PROBLEMS FifoSession::getStatus() const {
-  return _objectCount._numberObjects > _options._maxFifoSessions ?
+  return _objectCounter._numberObjects > _options._maxFifoSessions ?
     PROBLEMS::MAX_FIFO_SESSIONS : PROBLEMS::NONE;
 }
 

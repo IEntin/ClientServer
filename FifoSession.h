@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Header.h"
-#include "ObjectCount.h"
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <vector>
 
@@ -28,7 +28,7 @@ class FifoSession final : public Runnable {
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
   Response _response;
-  ObjectCount<FifoSession> _objectCount;
+  ObjectCounter<FifoSession> _objectCounter;
   void run() override;
   bool start() override;
   void stop() override;

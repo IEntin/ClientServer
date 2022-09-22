@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ObjectCount.h"
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <future>
 #include <memory>
@@ -48,5 +48,5 @@ class TaskBuilder final : public Runnable {
   unsigned getNumberObjects() const override;
   TaskBuilderState getTask(std::vector<char>& task);
   bool createTask();
-  ObjectCount<TaskBuilder> _objectCount;
+  ObjectCounter<TaskBuilder> _objectCounter;
 };
