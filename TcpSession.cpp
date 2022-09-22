@@ -15,6 +15,7 @@
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
+  Runnable(options._maxTcpSessions),
   _options(options),
   _details(details),
   _ioContext(details->_ioContext),
@@ -45,7 +46,7 @@ bool TcpSession::start() {
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
   _problem.store(_objectCounter._numberObjects > _options._maxTcpSessions ?
-		 PROBLEMS::MAX_TCP_SESSIONS : PROBLEMS::NONE);
+		 PROBLEMS::MAX_NUMBER_RUNNABLES : PROBLEMS::NONE);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
   boost::system::error_code ec;
@@ -73,10 +74,11 @@ unsigned TcpSession::getNumberObjects() const {
 }
 
 PROBLEMS TcpSession::checkCapacity() const {
+  PROBLEMS problem = Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
-  if (_objectCounter._numberObjects > _options._maxTcpSessions) {
+  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
 	 << " at thread pool capacity.\n"
@@ -84,9 +86,8 @@ PROBLEMS TcpSession::checkCapacity() const {
 	 << "Close one of running tcp clients\n"
 	 << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "You can also close this client and try again later.\n";
-    return PROBLEMS::MAX_TCP_SESSIONS;
   }
-  return PROBLEMS::NONE;
+  return problem;
 }
 
 bool TcpSession::onReceiveRequest() {
@@ -127,7 +128,7 @@ void TcpSession::readHeader() {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      if (_problem == PROBLEMS::MAX_TCP_SESSIONS)
+      if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
 	_problem.store(PROBLEMS::NONE);
       if (_parent->stopped()) {
 	_ioContext.stop();

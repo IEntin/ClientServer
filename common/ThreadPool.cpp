@@ -8,8 +8,8 @@
 
 std::shared_ptr<KillThread> ThreadPool::_killThread = std::make_shared<KillThread>();
 
-ThreadPool::ThreadPool(unsigned maxNumberThreads) : _maxNumberThreads(maxNumberThreads) {
-  for (unsigned i = 0; i < _maxNumberThreads; ++i)
+ThreadPool::ThreadPool(unsigned maxSize) : _maxSize(maxSize) {
+  for (unsigned i = 0; i < _maxSize; ++i)
     createThread();
 }
 
@@ -20,7 +20,7 @@ ThreadPool::~ThreadPool() {
 void ThreadPool::stop() {
   // wake up and join threads
   try {
-    for (unsigned i = 0; i < _threads.size(); ++i)
+    for (unsigned i = 0; i < size(); ++i)
       push(_killThread);
     for (auto& thread : _threads)
       if (thread.joinable())
@@ -52,19 +52,18 @@ void  ThreadPool::createThread() {
 }
 
 PROBLEMS ThreadPool::push(RunnablePtr runnable) {
-  std::lock_guard lock(_queueMutex);
+  if (!runnable)
+    return PROBLEMS::NONE;
   PROBLEMS problem = PROBLEMS::NONE;
-  if (runnable) {
-    if (_maxNumberThreads == 0 && runnable->getNumberObjects() > _threads.size()) {
-      createThread();
-      auto& obj = *runnable.get();
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":class-"
-	   << typeid(obj).name() << ",number objects=" << runnable->getNumberObjects()
-	   << ",number threads=" << _threads.size() << std::endl;
-    }
-    else
-      problem = runnable->checkCapacity();
+  std::lock_guard lock(_queueMutex);
+  if (_maxSize == 0 && runnable->getNumberObjects() > size()) {
+    createThread();
+    auto& obj = *runnable.get();
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":class-"
+	 << typeid(obj).name() << ",number objects=" << runnable->getNumberObjects()
+	 << ",number threads=" << size() << std::endl;
   }
+  problem = runnable->checkCapacity();
   _queue.push(runnable);
   _queueCondition.notify_all();
   return problem;

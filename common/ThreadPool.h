@@ -21,18 +21,18 @@ class ThreadPool {
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<RunnablePtr> _queue;
-  const unsigned _maxNumberThreads;
+  const unsigned _maxSize;
   static std::shared_ptr<class KillThread> _killThread;
  public:
   // default 0 means can grow
-  explicit ThreadPool(unsigned maxNumberThreads = 0);
+  explicit ThreadPool(unsigned maxSize = 0);
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;
   void stop();
   PROBLEMS push(RunnablePtr runnable);
   RunnablePtr get();
   unsigned size() const { return _threads.size(); }
-  unsigned initialCapacity() const { return _maxNumberThreads; }
+  unsigned maxSize() const { return _maxSize; }
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };

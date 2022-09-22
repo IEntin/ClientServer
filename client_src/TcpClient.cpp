@@ -44,7 +44,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   switch (problem) {
   case PROBLEMS::NONE :
     break;
-  case PROBLEMS::MAX_TCP_SESSIONS:
+  case PROBLEMS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions is at thread pool capacity.\n"

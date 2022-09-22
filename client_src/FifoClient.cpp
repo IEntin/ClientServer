@@ -55,7 +55,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
   switch (_problem) {
   case PROBLEMS::NONE :
     break;
-  case PROBLEMS::MAX_FIFO_SESSIONS:
+  case PROBLEMS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running fifo sessions is at thread pool capacity.\n"

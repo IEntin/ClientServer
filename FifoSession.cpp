@@ -20,6 +20,7 @@
 namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, FifoAcceptorPtr parent) :
+  Runnable(options._maxFifoSessions),
   _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
   TaskController::_totalSessions++;
   char array[5] = {};
@@ -54,10 +55,11 @@ unsigned FifoSession::getNumberObjects() const {
 }
 
 PROBLEMS FifoSession::checkCapacity() const {
+  PROBLEMS problem = Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "fifo sessions=" << _objectCounter._numberObjects << std::endl;
-  if (_objectCounter._numberObjects > _options._maxFifoSessions) {
+  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
 	 << " at thread pool capacity.\n"
@@ -65,14 +67,13 @@ PROBLEMS FifoSession::checkCapacity() const {
 	 << "Close one of running fifo clients\n"
 	 << "or increase \"MaxFifoSessions\" in ServerOptions.json.\n"
 	 << "You can also close this client and try again later.\n";
-    return PROBLEMS::MAX_FIFO_SESSIONS;
   }
-  return PROBLEMS::NONE;
+  return problem;
 }
 
 PROBLEMS FifoSession::getStatus() const {
   return _objectCounter._numberObjects > _options._maxFifoSessions ?
-    PROBLEMS::MAX_FIFO_SESSIONS : PROBLEMS::NONE;
+    PROBLEMS::MAX_NUMBER_RUNNABLES : PROBLEMS::NONE;
 }
 
 bool FifoSession::start() {

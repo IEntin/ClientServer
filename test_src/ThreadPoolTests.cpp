@@ -9,7 +9,8 @@
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
 public:
-  TestRunnable() {}
+  TestRunnable(unsigned maxNumberThreads = 0) :
+    Runnable(maxNumberThreads) {}
 
   ~TestRunnable() override {}
   void run() override {
@@ -24,27 +25,21 @@ public:
     return _objectCounter._numberObjects;
   }
 
-  PROBLEMS checkCapacity() const override {
-    if (_objectCounter._numberObjects > _maxNumberThreads)
-      return PROBLEMS::MAX_NUMBER_RUNNABLES;
-    else
-      return PROBLEMS::NONE;
-  }
-  static const unsigned _maxNumberThreads = 10;
   ObjectCounter<TestRunnable> _objectCounter;
 };
 
 TEST(ThreadPoolTest, Fixed) {
-  ThreadPool pool(TestRunnable::_maxNumberThreads);
-  for (unsigned i = 0; i < 2 * TestRunnable::_maxNumberThreads; ++i) {
-    auto runnable = std::make_shared<TestRunnable>();
+  unsigned maxNumberThreads = 10;
+  ThreadPool pool(maxNumberThreads);
+  for (unsigned i = 0; i < 2 * maxNumberThreads; ++i) {
+    auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnable->start();
     PROBLEMS problem = pool.push(runnable);
-    if (i < TestRunnable::_maxNumberThreads) {
+    if (i < maxNumberThreads) {
       ASSERT_TRUE(problem == PROBLEMS::NONE);
     }
   }
-  ASSERT_TRUE(pool.size() == pool.initialCapacity());
+  ASSERT_TRUE(pool.size() == pool.maxSize());
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
@@ -59,9 +54,9 @@ TEST(ThreadPoolTest, Variable) {
     auto runnable = std::make_shared<TestRunnable>();
     runnable->start();
     // if run() did not return yet in some runnables,
-    // it should be pool.size() == i + 1
-    ASSERT_TRUE(runnable->getNumberObjects() <= i + 1);
+    // it should be pool.size() == pool.size (i + 1)
     PROBLEMS problem = pool.push(runnable);
+    ASSERT_TRUE(runnable->getNumberObjects() <= pool.size());
     ASSERT_TRUE(problem == PROBLEMS::NONE);
   }
   // if run() did not return yet in some runnables,
