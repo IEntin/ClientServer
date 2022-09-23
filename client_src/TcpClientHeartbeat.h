@@ -15,7 +15,6 @@ namespace tcp {
 
 class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbeat>, public Runnable {
 
-  void stop() override {}
   void run() noexcept override;
 
   const ClientOptions& _options;
@@ -37,7 +36,7 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
   ~TcpClientHeartbeat() override;
 
   bool start() override;
-
+  void stop() override;
 };
 
 } // end of namespace tcp
