@@ -43,6 +43,7 @@ bool TcpClientHeartbeat::start() {
 
 void TcpClientHeartbeat::stop() {
   try {
+    _stopped.store(true);
     if (_thread.joinable())
       _thread.join();
   }
@@ -53,7 +54,7 @@ void TcpClientHeartbeat::stop() {
 
 void TcpClientHeartbeat::run() noexcept {
   try {
-    while (true) {
+    while (!_stopped) {
       boost::system::error_code ec;
       boost::asio::read(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
       if (ec) {

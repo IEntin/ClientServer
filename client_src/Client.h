@@ -17,17 +17,13 @@ class Client {
 
   Client(const ClientOptions& options);
 
-  bool processTask(TaskBuilderPtr&& taskBuilder);
+  bool processTask(TaskBuilderPtr taskBuilder);
 
   bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
 
   const ClientOptions& _options;
 
   ThreadPool _threadPool;
-
- private:
-
-  TaskBuilderPtr _taskBuilder;
 
  public:
 

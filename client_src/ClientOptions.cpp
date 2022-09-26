@@ -50,6 +50,7 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _runLoop(_appOptions.get("RunLoop", false)),
   _timing(_appOptions.get("Timing", false)),
   _setPipeSize(_appOptions.get("SetPipeSize", true)),
+  _expectedMaxNumberSubtasksInTask(_appOptions.get("ExpectedMaxNumberSubtasksInTask", 10000)),
   _turnOffLogging(_appOptions.get("TurnOffLogging", true)) {
   // disable clog
   if (_turnOffLogging)

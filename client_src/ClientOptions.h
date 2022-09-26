@@ -35,5 +35,6 @@ struct ClientOptions {
   bool _runLoop;
   bool _timing;
   bool _setPipeSize;
+  unsigned _expectedMaxNumberSubtasksInTask;
   bool _turnOffLogging;
 };

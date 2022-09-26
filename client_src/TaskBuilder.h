@@ -12,31 +12,36 @@
 #include <vector>
 #include <fstream>
 
+struct ClientOptions;
+
 enum class COMPRESSORS : char;
 
-enum class TaskBuilderState {
+enum class TaskBuilderState : int {
   NONE,
   SUBTASKDONE,
   TASKDONE,
   ERROR
 };
 
+struct Subtask {
+  std::vector<char> _chars;
+  std::promise<void> _promise;
+  TaskBuilderState _state = TaskBuilderState::NONE;
+};
+
 class TaskBuilder final : public Runnable {
 
-  bool compressSubtask(char* beg, char* end, bool alldone);
+  TaskBuilderState compressSubtask(Subtask& subtask, char* beg, char* end, bool alldone);
 
   int copyRequestWithId(char* dst, std::string_view line);
 
+  const ClientOptions& _options;
   std::ifstream _input;
-  std::vector<char> _task;
-  const std::string _sourceName;
-  const COMPRESSORS _compressor;
-  const bool _diagnostics;
-  std::promise<void> _promise1;
-  std::promise<void> _promise2;
-  ssize_t _requestIndex;
-  int _nextIdSz;
-  TaskBuilderState _state = TaskBuilderState::NONE;
+  std::vector<Subtask> _subtasks;
+  std::atomic<unsigned> _subtaskConsumeIndex = 0;
+  std::atomic<unsigned> _subtaskProduceIndex = 0;
+  ssize_t _requestIndex = 0;
+  int _nextIdSz = 4;
   void run() override;
   bool start() override;
   void stop() override;
@@ -47,6 +52,6 @@ class TaskBuilder final : public Runnable {
   ~TaskBuilder() override;
   unsigned getNumberObjects() const override;
   TaskBuilderState getTask(std::vector<char>& task);
-  bool createTask();
+  TaskBuilderState createSubtask();
   ObjectCounter<TaskBuilder> _objectCounter;
 };

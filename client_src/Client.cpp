@@ -28,37 +28,42 @@ Client::~Client() {
 // For maximum speed the buffer should be large to read the
 // content in one shot.
 
-bool Client::processTask(TaskBuilderPtr&& taskBuilder) {
+bool Client::processTask(TaskBuilderPtr taskBuilder) {
   std::vector<char> task;
-  TaskBuilderState state = TaskBuilderState::NONE;
-  do {
-    state = taskBuilder->getTask(task);
-    if (state == TaskBuilderState::ERROR) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":TaskBuilder failed.\n";
+  while (true) {
+    TaskBuilderState state = taskBuilder->getTask(task);
+    switch (state) {
+    case TaskBuilderState::ERROR:
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":TaskBuilder failed.\n";
       return false;
+    case TaskBuilderState::SUBTASKDONE:
+    case TaskBuilderState::TASKDONE:
+      if (!(send(task) && receive()))
+	return false;
+      if (state == TaskBuilderState::TASKDONE)
+	return true;
+      break;
+    default:
+      break;
     }
-    bool subtaskDone = send(task) && receive();
-    if (!subtaskDone)
-      return false;
-  } while (state != TaskBuilderState::TASKDONE);
+  }
   return true;
 }
 
 bool Client::run() {
   try {
     int numberTasks = 0;
-    _taskBuilder = std::make_shared<TaskBuilder>(_options);
-    _threadPool.push(_taskBuilder);
+    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options);
+    _threadPool.push(taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-      TaskBuilderPtr savedBuild = std::move(_taskBuilder);
+      TaskBuilderPtr savedBuild = taskBuilder;
       // start construction of the next task in the background
       if (_options._runLoop) {
-	_taskBuilder = std::make_shared<TaskBuilder>(_options);
-	_threadPool.push(_taskBuilder);
+	taskBuilder = std::make_shared<TaskBuilder>(_options);
+	_threadPool.push(taskBuilder);
       }
-      if (!processTask(std::move(savedBuild)))
+      if (!processTask(savedBuild))
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
@@ -78,12 +83,12 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     std::string_view dstView = Compression::uncompress(received, uncomprSize);
-    stream << dstView;
+    stream << dstView << std::flush;
   }
   else {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
-    stream << received;
+    stream << received << std::flush;
   }
   return true;
 }

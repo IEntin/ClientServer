@@ -17,5 +17,6 @@
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 20,
   "ENXIOwait" : 10,
-  "SetPipeSize" : true
+  "SetPipeSize" : true,
+  "ExpectedMaxNumberSubtasksInTask" : 10000
 }

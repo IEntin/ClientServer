@@ -29,6 +29,8 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   char _heartbeatBuffer[HEADER_SIZE] = {};
 
+  std::atomic<bool> _stopped = false;
+
  public:
 
   TcpClientHeartbeat(const ClientOptions& options, std::string_view clientId);
