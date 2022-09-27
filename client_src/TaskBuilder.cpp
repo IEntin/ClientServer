@@ -49,11 +49,13 @@ bool TaskBuilder::start() {
 void TaskBuilder::stop() {}
 
 TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
-  auto& subtask = _subtasks[_subtaskConsumeIndex++];
+  TaskBuilderState state = TaskBuilderState::NONE;
   try {
+    auto& subtask = _subtasks.at(_subtaskConsumeIndex++);
     auto future = subtask._promise.get_future();
     future.get();
-    switch (subtask._state) {
+    state = subtask._state;
+    switch (state) {
     case TaskBuilderState::SUBTASKDONE:
     case TaskBuilderState::TASKDONE:
       subtask._chars.swap(task);
@@ -66,7 +68,12 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
     return TaskBuilderState::ERROR;
   }
-  return subtask._state;
+  catch (const std::out_of_range& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
+	 << ". Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!\n";
+    return TaskBuilderState::ERROR;
+  }
+  return state;
 }
 
 int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
@@ -91,28 +98,35 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // The size of the aggregate depends on the configured buffer size.
 
 TaskBuilderState TaskBuilder::createSubtask() {
-  auto& subtask = _subtasks[_subtaskProduceIndex++];
   thread_local static std::vector<char> aggregate(MemoryPool::getExpectedSize());
   size_t aggregateSize = 0;
   // rough estimate for id and header to avoid reallocation.
   size_t maxSubtaskSize = MemoryPool::getExpectedSize() * 0.9;
   thread_local static std::string line;
   try {
-    while (std::getline(_input, line)) {
-      aggregate.reserve(HEADER_SIZE + aggregateSize + _nextIdSz + line.size() + 1);
-      int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line);
-      aggregateSize += copied;
-      bool alldone = _input.peek() == std::istream::traits_type::eof();
-      if (aggregateSize >= maxSubtaskSize || alldone) {
-	return compressSubtask(subtask, aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, alldone);
+    auto& subtask = _subtasks.at(_subtaskProduceIndex++);
+    try {
+      while (std::getline(_input, line)) {
+	aggregate.reserve(HEADER_SIZE + aggregateSize + _nextIdSz + line.size() + 1);
+	int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line);
+	aggregateSize += copied;
+	bool alldone = _input.peek() == std::istream::traits_type::eof();
+	if (aggregateSize >= maxSubtaskSize || alldone) {
+	  return compressSubtask(subtask, aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, alldone);
+	}
+	else
+	  continue;
       }
-      else
-	continue;
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+      subtask._state = TaskBuilderState::ERROR;
+      return TaskBuilderState::ERROR;
     }
   }
-  catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
-    subtask._state = TaskBuilderState::ERROR;
+  catch (const std::out_of_range& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
+	 << ". Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!\n";
     return TaskBuilderState::ERROR;
   }
   return TaskBuilderState::NONE;

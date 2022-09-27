@@ -105,8 +105,7 @@ bool TcpClient::receive() {
 bool TcpClient::run() {
   try {
     CloseSocket closeSocket(_socket);
-    bool success = Client::run();
-    return success;
+    return Client::run();
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
