@@ -14,7 +14,7 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
+  TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
   Runnable(options._maxTcpSessions),
   _options(options),
   _details(details),
@@ -22,7 +22,6 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext),
-  _heartbeatPeriod(_options._heartbeatPeriod),
   _parent(parent) {
   TaskController::_totalSessions++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
@@ -178,7 +177,6 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
       }
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	_heartbeatPeriod = 1;
 	_ioContext.stop();
 	return;
       }

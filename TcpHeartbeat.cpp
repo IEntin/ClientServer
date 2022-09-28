@@ -11,14 +11,19 @@
 
 namespace tcp {
 
-TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
+TcpHeartbeat::TcpHeartbeat(const ServerOptions& options,
+			   SessionDetailsPtr details,
+			   TcpSessionWeakPtr sessionWeakPtr,
+			   TcpAcceptorPtr parent) :
   _options(options),
   _details(details),
+  _sessionWeakPtr(sessionWeakPtr),
   _parent(parent),
   _ioContext(_details->_ioContext),
   _strand(boost::asio::make_strand(_ioContext)),
   _socket(_details->_socket),
-  _heartbeatTimer(_ioContext) {
+  _heartbeatTimer(_ioContext),
+  _checksInPeriod(_options._heartbeatPeriod / _checkPeriod) {
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
 }
@@ -51,33 +56,30 @@ unsigned TcpHeartbeat::getNumberObjects() const {
 }
 
 void TcpHeartbeat::heartbeatWait() {
-  if (_parent->stopped()) {
-    _ioContext.stop();
+  if (_parent->stopped())
     return;
-  }
-  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_checkPeriod));
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
     [this](const boost::system::error_code& ec) {
-      if (_parent->stopped()) {
-	_ioContext.stop();
+      if (_parent->stopped())
 	return;
-      }
       if (ec) {
 	if (ec != boost::asio::error::operation_aborted)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	_ioContext.stop();
 	return;
       }
-      heartbeat();
+      auto session = _sessionWeakPtr.lock();
+      if (!session)
+	return;
+      if (_processedChecks++ == _checksInPeriod) {
+	_processedChecks = 0;
+	heartbeat();
+      }
       heartbeatWait();
     }));
 }
 
 void TcpHeartbeat::heartbeat() {
-  if (_parent->stopped()) {
-    _ioContext.stop();
-    return;
-  }
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =

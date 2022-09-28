@@ -53,7 +53,6 @@ private:
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Response _response;
-  int _heartbeatPeriod;
   TcpAcceptorPtr _parent;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
   ObjectCounter<TcpSession> _objectCounter;

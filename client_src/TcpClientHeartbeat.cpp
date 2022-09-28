@@ -41,13 +41,11 @@ bool TcpClientHeartbeat::start() {
   return true;
 }
 
-void TcpClientHeartbeat::stop() {
-  _stopped.store(true);
-}
+void TcpClientHeartbeat::stop() {}
 
 void TcpClientHeartbeat::run() noexcept {
   try {
-    while (!_stopped) {
+    while (true) {
       boost::system::error_code ec;
       boost::asio::read(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
       if (ec) {
