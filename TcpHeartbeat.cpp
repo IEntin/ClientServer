@@ -18,8 +18,7 @@ TcpHeartbeat::TcpHeartbeat(const ServerOptions& options, SessionDetailsPtr detai
   _ioContext(_details->_ioContext),
   _strand(boost::asio::make_strand(_ioContext)),
   _socket(_details->_socket),
-  _heartbeatTimer(_ioContext),
-  _heartbeatPeriod(_options._heartbeatPeriod) {
+  _heartbeatTimer(_ioContext) {
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
 }
@@ -56,7 +55,7 @@ void TcpHeartbeat::heartbeatWait() {
     _ioContext.stop();
     return;
   }
-  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_heartbeatPeriod));
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
     [this](const boost::system::error_code& ec) {
       if (_parent->stopped()) {

@@ -45,7 +45,6 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, pu
   boost::asio::strand<boost::asio::io_context::executor_type> _strand;
   boost::asio::ip::tcp::socket& _socket;
   AsioTimer _heartbeatTimer;
-  int _heartbeatPeriod;
   char _heartbeatBuffer[HEADER_SIZE] = {};
   ObjectCounter<TcpHeartbeat> _objectCounter;
 };
