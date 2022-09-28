@@ -8,12 +8,19 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
+#include <filesystem>
 
 TaskBuilder::TaskBuilder(const ClientOptions& options) :
-  _options(options), _subtasks(_options._expectedMaxNumberSubtasksInTask) {
+  _options(options) {
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
+  // rough estimate of max number of subtasks in task
+  // assuming service info (id, header) is not larger
+  // than half of content.
+  size_t sourceSize = std::filesystem::file_size(_options._sourceName);
+  unsigned expectedMaxNumberSubtasksInTask = (3 * sourceSize / 2 / _options._bufferSize + 1);
+  _subtasks.resize(expectedMaxNumberSubtasksInTask);
 }
 
 TaskBuilder::~TaskBuilder() {}

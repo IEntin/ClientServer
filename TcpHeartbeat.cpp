@@ -68,8 +68,7 @@ void TcpHeartbeat::heartbeatWait() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	return;
       }
-      auto session = _sessionWeakPtr.lock();
-      if (!session)
+      if (!_sessionWeakPtr.lock())
 	return;
       if (_processedChecks++ == _checksInPeriod) {
 	_processedChecks = 0;
