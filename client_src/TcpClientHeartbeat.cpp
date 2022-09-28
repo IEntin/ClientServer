@@ -42,14 +42,7 @@ bool TcpClientHeartbeat::start() {
 }
 
 void TcpClientHeartbeat::stop() {
-  try {
-    _stopped.store(true);
-    if (_thread.joinable())
-      _thread.join();
-  }
-  catch (const std::system_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-  }
+  _stopped.store(true);
 }
 
 void TcpClientHeartbeat::run() noexcept {
