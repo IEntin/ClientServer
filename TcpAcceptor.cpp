@@ -117,7 +117,8 @@ void TcpAcceptor::accept() {
 		   << ":corresponding session destroyed" << std::endl;
 	      break;
 	    }
-	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, it->second, shared_from_this());
+	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
+	    session->setHeartbeat(heartbeat->weak_from_this());
 	    heartbeat->start();
 	    [[maybe_unused]] PROBLEMS problem = _threadPoolHeartbeat.push(heartbeat);
 	  }

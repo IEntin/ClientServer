@@ -69,6 +69,13 @@ void TcpClientHeartbeat::run() noexcept {
   catch (...) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": unexpected exception\n";
   }
+  try {
+    if (_thread.joinable())
+      _thread.detach();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+  }
 }
 
 } // end of namespace tcp

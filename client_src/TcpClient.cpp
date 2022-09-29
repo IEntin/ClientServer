@@ -22,6 +22,10 @@ TcpClient::TcpClient(const ClientOptions& options) :
   _endpoint = endpoint;
   SESSIONTYPE type = SESSIONTYPE::SESSION;
   std::ostringstream os;
+  // socket.local_endpoint (ip address and ephemeral port)
+  // is unique in a server-clients system no matter the
+  // clients are on the same or different hosts and is
+  // used as a client id
   os << _socket.local_endpoint() << std::flush;
   _clientId = os.str();
   os.str("");
@@ -61,8 +65,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  _heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
-  _heartbeat->start();
+  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
+  heartbeat->start();
 }
 
 TcpClient::~TcpClient() {

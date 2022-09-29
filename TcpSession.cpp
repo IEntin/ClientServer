@@ -3,6 +3,7 @@
  */
 
 #include "TcpSession.h"
+#include "TcpHeartbeat.h"
 #include "Compression.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
@@ -29,6 +30,9 @@ namespace tcp {
 }
 
 TcpSession::~TcpSession() {
+  auto heartbeat = _heartbeat.lock();
+  if (heartbeat)
+    heartbeat->stop();
   TaskController::_totalSessions--;
   if (_socket.is_open()) {
     boost::system::error_code ignore;

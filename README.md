@@ -28,10 +28,8 @@ initiated by SIGINT. This is a serious restriction, in particular, the server ca
 crashes which put the server in a non responding state.
 
 To solve this problem the writing ends of the pipes are opened in a non blocking\
-mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the components can be stopped\
-not only by SIGINT, but also by SIGKILL or any other signal. The server is in a valid state then,\
-and subsequently, the client can be restarted. These complications apply only to the FIFO case.\
-TCP clients do not have these issues.\
+mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the client being down\
+for any reason leaves the server in a valid state, and can be restarted.\
 ........
 
 The number and identity of fifo and tcp clients are not known in advance.\

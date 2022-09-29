@@ -19,20 +19,17 @@ using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
 using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
 
-using TcpSessionWeakPtr = std::weak_ptr<class TcpSession>;
-
 class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
 
  public:
 
   TcpHeartbeat(const ServerOptions& options,
 	       SessionDetailsPtr details,
-	       TcpSessionWeakPtr sessionWeakPtr,
 	       TcpAcceptorPtr parent);
   ~TcpHeartbeat() override;
 
   bool start() override;
-  void stop() override {}
+  void stop() override;
 
  private:
 
@@ -46,15 +43,11 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, pu
 
   const ServerOptions& _options;
   SessionDetailsPtr _details;
-  TcpSessionWeakPtr _sessionWeakPtr;
   TcpAcceptorPtr _parent;
   boost::asio::io_context& _ioContext;
   boost::asio::strand<boost::asio::io_context::executor_type> _strand;
   boost::asio::ip::tcp::socket& _socket;
   AsioTimer _heartbeatTimer;
-  const unsigned _checkPeriod = 10;
-  const unsigned _checksInPeriod;
-  unsigned _processedChecks = 0;
   char _heartbeatBuffer[HEADER_SIZE] = {};
   ObjectCounter<TcpHeartbeat> _objectCounter;
 };

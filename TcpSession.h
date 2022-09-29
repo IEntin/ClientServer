@@ -23,6 +23,8 @@ using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
 
 using TcpSessionPtr = std::shared_ptr<class TcpSession>;
 
+using TcpHeartbeatWeakPtr = std::weak_ptr<class TcpHeartbeat>;
+
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public Runnable {
   friend class TcpHeartbeat;
 public:
@@ -32,6 +34,7 @@ public:
   void run() noexcept override;
   bool start() override;
   void stop() override {}
+  void setHeartbeat(TcpHeartbeatWeakPtr heartbeat) { _heartbeat = heartbeat; }
   unsigned getNumberObjects() const override;
   PROBLEMS checkCapacity() const override;
 private:
@@ -55,6 +58,7 @@ private:
   Response _response;
   TcpAcceptorPtr _parent;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
+  TcpHeartbeatWeakPtr _heartbeat;
   ObjectCounter<TcpSession> _objectCounter;
 };
 

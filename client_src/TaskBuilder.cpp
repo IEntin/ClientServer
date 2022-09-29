@@ -15,12 +15,13 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
-  // rough estimate of max number of subtasks in task
+  // rough estimate of a number of subtasks in task
   // assuming service info (id, header) is not larger
-  // than half of content.
+  // than half of content. The actual number of subtasks
+  // is supposed to be smaller than this estimate.
   size_t sourceSize = std::filesystem::file_size(_options._sourceName);
-  unsigned expectedMaxNumberSubtasksInTask = (3 * sourceSize / 2 / _options._bufferSize + 1);
-  _subtasks.resize(expectedMaxNumberSubtasksInTask);
+  unsigned expectedNumberSubtasks = (3 * sourceSize / 2 / _options._bufferSize + 1);
+  _subtasks.resize(expectedNumberSubtasks);
 }
 
 TaskBuilder::~TaskBuilder() {}
@@ -31,9 +32,6 @@ void TaskBuilder::run() {
       if (createSubtask() != TaskBuilderState::SUBTASKDONE)
 	break;
     }
-  }
-  catch (std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
   catch (std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
