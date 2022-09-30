@@ -19,7 +19,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
     throw(std::runtime_error(error.what()));
-  _endpoint = endpoint;
   SESSIONTYPE type = SESSIONTYPE::SESSION;
   std::ostringstream os;
   // socket.local_endpoint (ip address and ephemeral port)
@@ -27,9 +26,9 @@ TcpClient::TcpClient(const ClientOptions& options) :
   // clients are on the same or different hosts and is
   // used as a client id
   os << _socket.local_endpoint() << std::flush;
-  _clientId = os.str();
+  std::string clientId = os.str();
   os.str("");
-  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _clientId << '|' << std::flush;
+  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << clientId << '|' << std::flush;
   std::string msg = os.str();
   msg.append(HSMSG_SIZE - msg.size(), '\0');
   boost::system::error_code ec;
@@ -65,14 +64,18 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
+  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
   heartbeat->start();
+  _heartbeatWeakPtr = heartbeat->weak_from_this();
 }
 
 TcpClient::~TcpClient() {
   boost::system::error_code ignore;
   _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
   _socket.close(ignore);
+  auto heartbeat = _heartbeatWeakPtr.lock();
+  if (heartbeat)
+    heartbeat->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 

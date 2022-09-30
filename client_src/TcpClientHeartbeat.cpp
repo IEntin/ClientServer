@@ -37,11 +37,23 @@ TcpClientHeartbeat::~TcpClientHeartbeat() {
 }
 
 bool TcpClientHeartbeat::start() {
+  // defer destruction
+  _self = shared_from_this();
   _thread = std::jthread(&TcpClientHeartbeat::run, shared_from_this());
   return true;
 }
 
-void TcpClientHeartbeat::stop() {}
+void TcpClientHeartbeat::stop() {
+  try {
+    if (_thread.joinable())
+      _thread.join();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+  }
+  // allow destruction
+  _self.reset();
+}
 
 void TcpClientHeartbeat::run() noexcept {
   try {
@@ -68,13 +80,6 @@ void TcpClientHeartbeat::run() noexcept {
   }
   catch (...) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": unexpected exception\n";
-  }
-  try {
-    if (_thread.joinable())
-      _thread.detach();
-  }
-  catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
 }
 

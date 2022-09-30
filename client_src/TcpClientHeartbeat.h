@@ -13,6 +13,8 @@ struct ClientOptions;
 
 namespace tcp {
 
+using TcpClientHeartbeatPtr = std::shared_ptr<class TcpClientHeartbeat>;
+
 class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbeat>, public Runnable {
 
   void run() noexcept override;
@@ -28,6 +30,8 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
   boost::asio::ip::tcp::socket _socket;
 
   char _heartbeatBuffer[HEADER_SIZE] = {};
+
+  TcpClientHeartbeatPtr _self;
 
  public:
 

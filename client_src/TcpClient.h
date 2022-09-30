@@ -9,6 +9,8 @@
 
 namespace tcp {
 
+using TcpClientHeartbeatWeakPtr = std::weak_ptr<class TcpClientHeartbeat>;
+
 class TcpClient : protected Client {
 
   bool send(const std::vector<char>& msg) override;
@@ -21,9 +23,7 @@ class TcpClient : protected Client {
 
   boost::asio::ip::tcp::socket _socket;
 
-  boost::asio::ip::tcp::endpoint _endpoint;
-
-  std::string _clientId;
+  TcpClientHeartbeatWeakPtr _heartbeatWeakPtr;
 
  public:
 
