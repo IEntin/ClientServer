@@ -5,7 +5,6 @@
 #pragma once
 
 #include "AdBid.h"
-#include <string_view>
 #include <vector>
 
 class Ad;

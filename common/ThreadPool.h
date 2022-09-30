@@ -4,15 +4,11 @@
 
 #pragma once
 
+#include "Runnable.h"
 #include <condition_variable>
 #include <queue>
 #include <thread>
 #include <vector>
-#include "Runnable.h"
-
-enum class PROBLEMS : char;
-
-using RunnablePtr = std::shared_ptr<class Runnable>;
 
 class ThreadPool {
   void createThread();

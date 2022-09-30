@@ -3,7 +3,6 @@
  */
 
 #include "ThreadPool.h"
-#include "Header.h"
 #include "Utility.h"
 
 std::shared_ptr<KillThread> ThreadPool::_killThread = std::make_shared<KillThread>();

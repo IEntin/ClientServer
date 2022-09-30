@@ -7,14 +7,11 @@
 #include "ObjectCounter.h"
 #include "Runnable.h"
 #include <future>
-#include <memory>
 #include <string_view>
 #include <vector>
 #include <fstream>
 
 struct ClientOptions;
-
-enum class COMPRESSORS : char;
 
 enum class TaskBuilderState : int {
   NONE,

@@ -3,7 +3,6 @@
  */
 
 #include "TcpClientHeartbeat.h"
-#include "Header.h"
 #include "ClientOptions.h"
 #include "Tcp.h"
 #include "Utility.h"

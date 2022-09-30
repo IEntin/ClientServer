@@ -7,7 +7,6 @@
 #include "AdBid.h"
 #include <unordered_map>
 #include <string>
-#include <vector>
 
 class Ad;
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;

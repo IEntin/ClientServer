@@ -5,12 +5,9 @@
 #pragma once
 
 #include "Header.h"
-
 #include <atomic>
 #include <memory>
 #include <string>
-
-enum class PROBLEMS : char;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 
