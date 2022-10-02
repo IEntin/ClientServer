@@ -21,6 +21,8 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Run
 
   void pushHeartbeat(RunnablePtr heartbeat);
 
+  void remove(RunnablePtr toRemove);
+
 private:
   void accept();
 

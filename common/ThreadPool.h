@@ -6,7 +6,7 @@
 
 #include "Runnable.h"
 #include <condition_variable>
-#include <queue>
+#include <deque>
 #include <thread>
 #include <vector>
 
@@ -16,7 +16,7 @@ class ThreadPool {
   std::vector<std::jthread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
-  std::queue<RunnablePtr> _queue;
+  std::deque<RunnablePtr> _queue;
   const unsigned _maxSize;
   static std::shared_ptr<class KillThread> _killThread;
  public:
@@ -29,6 +29,7 @@ class ThreadPool {
   RunnablePtr get();
   unsigned size() const { return _threads.size(); }
   unsigned maxSize() const { return _maxSize; }
+  void removeFromQueue(RunnablePtr toRemove);
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };

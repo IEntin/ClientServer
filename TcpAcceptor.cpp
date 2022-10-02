@@ -143,4 +143,8 @@ void TcpAcceptor::accept() {
     });
 }
 
+void TcpAcceptor::remove(RunnablePtr toRemove) {
+  _threadPool.removeFromQueue(toRemove);
+}
+
 } // end of namespace tcp

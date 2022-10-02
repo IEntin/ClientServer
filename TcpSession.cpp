@@ -3,6 +3,7 @@
  */
 
 #include "TcpSession.h"
+#include "TcpAcceptor.h"
 #include "TcpHeartbeat.h"
 #include "Compression.h"
 #include "MemoryPool.h"
@@ -14,7 +15,7 @@
 
 namespace tcp {
 
-  TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent) :
+  TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
   Runnable(options._maxTcpSessions),
   _options(options),
   _details(details),
@@ -68,6 +69,7 @@ void TcpSession::run() noexcept {
 
 void TcpSession::stop() {
   _ioContext.stop();
+  _parent->remove(shared_from_this());
 }
 
 unsigned TcpSession::getNumberObjects() const {

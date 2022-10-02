@@ -63,7 +63,7 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
 	 << ",number threads=" << size() << std::endl;
   }
   problem = runnable->checkCapacity();
-  _queue.push(runnable);
+  _queue.push_back(runnable);
   _queueCondition.notify_all();
   return problem;
 }
@@ -72,6 +72,16 @@ RunnablePtr ThreadPool::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   RunnablePtr runnable = _queue.front();
-  _queue.pop();
+  _queue.pop_front();
   return runnable;
+}
+
+void ThreadPool::removeFromQueue(RunnablePtr toRemove) {
+  std::unique_lock lock(_queueMutex);
+  for (auto it = _queue.begin(); it < _queue.end(); ++it) {
+    if (*it == toRemove) {
+      _queue.erase(it);
+      break;
+    }
+  }
 }
