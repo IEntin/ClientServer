@@ -44,7 +44,6 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   static Phase _phase;
   static bool _diagnosticsEnabled;
   Strategy& _strategy;
-  std::atomic<bool> _stopped;
  public:
   ~TaskController() override;
   bool start() override;

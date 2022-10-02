@@ -70,9 +70,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
-  boost::system::error_code ignore;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-  _socket.close(ignore);
   auto heartbeat = _heartbeatWeakPtr.lock();
   if (heartbeat)
     heartbeat->stop();

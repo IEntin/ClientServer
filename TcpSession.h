@@ -19,8 +19,6 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
-using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
-
 using TcpSessionPtr = std::shared_ptr<class TcpSession>;
 
 using TcpHeartbeatWeakPtr = std::weak_ptr<class TcpHeartbeat>;
@@ -28,12 +26,12 @@ using TcpHeartbeatWeakPtr = std::weak_ptr<class TcpHeartbeat>;
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public Runnable {
   friend class TcpHeartbeat;
 public:
-  TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent);
+  TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent);
   ~TcpSession() override;
 
   void run() noexcept override;
   bool start() override;
-  void stop() override {}
+  void stop() override;
   void setHeartbeat(TcpHeartbeatWeakPtr heartbeat) { _heartbeat = heartbeat; }
   unsigned getNumberObjects() const override;
   PROBLEMS checkCapacity() const override;
@@ -56,7 +54,7 @@ private:
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   Response _response;
-  TcpAcceptorPtr _parent;
+  RunnablePtr _parent;
   std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
   TcpHeartbeatWeakPtr _heartbeat;
   ObjectCounter<TcpSession> _objectCounter;

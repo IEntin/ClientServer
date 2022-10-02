@@ -3,7 +3,6 @@
  */
 
 #include "FifoSession.h"
-#include "FifoAcceptor.h"
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
@@ -19,7 +18,7 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, FifoAcceptorPtr parent) :
+FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr parent) :
   Runnable(options._maxFifoSessions),
   _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
   TaskController::_totalSessions++;
@@ -36,9 +35,9 @@ FifoSession::~FifoSession() {
 
 void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
-    // waiting client was closed
+    // client is closed
     return;
-  while (!_parent->stopped()) {
+  while (!_parent->_stopped) {
     _response.clear();
     HEADER header;
     _uncompressedRequest.clear();

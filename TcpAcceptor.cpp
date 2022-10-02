@@ -21,8 +21,6 @@ TcpAcceptor::TcpAcceptor(const ServerOptions& options) :
   _threadPool(_options._maxTcpSessions + 1) {}
 
 TcpAcceptor::~TcpAcceptor() {
-  boost::system::error_code ignore;
-  _acceptor.close(ignore);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -48,8 +46,16 @@ bool TcpAcceptor::start() {
 }
 
 void TcpAcceptor::stop() {
-  _stopped.store(true);
-  _ioContext.stop();
+  _ioContext.post([this] () {
+    auto self = shared_from_this();
+    _stopped.store(true);
+    _ioContext.stop();
+    for (auto pr : _sessions) {
+      auto session = pr.second.lock();
+      if (session)
+	session->stop();
+    }
+  });
   _threadPoolHeartbeat.stop();
   _threadPool.stop();
 }
@@ -69,9 +75,15 @@ void TcpAcceptor::pushHeartbeat(RunnablePtr heartbeat) {
 
 void TcpAcceptor::accept() {
   auto details = std::make_shared<SessionDetails>();
+  auto weak = weak_from_this();
   _acceptor.async_accept(details->_socket,
 			 details->_endpoint,
-    [details, this](boost::system::error_code ec) {
+    [details, this, weak](boost::system::error_code ec) {
+      if (_stopped)
+	return;
+      auto self = weak.lock();
+      if (!self)
+	return;
       if (ec)
 	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
@@ -117,7 +129,7 @@ void TcpAcceptor::accept() {
 		   << ":corresponding session destroyed" << std::endl;
 	      break;
 	    }
-	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, shared_from_this());
+	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, it->second, shared_from_this());
 	    session->setHeartbeat(heartbeat->weak_from_this());
 	    heartbeat->start();
 	    [[maybe_unused]] PROBLEMS problem = _threadPoolHeartbeat.push(heartbeat);

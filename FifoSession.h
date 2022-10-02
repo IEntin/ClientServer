@@ -15,12 +15,10 @@ struct ServerOptions;
 
 namespace fifo {
 
-using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
-
 class FifoSession final : public Runnable {
   const ServerOptions& _options;
   std::string _fifoName;
-  FifoAcceptorPtr _parent;
+  RunnablePtr _parent;
   int _fdRead = -1;
   int _fdWrite = -1;
   unsigned short _ephemeralIndex;
@@ -36,7 +34,7 @@ class FifoSession final : public Runnable {
   PROBLEMS checkCapacity() const override;
   PROBLEMS getStatus() const override;
  public:
-  FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, FifoAcceptorPtr server);
+  FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr server);
   ~FifoSession() override;
 };
 

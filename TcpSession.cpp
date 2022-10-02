@@ -10,12 +10,11 @@
 #include "ServerUtility.h"
 #include "SessionDetails.h"
 #include "TaskController.h"
-#include "TcpAcceptor.h"
 #include "Utility.h"
 
 namespace tcp {
 
-  TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
+  TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, RunnablePtr parent) :
   Runnable(options._maxTcpSessions),
   _options(options),
   _details(details),
@@ -34,11 +33,6 @@ TcpSession::~TcpSession() {
   if (heartbeat)
     heartbeat->stop();
   TaskController::_totalSessions--;
-  if (_socket.is_open()) {
-    boost::system::error_code ignore;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-    _socket.close(ignore);
-  }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -70,6 +64,10 @@ void TcpSession::run() noexcept {
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
   }
+}
+
+void TcpSession::stop() {
+  _ioContext.stop();
 }
 
 unsigned TcpSession::getNumberObjects() const {
@@ -126,21 +124,15 @@ bool TcpSession::sendReply(const Response& response) {
 void TcpSession::readHeader() {
   asyncWait();
   std::memset(_headerBuffer, 0, HEADER_SIZE);
-  boost::system::error_code ignore;
-  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ignore);
   boost::asio::async_read(_socket,
     boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = shared_from_this();
       if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
 	_problem.store(PROBLEMS::NONE);
-      if (_parent->stopped()) {
-	_ioContext.stop();
-	return;
-      }
       if (ec) {
 	(ec == boost::asio::error::eof ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	_ioContext.stop();
 	return;
       }
       _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
@@ -158,13 +150,9 @@ void TcpSession::readRequest() {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      if (_parent->stopped()) {
-	_ioContext.stop();
-	return;
-      }
+      auto self = shared_from_this();
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	_ioContext.stop();
 	return;
       }
       onReceiveRequest();
@@ -175,13 +163,9 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
   boost::asio::async_write(_socket,
     boost::asio::buffer(msg.data(), msg.size()), boost::asio::bind_executor(_strand,
     [this, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      if (_parent->stopped()) {
-	_ioContext.stop();
-	return;
-      }
+      auto self = shared_from_this();
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	_ioContext.stop();
 	return;
       }
       if (nextFunc)
@@ -190,24 +174,16 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
 }
 
 void TcpSession::asyncWait() {
-  if (_parent->stopped()) {
-    _ioContext.stop();
-    return;
-  }
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
     [this](const boost::system::error_code& ec) {
-      if (_parent->stopped()) {
-	_ioContext.stop();
-	return;
-      }
+      auto self = shared_from_this();
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	else
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
-	_ioContext.stop();
-      }
+     }
    }));
 }
 

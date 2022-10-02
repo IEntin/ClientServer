@@ -5,7 +5,6 @@
 #include "TcpHeartbeat.h"
 #include "ServerOptions.h"
 #include "SessionDetails.h"
-#include "TcpAcceptor.h"
 #include "TcpSession.h"
 #include "Utility.h"
 
@@ -13,24 +12,24 @@ namespace tcp {
 
 TcpHeartbeat::TcpHeartbeat(const ServerOptions& options,
 			   SessionDetailsPtr details,
-			   TcpAcceptorPtr parent) :
+			   TcpSessionWeakPtr sessionWeakPtr,
+			   RunnablePtr parent) :
   _options(options),
   _details(details),
   _parent(parent),
   _ioContext(_details->_ioContext),
   _strand(boost::asio::make_strand(_ioContext)),
   _socket(_details->_socket),
-  _heartbeatTimer(_ioContext) {
+  _heartbeatTimer(_ioContext),
+  _sessionWeakPtr(sessionWeakPtr) {
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
 }
 
 TcpHeartbeat::~TcpHeartbeat() {
-  if (_socket.is_open()) {
-    boost::system::error_code ignore;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
-    _socket.close(ignore);
-  }
+  auto session = _sessionWeakPtr.lock();
+  if (session)
+    session->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -50,7 +49,10 @@ void TcpHeartbeat::run() noexcept {
 
 void TcpHeartbeat::stop() {
   _ioContext.post([this]() {
-    _heartbeatTimer.cancel();
+    boost::system::error_code ec;
+    _heartbeatTimer.cancel(ec);
+    if (ec)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
   });
 }
 
@@ -59,12 +61,14 @@ unsigned TcpHeartbeat::getNumberObjects() const {
 }
 
 void TcpHeartbeat::heartbeatWait() {
-  if (_parent->stopped())
-    return;
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  auto weak = weak_from_this();
   _heartbeatTimer.async_wait(boost::asio::bind_executor(_strand,
-    [this](const boost::system::error_code& ec) {
-      if (_parent->stopped())
+    [this, weak](const boost::system::error_code& ec) {
+      auto self = weak.lock();
+      if (!self)
+	return;
+      if (_parent->_stopped)
 	return;
       if (ec) {
 	if (ec != boost::asio::error::operation_aborted)
