@@ -19,7 +19,7 @@ class Client {
 
   bool processTask(TaskBuilderPtr taskBuilder);
 
-  bool printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed);
+  bool printReply(const std::vector<char>& buffer, const HEADER& header);
 
   const ClientOptions& _options;
 

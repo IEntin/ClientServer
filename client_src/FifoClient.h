@@ -16,12 +16,11 @@ class FifoClient : public Client {
 
   bool receive() override;
 
-  bool readReply(size_t uncomprSize, size_t comprSize, bool bcompressed);
+  bool readReply(const HEADER& header);
 
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
-  unsigned short _ephemeralIndex = 0;
 
   std::atomic_flag _running = ATOMIC_FLAG_INIT;
 

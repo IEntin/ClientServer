@@ -115,7 +115,7 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view message = serverutility::buildReply(response, _options._compressor, 0);
+  std::string_view message = serverutility::buildReply(response, _options._compressor, 0, _problem);
   if (message.empty())
     return false;
   asyncWait();
@@ -135,6 +135,7 @@ void TcpSession::readHeader() {
       if (ec) {
 	(ec == boost::asio::error::eof ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	_ioContext.stop();
 	return;
       }
       _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
@@ -183,8 +184,10 @@ void TcpSession::asyncWait() {
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	else
+	else {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
+	  _problem.store(PROBLEMS::TCP_TIMEOUT);
+	}
      }
    }));
 }

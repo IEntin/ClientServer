@@ -35,6 +35,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
     }
   }
   // receive status
+  unsigned short fifoIndex = 0;
   {
     utility::CloseFileDescriptor closefd(fd);
     fd = open(options._acceptorName.data(), O_RDONLY);
@@ -45,13 +46,13 @@ FifoClient::FifoClient(const ClientOptions& options) :
     }
     HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
     _problem = getProblem(header);
-    _ephemeralIndex = getEphemeral(header);
+    fifoIndex = getEphemeral(header);
   }
   char array[5] = {};
-  std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
+  std::string_view baseName = utility::toStringView(fifoIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " _ephemeralIndex:"
-       << _ephemeralIndex << ", _fifoName =" << _fifoName << std::endl;
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " fifoIndex:"
+       << fifoIndex << ", _fifoName =" << _fifoName << std::endl;
   switch (_problem) {
   case PROBLEMS::NONE :
     break;
@@ -140,25 +141,23 @@ bool FifoClient::receive() {
 	 << _fifoName << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
-    Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
-  if (problem != PROBLEMS::NONE)
-    return false;
-  if (!readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4)) {
+  HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
+  if (!readReply(header)) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
     return false;
   }
   return true;
 }
 
-bool FifoClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed) {
-  thread_local static std::vector<char> buffer(comprSize + 1);
+bool FifoClient::readReply(const HEADER& header) {
+  thread_local static std::vector<char> buffer;
+  ssize_t comprSize = getCompressedSize(header);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
     return false;
   }
-  return printReply(buffer, uncomprSize, comprSize, bcompressed);
+  return printReply(buffer, header);
 }
 
 } // end of namespace fifo

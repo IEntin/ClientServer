@@ -18,12 +18,12 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr parent) :
+FifoSession::FifoSession(const ServerOptions& options, unsigned short fifoIndex, RunnablePtr parent) :
   Runnable(options._maxFifoSessions),
-  _options(options), _parent(parent), _ephemeralIndex(ephemeralIndex) {
+  _options(options), _parent(parent) {
   TaskController::_totalSessions++;
   char array[5] = {};
-  std::string_view baseName = utility::toStringView(_ephemeralIndex, array, sizeof(array)); 
+  std::string_view baseName = utility::toStringView(fifoIndex, array, sizeof(array)); 
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
 }
 
@@ -101,7 +101,7 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
 
 bool FifoSession::sendResponse(const Response& response) {
   std::string_view message =
-    serverutility::buildReply(response, _options._compressor, 0);
+    serverutility::buildReply(response, _options._compressor, 0, PROBLEMS::NONE);
   if (message.empty())
     return false;
   // Open write fd in NONBLOCK mode in order to protect the server

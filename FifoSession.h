@@ -21,7 +21,6 @@ class FifoSession final : public Runnable {
   RunnablePtr _parent;
   int _fdRead = -1;
   int _fdWrite = -1;
-  unsigned short _ephemeralIndex;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
@@ -34,7 +33,7 @@ class FifoSession final : public Runnable {
   PROBLEMS checkCapacity() const override;
   PROBLEMS getStatus() const override;
  public:
-  FifoSession(const ServerOptions& options, unsigned short ephemeralIndex, RunnablePtr server);
+  FifoSession(const ServerOptions& options, unsigned short fifoIndex, RunnablePtr server);
   ~FifoSession() override;
 };
 

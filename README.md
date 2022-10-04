@@ -207,10 +207,10 @@ Client can request diagnostics for a specific task to show details of all stages
 This setting is '"Diagnostics" : true' in the ClientOptions.json. It enables diagnostics only\
 for that client.
 
-To run the Google tests:\
+To run Google tests:\
 './testbin'\
 or './runtests.sh <number repetitions>' \
-in the project root.
+in the project root. './runtests.sh -h' for help.
 
 To run the tests from any directory outside of the project\
 create a directory anywhere, make a soft link to the\
@@ -219,14 +219,16 @@ testbin from the project_root, issue './testbin' command.\
 Note that testbin is not using program options. Instead, it is using\
 defaults.
 
-Script profile.sh runs automatic profiling of the server and clients.\
+Script profile.sh runs profiling of server and both client types.\
  The usage is\
-'./profile.sh'\
-in the project root. Two directories for clients should exist with necessary files\
-and links. See profle.sh for details.
+'./profile.sh' in the project root. Two directories for clients\
+should exist with necessary files and links.
 
-The conventional procedure in this project includes thread and memory sanitizer runs and performance\
-profiling of every commit. Sanitizer warnings are considered failures and are not accepted.
+Script checkstuff.sh runs builds and tests with both g++ and clang++, with and without\
+sanitizers. Run './checkstuff -h' to see usage.
+
+We run memory and thread sanitizer and performance profiling before every commit.\
+Warnings are considered failures.
 
 =======
 ### Fast Lockless Linux Client-Server with TCP and FIFO clients

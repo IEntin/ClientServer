@@ -75,7 +75,9 @@ bool Client::run() {
   return true;
 }
 
-bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, size_t comprSize, bool bcompressed) {
+bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
+  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] = header;
+  bool bcompressed = compressor == COMPRESSORS::LZ4;
   std::string_view received(buffer.data(), comprSize);
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
@@ -89,6 +91,16 @@ bool Client::printReply(const std::vector<char>& buffer, size_t uncomprSize, siz
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
     stream << received << std::flush;
+  }
+  switch (problem) {
+  case PROBLEMS::TCP_TIMEOUT:
+    CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json\n";
+    break;
+  case PROBLEMS::NONE:
+    break;
+  default:
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem\n";
+    break;
   }
   return true;
 }

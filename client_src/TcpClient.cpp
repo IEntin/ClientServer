@@ -96,12 +96,8 @@ bool TcpClient::receive() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] =
-    decodeHeader(std::string_view(buffer, HEADER_SIZE));
-  if (problem != PROBLEMS::NONE)
-    return false;
-  else
-    return readReply(uncomprSize, comprSize, compressor == COMPRESSORS::LZ4);
+  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  return readReply(header);
 }
 
 bool TcpClient::run() {
@@ -116,8 +112,9 @@ bool TcpClient::run() {
   return true;
 }
 
-bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed) {
+bool TcpClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
+  ssize_t comprSize = getCompressedSize(header);
   buffer.resize(comprSize);
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] =
@@ -126,7 +123,7 @@ bool TcpClient::readReply(size_t uncomprSize, size_t comprSize, bool bcompressed
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     return false;
   }
-  return printReply(buffer, uncomprSize, comprSize, bcompressed);
+  return printReply(buffer, header);
 }
 
 } // end of namespace tcp
