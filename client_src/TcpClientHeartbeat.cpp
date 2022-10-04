@@ -11,15 +11,14 @@ namespace tcp {
 
 TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string_view clientId) :
   _options(options),
-  _clientId(clientId),
-  _socket(_ioContext) {
+ _socket(_ioContext) {
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
     throw(std::runtime_error(error.what()));
   SESSIONTYPE type = SESSIONTYPE::HEARTBEAT;
   std::ostringstream os;
-  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << _clientId << '|' << std::flush;
+  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << clientId << '|' << std::flush;
   std::string msg = os.str();
   msg.append(HSMSG_SIZE - msg.size(), '\0');
   boost::system::error_code ec;

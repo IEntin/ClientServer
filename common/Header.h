@@ -106,6 +106,6 @@ void encodeHeader(char* buffer,
 		  COMPRESSORS,
 		  bool diagnostics,
 		  unsigned short ephemeral,
-		  PROBLEMS = PROBLEMS::NONE);
+		  PROBLEMS problem = PROBLEMS::NONE);
 
 HEADER decodeHeader(std::string_view buffer);

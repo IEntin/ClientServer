@@ -21,8 +21,6 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   const ClientOptions& _options;
 
-  const std::string _clientId;
-
   std::jthread _thread;
 
   boost::asio::io_context _ioContext;
