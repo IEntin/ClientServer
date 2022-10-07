@@ -81,22 +81,35 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   std::string_view received(buffer.data(), comprSize);
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
+  static auto& printOnce[[maybe_unused]] =
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
   if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     std::string_view dstView = Compression::uncompress(received, uncomprSize);
     stream << dstView << std::flush;
   }
-  else {
-    static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
+  else
     stream << received << std::flush;
-  }
   switch (problem) {
+  case PROBLEMS::NONE:
+    break;
+  case PROBLEMS::BAD_HEADER:
+    CERR << "PROBLEMS::BAD_HEADER\n";
+    break;
+  case PROBLEMS::FIFO_PROBLEM:
+    CERR << "PROBLEMS::FIFO_PROBLEM\n";
+    break;
+  case PROBLEMS::TCP_PROBLEM:
+    CERR << "PROBLEMS::TCP_PROBLEM\n";
+    break;
   case PROBLEMS::TCP_TIMEOUT:
     CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json\n";
     break;
-  case PROBLEMS::NONE:
+  case PROBLEMS::MAX_TOTAL_SESSIONS:
+    CLOG << "PROBLEMS::MAX_TOTAL_SESSIONS" << std::endl;
+    break;
+  case PROBLEMS::MAX_NUMBER_RUNNABLES:
+    CLOG << "PROBLEMS::MAX_NUMBER_RUNNABLES" << std::endl;
     break;
   default:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem\n";

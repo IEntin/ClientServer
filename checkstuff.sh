@@ -7,12 +7,12 @@
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "Usage: ./checkstuff.sh 2>&1 | tee checklog.txt"
-	exit 0
+    exit 0
 fi 
 
 set -e
 
-trap "exit" SIGHUP SIGINT SIGTERM
+trap SIGHUP SIGINT SIGTERM
 
 sleep 2
 

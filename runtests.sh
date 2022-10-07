@@ -7,7 +7,7 @@
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "Usage: ./runtests.sh 2>&1 50 | tee testslog.txt"
-	exit 0
+    exit 0
 fi 
 
 if [ $# -ne 1 ]
@@ -17,7 +17,7 @@ exit
 pwd
 fi
 
-trap "exit" SIGHUP SIGINT SIGTERM
+trap SIGHUP SIGINT SIGTERM
 
 make -j4 testbin
 ./testbin --gtest_repeat=$1 --gtest_break_on_failure
