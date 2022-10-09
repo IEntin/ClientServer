@@ -27,12 +27,12 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   os << transaction._id << ' ';
   if (TaskController::isDiagnosticsEnabled()) {
     os <<"Transaction size=" << transaction._sizeKey << " #matches=" << utility::Print(transaction._bids.size())
-       << '\n' << transaction._request << "\nrequest keywords:" << std::endl;
+       << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
-      os << ' ' << keyword << std::endl;
-    os << "matching ads:" << std::endl;
+      os << ' ' << keyword << '\n';
+    os << "matching ads:\n";
     for (const auto& [kw, money, adPtr] : transaction._bids)
-      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << std::endl;
+      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
     os << "summary:";
     if (transaction._noMatch)
       os << Transaction::EMPTY_REPLY << "*****" << std::endl;
