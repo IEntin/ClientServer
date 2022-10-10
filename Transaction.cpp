@@ -67,7 +67,7 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
   if (sizeKey.empty()) {
     _invalid = true;
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "-invalid request:" << _request << '\n';
+	 << "-invalid request, sizeKey is empty, request:" << _request << '\n';
     return;
   }
   size_t pos = input.find(']');
@@ -88,6 +88,18 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   std::string id("[unknown]");
   try {
     Transaction transaction(key, request);
+    if (request.empty()) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-request is empty\n";
+      transaction._invalid = true;
+      return id.append(INVALID_REQUEST);
+    }
+    if (key.empty()) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "-key is empty\n";
+      transaction._invalid = true;
+      return id.append(INVALID_REQUEST);
+    }
     id.assign(transaction._id);
     static std::vector<Ad> empty;
     static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
@@ -110,9 +122,9 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     os << transaction;
     return os.str();
   }
-  catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
-	 << std::strerror(errno) << '\n';
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ' ' << e.what() << '\n';
   }
   return id.append(PROCESSING_ERROR);
 }

@@ -54,25 +54,30 @@ sleep 5
 # Start tcp or fifo client.
 # The directory $SERVER_DIR/../PrjClient2 must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
 
-( cd $SERVER_DIR/../PrjClient2; ./client > /dev/null& )
+cd $SERVER_DIR/../PrjClient2; ./client > /dev/null &
 
 # Start another fifo or tcp client to have a mix in server profile
 # The directory $SERVER_DIR/../PrjClient3 must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
 
-( cd $SERVER_DIR/../PrjClient3; ./client > /dev/null& )
+cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &
 
 date
 
 sleep 60
+
 kill -SIGINT $SERVER_PID
 
 sleep 10
 
-gprof -b ./server gmon.out > profile_server.txt
-gprof -b $SERVER_DIR/../PrjClient2/client \
-  $SERVER_DIR/../PrjClient2/gmon.out > $SERVER_DIR/$FIRST_CLIENT_PROFILE
-gprof -b $SERVER_DIR/../PrjClient3/client \
-  $SERVER_DIR/../PrjClient3/gmon.out > $SERVER_DIR/$SECOND_CLIENT_PROFILE
+cd $SERVER_DIR
+gprof -b server gmon.out > profile_server.txt
+
+cd $SERVER_DIR/../PrjClient2
+gprof -b client gmon.out > $SERVER_DIR/$FIRST_CLIENT_PROFILE
+
+cd $SERVER_DIR/../PrjClient3
+gprof -b client gmon.out > $SERVER_DIR/$SECOND_CLIENT_PROFILE
+
 # These directories are not under git and gmon.out must be removed 'manually'
 # in order not to distort the results of the next run.
 rm -f $SERVER_DIR/../PrjClient2/gmon.out
