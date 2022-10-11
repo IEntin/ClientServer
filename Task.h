@@ -26,12 +26,9 @@ struct RequestRow {
     _key.swap(other._key);
   }
 
-  const RequestRow& operator =(RequestRow&& other) {
-    _key.swap(other._key);
-    _value = other._value;
-    _index = other._index;
-    return *this;
-  }
+  RequestRow(const RequestRow& other) = delete;
+  RequestRow& operator =(const RequestRow& other) = delete;
+
   std::string _key;
   std::string_view _value;
   int _index{};
@@ -49,7 +46,7 @@ class Task {
   HEADER _header;
   std::atomic<size_t> _pointer = 0;
   std::promise<void> _promise;
-  Response& _response;
+  Response _response;
   static ExtractKey _extractKey;
   static ProcessRequest _processRequest;
 
@@ -71,6 +68,8 @@ class Task {
   bool processNext();
 
   void finish();
+
+  void getResponse(Response& response);
 
   static void setProcessMethod(ProcessRequest processMethod) {
     _processRequest = processMethod;

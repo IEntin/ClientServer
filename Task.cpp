@@ -6,19 +6,14 @@
 #include "MemoryPool.h"
 #include "Utility.h"
 
-namespace {
-
-Response emptyResponse;
-
-} // end of anonimous namespace
-
 ExtractKey Task::_extractKey = nullptr;
 ProcessRequest Task::_processRequest = nullptr;
 
-Task::Task() : _response(emptyResponse) {}
+Task::Task() {}
 
-Task::Task(const HEADER& header, std::vector<char>& input, Response& response) :
-  _header(header), _response(response) {
+Task::Task(const HEADER& header, std::vector<char>& input, Response& response) : _header(header) {
+  response.clear();
+  _response.swap(response);
   std::vector<char>& rawInput = MemoryPool::instance().getThirdBuffer();
   input.swap(rawInput);
   utility::split(std::string_view(rawInput.data(), rawInput.size()), _rows);
@@ -70,4 +65,8 @@ void Task::finish() {
   catch (std::future_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
   }
+}
+
+void Task::getResponse(Response& response) {
+  response.swap(_response);
 }

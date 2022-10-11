@@ -49,7 +49,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   bool start() override;
   void stop() override;
   void run() noexcept override;
-  void submitTask(const HEADER& header, std::vector<char>& input, Response& response);
+  void processTask(const HEADER& header, std::vector<char>& input, Response& response);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
   static std::atomic<unsigned> _totalSessions;

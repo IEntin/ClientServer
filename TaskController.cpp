@@ -95,12 +95,13 @@ void TaskController::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-void TaskController::submitTask(const HEADER& header, std::vector<char>& input, Response& response) {
+void TaskController::processTask(const HEADER& header, std::vector<char>& input, Response& response) {
   try {
     TaskPtr task = std::make_shared<Task>(header, input, response);
     auto future = task->getPromise().get_future();
     push(task);
     future.get();
+    task->getResponse(response);
   }
   catch (std::future_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';

@@ -38,12 +38,11 @@ void FifoSession::run() {
     // client is closed
     return;
   while (!_parent->_stopped) {
-    _response.clear();
     HEADER header;
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
       break;
-    TaskController::instance()->submitTask(header, _uncompressedRequest, _response);
+    TaskController::instance()->processTask(header, _uncompressedRequest, _response);
     if (!sendResponse(_response))
       break;
   }

@@ -94,7 +94,6 @@ PROBLEMS TcpSession::checkCapacity() const {
 }
 
 bool TcpSession::onReceiveRequest() {
-  _response.clear();
   _uncompressed.clear();
   bool bcompressed = isInputCompressed(_header);
   if (bcompressed) {
@@ -108,7 +107,7 @@ bool TcpSession::onReceiveRequest() {
   else
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
-  TaskController::instance()->submitTask(_header, (bcompressed ? _uncompressed : _request), _response);
+  TaskController::instance()->processTask(_header, (bcompressed ? _uncompressed : _request), _response);
   if (!sendReply(_response))
     return false;
   return true;
