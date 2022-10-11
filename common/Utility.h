@@ -129,15 +129,6 @@ template <Integral T>
       return std::string_view(buffer, ptr - buffer);
 }
 
-template <Integral T>
-  struct IncrementIndex {
-    IncrementIndex(T& index) : _index(index) {}
-    ~IncrementIndex() {
-      ++_index;
-    }
-    T& _index;
-  };
-
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);
   ~CloseFileDescriptor();

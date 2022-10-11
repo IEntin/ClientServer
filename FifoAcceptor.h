@@ -26,7 +26,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   std::string _acceptorName;
   std::vector<RunnableWeakPtr> _sessions;
   int _fd = -1;
-  unsigned short _ephemeralIndex = 0;
+  std::atomic<unsigned short> _ephemeralIndex = 0;
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() = default;

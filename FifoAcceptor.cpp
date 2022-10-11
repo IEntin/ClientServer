@@ -47,7 +47,7 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    utility::IncrementIndex incr(_ephemeralIndex);
+    _ephemeralIndex++;
     {
       utility::CloseFileDescriptor closeFile(_fd);
       // blocks until the client opens writing end
