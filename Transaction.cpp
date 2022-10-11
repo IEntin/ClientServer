@@ -67,7 +67,7 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
   if (sizeKey.empty()) {
     _invalid = true;
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "-invalid request, sizeKey is empty, request:" << _request << '\n';
+	 << "-invalid request, sizeKey is empty, input:" << input << '\n';
     return;
   }
   size_t pos = input.find(']');

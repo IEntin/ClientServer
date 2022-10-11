@@ -21,25 +21,29 @@ echo $SERVER_DIR
 
 # Start server.
 
-$SERVER_DIR/server&
+./server&
 SERVER_PID=$!
 
 sleep 1
 
 # Start clients.
 
-/bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient2
-/bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient3
-/bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient4
-/bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient5
+/bin/cp -f client ../PrjClient2
+/bin/cp -f client ../PrjClient3
+/bin/cp -f client ../PrjClient4
+/bin/cp -f client ../PrjClient5
 
 sleep 1
 
-$SERVER_DIR/client > /dev/null &
-cd $SERVER_DIR/../PrjClient2; ./client > /dev/null &
-cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &
-cd $SERVER_DIR/../PrjClient4; ./client > /dev/null &
-cd $SERVER_DIR/../PrjClient5; ./client > /dev/null &
+( ./client > /dev/null &)
+sleep .5
+( cd $SERVER_DIR/../PrjClient2; ./client > /dev/null &)
+sleep .5
+( cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &)
+sleep .5
+( cd $SERVER_DIR/../PrjClient4; ./client > /dev/null &)
+sleep .5
+( cd $SERVER_DIR/../PrjClient5; ./client > /dev/null &)
 
 sleep 100
 
