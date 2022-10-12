@@ -69,11 +69,6 @@ PROBLEMS FifoSession::checkCapacity() const {
   return problem;
 }
 
-PROBLEMS FifoSession::getStatus() const {
-  return _objectCounter._numberObjects > _options._maxFifoSessions ?
-    PROBLEMS::MAX_NUMBER_RUNNABLES : PROBLEMS::NONE;
-}
-
 bool FifoSession::start() {
   if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'

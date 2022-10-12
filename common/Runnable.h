@@ -21,7 +21,6 @@ class Runnable {
   virtual bool killThread() const { return false; }
   virtual unsigned getNumberObjects() const { return 0; }
   virtual PROBLEMS checkCapacity() const;
-  virtual PROBLEMS getStatus() const { return PROBLEMS::NONE; }
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
 };

@@ -9,7 +9,7 @@
 
 set -e
 
-trap SIGHUP SIGINT SIGTERM
+trap "exit" SIGHUP SIGINT SIGTERM
 
 date
 
@@ -58,8 +58,6 @@ sleep 5
 
 # Start another fifo or tcp client to have a mix in server profile
 # The directory $SERVER_DIR/../PrjClient3 must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
-
-sleep .5
 
 ( cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &)
 

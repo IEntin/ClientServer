@@ -31,7 +31,6 @@ class FifoSession final : public Runnable {
   void stop() override;
   unsigned getNumberObjects() const override;
   PROBLEMS checkCapacity() const override;
-  PROBLEMS getStatus() const override;
  public:
   FifoSession(const ServerOptions& options, unsigned short fifoIndex, RunnablePtr server);
   ~FifoSession() override;

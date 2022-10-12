@@ -3,7 +3,7 @@
   "CommunicationType" : "TCP",
   "Diagnostics" : false,
   "FifoDirectoryName" : "/home/ilya/Fifos",
-  "AcceptorName" : "Acceptor",
+  "AcceptorBaseName" : "Acceptor",
   "SourceName" : "data/requests.log",
   "OutputFileName" : "",
   "InstrumentationFn" : "",

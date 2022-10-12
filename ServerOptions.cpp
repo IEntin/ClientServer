@@ -13,7 +13,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _bufferSize(_appOptions.get("DYNAMIC_BUFFER_SIZE", 100000)),
   _adsFileName(_appOptions.get("AdsFileName", std::string("data/ads.txt"))),
   _fifoDirectoryName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string())),
-  _acceptorBaseName(_appOptions.get("AcceptorBaseName", std::string("acceptor"))),
+  _acceptorName(_fifoDirectoryName + '/' + _appOptions.get("AcceptorBaseName", std::string("acceptor"))),
   _processType(_appOptions.get("ProcessType", std::string("Transaction"))),
   _numberWorkThreads([this] ()->int {
 		       int numberWorkThreadsCfg = _appOptions.get("NumberTaskThreads", 0);

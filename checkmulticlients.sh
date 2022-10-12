@@ -10,7 +10,7 @@ then
     exit 0
 fi 
 
-trap SIGHUP SIGINT SIGTERM
+trap "exit" SIGHUP SIGINT SIGTERM
 
 set -e
 
@@ -36,13 +36,9 @@ sleep 1
 sleep 1
 
 ( ./client > /dev/null &)
-sleep .5
 ( cd $SERVER_DIR/../PrjClient2; ./client > /dev/null &)
-sleep .5
 ( cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &)
-sleep .5
 ( cd $SERVER_DIR/../PrjClient4; ./client > /dev/null &)
-sleep .5
 ( cd $SERVER_DIR/../PrjClient5; ./client > /dev/null &)
 
 sleep 100

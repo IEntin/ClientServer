@@ -30,6 +30,7 @@ int main() {
   try {
     if (useFifo) {
       fifo::FifoClient client(options);
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
       if (!client.run())
 	return 1;
     }

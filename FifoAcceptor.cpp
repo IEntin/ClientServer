@@ -22,23 +22,23 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   _threadPool(_options._maxFifoSessions + 1) {
 }
 
-bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
+bool FifoAcceptor::sendStatusToClient(unsigned short ephemeralIndex, PROBLEMS problem) {
   int fd = -1;
   utility::CloseFileDescriptor closeFd(fd);
   int rep = 0;
   do {
-    fd = open(_acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1 && (errno == ENXIO || errno == EINTR))
       std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
   } while (fd == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _acceptorName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
     return false;
   }
   char array[HEADER_SIZE] = {};
-  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _ephemeralIndex, problem);
+  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, ephemeralIndex, problem);
   std::string_view str(array, HEADER_SIZE);
   if (!Fifo::writeString(fd, str))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
@@ -47,39 +47,37 @@ bool FifoAcceptor::sendStatusToClient(PROBLEMS problem) {
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    _ephemeralIndex++;
+    unsigned short ephemeralIndex = _ephemeralIndex.fetch_add(1);
     {
       utility::CloseFileDescriptor closeFile(_fd);
       // blocks until the client opens writing end
-      _fd = open(_acceptorName.data(), O_RDONLY);
+      _fd = open(_options._acceptorName.data(), O_RDONLY);
       if (_fd == -1) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	     << std::strerror(errno) << ' ' << _acceptorName << '\n';
+	     << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
 	return;
       }
     }
     if (_stopped)
       break;
     RunnablePtr session =
-      std::make_shared<FifoSession>(_options, _ephemeralIndex, shared_from_this());
-    PROBLEMS problem = session->getStatus();
+      std::make_shared<FifoSession>(_options, ephemeralIndex, shared_from_this());
     _sessions.emplace_back(session);
     if (!session->start())
       return;
-    if (!sendStatusToClient(problem))
+    PROBLEMS problem = _threadPool.push(session);
+    if (!sendStatusToClient(ephemeralIndex, problem))
       return;
-    _threadPool.push(session);
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit" << std::endl;
 }
 
 bool FifoAcceptor::start() {
-  // in case there was no proper shudown.
+  // in case there was no proper shutdown.
   removeFifoFiles();
-  _acceptorName = _options._fifoDirectoryName + '/' + _options._acceptorBaseName;
-  if (mkfifo(_acceptorName.data(), 0620) == -1 && errno != EEXIST) {
+  if (mkfifo(_options._acceptorName.data(), 0620) == -1 && errno != EEXIST) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _acceptorName << '\n';
+	 << std::strerror(errno) << '-' << _options._acceptorName << '\n';
     return false;
   }
   _threadPool.push(shared_from_this());
@@ -95,7 +93,7 @@ void FifoAcceptor::stop() {
   }
   // stop the acceptor
   _stopped.store(true);
-  Fifo::onExit(_acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
+  Fifo::onExit(_options._acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
   // have threads join
   _threadPool.stop();
   removeFifoFiles();
