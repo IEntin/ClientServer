@@ -18,6 +18,11 @@ class FifoClient : public Client {
 
   bool readReply(const HEADER& header);
 
+  bool sendClientId();
+
+  bool receiveStatus();
+
+  const std::string _clientId;
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;

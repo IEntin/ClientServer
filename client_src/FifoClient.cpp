@@ -6,73 +6,33 @@
 #include "ClientOptions.h"
 #include "Fifo.h"
 #include "Header.h"
+#include "MemoryPool.h"
 #include "Utility.h"
 #include <csignal>
 #include <fcntl.h>
 #include <filesystem>
-#include <csignal>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 extern volatile std::sig_atomic_t stopSignal;
 
 namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
-  Client(options) {
-  // wake up acceptor
-  int fd = -1;
-  {
-    utility::CloseFileDescriptor closefd(fd);
-    int rep = 0;
-    do {
-      fd = open(options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-      if (fd == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-    } while (fd == -1 &&
-	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-    if (fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	   << std::strerror(errno) << ' ' << options._acceptorName << '\n';
-    }
+  Client(options),
+  _clientId(utility::getUniqueId()) {
+  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+       << " _fifoName:" << _fifoName << std::endl;
+  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << '-' << _fifoName << '\n';
+    return;
   }
-  // receive status
-  unsigned short fifoIndex = 0;
-  {
-    utility::CloseFileDescriptor closefd(fd);
-    fd = open(options._acceptorName.data(), O_RDONLY);
-    if (fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	   << std::strerror(errno) << ' ' << options._acceptorName << '\n';
-      return;
-    }
-    HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
-    _problem = getProblem(header);
-    fifoIndex = getEphemeral(header);
-  }
-  char array[5] = {};
-  std::string_view baseName = utility::toStringView(fifoIndex, array, sizeof(array)); 
-  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " fifoIndex:"
-       << fifoIndex << ", _fifoName =" << _fifoName << std::endl;
-  switch (_problem) {
-  case PROBLEMS::NONE :
-    break;
-  case PROBLEMS::MAX_NUMBER_RUNNABLES:
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of running fifo sessions is at thread pool capacity.\n"
-	 << "\tIf you do not close the client, it will wait in the queue for\n"
-	 << "\ta thread available after one of already running fifo clients\n"
-	 << "\tis closed. At this point the client will resume the run.\n"
-	 << "\tYou can also close the client and try again later.\n"
-	 << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
-	 << "\t!!!!!!!!!\n";
-    break;
-  case PROBLEMS::MAX_TOTAL_SESSIONS:
-    // TBD
-    break;
-  default:
-    break;
-  }
+  if (!sendClientId())
+    return;
+  if (!receiveStatus())
+    return;
 }
 
 FifoClient::~FifoClient() {
@@ -158,6 +118,76 @@ bool FifoClient::readReply(const HEADER& header) {
     return false;
   }
   return printReply(buffer, header);
+}
+
+bool FifoClient::sendClientId() {
+  int fd = -1;
+  size_t requestedSize = _clientId.size() + HEADER_SIZE;
+  std::vector<char>& buffer = MemoryPool::instance().getSecondBuffer(requestedSize);
+  buffer.resize(requestedSize);
+  encodeHeader(buffer.data(),
+	       HEADERTYPE::CLIENTID,
+	       _clientId.size(),
+	       _clientId.size(),
+	       COMPRESSORS::NONE,
+	       false,
+	       0,
+	       PROBLEMS::NONE);
+  std::copy(_clientId.begin(), _clientId.end(), buffer.begin() + HEADER_SIZE);
+  {
+    utility::CloseFileDescriptor closefd(fd);
+    int rep = 0;
+    do {
+      fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+      if (fd == -1 && (errno == ENXIO || errno == EINTR))
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+    } while (fd == -1 &&
+	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+    if (fd == -1) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	   << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
+      return false;
+    }
+    if (!Fifo::writeString(fd, std::string_view(buffer.data(), buffer.size()))) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
+      return false;
+    }
+  }
+  return true;
+}
+
+bool FifoClient::receiveStatus() {
+  int fd = -1;
+  utility::CloseFileDescriptor closefd(fd);
+  fd = open(_fifoName.data(), O_RDONLY);
+  if (fd == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	 << std::strerror(errno) << ' ' << _fifoName << '\n';
+    return false;
+  }
+  HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+  _problem = getProblem(header);
+  switch (_problem) {
+  case PROBLEMS::NONE :
+    break;
+  case PROBLEMS::MAX_NUMBER_RUNNABLES:
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << "\n\t!!!!!!!!!\n"
+	 << "\tThe number of running fifo sessions is at thread pool capacity.\n"
+	 << "\tIf you do not close the client, it will wait in the queue for\n"
+	 << "\ta thread available after one of already running fifo clients\n"
+	 << "\tis closed. At this point the client will resume the run.\n"
+	 << "\tYou can also close the client and try again later.\n"
+	 << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
+	 << "\t!!!!!!!!!\n";
+    break;
+  case PROBLEMS::MAX_TOTAL_SESSIONS:
+    // TBD
+    break;
+  default:
+    break;
+  }
+  return true;
 }
 
 } // end of namespace fifo

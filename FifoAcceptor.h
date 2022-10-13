@@ -18,14 +18,12 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   void run() override;
   bool start() override;
   void stop() override;
-
-  bool sendStatusToClient(unsigned short ephemeralIndex, PROBLEMS problem);
+  std::string receiveClientId();
   void removeFifoFiles();
   const ServerOptions& _options;
   ThreadPool _threadPool;
   std::vector<RunnableWeakPtr> _sessions;
   int _fd = -1;
-  std::atomic<unsigned short> _ephemeralIndex = 0;
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() = default;

@@ -25,7 +25,7 @@ in the default blocking mode the process is hanging on open(fd, ...) until anoth
 The process can be gracefully shutdown in this case if another end of the pipe opened for writing or reading\
 appropriately. Special code is necessary to handle this procedure, and it is successful only with controlled shutdown\
 initiated by SIGINT. This is a serious restriction, in particular, the server cannot be protected from client\
-crashes which put the server in a non responding state.
+crashes which puts the server in a non responding state.
 
 To solve this problem the writing ends of the pipes are opened in a non blocking\
 mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the client being down\
@@ -34,13 +34,14 @@ for any reason leaves the server in a valid state, and can be restarted.\
 
 The number and identity of fifo and tcp clients are not known in advance.\
 Tcp clients are using the standard ephemeral port mechanism.\
-For the fifo clients an analogous acceptor method was designed.\
-The fifo acceptor is a special pipe waiting for a request of a new session\
-from the starting client on a blocking fd read open(...) call. The acceptor loop\
-is unblocked when the the client opens the writing end of the acceptor pipe.\
-Acceptor creates then a new pipe, a new session object, and sends to the the client\
-the unique index which is analogous to the  ephemeral port in the tcp case.\
-The client starts running.
+For the fifo clients an analogous acceptor method is used.\
+The fifo acceptor is a special pipe waiting for a request for a new session\
+from the starting client on a blocking fd read open(...) call. The client\
+generates UUID and sends this name to the acceptor. The server then creates\
+a new pipe with this name in the appropriate directory and sends back to the\
+client info containing the state of the server necessary for running.\
+System wide unique pipe name plays the same role as a unique combination of\
+tcp address and ephemeral port in the tcp case. The client starts running.
 
 .........
 

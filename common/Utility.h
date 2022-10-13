@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <charconv>
 #include <cstring>
 #include <iostream>
@@ -127,6 +130,13 @@ template <Integral T>
     }
     else
       return std::string_view(buffer, ptr - buffer);
+}
+
+inline std::string getUniqueId() {
+  auto uuid = boost::uuids::random_generator()();
+  std::string str = boost::uuids::to_string(uuid);
+  str.erase(std::remove(str.begin(), str.end(), '-'), str.end());
+  return str;
 }
 
 struct CloseFileDescriptor {

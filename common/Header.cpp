@@ -36,9 +36,9 @@ void encodeHeader(char* buffer,
 }
 
 HEADER decodeHeader(std::string_view buffer) {
+  size_t offset = 0;
+  HEADERTYPE headerType = static_cast<HEADERTYPE>(buffer[offset]);
   try {
-    size_t offset = 0;
-    HEADERTYPE headerType = static_cast<HEADERTYPE>(buffer[offset]);
     offset += HEADERTYPE_SIZE;
     size_t uncomprSize = 0;
     std::string_view stru(buffer.data() + offset, NUM_FIELD_SIZE);
@@ -61,6 +61,6 @@ HEADER decodeHeader(std::string_view buffer) {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-    throw;
+    return { headerType, 0, 0, COMPRESSORS::NONE, false, 0, PROBLEMS::BAD_HEADER };
   }
 }

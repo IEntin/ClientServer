@@ -18,13 +18,13 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, unsigned short fifoIndex, RunnablePtr parent) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, RunnablePtr parent) :
   Runnable(options._maxFifoSessions),
-  _options(options), _parent(parent) {
+  _options(options), _clientId(clientId), _parent(parent) {
   TaskController::_totalSessions++;
-  char array[5] = {};
-  std::string_view baseName = utility::toStringView(fifoIndex, array, sizeof(array)); 
-  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(baseName.data(), baseName.size());
+  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+       << "-_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
@@ -70,11 +70,9 @@ PROBLEMS FifoSession::checkCapacity() const {
 }
 
 bool FifoSession::start() {
-  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _fifoName << '\n';
+  PROBLEMS problem = Runnable::checkCapacity();
+  if (!sendStatusToClient(problem))
     return false;
-  }
   return true;
 }
 
@@ -119,6 +117,29 @@ bool FifoSession::sendResponse(const Response& response) {
   if (_options._setPipeSize)
     Fifo::setPipeSize(_fdWrite, message.size());
   return Fifo::writeString(_fdWrite, message);
+}
+
+bool FifoSession::sendStatusToClient(PROBLEMS problem) {
+  int fd = -1;
+  utility::CloseFileDescriptor closeFd(fd);
+  int rep = 0;
+  do {
+    fd = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+    if (fd == -1 && (errno == ENXIO || errno == EINTR))
+      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+  } while (fd == -1 &&
+	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  if (fd == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << _fifoName << '\n';
+    return false;
+  }
+  char array[HEADER_SIZE] = {};
+  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, problem);
+  std::string_view str(array, HEADER_SIZE);
+  if (!Fifo::writeString(fd, str))
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed\n";
+  return true;
 }
 
 } // end of namespace fifo

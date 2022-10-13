@@ -17,6 +17,7 @@ namespace fifo {
 
 class FifoSession final : public Runnable {
   const ServerOptions& _options;
+  const std::string _clientId;
   std::string _fifoName;
   RunnablePtr _parent;
   int _fdRead = -1;
@@ -27,13 +28,14 @@ class FifoSession final : public Runnable {
   Response _response;
   ObjectCounter<FifoSession> _objectCounter;
   void run() override;
-  bool start() override;
   void stop() override;
   unsigned getNumberObjects() const override;
   PROBLEMS checkCapacity() const override;
+  bool sendStatusToClient(PROBLEMS problem);
  public:
-  FifoSession(const ServerOptions& options, unsigned short fifoIndex, RunnablePtr server);
+  FifoSession(const ServerOptions& options, std::string_view clientId, RunnablePtr server);
   ~FifoSession() override;
+  bool start() override;
 };
 
 } // end of namespace fifo
