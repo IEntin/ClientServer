@@ -41,7 +41,7 @@ generates UUID and sends this name to the acceptor. The server then creates\
 a new pipe with this name in the appropriate directory and sends back to the\
 client info containing the state of the server necessary for running.\
 System wide unique pipe name plays the same role as a unique combination of\
-tcp address and ephemeral port in the tcp case. The client starts running.
+ip address and ephemeral port in the tcp case. The client starts running.
 
 .........
 
