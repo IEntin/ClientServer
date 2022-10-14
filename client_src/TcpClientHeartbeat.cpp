@@ -64,7 +64,7 @@ void TcpClientHeartbeat::run() noexcept {
 	break;
       }
       CLOG << '*' << std::flush;
-      encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, 0);
+      encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
       size_t result[[maybe_unused]] =
 	boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
       if (ec) {

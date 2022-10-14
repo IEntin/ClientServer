@@ -15,7 +15,7 @@
 
 namespace tcp {
 
-  TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
+TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
   Runnable(options._maxTcpSessions),
   _options(options),
   _details(details),
@@ -46,7 +46,7 @@ bool TcpSession::start() {
   _problem.store(_objectCounter._numberObjects > _options._maxTcpSessions ?
 		 PROBLEMS::MAX_NUMBER_RUNNABLES : PROBLEMS::NONE);
   char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, _problem);
+  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _problem);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
@@ -81,15 +81,10 @@ PROBLEMS TcpSession::checkCapacity() const {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
-  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES) {
+  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
-	 << " at thread pool capacity.\n"
-	 << "This client will wait in the queue.\n"
-	 << "Close one of running tcp clients\n"
-	 << "or increase \"MaxTcpSessions\" in ServerOptions.json.\n"
-	 << "You can also close this client and try again later.\n";
-  }
+	 << " at thread pool capacity.\n";
   return problem;
 }
 
@@ -114,7 +109,7 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view message = serverutility::buildReply(response, _options._compressor, 0, _problem);
+  std::string_view message = serverutility::buildReply(response, _options._compressor, _problem);
   if (message.empty())
     return false;
   asyncWait();

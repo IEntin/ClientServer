@@ -11,7 +11,6 @@ void encodeHeader(char* buffer,
 		  size_t comprSz,
 		  COMPRESSORS compressor,
 		  bool diagnostics,
-		  unsigned short ephemeral,
 		  PROBLEMS problem) {
   try {
     std::memset(buffer, 0, HEADER_SIZE);
@@ -26,8 +25,6 @@ void encodeHeader(char* buffer,
     offset += COMPRESSOR_TYPE_SIZE;
     buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
     offset += DIAGNOSTICS_SIZE;
-    utility::toChars(ephemeral, buffer + offset, EPH_INDEX_SIZE);
-    offset += EPH_INDEX_SIZE;
     buffer[offset] = std::underlying_type_t<PROBLEMS>(problem);
   }
   catch (const std::exception& e) {
@@ -52,15 +49,11 @@ HEADER decodeHeader(std::string_view buffer) {
     offset += COMPRESSOR_TYPE_SIZE;
     bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
     offset += DIAGNOSTICS_SIZE;
-    std::string_view streph(buffer.data() + offset, EPH_INDEX_SIZE);
-    unsigned short ephemeral = 0;
-    utility::fromChars(streph, ephemeral);
-    offset += EPH_INDEX_SIZE;
     PROBLEMS problem = static_cast<PROBLEMS>(buffer[offset]);
-    return { headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem };
+    return { headerType, uncomprSize, comprSize, compressor, diagnostics, problem };
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-    return { headerType, 0, 0, COMPRESSORS::NONE, false, 0, PROBLEMS::BAD_HEADER };
+    return { headerType, 0, 0, COMPRESSORS::NONE, false, PROBLEMS::BAD_HEADER };
   }
 }

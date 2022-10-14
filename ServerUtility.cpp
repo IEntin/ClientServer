@@ -11,10 +11,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response,
-			    COMPRESSORS compressor,
-			    unsigned short ephemeral,
-			    PROBLEMS problem) {
+std::string_view buildReply(const Response& response, COMPRESSORS compressor, PROBLEMS problem) {
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
@@ -41,7 +38,6 @@ std::string_view buildReply(const Response& response,
 		 dstView.size(),
 		 compressor,
 		 false,
-		 ephemeral,
 		 problem);
     std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
@@ -52,7 +48,6 @@ std::string_view buildReply(const Response& response,
 		 uncomprSize,
 		 compressor,
 		 false,
-		 ephemeral,
 		 problem);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
@@ -62,7 +57,7 @@ bool readMsgBody(int fd,
 		 HEADER header,
 		 std::vector<char>& uncompressed,
 		 const ServerOptions& options) {
-  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, ephemeral, problem] = header;
+  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, problem] = header;
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__

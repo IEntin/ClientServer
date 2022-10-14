@@ -129,8 +129,7 @@ TEST(HeaderTest, 1) {
     size_t comprSz = 12345;
     COMPRESSORS compressor = COMPRESSORS::LZ4;
     bool diagnostics = true;
-    unsigned short ephemeral = 0;
-    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics, ephemeral);
+    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics);
     HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
     size_t uncomprSzResult = getUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
@@ -140,16 +139,11 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
     bool diagnosticsResult = isDiagnosticsEnabled(header);
     ASSERT_EQ(diagnostics, diagnosticsResult);
-    unsigned short ephemeralOut = getEphemeral(header);
-    ASSERT_EQ(ephemeralOut, ephemeral);
     compressor = COMPRESSORS::NONE;
-    ephemeral = 83;
-    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics, ephemeral);
+    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics);
     header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
     compressorResult = getCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
-    ephemeralOut = getEphemeral(header);
-    ASSERT_EQ(ephemeralOut, ephemeral);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';

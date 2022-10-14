@@ -130,9 +130,7 @@ bool FifoClient::sendClientId() {
 	       _clientId.size(),
 	       _clientId.size(),
 	       COMPRESSORS::NONE,
-	       false,
-	       0,
-	       PROBLEMS::NONE);
+	       false);
   std::copy(_clientId.begin(), _clientId.end(), buffer.begin() + HEADER_SIZE);
   {
     utility::CloseFileDescriptor closefd(fd);

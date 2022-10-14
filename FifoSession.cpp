@@ -10,11 +10,8 @@
 #include "ServerUtility.h"
 #include "TaskController.h"
 #include "Utility.h"
-#include <cassert>
 #include <fcntl.h>
 #include <filesystem>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 namespace fifo {
 
@@ -57,15 +54,10 @@ PROBLEMS FifoSession::checkCapacity() const {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "fifo sessions=" << _objectCounter._numberObjects << std::endl;
-  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES) {
+  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
-	 << " at thread pool capacity.\n"
-	 << "This client will wait in the queue.\n"
-	 << "Close one of running fifo clients\n"
-	 << "or increase \"MaxFifoSessions\" in ServerOptions.json.\n"
-	 << "You can also close this client and try again later.\n";
-  }
+	 << " at thread pool capacity.\n";
   return problem;
 }
 
@@ -93,7 +85,7 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
 
 bool FifoSession::sendResponse(const Response& response) {
   std::string_view message =
-    serverutility::buildReply(response, _options._compressor, 0, PROBLEMS::NONE);
+    serverutility::buildReply(response, _options._compressor, PROBLEMS::NONE);
   if (message.empty())
     return false;
   // Open write fd in NONBLOCK mode in order to protect the server
@@ -135,7 +127,7 @@ bool FifoSession::sendStatusToClient(PROBLEMS problem) {
     return false;
   }
   char array[HEADER_SIZE] = {};
-  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, 0, problem);
+  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, problem);
   std::string_view str(array, HEADER_SIZE);
   if (!Fifo::writeString(fd, str))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed\n";
