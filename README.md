@@ -34,14 +34,16 @@ for any reason leaves the server in a valid state, and can be restarted.\
 
 The number and identity of fifo and tcp clients are not known in advance.\
 Tcp clients are using the standard ephemeral port mechanism.\
-For the fifo clients an analogous acceptor method is used.\
+For fifo clients an analogous acceptor method is used.\
 The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
-generates UUID and sends this name to the acceptor. The server then creates\
-a new pipe with this name in the appropriate directory and sends back to the\
-client info containing the state of the server necessary for running.\
-System wide unique pipe name plays the same role as a unique combination of\
-ip address and ephemeral port in the tcp case. The client starts running.
+generates UUID, creates a pipe with this name in the appropriate directory,\
+and sends this name to the acceptor. The server (acceptor) then  sends back\
+to the client info containing the state of the server necessary for running\
+over newly created pipe.\
+System wide (actually global) unique pipe name plays a role analogous to the\
+unique combination of ip address and ephemeral port in the tcp case.\
+The client starts running.
 
 .........
 

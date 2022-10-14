@@ -166,7 +166,7 @@ bool FifoClient::receiveStatus() {
   HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
   _problem = getProblem(header);
   switch (_problem) {
-  case PROBLEMS::NONE :
+  case PROBLEMS::NONE:
     break;
   case PROBLEMS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

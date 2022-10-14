@@ -45,7 +45,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
   PROBLEMS problem = getProblem(header);
   switch (problem) {
-  case PROBLEMS::NONE :
+  case PROBLEMS::NONE:
     break;
   case PROBLEMS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
