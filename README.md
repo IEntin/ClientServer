@@ -39,11 +39,13 @@ The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
 generates UUID, creates a pipe with this name in the appropriate directory,\
 and sends this name to the acceptor. The server (acceptor) then  sends back\
-to the client info containing the state of the server necessary for running\
-over newly created pipe.\
-System wide (actually global) unique pipe name plays a role analogous to the\
-unique combination of ip address and ephemeral port in the tcp case.\
-The client starts running.
+to the client over newly created pipe info containing the state of the server\
+necessary for running.\
+System wide (actually globally) unique pipe name plays a role analogous to\
+the unique combination of ip address and ephemeral port in the tcp case.\
+Practical advantage of this approach is in the possibility of independent\
+concurrent starting and running of multiple clients even in the same shell\
+(in the background). This works without any additional configuration.
 
 .........
 
@@ -57,7 +59,7 @@ The relevant settings are "MaxTcpSessions" and "MaxFifoSessions" in the ServerOp
 
 Generally, the number of clients is limited only by hardware performance, in particular\
 by the number of cpu cores.\
-This server was tested with 5 clients with mixed client types.
+This server was tested with up to 10 clients with mixed client types.
 
 ........
 
@@ -65,11 +67,9 @@ Another note on named pipes:\
 The code is increasing the pipe size to make read and write "atomic".\
 This operation requires sudo access if requested size exceeds 1MB\
 (with used configuration, original buffer size is 64 KB). If more than 1MB is necessary:\
-sudo su\
-./server\
+sudo ./server\
 and\
-sudo su\
-./client\
+sudo ./client\
 in appropriate directories.\
 The same for scripts profile.sh and runtests.sh.\
 If you do not have sudo access, binaries and scripts will still run for any\
