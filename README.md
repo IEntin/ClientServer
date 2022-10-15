@@ -43,9 +43,9 @@ to the client over newly created pipe info containing the state of the server\
 necessary for running.\
 System wide (actually globally) unique pipe name plays a role analogous to\
 the unique combination of ip address and ephemeral port in the tcp case.\
-Practical advantage of this approach is in the possibility of independent\
-concurrent starting and running of multiple clients even in the same shell\
-(in the background). This works without any additional configuration.
+Practical advantage of this approach is the possibility of independent\
+concurrent starting and running of multiple clients (in tests even in the\
+same shell in the background). This works without any additional configuration.
 
 .........
 
