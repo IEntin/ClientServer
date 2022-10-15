@@ -35,11 +35,11 @@ sleep 1
 
 sleep 1
 
-( ./client > /dev/null &)
-( cd $SERVER_DIR/../PrjClient2; ./client > /dev/null &)
-( cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &)
-( cd $SERVER_DIR/../PrjClient4; ./client > /dev/null &)
-( cd $SERVER_DIR/../PrjClient5; ./client > /dev/null &)
+./client > /dev/null &
+$SERVER_DIR/../PrjClient2/client > /dev/null &
+$SERVER_DIR/../PrjClient3/client > /dev/null &
+$SERVER_DIR/../PrjClient4/client > /dev/null &
+$SERVER_DIR/../PrjClient5/client > /dev/null &
 
 sleep 100
 
