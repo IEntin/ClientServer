@@ -5,8 +5,8 @@
 #pragma once
 
 #include "AdBid.h"
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 class Ad;
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
@@ -14,7 +14,11 @@ using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 struct AdRow {
   AdRow(const char* beg, const char* end);
 
+  AdRow(AdRow& other) = delete;
+
   AdRow(AdRow&& other);
+
+  const AdRow& operator =(AdRow& other) = delete;
 
   const AdRow& operator =(AdRow&& other);
 

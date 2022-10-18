@@ -37,15 +37,13 @@ Tcp clients are using the standard ephemeral port mechanism.\
 For fifo clients an analogous acceptor method is used.\
 The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
-generates UUID, creates a pipe with this name in the appropriate directory,\
-and sends this name to the acceptor. The server (acceptor) then  sends back\
-to the client over newly created pipe info containing the state of the server\
-necessary for running.\
-System wide (actually globally) unique pipe name plays a role analogous to\
-the unique combination of ip address and ephemeral port in the tcp case.\
-Practical advantage of this approach is the possibility of independent\
-concurrent starting and running of multiple clients (in tests even in the\
-same shell in the background). This works without any additional configuration.
+unblocks the pipe by opening its writing end. The server generates UUID,\
+creates a new pipe with this name in the appropriate directory, and\
+sends pipe name and status information to the client.\
+System wide (actually globally) unique pipe name is an analogy of the\
+unique combination of ip address and ephemeral port in the tcp case.\
+In practice, this approach allows concurrent running of multiple fifo\
+clients without special configuration.
 
 .........
 

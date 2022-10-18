@@ -22,30 +22,24 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   _threadPool(_options._maxFifoSessions + 1) {
 }
 
-std::string FifoAcceptor::receiveClientId() {
-  utility::CloseFileDescriptor closeFile(_fd);
+bool FifoAcceptor::unblockAcceptor() {
+  utility::CloseFileDescriptor cfdr(_fd);
   // blocks until the client opens writing end
   _fd = open(_options._acceptorName.data(), O_RDONLY);
   if (_fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
-    return "";
+    return false;
   }
-  HEADER header = Fifo::readHeader(_fd, _options._numberRepeatEINTR);
-  ssize_t uncomprSize = getUncompressedSize(header);
-  std::vector<char> buffer(uncomprSize);
-  if (!Fifo::readString(_fd, buffer.data(), uncomprSize, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
-    return "";
-  }
-  return { buffer.data(), buffer.size() };
+  return true;
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    std::string clientId = receiveClientId();
+    unblockAcceptor();
     if (_stopped)
       break;
+    std::string clientId = utility::getUniqueId();
     auto session =
       std::make_shared<FifoSession>(_options, clientId, shared_from_this());
     _sessions.emplace_back(session);

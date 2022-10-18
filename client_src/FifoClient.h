@@ -18,9 +18,9 @@ class FifoClient : public Client {
 
   bool readReply(const HEADER& header);
 
-  bool sendClientId();
-
   bool receiveStatus();
+
+  bool wakeupAcceptor();
 
   const std::string _clientId;
   std::string _fifoName;

@@ -18,7 +18,8 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   void run() override;
   bool start() override;
   void stop() override;
-  std::string receiveClientId();
+
+  bool unblockAcceptor();
   void removeFifoFiles();
   const ServerOptions& _options;
   ThreadPool _threadPool;

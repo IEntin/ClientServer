@@ -11,8 +11,8 @@
 
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << ad._id << " size=" << ad._sizeKey
-     << " defaultBid=" << utility::Print(ad._defaultBid) << '\n';
-  os << ' ' << ad._input << '\n';
+     << " defaultBid=" << utility::Print(ad._defaultBid)
+     << "\n " << ad._input << '\n';
   for (const auto& [key,  money] : ad._bids)
     os << "  " << key << " " << utility::Print(money) << '\n';
   return os;

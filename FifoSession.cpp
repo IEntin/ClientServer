@@ -12,6 +12,8 @@
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 namespace fifo {
 
@@ -62,6 +64,11 @@ PROBLEMS FifoSession::checkCapacity() const {
 }
 
 bool FifoSession::start() {
+  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << '-' << _fifoName << '\n';
+    return false;
+  }
   PROBLEMS problem = Runnable::checkCapacity();
   if (!sendStatusToClient(problem))
     return false;
@@ -116,20 +123,21 @@ bool FifoSession::sendStatusToClient(PROBLEMS problem) {
   utility::CloseFileDescriptor closeFd(fd);
   int rep = 0;
   do {
-    fd = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1 && (errno == ENXIO || errno == EINTR))
       std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
   } while (fd == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _fifoName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
     return false;
   }
-  char array[HEADER_SIZE] = {};
-  encodeHeader(array, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, problem);
-  std::string_view str(array, HEADER_SIZE);
-  if (!Fifo::writeString(fd, str))
+  size_t size = _fifoName.size();
+  std::vector<char> buffer(HEADER_SIZE + size);
+  encodeHeader(buffer.data(), HEADERTYPE::REQUEST, size, size, COMPRESSORS::NONE, false, problem);
+  std::copy(_fifoName.begin(), _fifoName.end(), buffer.begin() + HEADER_SIZE);
+  if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed\n";
   return true;
 }

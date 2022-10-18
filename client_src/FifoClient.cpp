@@ -11,28 +11,16 @@
 #include <csignal>
 #include <fcntl.h>
 #include <filesystem>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 extern volatile std::sig_atomic_t stopSignal;
 
 namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
-  Client(options),
-  _clientId(utility::getUniqueId()) {
-  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << " _fifoName:" << _fifoName << std::endl;
-  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _fifoName << '\n';
+  Client(options) {
+  if (!wakeupAcceptor())
     return;
-  }
-  if (!sendClientId())
-    return;
-  if (!receiveStatus())
-    return;
+  receiveStatus();
 }
 
 FifoClient::~FifoClient() {
@@ -120,36 +108,19 @@ bool FifoClient::readReply(const HEADER& header) {
   return printReply(buffer, header);
 }
 
-bool FifoClient::sendClientId() {
-  int fd = -1;
-  size_t requestedSize = _clientId.size() + HEADER_SIZE;
-  std::vector<char>& buffer = MemoryPool::instance().getSecondBuffer(requestedSize);
-  buffer.resize(requestedSize);
-  encodeHeader(buffer.data(),
-	       HEADERTYPE::CLIENTID,
-	       _clientId.size(),
-	       _clientId.size(),
-	       COMPRESSORS::NONE,
-	       false);
-  std::copy(_clientId.begin(), _clientId.end(), buffer.begin() + HEADER_SIZE);
-  {
-    utility::CloseFileDescriptor closefd(fd);
-    int rep = 0;
-    do {
-      fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-      if (fd == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-    } while (fd == -1 &&
-	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-    if (fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	   << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
-      return false;
-    }
-    if (!Fifo::writeString(fd, std::string_view(buffer.data(), buffer.size()))) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":acceptor failure\n";
-      return false;
-    }
+bool FifoClient::wakeupAcceptor() {
+  utility::CloseFileDescriptor cfdw(_fdWrite);
+  int rep = 0;
+  do {
+    _fdWrite = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+  } while (_fdWrite == -1 &&
+	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  if (_fdWrite == -1) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
+    return false;
   }
   return true;
 }
@@ -157,13 +128,20 @@ bool FifoClient::sendClientId() {
 bool FifoClient::receiveStatus() {
   int fd = -1;
   utility::CloseFileDescriptor closefd(fd);
-  fd = open(_fifoName.data(), O_RDONLY);
+  fd = open(_options._acceptorName.data(), O_RDONLY);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _fifoName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
     return false;
   }
   HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+  size_t size = getUncompressedSize(header);
+  std::vector<char> buffer(size);
+  if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
+    return false;
+  }
+  _fifoName.assign(buffer.data(), size);
   _problem = getProblem(header);
   switch (_problem) {
   case PROBLEMS::NONE:
