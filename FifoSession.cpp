@@ -121,13 +121,7 @@ bool FifoSession::sendResponse(const Response& response) {
 bool FifoSession::sendStatusToClient(PROBLEMS problem) {
   int fd = -1;
   utility::CloseFileDescriptor closeFd(fd);
-  int rep = 0;
-  do {
-    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-    if (fd == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (fd == -1 &&
-	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  fd = open(_options._acceptorName.data(), O_WRONLY);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';

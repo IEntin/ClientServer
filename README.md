@@ -43,7 +43,8 @@ sends pipe name and status information to the client.\
 System wide (actually globally) unique pipe name is an analogy of the\
 unique combination of ip address and ephemeral port in the tcp case.\
 In practice, this approach allows concurrent running of multiple fifo\
-clients without special configuration.
+clients without special configuration. Fifo clients concurrent starting\
+is protected by a named mutex.
 
 .........
 

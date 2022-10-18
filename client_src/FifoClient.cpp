@@ -8,6 +8,8 @@
 #include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 #include <csignal>
 #include <fcntl.h>
 #include <filesystem>
@@ -18,6 +20,8 @@ namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
+  static boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, "wakeupMutex" };
+  boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
   if (!wakeupAcceptor())
     return;
   receiveStatus();
@@ -110,13 +114,7 @@ bool FifoClient::readReply(const HEADER& header) {
 
 bool FifoClient::wakeupAcceptor() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  int rep = 0;
-  do {
-    _fdWrite = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-    if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (_fdWrite == -1 &&
-	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+  _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
