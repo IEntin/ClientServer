@@ -20,7 +20,7 @@ namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
-  static boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, "wakeupMutex" };
+  boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, "wakeupMutex" };
   boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
   if (!wakeupAcceptor())
     return;

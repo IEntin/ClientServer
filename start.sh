@@ -1,8 +1,8 @@
 #!/bin/bash
 
-/*
- *  Copyright (C) 2021 Ilya Entin
- */
+#
+# Copyright (C) 2021 Ilya Entin
+#
 
 trap "exit" SIGHUP SIGINT SIGTERM
 
