@@ -43,8 +43,11 @@ sends pipe name and status information to the client.\
 System wide (actually globally) unique pipe name is an analogy of the\
 unique combination of ip address and ephemeral port in the tcp case.\
 In practice, this approach allows concurrent running of multiple fifo\
-clients without special configuration. Fifo clients concurrent starting\
-is protected by a named mutex.
+clients without special configuration. It is also necessary to synchronize\
+access to the acceptor so that only one starting client is processed at\
+a time. A named mutex (boost interprocess library) is used for this\
+purpose. Tests show that any number of fifo clients can be started\
+concurrently by the scripts start.sh or checkmulticlients.sh.
 
 .........
 
