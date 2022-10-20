@@ -9,7 +9,7 @@
 
 namespace tcp {
 
-using TcpClientHeartbeatWeakPtr = std::weak_ptr<class TcpClientHeartbeat>;
+using TcpClientHeartbeatPtr = std::shared_ptr<class TcpClientHeartbeat>;
 
 class TcpClient : protected Client {
 
@@ -23,7 +23,7 @@ class TcpClient : protected Client {
 
   boost::asio::ip::tcp::socket _socket;
 
-  TcpClientHeartbeatWeakPtr _heartbeatWeakPtr;
+  TcpClientHeartbeatPtr _heartbeat;
 
  public:
 

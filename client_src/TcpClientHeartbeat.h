@@ -6,8 +6,8 @@
 
 #include "Header.h"
 #include "Runnable.h"
+#include "ThreadPool.h"
 #include <boost/asio.hpp>
-#include <thread>
 
 struct ClientOptions;
 
@@ -21,15 +21,13 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   const ClientOptions& _options;
 
-  std::jthread _thread;
+  ThreadPool _threadPool;
 
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
 
   char _heartbeatBuffer[HEADER_SIZE] = {};
-
-  TcpClientHeartbeatPtr _self;
 
  public:
 

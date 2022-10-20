@@ -64,15 +64,13 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
-  heartbeat->start();
-  _heartbeatWeakPtr = heartbeat->weak_from_this();
+  _heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
+  _heartbeat->start();
 }
 
 TcpClient::~TcpClient() {
-  auto heartbeat = _heartbeatWeakPtr.lock();
-  if (heartbeat)
-    heartbeat->stop();
+  if (_heartbeat)
+    _heartbeat->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
