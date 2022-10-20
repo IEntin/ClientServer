@@ -40,14 +40,16 @@ from the starting client on a blocking fd read open(...) call. The client\
 unblocks the pipe by opening its writing end. The server generates UUID,\
 creates a new pipe with this name in the appropriate directory, and\
 sends pipe name and status information to the client.\
+It is also necessary to synchronize access to the acceptor, so that only\
+one starting client is processed at a time. A named mutex (boost\
+interprocess library) is used for this purpose. Tests show that any\
+number of fifo clients can be started concurrently by the scripts\
+start.sh or checkmulticlients.sh.\
 System wide (actually globally) unique pipe name is an analogy of the\
 unique combination of ip address and ephemeral port in the tcp case.\
 In practice, this approach allows concurrent running of multiple fifo\
-clients without special configuration. It is also necessary to synchronize\
-access to the acceptor so that only one starting client is processed at\
-a time. A named mutex (boost interprocess library) is used for this\
-purpose. Tests show that any number of fifo clients can be started\
-concurrently by the scripts start.sh or checkmulticlients.sh.
+clients without manual configuration. Dynamic reconfiguration can be\
+accomplished as frequently as desired which makes eavesdropping difficult.
 
 .........
 
