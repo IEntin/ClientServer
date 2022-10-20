@@ -9,7 +9,7 @@
 
 set -e
 
-trap SIGHUP SIGINT SIGTERM
+trap "exit" SIGHUP SIGINT SIGTERM
 
 for number in {1..500}
 do
