@@ -47,8 +47,7 @@ can be started concurrently by the scripts start.sh or checkmulticlients.sh.\
 System wide (actually globally) unique pipe name is an analogy of the\
 unique combination of ip address and ephemeral port in the tcp case.\
 In practice, this allows concurrent running of multiple clients\
-without manual configuration. Dynamic client resetting is possible too\
-and can be as frequent as desired.
+without manual configuration.
 
 .........
 
