@@ -20,8 +20,7 @@ int main() {
   const std::string communicationType = options._communicationType;
   const bool useFifo = communicationType == "FIFO";
   const bool useTcp = communicationType == "TCP";
-  if (useFifo)
-    std::signal(SIGINT, signal_handler);
+  std::signal(SIGINT, signal_handler);
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);

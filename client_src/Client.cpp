@@ -59,10 +59,8 @@ bool Client::run() {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       TaskBuilderPtr savedBuild = taskBuilder;
       // start construction of the next task in the background
-      //if (_options._runLoop) {
-	taskBuilder = std::make_shared<TaskBuilder>(_options);
-	_threadPool.push(taskBuilder);
-	//}
+      taskBuilder = std::make_shared<TaskBuilder>(_options);
+      _threadPool.push(taskBuilder);
       if (!processTask(savedBuild))
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
