@@ -9,8 +9,6 @@
 
 namespace tcp {
 
-using TcpClientHeartbeatPtr = std::shared_ptr<class TcpClientHeartbeat>;
-
 class TcpClient : protected Client {
 
   bool send(const std::vector<char>& msg) override;
@@ -22,8 +20,6 @@ class TcpClient : protected Client {
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
-
-  TcpClientHeartbeatPtr _heartbeat;
 
  public:
 

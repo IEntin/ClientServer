@@ -11,7 +11,6 @@ namespace tcp {
 
 TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string_view clientId) :
   _options(options),
-  _threadPool(1),
  _socket(_ioContext) {
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
@@ -36,13 +35,10 @@ TcpClientHeartbeat::~TcpClientHeartbeat() {
 }
 
 bool TcpClientHeartbeat::start() {
-  _threadPool.push(shared_from_this());
   return true;
 }
 
-void TcpClientHeartbeat::stop() {
-  _threadPool.stop();
-}
+void TcpClientHeartbeat::stop() {}
 
 void TcpClientHeartbeat::run() noexcept {
   try {

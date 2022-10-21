@@ -6,7 +6,6 @@
 
 #include "Header.h"
 #include "Runnable.h"
-#include "ThreadPool.h"
 #include <boost/asio.hpp>
 
 struct ClientOptions;
@@ -20,8 +19,6 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
   void run() noexcept override;
 
   const ClientOptions& _options;
-
-  ThreadPool _threadPool;
 
   boost::asio::io_context _ioContext;
 

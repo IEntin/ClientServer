@@ -64,13 +64,11 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  _heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
-  _heartbeat->start();
+  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
+  _threadPool.push(heartbeat);
 }
 
 TcpClient::~TcpClient() {
-  if (_heartbeat)
-    _heartbeat->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
