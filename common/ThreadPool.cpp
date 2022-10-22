@@ -56,6 +56,7 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   PROBLEMS problem = PROBLEMS::NONE;
   std::lock_guard lock(_queueMutex);
   if (_maxSize == 0 && runnable->getNumberObjects() > size()) {
+    // this works if all runnables are of the same derived class
     createThread();
     auto& obj = *runnable.get();
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":class-"

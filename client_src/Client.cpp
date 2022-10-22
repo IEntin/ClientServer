@@ -14,7 +14,7 @@
 extern volatile std::sig_atomic_t stopSignal;
 
 Client::Client(const ClientOptions& options) : 
-  _options(options) {
+  _options(options), _threadPool(3) {
   MemoryPool::setExpectedSize(options._bufferSize);
 }
 
@@ -53,14 +53,16 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 bool Client::run() {
   try {
     int numberTasks = 0;
-    TaskBuilderPtr taskBuilder = std::make_shared<TaskBuilder>(_options);
+    auto taskBuilder = std::make_shared<TaskBuilder>(_options);
     _threadPool.push(taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-      TaskBuilderPtr savedBuild = taskBuilder;
-      // start construction of the next task in the background
-      taskBuilder = std::make_shared<TaskBuilder>(_options);
-      _threadPool.push(taskBuilder);
+      auto savedBuild = std::move(taskBuilder);
+      if (_options._runLoop) {
+	// start construction of the next task in the background
+	taskBuilder = std::make_shared<TaskBuilder>(_options);
+	_threadPool.push(taskBuilder);
+      }
       if (!processTask(savedBuild))
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
