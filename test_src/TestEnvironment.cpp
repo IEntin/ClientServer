@@ -8,9 +8,7 @@
 #include "Utility.h"
 #include "ClientOptions.h"
 #include "ServerOptions.h"
-#include <csignal>
-
-volatile std::sig_atomic_t stopSignal;
+#include <cassert>
 
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
@@ -23,7 +21,9 @@ std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
-TestEnvironment::TestEnvironment() {}
+TestEnvironment::TestEnvironment() {
+  assert(std::atomic<bool>{}.is_lock_free());
+}
 
 TestEnvironment::~TestEnvironment() {}
 

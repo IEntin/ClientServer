@@ -3,6 +3,7 @@
  */
 
 #include "TcpClientHeartbeat.h"
+#include "Client.h"
 #include "ClientOptions.h"
 #include "Tcp.h"
 #include "Utility.h"
@@ -42,7 +43,7 @@ void TcpClientHeartbeat::stop() {}
 
 void TcpClientHeartbeat::run() noexcept {
   try {
-    while (true) {
+    while (!Client::stopped()) {
       boost::system::error_code ec;
       boost::asio::read(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
       if (ec) {

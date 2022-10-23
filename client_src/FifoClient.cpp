@@ -10,11 +10,8 @@
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
-#include <csignal>
 #include <fcntl.h>
 #include <filesystem>
-
-extern volatile std::sig_atomic_t stopSignal;
 
 namespace fifo {
 
@@ -57,7 +54,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       if (!std::filesystem::exists(_fifoName))
 	break;
       // client closed
-      if (stopSignal) {
+      if (_stopFlag) {
 	std::filesystem::remove(_fifoName);
 	break;
       }

@@ -25,6 +25,8 @@ class Client {
 
   ThreadPool _threadPool;
 
+  static std::atomic<bool> _stopFlag;
+
  public:
 
   virtual ~Client();
@@ -34,5 +36,9 @@ class Client {
   virtual bool receive() = 0;
 
   virtual bool run();
+
+  static void setStopFlag();
+
+  static bool stopped();
 
 };

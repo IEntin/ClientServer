@@ -58,6 +58,7 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
   if (_maxSize == 0 && runnable->getNumberObjects() > size()) {
     // this works if all runnables are of the same derived class
     createThread();
+    // the following is for debugging
     auto& obj = *runnable.get();
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":class-"
 	 << typeid(obj).name() << ",number objects=" << runnable->getNumberObjects()
