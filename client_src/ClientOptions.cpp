@@ -44,6 +44,7 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _acceptorName(_fifoDirectoryName + '/' + _appOptions.get("AcceptorBaseName", std::string("acceptor"))),
   _compressor(Compression::isCompressionEnabled(
          _appOptions.get("Compression", std::string(LZ4)))),
+  _tcpHeartbeatEnabled(_appOptions.get("TcpHeartbeatEnabled", true)),
   _diagnostics(_appOptions.get("Diagnostics", false)),
   _runLoop(_appOptions.get("RunLoop", false)),
   _timing(_appOptions.get("Timing", false)),

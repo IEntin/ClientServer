@@ -29,6 +29,7 @@ struct ClientOptions {
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   COMPRESSORS _compressor;
+  bool _tcpHeartbeatEnabled;
   bool _diagnostics;
   bool _runLoop;
   bool _timing;
