@@ -7,17 +7,6 @@
 
 namespace tcp {
 
-CloseSocket::CloseSocket(boost::asio::ip::tcp::socket& socket) : _socket(socket) {}
-
-CloseSocket::~CloseSocket() {
-  boost::system::error_code ec;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-  if (!ec)
-    _socket.close(ec);
-  if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-}
-
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 setSocket(boost::asio::io_context& ioContext,
 	  boost::asio::ip::tcp::socket& socket,

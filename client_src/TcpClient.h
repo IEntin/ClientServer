@@ -9,7 +9,7 @@
 
 namespace tcp {
 
-class TcpClient : protected Client {
+class TcpClient : public Client {
 
   bool send(const std::vector<char>& msg) override;
 
@@ -26,8 +26,6 @@ class TcpClient : protected Client {
   TcpClient(const ClientOptions& options);
 
   ~TcpClient() override;
-
-  bool run() override;
 
 };
 

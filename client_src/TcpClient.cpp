@@ -98,18 +98,6 @@ bool TcpClient::receive() {
   return readReply(header);
 }
 
-bool TcpClient::run() {
-  try {
-    CloseSocket closeSocket(_socket);
-    return Client::run();
-  }
-  catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-    return false;
-  }
-  return true;
-}
-
 bool TcpClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
   ssize_t comprSize = getCompressedSize(header);
