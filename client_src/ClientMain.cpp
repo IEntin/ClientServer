@@ -7,7 +7,6 @@
 #include "FifoClient.h"
 #include "TcpClient.h"
 #include "Utility.h"
-#include <cassert>
 #include <csignal>
 
 void signal_handler(int) {
@@ -15,7 +14,6 @@ void signal_handler(int) {
 }
 
 int main() {
-  assert(std::atomic<bool>{}.is_lock_free());
   ClientOptions options("ClientOptions.json");
   const std::string communicationType = options._communicationType;
   const bool useFifo = communicationType == "FIFO";

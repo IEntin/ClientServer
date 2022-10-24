@@ -54,7 +54,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       if (!std::filesystem::exists(_fifoName))
 	break;
       // client closed
-      if (_stopFlag) {
+      if (_stopFlag.test()) {
 	std::filesystem::remove(_fifoName);
 	break;
       }

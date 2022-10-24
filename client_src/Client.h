@@ -6,6 +6,7 @@
 
 #include "Header.h"
 #include "ThreadPool.h"
+#include <atomic>
 
 struct ClientOptions;
 
@@ -25,7 +26,7 @@ class Client {
 
   ThreadPool _threadPool;
 
-  static std::atomic<bool> _stopFlag;
+  static std::atomic_flag _stopFlag;
 
  public:
 
@@ -35,7 +36,7 @@ class Client {
 
   virtual bool receive() = 0;
 
-  virtual bool run();
+  bool run();
 
   static void setStopFlag();
 

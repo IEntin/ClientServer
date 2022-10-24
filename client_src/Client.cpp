@@ -10,7 +10,7 @@
 #include "TaskBuilder.h"
 #include "Utility.h"
 
-std::atomic<bool> Client::_stopFlag;
+std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
 
 Client::Client(const ClientOptions& options) : 
   _options(options), _threadPool(3) {
@@ -66,7 +66,7 @@ bool Client::run() {
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
-    } while (_options._runLoop && !_stopFlag);
+    } while (_options._runLoop && !_stopFlag.test());
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
@@ -118,9 +118,9 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 }
 
 void Client::setStopFlag() {
-  _stopFlag.store(true);
+  _stopFlag.test_and_set();
 }
 
 bool Client::stopped() {
-  return _stopFlag;
+  return _stopFlag.test();
 }
