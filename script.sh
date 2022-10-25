@@ -5,7 +5,7 @@
 #
 
 # To use this script disable infinite loop in ClientOptions.json
-# for the client: set "RunLoop" : false,
+# set "RunLoop" : false,
 
 set -e
 

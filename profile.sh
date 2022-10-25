@@ -49,7 +49,6 @@ SERVER_PID=$!
 echo $SERVER_PID
 /bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient2
 /bin/cp -f $SERVER_DIR/client $SERVER_DIR/../PrjClient3
-sleep 5
 
 # Start tcp or fifo client.
 # The directory $SERVER_DIR/../PrjClient2 must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
@@ -68,8 +67,6 @@ date
 sleep 60
 
 kill -SIGINT $SERVER_PID
-
-sleep 10
 
 cd $SERVER_DIR
 gprof -b server gmon.out > profile_server.txt
