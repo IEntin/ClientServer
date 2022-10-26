@@ -3,11 +3,13 @@
  */
 
 #include "TestEnvironment.h"
+#include "ClientOptions.h"
+#include "CommonNames.h"
 #include "MemoryPool.h"
+#include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"
-#include "ClientOptions.h"
-#include "ServerOptions.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
 
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
@@ -22,7 +24,10 @@ const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
 TestEnvironment::TestEnvironment() {}
 
-TestEnvironment::~TestEnvironment() {}
+TestEnvironment::~TestEnvironment() {
+  if (!boost::interprocess::named_mutex::remove(WAKEUP_MUTEX))
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed.\n";
+}
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);

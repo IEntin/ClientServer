@@ -4,6 +4,7 @@
 
 #include "FifoClient.h"
 #include "ClientOptions.h"
+#include "CommonNames.h"
 #include "Fifo.h"
 #include "Header.h"
 #include "MemoryPool.h"
@@ -17,7 +18,7 @@ namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
-  boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, "wakeupMutex" };
+  boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, WAKEUP_MUTEX };
   boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
   if (!wakeupAcceptor())
     return;

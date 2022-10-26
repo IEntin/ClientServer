@@ -2,10 +2,13 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "CommonNames.h"
 #include "Chronometer.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
+#include <cassert>
 #include <csignal>
 
 void signalHandler([[maybe_unused]] int signal) {}
@@ -31,8 +34,10 @@ int main() {
     if (sigwait(&set, &sig))
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << '\n';
     taskController->stop();
-    int ret = fcloseall();
-    assert(ret == 0);
+    int closed = fcloseall();
+    assert(closed == 0);
+    if (!boost::interprocess::named_mutex::remove(WAKEUP_MUTEX))
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed\n";
     return 0;
   }
   catch (const std::exception& e) {

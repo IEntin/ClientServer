@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2021 Ilya Entin
+#
+
 #LD_PRELOAD=$LD_PRELOAD:/usr/local/jemalloc-dev/lib/libjemalloc.so ./server
 #LD_PRELOAD=$LD_PRELOAD:/usr/local/jemalloc-dev/lib/libjemalloc.so ./client
 #use clang++ (CMPLR=clang++) for sanitized build if use jemalloc
