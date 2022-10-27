@@ -43,8 +43,7 @@ bool TcpSession::start() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << ":local " << local.address() << ':' << local.port()
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
-  _problem.store(_objectCounter._numberObjects > _options._maxTcpSessions ?
-		 PROBLEMS::MAX_NUMBER_RUNNABLES : PROBLEMS::NONE);
+  checkCapacity();
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _problem);
   boost::system::error_code ec;
@@ -76,16 +75,15 @@ unsigned TcpSession::getNumberObjects() const {
   return _objectCounter._numberObjects;
 }
 
-PROBLEMS TcpSession::checkCapacity() const {
-  PROBLEMS problem = Runnable::checkCapacity();
+void TcpSession::checkCapacity() {
+  Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
-  if (problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
+  if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
 	 << " at thread pool capacity.\n";
-  return problem;
 }
 
 bool TcpSession::onReceiveRequest() {

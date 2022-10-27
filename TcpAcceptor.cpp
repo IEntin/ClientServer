@@ -112,7 +112,7 @@ void TcpAcceptor::accept() {
 	    auto session = std::make_shared<TcpSession>(_options, details, shared_from_this());
 	    _sessions[id] = session->weak_from_this();
 	    session->start();
-	    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+	    _threadPool.push(session);
 	  }
 	  break;
 	case SESSIONTYPE::HEARTBEAT:
@@ -132,7 +132,7 @@ void TcpAcceptor::accept() {
 	    auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, it->second, shared_from_this());
 	    session->setHeartbeat(heartbeat->weak_from_this());
 	    heartbeat->start();
-	    [[maybe_unused]] PROBLEMS problem = _threadPoolHeartbeat.push(heartbeat);
+	    _threadPoolHeartbeat.push(heartbeat);
 	  }
 	  break;
 	default:

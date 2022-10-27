@@ -50,10 +50,9 @@ void  ThreadPool::createThread() {
 			});
 }
 
-PROBLEMS ThreadPool::push(RunnablePtr runnable) {
+void ThreadPool::push(RunnablePtr runnable) {
   if (!runnable)
-    return PROBLEMS::NONE;
-  PROBLEMS problem = PROBLEMS::NONE;
+    return;
   std::lock_guard lock(_queueMutex);
   if (_maxSize == 0 && runnable->getNumberObjects() > size()) {
     // this works if all runnables are of the same derived class
@@ -64,10 +63,8 @@ PROBLEMS ThreadPool::push(RunnablePtr runnable) {
 	 << typeid(obj).name() << ",number objects=" << runnable->getNumberObjects()
 	 << ",number threads=" << size() << std::endl;
   }
-  problem = runnable->checkCapacity();
   _queue.push_back(runnable);
   _queueCondition.notify_all();
-  return problem;
 }
 
 RunnablePtr ThreadPool::get() {

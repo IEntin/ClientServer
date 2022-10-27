@@ -30,8 +30,8 @@ class FifoSession final : public Runnable {
   void run() override;
   void stop() override;
   unsigned getNumberObjects() const override;
-  PROBLEMS checkCapacity() const override;
-  bool sendStatusToClient(PROBLEMS problem);
+  void checkCapacity() override;
+  bool sendStatusToClient();
  public:
   FifoSession(const ServerOptions& options, std::string_view clientId, RunnablePtr server);
   ~FifoSession() override;

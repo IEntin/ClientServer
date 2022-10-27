@@ -45,7 +45,7 @@ void FifoAcceptor::run() {
     _sessions.emplace_back(session);
     if (!session->start())
       return;
-    [[maybe_unused]] PROBLEMS problem = _threadPool.push(session);
+    _threadPool.push(session);
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit" << std::endl;
 }

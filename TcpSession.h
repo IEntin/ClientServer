@@ -36,7 +36,7 @@ public:
   void stop() override;
   void setHeartbeat(TcpHeartbeatWeakPtr heartbeat) { _heartbeat = heartbeat; }
   unsigned getNumberObjects() const override;
-  PROBLEMS checkCapacity() const override;
+  void checkCapacity() override;
 private:
   void readHeader();
   void readRequest();
@@ -57,7 +57,6 @@ private:
   std::vector<char> _uncompressed;
   Response _response;
   TcpAcceptorPtr _parent;
-  std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
   TcpHeartbeatWeakPtr _heartbeat;
   ObjectCounter<TcpSession> _objectCounter;
 };

@@ -8,10 +8,7 @@ Runnable::Runnable(unsigned maxNumberThreads) : _maxNumberThreads(maxNumberThrea
 
 Runnable::~Runnable() {}
 
-PROBLEMS Runnable::checkCapacity() const {
-  if (_maxNumberThreads == 0)
-    return PROBLEMS::NONE;
+void Runnable::checkCapacity() {
   if (getNumberObjects() > _maxNumberThreads)
-    return PROBLEMS::MAX_NUMBER_RUNNABLES;
-  return PROBLEMS::NONE;
+    _problem.store(PROBLEMS::MAX_NUMBER_RUNNABLES);
 }

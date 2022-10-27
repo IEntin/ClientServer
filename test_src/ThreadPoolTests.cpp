@@ -9,7 +9,7 @@
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
 public:
-  TestRunnable(unsigned maxNumberThreads = 0) :
+  TestRunnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
     Runnable(maxNumberThreads) {}
 
   ~TestRunnable() override {}
@@ -34,10 +34,7 @@ TEST(ThreadPoolTest, Fixed) {
   for (unsigned i = 0; i < 2 * maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnable->start();
-    PROBLEMS problem = pool.push(runnable);
-    if (i < maxNumberThreads) {
-      ASSERT_TRUE(problem == PROBLEMS::NONE);
-    }
+    pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
   pool.stop();
@@ -55,9 +52,8 @@ TEST(ThreadPoolTest, Variable) {
     runnable->start();
     // if run() did not return yet in some runnables,
     // it should be pool.size() == pool.size (i + 1)
-    PROBLEMS problem = pool.push(runnable);
+    pool.push(runnable);
     ASSERT_TRUE(runnable->getNumberObjects() <= pool.size());
-    ASSERT_TRUE(problem == PROBLEMS::NONE);
   }
   // if run() did not return yet in some runnables,
   // it should be pool.size() == numberObjects
