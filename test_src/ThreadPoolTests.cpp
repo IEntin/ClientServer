@@ -14,9 +14,11 @@ public:
 
   ~TestRunnable() override {}
   void run() override {
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while (!_stopFlag)
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   bool start() override {
+    checkCapacity();
     return true;
   }
   void stop() override {}
@@ -26,7 +28,9 @@ public:
   }
 
   ObjectCounter<TestRunnable> _objectCounter;
+  static std::atomic<bool> _stopFlag;
 };
+std::atomic<bool> TestRunnable::_stopFlag = false;
 
 TEST(ThreadPoolTest, Fixed) {
   unsigned maxNumberThreads = 10;
@@ -34,14 +38,20 @@ TEST(ThreadPoolTest, Fixed) {
   for (unsigned i = 0; i < 2 * maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnable->start();
+    if (i < maxNumberThreads)
+      ASSERT_TRUE(runnable->_problem == PROBLEMS::NONE);
+    else
+      ASSERT_TRUE(runnable->_problem == PROBLEMS::MAX_NUMBER_RUNNABLES);
     pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
+  TestRunnable::_stopFlag.store(true);
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
+  TestRunnable::_stopFlag.store(false);
 }
 
 TEST(ThreadPoolTest, Variable) {
@@ -50,17 +60,16 @@ TEST(ThreadPoolTest, Variable) {
   for (unsigned i = 0; i < numberObjects; ++i) {
     auto runnable = std::make_shared<TestRunnable>();
     runnable->start();
-    // if run() did not return yet in some runnables,
-    // it should be pool.size() == pool.size (i + 1)
+    ASSERT_TRUE(runnable->_problem == PROBLEMS::NONE);
     pool.push(runnable);
-    ASSERT_TRUE(runnable->getNumberObjects() <= pool.size());
+    ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }
-  // if run() did not return yet in some runnables,
-  // it should be pool.size() == numberObjects
-  ASSERT_TRUE(pool.size() <= numberObjects);
+  ASSERT_TRUE(pool.size() == numberObjects);
+  TestRunnable::_stopFlag.store(true);
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
+  TestRunnable::_stopFlag.store(false);
 }
