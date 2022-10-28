@@ -59,7 +59,7 @@ void FifoSession::checkCapacity() {
   if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
-	 << " at thread pool capacity.\n";
+	 << " exceeds thread pool capacity.\n";
 }
 
 bool FifoSession::start() {

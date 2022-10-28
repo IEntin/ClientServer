@@ -145,7 +145,7 @@ bool FifoClient::receiveStatus() {
   case PROBLEMS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of running fifo sessions is at thread pool capacity.\n"
+	 << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"
 	 << "\tIf you do not close the client, it will wait in the queue for\n"
 	 << "\ta thread available after one of already running fifo clients\n"
 	 << "\tis closed. At this point the client will resume the run.\n"

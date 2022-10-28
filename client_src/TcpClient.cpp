@@ -50,7 +50,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   case PROBLEMS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of running tcp sessions is at thread pool capacity.\n"
+	 << "\tThe number of running tcp sessions exceeds thread pool capacity.\n"
 	 << "\tIf you do not close the client, it will wait in the queue for\n"
 	 << "\tavailable thread (one of already running tcp clients must be closed).\n"
 	 << "\tAt this point the client will resume run.\n"
