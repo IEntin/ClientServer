@@ -56,7 +56,7 @@ void FifoSession::checkCapacity() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "fifo sessions=" << _objectCounter._numberObjects << std::endl;
-  if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
+  if (_status == STATUS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
 	 << " exceeds thread pool capacity.\n";
@@ -79,8 +79,8 @@ void FifoSession::stop() {
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
-  if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
-    _problem.store(PROBLEMS::NONE);
+  if (_status == STATUS::MAX_NUMBER_RUNNABLES)
+    _status.store(STATUS::NONE);
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
@@ -93,7 +93,7 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
 
 bool FifoSession::sendResponse(const Response& response) {
   std::string_view message =
-    serverutility::buildReply(response, _options._compressor, _problem);
+    serverutility::buildReply(response, _options._compressor, _status);
   if (message.empty())
     return false;
   // Open write fd in NONBLOCK mode in order to protect the server
@@ -130,7 +130,7 @@ bool FifoSession::sendStatusToClient() {
   }
   size_t size = _fifoName.size();
   std::vector<char> buffer(HEADER_SIZE + size);
-  encodeHeader(buffer.data(), HEADERTYPE::REQUEST, size, size, COMPRESSORS::NONE, false, _problem);
+  encodeHeader(buffer.data(), HEADERTYPE::REQUEST, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_fifoName.begin(), _fifoName.end(), buffer.begin() + HEADER_SIZE);
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed\n";

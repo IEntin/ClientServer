@@ -17,7 +17,7 @@
 # latest core:
 # coredumpctl gdb -1
 # sudo du -a | sort -n -r | head -n 5
-
+# find ./ -type f -exec sed -i 's/old_string/new_string/g' {} \;
 #make PROFILE=[  | 1]
 #make SANITIZE=[  | aul | thread ]
 #make CMPLR=[ g++ | clang++ ]

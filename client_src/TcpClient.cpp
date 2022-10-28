@@ -43,11 +43,11 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (ec)
     throw(std::runtime_error(std::strerror(errno)));
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
-  PROBLEMS problem = getProblem(header);
-  switch (problem) {
-  case PROBLEMS::NONE:
+  STATUS status = getProblem(header);
+  switch (status) {
+  case STATUS::NONE:
     break;
-  case PROBLEMS::MAX_NUMBER_RUNNABLES:
+  case STATUS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions exceeds thread pool capacity.\n"
@@ -58,7 +58,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 	 << "\tThe relevant setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!\n";
     break;
-  case PROBLEMS::MAX_TOTAL_SESSIONS:
+  case STATUS::MAX_TOTAL_SESSIONS:
     // TBD
     break;
   default:

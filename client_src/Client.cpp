@@ -75,7 +75,7 @@ bool Client::run() {
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
-  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, problem] = header;
+  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   std::string_view received(buffer.data(), comprSize);
   std::ostream* pstream = _options._dataStream;
@@ -89,26 +89,26 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   }
   else
     stream << received << std::flush;
-  switch (problem) {
-  case PROBLEMS::NONE:
+  switch (status) {
+  case STATUS::NONE:
     break;
-  case PROBLEMS::BAD_HEADER:
-    CERR << "PROBLEMS::BAD_HEADER\n";
+  case STATUS::BAD_HEADER:
+    CERR << "STATUS::BAD_HEADER\n";
     break;
-  case PROBLEMS::FIFO_PROBLEM:
-    CERR << "PROBLEMS::FIFO_PROBLEM\n";
+  case STATUS::FIFO_PROBLEM:
+    CERR << "STATUS::FIFO_PROBLEM\n";
     break;
-  case PROBLEMS::TCP_PROBLEM:
-    CERR << "PROBLEMS::TCP_PROBLEM\n";
+  case STATUS::TCP_PROBLEM:
+    CERR << "STATUS::TCP_PROBLEM\n";
     break;
-  case PROBLEMS::TCP_TIMEOUT:
+  case STATUS::TCP_TIMEOUT:
     CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json\n";
     break;
-  case PROBLEMS::MAX_TOTAL_SESSIONS:
-    CLOG << "PROBLEMS::MAX_TOTAL_SESSIONS" << std::endl;
+  case STATUS::MAX_TOTAL_SESSIONS:
+    CLOG << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
     break;
-  case PROBLEMS::MAX_NUMBER_RUNNABLES:
-    CLOG << "PROBLEMS::MAX_NUMBER_RUNNABLES" << std::endl;
+  case STATUS::MAX_NUMBER_RUNNABLES:
+    CLOG << "STATUS::MAX_NUMBER_RUNNABLES" << std::endl;
     break;
   default:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem\n";

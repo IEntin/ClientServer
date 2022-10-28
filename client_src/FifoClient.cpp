@@ -33,7 +33,7 @@ FifoClient::~FifoClient() {
 bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   // already running
-  if (_running.test_and_set() || _problem == PROBLEMS::NONE) {
+  if (_running.test_and_set() || _status == STATUS::NONE) {
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
@@ -138,11 +138,11 @@ bool FifoClient::receiveStatus() {
     return false;
   }
   _fifoName.assign(buffer.data(), size);
-  _problem = getProblem(header);
-  switch (_problem) {
-  case PROBLEMS::NONE:
+  _status = getProblem(header);
+  switch (_status) {
+  case STATUS::NONE:
     break;
-  case PROBLEMS::MAX_NUMBER_RUNNABLES:
+  case STATUS::MAX_NUMBER_RUNNABLES:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"
@@ -153,7 +153,7 @@ bool FifoClient::receiveStatus() {
 	 << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!\n";
     break;
-  case PROBLEMS::MAX_TOTAL_SESSIONS:
+  case STATUS::MAX_TOTAL_SESSIONS:
     // TBD
     break;
   default:

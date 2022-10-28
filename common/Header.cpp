@@ -11,7 +11,7 @@ void encodeHeader(char* buffer,
 		  size_t comprSz,
 		  COMPRESSORS compressor,
 		  bool diagnostics,
-		  PROBLEMS problem) {
+		  STATUS status) {
   try {
     std::memset(buffer, 0, HEADER_SIZE);
     size_t offset = 0;
@@ -25,7 +25,7 @@ void encodeHeader(char* buffer,
     offset += COMPRESSOR_TYPE_SIZE;
     buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
     offset += DIAGNOSTICS_SIZE;
-    buffer[offset] = std::underlying_type_t<PROBLEMS>(problem);
+    buffer[offset] = std::underlying_type_t<STATUS>(status);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
@@ -49,11 +49,11 @@ HEADER decodeHeader(std::string_view buffer) {
     offset += COMPRESSOR_TYPE_SIZE;
     bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
     offset += DIAGNOSTICS_SIZE;
-    PROBLEMS problem = static_cast<PROBLEMS>(buffer[offset]);
-    return { headerType, uncomprSize, comprSize, compressor, diagnostics, problem };
+    STATUS status = static_cast<STATUS>(buffer[offset]);
+    return { headerType, uncomprSize, comprSize, compressor, diagnostics, status };
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
-    return { headerType, 0, 0, COMPRESSORS::NONE, false, PROBLEMS::BAD_HEADER };
+    return { headerType, 0, 0, COMPRESSORS::NONE, false, STATUS::BAD_HEADER };
   }
 }

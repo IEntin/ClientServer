@@ -37,7 +37,7 @@ enum class COMPRESSORS : char {
   LZ4
 };
 
-enum class PROBLEMS : char {
+enum class STATUS : char {
   NONE,
   BAD_HEADER,
   FIFO_PROBLEM,
@@ -53,7 +53,7 @@ enum class HEADER_INDEX : int {
   COMPRESSED,
   COMPRESSOR,
   DIAGNOSTICS,
-  PROBLEMS
+  STATUS
 };
 
 constexpr unsigned short HSMSG_SIZE = 50;
@@ -63,7 +63,7 @@ enum class HSMSG_INDEX : int {
   ID
 };
 
-using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, PROBLEMS>;
+using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, STATUS>;
 
 inline HEADERTYPE getHeaderType(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
@@ -89,12 +89,12 @@ inline bool isDiagnosticsEnabled(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::DIAGNOSTICS)>(header);
 }
 
-inline PROBLEMS getProblem(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header);
+inline STATUS getProblem(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header);
 }
 
 inline bool isOk(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::PROBLEMS)>(header) == PROBLEMS::NONE;
+  return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header) == STATUS::NONE;
 }
 
 void encodeHeader(char* buffer,
@@ -103,6 +103,6 @@ void encodeHeader(char* buffer,
 		  size_t comprSz,
 		  COMPRESSORS,
 		  bool diagnostics,
-		  PROBLEMS problem = PROBLEMS::NONE);
+		  STATUS status = STATUS::NONE);
 
 HEADER decodeHeader(std::string_view buffer);

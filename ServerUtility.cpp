@@ -11,7 +11,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, COMPRESSORS compressor, PROBLEMS problem) {
+std::string_view buildReply(const Response& response, COMPRESSORS compressor, STATUS status) {
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor == COMPRESSORS::LZ4;
@@ -38,7 +38,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, PR
 		 dstView.size(),
 		 compressor,
 		 false,
-		 problem);
+		 status);
     std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
   }
   else
@@ -48,7 +48,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, PR
 		 uncomprSize,
 		 compressor,
 		 false,
-		 problem);
+		 status);
   std::string_view sendView(buffer.cbegin(), buffer.cend());
   return sendView;
 }
@@ -57,7 +57,7 @@ bool readMsgBody(int fd,
 		 HEADER header,
 		 std::vector<char>& uncompressed,
 		 const ServerOptions& options) {
-  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, problem] = header;
+  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -80,7 +80,7 @@ bool readMsgBody(int fd,
 
 bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
   header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
-  if (getProblem(header) != PROBLEMS::NONE) {
+  if (getProblem(header) != STATUS::NONE) {
     MemoryPool::destroyBuffers();
     return false;
   }

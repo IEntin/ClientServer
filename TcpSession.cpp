@@ -45,7 +45,7 @@ bool TcpSession::start() {
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
   checkCapacity();
   char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _problem);
+  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _status);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
@@ -80,7 +80,7 @@ void TcpSession::checkCapacity() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::_totalSessions << ' '
        << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
-  if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
+  if (_status == STATUS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
 	 << " exceeds thread pool capacity.\n";
@@ -107,7 +107,7 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view message = serverutility::buildReply(response, _options._compressor, _problem);
+  std::string_view message = serverutility::buildReply(response, _options._compressor, _status);
   if (message.empty())
     return false;
   asyncWait();
@@ -122,8 +122,8 @@ void TcpSession::readHeader() {
     boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = shared_from_this();
-      if (_problem == PROBLEMS::MAX_NUMBER_RUNNABLES)
-	_problem.store(PROBLEMS::NONE);
+      if (_status == STATUS::MAX_NUMBER_RUNNABLES)
+	_status.store(STATUS::NONE);
       if (ec) {
 	(ec == boost::asio::error::eof ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
@@ -178,7 +178,7 @@ void TcpSession::asyncWait() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	else {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
-	  _problem.store(PROBLEMS::TCP_TIMEOUT);
+	  _status.store(STATUS::TCP_TIMEOUT);
 	}
      }
    }));

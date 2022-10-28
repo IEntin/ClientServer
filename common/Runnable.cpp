@@ -10,5 +10,5 @@ Runnable::~Runnable() {}
 
 void Runnable::checkCapacity() {
   if (getNumberObjects() > _maxNumberThreads)
-    _problem.store(PROBLEMS::MAX_NUMBER_RUNNABLES);
+    _status.store(STATUS::MAX_NUMBER_RUNNABLES);
 }

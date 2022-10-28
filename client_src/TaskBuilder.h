@@ -45,7 +45,7 @@ class TaskBuilder final : public Runnable {
 
  public:
 
-  TaskBuilder(const struct ClientOptions& options);
+  TaskBuilder(const ClientOptions& options);
   ~TaskBuilder() override;
   unsigned getNumberObjects() const override;
   TaskBuilderState getTask(std::vector<char>& task);

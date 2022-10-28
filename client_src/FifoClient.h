@@ -29,7 +29,7 @@ class FifoClient : public Client {
 
   std::atomic_flag _running = ATOMIC_FLAG_INIT;
 
-  PROBLEMS _problem = PROBLEMS::NONE;
+  STATUS _status = STATUS::NONE;
 
  public:
 

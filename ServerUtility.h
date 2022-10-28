@@ -14,7 +14,7 @@ struct ServerOptions;
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, COMPRESSORS compressor, PROBLEMS problem);
+std::string_view buildReply(const Response& response, COMPRESSORS compressor, STATUS status);
 bool readMsgBody(int fd,
 		 HEADER header,
 		 std::vector<char>& uncompressed,

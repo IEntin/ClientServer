@@ -39,9 +39,9 @@ TEST(ThreadPoolTest, Fixed) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnable->start();
     if (i < maxNumberThreads)
-      ASSERT_TRUE(runnable->_problem == PROBLEMS::NONE);
+      ASSERT_TRUE(runnable->_status == STATUS::NONE);
     else
-      ASSERT_TRUE(runnable->_problem == PROBLEMS::MAX_NUMBER_RUNNABLES);
+      ASSERT_TRUE(runnable->_status == STATUS::MAX_NUMBER_RUNNABLES);
     pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
@@ -60,7 +60,7 @@ TEST(ThreadPoolTest, Variable) {
   for (unsigned i = 0; i < numberObjects; ++i) {
     auto runnable = std::make_shared<TestRunnable>();
     runnable->start();
-    ASSERT_TRUE(runnable->_problem == PROBLEMS::NONE);
+    ASSERT_TRUE(runnable->_status == STATUS::NONE);
     pool.push(runnable);
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }

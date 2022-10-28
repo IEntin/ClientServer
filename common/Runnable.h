@@ -25,5 +25,5 @@ class Runnable {
   virtual void checkCapacity();
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
-  std::atomic<PROBLEMS> _problem = PROBLEMS::NONE;
+  std::atomic<STATUS> _status = STATUS::NONE;
 };
