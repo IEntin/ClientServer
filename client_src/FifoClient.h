@@ -27,10 +27,6 @@ class FifoClient : public Client {
   int _fdRead = -1;
   int _fdWrite = -1;
 
-  std::atomic_flag _running = ATOMIC_FLAG_INIT;
-
-  STATUS _status = STATUS::NONE;
-
  public:
 
   FifoClient(const ClientOptions& options);

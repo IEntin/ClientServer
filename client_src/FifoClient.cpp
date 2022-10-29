@@ -32,40 +32,28 @@ FifoClient::~FifoClient() {
 
 bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  // already running
-  if (_running.test_and_set() || _status == STATUS::NONE) {
+  unsigned numberSeconds = 0;
+  while (_fdWrite == -1) {
     int rep = 0;
     do {
       _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
       if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
 	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
     } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-  }
-  // waiting in queue
-  else {
-    unsigned numberSeconds = 0;
-    while (_fdWrite == -1) {
-      int rep = 0;
-      do {
-	_fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-	if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-	  std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-      } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-      // server stopped
-      if (!std::filesystem::exists(_fifoName))
-	break;
-      // client closed
-      if (_stopFlag.test()) {
-	std::filesystem::remove(_fifoName);
-	break;
-      }
-      if (_fdWrite == -1) {
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	++numberSeconds;
-	if (numberSeconds % 5 == 0) {
-	  CLOG << '.' << std::flush;
-	  numberSeconds = 0;
-	}
+    // server stopped
+    if (!std::filesystem::exists(_fifoName))
+      break;
+    // client closed
+    if (_stopFlag.test()) {
+      std::filesystem::remove(_fifoName);
+      break;
+    }
+    if (_fdWrite == -1) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      ++numberSeconds;
+      if (numberSeconds % 5 == 0) {
+	CLOG << '.' << std::flush;
+	numberSeconds = 0;
       }
     }
   }

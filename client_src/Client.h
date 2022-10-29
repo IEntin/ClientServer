@@ -26,6 +26,8 @@ class Client {
 
   ThreadPool _threadPool;
 
+  STATUS _status = STATUS::NONE;
+
   static std::atomic_flag _stopFlag;
 
  public:

@@ -43,8 +43,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (ec)
     throw(std::runtime_error(std::strerror(errno)));
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
-  STATUS status = getProblem(header);
-  switch (status) {
+  _status = getProblem(header);
+  switch (_status) {
   case STATUS::NONE:
     break;
   case STATUS::MAX_NUMBER_RUNNABLES:
