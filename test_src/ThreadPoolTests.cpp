@@ -5,7 +5,9 @@
 #include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
+#include "Utility.h"
 #include <gtest/gtest.h>
+#include <boost/algorithm/string.hpp>
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
 public:
@@ -30,7 +32,7 @@ public:
   ObjectCounter<TestRunnable> _objectCounter;
   static std::atomic<bool> _stopFlag;
 };
-std::atomic<bool> TestRunnable::_stopFlag = false;
+std::atomic<bool> TestRunnable::_stopFlag;
 
 TEST(ThreadPoolTest, Fixed) {
   unsigned maxNumberThreads = 10;
@@ -62,6 +64,10 @@ TEST(ThreadPoolTest, Variable) {
     runnable->start();
     ASSERT_TRUE(runnable->_status == STATUS::NONE);
     pool.push(runnable);
+    std::string type = typeid(runnable).name();
+    ASSERT_TRUE(boost::contains(type, "shared_ptr"));
+    ASSERT_TRUE(boost::contains(type, "TestRunnable"));
+    ASSERT_TRUE(pool.size() == i + 1);
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }
   ASSERT_TRUE(pool.size() == numberObjects);

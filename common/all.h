@@ -2,6 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -48,6 +49,7 @@
 #include <sys/types.h>
 #include <thread>
 #include <tuple>
+#include <type_traits>
 #include <unistd.h>
 #include <unordered_map>
 #include <utility>
