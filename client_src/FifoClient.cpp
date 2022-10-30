@@ -40,14 +40,10 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
 	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
     } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-    if (_fdWrite != -1) {
+    if (_fdWrite >= 0) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
-      if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << '\n';
-	return false;
-      }
-      return true;
+      return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
     }
     // server stopped
     if (!std::filesystem::exists(_fifoName))
@@ -63,8 +59,6 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       numberSeconds = 0;
     }
   }
-  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-       << _fifoName << '-' << std::strerror(errno) << '\n';
   return false;
 }
 
