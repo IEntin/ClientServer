@@ -40,35 +40,32 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
 	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
     } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+    if (_fdWrite != -1) {
+      if (_options._setPipeSize)
+	Fifo::setPipeSize(_fdWrite, subtask.size());
+      if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << '\n';
+	return false;
+      }
+      return true;
+    }
     // server stopped
     if (!std::filesystem::exists(_fifoName))
-      break;
+      return false;
     // client closed
     if (_stopFlag.test()) {
       std::filesystem::remove(_fifoName);
-      break;
+      return false;
     }
-    if (_fdWrite == -1) {
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      ++numberSeconds;
-      if (numberSeconds % 5 == 0) {
-	CLOG << '.' << std::flush;
-	numberSeconds = 0;
-      }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    if (++numberSeconds == 5) {
+      CLOG << '.' << std::flush;
+      numberSeconds = 0;
     }
   }
-  if (_fdWrite == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << '-' << std::strerror(errno) << ' ' << _fifoName << '\n';
-    return false;
-  }
-  if (_options._setPipeSize)
-    Fifo::setPipeSize(_fdWrite, subtask.size());
-  if (!Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()))) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed" << '\n';
-    return false;
-  }
-  return true;
+  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+       << _fifoName << '-' << std::strerror(errno) << '\n';
+  return false;
 }
 
 bool FifoClient::receive() {
