@@ -2,8 +2,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "AppOptions.h"
 #include "ClientOptions.h"
+#include "AppOptions.h"
 #include "Compression.h"
 #include <filesystem>
 #include <iostream>

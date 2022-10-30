@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "CommonNames.h"
 #include "Fifo.h"
-#include "Header.h"
 #include "MemoryPool.h"
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
