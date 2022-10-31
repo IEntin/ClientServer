@@ -129,7 +129,7 @@ TEST(HeaderTest, 1) {
     size_t comprSz = 12345;
     COMPRESSORS compressor = COMPRESSORS::LZ4;
     bool diagnostics = true;
-    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics);
+    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
     HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
     size_t uncomprSzResult = getUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
@@ -140,7 +140,7 @@ TEST(HeaderTest, 1) {
     bool diagnosticsResult = isDiagnosticsEnabled(header);
     ASSERT_EQ(diagnostics, diagnosticsResult);
     compressor = COMPRESSORS::NONE;
-    encodeHeader(buffer, HEADERTYPE::REQUEST, uncomprSz, comprSz, compressor, diagnostics);
+    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
     header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
     compressorResult = getCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);

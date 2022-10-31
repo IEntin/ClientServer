@@ -18,18 +18,10 @@ inline constexpr int HEADER_SIZE =
 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
-inline constexpr char HEADERTYPE_REQUEST_CHAR = 'R';
-inline constexpr char HEADERTYPE_HEARTBEAT_CHAR = 'H';
-inline constexpr char HEADERTYPE_CLIENTID_CHAR = 'C';
-
-enum class SESSIONTYPE : char { SESSION = HEADERTYPE_REQUEST_CHAR,
-			     HEARTBEAT = HEADERTYPE_HEARTBEAT_CHAR,
-			     CLIENTID = HEADERTYPE_CLIENTID_CHAR };
 
 enum class HEADERTYPE : char {
-  REQUEST = HEADERTYPE_REQUEST_CHAR,
-  HEARTBEAT = HEADERTYPE_HEARTBEAT_CHAR,
-  CLIENTID = HEADERTYPE_CLIENTID_CHAR
+  SESSION,
+  HEARTBEAT
 };
 
 enum class COMPRESSORS : char {
@@ -47,20 +39,13 @@ enum class STATUS : char {
   MAX_NUMBER_RUNNABLES
 };
 
-enum class HEADER_INDEX : int {
+enum class HEADER_INDEX : char {
   HEADERTYPE,
   UNCOMPRESSED,
   COMPRESSED,
   COMPRESSOR,
   DIAGNOSTICS,
   STATUS
-};
-
-constexpr unsigned short HSMSG_SIZE = 50;
-
-enum class HSMSG_INDEX : int {
-  TYPE,
-  ID
 };
 
 using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, STATUS>;

@@ -45,7 +45,7 @@ bool TcpSession::start() {
        << ",remote " << remote.address() << ':' << remote.port() << std::endl;
   checkCapacity();
   char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::REQUEST, 0, 0, COMPRESSORS::NONE, false, _status);
+  encodeHeader(buffer, HEADERTYPE::SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {

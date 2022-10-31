@@ -18,7 +18,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
     throw(std::runtime_error(error.what()));
-  SESSIONTYPE type = SESSIONTYPE::SESSION;
   std::ostringstream os;
   // socket.local_endpoint (ip address and ephemeral port)
   // is unique in a server-clients system no matter the
@@ -26,22 +25,25 @@ TcpClient::TcpClient(const ClientOptions& options) :
   // used as a client id
   os << _socket.local_endpoint() << std::flush;
   std::string clientId = os.str();
-  os.str("");
-  os << std::underlying_type_t<HEADERTYPE>(type) << '|' << clientId << '|' << std::flush;
-  std::string msg = os.str();
-  msg.append(HSMSG_SIZE - msg.size(), '\0');
+  std::vector<char> buffer(HEADER_SIZE + clientId.size());
+  encodeHeader(buffer.data(),
+	       HEADERTYPE::SESSION,
+	       clientId.size(),
+	       clientId.size(),
+	       COMPRESSORS::NONE,
+	       false);
+  std::copy(clientId.data(), clientId.data() + clientId.size(), buffer.data() + HEADER_SIZE);
   boost::system::error_code ec;
-  size_t result[[maybe_unused]] =
-    boost::asio::write(_socket, boost::asio::buffer(msg), ec);
+  size_t bytes[[maybe_unused]] =
+    boost::asio::write(_socket, boost::asio::buffer(buffer), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
     throw(std::runtime_error(ec.what()));
   }
-  char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec)
     throw(std::runtime_error(std::strerror(errno)));
-  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  HEADER header = decodeHeader(std::string_view(buffer.data(), HEADER_SIZE));
   _status = getProblem(header);
   switch (_status) {
   case STATUS::NONE:

@@ -88,26 +88,32 @@ void TcpAcceptor::accept() {
 	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
       else {
-	char buffer[HSMSG_SIZE] = {};
-	boost::asio::read(details->_socket, boost::asio::buffer(buffer, HSMSG_SIZE), ec);
+	boost::system::error_code ec;
+	char buffer[HEADER_SIZE] = {};
+	size_t result[[maybe_unused]] =
+	  boost::asio::read(details->_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
 	if (ec) {
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
 	  return;
 	}
-	std::string_view received(buffer, HSMSG_SIZE);
-	std::vector<std::string_view> fields;
-	utility::split(received, fields, '|');
-	char typeChar = fields[std::underlying_type_t<HSMSG_INDEX>(HSMSG_INDEX::TYPE)][0];
-	std::string_view idView = fields[std::underlying_type_t<HSMSG_INDEX>(HSMSG_INDEX::ID)];
-	std::string id(idView.data(), idView.size());
-	SESSIONTYPE type = static_cast<SESSIONTYPE>(typeChar);
+	HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+	HEADERTYPE type = getHeaderType(header);
+	ssize_t size = getUncompressedSize(header);
+	std::vector<char> payload(size);
+	size_t transferred[[maybe_unused]] =
+	  boost::asio::read(details->_socket, boost::asio::buffer(payload, size), ec);
+	if (ec) {
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	  return;
+	}
+	std::string id(payload.data(), payload.size());
 	for (auto it = _sessions.begin(); it != _sessions.end();)
 	  if (!it->second.lock())
 	    it = _sessions.erase(it);
 	  else
 	    ++it;
 	switch (type) {
-	case SESSIONTYPE::SESSION:
+	case HEADERTYPE::SESSION:
 	  {
 	    auto session = std::make_shared<TcpSession>(_options, details, shared_from_this());
 	    _sessions[id] = session->weak_from_this();
@@ -115,7 +121,7 @@ void TcpAcceptor::accept() {
 	    _threadPool.push(session);
 	  }
 	  break;
-	case SESSIONTYPE::HEARTBEAT:
+	case HEADERTYPE::HEARTBEAT:
 	  {
 	    auto it = _sessions.find(id);
 	    if (it == _sessions.end()) {

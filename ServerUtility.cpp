@@ -33,7 +33,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
     std::string_view dstView = Compression::compress(uncompressedView);
     buffer.resize(HEADER_SIZE + dstView.size());
     encodeHeader(buffer.data(),
-		 HEADERTYPE::REQUEST,
+		 HEADERTYPE::SESSION,
 		 uncomprSize,
 		 dstView.size(),
 		 compressor,
@@ -43,7 +43,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
   }
   else
     encodeHeader(buffer.data(),
-		 HEADERTYPE::REQUEST,
+		 HEADERTYPE::SESSION,
 		 uncomprSize,
 		 uncomprSize,
 		 compressor,
