@@ -33,7 +33,7 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
     TaskBuilderState state = taskBuilder->getTask(task);
     switch (state) {
     case TaskBuilderState::ERROR:
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":TaskBuilder failed.\n";
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":TaskBuilder failed." << std::endl;
       return false;
     case TaskBuilderState::SUBTASKDONE:
     case TaskBuilderState::TASKDONE:
@@ -69,7 +69,7 @@ bool Client::run() {
     } while (_options._runLoop && !_stopFlag.test());
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
   return true;
 }
@@ -93,16 +93,16 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   case STATUS::NONE:
     break;
   case STATUS::BAD_HEADER:
-    CERR << "STATUS::BAD_HEADER\n";
+    CERR << "STATUS::BAD_HEADER" << std::endl;
     break;
   case STATUS::FIFO_PROBLEM:
-    CERR << "STATUS::FIFO_PROBLEM\n";
+    CERR << "STATUS::FIFO_PROBLEM" << std::endl;
     break;
   case STATUS::TCP_PROBLEM:
-    CERR << "STATUS::TCP_PROBLEM\n";
+    CERR << "STATUS::TCP_PROBLEM" << std::endl;
     break;
   case STATUS::TCP_TIMEOUT:
-    CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json\n";
+    CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
     CLOG << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
@@ -111,7 +111,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
     CLOG << "STATUS::MAX_NUMBER_RUNNABLES" << std::endl;
     break;
   default:
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem" << std::endl;
     break;
   }
   return true;

@@ -66,12 +66,12 @@ bool FifoClient::receive() {
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << _fifoName << '-' << std::strerror(errno) << '\n';
+	 << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
   HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
   if (!readReply(header)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
     return false;
   }
   return true;
@@ -82,7 +82,7 @@ bool FifoClient::readReply(const HEADER& header) {
   ssize_t comprSize = getCompressedSize(header);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
     return false;
   }
   return printReply(buffer, header);
@@ -93,7 +93,7 @@ bool FifoClient::wakeupAcceptor() {
   _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   return true;
@@ -105,14 +105,14 @@ bool FifoClient::receiveStatus() {
   fd = open(_options._acceptorName.data(), O_RDONLY);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
   size_t size = getUncompressedSize(header);
   std::vector<char> buffer(size);
   if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed.\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
     return false;
   }
   _fifoName.assign(buffer.data(), size);
@@ -129,7 +129,7 @@ bool FifoClient::receiveStatus() {
 	 << "\tis closed. At this point the client will resume the run.\n"
 	 << "\tYou can also close the client and try again later.\n"
 	 << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
-	 << "\t!!!!!!!!!\n";
+	 << "\t!!!!!!!!!" << std::endl;
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
     // TBD

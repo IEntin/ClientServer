@@ -43,7 +43,7 @@ void TcpHeartbeat::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
 }
 
@@ -52,7 +52,7 @@ void TcpHeartbeat::stop() {
     boost::system::error_code ec;
     _heartbeatTimer.cancel(ec);
     if (ec)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << '\n';
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
   });
 }
 
@@ -72,7 +72,7 @@ void TcpHeartbeat::heartbeatWait() {
 	return;
       if (ec) {
 	if (ec != boost::asio::error::operation_aborted)
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
       heartbeat();
@@ -87,14 +87,14 @@ void TcpHeartbeat::heartbeat() {
     boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
   if (ec) {
     if (ec != boost::asio::error::operation_aborted)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     _ioContext.stop();
     return;
   }
   char buffer[HEADER_SIZE] = {};
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     _ioContext.stop();
     return;
   }

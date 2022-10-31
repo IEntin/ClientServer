@@ -146,7 +146,7 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
 }
 

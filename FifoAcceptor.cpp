@@ -28,7 +28,7 @@ bool FifoAcceptor::unblockAcceptor() {
   _fd = open(_options._acceptorName.data(), O_RDONLY);
   if (_fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   return true;
@@ -55,7 +55,7 @@ bool FifoAcceptor::start() {
   removeFifoFiles();
   if (mkfifo(_options._acceptorName.data(), 0620) == -1 && errno != EEXIST) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _options._acceptorName << '\n';
+	 << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
     return false;
   }
   _threadPool.push(shared_from_this());
@@ -81,6 +81,10 @@ void FifoAcceptor::removeFifoFiles() {
   for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
+}
+
+void FifoAcceptor::remove(RunnablePtr toRemove) {
+  _threadPool.removeFromQueue(toRemove);
 }
 
 } // end of namespace fifo

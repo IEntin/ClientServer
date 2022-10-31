@@ -23,7 +23,7 @@ int main() {
     sigset_t set;
     sigemptyset(&set);
     if (sigaddset(&set, SIGINT) == -1)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << '\n';
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
@@ -32,20 +32,20 @@ int main() {
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << '\n';
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
     taskController->stop();
     int closed = fcloseall();
     assert(closed == 0);
     if (!boost::interprocess::named_mutex::remove(WAKEUP_MUTEX))
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed\n";
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed." << std::endl;
     return 0;
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
     return 5;
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     return 6;
   }
 }

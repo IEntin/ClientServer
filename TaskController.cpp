@@ -82,10 +82,10 @@ void TaskController::run() noexcept {
     }
   }
   catch (std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! exception caught.\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! exception caught." << std::endl;
   }
 }
 
@@ -104,7 +104,7 @@ void TaskController::processTask(const HEADER& header, std::vector<char>& input,
     task->getResponse(response);
   }
   catch (std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
 }
 

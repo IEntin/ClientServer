@@ -27,7 +27,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
       }
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << ':' << std::strerror(errno) << '\n';
+	     << ':' << std::strerror(errno) << std::endl;
 	throw std::runtime_error(std::strerror(errno));
       }
     }
@@ -41,7 +41,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   }
   if (readSoFar != HEADER_SIZE) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
-	 << HEADER_SIZE << " readSoFar=" << readSoFar << '\n';
+	 << HEADER_SIZE << " readSoFar=" << readSoFar << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
@@ -59,7 +59,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
       }
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << ':' << std::strerror(errno) << '\n';
+	     << ':' << std::strerror(errno) << std::endl;
 	return false;
       }
     }
@@ -73,7 +73,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
   }
   if (readSoFar != size) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " size="
-	 << size << " readSoFar=" << readSoFar << '\n';
+	 << size << " readSoFar=" << readSoFar << std::endl;
     return false;
   }
   return true;
@@ -89,7 +89,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
       else {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
 	     << strerror(errno) << ", written=" << written << " str.size()="
-	     << str.size() << '\n';
+	     << str.size() << std::endl;
 	return false;
       }
     }
@@ -98,7 +98,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
   }
   if (str.size() != written) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":str.size()="
-	 << str.size() << "!=written=" << written << '\n';
+	 << str.size() << "!=written=" << written << std::endl;
     return false;
   }
   return true;
@@ -114,12 +114,12 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
       continue;
     if (presult <= 0) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		<< "-timeout,should not hit this" << '\n';
+		<< "-timeout,should not hit this" << std::endl;
       return 0;
     }
     else if (pfd.revents & POLLERR) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << '-' << std::strerror(errno) << '\n';
+	   << '-' << std::strerror(errno) << std::endl;
       return POLLERR;
     }
   } while (errno == EINTR && rep++ < maxRepeatEINTR);
@@ -133,7 +133,7 @@ bool Fifo::setPipeSize(int fd, long requested) {
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << '-' << std::strerror(errno) << '\n';
+	 << '-' << std::strerror(errno) << std::endl;
     return false;
   }
   if (requested > currentSz) {
@@ -142,13 +142,13 @@ bool Fifo::setPipeSize(int fd, long requested) {
       static auto& printOnce[[maybe_unused]] =
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	     << std::strerror(errno) << ":\n"
-	     << "su privileges required, ignore.\n";
+	     << "su privileges required, ignore." << std::endl;
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << '-' << std::strerror(errno) << '\n';
+	   << '-' << std::strerror(errno) << std::endl;
       return false;
     }
     return newSz >= requested || requested < currentSz;

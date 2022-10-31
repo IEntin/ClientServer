@@ -26,7 +26,7 @@ TestEnvironment::TestEnvironment() {}
 
 TestEnvironment::~TestEnvironment() {
   if (!boost::interprocess::named_mutex::remove(WAKEUP_MUTEX))
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed.\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed." << std::endl;
 }
 
 void TestEnvironment::SetUp() {

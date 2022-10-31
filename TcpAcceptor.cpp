@@ -39,7 +39,7 @@ bool TcpAcceptor::start() {
   }
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
-	 << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
+	 << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
     stop();
   }
   return !ec;
@@ -65,7 +65,7 @@ void TcpAcceptor::run() {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
 }
 
@@ -99,7 +99,7 @@ void TcpAcceptor::accept() {
 	size_t result[[maybe_unused]] =
 	  boost::asio::read(details->_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
 	if (ec) {
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	  return;
 	}
 	HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
@@ -111,7 +111,7 @@ void TcpAcceptor::accept() {
 	  size_t transferred[[maybe_unused]] =
 	    boost::asio::read(details->_socket, boost::asio::buffer(payload, size), ec);
 	  if (ec) {
-	    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	    return;
 	  }
 	  clientId.assign(payload.data(), payload.size());
@@ -126,7 +126,7 @@ void TcpAcceptor::accept() {
 	    auto [it, inserted] = _sessions.emplace(clientId, session->weak_from_this());
 	    if (!inserted) {
 	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		   << "-duplicate clientId\n";
+		   << "-duplicate clientId" << std::endl;
 	      return;
 	    }
 	    session->start();

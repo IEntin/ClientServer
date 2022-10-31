@@ -5,6 +5,7 @@
 #include "FifoSession.h"
 #include "Compression.h"
 #include "Fifo.h"
+#include "FifoAcceptor.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
@@ -17,7 +18,7 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, RunnablePtr parent) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
   Runnable(options._maxFifoSessions),
   _options(options), _clientId(clientId), _parent(parent) {
   TaskController::_totalSessions++;
@@ -59,13 +60,13 @@ void FifoSession::checkCapacity() {
   if (_status == STATUS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
-	 << " exceeds thread pool capacity.\n";
+	 << " exceeds thread pool capacity." << std::endl;
 }
 
 bool FifoSession::start() {
   if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _fifoName << '\n';
+	 << std::strerror(errno) << '-' << _fifoName << std::endl;
     return false;
   }
   checkCapacity();
@@ -76,6 +77,7 @@ bool FifoSession::start() {
 
 void FifoSession::stop() {
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
+  _parent->remove(shared_from_this());
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
@@ -85,7 +87,7 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _fifoName << '\n';
+	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
   return serverutility::receiveRequest(_fdRead, message, header, _options);
@@ -110,7 +112,7 @@ bool FifoSession::sendResponse(const Response& response) {
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _fifoName << '\n';
+	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
@@ -125,7 +127,7 @@ bool FifoSession::sendStatusToClient() {
   fd = open(_options._acceptorName.data(), O_WRONLY);
   if (fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _options._acceptorName << '\n';
+	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   size_t size = _fifoName.size();
@@ -133,7 +135,7 @@ bool FifoSession::sendStatusToClient() {
   encodeHeader(buffer.data(), HEADERTYPE::SESSION, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_fifoName.begin(), _fifoName.end(), buffer.begin() + HEADER_SIZE);
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed." << std::endl;
   return true;
 }
 

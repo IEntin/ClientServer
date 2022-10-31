@@ -67,7 +67,7 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
   if (sizeKey.empty()) {
     _invalid = true;
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "-invalid request, sizeKey is empty, input:" << input << '\n';
+	 << "-invalid request, sizeKey is empty, input:" << input << std::endl;
     return;
   }
   size_t pos = input.find(']');
@@ -90,13 +90,13 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     Transaction transaction(key, request);
     if (request.empty()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-request is empty\n";
+	   << "-request is empty" << std::endl;
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
     if (key.empty()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-key is empty\n";
+	   << "-key is empty" << std::endl;
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
@@ -112,7 +112,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
       transaction._invalid = true;
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-invalid request:" << transaction._request
-	   << " id:" << id << '\n';
+	   << " id:" << id << std::endl;
       return id.append(INVALID_REQUEST);
     }
     transaction.matchAds(adVector);
@@ -124,7 +124,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << e.what() << '\n';
+	 << ' ' << e.what() << std::endl;
   }
   return id.append(PROCESSING_ERROR);
 }

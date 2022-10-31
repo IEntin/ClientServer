@@ -38,18 +38,13 @@ TcpSession::~TcpSession() {
 }
 
 bool TcpSession::start() {
-  const auto& local = _socket.local_endpoint();
-  const auto& remote = _socket.remote_endpoint();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << ":local " << local.address() << ':' << local.port()
-       << ",remote " << remote.address() << ':' << remote.port() << std::endl;
   checkCapacity();
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   return true;
@@ -62,7 +57,7 @@ void TcpSession::run() noexcept {
     MemoryPool::destroyBuffers();
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
 }
 
@@ -83,7 +78,7 @@ void TcpSession::checkCapacity() {
   if (_status == STATUS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
-	 << " exceeds thread pool capacity.\n";
+	 << " exceeds thread pool capacity." << std::endl;
 }
 
 bool TcpSession::onReceiveRequest() {
@@ -93,7 +88,7 @@ bool TcpSession::onReceiveRequest() {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     if (!decompress(_request, _uncompressed)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":decompression failed.\n";
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":decompression failed." << std::endl;
       return false;
     }
   }
@@ -132,7 +127,7 @@ void TcpSession::readHeader() {
       }
       _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
       if (!isOk(_header)) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid.\n";
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
 	return;
       }
       _request.clear();
@@ -147,7 +142,7 @@ void TcpSession::readRequest() {
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = shared_from_this();
       if (ec) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
       onReceiveRequest();
@@ -160,7 +155,7 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
     [this, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = shared_from_this();
       if (ec) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
       if (nextFunc)
@@ -175,9 +170,9 @@ void TcpSession::asyncWait() {
       auto self = shared_from_this();
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	else {
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout\n";
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
 	  _status.store(STATUS::TCP_TIMEOUT);
 	}
      }

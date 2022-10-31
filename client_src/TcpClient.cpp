@@ -24,7 +24,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   size_t bytes[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     throw(std::runtime_error(ec.what()));
   }
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
@@ -44,7 +44,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 	 << "\tAt this point the client will resume run.\n"
 	 << "\tYou can also close the client and try again later.\n"
 	 << "\tThe relevant setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
-	 << "\t!!!!!!!!!\n";
+	 << "\t!!!!!!!!!" << std::endl;
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
     // TBD
@@ -74,7 +74,7 @@ bool TcpClient::send(const std::vector<char>& msg) {
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   return true;
@@ -86,7 +86,7 @@ bool TcpClient::receive() {
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
@@ -101,7 +101,7 @@ bool TcpClient::readReply(const HEADER& header) {
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, header);

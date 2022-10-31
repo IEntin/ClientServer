@@ -15,11 +15,13 @@ struct ServerOptions;
 
 namespace fifo {
 
-class FifoSession final : public Runnable {
+using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
+
+class FifoSession final : public std::enable_shared_from_this<FifoSession>, public Runnable {
   const ServerOptions& _options;
   const std::string _clientId;
   std::string _fifoName;
-  RunnablePtr _parent;
+  FifoAcceptorPtr _parent;
   int _fdRead = -1;
   int _fdWrite = -1;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
@@ -33,7 +35,7 @@ class FifoSession final : public Runnable {
   void checkCapacity() override;
   bool sendStatusToClient();
  public:
-  FifoSession(const ServerOptions& options, std::string_view clientId, RunnablePtr server);
+  FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr server);
   ~FifoSession() override;
   bool start() override;
 };

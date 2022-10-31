@@ -29,7 +29,7 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string
   size_t bytes[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(buffer), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     throw(std::runtime_error(ec.what()));
   }
 }
@@ -59,16 +59,16 @@ void TcpClientHeartbeat::run() noexcept {
       size_t result[[maybe_unused]] =
 	boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
       if (ec) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	break;
       }
     }
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": unexpected exception\n";
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": unexpected exception" << std::endl;
   }
 }
 

@@ -17,7 +17,7 @@ Strategy& StrategySelector::get(const ServerOptions& options) {
     return _echoStrategy;
   else {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":Strategy is not specified. Setting Transaction strategy.\n"; 
+	 << ":Strategy is not specified. Setting Transaction strategy." << std::endl; 
     return _transactionStrategy;
   }
 }

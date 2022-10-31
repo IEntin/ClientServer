@@ -28,6 +28,8 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() = default;
+
+  void remove(RunnablePtr toRemove);
 };
 
 } // end of namespace fifo

@@ -111,7 +111,7 @@ bool Ad::readAndSortAds(const std::string& filename) {
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << e.what() << '\n';
+	 << ' ' << e.what() << std::endl;
     return false;
   }
   for (AdRow& row : _rows)

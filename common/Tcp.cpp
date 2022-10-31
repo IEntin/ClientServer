@@ -18,7 +18,7 @@ setSocket(boost::asio::io_context& ioContext,
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
   return { endpoint, ec };
 }
 
@@ -27,7 +27,7 @@ HEADER receiveHeader(boost::asio::ip::tcp::socket& socket) {
   boost::system::error_code ec;
   boost::asio::read(socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::SESSION, 0, 0, COMPRESSORS::NONE, false, STATUS::TCP_PROBLEM };
   }
   return decodeHeader(std::string_view(buffer, HEADER_SIZE));
