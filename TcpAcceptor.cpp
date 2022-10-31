@@ -88,6 +88,12 @@ void TcpAcceptor::accept() {
 	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
       else {
+	// remove dead sessions
+	for (auto it = _sessions.begin(); it != _sessions.end();)
+	  if (!it->second.lock())
+	    it = _sessions.erase(it);
+	  else
+	    ++it;
 	boost::system::error_code ec;
 	char buffer[HEADER_SIZE] = {};
 	size_t result[[maybe_unused]] =
@@ -98,35 +104,41 @@ void TcpAcceptor::accept() {
 	}
 	HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
 	HEADERTYPE type = getHeaderType(header);
+	std::string clientId;
 	ssize_t size = getUncompressedSize(header);
-	std::vector<char> payload(size);
-	size_t transferred[[maybe_unused]] =
-	  boost::asio::read(details->_socket, boost::asio::buffer(payload, size), ec);
-	if (ec) {
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
-	  return;
+	if (size > 0) {
+	  std::vector<char> payload(size);
+	  size_t transferred[[maybe_unused]] =
+	    boost::asio::read(details->_socket, boost::asio::buffer(payload, size), ec);
+	  if (ec) {
+	    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << '\n';
+	    return;
+	  }
+	  clientId.assign(payload.data(), payload.size());
 	}
-	std::string id(payload.data(), payload.size());
-	for (auto it = _sessions.begin(); it != _sessions.end();)
-	  if (!it->second.lock())
-	    it = _sessions.erase(it);
-	  else
-	    ++it;
 	switch (type) {
 	case HEADERTYPE::SESSION:
 	  {
+	    std::ostringstream os;
+	    os << details->_socket.remote_endpoint() << std::flush;
+	    clientId.assign(os.str());
 	    auto session = std::make_shared<TcpSession>(_options, details, shared_from_this());
-	    _sessions[id] = session->weak_from_this();
+	    auto [it, inserted] = _sessions.emplace(clientId, session->weak_from_this());
+	    if (!inserted) {
+	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		   << "-duplicate clientId\n";
+	      return;
+	    }
 	    session->start();
 	    _threadPool.push(session);
 	  }
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  {
-	    auto it = _sessions.find(id);
+	    auto it = _sessions.find(clientId);
 	    if (it == _sessions.end()) {
 	      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-		   << ":corresponding session not found" << std::endl;
+		   << ":related session not found" << std::endl;
 	      break;
 	    }
 	    auto session = it->second.lock();
