@@ -13,12 +13,13 @@
 std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
 
 Client::Client(const ClientOptions& options) : 
-  _options(options), _threadPool(3) {
+  _options(options) {
   MemoryPool::setExpectedSize(options._bufferSize);
 }
 
 Client::~Client() {
-  _threadPool.stop();
+  _threadPoolTaskBuilder.stop();
+  _threadPoolTcpHeartbeat.stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -53,14 +54,14 @@ bool Client::run() {
   try {
     int numberTasks = 0;
     auto taskBuilder = std::make_shared<TaskBuilder>(_options);
-    _threadPool.push(taskBuilder);
+    _threadPoolTaskBuilder.push(taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       auto savedBuild = std::move(taskBuilder);
       if (_options._runLoop) {
 	// start construction of the next task in the background
 	taskBuilder = std::make_shared<TaskBuilder>(_options);
-	_threadPool.push(taskBuilder);
+	_threadPoolTaskBuilder.push(taskBuilder);
       }
       if (!processTask(savedBuild))
 	return false;

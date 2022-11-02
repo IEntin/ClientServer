@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <condition_variable>
 #include <deque>
@@ -21,7 +22,7 @@ class ThreadPool {
   static std::shared_ptr<class KillThread> _killThread;
  public:
   // default 0 means can grow
-  explicit ThreadPool(unsigned maxSize = 0);
+  explicit ThreadPool(unsigned maxSize = MAX_NUMBER_THREADS_DEFAULT);
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;
   void stop();
@@ -38,6 +39,8 @@ class KillThread : public Runnable {
   void run() override {}
   bool start() override { return true; }
   void stop() override {}
+  unsigned getNumberObjects() const override { return _objectCounter._numberObjects; }
+  ObjectCounter<KillThread> _objectCounter;
  public:
   ~KillThread() override {}
   bool killThread() const override { return true; }

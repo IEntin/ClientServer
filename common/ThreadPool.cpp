@@ -7,10 +7,7 @@
 
 std::shared_ptr<KillThread> ThreadPool::_killThread = std::make_shared<KillThread>();
 
-ThreadPool::ThreadPool(unsigned maxSize) : _maxSize(maxSize) {
-  for (unsigned i = 0; i < _maxSize; ++i)
-    createThread();
-}
+ThreadPool::ThreadPool(unsigned maxSize) : _maxSize(maxSize) {}
 
 ThreadPool::~ThreadPool() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -54,7 +51,7 @@ void ThreadPool::push(RunnablePtr runnable) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);
-  if (_maxSize == 0 && runnable->getNumberObjects() > size()) {
+  if (size() < _maxSize && runnable->getNumberObjects() > size()) {
     // this works if all runnables are of the same derived class
     createThread();
   }

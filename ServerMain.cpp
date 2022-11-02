@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CommonNames.h"
+#include "CommonConstants.h"
 #include "Chronometer.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
@@ -27,7 +27,7 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
-    RunnablePtr taskController = TaskController::instance(&options);
+    auto taskController = TaskController::instance(&options);
     if (!taskController->start())
       return 3;
     int sig = 0;

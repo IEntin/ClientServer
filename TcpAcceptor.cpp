@@ -17,11 +17,14 @@ TcpAcceptor::TcpAcceptor(const ServerOptions& options) :
   _ioContext(1),
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
-  // + 1 for 'this'
-  _threadPool(_options._maxTcpSessions + 1) {}
+  _threadPoolSession(_options._maxTcpSessions) {}
 
 TcpAcceptor::~TcpAcceptor() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+unsigned TcpAcceptor::getNumberObjects() const {
+  return _objectCounter._numberObjects;
 }
 
 bool TcpAcceptor::start() {
@@ -35,7 +38,7 @@ bool TcpAcceptor::start() {
     _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
   if (!ec) {
     accept();
-    _threadPool.push(shared_from_this());
+    _threadPoolAcceptor.push(shared_from_this());
   }
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
@@ -56,8 +59,9 @@ void TcpAcceptor::stop() {
 	session->stop();
     }
   });
+  _threadPoolAcceptor.stop();
   _threadPoolHeartbeat.stop();
-  _threadPool.stop();
+  _threadPoolSession.stop();
 }
 
 void TcpAcceptor::run() {
@@ -130,7 +134,7 @@ void TcpAcceptor::accept() {
 	      return;
 	    }
 	    session->start();
-	    _threadPool.push(session);
+	    _threadPoolSession.push(session);
 	  }
 	  break;
 	case HEADERTYPE::HEARTBEAT:
@@ -162,7 +166,7 @@ void TcpAcceptor::accept() {
 }
 
 void TcpAcceptor::remove(RunnablePtr toRemove) {
-  _threadPool.removeFromQueue(toRemove);
+  _threadPoolSession.removeFromQueue(toRemove);
 }
 
 } // end of namespace tcp

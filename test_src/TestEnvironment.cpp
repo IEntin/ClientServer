@@ -4,7 +4,7 @@
 
 #include "TestEnvironment.h"
 #include "ClientOptions.h"
-#include "CommonNames.h"
+#include "CommonConstants.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
@@ -17,7 +17,7 @@ std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
 ServerOptions TestEnvironment::_serverOptions;
 const ServerOptions TestEnvironment::_serverOptionsOrg;
-RunnablePtr TestEnvironment::_taskController;
+TaskControllerPtr TestEnvironment::_taskController;
 std::ostringstream TestEnvironment::_oss;
 ClientOptions TestEnvironment::_clientOptions("", &_oss);
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);

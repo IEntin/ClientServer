@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
@@ -17,6 +18,8 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   void run() noexcept override;
 
+  unsigned getNumberObjects() const override;
+
   const ClientOptions& _options;
 
   boost::asio::io_context _ioContext;
@@ -24,6 +27,8 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
   boost::asio::ip::tcp::socket _socket;
 
   char _heartbeatBuffer[HEADER_SIZE] = {};
+
+  ObjectCounter<TcpClientHeartbeat> _objectCounter;
 
  public:
 

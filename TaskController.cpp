@@ -9,6 +9,29 @@
 #include "Task.h"
 #include "Utility.h"
 
+TaskProcessor::TaskProcessor(TaskControllerPtr taskController) :
+  _taskController(taskController) {}
+
+TaskProcessor::~TaskProcessor() {}
+
+unsigned TaskProcessor::getNumberObjects() const {
+  return _objectCounter._numberObjects;
+}
+
+void TaskProcessor::run() noexcept {
+  while (!_stopped) {
+    _taskController->run();
+  }
+}
+
+bool TaskProcessor::start() {
+  return true;
+}
+
+void TaskProcessor::stop() {
+  _stopped.store(true);
+}
+
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 bool TaskController::_diagnosticsEnabled = false;
 std::atomic<unsigned>  TaskController::_totalSessions;
@@ -50,23 +73,34 @@ void TaskController::onTaskCompletion() noexcept {
   auto taskController = instance();
   switch (_phase) {
   case PREPROCESSTASK:
-    if (taskController->_sortInput)
-      taskController->_task->sortIndices();
-    taskController->_task->resetPointer();
+    taskController->onCompletionPreprocess();
     _phase = PROCESSTASK;
     return;
   case PROCESSTASK:
-    taskController->_task->finish();
-    // Blocks until the new task is available.
-    taskController->setNextTask();
+    taskController->onCompletionProcess();
     _phase = PREPROCESSTASK;
     return;
   }
 }
 
+void  TaskController::onCompletionPreprocess() {
+  if (_sortInput)
+    _task->sortIndices();
+  _task->resetPointer();
+}
+
+void TaskController::onCompletionProcess() {
+  _task->finish();
+  // Blocks until the new task is available.
+  setNextTask();
+}
+
 void TaskController::initialize() {
-  for (int i = 0; i < _options._numberWorkThreads; ++i)
-    _threadPool.push(shared_from_this());
+  for (int i = 0; i < _options._numberWorkThreads; ++i) {
+    auto processor = std::make_shared<TaskProcessor>(shared_from_this());
+    _processors.emplace_back(processor);
+    _threadPool.push(processor);
+  }
 }
 
 // Process the current task (batch of requests) by all threads. Arrive
@@ -74,12 +108,10 @@ void TaskController::initialize() {
 
 void TaskController::run() noexcept {
   try {
-    while (!_stopped) {
-      while (_task->extractKeyNext());
-      _barrier.arrive_and_wait();
-      while (_task->processNext());
-      _barrier.arrive_and_wait();
-    }
+    while (_task->extractKeyNext());
+    _barrier.arrive_and_wait();
+    while (_task->processNext());
+    _barrier.arrive_and_wait();
   }
   catch (std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
@@ -121,10 +153,11 @@ bool TaskController::start() {
 }
 
 void TaskController::stop() {
-  // stop children
+  // stop acceptors
   _strategy.stop();
   // stop threads
-  _stopped.store(true);
+  for (auto processor : _processors)
+    processor->stop();
   wakeupThreads();
   _threadPool.stop();
   // destroy controller

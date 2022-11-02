@@ -61,7 +61,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
     os << _socket.local_endpoint() << std::flush;
     std::string clientId = os.str();
     auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
-    _threadPool.push(heartbeat);
+    _threadPoolTcpHeartbeat.push(heartbeat);
   }
 }
 

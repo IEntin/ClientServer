@@ -4,7 +4,7 @@
 
 #include "FifoClient.h"
 #include "ClientOptions.h"
-#include "CommonNames.h"
+#include "CommonConstants.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
 #include "Utility.h"

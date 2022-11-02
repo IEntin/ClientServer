@@ -24,7 +24,9 @@ class Client {
 
   const ClientOptions& _options;
 
-  ThreadPool _threadPool;
+  ThreadPool _threadPoolTaskBuilder;
+
+  ThreadPool _threadPoolTcpHeartbeat;
 
   STATUS _status = STATUS::NONE;
 

@@ -4,12 +4,11 @@
 
 #pragma once
 
+#include "CommonConstants.h"
 #include "Header.h"
 #include <atomic>
 #include <memory>
 #include <string>
-
-constexpr unsigned MAX_NUMBER_THREADS_DEFAULT = 1000;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 
@@ -21,7 +20,7 @@ class Runnable {
   virtual bool start() = 0;
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
-  virtual unsigned getNumberObjects() const { return 0; }
+  virtual unsigned getNumberObjects() const = 0;
   virtual void checkCapacity();
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;

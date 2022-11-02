@@ -16,11 +16,27 @@ using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
 
+using TaskProcessorPtr = std::shared_ptr<class TaskProcessor>;
+
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 struct ServerOptions;
 
-class TaskController : public std::enable_shared_from_this<TaskController>, public Runnable {
+class TaskProcessor : public std::enable_shared_from_this<TaskProcessor>, public Runnable {
+  TaskProcessor(const TaskController& other) = delete;
+  bool start() override;
+  void run() noexcept override;
+  unsigned getNumberObjects() const override;
+  TaskProcessor& operator =(const TaskController& other) = delete;
+  ObjectCounter<TaskProcessor> _objectCounter;
+  TaskControllerPtr _taskController;
+ public:
+  explicit TaskProcessor(TaskControllerPtr taskController);
+  ~TaskProcessor() override;
+  void stop() override;
+};
+
+class TaskController : public std::enable_shared_from_this<TaskController> {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   enum Operations { KEEP, DESTROY, RESET };
   using CompletionFunction = void (*) () noexcept;
@@ -35,6 +51,8 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   const ServerOptions& _options;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
+  void onCompletionPreprocess();
+  void onCompletionProcess();
   std::barrier<CompletionFunction> _barrier;
   ThreadPool _threadPool;
   TaskPtr _task;
@@ -44,11 +62,12 @@ class TaskController : public std::enable_shared_from_this<TaskController>, publ
   static Phase _phase;
   static bool _diagnosticsEnabled;
   Strategy& _strategy;
+  std::vector<TaskProcessorPtr> _processors;
  public:
-  ~TaskController() override;
-  bool start() override;
-  void stop() override;
-  void run() noexcept override;
+  ~TaskController();
+  bool start();
+  void stop();
+  void run() noexcept;
   void processTask(const HEADER& header, std::vector<char>& input, Response& response);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
   static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }

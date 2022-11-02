@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <vector>
@@ -18,16 +19,18 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   void run() override;
   bool start() override;
   void stop() override;
-
+  unsigned getNumberObjects() const override;
   bool unblockAcceptor();
   void removeFifoFiles();
   const ServerOptions& _options;
-  ThreadPool _threadPool;
+  ThreadPool _threadPoolAcceptor;
+  ThreadPool _threadPoolSession;
   std::vector<RunnableWeakPtr> _sessions;
   int _fd = -1;
+  ObjectCounter<FifoAcceptor> _objectCounter;
  public:
   FifoAcceptor(const ServerOptions& options);
-  ~FifoAcceptor() = default;
+  ~FifoAcceptor() override;
 
   void remove(RunnablePtr toRemove);
 };

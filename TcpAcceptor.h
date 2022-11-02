@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include "Compression.h"
@@ -32,13 +33,17 @@ private:
 
   void stop() override;
 
+  unsigned getNumberObjects() const override;
+
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
-  ThreadPool _threadPool;
+  ThreadPool _threadPoolAcceptor;
+  ThreadPool _threadPoolSession;
   ThreadPool _threadPoolHeartbeat;
   std::map<std::string, std::weak_ptr<class TcpSession>> _sessions;
+  ObjectCounter<TcpAcceptor> _objectCounter;
 };
 
 } // end of namespace tcp

@@ -18,8 +18,11 @@ namespace fifo {
 
 FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
   _options(options),
-  // + 1 for this
-  _threadPool(_options._maxFifoSessions + 1) {
+  _threadPoolSession(_options._maxFifoSessions) {
+}
+
+FifoAcceptor::~FifoAcceptor() {
+  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool FifoAcceptor::unblockAcceptor() {
@@ -34,6 +37,10 @@ bool FifoAcceptor::unblockAcceptor() {
   return true;
 }
 
+unsigned FifoAcceptor::getNumberObjects() const {
+  return _objectCounter._numberObjects;
+}
+
 void FifoAcceptor::run() {
   while (!_stopped) {
     unblockAcceptor();
@@ -45,7 +52,7 @@ void FifoAcceptor::run() {
     _sessions.emplace_back(session);
     if (!session->start())
       return;
-    _threadPool.push(session);
+    _threadPoolSession.push(session);
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit" << std::endl;
 }
@@ -58,7 +65,7 @@ bool FifoAcceptor::start() {
 	 << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
     return false;
   }
-  _threadPool.push(shared_from_this());
+  _threadPoolAcceptor.push(shared_from_this());
   return true;
 }
 
@@ -73,7 +80,8 @@ void FifoAcceptor::stop() {
   _stopped.store(true);
   Fifo::onExit(_options._acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
   // have threads join
-  _threadPool.stop();
+  _threadPoolAcceptor.stop();
+  _threadPoolSession.stop();
   removeFifoFiles();
 }
 
@@ -84,7 +92,7 @@ void FifoAcceptor::removeFifoFiles() {
 }
 
 void FifoAcceptor::remove(RunnablePtr toRemove) {
-  _threadPool.removeFromQueue(toRemove);
+  _threadPoolSession.removeFromQueue(toRemove);
 }
 
 } // end of namespace fifo

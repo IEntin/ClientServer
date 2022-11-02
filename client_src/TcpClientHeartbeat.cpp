@@ -38,6 +38,10 @@ TcpClientHeartbeat::~TcpClientHeartbeat() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
+unsigned TcpClientHeartbeat::getNumberObjects() const {
+  return _objectCounter._numberObjects;
+}
+
 bool TcpClientHeartbeat::start() {
   return true;
 }
