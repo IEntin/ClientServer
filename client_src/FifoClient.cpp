@@ -40,6 +40,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
     } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
     if (_fdWrite >= 0) {
+      _status.store(STATUS::NONE);
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));

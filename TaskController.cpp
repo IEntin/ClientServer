@@ -9,7 +9,7 @@
 #include "Task.h"
 #include "Utility.h"
 
-TaskProcessor::TaskProcessor(TaskControllerPtr taskController) :
+TaskProcessor::TaskProcessor(TaskControllerWeakPtr taskController) :
   _taskController(taskController) {}
 
 TaskProcessor::~TaskProcessor() {}
@@ -20,7 +20,9 @@ unsigned TaskProcessor::getNumberObjects() const {
 
 void TaskProcessor::run() noexcept {
   while (!_stopped) {
-    _taskController->run();
+    auto taskController = _taskController.lock();
+    if (taskController)
+      taskController->run();
   }
 }
 
@@ -97,7 +99,7 @@ void TaskController::onCompletionProcess() {
 
 void TaskController::initialize() {
   for (int i = 0; i < _options._numberWorkThreads; ++i) {
-    auto processor = std::make_shared<TaskProcessor>(shared_from_this());
+    auto processor = std::make_shared<TaskProcessor>(weak_from_this());
     _processors.emplace_back(processor);
     _threadPool.push(processor);
   }

@@ -28,7 +28,7 @@ class Client {
 
   ThreadPool _threadPoolTcpHeartbeat;
 
-  STATUS _status = STATUS::NONE;
+  std::atomic<STATUS> _status = STATUS::NONE;
 
   static std::atomic_flag _stopFlag;
 

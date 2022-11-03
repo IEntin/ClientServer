@@ -85,6 +85,7 @@ bool TcpClient::receive() {
   char buffer[HEADER_SIZE] = {};
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  _status.store(STATUS::NONE);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
