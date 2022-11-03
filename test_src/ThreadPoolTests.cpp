@@ -64,8 +64,8 @@ TEST(ThreadPoolTest, Variable) {
     runnable->start();
     ASSERT_TRUE(runnable->_status == STATUS::NONE);
     pool.push(runnable);
-    std::string type = typeid(runnable).name();
-    ASSERT_TRUE(boost::contains(type, "shared_ptr"));
+    const auto& refObject = *runnable;
+    std::string type = typeid(refObject).name();
     ASSERT_TRUE(boost::contains(type, "TestRunnable"));
     ASSERT_TRUE(pool.size() == i + 1);
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
