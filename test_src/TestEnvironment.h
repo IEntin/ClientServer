@@ -28,14 +28,14 @@ public:
 
   static void reset();
 
+  static ServerOptions _serverOptions;
+  static std::ostringstream _oss;
+  static ClientOptions _clientOptions;
   static std::string _source;
   static std::string _outputD;
   static std::string _outputND;
   static std::string _outputAltFormatD;
-  static ServerOptions _serverOptions;
   static TaskControllerPtr _taskController;
-  static std::ostringstream _oss;
-  static ClientOptions _clientOptions;
  private:
   static const ServerOptions _serverOptionsOrg;
   static const ClientOptions _clientOptionsOrg;

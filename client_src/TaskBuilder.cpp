@@ -102,10 +102,10 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // The size of the aggregate depends on the configured buffer size.
 
 TaskBuilderState TaskBuilder::createSubtask() {
-  thread_local static std::vector<char> aggregate(MemoryPool::getExpectedSize());
+  thread_local static std::vector<char> aggregate(_options._bufferSize);
   size_t aggregateSize = 0;
   // rough estimate for id and header to avoid reallocation.
-  size_t maxSubtaskSize = MemoryPool::getExpectedSize() * 0.9;
+  size_t maxSubtaskSize = _options._bufferSize * 0.9;
   thread_local static std::string line;
   if (_subtaskProduceIndex >= _subtasks.size()) {
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":std::out_of_range avoided.\n"

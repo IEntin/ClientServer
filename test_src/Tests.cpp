@@ -12,7 +12,6 @@
 struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string_view input) {
-    MemoryPool::setExpectedSize(100000);
     std::string_view compressedView = Compression::compress(input);
     // save to a string before buffer is reused in uncompress
     std::string compressed;
@@ -27,7 +26,6 @@ struct CompressionTest : testing::Test {
   }
 
   void testCompressionDecompression2(std::string_view input) {
-    MemoryPool::setExpectedSize(100000);
     std::string_view compressedView = Compression::compress(input);
     std::vector<char> uncompressed(input.size());
     Compression::uncompress(compressedView, uncompressed);

@@ -12,10 +12,7 @@
 
 std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
 
-Client::Client(const ClientOptions& options) : 
-  _options(options) {
-  MemoryPool::setExpectedSize(options._bufferSize);
-}
+Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
   _threadPoolTaskBuilder.stop();

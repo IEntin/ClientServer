@@ -11,15 +11,15 @@
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 
+ServerOptions TestEnvironment::_serverOptions;
+std::ostringstream TestEnvironment::_oss;
+ClientOptions TestEnvironment::_clientOptions("", &_oss);
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
-ServerOptions TestEnvironment::_serverOptions;
 const ServerOptions TestEnvironment::_serverOptionsOrg;
 TaskControllerPtr TestEnvironment::_taskController;
-std::ostringstream TestEnvironment::_oss;
-ClientOptions TestEnvironment::_clientOptions("", &_oss);
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
 TestEnvironment::TestEnvironment() {}
@@ -32,8 +32,7 @@ TestEnvironment::~TestEnvironment() {
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    ClientOptions clientOptions("", nullptr);
-    _source = utility::readFile(clientOptions._sourceName);
+    _source = utility::readFile(_clientOptions._sourceName);
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
@@ -48,7 +47,6 @@ void TestEnvironment::TearDown() {}
 
 void TestEnvironment::reset() {
   _serverOptions = _serverOptionsOrg;
-  MemoryPool::setExpectedSize(_serverOptionsOrg._bufferSize);
   _oss.str("");
   _clientOptions = _clientOptionsOrg;
 }

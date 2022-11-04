@@ -5,8 +5,6 @@
 #include "MemoryPool.h"
 #include "Utility.h"
 
-size_t MemoryPool::_expectedSize(0);
-
 MemoryPool& MemoryPool::instance() {
   static thread_local MemoryPool instance;
   return instance;

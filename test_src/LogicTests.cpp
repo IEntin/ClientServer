@@ -26,7 +26,6 @@ struct LogicTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      MemoryPool::setExpectedSize(serverMemPoolSize);
       RunnablePtr tcpAcceptor =
 	std::make_shared<tcp::TcpAcceptor>(TestEnvironment::_serverOptions);
       bool serverStart = tcpAcceptor->start();
@@ -56,7 +55,6 @@ struct LogicTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      MemoryPool::setExpectedSize(serverMemPoolSize);
       RunnablePtr fifoAcceptor =
 	std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
       bool serverStart = fifoAcceptor->start();
