@@ -10,7 +10,7 @@ enum class COMPRESSORS : char;
 
 struct ClientOptions {
   explicit ClientOptions(const std::string& jsonName = "", std::ostream* externalDataStream = nullptr);
-
+  ~ClientOptions() = default;
   std::string _communicationType;
   std::string _sourceName;
   size_t _bufferSize;
@@ -27,7 +27,6 @@ struct ClientOptions {
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   COMPRESSORS _compressor;
-  bool _tcpHeartbeatEnabled;
   bool _diagnostics;
   bool _runLoop;
   bool _timing;

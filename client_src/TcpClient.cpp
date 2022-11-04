@@ -52,17 +52,15 @@ TcpClient::TcpClient(const ClientOptions& options) :
   default:
     break;
   }
-  if (_options._tcpHeartbeatEnabled) {
-    // socket.local_endpoint (ip address and ephemeral port)
-    // is unique in a server-clients system no matter the
-    // clients are on the same or different hosts and is
-    // used as a client id
-    std::ostringstream os;
-    os << _socket.local_endpoint() << std::flush;
-    std::string clientId = os.str();
-    auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
-    _threadPoolTcpHeartbeat.push(heartbeat);
-  }
+  // socket.local_endpoint (ip address and ephemeral port)
+  // is unique in a server-clients system no matter the
+  // clients are on the same or different hosts and is
+  // used as a client id
+  std::ostringstream os;
+  os << _socket.local_endpoint() << std::flush;
+  std::string clientId = os.str();
+  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, clientId);
+  _threadPoolTcpHeartbeat.push(heartbeat);
 }
 
 TcpClient::~TcpClient() {

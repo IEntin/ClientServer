@@ -10,7 +10,7 @@ enum class COMPRESSORS : char;
 
 struct ServerOptions {
   explicit ServerOptions(const std::string& jsonName = "");
-  ~ServerOptions() {}
+  ~ServerOptions() = default;
   size_t _bufferSize;
   std::string _adsFileName;
   std::string _fifoDirectoryName;
