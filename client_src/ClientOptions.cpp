@@ -8,48 +8,43 @@
 #include <filesystem>
 #include <iostream>
 
-ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
-  _appOptions(jsonName),
-  _communicationType(_appOptions.get("CommunicationType", std::string(""))),
-  _sourceName(_appOptions.get("SourceName", std::string("data/requests.log"))),
-  _bufferSize(_appOptions.get("DYNAMIC_BUFFER_SIZE", 100000)),
-  _dataStream([=, this]()->std::ostream* {
-		if (externalDataStream)
-		  return externalDataStream;
-		else {
-		  const std::string filename = _appOptions.get("OutputFileName", std::string());
-		  if (!filename.empty()) {
-		    static std::ofstream fileStream(filename, std::ofstream::binary);
-		    return &fileStream;
-		  }
-		  else
-		    return nullptr;
-		}
-	      }()),
-  _instrStream([this]()->std::ostream* {
-		 const std::string filename = _appOptions.get("InstrumentationFn", std::string());
-		 if (!filename.empty()) {
-		   static std::ofstream instrFileStream(filename, std::ofstream::binary);
-		   return &instrFileStream;
-		 }
-		 return nullptr;
-	       }()),
-  _maxNumberTasks(_appOptions.get("MaxNumberTasks", 0)),
-  _numberRepeatEINTR(_appOptions.get("NumberRepeatEINTR", 3)),
-  _numberRepeatENXIO(_appOptions.get("NumberRepeatENXIO", 10)),
-  _ENXIOwait(_appOptions.get("ENXIOwai", 20)),
-  _serverHost(_appOptions.get("ServerHost", std::string("127.0.0.1"))),
-  _tcpPort(_appOptions.get("TcpPort", std::string("49172"))),
-  _fifoDirectoryName(_appOptions.get("FifoDirectoryName", std::filesystem::current_path().string())),
-  _acceptorName(_fifoDirectoryName + '/' + _appOptions.get("AcceptorBaseName", std::string("acceptor"))),
-  _compressor(Compression::isCompressionEnabled(
-         _appOptions.get("Compression", std::string(LZ4)))),
-  _tcpHeartbeatEnabled(_appOptions.get("TcpHeartbeatEnabled", true)),
-  _diagnostics(_appOptions.get("Diagnostics", false)),
-  _runLoop(_appOptions.get("RunLoop", false)),
-  _timing(_appOptions.get("Timing", false)),
-  _setPipeSize(_appOptions.get("SetPipeSize", true)),
-  _turnOffLogging(_appOptions.get("TurnOffLogging", true)) {
+ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) {
+  AppOptions appOptions(jsonName);
+  _communicationType = appOptions.get("CommunicationType", std::string(""));
+  _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
+  _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
+  if (externalDataStream)
+    _dataStream = externalDataStream;
+  else {
+    const std::string filename = appOptions.get("OutputFileName", std::string());
+    static std::ofstream fileStream(filename, std::ofstream::binary);
+    if (!filename.empty())
+      _dataStream = &fileStream;
+    else
+      _dataStream = nullptr;
+  }
+  const std::string filename = appOptions.get("InstrumentationFn", std::string());
+  if (!filename.empty()) {
+    static std::ofstream instrFileStream(filename, std::ofstream::binary);
+    _instrStream = &instrFileStream;
+  }
+  else
+    _instrStream = nullptr;
+  _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
+  _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
+  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 10);
+  _ENXIOwait = appOptions.get("ENXIOwai", 20);
+  _serverHost = appOptions.get("ServerHost", std::string("127.0.0.1"));
+  _tcpPort = appOptions.get("TcpPort", std::string("49172"));
+  _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
+  _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
+  _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
+  _tcpHeartbeatEnabled = appOptions.get("TcpHeartbeatEnabled", true);
+  _diagnostics = appOptions.get("Diagnostics", false);
+  _runLoop = appOptions.get("RunLoop", false);
+  _timing = appOptions.get("Timing", false);
+  _setPipeSize = appOptions.get("SetPipeSize", true);
+  _turnOffLogging = appOptions.get("TurnOffLogging", true);
   // disable clog
   if (_turnOffLogging)
     std::clog.rdbuf(nullptr);

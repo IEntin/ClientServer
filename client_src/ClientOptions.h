@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "AppOptions.h"
 #include <fstream>
 
 enum class COMPRESSORS : char;
@@ -12,7 +11,6 @@ enum class COMPRESSORS : char;
 struct ClientOptions {
   explicit ClientOptions(const std::string& jsonName = "", std::ostream* externalDataStream = nullptr);
 
-  AppOptions _appOptions;
   std::string _communicationType;
   std::string _sourceName;
   size_t _bufferSize;

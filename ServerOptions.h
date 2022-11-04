@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "AppOptions.h"
 #include <string>
 
 enum class COMPRESSORS : char;
@@ -12,7 +11,6 @@ enum class COMPRESSORS : char;
 struct ServerOptions {
   explicit ServerOptions(const std::string& jsonName = "");
   ~ServerOptions() {}
-  AppOptions _appOptions;
   size_t _bufferSize;
   std::string _adsFileName;
   std::string _fifoDirectoryName;
