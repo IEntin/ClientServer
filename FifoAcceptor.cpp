@@ -7,7 +7,6 @@
 #include "FifoSession.h"
 #include "Header.h"
 #include "ServerOptions.h"
-#include "TaskController.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>

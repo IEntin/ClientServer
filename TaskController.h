@@ -53,18 +53,17 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   const ServerOptions& _options;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
-  void onCompletionPreprocess();
-  void onCompletionProcess();
+  void onCompletion();
   std::barrier<CompletionFunction> _barrier;
   ThreadPool _threadPool;
   TaskPtr _task;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
-  static Phase _phase;
-  static bool _diagnosticsEnabled;
+  Phase _phase = PREPROCESSTASK;
   Strategy& _strategy;
   std::vector<TaskProcessorPtr> _processors;
+  std::atomic<unsigned> _totalSessions = 0;
  public:
   ~TaskController();
   bool start();
@@ -72,6 +71,6 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   void run() noexcept;
   void processTask(const HEADER& header, std::vector<char>& input, Response& response);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
-  static bool isDiagnosticsEnabled() { return _diagnosticsEnabled; }
-  static std::atomic<unsigned> _totalSessions;
+  static bool isDiagnosticsEnabled();
+  static std::atomic<unsigned>& totalSessions();
 };

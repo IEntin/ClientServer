@@ -6,7 +6,6 @@
 #include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Compression.h"
-#include "MemoryPool.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
 

@@ -5,7 +5,6 @@
 #include "TcpAcceptor.h"
 #include "ServerOptions.h"
 #include "SessionDetails.h"
-#include "TaskController.h"
 #include "TcpHeartbeat.h"
 #include "TcpSession.h"
 #include "Utility.h"

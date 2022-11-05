@@ -21,14 +21,14 @@ namespace fifo {
 FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
   Runnable(options._maxFifoSessions),
   _options(options), _clientId(clientId), _parent(parent) {
-  TaskController::_totalSessions++;
+  TaskController::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << "-_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
-  TaskController::_totalSessions--;
+  TaskController::totalSessions()--;
   std::filesystem::remove(_fifoName);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
@@ -55,7 +55,7 @@ unsigned FifoSession::getNumberObjects() const {
 void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << " total sessions=" << TaskController::_totalSessions << ' '
+       << " total sessions=" << TaskController::totalSessions() << ' '
        << "fifo sessions=" << _objectCounter._numberObjects << std::endl;
   if (_status == STATUS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

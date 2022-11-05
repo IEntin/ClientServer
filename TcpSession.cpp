@@ -24,7 +24,7 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext),
   _parent(parent) {
-  TaskController::_totalSessions++;
+  TaskController::totalSessions()++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
 }
@@ -33,7 +33,7 @@ TcpSession::~TcpSession() {
   auto heartbeat = _heartbeat.lock();
   if (heartbeat)
     heartbeat->stop();
-  TaskController::_totalSessions--;
+  TaskController::totalSessions()--;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -73,7 +73,7 @@ unsigned TcpSession::getNumberObjects() const {
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << " total sessions=" << TaskController::_totalSessions << ' '
+       << " total sessions=" << TaskController::totalSessions() << ' '
        << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
   if (_status == STATUS::MAX_NUMBER_RUNNABLES)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

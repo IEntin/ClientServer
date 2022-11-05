@@ -3,7 +3,6 @@
  */
 
 #include "TaskController.h"
-#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "StrategySelector.h"
 #include "Task.h"
@@ -33,10 +32,6 @@ bool TaskProcessor::start() {
 void TaskProcessor::stop() {
   _stopped.store(true);
 }
-
-TaskController::Phase TaskController::_phase = PREPROCESSTASK;
-bool TaskController::_diagnosticsEnabled = false;
-std::atomic<unsigned> TaskController::_totalSessions;
 
 TaskController::TaskController(const ServerOptions& options) :
   _options(options),
@@ -72,28 +67,26 @@ TaskControllerPtr TaskController::instance(const ServerOptions* options, Operati
 
 void TaskController::onTaskCompletion() noexcept {
   auto taskController = instance();
+  taskController->onCompletion();
+}
+
+void TaskController::onCompletion() {
   switch (_phase) {
   case PREPROCESSTASK:
-    taskController->onCompletionPreprocess();
+    if (_sortInput)
+      _task->sortIndices();
+    _task->resetPointer();
     _phase = PROCESSTASK;
-    return;
+    break;
   case PROCESSTASK:
-    taskController->onCompletionProcess();
+    _task->finish();
+    // Blocks until the new task is available.
+    setNextTask();
     _phase = PREPROCESSTASK;
-    return;
+    break;
+  default:
+    break;
   }
-}
-
-void  TaskController::onCompletionPreprocess() {
-  if (_sortInput)
-    _task->sortIndices();
-  _task->resetPointer();
-}
-
-void TaskController::onCompletionProcess() {
-  _task->finish();
-  // Blocks until the new task is available.
-  setNextTask();
 }
 
 void TaskController::initialize() {
@@ -145,8 +138,13 @@ void TaskController::setNextTask() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
   _task = _queue.front();
-  _diagnosticsEnabled = _task->diagnosticsEnabled();
   _queue.pop();
+}
+
+bool TaskController::isDiagnosticsEnabled() {
+  if (instance()->_task)
+    return instance()->_task->diagnosticsEnabled();
+  return false;
 }
 
 bool TaskController::start() {
@@ -167,4 +165,8 @@ void TaskController::stop() {
 
 void TaskController::wakeupThreads() {
   push(std::make_shared<Task>());
+}
+
+std::atomic<unsigned>& TaskController::totalSessions() {
+  return instance()->_totalSessions;
 }
