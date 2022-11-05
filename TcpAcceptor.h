@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include "Compression.h"

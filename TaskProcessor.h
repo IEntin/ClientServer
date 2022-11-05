@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ObjectCounter.h"
 #include "Runnable.h"
 
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;

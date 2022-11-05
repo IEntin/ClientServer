@@ -6,7 +6,6 @@
 
 #include "CommonConstants.h"
 #include "Header.h"
-#include "ObjectCounter.h"
 #include <atomic>
 #include <memory>
 #include <string>
@@ -32,9 +31,9 @@ class KillThread : public Runnable {
   void run() override {}
   bool start() override { return true; }
   void stop() override {}
-  unsigned getNumberObjects() const override { return _objectCounter._numberObjects; }
-  ObjectCounter<KillThread> _objectCounter;
+  unsigned getNumberObjects() const override { return 0; }
  public:
+  KillThread() = default;
   ~KillThread() override {}
   bool killThread() const override { return true; }
 };
