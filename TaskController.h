@@ -38,9 +38,10 @@ class TaskProcessor : public std::enable_shared_from_this<TaskProcessor>, public
   void stop() override;
 };
 
+enum class TaskControllerOps : char { KEEP, DESTROY, RECREATE };
+
 class TaskController : public std::enable_shared_from_this<TaskController> {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
-  enum Operations { KEEP, DESTROY, RESET };
   using CompletionFunction = void (*) () noexcept;
   TaskController(const ServerOptions& options);
   TaskController(const TaskController& other) = delete;
@@ -70,7 +71,8 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   void stop();
   void run() noexcept;
   void processTask(const HEADER& header, std::vector<char>& input, Response& response);
-  static TaskControllerPtr instance(const ServerOptions* options = nullptr, Operations op = KEEP);
+  static TaskControllerPtr instance(const ServerOptions* options = nullptr,
+				    TaskControllerOps op = TaskControllerOps::KEEP);
   static bool isDiagnosticsEnabled();
   static std::atomic<unsigned>& totalSessions();
 };

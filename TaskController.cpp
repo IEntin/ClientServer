@@ -55,11 +55,22 @@ TaskControllerPtr TaskController::create(const ServerOptions& options) {
   return taskController;
 }
 
-TaskControllerPtr TaskController::instance(const ServerOptions* options, Operations op) {
-  static TaskControllerPtr instance = create(*options);
-  if (op == DESTROY)
-    TaskControllerPtr().swap(instance);
-  return instance;
+TaskControllerPtr TaskController::instance(const ServerOptions* options, TaskControllerOps op) {
+  static TaskControllerPtr single = create(*options);
+  switch (op) {
+  case TaskControllerOps::KEEP:
+    break;
+  case TaskControllerOps::RECREATE:
+    if (!single)
+      single = create(*options);
+    break;
+  case TaskControllerOps::DESTROY:
+    TaskControllerPtr().swap(single);
+    break;
+  default:
+    break;
+  }
+  return single;
 }
 
 // This method is called by one of the threads
@@ -160,7 +171,7 @@ void TaskController::stop() {
   wakeupThreads();
   _threadPool.stop();
   // destroy controller
-  instance(nullptr, DESTROY);
+  instance(nullptr, TaskControllerOps::DESTROY);
 }
 
 void TaskController::wakeupThreads() {

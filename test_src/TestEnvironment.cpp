@@ -36,14 +36,16 @@ void TestEnvironment::SetUp() {
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
-    _taskController = TaskController::instance(&_serverOptions);
+    _taskController = TaskController::instance(&_serverOptions, TaskControllerOps::RECREATE);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() <<std::endl;
   }
 }
 
-void TestEnvironment::TearDown() {}
+void TestEnvironment::TearDown() {
+  _taskController->stop();
+}
 
 void TestEnvironment::reset() {
   _serverOptions = _serverOptionsOrg;
