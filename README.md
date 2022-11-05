@@ -229,25 +229,25 @@ Script profile.sh runs profiling of server and both client types.\
 './profile.sh' in the project root. Two directories for clients\
 should exist with necessary files and links.
 
-Script checkstuff.sh runs builds and tests with both g++ and clang++, with and without\
-sanitizers. Run './checkstuff -h' to see usage.
+Script checkstuff.sh runs builds and tests application with both\
+g++ and clang++, with and without sanitizers. Run './checkstuff -h' to see usage.
 
-We run memory and thread sanitizer and performance profiling before every commit.\
+We run memory and thread sanitizer and performance profiling for every commit.\
 Warnings are considered failures.
 
 =======
 ### Fast Lockless Linux Client-Server with TCP and FIFO clients
 
 Using both bidirectional named pipes and tcp.\
-Lockless: except rare queue operations.\
+Lockless: except infrequent queue operations.\
 Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
-Business logic, tasks multithreading, and communication layer are completely decoupled.\
-Memory pooling. Business logic, compression and most of fifo processing are not allocating.
+Business logic, tasks multithreading, and communication layer are completely decoupled.
 
+Memory pooling. Most of processing in stable regime after startup is not allocating.\
 Tuning the memory pool size allows to drastically reduce memory footprint of the software,\
 especially of the client, with moderate speed decrease, which can in turn reduce hardware\
 requirements.
 
-Business logic here is an example of financial calculations.\
-It can be replaced with any other batch processing from a different field, not necessarily financial.
+Business logic is an example of financial calculations. It can be replaced with any other\
+batch processing from a different field, not necessarily financial.
