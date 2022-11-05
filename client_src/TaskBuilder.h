@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <future>
 #include <string_view>

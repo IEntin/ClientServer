@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Header.h"
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
 

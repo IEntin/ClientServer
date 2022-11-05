@@ -20,23 +20,7 @@ using TaskProcessorPtr = std::shared_ptr<class TaskProcessor>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
-using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
-
 struct ServerOptions;
-
-class TaskProcessor : public std::enable_shared_from_this<TaskProcessor>, public Runnable {
-  TaskProcessor(const TaskController& other) = delete;
-  bool start() override;
-  void run() noexcept override;
-  unsigned getNumberObjects() const override;
-  TaskProcessor& operator =(const TaskController& other) = delete;
-  ObjectCounter<TaskProcessor> _objectCounter;
-  TaskControllerWeakPtr _taskController;
- public:
-  explicit TaskProcessor(TaskControllerWeakPtr taskController);
-  ~TaskProcessor() override;
-  void stop() override;
-};
 
 enum class TaskControllerOps : char { KEEP, DESTROY, RECREATE };
 

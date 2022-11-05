@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <condition_variable>
 #include <deque>
@@ -33,15 +32,4 @@ class ThreadPool {
   void removeFromQueue(RunnablePtr toRemove);
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
-};
-
-class KillThread : public Runnable {
-  void run() override {}
-  bool start() override { return true; }
-  void stop() override {}
-  unsigned getNumberObjects() const override { return _objectCounter._numberObjects; }
-  ObjectCounter<KillThread> _objectCounter;
- public:
-  ~KillThread() override {}
-  bool killThread() const override { return true; }
 };
