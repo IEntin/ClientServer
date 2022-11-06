@@ -105,7 +105,7 @@ void TcpAcceptor::accept() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	  return;
 	}
-	HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+	HEADER header = decodeHeader(buffer);
 	HEADERTYPE type = getHeaderType(header);
 	std::string clientId;
 	ssize_t size = getUncompressedSize(header);

@@ -9,7 +9,7 @@
 EchoStrategy::~EchoStrategy() {}
 
 void EchoStrategy::create(const ServerOptions&) {
-  Task::setProcessMethod(echo::Echo::processRequest);
+  Task::setProcessMethod(Echo::processRequest);
 }
 
 bool EchoStrategy::start(const ServerOptions& options) {

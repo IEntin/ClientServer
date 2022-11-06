@@ -20,7 +20,6 @@ class ThreadPool {
   const unsigned _maxSize;
   static std::shared_ptr<class KillThread> _killThread;
  public:
-  // default 0 means can grow
   explicit ThreadPool(unsigned maxSize = MAX_NUMBER_THREADS_DEFAULT);
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;

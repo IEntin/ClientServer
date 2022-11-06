@@ -5,7 +5,6 @@
 #include "ClientOptions.h"
 #include "FifoAcceptor.h"
 #include "FifoClient.h"
-#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
@@ -14,7 +13,6 @@
 #include "TestEnvironment.h"
 #include "Transaction.h"
 #include "Utility.h"
-#include <gtest/gtest.h>
 
 struct LogicTest : testing::Test {
   void testLogicTcp(COMPRESSORS serverCompressor,
@@ -144,8 +142,8 @@ TEST_F(LogicTest, FIFO_NONE_LZ4_100000_3600000_D) {
   testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, 100000, 3600000);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_10000_500_D) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 10000, 500);
+TEST_F(LogicTest, FIFO_LZ4_LZ4_12345_543_D) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, 12345, 543);
 }
 
 TEST_F(LogicTest, FIFO_LZ4_LZ4_500_10000_D) {

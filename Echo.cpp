@@ -4,8 +4,6 @@
 
 #include "Echo.h"
 
-namespace echo {
-
 // test transport layer, multithreading, and compression
 std::string Echo::processRequest(std::string_view, std::string_view request) noexcept {
   std::string_view response(request);
@@ -15,5 +13,3 @@ std::string Echo::processRequest(std::string_view, std::string_view request) noe
     response.remove_prefix(pos + 1);
   return std::string(response).append(1, '\n');
 }
-
-} // end of namespace echo

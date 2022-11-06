@@ -4,10 +4,8 @@
 
 #include "Compression.h"
 #include "Header.h"
-#include "MemoryPool.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
-#include <gtest/gtest.h>
 
 struct CompressionTest : testing::Test {
 
@@ -128,7 +126,7 @@ TEST(HeaderTest, 1) {
     COMPRESSORS compressor = COMPRESSORS::LZ4;
     bool diagnostics = true;
     encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
-    HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+    HEADER header = decodeHeader(buffer);
     size_t uncomprSzResult = getUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
     size_t comprSzResult = getCompressedSize(header);
@@ -139,7 +137,7 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(diagnostics, diagnosticsResult);
     compressor = COMPRESSORS::NONE;
     encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
-    header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+    header = decodeHeader(buffer);
     compressorResult = getCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
   }

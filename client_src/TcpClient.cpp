@@ -30,7 +30,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec)
     throw(std::runtime_error(std::strerror(errno)));
-  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  HEADER header = decodeHeader(buffer);
   _status = getProblem(header);
   switch (_status) {
   case STATUS::NONE:
@@ -88,7 +88,7 @@ bool TcpClient::receive() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
-  HEADER header = decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  HEADER header = decodeHeader(buffer);
   return readReply(header);
 }
 

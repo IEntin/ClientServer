@@ -15,8 +15,8 @@ std::vector<char>& MemoryPool::getFirstBuffer(size_t requested) {
     return instance()._firstBuffer;
   else if (requested > instance()._firstBuffer.capacity()) {
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << " increased _firstBuffer from " << instance()._firstBuffer.capacity()
-      << " to " << requested << std::endl;
+	 << " increased _firstBuffer from " << instance()._firstBuffer.capacity()
+	 << " to " << requested << std::endl;
     instance()._firstBuffer.reserve(requested);
   }
   return instance()._firstBuffer;
@@ -27,8 +27,8 @@ std::vector<char>& MemoryPool::getSecondBuffer(size_t requested) {
     return instance()._secondBuffer;
   else if (requested > instance()._secondBuffer.capacity()) {
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << " increased _secondBuffer from " << instance()._secondBuffer.capacity()
-      << " to " << requested << std::endl;
+	 << " increased _secondBuffer from " << instance()._secondBuffer.capacity()
+	 << " to " << requested << std::endl;
     instance()._secondBuffer.reserve(requested);
   }
   return instance()._secondBuffer;
@@ -39,8 +39,8 @@ std::vector<char>& MemoryPool::getThirdBuffer(size_t requested) {
     return instance()._thirdBuffer;
   else if (requested > instance()._thirdBuffer.capacity()) {
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << " increased _thirdBuffer from " << instance()._thirdBuffer.capacity()
-      << " to " << requested << std::endl;
+	 << " increased _thirdBuffer from " << instance()._thirdBuffer.capacity()
+	 << " to " << requested << std::endl;
     instance()._thirdBuffer.reserve(requested);
   }
   return instance()._thirdBuffer;

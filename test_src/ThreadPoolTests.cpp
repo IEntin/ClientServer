@@ -3,7 +3,6 @@
  */
 
 #include "ObjectCounter.h"
-#include "Runnable.h"
 #include "ThreadPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>

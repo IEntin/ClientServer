@@ -90,4 +90,4 @@ void encodeHeader(char* buffer,
 		  bool diagnostics,
 		  STATUS status = STATUS::NONE);
 
-HEADER decodeHeader(std::string_view buffer);
+HEADER decodeHeader(const char* buffer);

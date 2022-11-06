@@ -44,7 +44,7 @@ private:
   void asyncWait();
   bool onReceiveRequest();
   bool sendReply(const Response& response);
-  bool decompress(const std::vector<char>& input, std::vector<char>& uncompressed);
+  bool decompress();
   const ServerOptions& _options;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;

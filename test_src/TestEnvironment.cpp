@@ -5,7 +5,6 @@
 #include "TestEnvironment.h"
 #include "ClientOptions.h"
 #include "CommonConstants.h"
-#include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"

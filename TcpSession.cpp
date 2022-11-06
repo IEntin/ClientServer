@@ -87,7 +87,8 @@ bool TcpSession::onReceiveRequest() {
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
-    if (!decompress(_request, _uncompressed)) {
+    _uncompressed.resize(getUncompressedSize(_header));
+    if (!decompress()) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":decompression failed." << std::endl;
       return false;
     }
@@ -112,9 +113,8 @@ bool TcpSession::sendReply(const Response& response) {
 
 void TcpSession::readHeader() {
   asyncWait();
-  std::memset(_headerBuffer, 0, HEADER_SIZE);
   boost::asio::async_read(_socket,
-    boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
+  boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = shared_from_this();
       if (_status == STATUS::MAX_NUMBER_RUNNABLES)
@@ -125,7 +125,7 @@ void TcpSession::readHeader() {
 	_ioContext.stop();
 	return;
       }
-      _header = decodeHeader(std::string_view(_headerBuffer, HEADER_SIZE));
+      _header = decodeHeader(_headerBuffer);
       if (!isOk(_header)) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
 	return;
@@ -175,14 +175,13 @@ void TcpSession::asyncWait() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
 	  _status.store(STATUS::TCP_TIMEOUT);
 	}
-     }
-   }));
+      }
+    }));
 }
 
-bool TcpSession::decompress(const std::vector<char>& input, std::vector<char>& uncompressed) {
-  std::string_view received(input.data(), input.size());
-  uncompressed.resize(getUncompressedSize(_header));
-  Compression::uncompress(received, uncompressed);
+bool TcpSession::decompress() {
+  std::string_view received(_request.data(), _request.size());
+  Compression::uncompress(received, _uncompressed);
   return true;
 }
 

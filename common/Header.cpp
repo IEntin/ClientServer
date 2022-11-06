@@ -32,17 +32,17 @@ void encodeHeader(char* buffer,
   }
 }
 
-HEADER decodeHeader(std::string_view buffer) {
+HEADER decodeHeader(const char* buffer) {
   size_t offset = 0;
   HEADERTYPE headerType = static_cast<HEADERTYPE>(buffer[offset]);
   try {
     offset += HEADERTYPE_SIZE;
     size_t uncomprSize = 0;
-    std::string_view stru(buffer.data() + offset, NUM_FIELD_SIZE);
+    std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
     utility::fromChars(stru, uncomprSize);
     offset += NUM_FIELD_SIZE;
     size_t comprSize = 0;
-    std::string_view strc(buffer.data() + offset, NUM_FIELD_SIZE);
+    std::string_view strc(buffer + offset, NUM_FIELD_SIZE);
     utility::fromChars(strc, comprSize);
     offset += NUM_FIELD_SIZE;
     COMPRESSORS compressor = static_cast<COMPRESSORS>(buffer[offset]);

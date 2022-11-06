@@ -12,7 +12,6 @@
 #include "TcpAcceptor.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
-#include <gtest/gtest.h>
 #include <filesystem>
 
 struct EchoTest : testing::Test {
@@ -65,7 +64,7 @@ struct EchoTest : testing::Test {
   }
 
   static void SetUpTestSuite() {
-    Task::setProcessMethod(echo::Echo::processRequest);
+    Task::setProcessMethod(Echo::processRequest);
   }
 };
 

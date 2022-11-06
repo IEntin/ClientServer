@@ -44,7 +44,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	 << HEADER_SIZE << " readSoFar=" << readSoFar << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
-  return decodeHeader(std::string_view(buffer, HEADER_SIZE));
+  return decodeHeader(buffer);
 }
 
 bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {

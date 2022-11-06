@@ -15,6 +15,4 @@ std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 	    std::string_view host,
 	    std::string_view port);
 
-HEADER receiveHeader(boost::asio::ip::tcp::socket& socket);
-
 } // end of namespace tcp

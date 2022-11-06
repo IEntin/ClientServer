@@ -9,9 +9,6 @@
 
 struct ServerOptions;
 struct ClientOptions;
-struct TcpClientOptions;
-struct FifoClientOptions;
-enum class COMPRESSORS : char;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
