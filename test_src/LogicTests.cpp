@@ -7,7 +7,6 @@
 #include "FifoClient.h"
 #include "ServerOptions.h"
 #include "Task.h"
-#include "TaskController.h"
 #include "TcpClient.h"
 #include "TcpAcceptor.h"
 #include "TestEnvironment.h"

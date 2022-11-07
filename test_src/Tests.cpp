@@ -10,29 +10,25 @@
 struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string_view input) {
-    std::string_view compressedView = Compression::compress(input);
+    std::string_view compressedView = Compression::compress(input.data(), input.size());
     // save to a string before buffer is reused in uncompress
-    std::string compressed;
-    compressed.assign(compressedView.data(), compressedView.size());
-    std::string_view uncompressedView = Compression::uncompress(compressed, input.size());
+    std::string compressed(compressedView.data(), compressedView.size());
+    std::string_view uncompressedView = Compression::uncompress(compressed.data(), compressed.size(), input.size());
     // cerr to make this log visible in gtest
     static auto& printOnce [[maybe_unused]] =
       CERR << "\n   input.size()=" << input.size()
-	<< " compressedView.size()=" << compressedView.size() << " restored to original:"
-	<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+	   << " compressedView.size()=" << compressedView.size() << " restored to original:"
+	   << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
     ASSERT_EQ(input, uncompressedView);
   }
 
   void testCompressionDecompression2(std::string_view input) {
-    std::string_view compressedView = Compression::compress(input);
+    std::string_view compressedView = Compression::compress(input.data(), input.size());
+    // supplied external buffers to uncompress
     std::vector<char> uncompressed(input.size());
-    Compression::uncompress(compressedView, uncompressed);
-    std::string_view uncompressedView(uncompressed.begin(), uncompressed.end());
-    static auto& printOnce [[maybe_unused]] =
-      CERR << "\n   input.size()=" << input.size()
-	<< " compressedView.size()=" << compressedView.size() << " restored to original:"
-	<< std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-    ASSERT_EQ(input, uncompressedView);
+    std::vector<char> compressed(compressedView.begin(), compressedView.end());
+    ASSERT_TRUE(Compression::uncompress(compressed, compressed.size(), uncompressed));
+    ASSERT_EQ(input, std::string_view(uncompressed.data(), uncompressed.size()));
   }
 };
 

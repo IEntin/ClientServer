@@ -87,8 +87,9 @@ bool TcpSession::onReceiveRequest() {
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
-    _uncompressed.resize(getUncompressedSize(_header));
-    if (!decompress()) {
+    size_t uncompressedSize = getUncompressedSize(_header);
+    _uncompressed.resize(uncompressedSize);
+    if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":decompression failed." << std::endl;
       return false;
     }
@@ -177,12 +178,6 @@ void TcpSession::asyncWait() {
 	}
       }
     }));
-}
-
-bool TcpSession::decompress() {
-  std::string_view received(_request.data(), _request.size());
-  Compression::uncompress(received, _uncompressed);
-  return true;
 }
 
 } // end of namespace tcp

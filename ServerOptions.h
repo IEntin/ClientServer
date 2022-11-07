@@ -11,11 +11,11 @@ enum class COMPRESSORS : char;
 struct ServerOptions {
   explicit ServerOptions(const std::string& jsonName = "");
   ~ServerOptions() = default;
+  std::string _processType;
   size_t _bufferSize;
   std::string _adsFileName;
   std::string _fifoDirectoryName;
   std::string _acceptorName;
-  std::string _processType;
   int _numberWorkThreads;
   unsigned _maxTcpSessions;
   unsigned _maxFifoSessions;

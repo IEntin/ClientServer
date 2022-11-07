@@ -155,20 +155,19 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
   bool bcompressed = _options._compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     CLOG << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  std::string_view uncompressed(beg + HEADER_SIZE, end);
-  size_t uncomprSize = uncompressed.size();
+  size_t uncomprSize = end - beg - HEADER_SIZE;
   if (bcompressed) {
-    std::string_view compressed = Compression::compress(uncompressed);
+    std::string_view compressedView = Compression::compress(beg + HEADER_SIZE, uncomprSize);
     // LZ4 may generate compressed larger than uncompressed.
     // In this case an uncompressed subtask is sent.
-    if (compressed.size() >= uncomprSize) {
+    if (compressedView.size() >= uncomprSize) {
       encodeHeader(beg, HEADERTYPE::SESSION, uncomprSize, uncomprSize, COMPRESSORS::NONE, _options._diagnostics);
       subtask._chars.assign(beg, end);
     }
     else {
-      encodeHeader(beg, HEADERTYPE::SESSION, uncomprSize, compressed.size(), _options._compressor, _options._diagnostics);
-      std::copy(compressed.data(), compressed.data() + compressed.size(), beg + HEADER_SIZE);
-      subtask._chars.assign(beg, beg + HEADER_SIZE + compressed.size());
+      encodeHeader(beg, HEADERTYPE::SESSION, uncomprSize, compressedView.size(), _options._compressor, _options._diagnostics);
+      std::copy(compressedView.data(), compressedView.data() + compressedView.size(), beg + HEADER_SIZE);
+      subtask._chars.assign(beg, beg + HEADER_SIZE + compressedView.size());
     }
   }
   else {

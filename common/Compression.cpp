@@ -14,29 +14,44 @@ COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) 
   return compressor;
 }
 
-std::string_view Compression::compressInternal(std::string_view uncompressed,
-					       char* buffer,
-					       size_t dstCapacity) {
-  size_t compressedSize = LZ4_compress_default(uncompressed.data(),
-					       buffer,
-					       uncompressed.size(),
-					       dstCapacity);
+std::string_view Compression::compress(const char* uncompressed, size_t uncompressedSize) {
+  std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(LZ4_compressBound(uncompressedSize));
+  size_t compressedSize = LZ4_compress_default(uncompressed,
+					       buffer.data(),
+					       uncompressedSize,
+					       buffer.capacity());
   if (compressedSize == 0) {
     if (errno)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
-  return { buffer, compressedSize };
+  return { buffer.data(), compressedSize };
 }
 
-bool Compression::uncompressInternal(std::string_view compressed,
-				     char* uncompressed,
-				     size_t uncomprSize) {
-  ssize_t decomprSize = LZ4_decompress_safe(compressed.data(),
-					    uncompressed,
-					    compressed.size(),
+std::string_view Compression::uncompress(const char* compressed,
+					 size_t compressedSize,
+					 size_t uncomprSize) {
+  std::vector<char>& uncompressed = MemoryPool::instance().getFirstBuffer(uncomprSize);
+  ssize_t decomprSize = LZ4_decompress_safe(compressed,
+					    uncompressed.data(),
+					    compressedSize,
 					    uncomprSize);
   if (decomprSize != static_cast<ssize_t>(uncomprSize)) {
+    if (errno)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+    return { 0, 0 };
+  }
+  return { uncompressed.data(), uncomprSize };
+}
+
+bool Compression::uncompress(const std::vector<char>& compressed,
+			     size_t compressedSize,
+			     std::vector<char>& uncompressed) {
+  ssize_t decomprSize = LZ4_decompress_safe(compressed.data(),
+					    uncompressed.data(),
+					    compressedSize,
+					    uncompressed.size());
+  if (decomprSize != static_cast<ssize_t>(uncompressed.size())) {
     if (errno)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     return false;
@@ -46,31 +61,4 @@ bool Compression::uncompressInternal(std::string_view compressed,
 
 int Compression::getCompressBound(int uncomprSize) {
   return LZ4_compressBound(uncomprSize);
-}
-
-std::string_view Compression::compress(std::string_view uncompressed) {
-  std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(LZ4_compressBound(uncompressed.size()));
-  std::string_view dstView = compressInternal(uncompressed, buffer.data(), buffer.capacity());
-  if (dstView.empty()) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":failed to compress payload" << std::endl;
-    throw std::runtime_error("Failed to compress payload.");
-  }
-  return dstView;
-}
-
-std::string_view Compression::uncompress(std::string_view compressed, size_t uncomprSize) {
-  std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(uncomprSize);
-  if (!uncompressInternal(compressed, buffer.data(), uncomprSize)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << std::endl;
-    throw std::runtime_error("Failed to uncompress string.");
-  }
-  return { buffer.data(), uncomprSize };
-}
-
-void Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
-  if (!uncompressInternal(compressed, uncompressed.data(), uncompressed.size())) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " failed" << std::endl;
-    throw std::runtime_error("Failed to uncompress string.");
-  }
 }

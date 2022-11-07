@@ -74,18 +74,17 @@ bool Client::run() {
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   bool bcompressed = compressor == COMPRESSORS::LZ4;
-  std::string_view received(buffer.data(), comprSize);
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
   if (bcompressed) {
-    std::string_view dstView = Compression::uncompress(received, uncomprSize);
-    stream << dstView << std::flush;
+    std::string_view uncompressedView = Compression::uncompress(buffer.data(), comprSize, uncomprSize);
+    stream << uncompressedView << std::flush;
   }
   else
-    stream << received << std::flush;
+    stream << std::string_view(buffer.data(), comprSize) << std::flush;
   switch (status) {
   case STATUS::NONE:
     break;

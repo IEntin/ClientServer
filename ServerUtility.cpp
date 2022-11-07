@@ -28,18 +28,17 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
     std::copy(entry.begin(), entry.end(), buffer.begin() + pos);
     pos += entry.size();
   }
-  std::string_view uncompressedView(buffer.data() + HEADER_SIZE, uncomprSize);
   if (bcompressed) {
-    std::string_view dstView = Compression::compress(uncompressedView);
-    buffer.resize(HEADER_SIZE + dstView.size());
+    std::string_view compressedView = Compression::compress(buffer.data() + HEADER_SIZE, uncomprSize);
+    buffer.resize(HEADER_SIZE + compressedView.size());
     encodeHeader(buffer.data(),
 		 HEADERTYPE::SESSION,
 		 uncomprSize,
-		 dstView.size(),
+		 compressedView.size(),
 		 compressor,
 		 false,
 		 status);
-    std::copy(dstView.begin(), dstView.end(), buffer.begin() + HEADER_SIZE);
+    std::copy(compressedView.data(), compressedView.data() + compressedView.size(), buffer.begin() + HEADER_SIZE);
   }
   else
     encodeHeader(buffer.data(),
@@ -49,8 +48,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
 		 compressor,
 		 false,
 		 status);
-  std::string_view sendView(buffer.cbegin(), buffer.cend());
-  return sendView;
+  return std::string_view(buffer.cbegin(), buffer.cend());
 }
 
 bool readMsgBody(int fd,
@@ -66,9 +64,9 @@ bool readMsgBody(int fd,
     std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
     if (!fifo::Fifo::readString(fd, buffer.data(), comprSize, options._numberRepeatEINTR))
       return false;
-    std::string_view received(buffer.data(), comprSize);
     uncompressed.resize(uncomprSize);
-    Compression::uncompress(received, uncompressed);
+    if (!Compression::uncompress(buffer, comprSize, uncompressed))
+      return false;
   }
   else {
     uncompressed.resize(uncomprSize);

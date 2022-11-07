@@ -11,11 +11,11 @@
 
 ServerOptions::ServerOptions(const std::string& jsonName) {
   AppOptions appOptions(jsonName);
+  _processType = appOptions.get("ProcessType", std::string("Transaction"));
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _processType = appOptions.get("ProcessType", std::string("Transaction"));
   int numberWorkThreadsCfg = appOptions.get("NumberTaskThreads", 0);
   _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::jthread::hardware_concurrency();
   _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);
