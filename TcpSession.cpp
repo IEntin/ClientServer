@@ -97,8 +97,10 @@ bool TcpSession::onReceiveRequest() {
   else
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
-  TaskController::instance()->processTask(_header, (bcompressed ? _uncompressed : _request), _response);
-  if (!sendReply(_response))
+  static thread_local Response response;
+  response.clear();
+  TaskController::instance()->processTask(_header, (bcompressed ? _uncompressed : _request), response);
+  if (!sendReply(response))
     return false;
   return true;
 }

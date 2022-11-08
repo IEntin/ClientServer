@@ -19,7 +19,6 @@ using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
 
 class FifoSession final : public std::enable_shared_from_this<FifoSession>, public Runnable {
   const ServerOptions& _options;
-  const std::string _clientId;
   std::string _fifoName;
   FifoAcceptorPtr _parent;
   int _fdRead = -1;
@@ -27,7 +26,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>, publ
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
-  Response _response;
   ObjectCounter<FifoSession> _objectCounter;
   void run() override;
   void stop() override;

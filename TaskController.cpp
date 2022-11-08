@@ -110,7 +110,7 @@ void TaskController::push(TaskPtr task) {
 
 void TaskController::processTask(const HEADER& header, std::vector<char>& input, Response& response) {
   try {
-    TaskPtr task = std::make_shared<Task>(header, input, response);
+    TaskPtr task = std::make_shared<Task>(header, input);
     auto future = task->getPromise().get_future();
     push(task);
     future.get();

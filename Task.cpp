@@ -11,12 +11,8 @@ ProcessRequest Task::_processRequest = nullptr;
 
 Task::Task() {}
 
-Task::Task(const HEADER& header, std::vector<char>& input, Response& response) : _header(header) {
-  response.clear();
-  _response.swap(response);
-  std::vector<char>& rawInput = MemoryPool::instance().getThirdBuffer();
-  input.swap(rawInput);
-  utility::split(std::string_view(rawInput.data(), rawInput.size()), _rows);
+Task::Task(const HEADER& header, std::vector<char>& input) : _header(header) {
+  utility::split(std::string_view(input.data(), input.size()), _rows);
   _indices.resize(_rows.size());
   for (int i = 0; i < static_cast<int>(_indices.size()); ++i) {
     _indices[i] = i;

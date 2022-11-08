@@ -54,7 +54,6 @@ private:
   HEADER _header;
   std::vector<char> _request;
   std::vector<char> _uncompressed;
-  Response _response;
   TcpAcceptorPtr _parent;
   TcpHeartbeatWeakPtr _heartbeat;
   ObjectCounter<TcpSession> _objectCounter;

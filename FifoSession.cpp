@@ -20,9 +20,10 @@ namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
   Runnable(options._maxFifoSessions),
-  _options(options), _clientId(clientId), _parent(parent) {
+  _options(options),
+  _parent(parent) {
   TaskController::totalSessions()++;
-  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
+  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << "-_fifoName:" << _fifoName << std::endl;
 }
@@ -42,8 +43,10 @@ void FifoSession::run() {
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
       break;
-    TaskController::instance()->processTask(header, _uncompressedRequest, _response);
-    if (!sendResponse(_response))
+    static thread_local Response response;
+    response.clear();
+    TaskController::instance()->processTask(header, _uncompressedRequest, response);
+    if (!sendResponse(response))
       break;
   }
 }

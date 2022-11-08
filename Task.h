@@ -53,7 +53,7 @@ class Task {
  public:
   Task();
 
-  Task(const HEADER& header, std::vector<char>& input, Response& response);
+  Task(const HEADER& header, std::vector<char>& input);
 
   void sortIndices();
 
