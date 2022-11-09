@@ -42,9 +42,9 @@ bool TcpAcceptor::start() {
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
 	 << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
-    stop();
+    return false;
   }
-  return !ec;
+  return true;
 }
 
 void TcpAcceptor::stop() {
