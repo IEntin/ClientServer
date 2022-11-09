@@ -18,6 +18,8 @@
 
 #define CERR std::osyncstream(std::cerr)
 
+enum class STATUS : char;
+
 inline constexpr int CONV_BUFFER_SIZE = 10;
 
 namespace utility {
@@ -148,5 +150,7 @@ struct CloseFileDescriptor {
 std::string readFile(const std::string& name);
 
 void readFile(const std::string& name, std::vector<char>& buffer);
+
+bool displayStatus(STATUS status);
 
 } // end of namespace utility

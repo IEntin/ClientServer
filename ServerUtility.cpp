@@ -25,7 +25,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
   buffer.resize(requestedSize);
   ssize_t pos = HEADER_SIZE;
   for (const auto& entry : response) {
-    std::copy(entry.begin(), entry.end(), buffer.begin() + pos);
+    std::copy(entry.cbegin(), entry.cend(), buffer.begin() + pos);
     pos += entry.size();
   }
   if (bcompressed) {

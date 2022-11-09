@@ -26,7 +26,7 @@ struct CompressionTest : testing::Test {
     std::string_view compressedView = Compression::compress(input.data(), input.size());
     // supplied external buffers to uncompress
     std::vector<char> uncompressed(input.size());
-    std::vector<char> compressed(compressedView.begin(), compressedView.end());
+    std::vector<char> compressed(compressedView.cbegin(), compressedView.cend());
     ASSERT_TRUE(Compression::uncompress(compressed, compressed.size(), uncompressed));
     ASSERT_EQ(input, std::string_view(uncompressed.data(), uncompressed.size()));
   }

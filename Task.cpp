@@ -11,8 +11,8 @@ ProcessRequest Task::_processRequest = nullptr;
 
 Task::Task() {}
 
-Task::Task(const HEADER& header, std::vector<char>& input) : _header(header) {
-  utility::split(std::string_view(input.data(), input.size()), _rows);
+Task::Task(const HEADER& header, const std::vector<char>& input) : _header(header) {
+  utility::split(input, _rows);
   _indices.resize(_rows.size());
   for (int i = 0; i < static_cast<int>(_indices.size()); ++i) {
     _indices[i] = i;

@@ -41,10 +41,10 @@ _input(row._value), _sizeKey(row._key) {
 }
 
 bool Ad::parseIntro() {
-  auto introEnd = std::find(_input.begin(), _input.end(), '[');
+  auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
   if (introEnd == _input.end())
     return false;
-  std::string_view introStr(_input.begin(), introEnd);
+  std::string_view introStr(_input.cbegin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
   _id = vect[ID];
@@ -56,8 +56,8 @@ bool Ad::parseIntro() {
 }
 
 bool Ad::parseArray() {
-  auto arrayStart = std::find(_input.begin(), _input.end(), '[');
-  if (arrayStart == _input.end()) {
+  auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
+  if (arrayStart == _input.cend()) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
 	 << "unexpected format:\"" << _input << '\"' << std::endl;
     return false;

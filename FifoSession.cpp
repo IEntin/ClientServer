@@ -136,7 +136,7 @@ bool FifoSession::sendStatusToClient() {
   size_t size = _fifoName.size();
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  std::copy(_fifoName.begin(), _fifoName.end(), buffer.begin() + HEADER_SIZE);
+  std::copy(_fifoName.cbegin(), _fifoName.cend(), buffer.begin() + HEADER_SIZE);
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed." << std::endl;
   return true;

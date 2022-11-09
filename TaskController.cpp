@@ -79,7 +79,7 @@ void TaskController::onCompletion() {
 void TaskController::initialize() {
   for (int i = 0; i < _options._numberWorkThreads; ++i) {
     auto processor = std::make_shared<TaskProcessor>(weak_from_this());
-    _processors.emplace_back(processor);
+    _processors.emplace_back(processor->weak_from_this());
     _threadPool.push(processor);
   }
 }
@@ -142,8 +142,11 @@ void TaskController::stop() {
   // stop acceptors
   _strategy.stop();
   // stop threads
-  for (auto processor : _processors)
-    processor->stop();
+  for (auto weakPtr : _processors) {
+    auto processor = weakPtr.lock();
+    if (processor)
+      processor->stop();
+  }
   wakeupThreads();
   _threadPool.stop();
   // destroy controller

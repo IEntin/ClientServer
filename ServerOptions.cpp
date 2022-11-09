@@ -25,7 +25,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) {
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 5);
   _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 10);
-  _ENXIOwait = appOptions.get("ENXIOwai", 10);
+  _ENXIOwait = appOptions.get("ENXIOwai", 20);
   _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
   _timingEnabled = appOptions.get("Timing", false);
   _turnOffLogging = appOptions.get("TurnOffLogging", true);

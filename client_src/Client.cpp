@@ -73,6 +73,8 @@ bool Client::run() {
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
+  if (utility::displayStatus(status))
+    return false;
   bool bcompressed = compressor == COMPRESSORS::LZ4;
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
@@ -81,35 +83,15 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 	 << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
   if (bcompressed) {
     std::string_view uncompressedView = Compression::uncompress(buffer.data(), comprSize, uncomprSize);
-    stream << uncompressedView << std::flush;
+    if (uncompressedView.empty()) {
+      utility::displayStatus(STATUS::DECOMPRESSION_PROBLEM);
+      return false;
+    }
+    else
+      stream << uncompressedView << std::flush;
   }
   else
     stream << std::string_view(buffer.data(), comprSize) << std::flush;
-  switch (status) {
-  case STATUS::NONE:
-    break;
-  case STATUS::BAD_HEADER:
-    CERR << "STATUS::BAD_HEADER" << std::endl;
-    break;
-  case STATUS::FIFO_PROBLEM:
-    CERR << "STATUS::FIFO_PROBLEM" << std::endl;
-    break;
-  case STATUS::TCP_PROBLEM:
-    CERR << "STATUS::TCP_PROBLEM" << std::endl;
-    break;
-  case STATUS::TCP_TIMEOUT:
-    CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
-    break;
-  case STATUS::MAX_TOTAL_SESSIONS:
-    CLOG << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
-    break;
-  case STATUS::MAX_NUMBER_RUNNABLES:
-    CLOG << "STATUS::MAX_NUMBER_RUNNABLES" << std::endl;
-    break;
-  default:
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem" << std::endl;
-    break;
-  }
   return true;
 }
 

@@ -16,7 +16,7 @@ using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
 
-using TaskProcessorPtr = std::shared_ptr<class TaskProcessor>;
+using TaskProcessorWeakPtr = std::weak_ptr<class TaskProcessor>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
@@ -47,7 +47,7 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::queue<TaskPtr> _queue;
   Phase _phase = PREPROCESSTASK;
   Strategy& _strategy;
-  std::vector<TaskProcessorPtr> _processors;
+  std::vector<TaskProcessorWeakPtr> _processors;
   std::atomic<unsigned> _totalSessions = 0;
  public:
   ~TaskController();
