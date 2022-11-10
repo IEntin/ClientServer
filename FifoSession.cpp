@@ -21,6 +21,7 @@ namespace fifo {
 FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
   Runnable(options._maxFifoSessions),
   _options(options),
+  _clientId(clientId),
   _parent(parent) {
   TaskController::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
@@ -133,10 +134,10 @@ bool FifoSession::sendStatusToClient() {
 	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
-  size_t size = _fifoName.size();
+  size_t size = _clientId.size();
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  std::copy(_fifoName.cbegin(), _fifoName.cend(), buffer.begin() + HEADER_SIZE);
+  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.begin() + HEADER_SIZE);
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": failed." << std::endl;
   return true;

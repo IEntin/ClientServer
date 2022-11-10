@@ -20,8 +20,10 @@ inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 
 enum class HEADERTYPE : char {
+  NONE,
   SESSION,
-  HEARTBEAT
+  HEARTBEAT,
+  DESTROY_SESSION
 };
 
 enum class COMPRESSORS : char {

@@ -24,16 +24,28 @@ FifoAcceptor::~FifoAcceptor() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-bool FifoAcceptor::unblockAcceptor() {
+std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
+  static std::string emptyString;
   utility::CloseFileDescriptor cfdr(_fd);
   // blocks until the client opens writing end
   _fd = open(_options._acceptorName.data(), O_RDONLY);
   if (_fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return false;
+    return { HEADERTYPE::NONE, emptyString };
   }
-  return true;
+  HEADER header = Fifo::readHeader(_fd, _options._numberRepeatEINTR);
+  size_t size = getUncompressedSize(header);
+  std::string clientId;
+  if (size > 0) {
+    std::vector<char> buffer(size);
+    if (!Fifo::readString(_fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+      return { HEADERTYPE::NONE, emptyString };
+    }
+    clientId.assign(buffer.data(), size);
+  }
+  return { getHeaderType(header), std::move(clientId) };
 }
 
 unsigned FifoAcceptor::getNumberObjects() const {
@@ -42,18 +54,38 @@ unsigned FifoAcceptor::getNumberObjects() const {
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    unblockAcceptor();
+    auto [type, key] = unblockAcceptor();
     if (_stopped)
       break;
-    std::string clientId = utility::getUniqueId();
-    auto session =
-      std::make_shared<FifoSession>(_options, clientId, shared_from_this());
-    _sessions.emplace_back(session);
-    if (!session->start())
-      return;
-    _threadPoolSession.push(session);
+    if (type == HEADERTYPE::SESSION)
+      createSession();
+    else if (type == HEADERTYPE::DESTROY_SESSION)
+      destroySession(key);
   }
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exit" << std::endl;
+}
+
+bool FifoAcceptor::createSession() {
+  std::string clientId = utility::getUniqueId();
+  auto session =
+    std::make_shared<FifoSession>(_options, clientId, shared_from_this());
+  auto [it, inserted] = _sessions.emplace(clientId, session);
+  assert(inserted && "duplicate clientId");
+  if (!session->start())
+    return false;
+  _threadPoolSession.push(session);
+  return true;
+}
+
+void FifoAcceptor::destroySession(const std::string& key) {
+  auto it = _sessions.find(key);
+  if (it != _sessions.end()) {
+    auto weakPtr = it->second;
+    auto session = weakPtr.lock();
+    if (session) {
+      session->stop();
+      _sessions.erase(it);
+    }
+  }
 }
 
 bool FifoAcceptor::start() {
@@ -70,7 +102,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   // stop the children
-  for (RunnableWeakPtr weakPtr : _sessions) {
+  for (auto& [clientId, weakPtr] : _sessions) {
     RunnablePtr runnable = weakPtr.lock();
     if (runnable)
       runnable->stop();

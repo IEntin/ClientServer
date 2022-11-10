@@ -15,6 +15,7 @@ ThreadPool::~ThreadPool() {
 
 void ThreadPool::stop() {
   // wake up and join threads
+  assert(!_stopFlag.test_and_set() && "repeated call");
   try {
     for (unsigned i = 0; i < size(); ++i)
       push(_killThread);

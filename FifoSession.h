@@ -19,6 +19,7 @@ using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
 
 class FifoSession final : public std::enable_shared_from_this<FifoSession>, public Runnable {
   const ServerOptions& _options;
+  std::string _clientId;
   std::string _fifoName;
   FifoAcceptorPtr _parent;
   int _fdRead = -1;
@@ -28,7 +29,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>, publ
   std::vector<char> _uncompressedRequest;
   ObjectCounter<FifoSession> _objectCounter;
   void run() override;
-  void stop() override;
   unsigned getNumberObjects() const override;
   void checkCapacity() override;
   bool sendStatusToClient();
@@ -36,6 +36,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>, publ
   FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr server);
   ~FifoSession() override;
   bool start() override;
+  void stop() override;
 };
 
 } // end of namespace fifo

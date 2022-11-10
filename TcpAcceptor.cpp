@@ -126,7 +126,7 @@ void TcpAcceptor::accept() {
 	    os << details->_socket.remote_endpoint() << std::flush;
 	    clientId.assign(os.str());
 	    auto session = std::make_shared<TcpSession>(_options, details, shared_from_this());
-	    auto [it, inserted] = _sessions.emplace(clientId, session->weak_from_this());
+	    auto [it, inserted] = _sessions.emplace(clientId, session);
 	    if (!inserted) {
 	      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		   << "-duplicate clientId" << std::endl;

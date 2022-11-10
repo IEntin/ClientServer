@@ -15,6 +15,8 @@ struct ServerOptions;
 
 namespace tcp {
 
+using TcpSessionWeakPtr = std::weak_ptr<class TcpSession>;
+
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Runnable {
  public:
   TcpAcceptor(const ServerOptions& options);
@@ -42,7 +44,7 @@ private:
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
   ThreadPool _threadPoolHeartbeat;
-  std::map<std::string, std::weak_ptr<class TcpSession>> _sessions;
+  std::map<std::string, TcpSessionWeakPtr> _sessions;
   ObjectCounter<TcpAcceptor> _objectCounter;
 };
 

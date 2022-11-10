@@ -7,25 +7,31 @@
 #include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
-#include <vector>
+#include <map>
 
 struct ServerOptions;
+
+enum class HEADERTYPE : char;
 
 using RunnableWeakPtr = std::weak_ptr<Runnable>;
 
 namespace fifo {
+
+using FifoSessionWeakPtr = std::weak_ptr<class FifoSession>;
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
   void run() override;
   bool start() override;
   void stop() override;
   unsigned getNumberObjects() const override;
-  bool unblockAcceptor();
+  std::pair<HEADERTYPE, std::string> unblockAcceptor();
+  bool createSession();
+  void destroySession(const std::string& key);
   void removeFifoFiles();
   const ServerOptions& _options;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
-  std::vector<RunnableWeakPtr> _sessions;
+  std::map<std::string, FifoSessionWeakPtr> _sessions;
   int _fd = -1;
   ObjectCounter<FifoAcceptor> _objectCounter;
  public:

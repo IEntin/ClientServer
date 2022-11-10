@@ -19,7 +19,8 @@ class ThreadPool {
   std::deque<RunnablePtr> _queue;
   const unsigned _maxSize;
   static std::shared_ptr<class KillThread> _killThread;
- public:
+  std::atomic_flag _stopFlag = ATOMIC_FLAG_INIT;
+  public:
   explicit ThreadPool(unsigned maxSize = MAX_NUMBER_THREADS_DEFAULT);
   ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;
