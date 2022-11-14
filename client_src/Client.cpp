@@ -64,7 +64,7 @@ bool Client::run() {
 	return false;
       if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
 	break;
-    } while (_options._runLoop && !_stopFlag.test());
+    } while (_options._runLoop);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;

@@ -7,7 +7,6 @@
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
 #include <cassert>
 #include <csignal>
 
@@ -36,8 +35,6 @@ int main() {
     taskController->stop();
     int closed = fcloseall();
     assert(closed == 0);
-    if (!boost::interprocess::named_mutex::remove(WAKEUP_MUTEX))
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed." << std::endl;
     return 0;
   }
   catch (const std::exception& e) {

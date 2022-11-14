@@ -8,7 +8,6 @@
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
 
 ServerOptions TestEnvironment::_serverOptions;
 std::ostringstream TestEnvironment::_oss;
@@ -23,10 +22,7 @@ const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
 TestEnvironment::TestEnvironment() {}
 
-TestEnvironment::~TestEnvironment() {
-  if (!boost::interprocess::named_mutex::remove(WAKEUP_MUTEX))
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " mamed_mutex remove failed." << std::endl;
-}
+TestEnvironment::~TestEnvironment() {}
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
