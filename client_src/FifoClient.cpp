@@ -43,6 +43,10 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       _status.store(STATUS::NONE);
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
+      if (_stopFlag.test()) {
+	onClose();
+	return false;
+      }
       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
     }
     // server stopped

@@ -24,7 +24,6 @@ class FifoClient : public Client {
 
   void onClose();
 
-  std::string _clientId;
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;

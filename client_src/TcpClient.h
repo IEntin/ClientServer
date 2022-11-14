@@ -23,7 +23,6 @@ class TcpClient : public Client {
 
   boost::asio::ip::tcp::socket _socket;
 
-  std::string _clientId;
  public:
 
   TcpClient(const ClientOptions& options);

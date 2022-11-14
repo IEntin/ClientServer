@@ -30,6 +30,8 @@ class Client {
 
   std::atomic<STATUS> _status = STATUS::NONE;
 
+  std::string _clientId;
+
   static std::atomic_flag _stopFlag;
 
  public:
