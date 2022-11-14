@@ -17,10 +17,13 @@ class TcpClient : public Client {
 
   bool readReply(const HEADER& header);
 
+  void readStatus();
+
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
 
+  std::string _clientId;
  public:
 
   TcpClient(const ClientOptions& options);

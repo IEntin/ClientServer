@@ -20,10 +20,13 @@ inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 
 enum class HEADERTYPE : char {
-  NONE,
+  CREATE_SESSION,
   SESSION,
+  DESTROY_SESSION,
+  CREATE_HEARTBEAT,
   HEARTBEAT,
-  DESTROY_SESSION
+  DESTROY_HEARTBEAT,
+  ERROR
 };
 
 enum class COMPRESSORS : char {
@@ -40,7 +43,7 @@ enum class STATUS : char {
   TCP_PROBLEM,
   TCP_TIMEOUT,
   MAX_TOTAL_SESSIONS,
-  MAX_NUMBER_RUNNABLES
+  MAX_SPECIFIC_SESSIONS
 };
 
 enum class HEADER_INDEX : char {
@@ -93,5 +96,7 @@ void encodeHeader(char* buffer,
 		  COMPRESSORS,
 		  bool diagnostics,
 		  STATUS status = STATUS::NONE);
+
+void encodeHeader(char* buffer, const HEADER& header);
 
 HEADER decodeHeader(const char* buffer);

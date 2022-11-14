@@ -22,7 +22,7 @@ class FifoClient : public Client {
 
   bool wakeupAcceptor();
 
-  void onClientClosed();
+  void onClose();
 
   std::string _clientId;
   std::string _fifoName;

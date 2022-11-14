@@ -32,7 +32,7 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
   if (_fd == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return { HEADERTYPE::NONE, emptyString };
+    return { HEADERTYPE::ERROR, emptyString };
   }
   HEADER header = Fifo::readHeader(_fd, _options._numberRepeatEINTR);
   size_t size = getUncompressedSize(header);
@@ -41,7 +41,7 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     std::vector<char> buffer(size);
     if (!Fifo::readString(_fd, buffer.data(), size, _options._numberRepeatEINTR)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
-      return { HEADERTYPE::NONE, emptyString };
+      return { HEADERTYPE::ERROR, emptyString };
     }
     clientId.assign(buffer.data(), size);
   }
@@ -57,7 +57,7 @@ void FifoAcceptor::run() {
     auto [type, key] = unblockAcceptor();
     if (_stopped)
       break;
-    if (type == HEADERTYPE::SESSION)
+    if (type == HEADERTYPE::CREATE_SESSION)
       createSession();
     else if (type == HEADERTYPE::DESTROY_SESSION)
       destroySession(key);

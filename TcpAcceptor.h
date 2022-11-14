@@ -15,7 +15,9 @@ struct ServerOptions;
 
 namespace tcp {
 
-using TcpSessionWeakPtr = std::weak_ptr<class TcpSession>;
+using ConnectionMap = std::map<std::string, RunnableWeakPtr>;
+
+using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Runnable {
  public:
@@ -27,6 +29,12 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Run
   void remove(RunnablePtr toRemove);
 
 private:
+
+  struct Request {
+    HEADERTYPE _type;
+    ConnectionMap::iterator _iterator;
+    bool _success;
+  };
   void accept();
 
   void run() override;
@@ -37,6 +45,14 @@ private:
 
   unsigned getNumberObjects() const override;
 
+  Request findSession(boost::asio::ip::tcp::socket& socket);
+
+  bool createSession(SessionDetailsPtr details);
+
+  bool createHeartbeat(SessionDetailsPtr details);
+
+  void removeDeadSessions();
+
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
@@ -44,7 +60,8 @@ private:
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
   ThreadPool _threadPoolHeartbeat;
-  std::map<std::string, TcpSessionWeakPtr> _sessions;
+  ConnectionMap _sessions;
+  ConnectionMap _heartbeats;
   ObjectCounter<TcpAcceptor> _objectCounter;
 };
 

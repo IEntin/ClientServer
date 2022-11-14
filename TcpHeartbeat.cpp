@@ -12,28 +12,36 @@ namespace tcp {
 
 TcpHeartbeat::TcpHeartbeat(const ServerOptions& options,
 			   SessionDetailsPtr details,
-			   TcpSessionWeakPtr sessionWeakPtr,
+			   std::string_view clientId,
 			   RunnablePtr parent) :
   _options(options),
+  _clientId(clientId),
   _details(details),
   _parent(parent),
   _ioContext(_details->_ioContext),
   _strand(boost::asio::make_strand(_ioContext)),
   _socket(_details->_socket),
-  _heartbeatTimer(_ioContext),
-  _sessionWeakPtr(sessionWeakPtr) {
+  _heartbeatTimer(_ioContext) {
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
 }
 
 TcpHeartbeat::~TcpHeartbeat() {
-  auto session = _sessionWeakPtr.lock();
-  if (session)
-    session->stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpHeartbeat::start() {
+  checkCapacity();
+  size_t size = _clientId.size();
+  std::vector<char> buffer(HEADER_SIZE + size);
+  encodeHeader(buffer.data(), HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
+  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
+  boost::system::error_code ec;
+  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    return false;
+  }
   return true;
 }
 

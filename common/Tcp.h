@@ -15,4 +15,13 @@ std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 	    std::string_view host,
 	    std::string_view port);
 
+bool readMsg(boost::asio::ip::tcp::socket& socket,
+	     HEADER& header,
+	     std::vector<char>& payload,
+	     boost::system::error_code ec);
+
+bool sendMsg(boost::asio::ip::tcp::socket& socket,
+	     const HEADER& header,
+	     std::string_view payload = std::string_view());
+
 } // end of namespace tcp

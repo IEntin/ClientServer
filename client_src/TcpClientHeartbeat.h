@@ -20,13 +20,21 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   unsigned getNumberObjects() const override;
 
+  bool closeHeartbeat();
+
+  bool closeSession();
+
+  void readStatus();
+
   const ClientOptions& _options;
+
+  std::string _clientId;
+
+  const std::string _sessionClientId;
 
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
-
-  char _heartbeatBuffer[HEADER_SIZE] = {};
 
   ObjectCounter<TcpClientHeartbeat> _objectCounter;
 

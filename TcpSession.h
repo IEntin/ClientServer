@@ -28,13 +28,15 @@ using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public Runnable {
   friend class TcpHeartbeat;
 public:
-  TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent);
+  TcpSession(const ServerOptions& options,
+	     SessionDetailsPtr details,
+	     std::string_view clientId,
+	     TcpAcceptorPtr parent);
   ~TcpSession() override;
 
   void run() noexcept override;
   bool start() override;
   void stop() override;
-  void setHeartbeat(TcpHeartbeatWeakPtr heartbeat) { _heartbeat = heartbeat; }
   unsigned getNumberObjects() const override;
   void checkCapacity() override;
 private:
@@ -45,6 +47,7 @@ private:
   bool onReceiveRequest();
   bool sendReply(const Response& response);
   const ServerOptions& _options;
+  const std::string _clientId;
   SessionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;
@@ -55,7 +58,6 @@ private:
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   TcpAcceptorPtr _parent;
-  TcpHeartbeatWeakPtr _heartbeat;
   ObjectCounter<TcpSession> _objectCounter;
 };
 

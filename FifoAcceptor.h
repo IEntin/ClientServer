@@ -13,8 +13,6 @@ struct ServerOptions;
 
 enum class HEADERTYPE : char;
 
-using RunnableWeakPtr = std::weak_ptr<Runnable>;
-
 namespace fifo {
 
 using FifoSessionWeakPtr = std::weak_ptr<class FifoSession>;

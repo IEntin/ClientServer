@@ -32,6 +32,11 @@ void encodeHeader(char* buffer,
   }
 }
 
+void encodeHeader(char* buffer, const HEADER& header) {
+  auto [headerType, uncomprSz, comprSz, compressor, diagnostics, status] = header;
+  encodeHeader(buffer, headerType, uncomprSz, comprSz, compressor, diagnostics, status);
+}
+
 HEADER decodeHeader(const char* buffer) {
   size_t offset = 0;
   HEADERTYPE headerType = static_cast<HEADERTYPE>(buffer[offset]);

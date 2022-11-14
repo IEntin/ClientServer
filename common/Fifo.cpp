@@ -34,7 +34,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
     else if (result == 0) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
-      return { HEADERTYPE::SESSION, 0, 0, COMPRESSORS::NONE, false, STATUS::FIFO_PROBLEM };
+      return { HEADERTYPE::ERROR, 0, 0, COMPRESSORS::NONE, false, STATUS::FIFO_PROBLEM };
     }
     else
       readSoFar += static_cast<size_t>(result);

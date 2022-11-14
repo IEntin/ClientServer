@@ -42,7 +42,7 @@ TEST(ThreadPoolTest, Fixed) {
     if (i < maxNumberThreads)
       ASSERT_TRUE(runnable->_status == STATUS::NONE);
     else
-      ASSERT_TRUE(runnable->_status == STATUS::MAX_NUMBER_RUNNABLES);
+      ASSERT_TRUE(runnable->_status == STATUS::MAX_SPECIFIC_SESSIONS);
     pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());

@@ -16,6 +16,7 @@ Client::Client(const ClientOptions& options) : _options(options) {}
 Client::~Client() {
   _threadPoolTaskBuilder.stop();
   _threadPoolTcpHeartbeat.stop();
+  _stopFlag.clear();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 

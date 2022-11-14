@@ -51,7 +51,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     // client closed
     if (_stopFlag.test()) {
       // status waiting
-      onClientClosed();
+      onClose();
       return false;
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -99,11 +99,11 @@ bool FifoClient::wakeupAcceptor() {
     return false;
   }
   char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
+  encodeHeader(buffer, HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
   return Fifo::writeString(_fdWrite, std::string_view(buffer, HEADER_SIZE)); 
 }
 
-void  FifoClient::onClientClosed() {
+void FifoClient::onClose() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
@@ -115,7 +115,7 @@ void  FifoClient::onClientClosed() {
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
-  Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size())); 
+  Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
 }
 
 bool FifoClient::receiveStatus() {
@@ -140,7 +140,7 @@ bool FifoClient::receiveStatus() {
   switch (_status) {
   case STATUS::NONE:
     break;
-  case STATUS::MAX_NUMBER_RUNNABLES:
+  case STATUS::MAX_SPECIFIC_SESSIONS:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"

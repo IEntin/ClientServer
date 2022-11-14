@@ -12,6 +12,8 @@
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 
+using RunnableWeakPtr = std::weak_ptr<class Runnable>;
+
 class Runnable {
  public:
   Runnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT);

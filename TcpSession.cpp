@@ -15,9 +15,13 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, TcpAcceptorPtr parent) :
+TcpSession::TcpSession(const ServerOptions& options,
+		       SessionDetailsPtr details,
+		       std::string_view clientId,
+		       TcpAcceptorPtr parent) :
   Runnable(options._maxTcpSessions),
   _options(options),
+  _clientId(clientId),
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),
@@ -30,19 +34,18 @@ TcpSession::TcpSession(const ServerOptions& options, SessionDetailsPtr details, 
 }
 
 TcpSession::~TcpSession() {
-  auto heartbeat = _heartbeat.lock();
-  if (heartbeat)
-    heartbeat->stop();
   TaskController::totalSessions()--;
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpSession::start() {
   checkCapacity();
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
+  size_t size = _clientId.size();
+  std::vector<char> buffer(HEADER_SIZE + size);
+  encodeHeader(buffer.data(), HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
+  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
   boost::system::error_code ec;
-  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
@@ -75,7 +78,7 @@ void TcpSession::checkCapacity() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::totalSessions() << ' '
        << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
-  if (_status == STATUS::MAX_NUMBER_RUNNABLES)
+  if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
@@ -120,7 +123,7 @@ void TcpSession::readHeader() {
   boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = shared_from_this();
-      if (_status == STATUS::MAX_NUMBER_RUNNABLES)
+      if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
 	_status.store(STATUS::NONE);
       if (ec) {
 	(ec == boost::asio::error::eof ? CLOG : CERR)
