@@ -81,7 +81,7 @@ inline bool isDiagnosticsEnabled(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::DIAGNOSTICS)>(header);
 }
 
-inline STATUS getProblem(const HEADER& header) {
+inline STATUS getStatus(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header);
 }
 

@@ -77,7 +77,7 @@ void TcpClientHeartbeat::readStatus() {
   if (ec)
     throw(std::runtime_error(ec.what()));
   _clientId.assign(payload.data(), payload.size());
-  _status = getProblem(header);
+  _status = getStatus(header);
   switch (_status) {
   case STATUS::NONE:
     break;
