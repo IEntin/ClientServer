@@ -19,8 +19,9 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
-  if (!sendMsg(_socket, header, _clientId))
-    throw(std::runtime_error("TcpClientHeartbeat ctor failed."));
+  auto [success, ec] = sendMsg(_socket, header, _clientId);
+  if (!success)
+    throw(std::runtime_error(ec.what()));
   readStatus();
 }
 
@@ -72,8 +73,7 @@ void TcpClientHeartbeat::run() noexcept {
 void TcpClientHeartbeat::readStatus() {
   HEADER header;
   std::vector<char> payload;
-  boost::system::error_code ec;
-  readMsg(_socket, header, payload, ec);
+  auto [success, ec] = readMsg(_socket, header, payload);
   if (ec)
     throw(std::runtime_error(ec.what()));
   _clientId.assign(payload.data(), payload.size());
@@ -94,7 +94,7 @@ bool TcpClientHeartbeat::closeHeartbeat() {
     return false;
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, _status };
-  return sendMsg(socket, header, _clientId);
+  return sendMsg(socket, header, _clientId).first;
 }
 
 bool TcpClientHeartbeat::closeSession() {
@@ -105,7 +105,7 @@ bool TcpClientHeartbeat::closeSession() {
     return false;
   size_t size = _sessionClientId.size();
   HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
-  return sendMsg(socket, header, _sessionClientId);
+  return sendMsg(socket, header, _sessionClientId).first;
 }
 
 } // end of namespace tcp

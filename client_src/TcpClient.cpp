@@ -19,8 +19,9 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
-  if (!sendMsg(_socket, header))
-    throw(std::runtime_error("TcpClient ctor failed."));
+  auto [success, ec] = sendMsg(_socket, header);
+  if (!success)
+    throw(std::runtime_error(ec.what()));
   readStatus();
   auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
   _threadPoolTcpHeartbeat.push(heartbeat);
@@ -72,8 +73,7 @@ bool TcpClient::readReply(const HEADER& header) {
 void TcpClient::readStatus() {
   HEADER header;
   std::vector<char> payload;
-  boost::system::error_code ec;
-  readMsg(_socket, header, payload, ec);
+  auto [success, ec] = readMsg(_socket, header, payload);
   if (ec)
     throw(std::runtime_error(ec.what()));
   _clientId.assign(payload.data(), payload.size());

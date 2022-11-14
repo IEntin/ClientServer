@@ -5,6 +5,7 @@
 #include "TcpSession.h"
 #include "TcpAcceptor.h"
 #include "TcpHeartbeat.h"
+#include "Tcp.h"
 #include "Compression.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
@@ -41,16 +42,8 @@ TcpSession::~TcpSession() {
 bool TcpSession::start() {
   checkCapacity();
   size_t size = _clientId.size();
-  std::vector<char> buffer(HEADER_SIZE + size);
-  encodeHeader(buffer.data(), HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
-  boost::system::error_code ec;
-  size_t result[[maybe_unused]] = boost::asio::write(_socket, boost::asio::buffer(buffer), ec);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-    return false;
-  }
-  return true;
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  return sendMsg(_socket, header, _clientId).first;
 }
 
 void TcpSession::run() noexcept {

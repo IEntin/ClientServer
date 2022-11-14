@@ -88,8 +88,7 @@ void TcpAcceptor::removeDeadSessions() {
 TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
   HEADER header;
   std::vector<char> payload;
-  boost::system::error_code ec;
-  readMsg(socket, header, payload, ec);
+  auto [success, ec] = readMsg(socket, header, payload);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };
