@@ -15,9 +15,6 @@ void signal_handler(int) {
 
 int main() {
   ClientOptions options("ClientOptions.json");
-  const std::string communicationType = options._communicationType;
-  const bool useFifo = communicationType == "FIFO";
-  const bool useTcp = communicationType == "TCP";
   std::signal(SIGINT, signal_handler);
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
@@ -25,12 +22,12 @@ int main() {
   std::cout.tie(nullptr);
   signal(SIGPIPE, SIG_IGN);
   try {
-    if (useFifo) {
+    if (options._fifoClient) {
       fifo::FifoClient client(options);
       if (!client.run())
 	return 1;
     }
-    if (useTcp) {
+    if (options._tcpClient) {
       tcp::TcpClient client(options);
       if (!client.run())
 	return 2;

@@ -16,12 +16,16 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string
  _socket(_ioContext) {
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
-  if (error)
-    throw(std::runtime_error(error.what()));
+  if (error) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << error.what() << std::endl;
+    return;
+  }
   HEADER header{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
   auto [success, ec] = sendMsg(_socket, header, _clientId);
-  if (!success)
-    throw(std::runtime_error(ec.what()));
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
+    return;
+  }
   readStatus();
 }
 
@@ -74,8 +78,10 @@ void TcpClientHeartbeat::readStatus() {
   HEADER header;
   std::vector<char> payload;
   auto [success, ec] = readMsg(_socket, header, payload);
-  if (ec)
-    throw(std::runtime_error(ec.what()));
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
+    return;
+  }
   _clientId.assign(payload.data(), payload.size());
   _status = getStatus(header);
   switch (_status) {

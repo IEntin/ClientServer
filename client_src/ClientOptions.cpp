@@ -11,6 +11,8 @@
 ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) {
   AppOptions appOptions(jsonName);
   _communicationType = appOptions.get("CommunicationType", std::string(""));
+  _fifoClient = _communicationType == "FIFO";
+  _tcpClient = _communicationType == "TCP";
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   if (externalDataStream)
