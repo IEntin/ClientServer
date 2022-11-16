@@ -10,25 +10,35 @@
 struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string_view input) {
-    std::string_view compressedView = Compression::compress(input.data(), input.size());
-    // save to a string before buffer is reused in uncompress
-    std::string compressed(compressedView.data(), compressedView.size());
-    std::string_view uncompressedView = Compression::uncompress(compressed.data(), compressed.size(), input.size());
-    // cerr to make this log visible in gtest
-    static auto& printOnce [[maybe_unused]] =
-      CERR << "\n   input.size()=" << input.size()
-	   << " compressedView.size()=" << compressedView.size() << " restored to original:"
-	   << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-    ASSERT_EQ(input, uncompressedView);
+    try{
+      std::string_view compressedView = Compression::compress(input.data(), input.size());
+      // save to a string before buffer is reused in uncompress
+      std::string compressed(compressedView.data(), compressedView.size());
+      std::string_view uncompressedView = Compression::uncompress(compressed.data(), compressed.size(), input.size());
+      // cerr to make this log visible in gtest
+      static auto& printOnce [[maybe_unused]] =
+	CERR << "\n   input.size()=" << input.size()
+	     << " compressedView.size()=" << compressedView.size() << " restored to original:"
+	     << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+      ASSERT_EQ(input, uncompressedView);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    }
   }
 
   void testCompressionDecompression2(std::string_view input) {
-    std::string_view compressedView = Compression::compress(input.data(), input.size());
-    // supplied external buffers to uncompress
-    std::vector<char> uncompressed(input.size());
-    std::vector<char> compressed(compressedView.cbegin(), compressedView.cend());
-    ASSERT_TRUE(Compression::uncompress(compressed, compressed.size(), uncompressed));
-    ASSERT_EQ(input, std::string_view(uncompressed.data(), uncompressed.size()));
+    try{
+      std::string_view compressedView = Compression::compress(input.data(), input.size());
+      // supplied external buffers to uncompress
+      std::vector<char> uncompressed(input.size());
+      std::vector<char> compressed(compressedView.cbegin(), compressedView.cend());
+      ASSERT_TRUE(Compression::uncompress(compressed, compressed.size(), uncompressed));
+      ASSERT_EQ(input, std::string_view(uncompressed.data(), uncompressed.size()));
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    }
   }
 };
 

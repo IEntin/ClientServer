@@ -29,16 +29,22 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
     pos += entry.size();
   }
   if (bcompressed) {
-    std::string_view compressedView = Compression::compress(buffer.data() + HEADER_SIZE, uncomprSize);
-    buffer.resize(HEADER_SIZE + compressedView.size());
-    encodeHeader(buffer.data(),
-		 HEADERTYPE::SESSION,
-		 uncomprSize,
-		 compressedView.size(),
-		 compressor,
-		 false,
-		 status);
-    std::copy(compressedView.data(), compressedView.data() + compressedView.size(), buffer.begin() + HEADER_SIZE);
+    try {
+      std::string_view compressedView = Compression::compress(buffer.data() + HEADER_SIZE, uncomprSize);
+      buffer.resize(HEADER_SIZE + compressedView.size());
+      encodeHeader(buffer.data(),
+		   HEADERTYPE::SESSION,
+		   uncomprSize,
+		   compressedView.size(),
+		   compressor,
+		   false,
+		   status);
+      std::copy(compressedView.data(), compressedView.data() + compressedView.size(), buffer.begin() + HEADER_SIZE);
+    }
+    catch (const std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+      return std::string_view();
+    }
   }
   else
     encodeHeader(buffer.data(),
@@ -77,8 +83,11 @@ bool readMsgBody(int fd,
 }
 
 bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
-  header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
-  if (getStatus(header) != STATUS::NONE) {
+  try {
+    header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }

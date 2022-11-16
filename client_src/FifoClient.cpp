@@ -75,9 +75,15 @@ bool FifoClient::receive() {
 	 << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
-  HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
-  if (!readReply(header)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+  try {
+    HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
+    if (!readReply(header)) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+      return false;
+    }
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
   return true;
@@ -123,43 +129,50 @@ void FifoClient::onClose() {
 }
 
 bool FifoClient::receiveStatus() {
-  int fd = -1;
-  utility::CloseFileDescriptor closefd(fd);
-  fd = open(_options._acceptorName.data(), O_RDONLY);
-  if (fd == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return false;
+  try {
+    int fd = -1;
+    utility::CloseFileDescriptor closefd(fd);
+    fd = open(_options._acceptorName.data(), O_RDONLY);
+    if (fd == -1) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	   << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+      return false;
+    }
+    HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+    size_t size = getUncompressedSize(header);
+    std::vector<char> buffer(size);
+    if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+      return false;
+    }
+    _clientId.assign(buffer.data(), size);
+    _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
+    _status = getStatus(header);
+    switch (_status) {
+    case STATUS::NONE:
+      break;
+    case STATUS::MAX_SPECIFIC_SESSIONS:
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << "\n\t!!!!!!!!!\n"
+	   << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"
+	   << "\tIf you do not close the client, it will wait in the queue for\n"
+	   << "\ta thread available after one of already running fifo clients\n"
+	   << "\tis closed. At this point the client will resume the run.\n"
+	   << "\tYou can also close the client and try again later.\n"
+	   << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
+	   << "\t!!!!!!!!!" << std::endl;
+      break;
+    case STATUS::MAX_TOTAL_SESSIONS:
+      // TBD
+      break;
+    default:
+      break;
+    }
   }
-  HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
-  size_t size = getUncompressedSize(header);
-  std::vector<char> buffer(size);
-  if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
-    return false;
-  }
-  _clientId.assign(buffer.data(), size);
-  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
-  _status = getStatus(header);
-  switch (_status) {
-  case STATUS::NONE:
-    break;
-  case STATUS::MAX_SPECIFIC_SESSIONS:
+  catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"
-	 << "\tIf you do not close the client, it will wait in the queue for\n"
-	 << "\ta thread available after one of already running fifo clients\n"
-	 << "\tis closed. At this point the client will resume the run.\n"
-	 << "\tYou can also close the client and try again later.\n"
-	 << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
-	 << "\t!!!!!!!!!" << std::endl;
-    break;
-  case STATUS::MAX_TOTAL_SESSIONS:
-    // TBD
-    break;
-  default:
-    break;
+	 << ' ' << e.what() << std::endl;
+    return false;
   }
   return true;
 }

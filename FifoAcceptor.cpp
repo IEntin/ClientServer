@@ -27,25 +27,31 @@ FifoAcceptor::~FifoAcceptor() {
 std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
   static std::string emptyString;
   utility::CloseFileDescriptor cfdr(_fd);
-  // blocks until the client opens writing end
-  _fd = open(_options._acceptorName.data(), O_RDONLY);
-  if (_fd == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return { HEADERTYPE::ERROR, emptyString };
-  }
-  HEADER header = Fifo::readHeader(_fd, _options._numberRepeatEINTR);
-  size_t size = getUncompressedSize(header);
-  std::string clientId;
-  if (size > 0) {
-    std::vector<char> buffer(size);
-    if (!Fifo::readString(_fd, buffer.data(), size, _options._numberRepeatEINTR)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+  try {
+    // blocks until the client opens writing end
+    _fd = open(_options._acceptorName.data(), O_RDONLY);
+    if (_fd == -1) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
+	   << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
       return { HEADERTYPE::ERROR, emptyString };
     }
-    clientId.assign(buffer.data(), size);
+    HEADER header = Fifo::readHeader(_fd, _options._numberRepeatEINTR);
+    size_t size = getUncompressedSize(header);
+    std::string clientId;
+    if (size > 0) {
+      std::vector<char> buffer(size);
+      if (!Fifo::readString(_fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+	return { HEADERTYPE::ERROR, emptyString };
+      }
+      clientId.assign(buffer.data(), size);
+    }
+    return { getHeaderType(header), std::move(clientId) };
   }
-  return { getHeaderType(header), std::move(clientId) };
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    return { HEADERTYPE::ERROR, emptyString };
+  }
 }
 
 unsigned FifoAcceptor::getNumberObjects() const {

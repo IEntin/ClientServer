@@ -21,8 +21,8 @@ std::string_view Compression::compress(const char* uncompressed, size_t uncompre
 					       uncompressedSize,
 					       buffer.capacity());
   if (compressedSize == 0) {
-    if (errno)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+	 << (errno ? strerror(errno) : "failed") << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
   return { buffer.data(), compressedSize };
