@@ -19,6 +19,8 @@ class TcpClient : public Client {
 
   void readStatus();
 
+  static void waitHandler(const boost::system::error_code& ec);
+
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;

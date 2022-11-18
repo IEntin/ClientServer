@@ -22,17 +22,23 @@ class Client {
 
   bool printReply(const std::vector<char>& buffer, const HEADER& header);
 
+  void startHeartbeat();
+
   const ClientOptions& _options;
 
   ThreadPool _threadPoolTaskBuilder;
 
-  ThreadPool _threadPoolTcpHeartbeat;
-
   std::atomic<STATUS> _status = STATUS::NONE;
 
-  std::string _clientId;
+  std::atomic_flag _stopFlagWait = ATOMIC_FLAG_INIT;
 
   static std::atomic_flag _stopFlag;
+
+  static std::string _clientId;
+
+  static std:: string _serverHost;
+
+  static std::string _tcpPort;
 
  public:
 
@@ -43,6 +49,8 @@ class Client {
   virtual bool receive() = 0;
 
   bool run();
+
+  static bool closeSession();
 
   static void setStopFlag();
 

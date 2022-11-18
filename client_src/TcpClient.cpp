@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "SessionDetails.h"
 #include "Tcp.h"
-#include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
 namespace tcp {
@@ -23,15 +22,20 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (!success)
     throw(std::runtime_error(ec.what()));
   readStatus();
-  auto heartbeat = std::make_shared<TcpClientHeartbeat>(_options, _clientId);
-  _threadPoolTcpHeartbeat.push(heartbeat);
 }
 
 TcpClient::~TcpClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
+void TcpClient::waitHandler(const boost::system::error_code& ec) {
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+  }
+}
+
 bool TcpClient::send(const std::vector<char>& msg) {
+  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write, TcpClient::waitHandler);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
@@ -49,6 +53,7 @@ bool TcpClient::receive() {
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    closeSession();
     return false;
   }
   _status.store(STATUS::NONE);

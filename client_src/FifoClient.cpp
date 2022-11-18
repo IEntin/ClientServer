@@ -31,7 +31,6 @@ FifoClient::~FifoClient() {
 
 bool FifoClient::send(const std::vector<char>& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  unsigned numberSeconds = 0;
   while (_fdWrite == -1) {
     int rep = 0;
     do {
@@ -40,7 +39,6 @@ bool FifoClient::send(const std::vector<char>& subtask) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
     } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
     if (_fdWrite >= 0) {
-      _status.store(STATUS::NONE);
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
       if (_stopFlag.test()) {
@@ -59,10 +57,6 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       return false;
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    if (++numberSeconds == 5) {
-      CLOG << '.' << std::flush;
-      numberSeconds = 0;
-    }
   }
   return false;
 }
@@ -75,6 +69,7 @@ bool FifoClient::receive() {
 	 << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
+  _status.store(STATUS::NONE);
   try {
     HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
     if (!readReply(header)) {

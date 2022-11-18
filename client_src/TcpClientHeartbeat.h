@@ -6,9 +6,12 @@
 
 #include "ObjectCounter.h"
 #include "Runnable.h"
+#include "ThreadPool.h"
 #include <boost/asio.hpp>
 
 struct ClientOptions;
+
+class Client;
 
 namespace tcp {
 
@@ -20,31 +23,34 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   unsigned getNumberObjects() const override;
 
-  bool closeHeartbeat();
-
-  bool closeSession();
-
   void readStatus();
 
+  static bool closeHeartbeat();
+
   const ClientOptions& _options;
-
-  std::string _clientId;
-
-  const std::string _sessionClientId;
 
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
 
+  ThreadPool _threadPool;
+
   ObjectCounter<TcpClientHeartbeat> _objectCounter;
+
+  static std::string _clientId;
+
+  static std:: string _serverHost;
+
+  static std::string _tcpPort;
 
  public:
 
-  TcpClientHeartbeat(const ClientOptions& options, std::string_view clientId);
+  TcpClientHeartbeat(const ClientOptions& options);
 
   ~TcpClientHeartbeat() override;
 
   bool start() override;
+
   void stop() override;
 };
 

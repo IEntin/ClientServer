@@ -77,14 +77,6 @@ void TcpAcceptor::pushHeartbeat(RunnablePtr heartbeat) {
   _threadPoolHeartbeat.push(heartbeat);
 }
 
-void TcpAcceptor::removeDeadSessions() {
-  for (auto it = _sessions.begin(); it != _sessions.end();)
-    if (!it->second.lock())
-      it = _sessions.erase(it);
-    else
-      ++it;
-}
-
 TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
   HEADER header;
   std::vector<char> payload;
@@ -98,6 +90,7 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
   ConnectionMap::iterator it;
   if (!payload.empty()) {
     clientId.assign(payload.data(), payload.size());
+    
     ConnectionMap& connections =
       (type == HEADERTYPE::CREATE_HEARTBEAT || type == HEADERTYPE::DESTROY_HEARTBEAT) ?
       _heartbeats : _sessions;
@@ -105,12 +98,6 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
     if (it == connections.end()) {
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << ":related connection not found" << std::endl;
-      return { HEADERTYPE::ERROR, connections.end(), false };
-    }
-    auto ptr = it->second.lock();
-    if (!ptr) {
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":corresponding connection destroyed" << std::endl;
       return { HEADERTYPE::ERROR, connections.end(), false };
     }
   }
@@ -170,7 +157,6 @@ void TcpAcceptor::accept() {
 	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
       else {
-	removeDeadSessions();
 	auto [type, it, success] = findSession(details->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
@@ -182,6 +168,7 @@ void TcpAcceptor::accept() {
 	    auto session = it->second.lock();
 	    if (session)
 	      session->stop();
+	    _sessions.erase(it);
 	  }
 	  break;
 	case HEADERTYPE::CREATE_HEARTBEAT:
@@ -193,6 +180,7 @@ void TcpAcceptor::accept() {
 	    auto heartbeat = it->second.lock();
 	    if (heartbeat)
 	      heartbeat->stop();
+	    _heartbeats.erase(it);
 	  }
 	  break;
 	default:

@@ -51,8 +51,6 @@ private:
 
   bool createHeartbeat(SessionDetailsPtr details);
 
-  void removeDeadSessions();
-
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;

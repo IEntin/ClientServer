@@ -3,34 +3,35 @@
  */
 
 #include "TcpClientHeartbeat.h"
-#include "Client.h"
 #include "ClientOptions.h"
 #include "Tcp.h"
 #include "Utility.h"
 
 namespace tcp {
 
-TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::string_view sessionClientId) :
+std::string TcpClientHeartbeat::_clientId;
+std:: string TcpClientHeartbeat::_serverHost;
+std::string TcpClientHeartbeat::_tcpPort;
+
+TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
-  _sessionClientId(sessionClientId),
- _socket(_ioContext) {
+  _socket(_ioContext) {
+  _serverHost = _options._serverHost;
+  _tcpPort = _options._tcpPort;
   auto [endpoint, error] =
-    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
+    setSocket(_ioContext, _socket, _serverHost, _tcpPort);
   if (error) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << error.what() << std::endl;
     return;
   }
   HEADER header{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
   auto [success, ec] = sendMsg(_socket, header, _clientId);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
-    return;
-  }
+  if (!success)
+    throw std::runtime_error(ec.what());
   readStatus();
 }
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
-  closeSession();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -39,15 +40,19 @@ unsigned TcpClientHeartbeat::getNumberObjects() const {
 }
 
 bool TcpClientHeartbeat::start() {
+  _threadPool.push(shared_from_this());
   return true;
 }
 
-void TcpClientHeartbeat::stop() {}
+void TcpClientHeartbeat::stop() {
+  closeHeartbeat();
+  _threadPool.stop();
+}
 
 void TcpClientHeartbeat::run() noexcept {
   char buffer[HEADER_SIZE] = {};
   try {
-    while (!Client::stopped()) {
+    while (true) {
       boost::system::error_code ec;
       boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
       if (ec) {
@@ -64,7 +69,6 @@ void TcpClientHeartbeat::run() noexcept {
 	break;
       }
     }
-    closeHeartbeat();
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
@@ -93,25 +97,15 @@ void TcpClientHeartbeat::readStatus() {
 }
 
 bool TcpClientHeartbeat::closeHeartbeat() {
-  boost::asio::ip::tcp::socket socket(_ioContext);
+  boost::asio::io_context ioContext;
+  boost::asio::ip::tcp::socket socket(ioContext);
   auto [endpoint, error] =
-    setSocket(_ioContext, socket, _options._serverHost, _options._tcpPort);
+    setSocket(ioContext, socket, _serverHost, _tcpPort);
   if (error)
     return false;
   size_t size = _clientId.size();
-  HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, _status };
+  HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
   return sendMsg(socket, header, _clientId).first;
-}
-
-bool TcpClientHeartbeat::closeSession() {
-  boost::asio::ip::tcp::socket socket(_ioContext);
-  auto [endpoint, error] =
-    setSocket(_ioContext, socket, _options._serverHost, _options._tcpPort);
-  if (error)
-    return false;
-  size_t size = _sessionClientId.size();
-  HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
-  return sendMsg(socket, header, _sessionClientId).first;
 }
 
 } // end of namespace tcp
