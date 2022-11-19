@@ -9,26 +9,17 @@
 
 namespace tcp {
 
-std::string TcpClientHeartbeat::_clientId;
-std:: string TcpClientHeartbeat::_serverHost;
-std::string TcpClientHeartbeat::_tcpPort;
-
 TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
   _socket(_ioContext) {
-  _serverHost = _options._serverHost;
-  _tcpPort = _options._tcpPort;
   auto [endpoint, error] =
-    setSocket(_ioContext, _socket, _serverHost, _tcpPort);
+    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << error.what() << std::endl;
     return;
   }
-  HEADER header{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
-  auto [success, ec] = sendMsg(_socket, header, _clientId);
-  if (!success)
-    throw std::runtime_error(ec.what());
-  readStatus();
+  if (!receiveStatus())
+    throw std::runtime_error("TcpClientHeartbeat::receiveStatus failed");
 }
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
@@ -41,12 +32,14 @@ unsigned TcpClientHeartbeat::getNumberObjects() const {
 
 bool TcpClientHeartbeat::start() {
   _threadPool.push(shared_from_this());
+  // defer destruction
+  _self = shared_from_this();
   return true;
 }
 
 void TcpClientHeartbeat::stop() {
-  closeHeartbeat();
   _threadPool.stop();
+  _self.reset();
 }
 
 void TcpClientHeartbeat::run() noexcept {
@@ -78,34 +71,27 @@ void TcpClientHeartbeat::run() noexcept {
   }
 }
 
-void TcpClientHeartbeat::readStatus() {
-  HEADER header;
+bool TcpClientHeartbeat::receiveStatus() {
+  HEADER sendHeader{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
+  auto [sendSuccess, ecSend] = sendMsg(_socket, sendHeader);
+  if (!sendSuccess)
+    return false;
+  HEADER rcvHeader;
   std::vector<char> payload;
-  auto [success, ec] = readMsg(_socket, header, payload);
+  auto [success, ec] = readMsg(_socket, rcvHeader, payload);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
-    return;
+    return false;
   }
-  _clientId.assign(payload.data(), payload.size());
-  _status = getStatus(header);
+  _heartbeatId.assign(payload.data(), payload.size());
+  _status = getStatus(rcvHeader);
   switch (_status) {
   case STATUS::NONE:
     break;
   default:
     break;
   }
-}
-
-bool TcpClientHeartbeat::closeHeartbeat() {
-  boost::asio::io_context ioContext;
-  boost::asio::ip::tcp::socket socket(ioContext);
-  auto [endpoint, error] =
-    setSocket(ioContext, socket, _serverHost, _tcpPort);
-  if (error)
-    return false;
-  size_t size = _clientId.size();
-  HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
-  return sendMsg(socket, header, _clientId).first;
+  return true;
 }
 
 } // end of namespace tcp

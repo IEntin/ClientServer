@@ -15,9 +15,11 @@ class TcpClient : public Client {
 
   bool receive() override;
 
-  bool readReply(const HEADER& header);
+  bool receiveStatus() override;
 
-  void readStatus();
+  bool destroySession() override;
+
+  bool readReply(const HEADER& header);
 
   static void waitHandler(const boost::system::error_code& ec);
 
@@ -30,6 +32,8 @@ class TcpClient : public Client {
   TcpClient(const ClientOptions& options);
 
   ~TcpClient() override;
+
+  bool run() override;
 
 };
 

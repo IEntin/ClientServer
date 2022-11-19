@@ -16,13 +16,13 @@ class FifoClient : public Client {
 
   bool receive() override;
 
+  bool receiveStatus() override;
+
+  bool destroySession() override;
+
   bool readReply(const HEADER& header);
 
-  bool receiveStatus();
-
   bool wakeupAcceptor();
-
-  void onClose();
 
   std::string _fifoName;
   int _fdRead = -1;
@@ -33,6 +33,8 @@ class FifoClient : public Client {
   FifoClient(const ClientOptions& options);
 
   ~FifoClient() override;
+
+  bool run() override;
 
 };
 

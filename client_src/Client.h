@@ -22,7 +22,7 @@ class Client {
 
   bool printReply(const std::vector<char>& buffer, const HEADER& header);
 
-  void startHeartbeat();
+  void start();
 
   const ClientOptions& _options;
 
@@ -34,11 +34,7 @@ class Client {
 
   static std::atomic_flag _stopFlag;
 
-  static std::string _clientId;
-
-  static std:: string _serverHost;
-
-  static std::string _tcpPort;
+  std::string _clientId;
 
  public:
 
@@ -48,9 +44,11 @@ class Client {
 
   virtual bool receive() = 0;
 
-  bool run();
+  virtual bool receiveStatus() = 0;
 
-  static bool closeSession();
+  virtual bool run() = 0;
+
+  virtual bool destroySession() = 0;
 
   static void setStopFlag();
 

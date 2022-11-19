@@ -11,8 +11,6 @@
 
 struct ClientOptions;
 
-class Client;
-
 namespace tcp {
 
 using TcpClientHeartbeatPtr = std::shared_ptr<class TcpClientHeartbeat>;
@@ -23,9 +21,7 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   unsigned getNumberObjects() const override;
 
-  void readStatus();
-
-  static bool closeHeartbeat();
+  bool receiveStatus();
 
   const ClientOptions& _options;
 
@@ -37,11 +33,9 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   ObjectCounter<TcpClientHeartbeat> _objectCounter;
 
-  static std::string _clientId;
+  std::string _heartbeatId;
 
-  static std:: string _serverHost;
-
-  static std::string _tcpPort;
+  TcpClientHeartbeatPtr _self;
 
  public:
 

@@ -12,14 +12,8 @@
 #include "Utility.h"
 
 std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
-std::string Client::_clientId;
-std:: string Client::_serverHost;
-std::string Client::_tcpPort;
 
-Client::Client(const ClientOptions& options) : _options(options) {
-  _serverHost = _options._serverHost;
-  _tcpPort = _options._tcpPort;
-}
+Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
   _threadPoolTaskBuilder.stop();
@@ -55,7 +49,6 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 }
 
 bool Client::run() {
-  startHeartbeat();
   try {
     int numberTasks = 0;
     auto taskBuilder = std::make_shared<TaskBuilder>(_options);
@@ -104,7 +97,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   return true;
 }
 
-void Client::startHeartbeat() {
+void Client::start() {
   try {
     if (_options._enableHeartbeat) {
       auto heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
@@ -124,24 +117,4 @@ void Client::setStopFlag() {
 
 bool Client::stopped() {
   return _stopFlag.test();
-}
-
-bool Client::closeSession() {
-  try {
-    boost::asio::io_context ioContext;
-    boost::asio::ip::tcp::socket socket(ioContext);
-    auto [endpoint, error] =
-      tcp::setSocket(ioContext, socket, _serverHost, _tcpPort);
-    if (error)
-      return false;
-    size_t size = _clientId.size();
-    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, STATUS::NONE };
-    return tcp::sendMsg(socket, header, _clientId).first;
-  }
-  catch (const std::exception& e) {
-    // in fifo tests TcpAcceptor is not created
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
-    return false;
-  }
-  return true;
 }

@@ -21,11 +21,24 @@ TcpClient::TcpClient(const ClientOptions& options) :
   auto [success, ec] = sendMsg(_socket, header);
   if (!success)
     throw(std::runtime_error(ec.what()));
-  readStatus();
+  if (!receiveStatus())
+    throw std::runtime_error("TcpClient::receiveStatus failed");
 }
 
 TcpClient::~TcpClient() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+bool TcpClient::run() {
+  struct OnDestroy {
+    OnDestroy(Client* client) : _client(client) {}
+    ~OnDestroy() {
+      _client->destroySession();
+    }
+    Client* _client = nullptr;
+  } onDestroy(this);
+  start();
+  return Client::run();
 }
 
 void TcpClient::waitHandler(const boost::system::error_code& ec) {
@@ -53,7 +66,6 @@ bool TcpClient::receive() {
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-    closeSession();
     return false;
   }
   _status.store(STATUS::NONE);
@@ -75,12 +87,14 @@ bool TcpClient::readReply(const HEADER& header) {
   return printReply(buffer, header);
 }
 
-void TcpClient::readStatus() {
+bool TcpClient::receiveStatus() {
   HEADER header;
   std::vector<char> payload;
   auto [success, ec] = readMsg(_socket, header, payload);
-  if (ec)
+  if (ec) {
     throw(std::runtime_error(ec.what()));
+    return false;
+  }
   _clientId.assign(payload.data(), payload.size());
   _status = getStatus(header);
   switch (_status) {
@@ -103,6 +117,25 @@ void TcpClient::readStatus() {
   default:
     break;
   }
+  return true;
+}
+
+bool TcpClient::destroySession() {
+  try {
+    boost::asio::ip::tcp::socket socket(_ioContext);
+    auto [endpoint, error] =
+      tcp::setSocket(_ioContext, socket, _options._serverHost, _options._tcpPort);
+    if (error)
+      return false;
+    size_t size = _clientId.size();
+    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, STATUS::NONE };
+    return tcp::sendMsg(socket, header, _clientId).first;
+  }
+  catch (const std::exception& e) {
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    return false;
+  }
+  return true;
 }
 
 } // end of namespace tcp

@@ -21,12 +21,24 @@ FifoClient::FifoClient(const ClientOptions& options) :
   boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
   if (!wakeupAcceptor())
     return;
-  receiveStatus();
+  if (!receiveStatus())
+    throw std::runtime_error("FifoClient::receiveStatus failed");
 }
 
 FifoClient::~FifoClient() {
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+}
+
+bool FifoClient::run() {
+  struct OnDestroy {
+    OnDestroy(Client* client) : _client(client) {}
+    ~OnDestroy() {
+    }
+    Client* _client = nullptr;
+  } onDestroy(this);
+  start();
+  return Client::run();
 }
 
 bool FifoClient::send(const std::vector<char>& subtask) {
@@ -42,7 +54,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
       if (_stopFlag.test()) {
-	onClose();
+	destroySession();
 	return false;
       }
       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
@@ -53,7 +65,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     // client closed
     if (_stopFlag.test()) {
       // status waiting
-      onClose();
+      destroySession();
       return false;
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -108,19 +120,20 @@ bool FifoClient::wakeupAcceptor() {
   return Fifo::writeString(_fdWrite, std::string_view(buffer, HEADER_SIZE)); 
 }
 
-void FifoClient::onClose() {
+bool FifoClient::destroySession() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return;
+    return false;
   }
   size_t size = _clientId.size();
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
   Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
+  return true;
 }
 
 bool FifoClient::receiveStatus() {

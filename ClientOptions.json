@@ -12,6 +12,7 @@
   "Timing" : true,
   "RunLoop" : true,
   "MaxNumberTasks" : 0,
+  "EnableHeartbeat" : true,
   "ServerHost" : "127.0.0.1",
   "TcpPort" : "49152",
   "NumberRepeatEINTR" : 3,
