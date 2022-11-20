@@ -40,6 +40,10 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, pu
 
   void heartbeat();
 
+  void write();
+
+  void read();
+
   const ServerOptions& _options;
   const std::string _clientId;
   SessionDetailsPtr _details;

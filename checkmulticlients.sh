@@ -37,7 +37,7 @@ cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &
 cd $SERVER_DIR/../PrjClient4; ./client > /dev/null &
 cd $SERVER_DIR/../PrjClient5; ./client > /dev/null &
 
-sleep 60
+sleep 120
 
 kill -SIGINT $SERVER_PID
 

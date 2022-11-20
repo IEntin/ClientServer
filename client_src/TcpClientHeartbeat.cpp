@@ -23,6 +23,13 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
 }
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
+  try {
+    auto future = _promise.get_future();
+    future.get();
+  }
+  catch (const std::future_error& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+  }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -32,14 +39,17 @@ unsigned TcpClientHeartbeat::getNumberObjects() const {
 
 bool TcpClientHeartbeat::start() {
   _threadPool.push(shared_from_this());
-  // defer destruction
-  _self = shared_from_this();
   return true;
 }
 
 void TcpClientHeartbeat::stop() {
   _threadPool.stop();
-  _self.reset();
+  try {
+    _promise.set_value();
+  }
+  catch (std::future_error& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+  }
 }
 
 void TcpClientHeartbeat::run() noexcept {
@@ -92,6 +102,26 @@ bool TcpClientHeartbeat::receiveStatus() {
     break;
   }
   return true;
+}
+
+bool TcpClientHeartbeat::destroyHeartbeat(TcpClientHeartbeatPtr heartbeatPtr) {
+  try {
+    boost::asio::io_context ioContext;
+    boost::asio::ip::tcp::socket socket(ioContext);
+    auto [endpoint, error] =
+      setSocket(ioContext, socket, heartbeatPtr->_options._serverHost, heartbeatPtr->_options._tcpPort);
+    if (error) {
+      return false;
+    }
+    size_t size = heartbeatPtr->_heartbeatId.size();
+    HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, heartbeatPtr->_status };
+    auto [success, ec] = sendMsg(socket, header, heartbeatPtr->_heartbeatId);
+    return success;
+  }
+  catch (const boost::system::system_error& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    return false;
+  }
 }
 
 } // end of namespace tcp

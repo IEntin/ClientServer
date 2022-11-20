@@ -58,6 +58,11 @@ void TcpAcceptor::stop() {
       if (session)
 	session->stop();
     }
+    for (auto pr : _heartbeats) {
+      auto heartbeat = pr.second.lock();
+      if (heartbeat)
+       heartbeat->stop();
+    }
   });
   _threadPoolAcceptor.stop();
   _threadPoolHeartbeat.stop();

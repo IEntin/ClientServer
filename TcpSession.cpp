@@ -4,7 +4,6 @@
 
 #include "TcpSession.h"
 #include "TcpAcceptor.h"
-#include "TcpHeartbeat.h"
 #include "Tcp.h"
 #include "Compression.h"
 #include "MemoryPool.h"
@@ -112,10 +111,13 @@ bool TcpSession::sendReply(const Response& response) {
 
 void TcpSession::readHeader() {
   asyncWait();
+  auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket,
   boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
-    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = shared_from_this();
+    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
       if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
 	_status.store(STATUS::NONE);
       if (ec) {
@@ -136,10 +138,13 @@ void TcpSession::readHeader() {
 }
 
 void TcpSession::readRequest() {
+  auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request), boost::asio::bind_executor(_strand,
-    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = shared_from_this();
+    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
@@ -149,10 +154,13 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> nextFunc) {
+  auto weakPtr = weak_from_this();
   boost::asio::async_write(_socket,
     boost::asio::buffer(msg.data(), msg.size()), boost::asio::bind_executor(_strand,
-    [this, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = shared_from_this();
+    [this, weakPtr, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
@@ -163,10 +171,13 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
 }
 
 void TcpSession::asyncWait() {
+  auto weakPtr = weak_from_this();
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
-    [this](const boost::system::error_code& ec) {
-      auto self = shared_from_this();
+    [this, weakPtr](const boost::system::error_code& ec) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;

@@ -17,6 +17,10 @@ Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
   _threadPoolTaskBuilder.stop();
+  if (_heartbeat) {
+    tcp::TcpClientHeartbeat::destroyHeartbeat(_heartbeat);
+    _heartbeat->stop();
+  }
   _stopFlag.clear();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
@@ -100,9 +104,9 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 void Client::start() {
   try {
     if (_options._enableHeartbeat) {
-      auto heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
-      heartbeat->start();
-    }
+      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
+      _heartbeat->start();
+     }
   }
   catch (const std::exception& e) {
     // in fifo tests TcpAcceptor is not created

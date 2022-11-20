@@ -48,7 +48,7 @@ void TcpClient::waitHandler(const boost::system::error_code& ec) {
 }
 
 bool TcpClient::send(const std::vector<char>& msg) {
-  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write, TcpClient::waitHandler);
+  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write, waitHandler);
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);

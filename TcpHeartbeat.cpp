@@ -82,24 +82,47 @@ void TcpHeartbeat::heartbeatWait() {
 }
 
 void TcpHeartbeat::heartbeat() {
-  encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
-  boost::system::error_code ec;
-  size_t result[[maybe_unused]] =
-    boost::asio::write(_socket, boost::asio::buffer(_heartbeatBuffer, HEADER_SIZE), ec);
-  if (ec) {
-    if (ec != boost::asio::error::operation_aborted)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-    _ioContext.stop();
-    return;
-  }
-  char buffer[HEADER_SIZE] = {};
-  boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-    _ioContext.stop();
-    return;
-  }
+  write();
+  read();
   CLOG << '*' << std::flush;
+}
+
+void TcpHeartbeat::read() {
+  auto weakPtr = weak_from_this();
+  boost::asio::async_read(_socket,
+    boost::asio::buffer(_heartbeatBuffer), boost::asio::bind_executor(_strand,
+    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
+      if (ec) {
+	(ec == boost::asio::error::eof ? CLOG : CERR)
+	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	_ioContext.stop();
+	return;
+      }
+      HEADER header = decodeHeader(_heartbeatBuffer);
+      if (!isOk(header)) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
+	return;
+      }
+    }));
+}
+
+void TcpHeartbeat::write() {
+  encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
+  auto weakPtr = weak_from_this();
+  boost::asio::async_write(_socket,
+    boost::asio::buffer(_heartbeatBuffer), boost::asio::bind_executor(_strand,
+    [weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
+      if (ec) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	return;
+      }
+    }));
 }
 
 } // end of namespace tcp

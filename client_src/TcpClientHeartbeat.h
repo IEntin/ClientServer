@@ -8,6 +8,7 @@
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <boost/asio.hpp>
+#include <future>
 
 struct ClientOptions;
 
@@ -25,17 +26,17 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   const ClientOptions& _options;
 
+  std::string _heartbeatId;
+
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;
 
   ThreadPool _threadPool;
 
+  std::promise<void> _promise;
+ 
   ObjectCounter<TcpClientHeartbeat> _objectCounter;
-
-  std::string _heartbeatId;
-
-  TcpClientHeartbeatPtr _self;
 
  public:
 
@@ -46,6 +47,8 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
   bool start() override;
 
   void stop() override;
+
+  static bool destroyHeartbeat(TcpClientHeartbeatPtr heartbeatPtr);
 };
 
 } // end of namespace tcp
