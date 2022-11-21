@@ -104,18 +104,22 @@ bool TcpClientHeartbeat::receiveStatus() {
   return true;
 }
 
-bool TcpClientHeartbeat::destroyHeartbeat(TcpClientHeartbeatPtr heartbeatPtr) {
+bool TcpClientHeartbeat::destroy() {
+  struct CallStop {
+    CallStop(RunnablePtr heartbeat) : _heartbeat(heartbeat) {}
+    ~CallStop() { _heartbeat->stop(); }
+    RunnablePtr _heartbeat;
+  } callStop(shared_from_this());
   try {
     boost::asio::io_context ioContext;
     boost::asio::ip::tcp::socket socket(ioContext);
     auto [endpoint, error] =
-      setSocket(ioContext, socket, heartbeatPtr->_options._serverHost, heartbeatPtr->_options._tcpPort);
-    if (error) {
+      setSocket(ioContext, socket, _options._serverHost, _options._tcpPort);
+    if (error)
       return false;
-    }
-    size_t size = heartbeatPtr->_heartbeatId.size();
-    HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, heartbeatPtr->_status };
-    auto [success, ec] = sendMsg(socket, header, heartbeatPtr->_heartbeatId);
+    size_t size = _heartbeatId.size();
+    HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, _status };
+    auto [success, ec] = sendMsg(socket, header, _heartbeatId);
     return success;
   }
   catch (const boost::system::system_error& e) {

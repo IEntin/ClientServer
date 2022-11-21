@@ -8,11 +8,10 @@
 #include "FifoClient.h"
 #include "ServerOptions.h"
 #include "Task.h"
-#include "TcpClient.h"
 #include "TcpAcceptor.h"
+#include "TcpClient.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
-#include <filesystem>
 
 struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {

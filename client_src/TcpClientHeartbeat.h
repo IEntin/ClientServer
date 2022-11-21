@@ -22,6 +22,8 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   unsigned getNumberObjects() const override;
 
+  void stop() override;
+
   bool receiveStatus();
 
   const ClientOptions& _options;
@@ -46,9 +48,7 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   bool start() override;
 
-  void stop() override;
-
-  static bool destroyHeartbeat(TcpClientHeartbeatPtr heartbeatPtr);
+  bool destroy();
 };
 
 } // end of namespace tcp

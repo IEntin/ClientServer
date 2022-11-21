@@ -4,7 +4,6 @@
 
 #include "Ad.h"
 #include "Utility.h"
-#include <cassert>
 #include <cmath>
 #include <fstream>
 #include <iomanip>

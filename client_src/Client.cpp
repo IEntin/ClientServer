@@ -8,7 +8,6 @@
 #include "Compression.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
-#include "Tcp.h"
 #include "Utility.h"
 
 std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
@@ -18,8 +17,7 @@ Client::Client(const ClientOptions& options) : _options(options) {}
 Client::~Client() {
   _threadPoolTaskBuilder.stop();
   if (_heartbeat) {
-    tcp::TcpClientHeartbeat::destroyHeartbeat(_heartbeat);
-    _heartbeat->stop();
+    _heartbeat->destroy();
   }
   _stopFlag.clear();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
@@ -109,16 +107,10 @@ void Client::start() {
      }
   }
   catch (const std::exception& e) {
-    // in fifo tests TcpAcceptor is not created
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
 }
 
 void Client::setStopFlag() {
   _stopFlag.test_and_set();
-  _stopFlag.notify_all();
-}
-
-bool Client::stopped() {
-  return _stopFlag.test();
 }

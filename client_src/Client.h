@@ -60,6 +60,4 @@ class Client {
 
   static void setStopFlag();
 
-  static bool stopped();
-
 };

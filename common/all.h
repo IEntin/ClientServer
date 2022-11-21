@@ -21,6 +21,7 @@
 #include <cmath>
 #include <condition_variable>
 #include <csignal>
+#include <cstdlib>
 #include <cstring>
 #include <deque>
 #include <fcntl.h>

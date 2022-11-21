@@ -31,12 +31,6 @@ FifoClient::~FifoClient() {
 }
 
 bool FifoClient::run() {
-  struct OnDestroy {
-    OnDestroy(Client* client) : _client(client) {}
-    ~OnDestroy() {
-    }
-    Client* _client = nullptr;
-  } onDestroy(this);
   start();
   return Client::run();
 }
