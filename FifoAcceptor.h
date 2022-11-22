@@ -19,8 +19,6 @@ using FifoSessionWeakPtr = std::weak_ptr<class FifoSession>;
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
   void run() override;
-  bool start() override;
-  void stop() override;
   unsigned getNumberObjects() const override;
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
   bool createSession();
@@ -35,7 +33,8 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() override;
-
+  bool start() override;
+  void stop() override;
   void remove(RunnablePtr toRemove);
 };
 

@@ -4,24 +4,28 @@
 
 #include "Strategy.h"
 #include "FifoAcceptor.h"
-#include "ServerOptions.h"
 #include "TcpAcceptor.h"
 
 Strategy::~Strategy() {}
 
 bool Strategy::start(const ServerOptions& options) {
-  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(options);
-  if (!_tcpAcceptor->start())
+  auto tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(options);
+  _tcpAcceptor = tcpAcceptor->weak_from_this();
+  if (!tcpAcceptor->start())
     return false;
-  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(options);
-  if (!_fifoAcceptor->start())
+
+  auto fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(options);
+  _fifoAcceptor = fifoAcceptor->weak_from_this();
+  if (!fifoAcceptor->start())
     return false;
   return true;
 }
 
 void Strategy::stop() {
-  if (_tcpAcceptor)
-    _tcpAcceptor->stop();
-  if (_fifoAcceptor)
-    _fifoAcceptor->stop();
+  auto tcpAcceptor = _tcpAcceptor.lock();
+  if (tcpAcceptor)
+    tcpAcceptor->stop();
+  auto fifoAcceptor = _fifoAcceptor.lock();
+  if (fifoAcceptor)
+    fifoAcceptor->stop();
 }

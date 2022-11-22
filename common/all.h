@@ -21,6 +21,7 @@
 #include <cmath>
 #include <condition_variable>
 #include <csignal>
+#include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <deque>
@@ -46,6 +47,7 @@
 #include <string.h>
 #include <string_view>
 #include <syncstream>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <thread>

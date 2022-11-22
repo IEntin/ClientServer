@@ -3,6 +3,7 @@
  */
 
 #include "Chronometer.h"
+#include "Metrics.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "Utility.h"
@@ -12,6 +13,13 @@
 void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
+  struct DoAtEnd {
+    DoAtEnd() = default;
+    ~DoAtEnd() {
+      Metrics metrics;
+      metrics.print();
+    }
+  } doAtEnd;
   try {
     signal(SIGPIPE, SIG_IGN);
     std::signal(SIGINT, signalHandler);
@@ -25,13 +33,12 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
-    auto taskController = TaskController::instance(&options);
-    if (!taskController->start())
+    if (!TaskController::start(options))
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
-    taskController->stop();
+    TaskController::stop();
     int closed = fcloseall();
     assert(closed == 0);
     return 0;

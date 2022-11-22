@@ -151,10 +151,3 @@ TEST(HeaderTest, 1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
   }
 }
-
-int main(int argc, char** argv) {
-  TestEnvironment* env = new TestEnvironment();
-  ::testing::AddGlobalTestEnvironment(env);
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

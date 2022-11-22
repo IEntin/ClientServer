@@ -32,13 +32,13 @@ TaskControllerPtr TaskController::create(const ServerOptions& options) {
 }
 
 TaskControllerPtr TaskController::instance(const ServerOptions* options, TaskControllerOps op) {
-  static TaskControllerPtr single = create(*options);
+  static TaskControllerPtr single;
   switch (op) {
-  case TaskControllerOps::KEEP:
+  case TaskControllerOps::FETCH:
     break;
-  case TaskControllerOps::RECREATE:
-    if (!single)
-      single = create(*options);
+  case TaskControllerOps::CREATE:
+    assert(!single && "must be destroyed or not yet created");
+    single = create(*options);
     break;
   case TaskControllerOps::DESTROY:
     TaskControllerPtr().swap(single);
@@ -134,11 +134,12 @@ bool TaskController::isDiagnosticsEnabled() {
   return false;
 }
 
-bool TaskController::start() {
-  return _strategy.start(_options);
+bool TaskController::start(ServerOptions& options) {
+  TaskControllerPtr taskController = instance(&options, TaskControllerOps::CREATE);
+  return taskController->_strategy.start(options);
 }
 
-void TaskController::stop() {
+void TaskController::stopInstance() {
   // stop acceptors
   _strategy.stop();
   // stop threads
@@ -151,6 +152,10 @@ void TaskController::stop() {
   _threadPool.stop();
   // destroy controller
   instance(nullptr, TaskControllerOps::DESTROY);
+}
+
+void TaskController::stop() {
+  instance()->stopInstance();
 }
 
 void TaskController::wakeupThreads() {

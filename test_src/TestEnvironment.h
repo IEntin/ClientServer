@@ -25,9 +25,6 @@ public:
 
   static void reset();
 
-  const size_t _pid;
-  std::string _procFdPath;
-  std::string _procThreadPath;
   static ServerOptions _serverOptions;
   static std::ostringstream _oss;
   static ClientOptions _clientOptions;
@@ -35,7 +32,6 @@ public:
   static std::string _outputD;
   static std::string _outputND;
   static std::string _outputAltFormatD;
-  static TaskControllerPtr _taskController;
  private:
   static const ServerOptions _serverOptionsOrg;
   static const ClientOptions _clientOptionsOrg;

@@ -4,6 +4,7 @@
 
 #include "Chronometer.h"
 #include "ClientOptions.h"
+#include "Metrics.h"
 #include "FifoClient.h"
 #include "TcpClient.h"
 #include "Utility.h"
@@ -14,6 +15,13 @@ void signal_handler(int) {
 }
 
 int main() {
+  struct DoAtEnd {
+    DoAtEnd() = default;
+    ~DoAtEnd() {
+      Metrics metrics;
+      metrics.print();
+    }
+  } doAtEnd;
   ClientOptions options("ClientOptions.json");
   std::signal(SIGINT, signal_handler);
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);

@@ -21,7 +21,12 @@ using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Runnable {
  public:
   TcpAcceptor(const ServerOptions& options);
+
   ~TcpAcceptor() override;
+
+  bool start() override;
+
+  void stop() override;
 
   void pushHeartbeat(RunnablePtr heartbeat);
 
@@ -37,10 +42,6 @@ private:
   void accept();
 
   void run() override;
-
-  bool start() override;
-
-  void stop() override;
 
   unsigned getNumberObjects() const override;
 

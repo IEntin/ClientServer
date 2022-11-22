@@ -22,7 +22,7 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 struct ServerOptions;
 
-enum class TaskControllerOps : char { KEEP, DESTROY, RECREATE };
+enum class TaskControllerOps : char { CREATE, DESTROY, FETCH };
 
 class TaskController : public std::enable_shared_from_this<TaskController> {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
@@ -35,6 +35,7 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   void setNextTask();
   void wakeupThreads();
   static TaskControllerPtr create(const ServerOptions& options);
+  void stopInstance();
   const ServerOptions& _options;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
@@ -51,12 +52,12 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::atomic<unsigned> _totalSessions = 0;
  public:
   ~TaskController();
-  bool start();
-  void stop();
+  static bool start(ServerOptions& options);
+  static void stop();
   void run() noexcept;
   void processTask(const HEADER& header, std::vector<char>& input, Response& response);
   static TaskControllerPtr instance(const ServerOptions* options = nullptr,
-				    TaskControllerOps op = TaskControllerOps::KEEP);
+				    TaskControllerOps op = TaskControllerOps::FETCH);
   static bool isDiagnosticsEnabled();
   static std::atomic<unsigned>& totalSessions();
 };

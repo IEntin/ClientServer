@@ -6,6 +6,7 @@
 #include "Header.h"
 #include <fcntl.h>
 #include <filesystem>
+#include <sys/resource.h>
 #include <unistd.h>
 
 namespace utility {

@@ -8,7 +8,17 @@
 
 struct ServerOptions;
 
-using RunnablePtr = std::shared_ptr<class Runnable>;
+namespace tcp {
+  class TcpAcceptor;
+}
+
+using TcpAcceptorWeakPtr = std::weak_ptr<tcp::TcpAcceptor>;
+
+namespace fifo {
+  class FifoAcceptor;
+}
+
+using FifoAcceptorWeakPtr = std::weak_ptr<fifo::FifoAcceptor>;
 
 class Strategy {
 
@@ -26,8 +36,8 @@ class Strategy {
 
   Strategy() = default;
 
-  RunnablePtr _tcpAcceptor;
+  TcpAcceptorWeakPtr _tcpAcceptor;
 
-  RunnablePtr _fifoAcceptor;
+  FifoAcceptorWeakPtr _fifoAcceptor;
 
 };
