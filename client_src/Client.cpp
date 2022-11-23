@@ -15,11 +15,9 @@ std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
-  _threadPoolTaskBuilder.stop();
-  if (_heartbeat) {
+  if (_heartbeat)
     _heartbeat->destroy();
-  }
-  _stopFlag.clear();
+  _threadPoolTaskBuilder.stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 

@@ -23,13 +23,6 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
 }
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
-  try {
-    auto future = _promise.get_future();
-    future.get();
-  }
-  catch (const std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
-  }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
@@ -44,12 +37,6 @@ bool TcpClientHeartbeat::start() {
 
 void TcpClientHeartbeat::stop() {
   _threadPool.stop();
-  try {
-    _promise.set_value();
-  }
-  catch (std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
-  }
 }
 
 void TcpClientHeartbeat::run() noexcept {

@@ -8,6 +8,9 @@
 #include "Task.h"
 #include "TaskProcessor.h"
 #include "Utility.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
+
+TaskControllerPtr TaskController::_single;
 
 TaskController::TaskController(const ServerOptions& options) :
   _options(options),
@@ -24,37 +27,18 @@ TaskController::~TaskController() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-TaskControllerPtr TaskController::create(const ServerOptions& options) {
-  // to have private constructor do not use make_shared
-  TaskControllerPtr taskController(new TaskController(options));
-  taskController->initialize();
-  return taskController;
-}
-
-TaskControllerPtr TaskController::instance(const ServerOptions* options, TaskControllerOps op) {
-  static TaskControllerPtr single;
-  switch (op) {
-  case TaskControllerOps::FETCH:
-    break;
-  case TaskControllerOps::CREATE:
-    assert(!single && "must be destroyed or not yet created");
-    single = create(*options);
-    break;
-  case TaskControllerOps::DESTROY:
-    TaskControllerPtr().swap(single);
-    break;
-  default:
-    break;
-  }
-  return single;
+TaskControllerWeakPtr TaskController::weakInstance() {
+  return _single;
 }
 
 // This method is called by one of the threads
-// when the current barrier phase is completed.
+// when the current barrier phase completes.
 
 void TaskController::onTaskCompletion() noexcept {
-  auto taskController = instance();
-  taskController->onCompletion();
+  TaskControllerWeakPtr weakPtr(_single);
+  auto ptr = weakPtr.lock();
+  if (ptr)
+    ptr->onCompletion();
 }
 
 void TaskController::onCompletion() {
@@ -76,10 +60,10 @@ void TaskController::onCompletion() {
   }
 }
 
-void TaskController::initialize() {
+void TaskController::startProcessors() {
   for (int i = 0; i < _options._numberWorkThreads; ++i) {
-    auto processor = std::make_shared<TaskProcessor>(weak_from_this());
-    _processors.emplace_back(processor->weak_from_this());
+    auto processor = std::make_shared<TaskProcessor>(_single);
+    _processors.emplace_back(processor);
     _threadPool.push(processor);
   }
 }
@@ -129,17 +113,18 @@ void TaskController::setNextTask() {
 }
 
 bool TaskController::isDiagnosticsEnabled() {
-  if (instance()->_task)
-    return instance()->_task->diagnosticsEnabled();
+  if (_single->_task)
+    return _single->_task->diagnosticsEnabled();
   return false;
 }
 
 bool TaskController::start(ServerOptions& options) {
-  TaskControllerPtr taskController = instance(&options, TaskControllerOps::CREATE);
-  return taskController->_strategy.start(options);
+  _single = std::make_shared<TaskController>(options);
+  _single->startProcessors();
+  return _single->_strategy.start(options);
 }
 
-void TaskController::stopInstance() {
+void  TaskController::stopInstance() {
   // stop acceptors
   _strategy.stop();
   // stop threads
@@ -150,12 +135,13 @@ void TaskController::stopInstance() {
   }
   wakeupThreads();
   _threadPool.stop();
-  // destroy controller
-  instance(nullptr, TaskControllerOps::DESTROY);
 }
 
 void TaskController::stop() {
-  instance()->stopInstance();
+  if (_single)
+    _single->stopInstance();
+  // destroy controller
+  TaskControllerPtr().swap(_single);
 }
 
 void TaskController::wakeupThreads() {
@@ -163,5 +149,10 @@ void TaskController::wakeupThreads() {
 }
 
 std::atomic<unsigned>& TaskController::totalSessions() {
-  return instance()->_totalSessions;
+  static std::atomic<unsigned> zero;
+  TaskControllerWeakPtr weakPtr = _single;
+  auto ptr = weakPtr.lock();
+  if (!ptr)
+    return zero;
+  return ptr->_totalSessions;
 }

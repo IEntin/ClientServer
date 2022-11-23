@@ -17,10 +17,17 @@ namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
-  boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, WAKEUP_MUTEX };
-  boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
-  if (!wakeupAcceptor())
-    return;
+  try {
+    boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, WAKEUP_MUTEX };
+    boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
+    if (!wakeupAcceptor())
+      return;
+  }
+  catch (boost::interprocess::interprocess_exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << '-' << e.what() << std::endl;
+    throw std::runtime_error("named mutex lock failure.");
+  }
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
 }

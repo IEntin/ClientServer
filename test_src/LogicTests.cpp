@@ -3,12 +3,10 @@
  */
 
 #include "ClientOptions.h"
-#include "FifoAcceptor.h"
 #include "FifoClient.h"
 #include "ServerOptions.h"
-#include "Task.h"
+#include "TaskController.h"
 #include "TcpClient.h"
-#include "TcpAcceptor.h"
 #include "TestEnvironment.h"
 #include "Transaction.h"
 #include "Utility.h"
@@ -21,19 +19,19 @@ struct LogicTest : testing::Test {
 		    bool diagnostics = true) {
     try {
       // start server
+      TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      RunnablePtr tcpAcceptor =
-	std::make_shared<tcp::TcpAcceptor>(TestEnvironment::_serverOptions);
-      bool serverStart = tcpAcceptor->start();
+      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      client.run();
-      tcpAcceptor->stop();
-      ASSERT_TRUE(serverStart);
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	ASSERT_TRUE(client.run());
+      }
+      TaskController::stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -50,19 +48,19 @@ struct LogicTest : testing::Test {
 		     bool diagnostics = true) {
     try {
       // start server
+      TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      RunnablePtr fifoAcceptor =
-	std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
-      bool serverStart = fifoAcceptor->start();
+      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
-      fifo::FifoClient client(TestEnvironment::_clientOptions);
-      client.run();
-      fifoAcceptor->stop();
-      ASSERT_TRUE(serverStart);
+      {
+	fifo::FifoClient client(TestEnvironment::_clientOptions);
+	ASSERT_TRUE(client.run());
+      }
+      TaskController::stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -73,17 +71,6 @@ struct LogicTest : testing::Test {
   }
 
   void TearDown() {
-    TestEnvironment::reset();
-  }
-
-  static void SetUpTestSuite() {
-    // To change options modify defaults in
-    // ServerOptions.cpp and rebuild application
-    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
-    Task::setProcessMethod(Transaction::processRequest);
-  }
-
-  static void TearDownTestSuite() {
     TestEnvironment::reset();
   }
 };
@@ -165,16 +152,16 @@ struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     try {
       // start server
-      RunnablePtr tcpAcceptor =
-	std::make_shared<tcp::TcpAcceptor>(TestEnvironment::_serverOptions);
-      bool serverStart = tcpAcceptor->start();
+      TestEnvironment::_serverOptions._processType = "Transaction";
+      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
       TestEnvironment::_clientOptions._diagnostics = true;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      client.run();
-      tcpAcceptor->stop();
-      ASSERT_TRUE(serverStart);
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	ASSERT_TRUE(client.run());
+      }
+      TaskController::stop();
       std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -187,13 +174,6 @@ struct LogicTestAltFormat : testing::Test {
   void TearDown() {
     TestEnvironment::reset();
   }
-
-  static void SetUpTestSuite() {
-    // To change options modify defaults in
-    // ServerOptions.cpp and rebuild application
-    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
-    Task::setProcessMethod(Transaction::processRequest);
-  }
 };
 
 TEST_F(LogicTestAltFormat, Diagnostics) {
@@ -204,16 +184,16 @@ struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
     try {
       // start server
+      TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._sortInput = sort;
-      RunnablePtr tcpAcceptor =
-	std::make_shared<tcp::TcpAcceptor>(TestEnvironment::_serverOptions);
-      bool serverStart = tcpAcceptor->start();
+      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._diagnostics = true;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      client.run();
-      tcpAcceptor->stop();
-      ASSERT_TRUE(serverStart);
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	ASSERT_TRUE(client.run());
+      }
+      TaskController::stop();
       std::string_view calibratedOutput = TestEnvironment::_outputD;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -225,13 +205,6 @@ struct LogicTestSortInput : testing::Test {
 
   void TearDown() {
     TestEnvironment::reset();
-  }
-
-  static void SetUpTestSuite() {
-    // To change options modify defaults in
-    // ServerOptions.cpp and rebuild application
-    Task::setPreprocessMethod(Transaction::normalizeSizeKey);
-    Task::setProcessMethod(Transaction::processRequest);
   }
 };
 

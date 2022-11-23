@@ -4,11 +4,9 @@
 
 #include "Echo.h"
 #include "ClientOptions.h"
-#include "FifoAcceptor.h"
 #include "FifoClient.h"
 #include "ServerOptions.h"
-#include "Task.h"
-#include "TcpAcceptor.h"
+#include "TaskController.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
@@ -17,17 +15,16 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
+      TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      RunnablePtr tcpAcceptor =
-	std::make_shared<tcp::TcpAcceptor>(TestEnvironment::_serverOptions);
-      bool serverStart = tcpAcceptor->start();
+      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      bool clientRun = client.run();
-      tcpAcceptor->stop();
-      ASSERT_TRUE(serverStart);
-      ASSERT_TRUE(clientRun);
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	ASSERT_TRUE(client.run());
+      }
+      TaskController::stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
@@ -39,17 +36,16 @@ struct EchoTest : testing::Test {
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
+      TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      RunnablePtr fifoAcceptor =
-	std::make_shared<fifo::FifoAcceptor>(TestEnvironment::_serverOptions);
-      bool serverStart = fifoAcceptor->start();
+      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
-      fifo::FifoClient client(TestEnvironment::_clientOptions);
-      bool clientRun = client.run();
-      fifoAcceptor->stop();
-      ASSERT_TRUE(serverStart);
-      ASSERT_TRUE(clientRun);
+      {
+	fifo::FifoClient client(TestEnvironment::_clientOptions);
+	ASSERT_TRUE(client.run());
+      }
+      TaskController::stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
@@ -60,10 +56,6 @@ struct EchoTest : testing::Test {
 
   void TearDown() {
     TestEnvironment::reset();
-  }
-
-  static void SetUpTestSuite() {
-    Task::setProcessMethod(Echo::processRequest);
   }
 };
 

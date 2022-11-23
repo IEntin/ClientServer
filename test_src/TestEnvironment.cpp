@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
-#include "TaskController.h"
 #include "Utility.h"
 #include <filesystem>
 
@@ -31,7 +30,6 @@ void TestEnvironment::SetUp() {
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
-    TaskController::instance(&_serverOptions, TaskControllerOps::CREATE);
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() <<std::endl;
@@ -42,7 +40,6 @@ void TestEnvironment::SetUp() {
 void TestEnvironment::TearDown() {
   Metrics metrics;
   metrics.print();
-  TaskController::stop();
 }
 
 void TestEnvironment::reset() {

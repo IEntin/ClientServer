@@ -46,7 +46,12 @@ void FifoSession::run() {
       break;
     static thread_local Response response;
     response.clear();
-    TaskController::instance()->processTask(header, _uncompressedRequest, response);
+    auto weakPtr = TaskController::weakInstance();
+    auto taskController = weakPtr.lock();
+    if (taskController)
+      taskController->processTask(header, _uncompressedRequest, response);
+    else
+      break;
     if (!sendResponse(response))
       break;
   }

@@ -20,22 +20,20 @@ using TaskProcessorWeakPtr = std::weak_ptr<class TaskProcessor>;
 
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
-struct ServerOptions;
+using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
-enum class TaskControllerOps : char { CREATE, DESTROY, FETCH };
+struct ServerOptions;
 
 class TaskController : public std::enable_shared_from_this<TaskController> {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   using CompletionFunction = void (*) () noexcept;
-  TaskController(const ServerOptions& options);
   TaskController(const TaskController& other) = delete;
   TaskController& operator =(const TaskController& other) = delete;
-  void initialize();
+  void startProcessors();
+  void stopInstance();
   void push(TaskPtr task);
   void setNextTask();
   void wakeupThreads();
-  static TaskControllerPtr create(const ServerOptions& options);
-  void stopInstance();
   const ServerOptions& _options;
   const bool _sortInput;
   static void onTaskCompletion() noexcept;
@@ -50,14 +48,15 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   Strategy& _strategy;
   std::vector<TaskProcessorWeakPtr> _processors;
   std::atomic<unsigned> _totalSessions = 0;
+  static TaskControllerPtr _single;
  public:
+  TaskController(const ServerOptions& options);
   ~TaskController();
-  static bool start(ServerOptions& options);
-  static void stop();
   void run() noexcept;
   void processTask(const HEADER& header, std::vector<char>& input, Response& response);
-  static TaskControllerPtr instance(const ServerOptions* options = nullptr,
-				    TaskControllerOps op = TaskControllerOps::FETCH);
+  static bool start(ServerOptions& options);
+  static void stop();
+  static TaskControllerWeakPtr weakInstance();
   static bool isDiagnosticsEnabled();
   static std::atomic<unsigned>& totalSessions();
 };

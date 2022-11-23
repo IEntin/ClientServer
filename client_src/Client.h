@@ -38,11 +38,11 @@ class Client {
 
   std::atomic_flag _stopFlagWait = ATOMIC_FLAG_INIT;
 
-  static std::atomic_flag _stopFlag;
-
   std::string _clientId;
 
   TcpClientHeartbeatPtr _heartbeat;
+
+  static std::atomic_flag _stopFlag;
 
  public:
 
@@ -59,5 +59,7 @@ class Client {
   virtual bool destroySession() = 0;
 
   static void setStopFlag();
+
+  static bool stopped() { return _stopFlag.test(); }
 
 };

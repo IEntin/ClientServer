@@ -10,8 +10,6 @@
 struct ServerOptions;
 struct ClientOptions;
 
-using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
 class TestEnvironment : public ::testing::Environment {
 public:
 
