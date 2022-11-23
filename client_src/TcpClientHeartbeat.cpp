@@ -110,7 +110,7 @@ bool TcpClientHeartbeat::destroy() {
     return success;
   }
   catch (const boost::system::system_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
 }

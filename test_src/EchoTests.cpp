@@ -20,10 +20,8 @@ struct EchoTest : testing::Test {
       ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
-      {
-	tcp::TcpClient client(TestEnvironment::_clientOptions);
-	ASSERT_TRUE(client.run());
-      }
+      tcp::TcpClient client(TestEnvironment::_clientOptions);
+      ASSERT_TRUE(client.run());
       TaskController::stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
@@ -41,10 +39,8 @@ struct EchoTest : testing::Test {
       ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
-      {
-	fifo::FifoClient client(TestEnvironment::_clientOptions);
-	ASSERT_TRUE(client.run());
-      }
+      fifo::FifoClient client(TestEnvironment::_clientOptions);
+      ASSERT_TRUE(client.run());
       TaskController::stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
