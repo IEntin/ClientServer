@@ -10,11 +10,11 @@
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
 class TaskProcessor : public std::enable_shared_from_this<TaskProcessor>, public Runnable {
-  TaskProcessor(const TaskController& other) = delete;
+  TaskProcessor(const TaskProcessor& other) = delete;
+  TaskProcessor& operator =(const TaskProcessor& other) = delete;
   bool start() override;
   void run() noexcept override;
   unsigned getNumberObjects() const override;
-  TaskProcessor& operator =(const TaskController& other) = delete;
   ObjectCounter<TaskProcessor> _objectCounter;
   TaskControllerWeakPtr _taskController;
  public:
