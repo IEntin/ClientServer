@@ -110,7 +110,8 @@ bool TcpClientHeartbeat::destroy() {
     return success;
   }
   catch (const boost::system::system_error& e) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    (e.code() == boost::asio::error::connection_refused ? CLOG : CERR)
+      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
 }
