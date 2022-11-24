@@ -18,8 +18,7 @@ int main() {
   struct DoAtEnd {
     DoAtEnd() = default;
     ~DoAtEnd() {
-      Metrics metrics;
-      metrics.print();
+      Metrics::print();
     }
   } doAtEnd;
   ClientOptions options("ClientOptions.json");

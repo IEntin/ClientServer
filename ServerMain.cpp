@@ -16,8 +16,7 @@ int main() {
   struct DoAtEnd {
     DoAtEnd() = default;
     ~DoAtEnd() {
-      Metrics metrics;
-      metrics.print();
+      Metrics::print();
     }
   } doAtEnd;
   try {
@@ -38,6 +37,7 @@ int main() {
     int sig = 0;
     if (sigwait(&set, &sig))
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
+    Metrics::save();
     TaskController::stop();
     int closed = fcloseall();
     assert(closed == 0);

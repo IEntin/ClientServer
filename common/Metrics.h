@@ -9,12 +9,16 @@
 
 class Metrics {
  public:
-  Metrics();
-  ~Metrics() = default;
-  size_t getMaxRss();
-  void print();
+  Metrics() = delete;
+  ~Metrics() = delete;
+  static size_t getMaxRss();
+  static void save();
+  static void print();
  private:
-  const size_t _pid;
-  std::string _procFdPath;
-  std::string _procThreadPath;
+  static size_t _pid;
+  static std::string _procFdPath;
+  static std::string _procThreadPath;
+  static size_t _maxRss;
+  static unsigned _numberThreads;
+  static unsigned _numberOpenFDs;
 };

@@ -38,8 +38,8 @@ void TestEnvironment::SetUp() {
 }
 
 void TestEnvironment::TearDown() {
-  Metrics metrics;
-  metrics.print();
+  Metrics::save();
+  Metrics::print();
 }
 
 void TestEnvironment::reset() {

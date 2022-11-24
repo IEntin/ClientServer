@@ -7,6 +7,7 @@
 #include "CommonConstants.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
+#include "Metrics.h"
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -33,6 +34,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 }
 
 FifoClient::~FifoClient() {
+  Metrics::save();
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
