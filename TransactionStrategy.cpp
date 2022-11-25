@@ -8,8 +8,6 @@
 #include "Task.h"
 #include "Transaction.h"
 
-TransactionStrategy::~TransactionStrategy() {}
-
 void TransactionStrategy::create(const ServerOptions& options) {
   if (!Ad::load(options._adsFileName))
     return;

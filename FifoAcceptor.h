@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <map>
@@ -17,9 +16,9 @@ namespace fifo {
 
 using FifoSessionWeakPtr = std::weak_ptr<class FifoSession>;
 
-class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public Runnable {
+class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
+  public RunnableT<FifoAcceptor> {
   void run() override;
-  unsigned getNumberObjects() const override;
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
   bool createSession();
   void destroySession(const std::string& key);
@@ -29,7 +28,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>, public R
   ThreadPool _threadPoolSession;
   std::map<std::string, FifoSessionWeakPtr> _sessions;
   int _fd = -1;
-  ObjectCounter<FifoAcceptor> _objectCounter;
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() override;

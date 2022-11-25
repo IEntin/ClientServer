@@ -19,7 +19,7 @@ TcpSession::TcpSession(const ServerOptions& options,
 		       SessionDetailsPtr details,
 		       std::string_view clientId,
 		       TcpAcceptorPtr parent) :
-  Runnable(options._maxTcpSessions),
+  RunnableT<TcpSession>(options._maxTcpSessions),
   _options(options),
   _clientId(clientId),
   _details(details),
@@ -59,10 +59,6 @@ void TcpSession::run() noexcept {
 void TcpSession::stop() {
   _ioContext.stop();
   _parent->remove(shared_from_this());
-}
-
-unsigned TcpSession::getNumberObjects() const {
-  return _objectCounter._numberObjects;
 }
 
 void TcpSession::checkCapacity() {

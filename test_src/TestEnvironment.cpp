@@ -19,10 +19,6 @@ std::string TestEnvironment::_outputAltFormatD;
 const ServerOptions TestEnvironment::_serverOptionsOrg;
 const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
-TestEnvironment::TestEnvironment() {}
-
-TestEnvironment::~TestEnvironment() {}
-
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {

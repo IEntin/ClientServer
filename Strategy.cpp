@@ -6,8 +6,6 @@
 #include "FifoAcceptor.h"
 #include "TcpAcceptor.h"
 
-Strategy::~Strategy() {}
-
 bool Strategy::start(const ServerOptions& options) {
   auto tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(options);
   _tcpAcceptor = tcpAcceptor;

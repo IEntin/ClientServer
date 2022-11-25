@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Header.h"
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
@@ -17,7 +16,8 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
-class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, public Runnable {
+class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>,
+  public RunnableT<TcpHeartbeat> {
 
  public:
 
@@ -33,8 +33,6 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, pu
  private:
 
   void run() noexcept override;
-
-  unsigned getNumberObjects() const override;
 
   void heartbeatWait();
 
@@ -53,7 +51,6 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>, pu
   boost::asio::ip::tcp::socket& _socket;
   AsioTimer _heartbeatTimer;
   char _heartbeatBuffer[HEADER_SIZE] = {};
-  ObjectCounter<TcpHeartbeat> _objectCounter;
 };
 
 } // end of namespace tcp

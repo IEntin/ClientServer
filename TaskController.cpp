@@ -136,12 +136,6 @@ std::atomic<unsigned>& TaskController::totalSessions() {
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :
   _taskController(taskController) {}
 
-TaskController::Worker::~Worker() {}
-
-unsigned TaskController::Worker::getNumberObjects() const {
-  return _objectCounter._numberObjects;
-}
-
 // Process the current task (batch of requests) by all threads. Arrive
 // at the sync point when the task is done and wait for the next one.
 
@@ -167,9 +161,3 @@ void TaskController::Worker::run() noexcept {
     }
   }
 }
-
-bool TaskController::Worker::start() {
-  return true;
-}
-
-void TaskController::Worker::stop() {}

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "ThreadPool.h"
 #include <boost/asio.hpp>
@@ -18,9 +17,10 @@ using ConnectionMap = std::map<std::string, RunnableWeakPtr>;
 
 using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
 
-class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>, public Runnable {
+class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
+  public RunnableT<TcpAcceptor> {
  public:
-  TcpAcceptor(const ServerOptions& options);
+  explicit TcpAcceptor(const ServerOptions& options);
 
   ~TcpAcceptor() override;
 
@@ -43,8 +43,6 @@ private:
 
   void run() override;
 
-  unsigned getNumberObjects() const override;
-
   Request findSession(boost::asio::ip::tcp::socket& socket);
 
   bool createSession(SessionDetailsPtr details);
@@ -60,7 +58,6 @@ private:
   ThreadPool _threadPoolHeartbeat;
   ConnectionMap _sessions;
   ConnectionMap _heartbeats;
-  ObjectCounter<TcpAcceptor> _objectCounter;
 };
 
 } // end of namespace tcp

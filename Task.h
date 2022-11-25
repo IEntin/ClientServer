@@ -51,7 +51,7 @@ class Task {
   static ProcessRequest _processRequest;
 
  public:
-  Task();
+  Task() {}
 
   Task(const HEADER& header, const std::vector<char>& input);
 

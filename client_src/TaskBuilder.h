@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <future>
 #include <string_view>
@@ -26,7 +25,7 @@ struct Subtask {
   TaskBuilderState _state = TaskBuilderState::NONE;
 };
 
-class TaskBuilder final : public Runnable {
+class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   TaskBuilderState compressSubtask(Subtask& subtask, char* beg, char* end, bool alldone);
 
@@ -40,15 +39,13 @@ class TaskBuilder final : public Runnable {
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
   void run() override;
-  bool start() override;
-  void stop() override;
+  bool start() override { return true; }
+  void stop() override {}
 
  public:
 
   TaskBuilder(const ClientOptions& options);
-  ~TaskBuilder() override;
-  unsigned getNumberObjects() const override;
+  ~TaskBuilder() override {}
   TaskBuilderState getTask(std::vector<char>& task);
   TaskBuilderState createSubtask();
-  ObjectCounter<TaskBuilder> _objectCounter;
 };

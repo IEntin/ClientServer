@@ -13,9 +13,9 @@ struct ClientOptions;
 class TestEnvironment : public ::testing::Environment {
 public:
 
-  TestEnvironment();
+  TestEnvironment() {}
 
-  ~TestEnvironment() override;
+  ~TestEnvironment() override {}
 
   void SetUp() override;
 

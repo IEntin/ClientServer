@@ -24,7 +24,7 @@ class Strategy {
 
  public:
 
-  virtual ~Strategy();
+  virtual ~Strategy() {}
 
   virtual void create(const ServerOptions& options) = 0;
 

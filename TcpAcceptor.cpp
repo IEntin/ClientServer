@@ -23,10 +23,6 @@ TcpAcceptor::~TcpAcceptor() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
-unsigned TcpAcceptor::getNumberObjects() const {
-  return _objectCounter._numberObjects;
-}
-
 bool TcpAcceptor::start() {
   boost::system::error_code ec;
   _acceptor.open(_endpoint.protocol(), ec);

@@ -9,8 +9,6 @@
 ExtractKey Task::_extractKey = nullptr;
 ProcessRequest Task::_processRequest = nullptr;
 
-Task::Task() {}
-
 Task::Task(const HEADER& header, const std::vector<char>& input) : _header(header) {
   utility::split(input, _rows);
   _indices.resize(_rows.size());

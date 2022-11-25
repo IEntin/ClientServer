@@ -20,5 +20,5 @@ class EchoStrategy : public Strategy {
 
   EchoStrategy() = default;
 
-  ~EchoStrategy() override;
+  ~EchoStrategy() override {}
 };

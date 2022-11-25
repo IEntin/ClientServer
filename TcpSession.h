@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Header.h"
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
@@ -25,7 +24,7 @@ using TcpHeartbeatWeakPtr = std::weak_ptr<class TcpHeartbeat>;
 
 using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
 
-class TcpSession final : public std::enable_shared_from_this<TcpSession>, public Runnable {
+class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
   friend class TcpHeartbeat;
 public:
   TcpSession(const ServerOptions& options,
@@ -37,7 +36,6 @@ public:
   void run() noexcept override;
   bool start() override;
   void stop() override;
-  unsigned getNumberObjects() const override;
   void checkCapacity() override;
 private:
   void readHeader();
@@ -58,7 +56,6 @@ private:
   std::vector<char> _request;
   std::vector<char> _uncompressed;
   TcpAcceptorPtr _parent;
-  ObjectCounter<TcpSession> _objectCounter;
 };
 
 } // end of namespace tcp

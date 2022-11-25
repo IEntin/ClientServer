@@ -24,8 +24,6 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _subtasks.resize(expectedNumberSubtasks);
 }
 
-TaskBuilder::~TaskBuilder() {}
-
 void TaskBuilder::run() {
   try {
     while (true) {
@@ -40,16 +38,6 @@ void TaskBuilder::run() {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exception caught." << std::endl;
   }
 }
-
-unsigned TaskBuilder::getNumberObjects() const {
-  return _objectCounter._numberObjects;
-}
-
-bool TaskBuilder::start() {
-  return true;
-}
-
-void TaskBuilder::stop() {}
 
 TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   TaskBuilderState state = TaskBuilderState::NONE;

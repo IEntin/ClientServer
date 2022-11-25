@@ -57,10 +57,6 @@ void TcpHeartbeat::stop() {
   });
 }
 
-unsigned TcpHeartbeat::getNumberObjects() const {
-  return _objectCounter._numberObjects;
-}
-
 void TcpHeartbeat::heartbeatWait() {
   _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
   auto weak = weak_from_this();

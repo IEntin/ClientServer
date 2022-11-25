@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Header.h"
-#include "ObjectCounter.h"
 #include "Runnable.h"
 #include "Strategy.h"
 #include "ThreadPool.h"
@@ -25,18 +24,16 @@ struct ServerOptions;
 
 class TaskController : public std::enable_shared_from_this<TaskController> {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
-  class Worker : public std::enable_shared_from_this<Worker>, public Runnable {
+  class Worker : public std::enable_shared_from_this<Worker>, public RunnableT<Worker> {
     Worker(const Worker& other) = delete;
     Worker& operator =(const Worker& other) = delete;
-    bool start() override;
+    bool start() override { return true; }
     void run() noexcept override;
-    unsigned getNumberObjects() const override;
     TaskControllerWeakPtr _taskController;
-    ObjectCounter<Worker> _objectCounter;
   public:
     explicit Worker(TaskControllerWeakPtr taskController);
-    ~Worker() override;
-    void stop() override;
+    ~Worker() override {}
+    void stop() override {}
   };
   using WorkerWeakPtr = std::weak_ptr<Worker>;
   using CompletionFunction = void (*) () noexcept;

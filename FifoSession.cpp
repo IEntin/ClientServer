@@ -19,7 +19,7 @@
 namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
-  Runnable(options._maxFifoSessions),
+  RunnableT<FifoSession>(options._maxFifoSessions),
   _options(options),
   _clientId(clientId),
   _parent(parent) {
@@ -55,10 +55,6 @@ void FifoSession::run() {
     if (!sendResponse(response))
       break;
   }
-}
-
-unsigned FifoSession::getNumberObjects() const {
-  return _objectCounter._numberObjects;
 }
 
 void FifoSession::checkCapacity() {

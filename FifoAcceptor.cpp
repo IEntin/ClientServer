@@ -54,10 +54,6 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
   }
 }
 
-unsigned FifoAcceptor::getNumberObjects() const {
-  return _objectCounter._numberObjects;
-}
-
 void FifoAcceptor::run() {
   while (!_stopped) {
     auto [type, key] = unblockAcceptor();
