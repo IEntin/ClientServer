@@ -17,12 +17,12 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::stop();
+      TaskController::destroy();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
@@ -36,12 +36,12 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       fifo::FifoClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::stop();
+      TaskController::destroy();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }

@@ -22,14 +22,14 @@ struct LogicTest : testing::Test {
       TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::stop();
+      TaskController::destroy();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -49,14 +49,14 @@ struct LogicTest : testing::Test {
       TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
       fifo::FifoClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::stop();
+      TaskController::destroy();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -149,13 +149,13 @@ struct LogicTestAltFormat : testing::Test {
     try {
       // start server
       TestEnvironment::_serverOptions._processType = "Transaction";
-      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
       TestEnvironment::_clientOptions._diagnostics = true;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::stop();
+      TaskController::destroy();
       std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -180,12 +180,12 @@ struct LogicTestSortInput : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._sortInput = sort;
-      ASSERT_TRUE(TaskController::start(TestEnvironment::_serverOptions));
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
       // start client
       TestEnvironment::_clientOptions._diagnostics = true;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::stop();
+      TaskController::destroy();
       std::string_view calibratedOutput = TestEnvironment::_outputD;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);

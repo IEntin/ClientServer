@@ -32,13 +32,13 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
-    if (!TaskController::start(options))
+    if (!TaskController::create(options))
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
     Metrics::save();
-    TaskController::stop();
+    TaskController::destroy();
     int closed = fcloseall();
     assert(closed == 0);
     return 0;

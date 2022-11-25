@@ -6,9 +6,7 @@
 #include "ServerOptions.h"
 #include "StrategySelector.h"
 #include "Task.h"
-#include "TaskProcessor.h"
 #include "Utility.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
 
 TaskControllerPtr TaskController::_single;
 
@@ -60,30 +58,12 @@ void TaskController::onCompletion() {
   }
 }
 
-void TaskController::startProcessors() {
+bool TaskController::start() {
   for (int i = 0; i < _options._numberWorkThreads; ++i) {
-    auto processor = std::make_shared<TaskProcessor>(_single);
-    _processors.emplace_back(processor);
-    _threadPool.push(processor);
+    auto worker = std::make_shared<Worker>(_single);
+   _threadPool.push(worker);
   }
-}
-
-// Process the current task (batch of requests) by all threads. Arrive
-// at the sync point when the task is done and wait for the next one.
-
-void TaskController::run() noexcept {
-  try {
-    while (_task->extractKeyNext());
-    _barrier.arrive_and_wait();
-    while (_task->processNext());
-    _barrier.arrive_and_wait();
-  }
-  catch (std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
-  }
-  catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! exception caught." << std::endl;
-  }
+  return true;
 }
 
 void TaskController::push(TaskPtr task) {
@@ -118,28 +98,24 @@ bool TaskController::isDiagnosticsEnabled() {
   return false;
 }
 
-bool TaskController::start(ServerOptions& options) {
+bool TaskController::create(ServerOptions& options) {
   _single = std::make_shared<TaskController>(options);
-  _single->startProcessors();
+  _single->start();
   return _single->_strategy.start(options);
 }
 
-void  TaskController::stopInstance() {
+void  TaskController::stop() {
   // stop acceptors
   _strategy.stop();
   // stop threads
-  for (auto weakPtr : _processors) {
-    auto processor = weakPtr.lock();
-    if (processor)
-      processor->stop();
-  }
+  _stopped.store(true);
   wakeupThreads();
   _threadPool.stop();
 }
 
-void TaskController::stop() {
+void TaskController::destroy() {
   if (_single)
-    _single->stopInstance();
+    _single->stop();
   // destroy controller
   TaskControllerPtr().swap(_single);
 }
@@ -156,3 +132,44 @@ std::atomic<unsigned>& TaskController::totalSessions() {
     return zero;
   return ptr->_totalSessions;
 }
+
+TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :
+  _taskController(taskController) {}
+
+TaskController::Worker::~Worker() {}
+
+unsigned TaskController::Worker::getNumberObjects() const {
+  return _objectCounter._numberObjects;
+}
+
+// Process the current task (batch of requests) by all threads. Arrive
+// at the sync point when the task is done and wait for the next one.
+
+void TaskController::Worker::run() noexcept {
+  auto taskController = _taskController.lock();
+  if (!taskController)
+    return;
+  auto& stopped = taskController->_stopped;
+  auto& task = taskController->_task;
+  auto& barrier = taskController->_barrier;
+  while (!stopped) {
+    try {
+      while (task->extractKeyNext());
+      barrier.arrive_and_wait();
+      while (task->processNext());
+      barrier.arrive_and_wait();
+    }
+    catch (std::exception& e) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    }
+    catch (...) {
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! exception caught." << std::endl;
+    }
+  }
+}
+
+bool TaskController::Worker::start() {
+  return true;
+}
+
+void TaskController::Worker::stop() {}
