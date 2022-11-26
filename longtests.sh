@@ -15,5 +15,5 @@ fi
 set -e
 
 ./checkstuff.sh
-./runtests.sh
+./runtests.sh 50
 ./checkmulticlients.sh

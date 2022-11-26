@@ -12,17 +12,26 @@ fi
 
 trap "exit" SIGHUP SIGINT SIGTERM
 
-set -e
-
 date
 
 SERVER_DIR=$PWD
+
 echo $SERVER_DIR
 
-# Start server.
+# Start the server if not running
 
-./server&
-SERVER_PID=$!
+SERVER_PID=$(pidof server)
+
+if [[ -z $SERVER_PID ]]
+then
+    ./server&
+fi
+
+SERVER_PID=$(pidof server)
+
+echo $SERVER_PID
+
+set -e
 
 # Start clients.
 
