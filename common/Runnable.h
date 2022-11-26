@@ -6,7 +6,6 @@
 
 #include "CommonConstants.h"
 #include "Header.h"
-#include "ObjectCounter.h"
 #include <atomic>
 #include <memory>
 #include <string>
@@ -36,13 +35,16 @@ template <class T>
 class RunnableT : public Runnable {
  protected:
   explicit RunnableT(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
-    Runnable(maxNumberThreads) {}
-  ~RunnableT() override {}
-  ObjectCounter<T> _objectCounter;
+    Runnable(maxNumberThreads) { _numberObjects++; }
+    ~RunnableT() override { _numberObjects--; }
+  static std::atomic<unsigned> _numberObjects;
+ public:
   unsigned getNumberObjects() const override {
-    return _objectCounter._numberObjects;
+    return _numberObjects;
   }
 };
+template <typename T>
+std::atomic<unsigned>  RunnableT<T>::_numberObjects;
 
 class KillThread : public RunnableT<KillThread> {
   void run() override {}

@@ -2,16 +2,15 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ObjectCounter.h"
 #include "ThreadPool.h"
 #include "Utility.h"
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
 
-class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public Runnable {
+class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public RunnableT<TestRunnable> {
 public:
   TestRunnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
-    Runnable(maxNumberThreads) {}
+    RunnableT(maxNumberThreads) {}
 
   ~TestRunnable() override {}
   void run() override {
@@ -24,11 +23,6 @@ public:
   }
   void stop() override {}
 
-  unsigned getNumberObjects() const override {
-    return _objectCounter._numberObjects;
-  }
-
-  ObjectCounter<TestRunnable> _objectCounter;
   static std::atomic<bool> _stopFlag;
 };
 std::atomic<bool> TestRunnable::_stopFlag;

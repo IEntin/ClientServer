@@ -19,7 +19,7 @@ TcpSession::TcpSession(const ServerOptions& options,
 		       SessionDetailsPtr details,
 		       std::string_view clientId,
 		       TcpAcceptorPtr parent) :
-  RunnableT<TcpSession>(options._maxTcpSessions),
+  RunnableT(options._maxTcpSessions),
   _options(options),
   _clientId(clientId),
   _details(details),
@@ -65,10 +65,10 @@ void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::totalSessions() << ' '
-       << "tcp sessions=" << _objectCounter._numberObjects << std::endl;
+       << "tcp sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of tcp clients=" << _objectCounter._numberObjects
+	 << "\nThe number of tcp clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
 }
 

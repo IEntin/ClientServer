@@ -19,7 +19,7 @@
 namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
-  RunnableT<FifoSession>(options._maxFifoSessions),
+  RunnableT(options._maxFifoSessions),
   _options(options),
   _clientId(clientId),
   _parent(parent) {
@@ -61,10 +61,10 @@ void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::totalSessions() << ' '
-       << "fifo sessions=" << _objectCounter._numberObjects << std::endl;
+       << "fifo sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of fifo clients=" << _objectCounter._numberObjects
+	 << "\nThe number of fifo clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
 }
 
