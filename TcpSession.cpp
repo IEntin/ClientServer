@@ -3,22 +3,20 @@
  */
 
 #include "TcpSession.h"
-#include "TcpAcceptor.h"
+#include "ConnectionDetails.h"
 #include "Tcp.h"
 #include "Compression.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
-#include "SessionDetails.h"
 #include "TaskController.h"
 #include "Utility.h"
 
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
-		       SessionDetailsPtr details,
-		       std::string_view clientId,
-		       TcpAcceptorPtr parent) :
+		       ConnectionDetailsPtr details,
+		       std::string_view clientId) :
   RunnableT(options._maxTcpSessions),
   _options(options),
   _clientId(clientId),
@@ -26,8 +24,7 @@ TcpSession::TcpSession(const ServerOptions& options,
   _ioContext(details->_ioContext),
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
-  _timeoutTimer(_ioContext),
-  _parent(parent) {
+  _timeoutTimer(_ioContext) {
   TaskController::totalSessions()++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
@@ -58,7 +55,6 @@ void TcpSession::run() noexcept {
 
 void TcpSession::stop() {
   _ioContext.stop();
-  _parent->remove(shared_from_this());
 }
 
 void TcpSession::checkCapacity() {

@@ -15,7 +15,7 @@ namespace tcp {
 
 using ConnectionMap = std::map<std::string, RunnableWeakPtr>;
 
-using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
+using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public RunnableT<TcpAcceptor> {
@@ -30,8 +30,6 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
 
   void pushHeartbeat(RunnablePtr heartbeat);
 
-  void remove(RunnablePtr toRemove);
-
 private:
 
   struct Request {
@@ -45,9 +43,9 @@ private:
 
   Request findSession(boost::asio::ip::tcp::socket& socket);
 
-  bool createSession(SessionDetailsPtr details);
+  bool createSession(ConnectionDetailsPtr details);
 
-  bool createHeartbeat(SessionDetailsPtr details);
+  bool createHeartbeat(ConnectionDetailsPtr details);
 
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;

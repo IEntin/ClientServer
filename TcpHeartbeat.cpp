@@ -3,22 +3,19 @@
  */
 
 #include "TcpHeartbeat.h"
-#include "Tcp.h"
+#include "ConnectionDetails.h"
 #include "ServerOptions.h"
-#include "SessionDetails.h"
-#include "TcpSession.h"
+#include "Tcp.h"
 #include "Utility.h"
 
 namespace tcp {
 
 TcpHeartbeat::TcpHeartbeat(const ServerOptions& options,
-			   SessionDetailsPtr details,
-			   std::string_view clientId,
-			   RunnablePtr parent) :
+			   ConnectionDetailsPtr details,
+			   std::string_view clientId) :
   _options(options),
   _clientId(clientId),
   _details(details),
-  _parent(parent),
   _ioContext(_details->_ioContext),
   _strand(boost::asio::make_strand(_ioContext)),
   _socket(_details->_socket),
@@ -49,6 +46,7 @@ void TcpHeartbeat::run() noexcept {
 }
 
 void TcpHeartbeat::stop() {
+  _stopped.store(true);
   _ioContext.post([this]() {
     boost::system::error_code ec;
     _heartbeatTimer.cancel(ec);
@@ -65,7 +63,7 @@ void TcpHeartbeat::heartbeatWait() {
       auto self = weak.lock();
       if (!self)
 	return;
-      if (_parent->_stopped)
+      if (_stopped)
 	return;
       if (ec) {
 	if (ec != boost::asio::error::operation_aborted)

@@ -33,7 +33,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   ~FifoAcceptor() override;
   bool start() override;
   void stop() override;
-  void remove(RunnablePtr toRemove);
 };
 
 } // end of namespace fifo

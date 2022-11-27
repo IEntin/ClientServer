@@ -69,7 +69,7 @@ void FifoAcceptor::run() {
 bool FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   auto session =
-    std::make_shared<FifoSession>(_options, clientId, shared_from_this());
+    std::make_shared<FifoSession>(_options, clientId);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");
   if (!session->start())
@@ -85,6 +85,7 @@ void FifoAcceptor::destroySession(const std::string& key) {
     auto session = weakPtr.lock();
     if (session) {
       session->stop();
+      _threadPoolSession.removeFromQueue(session);
       _sessions.erase(it);
     }
   }
@@ -124,8 +125,5 @@ void FifoAcceptor::removeFifoFiles() {
       std::filesystem::remove(entry);
 }
 
-void FifoAcceptor::remove(RunnablePtr toRemove) {
-  _threadPoolSession.removeFromQueue(toRemove);
-}
 
 } // end of namespace fifo

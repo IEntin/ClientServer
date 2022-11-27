@@ -5,7 +5,6 @@
 #include "TcpClient.h"
 #include "ClientOptions.h"
 #include "Metrics.h"
-#include "SessionDetails.h"
 #include "Tcp.h"
 #include "Utility.h"
 

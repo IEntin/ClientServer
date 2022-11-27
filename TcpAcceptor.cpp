@@ -3,8 +3,8 @@
  */
 
 #include "TcpAcceptor.h"
+#include "ConnectionDetails.h"
 #include "ServerOptions.h"
-#include "SessionDetails.h"
 #include "TcpHeartbeat.h"
 #include "TcpSession.h"
 #include "Tcp.h"
@@ -105,14 +105,11 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
   return { type, it, true };
 }
 
-bool TcpAcceptor::createSession(SessionDetailsPtr details) {
+bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
-  auto session = std::make_shared<TcpSession>(_options,
-					      details,
-					      clientId,
-					      shared_from_this());
+  auto session = std::make_shared<TcpSession>(_options, details, clientId);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -124,14 +121,11 @@ bool TcpAcceptor::createSession(SessionDetailsPtr details) {
   return true;
 }
 
-bool TcpAcceptor::createHeartbeat(SessionDetailsPtr details) {
+bool TcpAcceptor::createHeartbeat(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
-  auto heartbeat = std::make_shared<TcpHeartbeat>(_options,
-						  details,
-						  clientId,
-						  shared_from_this());
+  auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, clientId);
   auto [it, inserted] = _heartbeats.emplace(clientId, heartbeat);
   if (!inserted) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -144,7 +138,7 @@ bool TcpAcceptor::createHeartbeat(SessionDetailsPtr details) {
 }
 
 void TcpAcceptor::accept() {
-  auto details = std::make_shared<SessionDetails>();
+  auto details = std::make_shared<ConnectionDetails>();
   auto weak = weak_from_this();
   _acceptor.async_accept(details->_socket,
 			 details->_endpoint,
@@ -167,8 +161,10 @@ void TcpAcceptor::accept() {
 	case HEADERTYPE::DESTROY_SESSION:
 	  {
 	    auto session = it->second.lock();
-	    if (session)
+	    if (session) {
 	      session->stop();
+	      _threadPoolSession.removeFromQueue(session);
+	    }
 	    _sessions.erase(it);
 	  }
 	  break;
@@ -190,10 +186,6 @@ void TcpAcceptor::accept() {
 	accept();
       }
     });
-}
-
-void TcpAcceptor::remove(RunnablePtr toRemove) {
-  _threadPoolSession.removeFromQueue(toRemove);
 }
 
 } // end of namespace tcp

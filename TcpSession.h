@@ -16,7 +16,7 @@ namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-using SessionDetailsPtr = std::shared_ptr<struct SessionDetails>;
+using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 using TcpSessionPtr = std::shared_ptr<class TcpSession>;
 
@@ -28,9 +28,8 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>, public
   friend class TcpHeartbeat;
 public:
   TcpSession(const ServerOptions& options,
-	     SessionDetailsPtr details,
-	     std::string_view clientId,
-	     TcpAcceptorPtr parent);
+	     ConnectionDetailsPtr details,
+	     std::string_view clientId);
   ~TcpSession() override;
 
   void run() noexcept override;
@@ -46,7 +45,7 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
-  SessionDetailsPtr _details;
+  ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;
   boost::asio::strand<boost::asio::io_context::executor_type> _strand;
@@ -55,7 +54,6 @@ private:
   HEADER _header;
   std::vector<char> _request;
   std::vector<char> _uncompressed;
-  TcpAcceptorPtr _parent;
 };
 
 } // end of namespace tcp

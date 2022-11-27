@@ -16,11 +16,19 @@ trap "exit" SIGHUP SIGINT SIGTERM
 
 sleep 2
 
+function copyClient {
+/bin/cp -f client ../PrjClient2
+/bin/cp -f client ../PrjClient3
+/bin/cp -f client ../PrjClient4
+/bin/cp -f client ../PrjClient5
+}
+
 echo
 echo "***** use g++ compiler *****"
 echo
 make cleanall
 make -j4 CMPLR=g++
+copyClient
 
 sleep 2
 
@@ -29,6 +37,7 @@ echo "***** disable precompiled headers *****"
 echo
 make cleanall
 make -j4 CMPLR=g++ ENABLEPCH=0
+copyClient
 
 sleep 2
 
@@ -36,6 +45,7 @@ echo
 echo "***** address + ub + leak sanitizer *****"
 make cleanall
 make -j4 CMPLR=g++ SANITIZE=aul
+copyClient
 
 sleep 2
 
@@ -44,6 +54,7 @@ echo "***** thread sanitizer *****"
 echo
 make cleanall
 make -j4 CMPLR=g++ SANITIZE=thread
+copyClient
 
 sleep 2
 
@@ -52,6 +63,7 @@ echo "***** use clang++ compiler *****"
 echo
 make cleanall
 make -j4
+copyClient
 
 sleep 2
 
@@ -60,6 +72,7 @@ echo "***** disable precompiled headers *****"
 echo
 make cleanall
 make -j4 ENABLEPCH=0
+copyClient
 
 sleep 2
 
@@ -68,6 +81,7 @@ echo "***** address + ub + leak sanitizer *****"
 echo
 make cleanall
 make -j4 SANITIZE=aul
+copyClient
 
 sleep 2
 
@@ -76,5 +90,6 @@ echo "***** thread sanitizer *****"
 echo
 make cleanall
 make -j4 SANITIZE=thread
+copyClient
 
 #make cleanall

@@ -5,7 +5,6 @@
 #include "FifoSession.h"
 #include "Compression.h"
 #include "Fifo.h"
-#include "FifoAcceptor.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
@@ -18,11 +17,10 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, FifoAcceptorPtr parent) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId) :
   RunnableT(options._maxFifoSessions),
   _options(options),
-  _clientId(clientId),
-  _parent(parent) {
+  _clientId(clientId) {
   TaskController::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
@@ -39,7 +37,7 @@ void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     // client is closed
     return;
-  while (!_parent->_stopped) {
+  while (!_stopped) {
     HEADER header;
     _uncompressedRequest.clear();
     if (!receiveRequest(_uncompressedRequest, header))
@@ -81,8 +79,8 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
+  _stopped.store(true);
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
-  _parent->remove(shared_from_this());
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
