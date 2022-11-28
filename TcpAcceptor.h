@@ -27,8 +27,6 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
 
   void stop() override;
 
-  void pushHeartbeat(RunnablePtr heartbeat);
-
 private:
 
   struct Request {

@@ -74,10 +74,6 @@ void TcpAcceptor::run() {
   }
 }
 
-void TcpAcceptor::pushHeartbeat(RunnablePtr heartbeat) {
-  _threadPoolHeartbeat.push(heartbeat);
-}
-
 TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
   HEADER header;
   std::vector<char> payload;
