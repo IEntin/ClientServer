@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Header.h"
-#include "Runnable.h"
 #include "Strategy.h"
 #include "ThreadPool.h"
 #include <barrier>
