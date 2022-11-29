@@ -55,10 +55,8 @@ void ThreadPool::push(RunnablePtr runnable) {
   if (size() < _maxSize && runnable->getNumberObjects() > size()) {
     // this works if all runnables are of the same derived class
     createThread();
-    const auto& refObject = *runnable;
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":numberOfThreads " << size() << ' '
-	 << typeid(refObject).name() << std::endl;
+	 << ":numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
   _queue.push_back(runnable);
   _queueCondition.notify_all();

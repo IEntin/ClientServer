@@ -25,3 +25,4 @@ bool TcpClientHeartbeat::destroyHeartbeat(TcpClientHeartbeatPtr heartbeatPtr) {
     return false;
   }
 }
+sudo dd if=~/ubuntu/ubuntu-22.04.1-live-server-amd64.iso of=/dev/sdb1

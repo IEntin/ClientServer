@@ -24,6 +24,7 @@ class Runnable {
   virtual bool killThread() const { return false; }
   virtual unsigned getNumberObjects() const = 0;
   virtual void checkCapacity();
+  virtual std::string_view getType() const = 0;
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
@@ -35,16 +36,17 @@ template <class T>
 class RunnableT : public Runnable {
  protected:
   explicit RunnableT(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
-    Runnable(maxNumberThreads) { _numberObjects++; }
-    ~RunnableT() override { _numberObjects--; }
-  static std::atomic<unsigned> _numberObjects;
+  Runnable(maxNumberThreads) { _numberObjects++; }
+  ~RunnableT() override { _numberObjects--; }
+  std::string_view getType() const override { return _type; }
+  static std::string initType() { return typeid(T).name(); }
+  static inline std::atomic<unsigned> _numberObjects;
+  static inline const std::string _type = initType();
  public:
   unsigned getNumberObjects() const override {
     return _numberObjects;
   }
 };
-template <typename T>
-std::atomic<unsigned>  RunnableT<T>::_numberObjects;
 
 class KillThread : public RunnableT<KillThread> {
   void run() override {}
