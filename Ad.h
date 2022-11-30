@@ -44,7 +44,6 @@ class Ad {
   static const std::vector<Ad>& getAdsBySize(std::string_view key);
   static const long _scaler = 100;
  private:
-  Ad& operator =(const Ad& other) = delete;
   bool parseIntro();
   bool parseArray();
   static std::string extractSize(std::string_view line);
