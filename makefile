@@ -79,7 +79,7 @@ else ifeq ($(SANITIZE), thread)
 endif
 
 ifeq ($(PROFILE), 1)
-  PROFBLD := -pg
+  PROFBLD := -pg -gdwarf-3
 endif
 
 WARNINGS := -Wall -Wextra -pedantic-errors
