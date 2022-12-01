@@ -217,6 +217,15 @@ To run Google tests:\
 or './runtests.sh <number repetitions>' \
 in the project root. './runtests.sh -h' for help.
 
+!!!!!!!!!!
+
+To simplify the test use deploy.sh script which builds binaries, creates 5 client
+directories Client1...Client5 with necessary links.
+Then start the server in the project root shell and each
+client in the Client1...5 directory, each in a separete shell.
+
+!!!!!!!!!!
+
 To run the tests from any directory outside of the project\
 create a directory anywhere, make a soft link to the\
 project_root/data directory in this new directory and copy the binary\

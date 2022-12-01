@@ -17,10 +17,11 @@ trap "exit" SIGHUP SIGINT SIGTERM
 sleep 2
 
 function copyClient {
-/bin/cp -f client ../PrjClient2
-/bin/cp -f client ../PrjClient3
-/bin/cp -f client ../PrjClient4
-/bin/cp -f client ../PrjClient5
+/bin/cp -f client ../Client1
+/bin/cp -f client ../Client2
+/bin/cp -f client ../Client3
+/bin/cp -f client ../Client4
+/bin/cp -f client ../Client5
 }
 
 echo

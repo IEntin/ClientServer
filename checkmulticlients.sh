@@ -35,16 +35,16 @@ set -e
 
 # Start clients.
 
-/bin/cp -f client ../PrjClient2
-/bin/cp -f client ../PrjClient3
-/bin/cp -f client ../PrjClient4
-/bin/cp -f client ../PrjClient5
+/bin/cp -f client ../Client2
+/bin/cp -f client ../Client3
+/bin/cp -f client ../Client4
+/bin/cp -f client ../Client5
 
-./client > /dev/null &
-cd $SERVER_DIR/../PrjClient2; ./client > /dev/null &
-cd $SERVER_DIR/../PrjClient3; ./client > /dev/null &
-cd $SERVER_DIR/../PrjClient4; ./client > /dev/null &
-cd $SERVER_DIR/../PrjClient5; ./client > /dev/null &
+cd $SERVER_DIR/../Client1; ./client > /dev/null &
+cd $SERVER_DIR/../Client2; ./client > /dev/null &
+cd $SERVER_DIR/../Client3; ./client > /dev/null &
+cd $SERVER_DIR/../Client4; ./client > /dev/null &
+cd $SERVER_DIR/../Client5; ./client > /dev/null &
 
 sleep 120
 
