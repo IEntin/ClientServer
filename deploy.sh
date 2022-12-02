@@ -13,6 +13,8 @@ then
     exit 0
 fi 
 
+set -e
+
 # create client directories
 
 # remove existing Client* directories to start from scratch
@@ -39,7 +41,7 @@ done
 # now all client directories have the same ClientOptions.json directing to start TCP client
 # if you want to make some of the clients FIFO
 
-for c in { 2 4 }
+for c in 2 4
 do
   (cd ../Client$c;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
 done
