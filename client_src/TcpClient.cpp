@@ -57,6 +57,8 @@ bool TcpClient::send(const std::vector<char>& msg) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
+  if (_stopFlag.test())
+    return false;
   return true;
 }
 

@@ -4,11 +4,11 @@ Copyright (C) 2021 Ilya Entin.
 
 !!!!!!!!!!
 
-Note that directory structure changed.
-To simplify the test use deploy.sh script which builds binaries, creates 5 client
-directories Client1...Client5 with necessary links.
-Then start the server in the project root shell and each
-client in the Client1...5 directories, each in a separete shell.
+Note that directory structure changed.\
+To simplify the test use deploy.sh script which builds binaries, creates 5\
+client directories Client1...Client5 with necessary links.\
+Start the server in the project root terminal and each client\
+in client teminals.
 
 !!!!!!!!!!
 

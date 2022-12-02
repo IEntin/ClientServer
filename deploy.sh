@@ -8,8 +8,8 @@ if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "cd to the project root ClientServer and run this script"
     echo "./deploy.sh 2>&1 | tee deploy.txt"
-    echo "start the server in project root ./server"
-    echo "open terminal for every client and start the client ./client"
+    echo "Start the server in the project root terminal ./server"
+    echo "and each client in created terminals ./client"
     exit 0
 fi 
 
@@ -48,3 +48,10 @@ done
 
 # build binaries and copy client binary to ClientX directories
 ./compile.sh
+
+# start client terminals
+
+for d in 1 2 3 4 5
+do
+gnome-terminal -e 'sh -c "cd ../Client'$d'; exec bash"'
+done
