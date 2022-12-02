@@ -64,7 +64,7 @@ cd $SERVER_DIR/../Client3
 
 date
 
-sleep 60
+sleep 180
 
 kill -SIGINT $SERVER_PID
 
