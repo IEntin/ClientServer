@@ -15,31 +15,34 @@ fi
 
 # create client directories
 
-# optionally remove existing Client* directories to start from scratch
-#rm -rf ../Client1 ../Client2 ../Client3 ../Client4 ../Client5
+# remove existing Client* directories to start from scratch
+
+for (( c=1; c<=5; c++ ))do
+rm -rf ../Client$c
+done
 
 # create FIFO directory one level above project root
 mkdir -p ../Fifos
 
 # create client directories one level above project root
-mkdir -p ../Client1
-mkdir -p ../Client2
-mkdir -p ../Client3
-mkdir -p ../Client4
-mkdir -p ../Client5
+for (( c=1; c<=5; c++ ))do
+mkdir -p ../Client$c
+done
 
 # create links to data directory in every client directory
 # copy scripts and ClientOptions.json
-(cd ../Client1; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
-(cd ../Client2; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
-(cd ../Client3; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
-(cd ../Client4; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
-(cd ../Client5; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
+
+for (( c=1; c<=5; c++ ))do
+(cd ../Client$c; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
+done
 
 # now all client directories have the same ClientOptions.json directing to start TCP client
 # if you want to make some of the clients FIFO
-(cd ../Client2;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
-(cd ../Client4;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
+
+for c in { 2 4 }
+do
+  (cd ../Client$c;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
+done
 
 # build binaries and copy client binary to ClientX directories
 ./compile.sh
