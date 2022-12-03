@@ -65,6 +65,8 @@ ifeq ($(PCHENABLED),1)
   INCLUDE_PRECOMPILED := -include $(ALLH)
 endif
 
+# e.g. make -j4 OPTIMIZE=-O0
+# for no optimization, useful for debugging
 OPTIMIZE =
 ifeq ($(OPTIMIZE),)
   OPTIMIZATION := -O3
