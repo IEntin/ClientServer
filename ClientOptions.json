@@ -12,7 +12,7 @@
   "Timing" : true,
   "_comment": "put false below if using script sh",
   "RunLoop" : true,
-  "_comment": "0 below means unlimited used with RunLoop false",
+  "_comment": "0 below means unlimited",
   "MaxNumberTasks" : 0,
   "EnableHeartbeat" : true,
   "ServerHost" : "127.0.0.1",
