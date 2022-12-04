@@ -35,8 +35,6 @@ class TcpHeartbeat final : public std::enable_shared_from_this<TcpHeartbeat>,
 
   void heartbeatWait();
 
-  void heartbeat();
-
   void write();
 
   void read();

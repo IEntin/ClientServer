@@ -53,5 +53,8 @@ done
 
 for d in 1 2 3 4 5
 do
-gnome-terminal -e 'sh -c "cd ../Client'$d'; exec bash"'
+    pwd=$(pwd)
+    cd ../Client$d
+    gnome-terminal&
+    cd $(pwd)
 done

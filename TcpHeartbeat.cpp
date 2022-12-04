@@ -70,15 +70,9 @@ void TcpHeartbeat::heartbeatWait() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
-      heartbeat();
-      heartbeatWait();
+      write();
+      CLOG << '*' << std::flush;
     }));
-}
-
-void TcpHeartbeat::heartbeat() {
-  write();
-  read();
-  CLOG << '*' << std::flush;
 }
 
 void TcpHeartbeat::read() {
@@ -100,6 +94,7 @@ void TcpHeartbeat::read() {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
 	return;
       }
+      heartbeatWait();
     }));
 }
 
@@ -108,7 +103,7 @@ void TcpHeartbeat::write() {
   auto weakPtr = weak_from_this();
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer), boost::asio::bind_executor(_strand,
-    [weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this, weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = weakPtr.lock();
       if (!self)
 	return;
@@ -116,6 +111,7 @@ void TcpHeartbeat::write() {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
+      read();
     }));
 }
 
