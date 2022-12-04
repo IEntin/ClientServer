@@ -17,7 +17,9 @@ set -e
 
 # create client directories
 
-# remove existing Client* directories to start from scratch
+# remove existing Client* and Fifos directories to start from scratch
+
+rm -rf ../Fifos
 
 for (( c=1; c<=5; c++ ))do
 rm -rf ../Client$c
@@ -53,8 +55,5 @@ done
 
 for d in 1 2 3 4 5
 do
-    pwd=$(pwd)
-    cd ../Client$d
-    gnome-terminal&
-    cd $(pwd)
+    (cd ../Client$d; gnome-terminal&)
 done
