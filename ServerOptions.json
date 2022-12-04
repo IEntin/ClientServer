@@ -8,7 +8,7 @@
   "Compression" : "LZ4",
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
-  "FifoDirectoryName" : "/home/ilya/Fifos",
+  "FifoDirectoryName" : "../Fifos",
   "AcceptorBaseName" : "Acceptor",
   "MaxTcpSessions" : 10,
   "MaxFifoSessions" : 10,

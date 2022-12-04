@@ -2,7 +2,7 @@
   "TurnOffLogging" : false,
   "CommunicationType" : "TCP",
   "Diagnostics" : false,
-  "FifoDirectoryName" : "/home/ilya/Fifos",
+  "FifoDirectoryName" : "../Fifos",
   "AcceptorBaseName" : "Acceptor",
   "SourceName" : "data/requests.log",
   "OutputFileName" : "",
