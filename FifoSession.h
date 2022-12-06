@@ -14,15 +14,11 @@ struct ServerOptions;
 
 namespace fifo {
 
-using FifoAcceptorPtr = std::shared_ptr<class FifoAcceptor>;
-
 class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   public RunnableT<FifoSession> {
   const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
-  int _fdRead = -1;
-  int _fdWrite = -1;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;

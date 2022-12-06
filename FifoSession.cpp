@@ -86,14 +86,15 @@ void FifoSession::stop() {
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
     _status.store(STATUS::NONE);
-  utility::CloseFileDescriptor cfdr(_fdRead);
-  _fdRead = open(_fifoName.data(), O_RDONLY);
-  if (_fdRead == -1) {
+  int fdRead = -1;
+  utility::CloseFileDescriptor cfdr(fdRead);
+  fdRead = open(_fifoName.data(), O_RDONLY);
+  if (fdRead == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  return serverutility::receiveRequest(_fdRead, message, header, _options);
+  return serverutility::receiveRequest(fdRead, message, header, _options);
 }
 
 bool FifoSession::sendResponse(const Response& response) {
@@ -105,23 +106,24 @@ bool FifoSession::sendResponse(const Response& response) {
   // from a client crashed or killed with SIGKILL and resume operation
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
-  utility::CloseFileDescriptor cfdw(_fdWrite);
+  int fdWrite = -1;
+  utility::CloseFileDescriptor cfdw(fdWrite);
   int rep = 0;
   do {
-    _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
+    fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+    if (fdWrite == -1 && (errno == ENXIO || errno == EINTR))
       std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (_fdWrite == -1 &&
+  } while (fdWrite == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-  if (_fdWrite == -1) {
+  if (fdWrite == -1) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
   if (_options._setPipeSize)
-    Fifo::setPipeSize(_fdWrite, message.size());
-  return Fifo::writeString(_fdWrite, message);
+    Fifo::setPipeSize(fdWrite, message.size());
+  return Fifo::writeString(fdWrite, message);
 }
 
 bool FifoSession::sendStatusToClient() {

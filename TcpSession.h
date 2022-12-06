@@ -27,9 +27,7 @@ using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
   friend class TcpHeartbeat;
 public:
-  TcpSession(const ServerOptions& options,
-	     ConnectionDetailsPtr details,
-	     std::string_view clientId);
+  TcpSession(const ServerOptions& options, ConnectionDetailsPtr details, std::string_view clientId);
   ~TcpSession() override;
 
   void run() noexcept override;

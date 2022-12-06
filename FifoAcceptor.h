@@ -26,7 +26,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
   std::map<std::string, FifoSessionWeakPtr> _sessions;
-  int _fd = -1;
  public:
   FifoAcceptor(const ServerOptions& options);
   ~FifoAcceptor() override;

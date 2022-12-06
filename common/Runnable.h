@@ -16,14 +16,18 @@ using RunnableWeakPtr = std::weak_ptr<class Runnable>;
 
 class Runnable {
  public:
-  explicit Runnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT);
+  explicit Runnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
+    _maxNumberThreads(maxNumberThreads) {}
   virtual ~Runnable() {}
   virtual void run() = 0;
   virtual bool start() = 0;
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
   virtual unsigned getNumberObjects() const = 0;
-  virtual void checkCapacity();
+  virtual void checkCapacity() {
+    if (getNumberObjects() > _maxNumberThreads)
+      _status.store(STATUS::MAX_SPECIFIC_SESSIONS);
+  }
   virtual std::string_view getType() const = 0;
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
@@ -31,12 +35,13 @@ class Runnable {
 };
 
 // The Curiously Recurring Template Pattern (CRTP)
-// Objects of specific derived class counting
+// Counting objects of specific derived class
+
 template <class T>
 class RunnableT : public Runnable {
  protected:
   explicit RunnableT(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
-  Runnable(maxNumberThreads) { _numberObjects++; }
+    Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
   static std::string initType() { return typeid(T).name(); }

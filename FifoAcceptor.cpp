@@ -26,21 +26,22 @@ FifoAcceptor::~FifoAcceptor() {
 
 std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
   static std::string emptyString;
-  utility::CloseFileDescriptor cfdr(_fd);
+  int fd = -1;
+  utility::CloseFileDescriptor cfdr(fd);
   try {
     // blocks until the client opens writing end
-    _fd = open(_options._acceptorName.data(), O_RDONLY);
-    if (_fd == -1) {
+    fd = open(_options._acceptorName.data(), O_RDONLY);
+    if (fd == -1) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
 	   << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
       return { HEADERTYPE::ERROR, emptyString };
     }
-    HEADER header = Fifo::readHeader(_fd, _options._numberRepeatEINTR);
+    HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
     size_t size = getUncompressedSize(header);
     std::string clientId;
     if (size > 0) {
       std::vector<char> buffer(size);
-      if (!Fifo::readString(_fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+      if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
