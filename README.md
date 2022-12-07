@@ -31,7 +31,7 @@ submillisecond request or in another extreme it can run for the life time of the
 architecture it is important to avoid creating new threads and use thread pools. Note that the\
 number of sessions per se is in no way limited by the number of CPU cores. Session threads are normally not\
 really busy as compared to work threads running processing logic. Increasing the number of clients puts\
-prportional load on processing logic. This is the bottleneck. See server profiles for a proof.
+proportional load on processing logic. This is the bottleneck. See server profiles for a proof.
 
 This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
 generic thread pool. Thread pool creates threads on demand comparing the number of objects of a given\
