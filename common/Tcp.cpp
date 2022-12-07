@@ -47,8 +47,7 @@ std::pair<bool, boost::system::error_code>
 sendMsg(boost::asio::ip::tcp::socket& socket,
 	const HEADER& header,
 	std::string_view msg) {
-  auto [type, uncompressedSize, compressedSize, compressor, diagnostics, status] = header;
-  size_t size = compressor == COMPRESSORS::LZ4 ? compressedSize : uncompressedSize;
+  size_t size = isCompressed(header) ? getCompressedSize(header) : getUncompressedSize(header);
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), header);
   std::copy(msg.cbegin(), msg.cend(), buffer.data() + HEADER_SIZE);

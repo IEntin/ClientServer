@@ -70,7 +70,7 @@ void TcpSession::checkCapacity() {
 
 bool TcpSession::onReceiveRequest() {
   _uncompressed.clear();
-  bool bcompressed = isInputCompressed(_header);
+  bool bcompressed = isCompressed(_header);
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;

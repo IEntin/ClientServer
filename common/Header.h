@@ -73,8 +73,8 @@ inline COMPRESSORS getCompressor(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::COMPRESSOR)>(header);
 }
 
-inline bool isInputCompressed(const HEADER& header) {
-  return getCompressor(header) == COMPRESSORS::LZ4;
+inline bool isCompressed(const HEADER& header) {
+  return getCompressor(header) != COMPRESSORS::NONE;
 }
 
 inline bool isDiagnosticsEnabled(const HEADER& header) {

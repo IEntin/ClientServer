@@ -14,9 +14,9 @@ namespace serverutility {
 std::string_view buildReply(const Response& response, COMPRESSORS compressor, STATUS status) {
   if (response.empty())
     return std::string_view();
-  bool bcompressed = compressor == COMPRESSORS::LZ4;
+  bool bcompressed = compressor != COMPRESSORS::NONE;
   static auto& printOnce[[maybe_unused]] =
-    CLOG << LZ4 << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
+    CLOG << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();
@@ -62,7 +62,7 @@ bool readMsgBody(int fd,
 		 std::vector<char>& uncompressed,
 		 const ServerOptions& options) {
   const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
-  bool bcompressed = compressor == COMPRESSORS::LZ4;
+  bool bcompressed = isCompressed(header);
   static auto& printOnce[[maybe_unused]] =
     CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << (bcompressed ? " received compressed" : " received not compressed") << std::endl;

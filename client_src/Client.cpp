@@ -77,7 +77,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   if (utility::displayStatus(status))
     return false;
-  bool bcompressed = compressor == COMPRESSORS::LZ4;
+  bool bcompressed = isCompressed(header);
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   static auto& printOnce[[maybe_unused]] =

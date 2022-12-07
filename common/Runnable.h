@@ -44,9 +44,8 @@ class RunnableT : public Runnable {
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
-  static std::string initType() { return typeid(T).name(); }
   static inline std::atomic<unsigned> _numberObjects;
-  static inline const std::string _type = initType();
+  static inline const std::string _type = typeid(T).name();
  public:
   unsigned getNumberObjects() const override {
     return _numberObjects;
