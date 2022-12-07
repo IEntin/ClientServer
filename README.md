@@ -29,8 +29,8 @@ Tcp communication layer is using boost Asio library. Every session is running in
 (io_context per session). Session can be extremely short-lived, e.g. it might service one\
 submillisecond request or in another extreme it can run for the life time of the server. With this\
 architecture it is important to avoid creating new threads and use thread pools. Note that the\
-number of sessions is not limited by the number of CPU cores. Session threads are normally not too\
-busy as compared to work threads running processing logic.
+number of sessions is in no way limited by the number of CPU cores. Session threads are normally not\
+really busy as compared to work threads running processing logic. See server profiles for a proof.
 
 This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
 generic thread pool. Thread pool creates threads on demand comparing the number of objects of a given\
