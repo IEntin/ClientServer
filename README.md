@@ -30,7 +30,7 @@ Tcp communication layer is using boost Asio library. Every session is running in
 submillisecond request or in another extreme it can run for the life time of the server. With this\
 architecture it is important to avoid creating new threads and use thread pools. Note that the\
 number of sessions is not limited by the number of CPU cores. Session threads are normally not too\
-busy as compared with work threads running processing logic.
+busy as compared to work threads running processing logic.
 
 This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
 generic thread pool. Thread pool creates threads on demand comparing the number of objects of a given\
@@ -119,11 +119,11 @@ Builtin optional LZ4 compression.
 Server allows multi phase request processing. The preprocessor phase in the current code\
 is generation of the specific key and sorting requests by this key.
 
-Business logic, compression, task multithreading, and communication layers are completely decoupled.
+Business logic, compression, task multithreading, and communication layers are decoupled.
 
 Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with Ubuntu 22.04 installed. Printing to the terminal doubles the latency, use ./client > /dev/null to exclude printing latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores and with Ubuntu 22.04 installed. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
 
 To test the code manually (not using deploy.sh):
 
