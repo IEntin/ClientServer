@@ -2,25 +2,40 @@ Copyright (C) 2021 Ilya Entin.
 
 ### Fast Linux Lockless Clent-Server with FIFO and TCP clients
 
-!!!!!!!!!!
+To test this software clone the project and use deploy.sh script in the project root.\
+Run './deploy.sh -h' to see the details.
 
-Note that directory structure changed.\
-To simplify the test use deploy.sh script which builds binaries, creates 5\
-client directories Client1...Client5 with necessary links.\
-Start the server in the project root terminal and each client\
-in client teminals.
+Prerequisites:
 
-!!!!!!!!!!
+Header only boost libraries, currently boost 1_80.
 
-This server can work with multiple mixed tcp and fifo clients.
+google tests must be installed:\
+sudo apt-get install libgtest-dev\
+sudo apt-get install cmake\
+cd /usr/src/gtest\
+sudo cmake CMakeLists.txt\
+sudo make\
+sudo cp lib/*.a /usr/lib
+
+The compiler must support c++20\
+clang, currently 14.0.0\
+and/or\
+gcc, currenrly 11.3.0\
+some previous versions will do as well.
+
+This server works with multiple mixed tcp and fifo clients.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
-(io_context per session). Sessions can be extremely short-lived, e.g. it might service one\
+(io_context per session). Session can be extremely short-lived, e.g. it might service one\
 submillisecond request or in another extreme it can run for the life time of the server. With this\
-architecture it is important to avoid creating new threads and use thread pools.
+architecture it is important to avoid creating new threads and use thread pools. Note that the\
+number of sessions is not limited by the number of CPU cores. Session threads are normally not too\
+busy as compared with work threads running processing logic.
 
 This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
-generic thread pool.
+generic thread pool. Thread pool creates threads on demand comparing the number of objects of a given\
+class and the number of already created threads. This prevents creation of redundant threads possible if\
+maximum allowed by the configuration were created in advance.
 
 In some cases fifo has better performance and possibly stronger security than tcp. Due to protocol\
 with predictable sequence of reads and writes, it is possible to make pipes bidirectional. This\
@@ -39,7 +54,7 @@ crashes which puts the server in a non responding state.
 
 To solve this problem the writing ends of the pipes are opened in a non blocking\
 mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the client being down\
-for any reason leaves the server in a valid state, and can be restarted.\
+for any reason leaves the server in a valid state.\
 ........
 
 The number and identity of fifo and tcp clients are not known in advance.\
@@ -106,32 +121,15 @@ is generation of the specific key and sorting requests by this key.
 
 Business logic, compression, task multithreading, and communication layers are completely decoupled.
 
-Business logic here is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easiest way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
+Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch was repeated in an infinite loop, but every time it was created anew from a source file. The server was processing these batches from scratch in each iteration. With one client processing of one batch takes about 30 milliseconds on a rather weak laptop, the client command being './client > output.txt' or even './client > /dev/null'. Printing to the terminal doubles the latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with Ubuntu 22.04 installed. Printing to the terminal doubles the latency, use ./client > /dev/null to exclude printing latency.
 
-To test the code:
+To test the code manually (not using deploy.sh):
 
 1. clone the repository
 
 2. build the app
-
-Prerequisites:
-
-Header only boost libraries must be installed.
-
-google tests must be installed:\
-sudo apt-get install libgtest-dev\
-sudo apt-get install cmake\
-cd /usr/src/gtest\
-sudo cmake CMakeLists.txt\
-sudo make\
-sudo cp lib/*.a /usr/lib
-
-The compiler must support c++20\
-gcc  11.1.0\
-clang 12.0.0\
-boost_1_80_0
 
 make arguments:
 
@@ -252,7 +250,7 @@ Using both bidirectional named pipes and tcp.\
 Lockless: except infrequent queue operations.\
 Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
-Business logic, tasks multithreading, and communication layer are completely decoupled.
+Business logic, tasks multithreading, and communication layer are decoupled.
 
 Memory pooling. Most of processing in stable regime after startup is not allocating.\
 Tuning the memory pool size allows to drastically reduce memory footprint of the software,\
