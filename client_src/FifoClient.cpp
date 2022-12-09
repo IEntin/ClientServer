@@ -169,7 +169,8 @@ bool FifoClient::receiveStatus() {
 	   << "\tIf you do not close the client, it will wait in the queue for\n"
 	   << "\ta thread available after one of already running fifo clients\n"
 	   << "\tis closed. At this point the client will resume the run.\n"
-	   << "\tYou can also close the client and try again later.\n"
+	   << "\tYou can also close the client and try again later, but you will\n"
+	   << "\tlose your spot in the queue starting from scratch.\n"
 	   << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
 	   << "\t!!!!!!!!!" << std::endl;
       break;

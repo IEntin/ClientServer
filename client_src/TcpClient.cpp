@@ -110,7 +110,8 @@ bool TcpClient::receiveStatus() {
 	 << "\tIf you do not close the client, it will wait in the queue for\n"
 	 << "\tavailable thread (one of already running tcp clients must be closed).\n"
 	 << "\tAt this point the client will resume run.\n"
-	 << "\tYou can also close the client and try again later.\n"
+	 << "\tYou can also close the client and try again later, but you will\n"
+	 << "\tlose your spot in the queue starting from scratch.\n"
 	 << "\tThe relevant setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!" << std::endl;
     break;
