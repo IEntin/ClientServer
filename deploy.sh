@@ -10,6 +10,8 @@ then
     echo "'./deploy.sh 2>&1 | tee deploy.txt'"
     echo "Start the server in the project root terminal './server'"
     echo "and each client in client terminals './client'"
+    echo "Warning: if you repeatedly run this script close"
+    echo "previously opened client terminals."
     exit 0
 fi 
 

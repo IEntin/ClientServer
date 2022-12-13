@@ -25,6 +25,7 @@ void ThreadPool::stop() {
   }
   catch (const std::system_error& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    return;
   }
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ... _threads joined ..." << std::endl;
 }
