@@ -121,7 +121,7 @@ bool TcpAcceptor::createHeartbeat(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
-  auto heartbeat = std::make_shared<TcpHeartbeat>(_options, details, clientId);
+  auto heartbeat = std::make_shared<TcpHeartbeat>(details, clientId);
   auto [it, inserted] = _heartbeats.emplace(clientId, heartbeat);
   if (!inserted) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__

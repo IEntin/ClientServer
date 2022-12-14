@@ -22,7 +22,6 @@ ServerOptions::ServerOptions(const std::string& jsonName) {
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _tcpPort = appOptions.get("TcpPort", 49172);
   _tcpTimeout = appOptions.get("TcpTimeout", 5000);
-  _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 5);
   _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 10);
   _ENXIOwait = appOptions.get("ENXIOwai", 20);

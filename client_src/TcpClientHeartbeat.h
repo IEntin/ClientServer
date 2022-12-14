@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Header.h"
 #include "ThreadPool.h"
 #include <boost/asio.hpp>
 
@@ -11,26 +12,12 @@ struct ClientOptions;
 
 namespace tcp {
 
-using TcpClientHeartbeatPtr = std::shared_ptr<class TcpClientHeartbeat>;
+using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbeat>,
+using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
+
+class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHeartbeat>,
   public RunnableT<TcpClientHeartbeat> {
-
-  void run() noexcept override;
-
-  void stop() override;
-
-  bool receiveStatus();
-
-  const ClientOptions& _options;
-
-  std::string _heartbeatId;
-
-  boost::asio::io_context _ioContext;
-
-  boost::asio::ip::tcp::socket _socket;
-
-  ThreadPool _threadPool;
 
  public:
 
@@ -40,7 +27,29 @@ class TcpClientHeartbeat : public std::enable_shared_from_this<TcpClientHeartbea
 
   bool start() override;
 
+  void stop() override;
+
+  bool receiveStatus();
+
   bool destroy();
+
+ private:
+
+  void run() noexcept override;
+
+  void heartbeatWait();
+
+  void write();
+
+  void read();
+
+  const ClientOptions& _options;
+  std::string _heartbeatId;
+  boost::asio::io_context _ioContext;
+  boost::asio::ip::tcp::socket _socket;
+  AsioTimer _heartbeatTimer;
+  char _heartbeatBuffer[HEADER_SIZE] = {};
+  ThreadPool _threadPool;
 };
 
 } // end of namespace tcp

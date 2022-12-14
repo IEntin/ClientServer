@@ -15,7 +15,6 @@
   "TcpPort" : 49152,
   "_comment": "below in milliseconds",
   "TcpTimeout" : 10000,
-  "HeartbeatPeriod" : 10000,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,

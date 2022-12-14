@@ -3,6 +3,7 @@
  */
 
 #include "TcpClientHeartbeat.h"
+#include "ConnectionDetails.h"
 #include "ClientOptions.h"
 #include "Tcp.h"
 #include "Utility.h"
@@ -11,7 +12,9 @@ namespace tcp {
 
 TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
-  _socket(_ioContext) {
+  _socket(_ioContext),
+  _heartbeatTimer(_ioContext) {
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error) {
@@ -31,37 +34,91 @@ bool TcpClientHeartbeat::start() {
   return true;
 }
 
+void TcpClientHeartbeat::run() noexcept {
+  try {
+    heartbeatWait();
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+  }
+}
+
 void TcpClientHeartbeat::stop() {
+  _ioContext.post([this]() {
+    boost::system::error_code ec;
+    _heartbeatTimer.cancel(ec);
+    if (ec)
+      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
+  });
   _threadPool.stop();
 }
 
-void TcpClientHeartbeat::run() noexcept {
-  char buffer[HEADER_SIZE] = {};
-  try {
-    while (true) {
-      boost::system::error_code ec;
-      boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+void TcpClientHeartbeat::heartbeatWait() {
+  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  auto weak = weak_from_this();
+  _heartbeatTimer.async_wait([this, weak](const boost::system::error_code& ec) {
+      auto self = weak.lock();
+      if (!self)
+	return;
+      if (_stopped)
+	return;
       if (ec) {
-	(ec == boost::asio::error::eof ? CLOG : CERR)
-	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	break;
+	if (ec != boost::asio::error::operation_aborted)
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	return;
       }
+      write();
       CLOG << '*' << std::flush;
-      encodeHeader(buffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
-      size_t result[[maybe_unused]] =
-	boost::asio::write(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+    });
+}
+
+void TcpClientHeartbeat::read() {
+  auto weakPtr = weak_from_this();
+  boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
+    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
+      if (ec) {
+	bool berror = false;
+	switch (ec.value()) {
+	case boost::asio::error::eof:
+	case boost::asio::error::connection_reset:
+	  break;
+	default:
+	  berror = true;
+	  break;
+	}
+	(berror ? CERR : CLOG)
+	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	_ioContext.stop();
+	return;
+      }
+      HEADER header = decodeHeader(_heartbeatBuffer);
+      if (!isOk(header)) {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
+	return;
+      }
+      heartbeatWait();
+    });
+}
+
+void TcpClientHeartbeat::write() {
+  encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
+  auto weakPtr = weak_from_this();
+  boost::asio::async_write(_socket,
+    boost::asio::buffer(_heartbeatBuffer),
+    [this, weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	break;
+	return;
       }
-    }
-  }
-  catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
-  }
-  catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": unexpected exception" << std::endl;
-  }
+      read();
+    });
 }
 
 bool TcpClientHeartbeat::receiveStatus() {

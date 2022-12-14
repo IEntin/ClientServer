@@ -29,6 +29,7 @@ struct ClientOptions {
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   COMPRESSORS _compressor;
+  int _heartbeatPeriod;
   bool _enableHeartbeat;
   bool _diagnostics;
   bool _runLoop;
