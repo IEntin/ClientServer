@@ -39,6 +39,8 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
 
   void heartbeatWait();
 
+  void timeoutWait();
+
   void write();
 
   void read();
@@ -47,7 +49,8 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   std::string _heartbeatId;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
-  AsioTimer _heartbeatTimer;
+  AsioTimer _periodTimer;
+  AsioTimer _timeoutTimer;
   char _heartbeatBuffer[HEADER_SIZE] = {};
   ThreadPool _threadPool;
 };

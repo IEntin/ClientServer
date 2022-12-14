@@ -14,7 +14,7 @@
   "MaxFifoSessions" : 10,
   "TcpPort" : 49152,
   "_comment": "below in milliseconds",
-  "TcpTimeout" : 10000,
+  "TcpTimeout" : 1000,
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,

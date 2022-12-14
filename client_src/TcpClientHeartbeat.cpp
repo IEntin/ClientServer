@@ -13,8 +13,10 @@ namespace tcp {
 TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
   _socket(_ioContext),
-  _heartbeatTimer(_ioContext) {
-  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+  _periodTimer(_ioContext),
+  _timeoutTimer(_ioContext) {
+  _periodTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error) {
@@ -47,7 +49,7 @@ void TcpClientHeartbeat::run() noexcept {
 void TcpClientHeartbeat::stop() {
   _ioContext.post([this]() {
     boost::system::error_code ec;
-    _heartbeatTimer.cancel(ec);
+    _periodTimer.cancel(ec);
     if (ec)
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
   });
@@ -55,21 +57,39 @@ void TcpClientHeartbeat::stop() {
 }
 
 void TcpClientHeartbeat::heartbeatWait() {
-  _heartbeatTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
+  _periodTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod));
   auto weak = weak_from_this();
-  _heartbeatTimer.async_wait([this, weak](const boost::system::error_code& ec) {
-      auto self = weak.lock();
+  _periodTimer.async_wait([this, weak](const boost::system::error_code& ec) {
+    auto self = weak.lock();
+    if (!self)
+      return;
+    if (_stopped)
+      return;
+    if (ec) {
+      if (ec != boost::asio::error::operation_aborted)
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+      return;
+    }
+    write();
+    CLOG << '*' << std::flush;
+  });
+}
+
+void TcpClientHeartbeat::timeoutWait() {
+  auto weakPtr = weak_from_this();
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatTimeout));
+  _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
+      auto self = weakPtr.lock();
       if (!self)
 	return;
-      if (_stopped)
-	return;
-      if (ec) {
-	if (ec != boost::asio::error::operation_aborted)
+      if (ec != boost::asio::error::operation_aborted) {
+	if (ec)
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	return;
+	else {
+	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
+	  _status.store(STATUS::HEARTBEAT_TIMEOUT);
+	}
       }
-      write();
-      CLOG << '*' << std::flush;
     });
 }
 
@@ -100,11 +120,15 @@ void TcpClientHeartbeat::read() {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
 	return;
       }
+      std::size_t numberCanceled = _timeoutTimer.cancel();
+      if (numberCanceled == 0)
+	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":there was a timeout" << std::endl;
       heartbeatWait();
     });
 }
 
 void TcpClientHeartbeat::write() {
+  timeoutWait();
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
   auto weakPtr = weak_from_this();
   boost::asio::async_write(_socket,

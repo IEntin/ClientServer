@@ -30,6 +30,7 @@ struct ClientOptions {
   std::string _acceptorName;
   COMPRESSORS _compressor;
   int _heartbeatPeriod;
+  int _heartbeatTimeout;
   bool _enableHeartbeat;
   bool _diagnostics;
   bool _runLoop;
