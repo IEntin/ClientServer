@@ -45,7 +45,7 @@ bool TcpAcceptor::start() {
 }
 
 void TcpAcceptor::stop() {
-  _ioContext.post([this] () {
+  boost::asio::post(_ioContext, [this] () {
     auto self = shared_from_this();
     _stopped.store(true);
     _ioContext.stop();

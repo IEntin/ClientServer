@@ -46,7 +46,7 @@ void TcpClientHeartbeat::run() noexcept {
 }
 
 void TcpClientHeartbeat::stop() {
-  _ioContext.post([this]() {
+  boost::asio::post(_ioContext, [this]() {
     boost::system::error_code ec;
     _periodTimer.cancel(ec);
     if (ec)
