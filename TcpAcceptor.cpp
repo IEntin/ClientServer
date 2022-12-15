@@ -33,7 +33,7 @@ bool TcpAcceptor::start() {
   if (!ec)
     _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
   if (!ec) {
-    accept();
+    boost::asio::post(_ioContext, [this] { accept(); });
     _threadPoolAcceptor.push(shared_from_this());
   }
   if (ec) {
