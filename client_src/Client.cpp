@@ -10,8 +10,6 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-std::atomic_flag Client::_stopFlag = ATOMIC_FLAG_INIT;
-
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
@@ -74,6 +72,8 @@ bool Client::run() {
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
+  if (utility::displayStatus(_heartbeatStatus))
+    return false;
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   if (utility::displayStatus(status))
     return false;
@@ -100,7 +100,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 void Client::start() {
   try {
     if (_options._enableHeartbeat) {
-      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
+      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _heartbeatStatus);
       _heartbeat->start();
      }
   }

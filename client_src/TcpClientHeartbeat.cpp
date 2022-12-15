@@ -10,8 +10,9 @@
 
 namespace tcp {
 
-TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
+  TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::atomic<STATUS>& heartbeatStatus) :
   _options(options),
+  _heartbeatStatus(heartbeatStatus),
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext) {
@@ -88,6 +89,7 @@ void TcpClientHeartbeat::timeoutWait() {
 	else {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
 	  _status.store(STATUS::HEARTBEAT_TIMEOUT);
+	  _heartbeatStatus.store(STATUS::HEARTBEAT_TIMEOUT);
 	}
       }
     });
@@ -122,7 +124,7 @@ void TcpClientHeartbeat::read() {
       }
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0)
-	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":there was a timeout" << std::endl;
+	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
       heartbeatWait();
     });
 }

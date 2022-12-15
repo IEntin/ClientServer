@@ -60,10 +60,13 @@ bool displayStatus(STATUS status) {
     return true;
   case STATUS::TCP_TIMEOUT:
     CERR << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
-    return false;
-  case STATUS::HEARTBEAT_TIMEOUT:
+    return true;
+ case STATUS::HEARTBEAT_PROBLEM:
+    CERR << "STATUS::HEARTBEAT_PROBLEM" << std::endl;
+    return true;
+ case STATUS::HEARTBEAT_TIMEOUT:
     CERR << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
-    return false;
+    return true;
   case STATUS::MAX_TOTAL_SESSIONS:
     CLOG << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
     return false;

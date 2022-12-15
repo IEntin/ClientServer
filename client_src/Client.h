@@ -36,13 +36,13 @@ class Client {
 
   std::atomic<STATUS> _status = STATUS::NONE;
 
-  std::atomic_flag _stopFlagWait = ATOMIC_FLAG_INIT;
+  std::atomic<STATUS> _heartbeatStatus = STATUS::NONE;
 
   std::string _clientId;
 
   TcpClientHeartbeatPtr _heartbeat;
 
-  static std::atomic_flag _stopFlag;
+  static inline std::atomic_flag _stopFlag;
 
  public:
 
