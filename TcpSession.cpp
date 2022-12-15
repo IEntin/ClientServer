@@ -27,7 +27,7 @@ TcpSession::TcpSession(const ServerOptions& options,
   _timeoutTimer(_ioContext) {
   TaskController::totalSessions()++;
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(std::numeric_limits<int>::max()));
+  boost::asio::post(_ioContext, [this] { readHeader(); });
 }
 
 TcpSession::~TcpSession() {
@@ -44,13 +44,12 @@ bool TcpSession::start() {
 
 void TcpSession::run() noexcept {
   try {
-    readHeader();
     _ioContext.run();
-    MemoryPool::destroyBuffers();
   }
   catch (const std::exception& e) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
+  MemoryPool::destroyBuffers();
 }
 
 void TcpSession::stop() {
@@ -167,7 +166,12 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
 
 void TcpSession::asyncWait() {
   auto weakPtr = weak_from_this();
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout));
+  boost::system::error_code ec;
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    return;
+  }
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
     [this, weakPtr](const boost::system::error_code& ec) {
       auto self = weakPtr.lock();

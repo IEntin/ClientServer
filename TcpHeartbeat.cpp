@@ -15,6 +15,7 @@ TcpHeartbeat::TcpHeartbeat(ConnectionDetailsPtr details, std::string_view client
   _ioContext(_details->_ioContext),
   _socket(_details->_socket) {
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
+  boost::asio::post(_ioContext, [this] { read(); });
 }
 
 TcpHeartbeat::~TcpHeartbeat() {
@@ -30,7 +31,6 @@ bool TcpHeartbeat::start() {
 
 void TcpHeartbeat::run() noexcept {
   try {
-    read();
     _ioContext.run();
   }
   catch (const std::exception& e) {
