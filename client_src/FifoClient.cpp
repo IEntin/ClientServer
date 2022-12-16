@@ -158,7 +158,7 @@ bool FifoClient::receiveStatus() {
     }
     _clientId.assign(buffer.data(), size);
     _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
-    _status = getStatus(header);
+    _status = extractStatus(header);
     switch (_status) {
     case STATUS::NONE:
       break;

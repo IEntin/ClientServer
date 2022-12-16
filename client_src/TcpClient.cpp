@@ -99,7 +99,7 @@ bool TcpClient::receiveStatus() {
     return false;
   }
   _clientId.assign(payload.data(), payload.size());
-  _status = getStatus(header);
+  _status = extractStatus(header);
   switch (_status) {
   case STATUS::NONE:
     break;

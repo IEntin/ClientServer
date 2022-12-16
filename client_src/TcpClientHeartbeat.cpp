@@ -10,9 +10,8 @@
 
 namespace tcp {
 
-  TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, std::atomic<STATUS>& heartbeatStatus) :
+  TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
-  _heartbeatStatus(heartbeatStatus),
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext) {
@@ -95,7 +94,7 @@ void TcpClientHeartbeat::timeoutWait() {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	else {
 	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
-	  _heartbeatStatus.store(STATUS::HEARTBEAT_TIMEOUT);
+	  _status.store(STATUS::HEARTBEAT_TIMEOUT);
 	}
       }
     });
@@ -121,7 +120,7 @@ void TcpClientHeartbeat::read() {
 	(berror ? CERR : CLOG)
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	if (berror)
-	  _heartbeatStatus.store(STATUS::HEARTBEAT_PROBLEM);
+	  _status.store(STATUS::HEARTBEAT_PROBLEM);
 	_ioContext.stop();
 	return;
       }
@@ -150,7 +149,7 @@ void TcpClientHeartbeat::write() {
 	return;
       if (ec) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	_heartbeatStatus.store(STATUS::HEARTBEAT_PROBLEM);
+	_status.store(STATUS::HEARTBEAT_PROBLEM);
 	return;
       }
       read();
@@ -170,7 +169,7 @@ bool TcpClientHeartbeat::receiveStatus() {
     return false;
   }
   _heartbeatId.assign(payload.data(), payload.size());
-  _status = getStatus(rcvHeader);
+  _status = extractStatus(rcvHeader);
   switch (_status) {
   case STATUS::NONE:
     break;

@@ -21,7 +21,7 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
 
  public:
 
-  TcpClientHeartbeat(const ClientOptions& options, std::atomic<STATUS>& heartbeatStatus);
+  TcpClientHeartbeat(const ClientOptions& options);
 
   ~TcpClientHeartbeat() override;
 
@@ -46,7 +46,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   void read();
 
   const ClientOptions& _options;
-  std::atomic<STATUS>& _heartbeatStatus;
   std::string _heartbeatId;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;

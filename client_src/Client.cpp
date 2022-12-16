@@ -72,8 +72,11 @@ bool Client::run() {
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
-  if (utility::displayStatus(_heartbeatStatus))
-    return false;
+  if (_heartbeat) {
+    STATUS status = _heartbeat->getStatus();
+    if (utility::displayStatus(status))
+      return false;
+  }
   auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   if (utility::displayStatus(status))
     return false;
@@ -100,7 +103,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 void Client::start() {
   try {
     if (_options._enableHeartbeat) {
-      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _heartbeatStatus);
+      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
       _heartbeat->start();
      }
   }

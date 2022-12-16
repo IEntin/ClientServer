@@ -36,8 +36,6 @@ class Client {
 
   std::atomic<STATUS> _status = STATUS::NONE;
 
-  std::atomic<STATUS> _heartbeatStatus = STATUS::NONE;
-
   std::string _clientId;
 
   TcpClientHeartbeatPtr _heartbeat;

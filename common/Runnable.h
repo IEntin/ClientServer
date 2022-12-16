@@ -29,6 +29,8 @@ class Runnable {
       _status.store(STATUS::MAX_SPECIFIC_SESSIONS);
   }
   virtual std::string_view getType() const = 0;
+  STATUS getStatus() const { return _status; }
+
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
