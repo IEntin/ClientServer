@@ -78,7 +78,7 @@ bool TcpClient::receive() {
 
 bool TcpClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
-  ssize_t comprSize = getCompressedSize(header);
+  ssize_t comprSize = extractCompressedSize(header);
   buffer.resize(comprSize);
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] =

@@ -133,18 +133,18 @@ TEST(HeaderTest, 1) {
     bool diagnostics = true;
     encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
     HEADER header = decodeHeader(buffer);
-    size_t uncomprSzResult = getUncompressedSize(header);
+    size_t uncomprSzResult = extractUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
-    size_t comprSzResult = getCompressedSize(header);
+    size_t comprSzResult = extractCompressedSize(header);
     ASSERT_EQ(comprSz, comprSzResult);
-    COMPRESSORS compressorResult = getCompressor(header);
+    COMPRESSORS compressorResult = extractCompressor(header);
     ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
     bool diagnosticsResult = isDiagnosticsEnabled(header);
     ASSERT_EQ(diagnostics, diagnosticsResult);
     compressor = COMPRESSORS::NONE;
     encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
     header = decodeHeader(buffer);
-    compressorResult = getCompressor(header);
+    compressorResult = extractCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
   }
   catch (const std::exception& e) {

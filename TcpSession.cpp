@@ -73,7 +73,7 @@ bool TcpSession::onReceiveRequest() {
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
       CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
-    size_t uncompressedSize = getUncompressedSize(_header);
+    size_t uncompressedSize = extractUncompressedSize(_header);
     _uncompressed.resize(uncompressedSize);
     if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":decompression failed." << std::endl;
@@ -126,7 +126,7 @@ void TcpSession::readHeader() {
 	return;
       }
       _request.clear();
-      _request.resize(getCompressedSize(_header));
+      _request.resize(extractCompressedSize(_header));
       readRequest();
     }));
 }

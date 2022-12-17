@@ -59,24 +59,24 @@ enum class HEADER_INDEX : char {
 
 using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, STATUS>;
 
-inline HEADERTYPE getHeaderType(const HEADER& header) {
+inline HEADERTYPE extractHeaderType(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
 }
 
-inline ssize_t getUncompressedSize(const HEADER& header) {
+inline ssize_t extractUncompressedSize(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED)>(header);
 }
 
-inline ssize_t getCompressedSize(const HEADER& header) {
+inline ssize_t extractCompressedSize(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::COMPRESSED)>(header);
 }
 
-inline COMPRESSORS getCompressor(const HEADER& header) {
+inline COMPRESSORS extractCompressor(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::COMPRESSOR)>(header);
 }
 
 inline bool isCompressed(const HEADER& header) {
-  return getCompressor(header) != COMPRESSORS::NONE;
+  return extractCompressor(header) != COMPRESSORS::NONE;
 }
 
 inline bool isDiagnosticsEnabled(const HEADER& header) {

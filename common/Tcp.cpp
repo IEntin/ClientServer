@@ -33,7 +33,7 @@ readMsg(boost::asio::ip::tcp::socket& socket,
   if (ec)
     return { false, ec };
   header = decodeHeader(buffer);
-  size_t size = getUncompressedSize(header);
+  size_t size = extractUncompressedSize(header);
   if (size > 0) {
   payload.resize(size);
   transferred = boost::asio::read(socket, boost::asio::buffer(payload), ec);
@@ -47,7 +47,7 @@ std::pair<bool, boost::system::error_code>
 sendMsg(boost::asio::ip::tcp::socket& socket,
 	const HEADER& header,
 	std::string_view msg) {
-  size_t size = isCompressed(header) ? getCompressedSize(header) : getUncompressedSize(header);
+  size_t size = isCompressed(header) ? extractCompressedSize(header) : extractUncompressedSize(header);
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), header);
   std::copy(msg.cbegin(), msg.cend(), buffer.data() + HEADER_SIZE);

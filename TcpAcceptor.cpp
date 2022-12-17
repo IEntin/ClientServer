@@ -82,7 +82,7 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
-  HEADERTYPE type = getHeaderType(header);
+  HEADERTYPE type = extractHeaderType(header);
   std::string clientId;
   ConnectionMap::iterator it;
   if (!payload.empty()) {

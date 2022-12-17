@@ -101,7 +101,7 @@ bool FifoClient::receive() {
 
 bool FifoClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
-  ssize_t comprSize = getCompressedSize(header);
+  ssize_t comprSize = extractCompressedSize(header);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
@@ -150,7 +150,7 @@ bool FifoClient::receiveStatus() {
       return false;
     }
     HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
-    size_t size = getUncompressedSize(header);
+    size_t size = extractUncompressedSize(header);
     std::vector<char> buffer(size);
     if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
