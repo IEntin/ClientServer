@@ -17,7 +17,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error)
     throw(std::runtime_error(error.what()));
-  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
   auto [success, ec] = sendMsg(_socket, header);
   if (!success)
     throw(std::runtime_error(ec.what()));
@@ -132,7 +132,7 @@ bool TcpClient::destroySession() {
     if (error)
       return false;
     size_t size = _clientId.size();
-    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, STATUS::NONE };
+    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
     return tcp::sendMsg(socket, header, _clientId).first;
   }
   catch (const std::exception& e) {

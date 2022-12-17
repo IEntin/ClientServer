@@ -157,7 +157,7 @@ void TcpClientHeartbeat::write() {
 }
 
 bool TcpClientHeartbeat::receiveStatus() {
-  HEADER sendHeader{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, STATUS::NONE };
+  HEADER sendHeader{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, _status };
   auto [sendSuccess, ecSend] = sendMsg(_socket, sendHeader);
   if (!sendSuccess)
     return false;
