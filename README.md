@@ -26,9 +26,12 @@ some previous versions will do as well.
 This server works with multiple mixed tcp and fifo clients.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
-(io_context per session). Session can be extremely short-lived, e.g. it might service one\
-submillisecond request or in another extreme it can run for the life time of the server. With this\
-architecture it is important to avoid creating new threads and use thread pools.
+(io_context per session). This approach has its advantages and disadvantages. There is an\
+overhead of context switching but it simplifies the logic and allows some features like waiting\
+mode when exceeding configured max number of sessions. Session can be extremely short-lived,\
+e.g. it might service one submillisecond request or in another extreme it can run for the life\
+time of the server. With this architecture it is important to limit creation of new threads and\
+use thread pools. 
 
 This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
 generic thread pool. Thread pool creates threads on demand comparing the number of objects of a given\
