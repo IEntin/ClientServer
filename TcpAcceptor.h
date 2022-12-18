@@ -51,6 +51,7 @@ private:
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
+  HEADER _header;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
   SessionMap _sessions;

@@ -68,14 +68,13 @@ void TcpAcceptor::run() {
 }
 
 TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
-  HEADER header;
   std::vector<char> payload;
-  auto [success, ec] = readMsg(socket, header, payload);
+  auto [success, ec] = readMsg(socket, _header, payload);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
-  HEADERTYPE type = extractHeaderType(header);
+  HEADERTYPE type = extractHeaderType(_header);
   if (payload.empty())
     return { type, _sessions.end(), true };
   std::string clientId;
@@ -117,7 +116,7 @@ void TcpAcceptor::destroySession(SessionMap::iterator it) {
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
   char heartbeatBuffer[HEADER_SIZE] = {};
-  encodeHeader(heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
+  encodeHeader(heartbeatBuffer, _header);
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] =
     boost::asio::write(socket, boost::asio::buffer(heartbeatBuffer), ec);
