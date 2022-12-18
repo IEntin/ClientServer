@@ -41,8 +41,8 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
-  _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 30);
-  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 15);
+  _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 5000);
+  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 2000);
   _enableHeartbeat = appOptions.get("EnableHeartbeat", true);
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);

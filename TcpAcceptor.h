@@ -12,7 +12,7 @@ struct ServerOptions;
 
 namespace tcp {
 
-using ConnectionMap = std::map<std::string, RunnableWeakPtr>;
+using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
@@ -31,9 +31,10 @@ private:
 
   struct Request {
     HEADERTYPE _type;
-    ConnectionMap::iterator _iterator;
+    SessionMap::iterator _iterator;
     bool _success;
   };
+
   void accept();
 
   void run() override;
@@ -42,7 +43,9 @@ private:
 
   bool createSession(ConnectionDetailsPtr details);
 
-  bool createHeartbeat(ConnectionDetailsPtr details);
+  void destroySession(SessionMap::iterator it);
+
+  void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
@@ -50,9 +53,7 @@ private:
   boost::asio::ip::tcp::acceptor _acceptor;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
-  ThreadPool _threadPoolHeartbeat;
-  ConnectionMap _sessions;
-  ConnectionMap _heartbeats;
+  SessionMap _sessions;
 };
 
 } // end of namespace tcp

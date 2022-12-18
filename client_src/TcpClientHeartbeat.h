@@ -29,8 +29,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
 
   void stop() override;
 
-  bool receiveStatus();
-
   bool destroy();
 
  private:

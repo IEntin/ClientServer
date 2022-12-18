@@ -5,7 +5,6 @@
 #include "TcpAcceptor.h"
 #include "ConnectionDetails.h"
 #include "ServerOptions.h"
-#include "TcpHeartbeat.h"
 #include "TcpSession.h"
 #include "Tcp.h"
 #include "Utility.h"
@@ -54,14 +53,8 @@ void TcpAcceptor::stop() {
       if (session)
 	session->stop();
     }
-    for (auto pr : _heartbeats) {
-      auto heartbeat = pr.second.lock();
-      if (heartbeat)
-	heartbeat->stop();
-    }
   });
   _threadPoolAcceptor.stop();
-  _threadPoolHeartbeat.stop();
   _threadPoolSession.stop();
 }
 
@@ -83,20 +76,16 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
     return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
   HEADERTYPE type = extractHeaderType(header);
+  if (payload.empty())
+    return { type, _sessions.end(), true };
   std::string clientId;
-  ConnectionMap::iterator it;
-  if (!payload.empty()) {
-    clientId.assign(payload.data(), payload.size());
-    
-    ConnectionMap& connections =
-      (type == HEADERTYPE::CREATE_HEARTBEAT || type == HEADERTYPE::DESTROY_HEARTBEAT) ?
-      _heartbeats : _sessions;
-    it = connections.find(clientId);
-    if (it == connections.end()) {
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":related connection not found" << std::endl;
-      return { HEADERTYPE::ERROR, connections.end(), false };
-    }
+  SessionMap::iterator it;
+  clientId.assign(payload.data(), payload.size());
+  it = _sessions.find(clientId);
+  if (it == _sessions.end()) {
+    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	 << ":related connection not found" << std::endl;
+    return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
   return { type, it, true };
 }
@@ -117,20 +106,26 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   return true;
 }
 
-bool TcpAcceptor::createHeartbeat(ConnectionDetailsPtr details) {
-  std::ostringstream os;
-  os << details->_socket.remote_endpoint() << std::flush;
-  std::string clientId = os.str();
-  auto heartbeat = std::make_shared<TcpHeartbeat>(details, clientId);
-  auto [it, inserted] = _heartbeats.emplace(clientId, heartbeat);
-  if (!inserted) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "-duplicate clientId" << std::endl;
-    return false;
+void TcpAcceptor::destroySession(SessionMap::iterator it) {
+  auto session = it->second.lock();
+  if (session) {
+    session->stop();
+    _threadPoolSession.removeFromQueue(session);
   }
-  heartbeat->start();
-  _threadPoolHeartbeat.push(heartbeat);
-  return true;
+  _sessions.erase(it);
+}
+
+void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
+  char heartbeatBuffer[HEADER_SIZE] = {};
+  encodeHeader(heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
+  boost::system::error_code ec;
+  size_t transferred[[maybe_unused]] =
+    boost::asio::write(socket, boost::asio::buffer(heartbeatBuffer), ec);
+  if (ec) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    return;
+  }
+  CLOG << '*' << std::flush;
 }
 
 void TcpAcceptor::accept() {
@@ -155,26 +150,10 @@ void TcpAcceptor::accept() {
 	    return;
 	  break;
 	case HEADERTYPE::DESTROY_SESSION:
-	  {
-	    auto session = it->second.lock();
-	    if (session) {
-	      session->stop();
-	      _threadPoolSession.removeFromQueue(session);
-	    }
-	    _sessions.erase(it);
-	  }
+	  destroySession(it);
 	  break;
-	case HEADERTYPE::CREATE_HEARTBEAT:
-	  if (!createHeartbeat(details))
-	    return;
-	  break;
-	case HEADERTYPE::DESTROY_HEARTBEAT:
-	  {
-	    auto heartbeat = it->second.lock();
-	    if (heartbeat)
-	      heartbeat->stop();
-	    _heartbeats.erase(it);
-	  }
+	case HEADERTYPE::HEARTBEAT:
+	  replyHeartbeat(details->_socket);
 	  break;
 	default:
 	  break;

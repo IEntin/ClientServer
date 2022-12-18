@@ -14,23 +14,14 @@ namespace tcp {
   _options(options),
   _socket(_ioContext),
   _periodTimer(_ioContext),
-  _timeoutTimer(_ioContext) {
-    auto [endpoint, error] =
-      setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
-    if (error) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << error.what() << std::endl;
-      return;
-    }
-    if (!receiveStatus())
-      throw std::runtime_error("TcpClientHeartbeat::receiveStatus failed");
-    boost::asio::post(_ioContext, [this] { write(); });
-}
+  _timeoutTimer(_ioContext) {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpClientHeartbeat::start() {
+  boost::asio::post(_ioContext, [this] { write(); });
   _threadPool.push(shared_from_this());
   return true;
 }
@@ -84,20 +75,20 @@ void TcpClientHeartbeat::timeoutWait() {
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return;
-  }  
+  }
   _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
-      auto self = weakPtr.lock();
-      if (!self)
-	return;
-      if (ec != boost::asio::error::operation_aborted) {
-	if (ec)
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
-	else {
-	  CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
-	  _status.store(STATUS::HEARTBEAT_TIMEOUT);
-	}
+    auto self = weakPtr.lock();
+    if (!self)
+      return;
+    if (ec != boost::asio::error::operation_aborted) {
+      if (ec)
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+      else {
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
+	_status.store(STATUS::HEARTBEAT_TIMEOUT);
       }
-    });
+    }
+  });
 }
 
 void TcpClientHeartbeat::read() {
@@ -139,6 +130,14 @@ void TcpClientHeartbeat::read() {
 
 void TcpClientHeartbeat::write() {
   timeoutWait();
+  boost::asio::ip::tcp::socket socket(_ioContext);
+  _socket = std::move(socket);
+  auto [endpoint, error] =
+    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
+  if (error) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << error.what() << std::endl;
+    return;
+  }
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
   auto weakPtr = weak_from_this();
   boost::asio::async_write(_socket,
@@ -154,29 +153,6 @@ void TcpClientHeartbeat::write() {
       }
       read();
     });
-}
-
-bool TcpClientHeartbeat::receiveStatus() {
-  HEADER sendHeader{ HEADERTYPE::CREATE_HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, _status };
-  auto [sendSuccess, ecSend] = sendMsg(_socket, sendHeader);
-  if (!sendSuccess)
-    return false;
-  HEADER rcvHeader;
-  std::vector<char> payload;
-  auto [success, ec] = readMsg(_socket, rcvHeader, payload);
-  if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
-    return false;
-  }
-  _heartbeatId.assign(payload.data(), payload.size());
-  _status = extractStatus(rcvHeader);
-  switch (_status) {
-  case STATUS::NONE:
-    break;
-  default:
-    break;
-  }
-  return true;
 }
 
 bool TcpClientHeartbeat::destroy() {
