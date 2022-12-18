@@ -36,12 +36,6 @@ void TcpClientHeartbeat::run() noexcept {
 }
 
 void TcpClientHeartbeat::stop() {
-  boost::asio::post(_ioContext, [this]() {
-    boost::system::error_code ec;
-    _periodTimer.cancel(ec);
-    if (ec)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << ec.what() << std::endl;
-  });
   _threadPool.stop();
 }
 
@@ -162,16 +156,11 @@ bool TcpClientHeartbeat::destroy() {
     RunnablePtr _heartbeat;
   } callStop(shared_from_this());
   try {
-    boost::asio::io_context ioContext;
-    boost::asio::ip::tcp::socket socket(ioContext);
-    auto [endpoint, error] =
-      setSocket(ioContext, socket, _options._serverHost, _options._tcpPort);
-    if (error)
-      return false;
-    size_t size = _heartbeatId.size();
-    HEADER header{ HEADERTYPE::DESTROY_HEARTBEAT, size, size, COMPRESSORS::NONE, false, _status };
-    auto [success, ec] = sendMsg(socket, header, _heartbeatId);
-    return success;
+    boost::asio::post(_ioContext, [this] {
+      _periodTimer.cancel();
+      _timeoutTimer.cancel();
+    });
+    return true;
   }
   catch (const boost::system::system_error& e) {
     (e.code() == boost::asio::error::connection_refused ? CLOG : CERR)
