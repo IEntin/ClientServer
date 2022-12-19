@@ -151,12 +151,11 @@ bool FifoClient::receiveStatus() {
     }
     HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
     size_t size = extractUncompressedSize(header);
-    std::vector<char> buffer(size);
-    if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+    _clientId.resize(size);
+    if (!Fifo::readString(fd, _clientId.data(), size, _options._numberRepeatEINTR)) {
       CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
       return false;
     }
-    _clientId.assign(buffer.data(), size);
     _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
     _status = extractStatus(header);
     switch (_status) {

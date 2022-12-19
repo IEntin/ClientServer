@@ -127,6 +127,15 @@ void TcpClientHeartbeat::read() {
       if (numberCanceled == 0)
 	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
       CLOG << '*' << std::flush;
+      // close socket early
+      boost::system::error_code err;
+      _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, err);
+      if (err)
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << err.what() << std::endl;
+      err.clear();
+      _socket.close(err);
+      if (err)
+	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << err.what() << std::endl;
       heartbeatWait();
     });
 }

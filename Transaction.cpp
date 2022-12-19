@@ -130,6 +130,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
 }
 
 void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view request) {
+  // size format: 728x90
   size_t beg = request.find(SIZE_START);
   if (beg != std::string::npos) {
     beg += SIZE_START.size();
@@ -139,6 +140,8 @@ void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view reques
     sizeKey.assign(request.data() + beg, end - beg);
   }
   else {
+    // alternative size format: ad_width=300&ad_height=250
+    // converted to previous
     beg = request.find(AD_WIDTH);
     if (beg != std::string::npos) {
       size_t separator = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);

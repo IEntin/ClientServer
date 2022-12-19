@@ -40,12 +40,11 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     size_t size = extractUncompressedSize(header);
     std::string clientId;
     if (size > 0) {
-      std::vector<char> buffer(size);
-      if (!Fifo::readString(fd, buffer.data(), size, _options._numberRepeatEINTR)) {
+      clientId.resize(size);
+      if (!Fifo::readString(fd, clientId.data(), size, _options._numberRepeatEINTR)) {
 	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
-      clientId.assign(buffer.data(), size);
     }
     return { extractHeaderType(header), std::move(clientId) };
   }

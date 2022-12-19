@@ -16,9 +16,7 @@ std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 	    std::string_view port);
 
 std::pair<bool, boost::system::error_code>
-readMsg(boost::asio::ip::tcp::socket& socket,
-	HEADER& header,
-	std::vector<char>& payload);
+readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload);
 
 std::pair<bool, boost::system::error_code>
 sendMsg(boost::asio::ip::tcp::socket& socket,

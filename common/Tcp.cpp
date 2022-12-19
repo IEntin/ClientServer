@@ -23,9 +23,7 @@ setSocket(boost::asio::io_context& ioContext,
 }
 
 std::pair<bool, boost::system::error_code>
-readMsg(boost::asio::ip::tcp::socket& socket,
-	HEADER& header,
-	std::vector<char>& payload) {
+readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload) {
   char buffer[HEADER_SIZE] = {};
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] =

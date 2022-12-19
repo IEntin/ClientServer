@@ -92,13 +92,11 @@ bool TcpClient::readReply(const HEADER& header) {
 
 bool TcpClient::receiveStatus() {
   HEADER header;
-  std::vector<char> payload;
-  auto [success, ec] = readMsg(_socket, header, payload);
+  auto [success, ec] = readMsg(_socket, header, _clientId);
   if (ec) {
     throw(std::runtime_error(ec.what()));
     return false;
   }
-  _clientId.assign(payload.data(), payload.size());
   _status = extractStatus(header);
   switch (_status) {
   case STATUS::NONE:

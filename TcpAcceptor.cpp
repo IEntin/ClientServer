@@ -68,23 +68,21 @@ void TcpAcceptor::run() {
 }
 
 TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
-  std::vector<char> payload;
-  auto [success, ec] = readMsg(socket, _header, payload);
+  std::string clientId;
+  auto [success, ec] = readMsg(socket, _header, clientId);
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
   HEADERTYPE type = extractHeaderType(_header);
-  if (payload.empty())
-    return { type, _sessions.end(), true };
-  std::string clientId;
-  SessionMap::iterator it;
-  clientId.assign(payload.data(), payload.size());
-  it = _sessions.find(clientId);
-  if (it == _sessions.end()) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ":related connection not found" << std::endl;
-    return { HEADERTYPE::ERROR, _sessions.end(), false };
+  SessionMap::iterator it = _sessions.end();
+  if (!clientId.empty()) {
+    it = _sessions.find(clientId);
+    if (it == _sessions.end()) {
+      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	   << ":related connection not found" << std::endl;
+      return { HEADERTYPE::ERROR, _sessions.end(), false };
+    }
   }
   return { type, it, true };
 }
