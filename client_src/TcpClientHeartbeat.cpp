@@ -36,6 +36,15 @@ void TcpClientHeartbeat::run() noexcept {
 }
 
 void TcpClientHeartbeat::stop() {
+  try {
+    boost::asio::post(_ioContext, [this] {
+      _periodTimer.cancel();
+      _timeoutTimer.cancel();
+    });
+  }
+  catch (const boost::system::system_error& e) {
+    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+  }
   _threadPool.stop();
 }
 
@@ -147,26 +156,6 @@ void TcpClientHeartbeat::write() {
       }
       read();
     });
-}
-
-bool TcpClientHeartbeat::destroy() {
-  struct CallStop {
-    CallStop(RunnablePtr heartbeat) : _heartbeat(heartbeat) {}
-    ~CallStop() { _heartbeat->stop(); }
-    RunnablePtr _heartbeat;
-  } callStop(shared_from_this());
-  try {
-    boost::asio::post(_ioContext, [this] {
-      _periodTimer.cancel();
-      _timeoutTimer.cancel();
-    });
-    return true;
-  }
-  catch (const boost::system::system_error& e) {
-    (e.code() == boost::asio::error::connection_refused ? CLOG : CERR)
-      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
-    return false;
-  }
 }
 
 } // end of namespace tcp

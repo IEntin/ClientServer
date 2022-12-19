@@ -29,8 +29,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
 
   void stop() override;
 
-  bool destroy();
-
  private:
 
   void run() noexcept override;
@@ -44,7 +42,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   void read();
 
   const ClientOptions& _options;
-  std::string _heartbeatId;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _periodTimer;

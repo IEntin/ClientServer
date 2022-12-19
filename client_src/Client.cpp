@@ -14,7 +14,7 @@ Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
   if (_heartbeat)
-    _heartbeat->destroy();
+    _heartbeat->stop();
   _threadPoolTaskBuilder.stop();
   CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
