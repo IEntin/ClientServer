@@ -3,13 +3,13 @@
  */
 
 #include "TcpSession.h"
-#include "ConnectionDetails.h"
-#include "Tcp.h"
 #include "Compression.h"
+#include "ConnectionDetails.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
+#include "Tcp.h"
 #include "Utility.h"
 
 namespace tcp {

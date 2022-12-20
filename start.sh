@@ -29,8 +29,9 @@ then
     exit
 fi 
 
-for (( c=1; c<=$1; c++ ))do
-  ./client > /dev/null&
+for (( c=1; c<=$1; c++ ))
+do
+    ./client > /dev/null&
 done
 
 wait
