@@ -70,6 +70,7 @@ void TcpAcceptor::run() {
 TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
   std::string clientId;
   auto [success, ec] = readMsg(socket, _header, clientId);
+  assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };

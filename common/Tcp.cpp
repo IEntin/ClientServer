@@ -31,7 +31,7 @@ readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& paylo
   if (ec)
     return { false, ec };
   header = decodeHeader(buffer);
-  size_t size = extractUncompressedSize(header);
+  size_t size = isCompressed(header) ? extractCompressedSize(header) : extractUncompressedSize(header);
   if (size > 0) {
   payload.resize(size);
   transferred = boost::asio::read(socket, boost::asio::buffer(payload), ec);

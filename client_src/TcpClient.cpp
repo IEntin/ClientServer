@@ -93,6 +93,7 @@ bool TcpClient::readReply(const HEADER& header) {
 bool TcpClient::receiveStatus() {
   HEADER header;
   auto [success, ec] = readMsg(_socket, header, _clientId);
+  assert(!isCompressed(header) && "expected uncompressed");
   if (ec) {
     throw(std::runtime_error(ec.what()));
     return false;
