@@ -27,7 +27,13 @@ then
     echo "You can run similar test with \"CommunicationType\" : \"TCP\""
 
     exit
-fi 
+fi
+for (( c=1; c<=$1; c++ ))
+do
+    mkdir -p ../Client$c
+    (cd ../Client$c; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .;
+     cp ../ClientServer/ClientOptions.json .; cp ../ClientServer/client .)
+done
 
 for (( c=1; c<=$1; c++ ))
 do

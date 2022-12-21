@@ -16,4 +16,4 @@ set -e
 
 ./checkstuff.sh
 ./runtests.sh 50
-./checkmulticlients.sh
+./checkmulticlients.sh 5

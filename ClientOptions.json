@@ -17,7 +17,7 @@
   "EnableHeartbeat" : true,
   "_comment": "below in milliseconds",
   "HeartbeatPeriod" : 10000,
-  "HeartbeatTimeout" : 1000,
+  "HeartbeatTimeout" : 3000,
   "ServerHost" : "127.0.0.1",
   "TcpPort" : "49152",
   "NumberRepeatEINTR" : 3,
