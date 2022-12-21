@@ -41,8 +41,7 @@ done
 
 for (( c=1; c<=2*$1; c++ ))
 do
-    (cd ../Client$c; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .;
-     cp ../ClientServer/ClientOptions.json .)
+    (cd ../Client$c; ln -sf ../ClientServer/data .; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json directing to start TCP client

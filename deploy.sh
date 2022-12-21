@@ -41,7 +41,7 @@ done
 # copy scripts and ClientOptions.json
 
 for (( c=1; c<=5; c++ ))do
-(cd ../Client$c; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
+(cd ../Client$c; ln -sf ../ClientServer/data .; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json directing to start TCP client

@@ -34,8 +34,7 @@ export c
 for (( c=1; c<=$1; c++ ))
 do
     mkdir -p ../Client$c
-    (cd ../Client$c; ln -sf ../ClientServer/data data; cp ../ClientServer/script.sh .;
-     cp ../ClientServer/ClientOptions.json .; cp ../ClientServer/client .)
+    (cd ../Client$c; ln -sf ../ClientServer/data .; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .; cp ../ClientServer/client .)
 done
 
 for (( c=1; c<=$1; c++ ))
