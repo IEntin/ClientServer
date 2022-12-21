@@ -28,6 +28,9 @@ then
 
     exit
 fi
+
+export c
+
 for (( c=1; c<=$1; c++ ))
 do
     mkdir -p ../Client$c

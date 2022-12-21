@@ -23,7 +23,9 @@ set -e
 
 rm -rf ../Fifos
 
-for (( c=1; c<=5; c++ ))do
+export c
+
+for (( c=1; c<=20; c++ ))do
 rm -rf ../Client$c
 done
 
