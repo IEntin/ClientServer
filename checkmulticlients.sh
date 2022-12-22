@@ -6,7 +6,13 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -ne 1 ]]
 then 
-    echo "Usage: ./checkmulticlients.sh 2>&1 <number of clients of every type> | tee checkmclog.txt"
+    echo "Usage: ./checkmulticlients.sh <number of clients of each type> 2>&1 | tee checkmclog.txt"
+    echo "Prerequisites:"
+    echo "Make sure that \"MaxFifoSessions\" and"
+    echo "\"MaxTcpSessions\" in the ServerOptions.json are"
+    echo "large enough to start expected number of clients."
+    echo "The script will print cpu stats snd contents"
+    echo "of the ../Fifos directory at the end of the run."
     exit 0
 fi 
 
@@ -78,7 +84,21 @@ do
     ( cd ../Client$c; ./client > /dev/null& )
 done
 
-sleep 100
+sleep 60
+
+echo "###############"
+
+set -x
+ps -ef | grep client
+set +x
+
+echo "###############"
+
+set -x
+ls ../Fifos
+set +x
+
+echo "###############"
 
 kill -SIGINT $SERVER_PID
 

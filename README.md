@@ -70,11 +70,11 @@ sends pipe name and status information to the client.\
 It is also necessary to synchronize access to the acceptor, so that only\
 one starting client unblocks acceptor at a time. A named mutex (boost\
 interprocess library) makes it. Tests show that any number of fifo clients\
-can be started concurrently by the scripts start.sh or checkmulticlients.sh.\
+can be started concurrently by the script checkmulticlients.sh.\
 System wide (actually globally) unique pipe name is an analogy of the\
 unique combination of ip address and ephemeral port in the tcp case.\
-In practice, this allows concurrent running of multiple clients\
-without manual configuration.
+In practice, this allows concurrent running of multiple clients without manual\
+ configuration.
 
 .........
 
