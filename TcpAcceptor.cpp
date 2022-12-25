@@ -19,7 +19,7 @@ TcpAcceptor::TcpAcceptor(const ServerOptions& options) :
   _threadPoolSession(_options._maxTcpSessions) {}
 
 TcpAcceptor::~TcpAcceptor() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpAcceptor::start() {
@@ -80,8 +80,8 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
   if (!clientId.empty()) {
     it = _sessions.find(clientId);
     if (it == _sessions.end()) {
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << ":related connection not found" << std::endl;
+      Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+			      << ":related session not found" << std::endl;
       return { HEADERTYPE::ERROR, _sessions.end(), false };
     }
   }
@@ -123,7 +123,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return;
   }
-  CLOG << '*' << std::flush;
+  Logger(LOG_LEVEL::INFO) << "*" << std::flush;
 }
 
 void TcpAcceptor::accept() {
@@ -138,7 +138,7 @@ void TcpAcceptor::accept() {
       if (!self)
 	return;
       if (ec)
-	(ec == boost::asio::error::operation_aborted ? CLOG : CERR)
+	(ec == boost::asio::error::operation_aborted ? Logger(LOG_LEVEL::INFO) : Logger(LOG_LEVEL::ERROR, std::cerr))
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
       else {
 	auto [type, it, success] = findSession(details->_socket);

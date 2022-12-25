@@ -96,7 +96,7 @@ TaskBuilderState TaskBuilder::createSubtask() {
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
   thread_local static std::string line;
   if (_subtaskProduceIndex >= _subtasks.size()) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":std::out_of_range avoided.\n"
+    Logger(LOG_LEVEL::ERROR) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":std::out_of_range avoided.\n"
 	 << "Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
     return TaskBuilderState::ERROR;
   }
@@ -142,7 +142,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
   } satisfyPromise(subtask);
   bool bcompressed = _options._compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
-    CLOG << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
+    Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = end - beg - HEADER_SIZE;
   if (bcompressed) {
     try {

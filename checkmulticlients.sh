@@ -5,7 +5,7 @@
 #
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -ne 1 ]]
-then 
+then
     echo "Usage: ./checkmulticlients.sh <number of clients of each type> 2>&1 | tee checkmclog.txt"
     echo "Prerequisites:"
     echo "Make sure that \"MaxFifoSessions\" and"
@@ -14,7 +14,13 @@ then
     echo "The script will print cpu stats snd contents"
     echo "of the ../Fifos directory at the end of the run."
     exit 0
-fi 
+fi
+
+export cwd
+
+cwd=$(pwd)
+
+echo $cwd
 
 set -e
 
@@ -47,7 +53,7 @@ done
 
 for (( c=1; c<=2*$1; c++ ))
 do
-    (cd ../Client$c; ln -sf ../ClientServer/data .; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
+    (cd ../Client$c; ln -sf $cwd/data .; cp $cwd/script.sh .; cp $cwd/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json directing to start TCP client
@@ -100,7 +106,9 @@ set +x
 
 echo "###############"
 
+set -x
 kill -SIGINT $SERVER_PID
+set +x
 
 sleep 1
 

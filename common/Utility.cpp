@@ -4,6 +4,7 @@
 
 #include "Utility.h"
 #include "Header.h"
+#include "Logger.h"
 #include <fcntl.h>
 #include <filesystem>
 #include <sys/resource.h>
@@ -68,10 +69,10 @@ bool displayStatus(STATUS status) {
     CERR << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
     return true;
   case STATUS::MAX_TOTAL_SESSIONS:
-    CLOG << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
+    Logger(LOG_LEVEL::WARN) << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
     return false;
   case STATUS::MAX_SPECIFIC_SESSIONS:
-    CLOG << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
+    Logger(LOG_LEVEL::WARN) << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
     return false;
   default:
     CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unexpected problem" << std::endl;

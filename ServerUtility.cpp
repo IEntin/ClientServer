@@ -16,7 +16,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
     return std::string_view();
   bool bcompressed = compressor != COMPRESSORS::NONE;
   static auto& printOnce[[maybe_unused]] =
-    CLOG << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
+    Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();
@@ -64,7 +64,7 @@ bool readMsgBody(int fd,
   const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   bool bcompressed = isCompressed(header);
   static auto& printOnce[[maybe_unused]] =
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
     std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);

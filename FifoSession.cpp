@@ -23,14 +23,14 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   _clientId(clientId) {
   TaskController::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << "-_fifoName:" << _fifoName << std::endl;
+  Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+			   << "-_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
   TaskController::totalSessions()--;
   std::filesystem::remove(_fifoName);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 void FifoSession::run() {
@@ -57,11 +57,11 @@ void FifoSession::run() {
 
 void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << " total sessions=" << TaskController::totalSessions() << ' '
-       << "fifo sessions=" << _numberObjects << std::endl;
+  Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+			  << " total sessions=" << TaskController::totalSessions() << ' '
+			  << "fifo sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of fifo clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
 }

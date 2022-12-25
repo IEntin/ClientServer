@@ -3,6 +3,7 @@
  */
 
 #include "Ad.h"
+#include "Logger.h"
 #include "Utility.h"
 #include <cmath>
 #include <fstream>
@@ -133,7 +134,7 @@ bool Ad::load(const std::string& filename) {
       it->second.emplace_back(row);
     }
     catch (std::exception& e) {
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
+      Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
 	   << ":key-value=" << '\"' << it->first << "\":\"" << row._value
 	   << "\",skipping." << std::endl;
       if (it->second.empty())

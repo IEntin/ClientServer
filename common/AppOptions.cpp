@@ -3,6 +3,7 @@
  */
 
 #include "AppOptions.h"
+#include "Logger.h"
 #include "Utility.h"
 
 AppOptions::AppOptions(const std::string& fileName) :

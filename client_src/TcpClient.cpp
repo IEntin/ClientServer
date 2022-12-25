@@ -27,7 +27,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 
 TcpClient::~TcpClient() {
   Metrics::save();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpClient::run() {
@@ -128,7 +128,7 @@ bool TcpClient::destroySession() {
     return tcp::sendMsg(socket, header, _clientId).first;
   }
   catch (const std::exception& e) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
   return true;

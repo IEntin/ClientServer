@@ -1,6 +1,5 @@
 {
   "ProcessType" : "Transaction",
-  "TurnOffLogging" : false,
   "SortInput" : false,
   "AdsFileName" : "data/ads.txt",
   "_comment": "0 below for hardware_concurrency",
@@ -18,5 +17,7 @@
   "NumberRepeatEINTR" : 3,
   "NumberRepeatENXIO" : 7,
   "ENXIOwait" : 10,
-  "SetPipeSize" : true
+  "SetPipeSize" : true,
+  "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",
+  "LogThreshold" : "INFO"
 }

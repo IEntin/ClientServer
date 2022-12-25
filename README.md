@@ -209,6 +209,11 @@ in corresponding directories.
 
 Some of these:
 
+LogThreshold controls the amount of logging selecting one of 5 levels
+TRACE, DEBUG, INFO, WARN, and ERROR, e.g. with setting
+"LogThreshold" : "INFO"
+log statements with level INFO and higher will be printed.
+
 Compression\
 "Compression" : "LZ4"\
 If the value is empty or different the compression is disabled.

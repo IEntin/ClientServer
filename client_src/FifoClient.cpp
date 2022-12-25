@@ -36,7 +36,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 FifoClient::~FifoClient() {
   Metrics::save();
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool FifoClient::run() {

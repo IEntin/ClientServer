@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Logger.h"
 #include <string>
 
 enum class COMPRESSORS : char;
@@ -26,7 +27,7 @@ struct ServerOptions {
   int _ENXIOwait;
   COMPRESSORS _compressor;
   bool _timingEnabled;
-  bool _turnOffLogging;
   bool _sortInput;
   bool _setPipeSize;
+  LOG_LEVEL _logThreshold;
 };

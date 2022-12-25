@@ -17,7 +17,7 @@ namespace tcp {
   _timeoutTimer(_ioContext) {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpClientHeartbeat::start() {
@@ -111,7 +111,7 @@ void TcpClientHeartbeat::read() {
 	  berror = true;
 	  break;
 	}
-	(berror ? CERR : CLOG)
+	(berror ? Logger(LOG_LEVEL::ERROR) : Logger(LOG_LEVEL::DEBUG))
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	if (berror)
 	  _status.store(STATUS::HEARTBEAT_PROBLEM);
@@ -125,8 +125,8 @@ void TcpClientHeartbeat::read() {
       }
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0)
-	CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
-      CLOG << '*' << std::flush;
+	Logger(LOG_LEVEL::ERROR) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":timeout" << std::endl;
+      Logger(LOG_LEVEL::INFO) << "*" << std::flush;
       // close socket early
       boost::system::error_code err;
       _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, err);

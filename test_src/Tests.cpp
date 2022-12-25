@@ -4,6 +4,7 @@
 
 #include "Compression.h"
 #include "Header.h"
+#include "Logger.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 
@@ -15,9 +16,9 @@ struct CompressionTest : testing::Test {
       // save to a string before buffer is reused in uncompress
       std::string compressed(compressedView.data(), compressedView.size());
       std::string_view uncompressedView = Compression::uncompress(compressed.data(), compressed.size(), input.size());
-      // cerr to make this log visible in gtest
+      // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
-	CERR << "\n   input.size()=" << input.size()
+	Logger(LOG_LEVEL::ERROR, std::cerr) << "\n   input.size()=" << input.size()
 	     << " compressedView.size()=" << compressedView.size() << " restored to original:"
 	     << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
       ASSERT_EQ(input, uncompressedView);

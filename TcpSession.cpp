@@ -32,7 +32,7 @@ TcpSession::TcpSession(const ServerOptions& options,
 
 TcpSession::~TcpSession() {
   TaskController::totalSessions()--;
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 bool TcpSession::start() {
@@ -58,11 +58,11 @@ void TcpSession::stop() {
 
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+  Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::totalSessions() << ' '
        << "tcp sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\nThe number of tcp clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
 }
@@ -72,7 +72,7 @@ bool TcpSession::onReceiveRequest() {
   bool bcompressed = isCompressed(_header);
   if (bcompressed) {
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
+      Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     size_t uncompressedSize = extractUncompressedSize(_header);
     _uncompressed.resize(uncompressedSize);
     if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
@@ -82,7 +82,7 @@ bool TcpSession::onReceiveRequest() {
   }
   else
     static auto& printOnce[[maybe_unused]] =
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
+      Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
   static thread_local Response response;
   response.clear();
   auto weakPtr = TaskController::weakInstance();
@@ -115,7 +115,7 @@ void TcpSession::readHeader() {
       if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
 	_status.store(STATUS::NONE);
       if (ec) {
-	(ec == boost::asio::error::eof ? CLOG : CERR)
+	(ec == boost::asio::error::eof ? Logger(LOG_LEVEL::DEBUG) : Logger(LOG_LEVEL::ERROR, std::cerr))
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	_ioContext.stop();
 	return;

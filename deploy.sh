@@ -6,7 +6,7 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
-    echo "cd to the project root ClientServer and run this script"
+    echo "cd to the project root and run this script"
     echo "'./deploy.sh 2>&1 | tee deploy.txt'"
     echo "Start the server in the project root terminal './server'"
     echo "and each client in client terminals './client'"
@@ -14,6 +14,12 @@ then
     echo "previously opened client terminals."
     exit 0
 fi 
+
+export cwd
+
+cwd=$(pwd)
+
+echo $cwd
 
 set -e
 
@@ -25,7 +31,8 @@ rm -rf ../Fifos
 
 export c
 
-for (( c=1; c<=20; c++ ))do
+for (( c=1; c<=20; c++ ))
+do
 rm -rf ../Client$c
 done
 
@@ -33,15 +40,17 @@ done
 
 mkdir -p ../Fifos
 
-for (( c=1; c<=5; c++ ))do
+for (( c=1; c<=5; c++ ))
+do
 mkdir -p ../Client$c
 done
 
 # create data directory links in every client directory
 # copy scripts and ClientOptions.json
 
-for (( c=1; c<=5; c++ ))do
-(cd ../Client$c; ln -sf ../ClientServer/data .; cp ../ClientServer/script.sh .; cp ../ClientServer/ClientOptions.json .)
+for (( c=1; c<=5; c++ ))
+do
+(cd ../Client$c; ln -sf $cwd/data .; cp $cwd/script.sh .; cp /$cwd/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json directing to start TCP client
@@ -56,7 +65,7 @@ done
 
 ./compile.sh
 
-# start client terminals
+# create client terminals
 
 for d in 1 2 3 4 5
 do

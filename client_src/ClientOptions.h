@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Logger.h"
 #include <fstream>
 
 enum class COMPRESSORS : char;
@@ -36,5 +37,5 @@ struct ClientOptions {
   bool _runLoop;
   bool _timing;
   bool _setPipeSize;
-  bool _turnOffLogging;
+  LOG_LEVEL _logThreshold;
 };

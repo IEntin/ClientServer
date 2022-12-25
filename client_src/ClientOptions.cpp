@@ -48,8 +48,5 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   _runLoop = appOptions.get("RunLoop", false);
   _timing = appOptions.get("Timing", false);
   _setPipeSize = appOptions.get("SetPipeSize", true);
-  _turnOffLogging = appOptions.get("TurnOffLogging", true);
-  // disable clog
-  if (_turnOffLogging)
-    std::clog.rdbuf(nullptr);
+  _logThreshold = translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

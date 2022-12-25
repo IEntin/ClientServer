@@ -14,8 +14,6 @@
 #include <syncstream>
 #include <vector>
 
-#define CLOG std::osyncstream(std::clog)
-
 #define CERR std::osyncstream(std::cerr)
 
 enum class STATUS : char;

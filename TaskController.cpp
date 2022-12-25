@@ -22,7 +22,7 @@ TaskController::TaskController(const ServerOptions& options) :
 }
 
 TaskController::~TaskController() {
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 TaskControllerWeakPtr TaskController::weakInstance() {

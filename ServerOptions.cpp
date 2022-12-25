@@ -27,10 +27,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) {
   _ENXIOwait = appOptions.get("ENXIOwai", 20);
   _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
   _timingEnabled = appOptions.get("Timing", false);
-  _turnOffLogging = appOptions.get("TurnOffLogging", true);
-  // disable clog
-  if (_turnOffLogging)
-    std::clog.rdbuf(nullptr);
   _sortInput = appOptions.get("SortInput", true);
   _setPipeSize = appOptions.get("SetPipeSize", true);
+  _logThreshold = translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

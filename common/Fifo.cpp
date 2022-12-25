@@ -3,6 +3,7 @@
  */
 
 #include "Fifo.h"
+#include "Logger.h"
 #include "Utility.h"
 #include <chrono>
 #include <fcntl.h>
@@ -32,7 +33,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
       }
     }
     else if (result == 0) {
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return { HEADERTYPE::ERROR, 0, 0, COMPRESSORS::NONE, false, STATUS::FIFO_PROBLEM };
     }
@@ -64,7 +65,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
       }
     }
     else if (result == 0) {
-      CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return false;
     }
@@ -167,7 +168,7 @@ void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOw
       std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
   } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
   if (fd == -1)
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
+    Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
 	 << std::strerror(errno) << ' ' << fifoName << std::endl;
 }
 

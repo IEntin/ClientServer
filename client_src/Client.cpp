@@ -16,7 +16,7 @@ Client::~Client() {
   if (_heartbeat)
     _heartbeat->stop();
   _threadPoolTaskBuilder.stop();
-  CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
 }
 
 // Allows to read and process the source in parts with sizes
@@ -84,8 +84,8 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   static auto& printOnce[[maybe_unused]] =
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
+    Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
   if (bcompressed) {
     std::string_view uncompressedView = Compression::uncompress(buffer.data(), comprSize, uncomprSize);
     if (uncompressedView.empty()) {
@@ -108,7 +108,7 @@ void Client::start() {
      }
   }
   catch (const std::exception& e) {
-    CLOG << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
 }
 
