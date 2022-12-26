@@ -18,8 +18,8 @@ setSocket(boost::asio::io_context& ioContext,
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ':' << ec.what() << std::endl;
   return { endpoint, ec };
 }
 
@@ -54,8 +54,8 @@ sendMsg(boost::asio::ip::tcp::socket& socket,
   size_t bytes[[maybe_unused]] =
     boost::asio::write(socket, boost::asio::buffer(buffer), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ':' << ec.what() << std::endl;
     return { false, ec };
   }
   return { true, ec };

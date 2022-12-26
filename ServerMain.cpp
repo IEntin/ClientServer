@@ -28,8 +28,7 @@ int main() {
     sigset_t set;
     sigemptyset(&set);
     if (sigaddset(&set, SIGINT) == -1)
-      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-        << ' ' << strerror(errno) << std::endl;
+      Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
@@ -37,8 +36,7 @@ int main() {
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
-      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-        << ' ' << strerror(errno) << std::endl;
+      Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << strerror(errno) << std::endl;
     Metrics::save();
     TaskController::destroy();
     int closed = fcloseall();
@@ -46,13 +44,11 @@ int main() {
     return 0;
   }
   catch (const std::exception& e) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << e.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
     return 5;
   }
   catch (...) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << strerror(errno) << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
     return 6;
   }
 }

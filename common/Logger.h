@@ -29,6 +29,7 @@ inline constexpr std::string_view levelNames[] {
 struct Logger {
   Logger(LOG_LEVEL level, std::ostream& stream = std::clog) :
     _level(level), _stream(_level >= _threshold ? stream : _nullStream) {}
+  Logger() : _level(LOG_LEVEL::ERROR), _stream(std::cerr) {}
   ~Logger() {}
   const LOG_LEVEL _level;
   std::osyncstream _stream;

@@ -47,8 +47,7 @@ void TcpSession::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
-      << __func__ << ' ' << e.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
   MemoryPool::destroyBuffers();
 }
@@ -77,8 +76,8 @@ bool TcpSession::onReceiveRequest() {
     size_t uncompressedSize = extractUncompressedSize(_header);
     _uncompressed.resize(uncompressedSize);
     if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
-      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ 
-       << ":decompression failed." << std::endl;
+      Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ 
+	       << ":decompression failed." << std::endl;
       return false;
     }
   }
@@ -117,15 +116,14 @@ void TcpSession::readHeader() {
       if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
 	_status.store(STATUS::NONE);
       if (ec) {
-	(ec == boost::asio::error::eof ? Logger(LOG_LEVEL::DEBUG) : Logger(LOG_LEVEL::ERROR, std::cerr))
+	(ec == boost::asio::error::eof ? Logger(LOG_LEVEL::DEBUG) : Logger())
 	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	_ioContext.stop();
 	return;
       }
       _header = decodeHeader(_headerBuffer);
       if (!isOk(_header)) {
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ": header is invalid." << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": header is invalid." << std::endl;
 	return;
       }
       _request.clear();
@@ -143,8 +141,7 @@ void TcpSession::readRequest() {
       if (!self)
 	return;
       if (ec) {
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ':' << ec.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
       onReceiveRequest();
@@ -160,8 +157,7 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
       if (!self)
 	return;
       if (ec) {
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
-          << ' ' << __func__ << ':' << ec.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	return;
       }
       if (nextFunc)
@@ -174,8 +170,7 @@ void TcpSession::asyncWait() {
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
-      << __func__ << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return;
   }
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
@@ -185,11 +180,9 @@ void TcpSession::asyncWait() {
 	return;
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
-	  Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
-            << __func__ << ':' << ec.what() << std::endl;
+	  Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	else {
-	  Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
-            << __func__ << ": timeout" << std::endl;
+	  Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
 	  _status.store(STATUS::TCP_TIMEOUT);
 	}
       }

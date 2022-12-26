@@ -16,8 +16,7 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ':' << std::strerror(errno) << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << std::strerror(errno) << std::endl;
   _fd = -1;
 }
 
@@ -45,28 +44,28 @@ bool displayStatus(STATUS status) {
   case STATUS::NONE:
     return false;
   case STATUS::BAD_HEADER:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "STATUS::BAD_HEADER" << std::endl;
+    Logger() << "STATUS::BAD_HEADER" << std::endl;
     return true;
   case STATUS::COMPRESSION_PROBLEM:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "STATUS::COMPRESSION_PROBLEM" << std::endl;
+    Logger() << "STATUS::COMPRESSION_PROBLEM" << std::endl;
     return true;
   case STATUS::DECOMPRESSION_PROBLEM:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "STATUS::DECOMPRESSION_PROBLEM" << std::endl;
+    Logger() << "STATUS::DECOMPRESSION_PROBLEM" << std::endl;
     return true;
   case STATUS::FIFO_PROBLEM:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "STATUS::FIFO_PROBLEM" << std::endl;
+    Logger() << "STATUS::FIFO_PROBLEM" << std::endl;
     return true;
   case STATUS::TCP_PROBLEM:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "STATUS::TCP_PROBLEM" << std::endl;
+    Logger() << "STATUS::TCP_PROBLEM" << std::endl;
     return true;
   case STATUS::TCP_TIMEOUT:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
+    Logger() << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
     return true;
  case STATUS::HEARTBEAT_PROBLEM:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "STATUS::HEARTBEAT_PROBLEM" << std::endl;
+    Logger() << "STATUS::HEARTBEAT_PROBLEM" << std::endl;
     return true;
  case STATUS::HEARTBEAT_TIMEOUT:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
+    Logger() << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
     return true;
   case STATUS::MAX_TOTAL_SESSIONS:
     Logger(LOG_LEVEL::WARN) << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
@@ -75,8 +74,8 @@ bool displayStatus(STATUS status) {
     Logger(LOG_LEVEL::WARN) << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
     return false;
   default:
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ":unexpected problem" << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ":unexpected problem" << std::endl;
     return true;
   }
 }

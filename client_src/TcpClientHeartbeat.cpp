@@ -31,8 +31,8 @@ void TcpClientHeartbeat::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ' ' << e.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ' ' << e.what() << std::endl;
   }
 }
 
@@ -44,8 +44,8 @@ void TcpClientHeartbeat::stop() {
     });
   }
   catch (const boost::system::system_error& e) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ' ' << e.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ' ' << e.what() << std::endl;
   }
   _threadPool.stop();
 }
@@ -54,8 +54,8 @@ void TcpClientHeartbeat::heartbeatWait() {
   boost::system::error_code ec;
   _periodTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ':' << ec.what() << std::endl;
     return;
   }
   auto weak = weak_from_this();
@@ -67,8 +67,8 @@ void TcpClientHeartbeat::heartbeatWait() {
       return;
     if (ec) {
       if (ec != boost::asio::error::operation_aborted)
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ':' << ec.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ':' << ec.what() << std::endl;
       return;
     }
     write();
@@ -80,8 +80,8 @@ void TcpClientHeartbeat::timeoutWait() {
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatTimeout), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ':' << ec.what() << std::endl;
     return;
   }
   _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
@@ -90,11 +90,11 @@ void TcpClientHeartbeat::timeoutWait() {
       return;
     if (ec != boost::asio::error::operation_aborted) {
       if (ec)
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ':' << ec.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ':' << ec.what() << std::endl;
       else {
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ": timeout" << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ": timeout" << std::endl;
 	_status.store(STATUS::HEARTBEAT_TIMEOUT);
       }
     }
@@ -118,8 +118,8 @@ void TcpClientHeartbeat::read() {
 	  berror = true;
 	  break;
 	}
-	(berror ? Logger(LOG_LEVEL::ERROR) : Logger(LOG_LEVEL::DEBUG))
-	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
+	logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	if (berror)
 	  _status.store(STATUS::HEARTBEAT_PROBLEM);
 	_ioContext.stop();
@@ -127,8 +127,8 @@ void TcpClientHeartbeat::read() {
       }
       HEADER header = decodeHeader(_heartbeatBuffer);
       if (!isOk(header)) {
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ": header is invalid." << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ": header is invalid." << std::endl;
 	return;
       }
       std::size_t numberCanceled = _timeoutTimer.cancel();
@@ -140,13 +140,13 @@ void TcpClientHeartbeat::read() {
       boost::system::error_code err;
       _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, err);
       if (err)
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ' ' << err.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ' ' << err.what() << std::endl;
       err.clear();
       _socket.close(err);
       if (err)
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ' ' << err.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ' ' << err.what() << std::endl;
       heartbeatWait();
     });
 }
@@ -158,8 +158,8 @@ void TcpClientHeartbeat::write() {
   auto [endpoint, error] =
     setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
   if (error) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ' ' << error.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ' ' << error.what() << std::endl;
     return;
   }
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);
@@ -171,8 +171,8 @@ void TcpClientHeartbeat::write() {
       if (!self)
 	return;
       if (ec) {
-	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-          << ':' << ec.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+		 << ':' << ec.what() << std::endl;
 	_status.store(STATUS::HEARTBEAT_PROBLEM);
 	return;
       }

@@ -47,8 +47,8 @@ bool TcpClient::send(const std::vector<char>& msg) {
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ':' << ec.what() << std::endl;
     return false;
   }
   if (_stopFlag.test())
@@ -104,8 +104,8 @@ bool TcpClient::readReply(const HEADER& header) {
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	     << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, header);
