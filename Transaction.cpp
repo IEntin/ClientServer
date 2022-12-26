@@ -66,7 +66,7 @@ thread_local std::vector<std::string_view> Transaction::_keywords;
 Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
   if (sizeKey.empty()) {
     _invalid = true;
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "-invalid request, sizeKey is empty, input:" << input << std::endl;
     return;
   }
@@ -89,13 +89,13 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   try {
     Transaction transaction(key, request);
     if (request.empty()) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-request is empty" << std::endl;
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
     if (key.empty()) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-key is empty" << std::endl;
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
@@ -110,7 +110,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     }
     if (adVector.get().empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "-invalid request:" << transaction._request
 	   << " id:" << id << std::endl;
       return id.append(INVALID_REQUEST);
@@ -123,8 +123,8 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     return os.str();
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << ' ' << e.what() << std::endl;
   }
   return id.append(PROCESSING_ERROR);
 }

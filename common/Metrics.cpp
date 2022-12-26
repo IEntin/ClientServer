@@ -29,13 +29,14 @@ void Metrics::save() {
       std::distance(std::filesystem::directory_iterator(_procFdPath), std::filesystem::directory_iterator{});
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ' ' << e.what() << std::endl;
   }
 }
 
 // /proc/36258/status | grep Threads
 void Metrics::print() {
-  CERR << "\tmaxRss=" << _maxRss << '\n'
+  Logger(LOG_LEVEL::ERROR, std::cerr) << "\tmaxRss=" << _maxRss << '\n'
        << "\tnumberThreads=" << _numberThreads << '\n'
        << "\t\'lsof\'=" << _numberOpenFDs << std::endl;
 }
@@ -44,13 +45,15 @@ size_t Metrics::getMaxRss() {
   try {
     struct rusage usage;
     if (getrusage(RUSAGE_SELF, &usage)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << strerror(errno) << std::endl;
       return 0;
     }
     return usage.ru_maxrss;
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ' ' << e.what() << std::endl;
   }
   return 0;
 }

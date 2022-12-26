@@ -41,11 +41,13 @@ int main() {
     }
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << '-' << e.what() << std::endl;
     return 3;
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << std::strerror(errno) << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << '-' << std::strerror(errno) << std::endl;
     return 4;
   }
   return 0;

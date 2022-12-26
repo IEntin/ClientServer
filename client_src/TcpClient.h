@@ -21,6 +21,8 @@ class TcpClient : public Client {
 
   bool readReply(const HEADER& header);
 
+  static void waitHandler(const boost::system::error_code& ec);
+
   boost::asio::io_context _ioContext;
 
   boost::asio::ip::tcp::socket _socket;

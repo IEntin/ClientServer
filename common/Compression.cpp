@@ -21,7 +21,7 @@ std::string_view Compression::compress(const char* uncompressed, size_t uncompre
 					       uncompressedSize,
 					       buffer.capacity());
   if (compressedSize == 0) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
 	 << (errno ? strerror(errno) : "failed") << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
@@ -38,7 +38,8 @@ std::string_view Compression::uncompress(const char* compressed,
 					    uncomprSize);
   if (decomprSize != static_cast<ssize_t>(uncomprSize)) {
     if (errno)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << strerror(errno) << std::endl;
     return { 0, 0 };
   }
   return { uncompressed.data(), uncomprSize };
@@ -53,7 +54,8 @@ bool Compression::uncompress(const std::vector<char>& compressed,
 					    uncompressed.size());
   if (decomprSize != static_cast<ssize_t>(uncompressed.size())) {
     if (errno)
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << strerror(errno) << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << strerror(errno) << std::endl;
     return false;
   }
   return true;

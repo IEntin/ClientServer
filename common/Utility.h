@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Logger.h"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -13,8 +14,6 @@
 #include <string_view>
 #include <syncstream>
 #include <vector>
-
-#define CERR std::osyncstream(std::cerr)
 
 enum class STATUS : char;
 
@@ -64,8 +63,8 @@ template <typename INPUT, typename CONTAINER>
 inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-    << " problem converting str:" << str << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << " problem converting str:" << str << std::endl;
     throw std::runtime_error("problem converting str");
   }
   return true;
@@ -92,8 +91,8 @@ template <Integral N>
 	ec == std::errc())
       os.write(arr, ptr - arr);
     else
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-error translating number:" << value._number << '\n';
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+	<< ' ' << __func__ << "-error translating number:" << value._number << std::endl;
     return os;
 }
 
@@ -105,8 +104,8 @@ template <FloatingPoint N>
  	ec == std::errc())
       os.write(arr, ptr - arr);
     else
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-error translating number:" << value._number << '\n';
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+	<< __func__ << "-error translating number:" << value._number << std::endl;
     return os;
 }
 
@@ -114,8 +113,8 @@ template <Integral T>
   void toChars(T value, char* buffer, size_t size) {
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-problem converting to string:" << value << '\n';
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+	<< __func__ << "-problem converting to string:" << value << std::endl;
       throw std::runtime_error("problem converting to string");
     }
 }
@@ -124,8 +123,8 @@ template <Integral T>
   std::string_view toStringView(T value, char* buffer, size_t size) {
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	   << "-problem converting to string:" << value << '\n';
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+        << ' ' << __func__ << "-problem converting to string:" << value << std::endl;
       throw std::runtime_error("problem converting to string");
     }
     else

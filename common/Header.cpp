@@ -28,7 +28,8 @@ void encodeHeader(char* buffer,
     buffer[offset] = std::underlying_type_t<STATUS>(status);
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << e.what() << std::endl;
   }
 }
 
@@ -58,7 +59,8 @@ HEADER decodeHeader(const char* buffer) {
     return { headerType, uncomprSize, comprSize, compressor, diagnostics, status };
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << e.what() << std::endl;
     return { headerType, 0, 0, COMPRESSORS::NONE, false, STATUS::BAD_HEADER };
   }
 }

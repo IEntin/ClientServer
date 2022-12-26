@@ -27,8 +27,8 @@ FifoClient::FifoClient(const ClientOptions& options) :
       throw std::runtime_error("FifoClient::receiveStatus failed");
   }
   catch (boost::interprocess::interprocess_exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << '-' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << '-' << e.what() << std::endl;
     throw std::runtime_error("named mutex lock failure.");
   }
 }
@@ -80,20 +80,22 @@ bool FifoClient::receive() {
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << _fifoName << '-' << std::strerror(errno) << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << '-' << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
   _status.store(STATUS::NONE);
   try {
     HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
     if (!readReply(header)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+	<< ' ' << __func__ << ":failed." << std::endl;
       return false;
     }
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
   return true;
@@ -104,7 +106,8 @@ bool FifoClient::readReply(const HEADER& header) {
   ssize_t comprSize = extractCompressedSize(header);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << ":failed." << std::endl;
     return false;
   }
   return printReply(buffer, header);
@@ -114,8 +117,8 @@ bool FifoClient::wakeupAcceptor() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   char buffer[HEADER_SIZE] = {};
@@ -127,8 +130,8 @@ bool FifoClient::destroySession() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   size_t size = _clientId.size();
@@ -145,15 +148,16 @@ bool FifoClient::receiveStatus() {
     utility::CloseFileDescriptor closefd(fd);
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	   << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
       return false;
     }
     HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
     size_t size = extractUncompressedSize(header);
     _clientId.resize(size);
     if (!Fifo::readString(fd, _clientId.data(), size, _options._numberRepeatEINTR)) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+        << ' ' << __func__ << ":failed." << std::endl;
       return false;
     }
     _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
@@ -162,7 +166,7 @@ bool FifoClient::receiveStatus() {
     case STATUS::NONE:
       break;
     case STATUS::MAX_SPECIFIC_SESSIONS:
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "\n\t!!!!!!!!!\n"
 	   << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"
 	   << "\tIf you do not close the client, it will wait in the queue for\n"
@@ -181,8 +185,8 @@ bool FifoClient::receiveStatus() {
     }
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+      << ' ' << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
   return true;

@@ -42,12 +42,20 @@ bool TcpClient::run() {
   return Client::run();
 }
 
+void TcpClient::waitHandler(const boost::system::error_code& ec) {
+  if (ec) {
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << ec.what() << std::endl;
+  }
+}
+
 bool TcpClient::send(const std::vector<char>& msg) {
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << ec.what() << std::endl;
     return false;
   }
   if (_stopFlag.test())
@@ -56,12 +64,14 @@ bool TcpClient::send(const std::vector<char>& msg) {
 }
 
 bool TcpClient::receive() {
+  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write, waitHandler);
   boost::system::error_code ec;
   char buffer[HEADER_SIZE] = {};
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << ec.what() << std::endl;
     return false;
   }
   _status.store(STATUS::NONE);
@@ -77,7 +87,8 @@ bool TcpClient::readReply(const HEADER& header) {
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, header);
@@ -96,7 +107,7 @@ bool TcpClient::receiveStatus() {
   case STATUS::NONE:
     break;
   case STATUS::MAX_SPECIFIC_SESSIONS:
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions exceeds thread pool capacity.\n"
 	 << "\tIf you do not close the client, it will wait in the queue for\n"

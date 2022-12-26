@@ -35,7 +35,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
     }
   }
 
@@ -62,7 +62,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
     }
   }
 
@@ -161,7 +161,7 @@ struct LogicTestAltFormat : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
     }
   }
 
@@ -191,7 +191,7 @@ struct LogicTestSortInput : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
     }
   }
 

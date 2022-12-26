@@ -15,12 +15,14 @@ bool AppOptions::initialize() {
   }
   catch (std::exception& e) {
     static auto& printOnce[[maybe_unused]] =
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what()
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << e.what()
 	   << ",\n" << "default values will be returned, by design in tests." << std::endl;
     return false;
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":unknown exception." << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ":unknown exception." << std::endl;
     return false;
   }
   return true;

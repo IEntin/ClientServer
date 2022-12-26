@@ -36,8 +36,8 @@ bool TcpAcceptor::start() {
     _threadPoolAcceptor.push(shared_from_this());
   }
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' 
-	 << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+      << ' ' << __func__ << ' ' << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
     return false;
   }
   return true;
@@ -63,7 +63,8 @@ void TcpAcceptor::run() {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+      << ' ' << __func__ << ' ' << e.what() << std::endl;
   }
 }
 
@@ -72,7 +73,8 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
   auto [success, ec] = readMsg(socket, _header, clientId);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+      << ' ' << __func__ << ':' << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
   HEADERTYPE type = extractHeaderType(_header);
@@ -95,7 +97,7 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   auto session = std::make_shared<TcpSession>(_options, details, clientId);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "-duplicate clientId" << std::endl;
     return false;
   }
@@ -120,7 +122,8 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
   size_t transferred[[maybe_unused]] =
     boost::asio::write(socket, boost::asio::buffer(heartbeatBuffer), ec);
   if (ec) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << ':' << ec.what() << std::endl;
     return;
   }
   Logger(LOG_LEVEL::INFO) << "*" << std::flush;

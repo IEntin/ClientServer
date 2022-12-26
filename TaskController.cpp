@@ -81,7 +81,8 @@ void TaskController::processTask(const HEADER& header, std::vector<char>& input,
     task->getResponse(response);
   }
   catch (std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << e.what() << std::endl;
   }
 }
 
@@ -154,10 +155,12 @@ void TaskController::Worker::run() noexcept {
       barrier.arrive_and_wait();
     }
     catch (std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << e.what() << std::endl;
     }
     catch (...) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ! exception caught." << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << " ! exception caught." << std::endl;
     }
   }
 }

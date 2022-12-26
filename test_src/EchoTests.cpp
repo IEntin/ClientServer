@@ -27,7 +27,8 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << e.what() << std::endl;
     }
   }
 
@@ -46,7 +47,8 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ':' << e.what() << std::endl;
     }
   }
 

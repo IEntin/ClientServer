@@ -30,7 +30,8 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
     TaskBuilderState state = taskBuilder->getTask(task);
     switch (state) {
     case TaskBuilderState::ERROR:
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":TaskBuilder failed." << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << ":TaskBuilder failed." << std::endl;
       return false;
     case TaskBuilderState::SUBTASKDONE:
     case TaskBuilderState::TASKDONE:
@@ -66,7 +67,8 @@ bool Client::run() {
     } while (_options._runLoop);
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << e.what() << std::endl;
   }
   return true;
 }

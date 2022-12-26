@@ -58,13 +58,13 @@ bool Ad::parseIntro() {
 bool Ad::parseArray() {
   auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
   if (arrayStart == _input.cend()) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
-	 << "unexpected format:\"" << _input << '\"' << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << "unexpected format:\"" << _input << '\"' << std::endl;
     return false;
   }
   auto arrayEnd = std::find(arrayStart, _input.end(), ']');
   if (arrayEnd == _input.end()) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':'
 	 << "unexpected format:\"" << _input << '\"' << std::endl;
     return false;
   }
@@ -110,7 +110,7 @@ bool Ad::readAndSortAds(const std::string& filename) {
     utility::split(buffer, _rows);
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << ' ' << e.what() << std::endl;
     return false;
   }

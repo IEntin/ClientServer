@@ -32,10 +32,12 @@ void TaskBuilder::run() {
     }
   }
   catch (std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << e.what() << std::endl;
   }
   catch (...) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << "-exception caught." << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << "-exception caught." << std::endl;
   }
 }
 
@@ -57,11 +59,12 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
     }
   }
   catch (const std::future_error& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ':' << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
   catch (const std::out_of_range& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what()
 	 << ". Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
     return TaskBuilderState::ERROR;
   }
@@ -96,8 +99,9 @@ TaskBuilderState TaskBuilder::createSubtask() {
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
   thread_local static std::string line;
   if (_subtaskProduceIndex >= _subtasks.size()) {
-    Logger(LOG_LEVEL::ERROR) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":std::out_of_range avoided.\n"
-	 << "Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ":std::out_of_range avoided.\n"
+      << "Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
     return TaskBuilderState::ERROR;
   }
   auto& subtask = _subtasks.at(_subtaskProduceIndex);
@@ -116,7 +120,8 @@ TaskBuilderState TaskBuilder::createSubtask() {
     }
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ' ' << e.what() << std::endl;
     subtask._state = TaskBuilderState::ERROR;
     return TaskBuilderState::ERROR;
   }
@@ -134,7 +139,8 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
 	_subtask._promise.set_value();
       }
       catch (const std::exception& e) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+          << ' ' << e.what() << std::endl;
 	_subtask._state = TaskBuilderState::ERROR;
       }
     }
@@ -160,7 +166,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
       }
     }
     catch (const std::exception& e) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
       return TaskBuilderState::ERROR;
     }
   }

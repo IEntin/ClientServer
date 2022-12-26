@@ -32,8 +32,8 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     // blocks until the client opens writing end
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' 
-	   << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+        << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
       return { HEADERTYPE::ERROR, emptyString };
     }
     HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
@@ -42,14 +42,16 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     if (size > 0) {
       clientId.resize(size);
       if (!Fifo::readString(fd, clientId.data(), size, _options._numberRepeatEINTR)) {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+          << __func__ << ":failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
     }
     return { extractHeaderType(header), std::move(clientId) };
   }
   catch (const std::exception& e) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+       << ' ' << __func__ << ' ' << e.what() << std::endl;
     return { HEADERTYPE::ERROR, emptyString };
   }
 }
@@ -95,8 +97,8 @@ bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
   if (mkfifo(_options._acceptorName.data(), 0620) == -1 && errno != EEXIST) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	 << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__ << '-' << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
     return false;
   }
   _threadPoolAcceptor.push(shared_from_this());

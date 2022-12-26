@@ -27,8 +27,8 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	throw std::runtime_error(std::strerror(errno));
       }
       else {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << ':' << std::strerror(errno) << std::endl;
+	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__
+          << ' ' << __func__ << ':' << std::strerror(errno) << std::endl;
 	throw std::runtime_error(std::strerror(errno));
       }
     }
@@ -41,8 +41,8 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
       readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != HEADER_SIZE) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " HEADER_SIZE="
-	 << HEADER_SIZE << " readSoFar=" << readSoFar << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' '
+      << __func__<< " HEADER_SIZE=" << HEADER_SIZE << " readSoFar=" << readSoFar << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
   return decodeHeader(buffer);
@@ -59,7 +59,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
 	  continue;
       }
       else {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	     << ':' << std::strerror(errno) << std::endl;
 	return false;
       }
@@ -73,8 +73,8 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
       readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != size) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__<< " size="
-	 << size << " readSoFar=" << readSoFar << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << " size=" << size << " readSoFar=" << readSoFar << std::endl;
     return false;
   }
   return true;
@@ -88,7 +88,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
       if (errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
+	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' '
 	     << strerror(errno) << ", written=" << written << " str.size()="
 	     << str.size() << std::endl;
 	return false;
@@ -98,8 +98,8 @@ bool Fifo::writeString(int fd, std::string_view str) {
       written += static_cast<size_t>(result);
   }
   if (str.size() != written) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":str.size()="
-	 << str.size() << "!=written=" << written << std::endl;
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      << ":str.size()=" << str.size() << "!=written=" << written << std::endl;
     return false;
   }
   return true;
@@ -114,12 +114,12 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
     if (errno == EINTR)
       continue;
     if (presult <= 0) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< "-timeout,should not hit this" << std::endl;
       return 0;
     }
     else if (pfd.revents & POLLERR) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << '-' << std::strerror(errno) << std::endl;
       return POLLERR;
     }
@@ -133,7 +133,7 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
 bool Fifo::setPipeSize(int fd, long requested) {
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1) {
-    CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << '-' << std::strerror(errno) << std::endl;
     return false;
   }
@@ -141,14 +141,14 @@ bool Fifo::setPipeSize(int fd, long requested) {
     int ret = fcntl(fd, F_SETPIPE_SZ, requested);
     if (ret < 0) {
       static auto& printOnce[[maybe_unused]] =
-	CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	     << std::strerror(errno) << ":\n"
-	     << "su privileges required, ignore." << std::endl;
+	Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+          << '-' << std::strerror(errno) << ":\n"
+	  << "su privileges required, ignore." << std::endl;
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
-      CERR << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << '-' << std::strerror(errno) << std::endl;
       return false;
     }
