@@ -42,13 +42,6 @@ bool TcpClient::run() {
   return Client::run();
 }
 
-void TcpClient::waitHandler(const boost::system::error_code& ec) {
-  if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
-  }
-}
-
 bool TcpClient::send(const std::vector<char>& msg) {
   boost::system::error_code ec;
   size_t result[[maybe_unused]] =
@@ -64,14 +57,38 @@ bool TcpClient::send(const std::vector<char>& msg) {
 }
 
 bool TcpClient::receive() {
-  _socket.async_wait(boost::asio::ip::tcp::socket::wait_write, waitHandler);
+  // receives interrupt and unblocks read on CtrlC in wait mode
   boost::system::error_code ec;
+  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
+  if (ec) {
+    bool unexpected = false;
+    switch (ec.value()) {
+    case boost::asio::error::interrupted:
+      break;
+    default:
+      unexpected = true;
+      break;
+    }
+    Logger logger(unexpected ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, unexpected ? std::cerr : std::clog);
+    logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    return false;
+  }
+  ec.clear();
   char buffer[HEADER_SIZE] = {};
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    Logger(LOG_LEVEL::ERROR, std::cerr) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-      << ':' << ec.what() << std::endl;
+    bool unexpected = false;
+    switch (ec.value()) {
+    case boost::asio::error::interrupted:
+    case boost::asio::error::connection_refused:
+      break;
+    default:
+      unexpected = true;
+      break;
+    }
+    Logger logger(unexpected ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, unexpected ? std::cerr : std::clog);
+    logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
   _status.store(STATUS::NONE);
