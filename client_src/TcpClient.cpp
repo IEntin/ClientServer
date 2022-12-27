@@ -61,15 +61,19 @@ bool TcpClient::receive() {
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
-    bool unexpected = false;
+    bool berror = true;
     switch (ec.value()) {
     case boost::asio::error::interrupted:
+      if (Client::_stopFlag.test())
+	berror = false;
+      else
+	berror= true;
       break;
     default:
-      unexpected = true;
+      berror = true;
       break;
     }
-    Logger logger(unexpected ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, unexpected ? std::cerr : std::clog);
+    Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
     logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
@@ -78,16 +82,20 @@ bool TcpClient::receive() {
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    bool unexpected = false;
+    bool berror = true;
     switch (ec.value()) {
     case boost::asio::error::interrupted:
     case boost::asio::error::connection_refused:
+      if (Client::_stopFlag.test())
+	berror = false;
+      else
+	berror = true;
       break;
     default:
-      unexpected = true;
+      berror = true;
       break;
     }
-    Logger logger(unexpected ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, unexpected ? std::cerr : std::clog);
+    Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
     logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }

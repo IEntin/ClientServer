@@ -3,8 +3,8 @@
  */
 
 #include "Metrics.h"
+#include <cstring>
 #include <filesystem>
-#include <string.h>
 #include <sys/resource.h>
 #include <unistd.h>
 

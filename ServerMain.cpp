@@ -3,14 +3,18 @@
  */
 
 #include "Chronometer.h"
+#include "Globals.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
-#include "Utility.h"
+#include "Logger.h"
 #include <cassert>
 #include <csignal>
-
-void signalHandler([[maybe_unused]] int signal) {}
+#include <cstring>
+ 
+void signalHandler([[maybe_unused]] int signal) {
+  Globals::_stopFlag.test_and_set();
+}
 
 int main() {
   struct DoAtEnd {

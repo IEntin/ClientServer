@@ -3,8 +3,9 @@
  */
 
 #include "TcpClientHeartbeat.h"
-#include "ConnectionDetails.h"
+#include "Client.h"
 #include "ClientOptions.h"
+#include "ConnectionDetails.h"
 #include "Tcp.h"
 #include "Utility.h"
 
@@ -113,6 +114,10 @@ void TcpClientHeartbeat::read() {
 	switch (ec.value()) {
 	case boost::asio::error::eof:
 	case boost::asio::error::connection_reset:
+	  if (Client::_stopFlag.test())
+	    berror = false;
+	  else
+	    berror = true;
 	  break;
 	default:
 	  berror = true;
