@@ -40,7 +40,7 @@ class Client {
 
   TcpClientHeartbeatPtr _heartbeat;
 
-  static inline std::atomic_flag _stopFlag;
+  static std::atomic_flag _stopFlag;
 
  public:
 
