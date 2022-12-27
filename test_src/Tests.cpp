@@ -18,9 +18,9 @@ struct CompressionTest : testing::Test {
       std::string_view uncompressedView = Compression::uncompress(compressed.data(), compressed.size(), input.size());
       // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
-	Logger() << "\n   input.size()=" << input.size()
-		 << " compressedView.size()=" << compressedView.size() << " restored to original:"
-		 << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
+	Logger(false) << "\n   input.size()=" << input.size()
+		      << " compressedView.size()=" << compressedView.size() << " restored to original:"
+		      << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
       ASSERT_EQ(input, uncompressedView);
     }
     catch (const std::exception& e) {

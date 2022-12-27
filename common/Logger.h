@@ -27,12 +27,26 @@ inline constexpr std::string_view levelNames[] {
 };
 
 struct Logger {
-  Logger(LOG_LEVEL level, std::ostream& stream = std::clog) :
-    _level(level), _stream(_level >= _threshold ? stream : _nullStream) {}
-  Logger() : _level(LOG_LEVEL::ERROR), _stream(std::cerr) {}
+  Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayLevel = true) :
+    _level(level),
+    _stream(_level >= _threshold ? stream : _nullStream),
+    _displayLevel(displayLevel) {
+    printLevel();
+  }
+  Logger(bool displayLevel = true) :
+    _level(LOG_LEVEL::ERROR),
+    _stream(std::cerr),
+    _displayLevel(displayLevel) {
+    printLevel();
+  }
+  void printLevel() {
+    if (_displayLevel)
+      _stream << '[' << levelNames[static_cast<int>(_level)] << ']';
+  }
   ~Logger() {}
   const LOG_LEVEL _level;
   std::osyncstream _stream;
+  const bool _displayLevel;
   auto& operator <<(std::string_view value) {
     return _stream << value;
   }

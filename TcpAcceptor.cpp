@@ -124,7 +124,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
     Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return;
   }
-  Logger(LOG_LEVEL::INFO) << "*" << std::flush;
+  Logger(LOG_LEVEL::INFO, std::clog, false) << "*" << std::flush;
 }
 
 void TcpAcceptor::accept() {

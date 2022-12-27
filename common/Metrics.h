@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Logger.h"
 #include <cstddef>
 #include <string>
 
@@ -13,7 +14,9 @@ class Metrics {
   ~Metrics() = delete;
   static size_t getMaxRss();
   static void save();
-  static void print();
+  static void print(LOG_LEVEL level = LOG_LEVEL::INFO,
+		    std::ostream& stream = std::clog,
+		    bool displayLevel = true);
  private:
   static size_t _pid;
   static std::string _procFdPath;

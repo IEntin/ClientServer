@@ -3,9 +3,10 @@
  */
 
 #include "Metrics.h"
-#include "Utility.h"
 #include <filesystem>
+#include <string.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
 size_t Metrics::_pid;
 std::string Metrics::_procFdPath;
@@ -35,10 +36,12 @@ void Metrics::save() {
 }
 
 // /proc/36258/status | grep Threads
-void Metrics::print() {
-  Logger() << "\tmaxRss=" << _maxRss << '\n'
-	   << "\tnumberThreads=" << _numberThreads << '\n'
-	   << "\t\'lsof\'=" << _numberOpenFDs << std::endl;
+void Metrics::print(LOG_LEVEL level,
+		    std::ostream& stream,
+		    bool displayLevel) {
+  Logger(level, stream, displayLevel) << "\tmaxRss=" << _maxRss << '\n'
+    << "\tnumberThreads=" << _numberThreads << '\n'
+    << "\t\'lsof\'=" << _numberOpenFDs << std::endl;
 }
 
 size_t Metrics::getMaxRss() {
