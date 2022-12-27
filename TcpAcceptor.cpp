@@ -4,10 +4,10 @@
 
 #include "TcpAcceptor.h"
 #include "ConnectionDetails.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 #include "TcpSession.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 

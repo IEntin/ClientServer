@@ -3,7 +3,7 @@
  */
 
 #include "ThreadPool.h"
-#include "Utility.h"
+#include "Logger.h"
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
 

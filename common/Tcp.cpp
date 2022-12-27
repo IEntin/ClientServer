@@ -3,7 +3,7 @@
  */
 
 #include "Tcp.h"
-#include "Utility.h"
+#include "Logger.h"
 
 namespace tcp {
 

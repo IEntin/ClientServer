@@ -3,10 +3,10 @@
  */
 
 #include "TaskController.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 #include "StrategySelector.h"
 #include "Task.h"
-#include "Utility.h"
 
 TaskControllerPtr TaskController::_single;
 

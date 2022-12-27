@@ -5,9 +5,9 @@
 #include "ServerUtility.h"
 #include "Compression.h"
 #include "Fifo.h"
+#include "Logger.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
-#include "Utility.h"
 
 namespace serverutility {
 

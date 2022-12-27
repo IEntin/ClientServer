@@ -4,9 +4,10 @@
 
 #include "Compression.h"
 #include "Header.h"
+#include "Logger.h"
 #include "lz4.h"
 #include "MemoryPool.h"
-#include "Utility.h"
+#include <cstring>
 
 COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) {
   bool enabled = compressorStr.starts_with(LZ4);

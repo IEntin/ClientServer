@@ -4,9 +4,9 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
+#include "Logger.h"
 #include "Metrics.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 
@@ -86,10 +86,7 @@ bool TcpClient::receive() {
     switch (ec.value()) {
     case boost::asio::error::interrupted:
     case boost::asio::error::connection_refused:
-      if (Client::_stopFlag.test())
-	berror = false;
-      else
-	berror = true;
+      berror = !Client::_stopFlag.test();
       break;
     default:
       berror = true;

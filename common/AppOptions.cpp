@@ -4,7 +4,6 @@
 
 #include "AppOptions.h"
 #include "Logger.h"
-#include "Utility.h"
 
 AppOptions::AppOptions(const std::string& fileName) :
   _fileName(fileName), _initialized(initialize()) {}

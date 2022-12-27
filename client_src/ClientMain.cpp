@@ -4,10 +4,10 @@
 
 #include "Chronometer.h"
 #include "ClientOptions.h"
+#include "Logger.h"
 #include "Metrics.h"
 #include "FifoClient.h"
 #include "TcpClient.h"
-#include "Utility.h"
 #include <csignal>
 
 void signal_handler(int) {

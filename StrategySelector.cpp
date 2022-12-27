@@ -4,7 +4,7 @@
 
 #include "StrategySelector.h"
 #include "ServerOptions.h"
-#include "Utility.h"
+#include "Logger.h"
 
 TransactionStrategy StrategySelector::_transactionStrategy;
 

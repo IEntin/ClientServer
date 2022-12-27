@@ -5,12 +5,12 @@
 #include "TcpSession.h"
 #include "Compression.h"
 #include "ConnectionDetails.h"
+#include "Logger.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 

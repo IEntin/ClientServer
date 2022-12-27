@@ -5,11 +5,11 @@
 #include "Echo.h"
 #include "ClientOptions.h"
 #include "FifoClient.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
-#include "Utility.h"
 
 struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {

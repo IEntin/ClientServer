@@ -4,7 +4,7 @@
 
 #include "ThreadPool.h"
 #include "Logger.h"
-#include "Utility.h"
+#include <cassert>
 
 std::shared_ptr<KillThread> ThreadPool::_killThread = std::make_shared<KillThread>();
 

@@ -4,12 +4,12 @@
 
 #include "ClientOptions.h"
 #include "FifoClient.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 #include "TaskController.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 #include "Transaction.h"
-#include "Utility.h"
 
 struct LogicTest : testing::Test {
   void testLogicTcp(COMPRESSORS serverCompressor,
