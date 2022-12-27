@@ -15,8 +15,8 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor != COMPRESSORS::NONE;
-  static auto& printOnce[[maybe_unused]] =
-    Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
+  static auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::DEBUG)
+    << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();

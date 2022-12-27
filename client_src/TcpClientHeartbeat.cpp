@@ -3,7 +3,6 @@
  */
 
 #include "TcpClientHeartbeat.h"
-#include "Client.h"
 #include "ClientOptions.h"
 #include "ConnectionDetails.h"
 #include "Tcp.h"
@@ -39,6 +38,7 @@ void TcpClientHeartbeat::run() noexcept {
 
 void TcpClientHeartbeat::stop() {
   try {
+    _stopped.store(true);
     boost::asio::post(_ioContext, [this] {
       _periodTimer.cancel();
       _timeoutTimer.cancel();
@@ -114,10 +114,7 @@ void TcpClientHeartbeat::read() {
 	switch (ec.value()) {
 	case boost::asio::error::eof:
 	case boost::asio::error::connection_reset:
-	  if (Client::_stopFlag.test())
-	    berror = false;
-	  else
-	    berror = true;
+	  berror = !_stopped;
 	  break;
 	default:
 	  berror = true;

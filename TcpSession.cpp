@@ -58,7 +58,7 @@ void TcpSession::stop() {
 
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
-  Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+  Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__
        << " total sessions=" << TaskController::totalSessions() << ' '
        << "tcp sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
@@ -71,8 +71,8 @@ bool TcpSession::onReceiveRequest() {
   _uncompressed.clear();
   bool bcompressed = isCompressed(_header);
   if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] =
-      Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
+    static auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::TRACE)
+      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received compressed." << std::endl;
     size_t uncompressedSize = extractUncompressedSize(_header);
     _uncompressed.resize(uncompressedSize);
     if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
@@ -82,8 +82,8 @@ bool TcpSession::onReceiveRequest() {
     }
   }
   else
-    static auto& printOnce[[maybe_unused]] =
-      Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
+    static auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::TRACE)
+      << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " received not compressed." << std::endl;
   static thread_local Response response;
   response.clear();
   auto weakPtr = TaskController::weakInstance();
@@ -116,8 +116,7 @@ void TcpSession::readHeader() {
       if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
 	_status.store(STATUS::NONE);
       if (ec) {
-	(ec == boost::asio::error::eof ? Logger(LOG_LEVEL::DEBUG) : Logger())
-	  << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+	Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	_ioContext.stop();
 	return;
       }

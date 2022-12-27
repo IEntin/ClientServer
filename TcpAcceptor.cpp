@@ -139,8 +139,8 @@ void TcpAcceptor::accept() {
       if (!self)
 	return;
       if (ec) {
-	bool unexpected = ec != boost::asio::error::operation_aborted;
-	Logger logger(unexpected ? LOG_LEVEL::ERROR : LOG_LEVEL::INFO, unexpected ? std::cerr : std::clog);
+	bool berror = ec != boost::asio::error::operation_aborted;
+	Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
 	logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
       }
       else {

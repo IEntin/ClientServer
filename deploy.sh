@@ -13,7 +13,7 @@ then
     echo "Warning: if you repeatedly run this script close"
     echo "previously opened client terminals."
     exit 0
-fi 
+fi
 
 export cwd
 
@@ -21,19 +21,22 @@ cwd=$(pwd)
 
 echo $cwd
 
+#assuming we are in gnome terminal
+#kill all instances of xterm created in previous runs
+
+pkill -f xterm
+
 set -e
 
-# create client directories
+# clean Client* and Fifos directories
 
-# remove Client* and Fifos directories to start from scratch
-
-rm -rf ../Fifos
+rm -f ../Fifos/*
 
 export c
 
 for (( c=1; c<=20; c++ ))
 do
-rm -rf ../Client$c
+rm -f ../Client$c/*
 done
 
 # create FIFO directory and client directories at the project root level
@@ -53,7 +56,7 @@ do
 (cd ../Client$c; ln -sf $cwd/data .; cp $cwd/script.sh .; cp /$cwd/ClientOptions.json .)
 done
 
-# now all client directories have the same ClientOptions.json directing to start TCP client
+# now all client directories have the same ClientOptions.json for TCP client
 # if you want to make some of the clients, e.g. 2 and 4, FIFO:
 
 for c in 2 4
@@ -69,5 +72,5 @@ done
 
 for d in 1 2 3 4 5
 do
-    (cd ../Client$d; gnome-terminal&)
+    (cd ../Client$d; xterm&)
 done

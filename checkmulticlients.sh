@@ -28,16 +28,19 @@ trap "exit" SIGHUP SIGINT SIGTERM
 
 date
 
-# remove Fifos and Client* directories to start from scratch
+# clean Client* and Fifos directories
+
+rm -f ../Fifos/*
 
 export c
 
-rm -rf ../Fifos
-
 for (( c=1; c<=2*$1; c++ ))
 do
-    rm -rf ../Client? ../Client??
+    rm -f ../Client$c/*
 done
+
+# create data directory links in every client directory
+# copy scripts and ClientOptions.json
 
 # create FIFO directory and client directories at the project root level
 
@@ -56,7 +59,7 @@ do
     (cd ../Client$c; ln -sf $cwd/data .; cp $cwd/script.sh .; cp $cwd/ClientOptions.json .)
 done
 
-# now all client directories have the same ClientOptions.json directing to start TCP client
+# now all client directories have the same ClientOptions.json for TCP client
 # make second half of the clients FIFO:
 
 for (( c=$1+1; c<=2*$1; c++ ))
@@ -65,7 +68,7 @@ do
 done
 
 # build binaries and copy client binary to Client* directories
-# you can pass SANITIZE parameter (aul || thread) as $2
+#optionally you can pass SANITIZE parameter (aul or thread) as $2
 
 make -j4 SANITIZE=$2
 
