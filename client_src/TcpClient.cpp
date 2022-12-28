@@ -32,11 +32,15 @@ TcpClient::~TcpClient() {
 
 bool TcpClient::run() {
   struct OnDestroy {
-    OnDestroy(Client* client) : _client(client) {}
+    OnDestroy(TcpClient* client) : _client(client) {}
     ~OnDestroy() {
+      boost::system::error_code ec;
+      _client->_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+      ec.clear();
+      _client->_socket.close(ec);
       _client->destroySession();
     }
-    Client* _client = nullptr;
+    TcpClient* _client = nullptr;
   } onDestroy(this);
   start();
   return Client::run();
@@ -47,8 +51,8 @@ bool TcpClient::send(const std::vector<char>& msg) {
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << ':' << ec.what() << std::endl;
+    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << ':' << ec.what() << std::endl;
     return false;
   }
   if (_stopFlag.test())
@@ -64,10 +68,7 @@ bool TcpClient::receive() {
     bool berror = true;
     switch (ec.value()) {
     case boost::asio::error::interrupted:
-      if (Client::_stopFlag.test())
-	berror = false;
-      else
-	berror= true;
+      berror = !Client::_stopFlag.test();
       break;
     default:
       berror = true;
@@ -109,8 +110,8 @@ bool TcpClient::readReply(const HEADER& header) {
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    Logger() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	     << ':' << ec.what() << std::endl;
+    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+	    << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, header);

@@ -26,6 +26,8 @@ inline constexpr std::string_view levelNames[] {
   "ERROR"
 };
 
+using Error = struct Logger;
+
 struct Logger {
   Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayLevel = true) :
     _level(level),

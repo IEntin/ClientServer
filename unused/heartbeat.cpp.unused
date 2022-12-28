@@ -26,3 +26,22 @@ bool TcpClientHeartbeat::destroyHeartbeat(TcpClientHeartbeatPtr heartbeatPtr) {
   }
 }
 sudo dd if=~/ubuntu/ubuntu-22.04.1-live-server-amd64.iso of=/dev/sdb1
+
+  /*
+  boost::system::error_code ec;
+  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
+  if (ec) {
+    bool berror = true;
+    switch (ec.value()) {
+    case boost::asio::error::interrupted:
+      berror = !Globals::_stopFlag.test();
+      break;
+    default:
+      berror = true;
+      break;
+    }
+    Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
+    logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    return;
+  }
+  */
