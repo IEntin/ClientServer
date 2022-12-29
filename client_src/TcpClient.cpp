@@ -34,10 +34,6 @@ bool TcpClient::run() {
   struct OnDestroy {
     OnDestroy(TcpClient* client) : _client(client) {}
     ~OnDestroy() {
-      boost::system::error_code ec;
-      _client->_socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-      ec.clear();
-      _client->_socket.close(ec);
       _client->destroySession();
     }
     TcpClient* _client = nullptr;
