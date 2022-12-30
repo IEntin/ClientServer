@@ -27,7 +27,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 
 TcpClient::~TcpClient() {
   Metrics::save();
-  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
 }
 
 bool TcpClient::run() {
@@ -40,8 +40,7 @@ bool TcpClient::send(const std::vector<char>& msg) {
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ':' << ec.what() << std::endl;
+    Error() << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
   if (stopped())
@@ -64,7 +63,7 @@ bool TcpClient::receive() {
       break;
     }
     Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
-    logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    logger << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
   ec.clear();
@@ -83,7 +82,7 @@ bool TcpClient::receive() {
       break;
     }
     Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
-    logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
+    logger << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
   _status = STATUS::NONE;
@@ -99,8 +98,7 @@ bool TcpClient::readReply(const HEADER& header) {
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ':' << ec.what() << std::endl;
+    Error() << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, header);
@@ -119,7 +117,7 @@ bool TcpClient::receiveStatus() {
   case STATUS::NONE:
     break;
   case STATUS::MAX_SPECIFIC_SESSIONS:
-    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::WARN) << CODELOCATION
 	 << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions is at pool capacity.\n"
 	 << "\tThis client will wait in the queue for available thread.\n"

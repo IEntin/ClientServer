@@ -57,8 +57,7 @@ void Task::finish() {
     _promise.set_value();
   }
   catch (std::future_error& e) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ':' << e.what() << std::endl;
+    Error() << CODELOCATION << ':' << e.what() << std::endl;
   }
 }
 

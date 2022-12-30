@@ -63,8 +63,7 @@ template <typename INPUT, typename CONTAINER>
 inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
-    Error() << __FILE__ << ':' << __LINE__ << ' '
-    << __func__ << " problem converting str:" << str << std::endl;
+    Error() << CODELOCATION << " problem converting str:" << str << std::endl;
     throw std::runtime_error("problem converting str");
   }
   return true;
@@ -91,7 +90,7 @@ template <Integral N>
 	ec == std::errc())
       os.write(arr, ptr - arr);
     else
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Error() << CODELOCATION
 	      << "-error translating number:" << value._number << std::endl;
     return os;
 }
@@ -104,7 +103,7 @@ template <FloatingPoint N>
  	ec == std::errc())
       os.write(arr, ptr - arr);
     else
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Error() << CODELOCATION
 	      << "-error translating number:" << value._number << std::endl;
     return os;
 }
@@ -113,7 +112,7 @@ template <Integral T>
   void toChars(T value, char* buffer, size_t size) {
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Error() << CODELOCATION
 	      << "-problem converting to string:" << value << std::endl;
       throw std::runtime_error("problem converting to string");
     }
@@ -123,7 +122,7 @@ template <Integral T>
   std::string_view toStringView(T value, char* buffer, size_t size) {
     if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
 	ec != std::errc()) {
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+      Error() << CODELOCATION
 	      << "-problem converting to string:" << value << std::endl;
       throw std::runtime_error("problem converting to string");
     }

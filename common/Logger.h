@@ -10,6 +10,8 @@
 #include <string_view>
 #include <syncstream>
 
+#define CODELOCATION __FILE__ << ':' << __LINE__ << ' ' << __func__
+
 enum class LOG_LEVEL : char {
   TRACE,
   DEBUG,

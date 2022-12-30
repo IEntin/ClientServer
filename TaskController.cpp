@@ -22,7 +22,7 @@ TaskController::TaskController(const ServerOptions& options) :
 }
 
 TaskController::~TaskController() {
-  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
 }
 
 TaskControllerWeakPtr TaskController::weakInstance() {
@@ -81,8 +81,7 @@ void TaskController::processTask(const HEADER& header, std::vector<char>& input,
     task->getResponse(response);
   }
   catch (std::future_error& e) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ':' << e.what() << std::endl;
+    Error() << CODELOCATION << ':' << e.what() << std::endl;
   }
 }
 
@@ -155,12 +154,10 @@ void TaskController::Worker::run() noexcept {
       barrier.arrive_and_wait();
     }
     catch (std::exception& e) {
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << ':' << e.what() << std::endl;
+      Error() << CODELOCATION << ':' << e.what() << std::endl;
     }
     catch (...) {
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	      << " ! exception caught." << std::endl;
+      Error() << CODELOCATION << " ! exception caught." << std::endl;
     }
   }
 }

@@ -12,7 +12,7 @@ MemoryPool& MemoryPool::instance() {
 
 std::vector<char>& MemoryPool::getFirstBuffer(size_t requested) {
   if (requested > _firstBuffer.capacity())
-    Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::DEBUG) << CODELOCATION
 	 << " increased _firstBuffer from " << _firstBuffer.capacity()
 	 << " to " << requested << std::endl;
   _firstBuffer.reserve(requested);
@@ -22,7 +22,7 @@ std::vector<char>& MemoryPool::getFirstBuffer(size_t requested) {
 
 std::vector<char>& MemoryPool::getSecondBuffer(size_t requested) {
   if (requested > _secondBuffer.capacity())
-    Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::DEBUG) << CODELOCATION
 	 << " increased _secondBuffer from " << _secondBuffer.capacity()
 	 << " to " << requested << std::endl;
   _secondBuffer.reserve(requested);
@@ -32,11 +32,11 @@ std::vector<char>& MemoryPool::getSecondBuffer(size_t requested) {
 
 void MemoryPool::destroyBuffers() {
   std::vector<char>& buffer = instance().getFirstBuffer();
-  Logger(LOG_LEVEL::DEBUG) <<  __FILE__ << ':' << __LINE__ << ' ' << __func__
+  Logger(LOG_LEVEL::DEBUG) << CODELOCATION
        << " first:" << buffer.capacity() << std::endl;
   std::vector<char>().swap(buffer);
   buffer = instance().getSecondBuffer();
-  Logger(LOG_LEVEL::DEBUG) <<  __FILE__ << ':' << __LINE__ << ' ' << __func__
+  Logger(LOG_LEVEL::DEBUG) << CODELOCATION
        << " second:" << buffer.capacity() << std::endl;
   std::vector<char>().swap(buffer);
 }

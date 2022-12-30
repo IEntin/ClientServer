@@ -16,7 +16,7 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << std::strerror(errno) << std::endl;
+    Error() << CODELOCATION << ':' << std::strerror(errno) << std::endl;
   _fd = -1;
 }
 
@@ -74,8 +74,7 @@ bool displayStatus(STATUS status) {
     Logger(LOG_LEVEL::WARN) << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
     return false;
   default:
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ":unexpected problem" << std::endl;
+    Error() << CODELOCATION << ":unexpected problem" << std::endl;
     return true;
   }
 }

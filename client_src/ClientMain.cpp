@@ -41,11 +41,11 @@ int main() {
     }
   }
   catch (const std::exception& e) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << e.what() << std::endl;
+    Error() << CODELOCATION << '-' << e.what() << std::endl;
     return 3;
   }
   catch (...) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << std::strerror(errno) << std::endl;
+    Error() << CODELOCATION << '-' << std::strerror(errno) << std::endl;
     return 4;
   }
   return 0;

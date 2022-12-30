@@ -21,7 +21,7 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
 }
 
 FifoAcceptor::~FifoAcceptor() {
-  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
 }
 
 std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
@@ -32,7 +32,7 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     // blocks until the client opens writing end
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-' << std::strerror(errno)
+      Error() << CODELOCATION << '-' << std::strerror(errno)
 	      << ' ' << _options._acceptorName << std::endl;
       return { HEADERTYPE::ERROR, emptyString };
     }
@@ -42,14 +42,14 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     if (size > 0) {
       clientId.resize(size);
       if (!Fifo::readString(fd, clientId.data(), size, _options._numberRepeatEINTR)) {
-	Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ":failed." << std::endl;
+	Error() << CODELOCATION << ":failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
     }
     return { extractHeaderType(header), std::move(clientId) };
   }
   catch (const std::exception& e) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Error() << CODELOCATION << ' ' << e.what() << std::endl;
     return { HEADERTYPE::ERROR, emptyString };
   }
 }
@@ -59,10 +59,16 @@ void FifoAcceptor::run() {
     auto [type, key] = unblockAcceptor();
     if (_stopped)
       break;
-    if (type == HEADERTYPE::CREATE_SESSION)
+    switch (type) {
+    case HEADERTYPE::CREATE_SESSION:
       createSession();
-    else if (type == HEADERTYPE::DESTROY_SESSION)
+      break;
+    case HEADERTYPE::DESTROY_SESSION:
       destroySession(key);
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -95,8 +101,8 @@ bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
   if (mkfifo(_options._acceptorName.data(), 0620) == -1 && errno != EEXIST) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << '-'
-	    << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
+    Error() << CODELOCATION << '-' << std::strerror(errno)
+	    << '-' << _options._acceptorName << std::endl;
     return false;
   }
   _threadPoolAcceptor.push(shared_from_this());

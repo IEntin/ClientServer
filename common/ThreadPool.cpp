@@ -11,7 +11,7 @@ std::shared_ptr<KillThread> ThreadPool::_killThread = std::make_shared<KillThrea
 ThreadPool::ThreadPool(unsigned maxSize) : _maxSize(maxSize) {}
 
 ThreadPool::~ThreadPool() {
-  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << std::endl;
+  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
 }
 
 void ThreadPool::stop() {
@@ -25,11 +25,11 @@ void ThreadPool::stop() {
 	thread.join();
   }
   catch (const std::system_error& e) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Error() << CODELOCATION
 	    << ' ' << e.what() << std::endl;
     return;
   }
-  Logger(LOG_LEVEL::TRACE) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << " ... _threads joined ..." << std::endl;
+  Logger(LOG_LEVEL::TRACE) << CODELOCATION << " ... _threads joined ..." << std::endl;
 }
 
 void  ThreadPool::createThread() {
@@ -58,7 +58,7 @@ void ThreadPool::push(RunnablePtr runnable) {
   if (size() < _maxSize && runnable->getNumberObjects() > size()) {
     // this works if all runnables are of the same derived class
     createThread();
-    Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Logger(LOG_LEVEL::DEBUG) << CODELOCATION
 	 << ":numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
   _queue.push_back(runnable);

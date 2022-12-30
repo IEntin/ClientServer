@@ -28,8 +28,7 @@ void TestEnvironment::SetUp() {
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
   }
   catch (const std::exception& e) {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	    << ' ' << e.what() <<std::endl;
+    Error() << CODELOCATION << ' ' << e.what() <<std::endl;
     std::exit(1);
   }
 }

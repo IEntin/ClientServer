@@ -16,7 +16,7 @@ Strategy& StrategySelector::get(const ServerOptions& options) {
   else if (options._processType == "Echo")
     return _echoStrategy;
   else {
-    Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    Error() << CODELOCATION
 	    << ":Strategy is not specified. Setting Transaction strategy." << std::endl; 
     return _transactionStrategy;
   }
