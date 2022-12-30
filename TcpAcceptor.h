@@ -43,8 +43,6 @@ private:
 
   bool createSession(ConnectionDetailsPtr details);
 
-  void destroySession(SessionMap::iterator it);
-
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   const ServerOptions& _options;

@@ -38,7 +38,7 @@ void TcpClientHeartbeat::run() noexcept {
 
 void TcpClientHeartbeat::stop() {
   try {
-    _stopped.store(true);
+    _stopped = true;
     boost::asio::post(_ioContext, [this] {
       _periodTimer.cancel();
       _timeoutTimer.cancel();
@@ -96,7 +96,7 @@ void TcpClientHeartbeat::timeoutWait() {
       else {
 	Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ": timeout" << std::endl;
-	_status.store(STATUS::HEARTBEAT_TIMEOUT);
+	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
     }
   });
@@ -123,7 +123,7 @@ void TcpClientHeartbeat::read() {
 	Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
 	logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	if (berror)
-	  _status.store(STATUS::HEARTBEAT_PROBLEM);
+	  _status = STATUS::HEARTBEAT_PROBLEM;
 	_ioContext.stop();
 	return;
       }
@@ -175,7 +175,7 @@ void TcpClientHeartbeat::write() {
       if (ec) {
 	Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__
 		<< ':' << ec.what() << std::endl;
-	_status.store(STATUS::HEARTBEAT_PROBLEM);
+	_status = STATUS::HEARTBEAT_PROBLEM;
 	return;
       }
       read();

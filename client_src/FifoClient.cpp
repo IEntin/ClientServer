@@ -56,7 +56,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     if (_fdWrite >= 0) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
-      if (_stopFlag.test()) {
+      if (stopped()) {
 	destroySession();
 	return false;
       }
@@ -66,7 +66,7 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     if (!std::filesystem::exists(_fifoName))
       return false;
     // client closed
-    if (_stopFlag.test()) {
+    if (stopped()) {
       // status waiting
       destroySession();
       return false;
@@ -84,7 +84,7 @@ bool FifoClient::receive() {
 	    << __func__ << '-' << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
-  _status.store(STATUS::NONE);
+  _status = STATUS::NONE;
   try {
     HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
     if (!readReply(header)) {
@@ -168,13 +168,13 @@ bool FifoClient::receiveStatus() {
     case STATUS::MAX_SPECIFIC_SESSIONS:
       Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	   << "\n\t!!!!!!!!!\n"
-	   << "\tThe number of running fifo sessions exceeds thread pool capacity.\n"
-	   << "\tIf you do not close the client, it will wait in the queue for\n"
-	   << "\ta thread available after one of already running fifo clients\n"
-	   << "\tis closed. At this point the client will resume the run.\n"
-	   << "\tYou can also close the client and try again later, but you will\n"
-	   << "\tlose your spot in the queue starting from scratch.\n"
-	   << "\tThe relevant setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
+	   << "\tThe number of running fifo sessions is at pool capacity.\n"
+	   << "\tThis client will wait in the queue for available thread.\n"
+	   << "\tAny already running fifo client must be closed.\n"
+	   << "\tAt this point this client starts running.\n"
+	   << "\tYou can also close this client and try again later,\n"
+	   << "\tbut spot in the queue will be lost.\n"
+	   << "\tThe setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
 	   << "\t!!!!!!!!!" << std::endl;
       break;
     case STATUS::MAX_TOTAL_SESSIONS:
@@ -185,8 +185,8 @@ bool FifoClient::receiveStatus() {
     }
   }
   catch (const std::exception& e) {
-    Error() << __FILE__ << ':' << __LINE__
-	    << ' ' << __func__ << ' ' << e.what() << std::endl;
+    Error() << __FILE__ << ':' << __LINE__ << ' '
+	    << __func__ << ' ' << e.what() << std::endl;
     return false;
   }
   return true;

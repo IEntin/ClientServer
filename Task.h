@@ -57,7 +57,7 @@ class Task {
 
   void sortIndices();
 
-  void resetPointer() { _pointer.store(0); }
+  void resetPointer() { _pointer = 0; }
 
   bool diagnosticsEnabled() const { return isDiagnosticsEnabled(_header); }
 

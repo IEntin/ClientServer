@@ -31,13 +31,6 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::run() {
-  struct OnDestroy {
-    OnDestroy(TcpClient* client) : _client(client) {}
-    ~OnDestroy() {
-      _client->destroySession();
-    }
-    TcpClient* _client = nullptr;
-  } onDestroy(this);
   start();
   return Client::run();
 }
@@ -51,7 +44,7 @@ bool TcpClient::send(const std::vector<char>& msg) {
 	    << ':' << ec.what() << std::endl;
     return false;
   }
-  if (_stopFlag.test())
+  if (stopped())
     return false;
   return true;
 }
@@ -64,7 +57,7 @@ bool TcpClient::receive() {
     bool berror = true;
     switch (ec.value()) {
     case boost::asio::error::interrupted:
-      berror = !Client::_stopFlag.test();
+      berror = !stopped();
       break;
     default:
       berror = true;
@@ -83,7 +76,7 @@ bool TcpClient::receive() {
     switch (ec.value()) {
     case boost::asio::error::interrupted:
     case boost::asio::error::connection_refused:
-      berror = !Client::_stopFlag.test();
+      berror = !stopped();
       break;
     default:
       berror = true;
@@ -93,7 +86,7 @@ bool TcpClient::receive() {
     logger << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
     return false;
   }
-  _status.store(STATUS::NONE);
+  _status = STATUS::NONE;
   HEADER header = decodeHeader(buffer);
   return readReply(header);
 }
@@ -128,13 +121,13 @@ bool TcpClient::receiveStatus() {
   case STATUS::MAX_SPECIFIC_SESSIONS:
     Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
 	 << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of running tcp sessions exceeds thread pool capacity.\n"
-	 << "\tIf you do not close the client, it will wait in the queue for\n"
-	 << "\tavailable thread (one of already running tcp clients must be closed).\n"
-	 << "\tAt this point the client will resume run.\n"
-	 << "\tYou can also close the client and try again later, but you will\n"
-	 << "\tlose your spot in the queue starting from scratch.\n"
-	 << "\tThe relevant setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
+	 << "\tThe number of running tcp sessions is at pool capacity.\n"
+	 << "\tThis client will wait in the queue for available thread.\n"
+	 << "\tAny already running tcp client must be closed.\n"
+	 << "\tAt this point this client starts running.\n"
+	 << "\tYou can also close this client and try again later,\n"
+	 << "\tbut spot in the queue will be lost.\n"
+	 << "\tThe setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
 	 << "\t!!!!!!!!!" << std::endl;
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
@@ -142,24 +135,6 @@ bool TcpClient::receiveStatus() {
     break;
   default:
     break;
-  }
-  return true;
-}
-
-bool TcpClient::destroySession() {
-  try {
-    boost::asio::ip::tcp::socket socket(_ioContext);
-    auto [endpoint, error] =
-      tcp::setSocket(_ioContext, socket, _options._serverHost, _options._tcpPort);
-    if (error)
-      return false;
-    size_t size = _clientId.size();
-    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
-    return tcp::sendMsg(socket, header, _clientId).first;
-  }
-  catch (const std::exception& e) {
-    Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ' ' << e.what() << std::endl;
-    return false;
   }
   return true;
 }

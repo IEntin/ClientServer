@@ -40,13 +40,13 @@ TEST(ThreadPoolTest, Fixed) {
     pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
-  TestRunnable::_stopFlag.store(true);
+  TestRunnable::_stopFlag = true;
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
-  TestRunnable::_stopFlag.store(false);
+  TestRunnable::_stopFlag = false;
 }
 
 TEST(ThreadPoolTest, Variable) {
@@ -64,11 +64,11 @@ TEST(ThreadPoolTest, Variable) {
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }
   ASSERT_TRUE(pool.size() == numberObjects);
-  TestRunnable::_stopFlag.store(true);
+  TestRunnable::_stopFlag = true;
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
-  TestRunnable::_stopFlag.store(false);
+  TestRunnable::_stopFlag = false;
 }

@@ -44,6 +44,7 @@ bool TcpSession::start() {
 }
 
 void TcpSession::run() noexcept {
+  CountRunning countRunning;
   try {
     _ioContext.run();
   }
@@ -60,12 +61,12 @@ void TcpSession::stop() {
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
   Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-       << " total sessions=" << TaskController::totalSessions() << ' '
-       << "tcp sessions=" << _numberObjects << std::endl;
+    << " total sessions=" << TaskController::totalSessions() << " tcp sessions="
+    << _numberObjects << ",running=" << _numberRunning << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
     Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of tcp clients=" << _numberObjects
-	 << " exceeds thread pool capacity." << std::endl;
+	 << "\nThe number of running tcp clients=" << _numberRunning
+	 << " is at thread pool capacity." << std::endl;
 }
 
 bool TcpSession::onReceiveRequest() {
@@ -115,7 +116,7 @@ void TcpSession::readHeader() {
       if (!self)
 	return;
       if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-	_status.store(STATUS::NONE);
+	_status = STATUS::NONE;
       if (ec) {
 	LOG_LEVEL level = ec == boost::asio::error::eof ? LOG_LEVEL::WARN : LOG_LEVEL::ERROR;
 	Logger(level) << __FILE__ << ':' << __LINE__ << ' '
@@ -185,7 +186,7 @@ void TcpSession::asyncWait() {
 	  Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ':' << ec.what() << std::endl;
 	else {
 	  Error() << __FILE__ << ':' << __LINE__ << ' ' << __func__ << ": timeout" << std::endl;
-	  _status.store(STATUS::TCP_TIMEOUT);
+	  _status = STATUS::TCP_TIMEOUT;
 	}
       }
     }));

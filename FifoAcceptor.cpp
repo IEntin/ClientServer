@@ -111,7 +111,7 @@ void FifoAcceptor::stop() {
       runnable->stop();
   }
   // stop the acceptor
-  _stopped.store(true);
+  _stopped = true;
   Fifo::onExit(_options._acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
   // have threads join
   _threadPoolAcceptor.stop();

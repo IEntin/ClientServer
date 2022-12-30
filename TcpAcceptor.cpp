@@ -46,7 +46,7 @@ bool TcpAcceptor::start() {
 void TcpAcceptor::stop() {
   boost::asio::post(_ioContext, [this] () {
     auto self = shared_from_this();
-    _stopped.store(true);
+    _stopped = true;
     _ioContext.stop();
     for (auto pr : _sessions) {
       auto session = pr.second.lock();
@@ -105,15 +105,6 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   return true;
 }
 
-void TcpAcceptor::destroySession(SessionMap::iterator it) {
-  auto session = it->second.lock();
-  if (session) {
-    session->stop();
-    _threadPoolSession.removeFromQueue(session);
-  }
-  _sessions.erase(it);
-}
-
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
   char heartbeatBuffer[HEADER_SIZE] = {};
   encodeHeader(heartbeatBuffer, _header);
@@ -149,9 +140,6 @@ void TcpAcceptor::accept() {
 	case HEADERTYPE::CREATE_SESSION:
 	  if (!createSession(details))
 	    return;
-	  break;
-	case HEADERTYPE::DESTROY_SESSION:
-	  destroySession(it);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(details->_socket);

@@ -17,7 +17,7 @@ class TcpClient : public Client {
 
   bool receiveStatus() override;
 
-  bool destroySession() override;
+  bool destroySession() override { return true; }
 
   bool readReply(const HEADER& header);
 

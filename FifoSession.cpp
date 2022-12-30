@@ -34,6 +34,7 @@ FifoSession::~FifoSession() {
 }
 
 void FifoSession::run() {
+  CountRunning countRunning;
   if (!std::filesystem::exists(_fifoName))
     // client is closed
     return;
@@ -57,13 +58,14 @@ void FifoSession::run() {
 
 void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
-  Logger(LOG_LEVEL::DEBUG) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-			  << " total sessions=" << TaskController::totalSessions() << ' '
-			  << "fifo sessions=" << _numberObjects << std::endl;
+  Logger(LOG_LEVEL::INFO) << __FILE__ << ':' << __LINE__ << ' ' << __func__
+    << " total sessions=" << TaskController::totalSessions()
+    << " fifo sessions="  << _numberObjects
+    << ",running=" << _numberRunning << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
     Logger(LOG_LEVEL::WARN) << __FILE__ << ':' << __LINE__ << ' ' << __func__
-	 << "\nThe number of fifo clients=" << _numberObjects
-	 << " exceeds thread pool capacity." << std::endl;
+	 << "\nThe number of running fifo clients=" << _numberRunning
+	 << " is at thread pool capacity." << std::endl;
 }
 
 bool FifoSession::start() {
@@ -79,13 +81,13 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
-  _stopped.store(true);
+  _stopped = true;
   Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    _status.store(STATUS::NONE);
+    _status = STATUS::NONE;
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
   fdRead = open(_fifoName.data(), O_RDONLY);

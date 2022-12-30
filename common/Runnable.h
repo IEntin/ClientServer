@@ -24,9 +24,10 @@ class Runnable {
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
   virtual unsigned getNumberObjects() const = 0;
+  virtual unsigned getNumberRunning() const = 0;
   virtual void checkCapacity() {
     if (getNumberObjects() > _maxNumberThreads)
-      _status.store(STATUS::MAX_SPECIFIC_SESSIONS);
+      _status = STATUS::MAX_SPECIFIC_SESSIONS;
   }
   virtual std::string_view getType() const = 0;
   STATUS getStatus() const { return _status; }
@@ -45,12 +46,20 @@ class RunnableT : public Runnable {
   explicit RunnableT(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
+  struct CountRunning {
+    CountRunning() { _numberRunning++; }
+    ~CountRunning() { _numberRunning--; }
+  };
   std::string_view getType() const override { return _type; }
   static inline std::atomic<unsigned> _numberObjects;
+  static inline std::atomic<unsigned> _numberRunning;
   static inline const std::string _type = typeid(T).name();
  public:
   unsigned getNumberObjects() const override {
     return _numberObjects;
+  }
+  unsigned getNumberRunning() const override {
+    return _numberRunning;
   }
 };
 

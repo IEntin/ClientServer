@@ -109,7 +109,7 @@ void  TaskController::stop() {
   // stop acceptors
   _strategy.stop();
   // stop threads
-  _stopped.store(true);
+  _stopped = true;
   wakeupThreads();
   _threadPool.stop();
 }
