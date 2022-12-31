@@ -20,6 +20,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
+      // non-blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
 	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
@@ -52,6 +53,7 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
+      // non-blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
 	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
 	if (event == POLLIN)
