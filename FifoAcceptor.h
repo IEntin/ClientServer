@@ -20,7 +20,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   void run() override;
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
   bool createSession();
-  void destroySession(const std::string& key);
   void removeFifoFiles();
   const ServerOptions& _options;
   ThreadPool _threadPoolAcceptor;

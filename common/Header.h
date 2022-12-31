@@ -22,7 +22,6 @@ inline constexpr char NDIAGNOSTICS_CHAR = 'N';
 enum class HEADERTYPE : char {
   CREATE_SESSION,
   SESSION,
-  DESTROY_SESSION,
   HEARTBEAT,
   ERROR
 };

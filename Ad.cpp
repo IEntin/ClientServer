@@ -58,14 +58,14 @@ bool Ad::parseIntro() {
 bool Ad::parseArray() {
   auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
   if (arrayStart == _input.cend()) {
-    Error() << CODELOCATION << ':'
-	    << "unexpected format:\"" << _input << '\"' << std::endl;
+    Error() << CODELOCATION << ':' << "unexpected format:\""
+	    << _input << '\"' << std::endl;
     return false;
   }
   auto arrayEnd = std::find(arrayStart, _input.end(), ']');
   if (arrayEnd == _input.end()) {
-    Error() << CODELOCATION << ':'
-	    << "unexpected format:\"" << _input << '\"' << std::endl;
+    Error() << CODELOCATION << ':' << "unexpected format:\""
+	    << _input << '\"' << std::endl;
     return false;
   }
   std::string_view arrayStr(arrayStart + 1, arrayEnd);

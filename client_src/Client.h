@@ -52,8 +52,6 @@ class Client {
 
   virtual bool run() = 0;
 
-  virtual bool destroySession() = 0;
-
   static std::atomic_flag _stopFlag;
 
   static void setStopFlag();

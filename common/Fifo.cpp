@@ -85,8 +85,8 @@ bool Fifo::writeString(int fd, std::string_view str) {
       if (errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
-	Error() << CODELOCATION << ' ' << strerror(errno)
-		<< ", written=" << written << " str.size()=" << str.size() << std::endl;
+	Error() << CODELOCATION << ' ' << strerror(errno) << ", written="
+		<< written << " str.size()=" << str.size() << std::endl;
 	return false;
       }
     }
@@ -94,8 +94,8 @@ bool Fifo::writeString(int fd, std::string_view str) {
       written += static_cast<size_t>(result);
   }
   if (str.size() != written) {
-    Error() << CODELOCATION << ":str.size()="
-	    << str.size() << "!=written=" << written << std::endl;
+    Error() << CODELOCATION << ":str.size()=" << str.size()
+	    << "!=written=" << written << std::endl;
     return false;
   }
   return true;
@@ -150,7 +150,7 @@ bool Fifo::setPipeSize(int fd, long requested) {
 }
 
 // unblock the call open(...O_RDONLY) by opening the write end.
-void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOwait) {
+void Fifo::onExit(std::string_view fifoName, int numberRepeatENXIO, int ENXIOwait) {
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
   int rep = 0;
@@ -162,6 +162,12 @@ void Fifo::onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOw
   if (fd == -1)
     Logger(LOG_LEVEL::INFO) << CODELOCATION << '-'
 	 << std::strerror(errno) << ' ' << fifoName << std::endl;
+}
+
+// true if fifo exists with any state
+bool Fifo::exists(std::string_view name) {
+  struct stat buffer;
+  return stat(name.data(), &buffer) == 0;
 }
 
 } // end of namespace fifo

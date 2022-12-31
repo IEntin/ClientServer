@@ -63,9 +63,6 @@ void FifoAcceptor::run() {
     case HEADERTYPE::CREATE_SESSION:
       createSession();
       break;
-    case HEADERTYPE::DESTROY_SESSION:
-      destroySession(key);
-      break;
     default:
       break;
     }
@@ -82,19 +79,6 @@ bool FifoAcceptor::createSession() {
     return false;
   _threadPoolSession.push(session);
   return true;
-}
-
-void FifoAcceptor::destroySession(const std::string& key) {
-  auto it = _sessions.find(key);
-  if (it != _sessions.end()) {
-    auto weakPtr = it->second;
-    auto session = weakPtr.lock();
-    if (session) {
-      session->stop();
-      _threadPoolSession.removeFromQueue(session);
-      _sessions.erase(it);
-    }
-  }
 }
 
 bool FifoAcceptor::start() {

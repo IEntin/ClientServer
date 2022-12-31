@@ -23,8 +23,7 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   _clientId(clientId) {
   TaskController::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
-  Logger(LOG_LEVEL::DEBUG) << CODELOCATION
-			   << "-_fifoName:" << _fifoName << std::endl;
+  Logger(LOG_LEVEL::DEBUG) << CODELOCATION << "-_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
@@ -35,8 +34,7 @@ FifoSession::~FifoSession() {
 
 void FifoSession::run() {
   CountRunning countRunning;
-  if (!std::filesystem::exists(_fifoName))
-    // client is closed
+  if (!Fifo::exists(_fifoName))
     return;
   while (!_stopped) {
     HEADER header;
@@ -70,8 +68,8 @@ void FifoSession::checkCapacity() {
 
 bool FifoSession::start() {
   if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
-    Error() << CODELOCATION << '-'
-	    << std::strerror(errno) << '-' << _fifoName << std::endl;
+    Error() << CODELOCATION << '-' << std::strerror(errno)
+	    << '-' << _fifoName << std::endl;
     return false;
   }
   checkCapacity();
@@ -118,8 +116,8 @@ bool FifoSession::sendResponse(const Response& response) {
   } while (fdWrite == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (fdWrite == -1) {
-    Error() << CODELOCATION << '-'
-	    << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    Error() << CODELOCATION << '-' << std::strerror(errno)
+	    << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }

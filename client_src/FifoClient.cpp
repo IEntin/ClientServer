@@ -9,9 +9,9 @@
 #include "MemoryPool.h"
 #include "Metrics.h"
 #include "Utility.h"
+#include <fcntl.h>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
-#include <fcntl.h>
 #include <filesystem>
 
 namespace fifo {
@@ -55,19 +55,17 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     if (_fdWrite >= 0) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
-      if (stopped()) {
-	destroySession();
+      if (stopped())
 	return false;
-      }
       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
     }
+    // wait mode
     // server stopped
-    if (!std::filesystem::exists(_fifoName))
+    if (!Fifo::exists(_fifoName))
       return false;
     // client closed
     if (stopped()) {
-      // status waiting
-      destroySession();
+      std::filesystem::remove(_fifoName);
       return false;
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -121,30 +119,14 @@ bool FifoClient::wakeupAcceptor() {
   return Fifo::writeString(_fdWrite, std::string_view(buffer, HEADER_SIZE)); 
 }
 
-bool FifoClient::destroySession() {
-  utility::CloseFileDescriptor cfdw(_fdWrite);
-  _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
-  if (_fdWrite == -1) {
-    Error() << CODELOCATION
-	    << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return false;
-  }
-  size_t size = _clientId.size();
-  std::vector<char> buffer(HEADER_SIZE + size);
-  encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
-  Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
-  return true;
-}
-
 bool FifoClient::receiveStatus() {
   try {
     int fd = -1;
     utility::CloseFileDescriptor closefd(fd);
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      Error() << CODELOCATION
-	      << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+      Error() << CODELOCATION << '-' << std::strerror(errno)
+	      << ' ' << _options._acceptorName << std::endl;
       return false;
     }
     HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
@@ -163,8 +145,8 @@ bool FifoClient::receiveStatus() {
       Logger(LOG_LEVEL::WARN) << CODELOCATION << "\n\t!!!!!!!!!\n"
 	   << "\tThe number of running fifo sessions is at pool capacity.\n"
 	   << "\tThis client will wait in the queue for available thread.\n"
-	   << "\tAny already running fifo client must be closed.\n"
-	   << "\tAt this point this client starts running.\n"
+	   << "\tIf any other running fifo client is closed, this client\n"
+	   << "\twill start running.\n"
 	   << "\tYou can also close this client and try again later,\n"
 	   << "\tbut spot in the queue will be lost.\n"
 	   << "\tThe setting is \"MaxFifoSessions\" in ServerOptions.json.\n"

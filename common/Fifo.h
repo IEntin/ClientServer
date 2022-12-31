@@ -22,8 +22,9 @@ public:
 
   static bool setPipeSize(int fd, long requested);
 
-  static void onExit(const std::string& fifoName, int numberRepeatENXIO, int ENXIOwait);
+  static void onExit(std::string_view fifoName, int numberRepeatENXIO, int ENXIOwait);
 
+  static bool exists(std::string_view name);
 };
 
 } // end of namespace fifo

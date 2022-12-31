@@ -72,13 +72,3 @@ RunnablePtr ThreadPool::get() {
   _queue.pop_front();
   return runnable;
 }
-
-void ThreadPool::removeFromQueue(RunnablePtr toRemove) {
-  std::unique_lock lock(_queueMutex);
-  for (auto it = _queue.begin(); it < _queue.end(); ++it) {
-    if (*it == toRemove) {
-      _queue.erase(it);
-      break;
-    }
-  }
-}
