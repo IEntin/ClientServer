@@ -67,7 +67,7 @@ void FifoSession::checkCapacity() {
 }
 
 bool FifoSession::start() {
-  if (mkfifo(_fifoName.data(), 0620) == -1 && errno != EEXIST) {
+  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     Error() << CODELOCATION << '-' << std::strerror(errno)
 	    << '-' << _fifoName << std::endl;
     return false;

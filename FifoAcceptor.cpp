@@ -84,7 +84,7 @@ bool FifoAcceptor::createSession() {
 bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
-  if (mkfifo(_options._acceptorName.data(), 0620) == -1 && errno != EEXIST) {
+  if (mkfifo(_options._acceptorName.data(), 0666) == -1 && errno != EEXIST) {
     Error() << CODELOCATION << '-' << std::strerror(errno)
 	    << '-' << _options._acceptorName << std::endl;
     return false;
