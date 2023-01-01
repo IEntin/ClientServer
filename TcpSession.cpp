@@ -33,7 +33,7 @@ TcpSession::TcpSession(const ServerOptions& options,
 
 TcpSession::~TcpSession() {
   TaskController::totalSessions()--;
-  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
+  Trace << std::endl;
 }
 
 bool TcpSession::start() {
@@ -49,7 +49,7 @@ void TcpSession::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    Error() << CODELOCATION << ' ' << e.what() << std::endl;
+    LogError << ' ' << e.what() << std::endl;
   }
   MemoryPool::destroyBuffers();
 }
@@ -60,12 +60,10 @@ void TcpSession::stop() {
 
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
-  Logger(LOG_LEVEL::INFO) << CODELOCATION
-    << " total sessions=" << TaskController::totalSessions() << " tcp sessions="
-    << _numberObjects << ",running=" << _numberRunning << std::endl;
+  Info << " total sessions=" << TaskController::totalSessions() << " tcp sessions="
+       << _numberObjects << ",running=" << _numberRunning << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    Logger(LOG_LEVEL::WARN) << CODELOCATION
-	 << "\nThe number of running tcp clients=" << _numberRunning
+    Warn << "\nThe number of running tcp clients=" << _numberRunning
 	 << " is at thread pool capacity." << std::endl;
 }
 
@@ -73,19 +71,16 @@ bool TcpSession::onReceiveRequest() {
   _uncompressed.clear();
   bool bcompressed = isCompressed(_header);
   if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::TRACE)
-      << CODELOCATION << " received compressed." << std::endl;
+    static auto& printOnce[[maybe_unused]] = Trace << " received compressed." << std::endl;
     size_t uncompressedSize = extractUncompressedSize(_header);
     _uncompressed.resize(uncompressedSize);
     if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
-      Error() << CODELOCATION 
-	       << ":decompression failed." << std::endl;
+      LogError << ":decompression failed." << std::endl;
       return false;
     }
   }
   else
-    static auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::TRACE)
-      << CODELOCATION << " received not compressed." << std::endl;
+    static auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
   static thread_local Response response;
   response.clear();
   auto weakPtr = TaskController::weakInstance();
@@ -125,7 +120,7 @@ void TcpSession::readHeader() {
       }
       _header = decodeHeader(_headerBuffer);
       if (!isOk(_header)) {
-	Error() << CODELOCATION << ": header is invalid." << std::endl;
+	LogError << ": header is invalid." << std::endl;
 	return;
       }
       _request.clear();
@@ -143,7 +138,7 @@ void TcpSession::readRequest() {
       if (!self)
 	return;
       if (ec) {
-	Error() << CODELOCATION << ':' << ec.what() << std::endl;
+	LogError << ':' << ec.what() << std::endl;
 	return;
       }
       onReceiveRequest();
@@ -159,7 +154,7 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
       if (!self)
 	return;
       if (ec) {
-	Error() << CODELOCATION << ':' << ec.what() << std::endl;
+	LogError << ':' << ec.what() << std::endl;
 	return;
       }
       if (nextFunc)
@@ -172,7 +167,7 @@ void TcpSession::asyncWait() {
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
   if (ec) {
-    Error() << CODELOCATION << ':' << ec.what() << std::endl;
+    LogError << ':' << ec.what() << std::endl;
     return;
   }
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
@@ -182,9 +177,9 @@ void TcpSession::asyncWait() {
 	return;
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
-	  Error() << CODELOCATION << ':' << ec.what() << std::endl;
+	  LogError << ':' << ec.what() << std::endl;
 	else {
-	  Error() << CODELOCATION << ": timeout" << std::endl;
+	  LogError << ": timeout" << std::endl;
 	  _status = STATUS::TCP_TIMEOUT;
 	}
       }

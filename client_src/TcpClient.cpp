@@ -27,7 +27,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 
 TcpClient::~TcpClient() {
   Metrics::save();
-  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
+  Trace << std::endl;
 }
 
 bool TcpClient::run() {
@@ -40,7 +40,7 @@ bool TcpClient::send(const std::vector<char>& msg) {
   size_t result[[maybe_unused]] =
     boost::asio::write(_socket, boost::asio::buffer(msg), ec);
   if (ec) {
-    Error() << CODELOCATION << ':' << ec.what() << std::endl;
+    LogError << ':' << ec.what() << std::endl;
     return false;
   }
   return true;
@@ -51,7 +51,7 @@ bool TcpClient::receive() {
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
-    Error() << CODELOCATION << ':' << ec.what() << std::endl;
+    LogError << ':' << ec.what() << std::endl;
     return false;
   }
   ec.clear();
@@ -59,7 +59,7 @@ bool TcpClient::receive() {
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    Error() << CODELOCATION << ':' << ec.what() << std::endl;
+    LogError << ':' << ec.what() << std::endl;
     return false;
   }
   _status = STATUS::NONE;
@@ -75,7 +75,7 @@ bool TcpClient::readReply(const HEADER& header) {
   size_t transferred[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
   if (ec) {
-    Error() << CODELOCATION << ':' << ec.what() << std::endl;
+    LogError << ':' << ec.what() << std::endl;
     return false;
   }
   return printReply(buffer, header);
@@ -94,8 +94,7 @@ bool TcpClient::receiveStatus() {
   case STATUS::NONE:
     break;
   case STATUS::MAX_SPECIFIC_SESSIONS:
-    Logger(LOG_LEVEL::WARN) << CODELOCATION
-	 << "\n\t!!!!!!!!!\n"
+    Warn << "\n\t!!!!!!!!!\n"
 	 << "\tThe number of running tcp sessions is at pool capacity.\n"
 	 << "\tThis client will wait in the queue for available thread.\n"
 	 << "\tIf any other running tcp client is closed, this client\n"

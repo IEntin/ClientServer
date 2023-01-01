@@ -66,8 +66,7 @@ thread_local std::vector<std::string_view> Transaction::_keywords;
 Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
   if (sizeKey.empty()) {
     _invalid = true;
-    Error() << CODELOCATION
-	    << "-invalid request, sizeKey is empty, input:" << input << std::endl;
+    LogError << "-invalid request, sizeKey is empty, input:" << input << std::endl;
     return;
   }
   size_t pos = input.find(']');
@@ -89,14 +88,12 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   try {
     Transaction transaction(key, request);
     if (request.empty()) {
-      Error() << CODELOCATION
-	      << "-request is empty" << std::endl;
+      LogError << "-request is empty" << std::endl;
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
     if (key.empty()) {
-      Error() << CODELOCATION
-	      << "-key is empty" << std::endl;
+      LogError << "-key is empty" << std::endl;
       transaction._invalid = true;
       return id.append(INVALID_REQUEST);
     }
@@ -110,8 +107,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     }
     if (adVector.get().empty() || transaction._keywords.empty()) {
       transaction._invalid = true;
-      Error() << CODELOCATION << "-invalid request:"
-	      << transaction._request << " id:" << id << std::endl;
+      LogError << "-invalid request:" << transaction._request << " id:" << id << std::endl;
       return id.append(INVALID_REQUEST);
     }
     transaction.matchAds(adVector);
@@ -122,7 +118,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     return os.str();
   }
   catch (const std::exception& e) {
-    Error() << CODELOCATION << ' ' << e.what() << std::endl;
+    LogError << ' ' << e.what() << std::endl;
   }
   return id.append(PROCESSING_ERROR);
 }

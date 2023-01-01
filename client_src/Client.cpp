@@ -18,7 +18,7 @@ Client::~Client() {
   if (_heartbeat)
     _heartbeat->stop();
   _threadPoolTaskBuilder.stop();
-  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
+  Trace << std::endl;
 }
 
 // Allows to read and process the source in parts with sizes
@@ -32,7 +32,7 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
     TaskBuilderState state = taskBuilder->getTask(task);
     switch (state) {
     case TaskBuilderState::ERROR:
-      Error() << CODELOCATION << ":TaskBuilder failed." << std::endl;
+      LogError << ":TaskBuilder failed." << std::endl;
       return false;
     case TaskBuilderState::SUBTASKDONE:
     case TaskBuilderState::TASKDONE:
@@ -68,7 +68,7 @@ bool Client::run() {
     } while (_options._runLoop);
   }
   catch (const std::exception& e) {
-    Error() << CODELOCATION << ':' << e.what() << std::endl;
+    LogError << ':' << e.what() << std::endl;
   }
   return true;
 }
@@ -86,8 +86,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   static auto& printOnce[[maybe_unused]] =
-    Logger(LOG_LEVEL::TRACE) << CODELOCATION
-      << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
+    Trace << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
   if (bcompressed) {
     std::string_view uncompressedView = Compression::uncompress(buffer.data(), comprSize, uncomprSize);
     if (uncompressedView.empty()) {
@@ -110,7 +109,7 @@ void Client::start() {
      }
   }
   catch (const std::exception& e) {
-    Logger(LOG_LEVEL::WARN) << CODELOCATION << ' ' << e.what() << std::endl;
+    Warn << ' ' << e.what() << std::endl;
   }
 }
 

@@ -28,21 +28,20 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
 	throw std::runtime_error(std::strerror(errno));
       }
       else {
-	Error() << CODELOCATION << ':' << std::strerror(errno) << std::endl;
+	LogError << ':' << std::strerror(errno) << std::endl;
 	throw std::runtime_error(std::strerror(errno));
       }
     }
     else if (result == 0) {
-      Logger(LOG_LEVEL::INFO) << CODELOCATION << ':'
-			      << (errno ? std::strerror(errno) : "EOF") << std::endl;
+      Info << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return { HEADERTYPE::ERROR, 0, 0, COMPRESSORS::NONE, false, STATUS::FIFO_PROBLEM };
     }
     else
       readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != HEADER_SIZE) {
-    Error() << CODELOCATION << " HEADER_SIZE=" << HEADER_SIZE
-	    << " readSoFar=" << readSoFar << std::endl;
+    LogError << " HEADER_SIZE=" << HEADER_SIZE
+	  << " readSoFar=" << readSoFar << std::endl;
     throw std::runtime_error(std::strerror(errno));
   }
   return decodeHeader(buffer);
@@ -60,20 +59,19 @@ bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
 	  continue;
       }
       else {
-	Error() << CODELOCATION << ':' << std::strerror(errno) << std::endl;
+	LogError << ':' << std::strerror(errno) << std::endl;
 	return false;
       }
     }
     else if (result == 0) {
-      Logger(LOG_LEVEL::INFO) << CODELOCATION << ':'
-			      << (errno ? std::strerror(errno) : "EOF") << std::endl;
+      Info << ':' << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return false;
     }
     else
       readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != size) {
-    Error() << CODELOCATION << " size=" << size << " readSoFar=" << readSoFar << std::endl;
+    LogError << " size=" << size << " readSoFar=" << readSoFar << std::endl;
     return false;
   }
   return true;
@@ -87,8 +85,8 @@ bool Fifo::writeString(int fd, std::string_view str) {
       if (errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
-	Error() << CODELOCATION << ' ' << strerror(errno) << ", written="
-		<< written << " str.size()=" << str.size() << std::endl;
+	LogError << ' ' << strerror(errno) << ", written="
+	      << written << " str.size()=" << str.size() << std::endl;
 	return false;
       }
     }
@@ -96,8 +94,8 @@ bool Fifo::writeString(int fd, std::string_view str) {
       written += static_cast<size_t>(result);
   }
   if (str.size() != written) {
-    Error() << CODELOCATION << ":str.size()=" << str.size()
-	    << "!=written=" << written << std::endl;
+    LogError << ":str.size()=" << str.size()
+	  << "!=written=" << written << std::endl;
     return false;
   }
   return true;
@@ -112,12 +110,11 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
     if (errno == EINTR)
       continue;
     if (presult <= 0) {
-      Error() << CODELOCATION
-	      << "-timeout,should not hit this" << std::endl;
+      LogError << "-timeout,should not hit this" << std::endl;
       return 0;
     }
     else if (pfd.revents & POLLERR) {
-      Error() << CODELOCATION << '-' << std::strerror(errno) << std::endl;
+      LogError << '-' << std::strerror(errno) << std::endl;
       return POLLERR;
     }
   } while (errno == EINTR && rep++ < maxRepeatEINTR);
@@ -130,20 +127,20 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
 bool Fifo::setPipeSize(int fd, long requested) {
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1) {
-    Error() << CODELOCATION << '-' << std::strerror(errno) << std::endl;
+    LogError << '-' << std::strerror(errno) << std::endl;
     return false;
   }
   if (requested > currentSz) {
     int ret = fcntl(fd, F_SETPIPE_SZ, requested);
     if (ret < 0) {
       static auto& printOnce[[maybe_unused]] =
-	Error() << CODELOCATION << '-' << std::strerror(errno) << ":\n"
-		<< "su privileges required, ignore." << std::endl;
+	LogError << '-' << std::strerror(errno) << ":\n"
+	      << "su privileges required, ignore." << std::endl;
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
-      Error() << CODELOCATION << '-' << std::strerror(errno) << std::endl;
+      LogError << '-' << std::strerror(errno) << std::endl;
       return false;
     }
     return newSz >= requested || requested < currentSz;
@@ -162,8 +159,7 @@ void Fifo::onExit(std::string_view fifoName, int numberRepeatENXIO, int ENXIOwai
       std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
   } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
   if (fd == -1)
-    Logger(LOG_LEVEL::INFO) << CODELOCATION << '-'
-	 << std::strerror(errno) << ' ' << fifoName << std::endl;
+    Info << '-' << std::strerror(errno) << ' ' << fifoName << std::endl;
 }
 
 // true if fifo exists with any state

@@ -23,13 +23,13 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   _clientId(clientId) {
   TaskController::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
-  Logger(LOG_LEVEL::DEBUG) << CODELOCATION << "-_fifoName:" << _fifoName << std::endl;
+  Debug << "-_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
   TaskController::totalSessions()--;
   std::filesystem::remove(_fifoName);
-  Logger(LOG_LEVEL::TRACE) << CODELOCATION << std::endl;
+  Trace << std::endl;
 }
 
 void FifoSession::run() {
@@ -56,20 +56,17 @@ void FifoSession::run() {
 
 void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
-  Logger(LOG_LEVEL::INFO) << CODELOCATION
-    << " total sessions=" << TaskController::totalSessions()
-    << " fifo sessions="  << _numberObjects
-    << ",running=" << _numberRunning << std::endl;
+  Info << " total sessions=" << TaskController::totalSessions()
+       << " fifo sessions="  << _numberObjects
+       << ",running=" << _numberRunning << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    Logger(LOG_LEVEL::WARN) << CODELOCATION
-	 << "\nThe number of running fifo clients=" << _numberRunning
+    Warn << "\nThe number of running fifo clients=" << _numberRunning
 	 << " is at thread pool capacity." << std::endl;
 }
 
 bool FifoSession::start() {
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
-    Error() << CODELOCATION << '-' << std::strerror(errno)
-	    << '-' << _fifoName << std::endl;
+    LogError << '-' << std::strerror(errno) << '-' << _fifoName << std::endl;
     return false;
   }
   checkCapacity();
@@ -90,8 +87,7 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   utility::CloseFileDescriptor cfdr(fdRead);
   fdRead = open(_fifoName.data(), O_RDONLY);
   if (fdRead == -1) {
-    Error() << CODELOCATION << '-' << std::strerror(errno)
-	    << ' ' << _fifoName << std::endl;
+    LogError << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
   return serverutility::receiveRequest(fdRead, message, header, _options);
@@ -116,8 +112,7 @@ bool FifoSession::sendResponse(const Response& response) {
   } while (fdWrite == -1 &&
 	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
   if (fdWrite == -1) {
-    Error() << CODELOCATION << '-' << std::strerror(errno)
-	    << ' ' << _fifoName << std::endl;
+    LogError << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
@@ -131,8 +126,7 @@ bool FifoSession::sendStatusToClient() {
   utility::CloseFileDescriptor closeFd(fd);
   fd = open(_options._acceptorName.data(), O_WRONLY);
   if (fd == -1) {
-    Error() << CODELOCATION << '-' << std::strerror(errno)
-	    << ' ' << _options._acceptorName << std::endl;
+    LogError << '-' << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   size_t size = _clientId.size();
@@ -140,7 +134,7 @@ bool FifoSession::sendStatusToClient() {
   encodeHeader(buffer.data(), HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_clientId.cbegin(), _clientId.cend(), buffer.begin() + HEADER_SIZE);
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
-    Error() << CODELOCATION << ": failed." << std::endl;
+    LogError << ": failed." << std::endl;
   return true;
 }
 

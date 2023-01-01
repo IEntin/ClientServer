@@ -42,11 +42,11 @@ int main() {
     }
   }
   catch (const std::exception& e) {
-    Error() << CODELOCATION << '-' << e.what() << std::endl;
+    LogError << '-' << e.what() << std::endl;
     return 3;
   }
   catch (...) {
-    Error() << CODELOCATION << '-' << std::strerror(errno) << std::endl;
+    LogError << '-' << std::strerror(errno) << std::endl;
     return 4;
   }
   return 0;

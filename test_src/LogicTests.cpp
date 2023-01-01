@@ -35,7 +35,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 
@@ -62,7 +62,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 
@@ -161,7 +161,7 @@ struct LogicTestAltFormat : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 
@@ -191,7 +191,7 @@ struct LogicTestSortInput : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 

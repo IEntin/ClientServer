@@ -27,7 +27,7 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 
@@ -46,7 +46,7 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 

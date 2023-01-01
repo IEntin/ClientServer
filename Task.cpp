@@ -57,7 +57,7 @@ void Task::finish() {
     _promise.set_value();
   }
   catch (std::future_error& e) {
-    Error() << CODELOCATION << ':' << e.what() << std::endl;
+    LogError << ':' << e.what() << std::endl;
   }
 }
 

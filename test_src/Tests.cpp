@@ -24,7 +24,7 @@ struct CompressionTest : testing::Test {
       ASSERT_EQ(input, uncompressedView);
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 
@@ -38,7 +38,7 @@ struct CompressionTest : testing::Test {
       ASSERT_EQ(input, std::string_view(uncompressed.data(), uncompressed.size()));
     }
     catch (const std::exception& e) {
-      Error() << CODELOCATION << ':' << e.what() << std::endl;
+      LogError << ':' << e.what() << std::endl;
     }
   }
 };
@@ -149,6 +149,6 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
   }
   catch (const std::exception& e) {
-    Error() << CODELOCATION << ':' << e.what() << std::endl;
+    LogError << ':' << e.what() << std::endl;
   }
 }

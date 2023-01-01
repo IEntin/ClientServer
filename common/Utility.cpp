@@ -16,7 +16,7 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    Error() << CODELOCATION << ':' << std::strerror(errno) << std::endl;
+    LogError << ':' << std::strerror(errno) << std::endl;
   _fd = -1;
 }
 
@@ -44,28 +44,28 @@ bool displayStatus(STATUS status) {
   case STATUS::NONE:
     return false;
   case STATUS::BAD_HEADER:
-    Error() << "STATUS::BAD_HEADER" << std::endl;
+    LogError << "STATUS::BAD_HEADER" << std::endl;
     return true;
   case STATUS::COMPRESSION_PROBLEM:
-    Error() << "STATUS::COMPRESSION_PROBLEM" << std::endl;
+    LogError << "STATUS::COMPRESSION_PROBLEM" << std::endl;
     return true;
   case STATUS::DECOMPRESSION_PROBLEM:
-    Error() << "STATUS::DECOMPRESSION_PROBLEM" << std::endl;
+    LogError << "STATUS::DECOMPRESSION_PROBLEM" << std::endl;
     return true;
   case STATUS::FIFO_PROBLEM:
-    Error() << "STATUS::FIFO_PROBLEM" << std::endl;
+    LogError << "STATUS::FIFO_PROBLEM" << std::endl;
     return true;
   case STATUS::TCP_PROBLEM:
-    Error() << "STATUS::TCP_PROBLEM" << std::endl;
+    LogError << "STATUS::TCP_PROBLEM" << std::endl;
     return true;
   case STATUS::TCP_TIMEOUT:
-    Error() << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
+    LogError << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
     return true;
  case STATUS::HEARTBEAT_PROBLEM:
-    Error() << "STATUS::HEARTBEAT_PROBLEM" << std::endl;
+    LogError << "STATUS::HEARTBEAT_PROBLEM" << std::endl;
     return true;
  case STATUS::HEARTBEAT_TIMEOUT:
-    Error() << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
+    LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
     return true;
   case STATUS::MAX_TOTAL_SESSIONS:
     Logger(LOG_LEVEL::WARN) << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
@@ -74,7 +74,7 @@ bool displayStatus(STATUS status) {
     Logger(LOG_LEVEL::WARN) << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
     return false;
   default:
-    Error() << CODELOCATION << ":unexpected problem" << std::endl;
+    LogError << ":unexpected problem" << std::endl;
     return true;
   }
 }

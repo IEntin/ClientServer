@@ -58,14 +58,12 @@ bool Ad::parseIntro() {
 bool Ad::parseArray() {
   auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
   if (arrayStart == _input.cend()) {
-    Error() << CODELOCATION << ':' << "unexpected format:\""
-	    << _input << '\"' << std::endl;
+    LogError << ':' << "unexpected format:\"" << _input << '\"' << std::endl;
     return false;
   }
   auto arrayEnd = std::find(arrayStart, _input.end(), ']');
   if (arrayEnd == _input.end()) {
-    Error() << CODELOCATION << ':' << "unexpected format:\""
-	    << _input << '\"' << std::endl;
+    LogError << ':' << "unexpected format:\"" << _input << '\"' << std::endl;
     return false;
   }
   std::string_view arrayStr(arrayStart + 1, arrayEnd);
@@ -110,7 +108,7 @@ bool Ad::readAndSortAds(const std::string& filename) {
     utility::split(buffer, _rows);
   }
   catch (const std::exception& e) {
-    Error() << CODELOCATION << ' ' << e.what() << std::endl;
+    LogError << ' ' << e.what() << std::endl;
     return false;
   }
   for (AdRow& row : _rows)
@@ -133,9 +131,8 @@ bool Ad::load(const std::string& filename) {
       it->second.emplace_back(row);
     }
     catch (std::exception& e) {
-      Logger(LOG_LEVEL::WARN) << CODELOCATION << ' ' << e.what()
-	   << ":key-value=" << '\"' << it->first << "\":\"" << row._value
-	   << "\",skipping." << std::endl;
+      Warn << ' ' << e.what() << ":key-value=" << '\"' << it->first
+	   << "\":\"" << row._value << "\",skipping." << std::endl;
       if (it->second.empty())
 	_mapBySize.erase(it);
       continue;

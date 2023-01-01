@@ -14,12 +14,12 @@ bool AppOptions::initialize() {
   }
   catch (std::exception& e) {
     static auto& printOnce[[maybe_unused]] =
-      Error() << CODELOCATION << ':' << e.what() << ",\n"
-	      << "default values will be returned, by design in tests." << std::endl;
+      LogError << ':' << e.what() << ",\n"
+	    << "default values will be returned, by design in tests." << std::endl;
     return false;
   }
   catch (...) {
-    Error() << CODELOCATION << ":unknown exception." << std::endl;
+    LogError << ":unknown exception." << std::endl;
     return false;
   }
   return true;
