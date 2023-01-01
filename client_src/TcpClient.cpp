@@ -43,8 +43,6 @@ bool TcpClient::send(const std::vector<char>& msg) {
     Error() << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
-  if (stopped())
-    return false;
   return true;
 }
 
@@ -53,17 +51,7 @@ bool TcpClient::receive() {
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
-    bool berror = true;
-    switch (ec.value()) {
-    case boost::asio::error::interrupted:
-      berror = !stopped();
-      break;
-    default:
-      berror = true;
-      break;
-    }
-    Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
-    logger << CODELOCATION << ':' << ec.what() << std::endl;
+    Error() << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
   ec.clear();
@@ -71,18 +59,7 @@ bool TcpClient::receive() {
   size_t result[[maybe_unused]] =
     boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
   if (ec) {
-    bool berror = true;
-    switch (ec.value()) {
-    case boost::asio::error::interrupted:
-    case boost::asio::error::connection_refused:
-      berror = !stopped();
-      break;
-    default:
-      berror = true;
-      break;
-    }
-    Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
-    logger << CODELOCATION << ':' << ec.what() << std::endl;
+    Error() << CODELOCATION << ':' << ec.what() << std::endl;
     return false;
   }
   _status = STATUS::NONE;

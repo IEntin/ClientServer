@@ -136,6 +136,7 @@ void TcpAcceptor::accept() {
 	auto [type, it, success] = findSession(details->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
+	  filterSessions();
 	  if (!createSession(details))
 	    return;
 	  break;
@@ -148,6 +149,16 @@ void TcpAcceptor::accept() {
 	accept();
       }
     });
+}
+
+void TcpAcceptor::filterSessions() {
+  for (auto it = _sessions.begin(); it != _sessions.end();) {
+    auto session = it->second.lock();
+    if (!session)
+      it = _sessions.erase(it);
+    else
+      ++it;
+  }
 }
 
 } // end of namespace tcp

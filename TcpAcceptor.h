@@ -45,6 +45,8 @@ private:
 
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
+  void filterSessions();
+
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
