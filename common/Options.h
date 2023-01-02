@@ -16,6 +16,7 @@ struct Options {
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   unsigned short _tcpPort;
+  std::string _tcpPortS;
   int _numberRepeatEINTR;
   int _numberRepeatENXIO;
   int _ENXIOwait;
