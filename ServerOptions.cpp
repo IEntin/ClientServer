@@ -16,7 +16,6 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::jthread::hardware_concurrency();
   _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
-  _tcpPort = appOptions.get("TcpPort", 49172);
   _tcpTimeout = appOptions.get("TcpTimeout", 1000);
   _sortInput = appOptions.get("SortInput", true);
 }

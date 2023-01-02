@@ -147,7 +147,7 @@ void TcpClientHeartbeat::write() {
   boost::asio::ip::tcp::socket socket(_ioContext);
   _socket = std::move(socket);
   auto [endpoint, error] =
-    setSocket(_ioContext, _socket, _options._serverHost, _options._tcpPort);
+    setSocket(_ioContext, _socket, _options);
   if (error) {
     LogError << ' ' << error.what() << std::endl;
     return;

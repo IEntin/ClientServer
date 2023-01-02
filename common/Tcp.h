@@ -7,13 +7,14 @@
 #include "Header.h"
 #include <boost/asio.hpp>
 
+struct ClientOptions;
+
 namespace tcp {
 
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
   setSocket(boost::asio::io_context& ioContext,
 	    boost::asio::ip::tcp::socket& socket,
-	    std::string_view host,
-	    std::string_view port);
+	    const ClientOptions& options);
 
 std::pair<bool, boost::system::error_code>
 readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload);

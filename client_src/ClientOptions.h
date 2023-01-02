@@ -20,7 +20,6 @@ struct ClientOptions : Options {
   // unlimited if it is 0.
   int _maxNumberTasks;
   std::string _serverHost;
-  std::string _tcpPort;
   int _heartbeatPeriod;
   int _heartbeatTimeout;
   bool _enableHeartbeat;

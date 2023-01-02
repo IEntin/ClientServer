@@ -4,17 +4,18 @@
 
 #include "Tcp.h"
 #include "Logger.h"
+#include "ClientOptions.h"
 
 namespace tcp {
 
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 setSocket(boost::asio::io_context& ioContext,
 	  boost::asio::ip::tcp::socket& socket,
-	  std::string_view host,
-	  std::string_view port) {
+	  const ClientOptions& options) {
+  auto service = std::to_string(options._tcpPort);
   boost::asio::ip::tcp::resolver resolver(ioContext);
   boost::system::error_code ec;
-  auto endpoint = boost::asio::connect(socket, resolver.resolve(host, port, ec));
+  auto endpoint = boost::asio::connect(socket, resolver.resolve(options._serverHost, service, ec));
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)
