@@ -12,7 +12,7 @@ std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 setSocket(boost::asio::io_context& ioContext,
 	  boost::asio::ip::tcp::socket& socket,
 	  const ClientOptions& options) {
-  auto service = std::to_string(options._tcpPort);
+  static const std::string service = std::to_string(options._tcpPort);
   boost::asio::ip::tcp::resolver resolver(ioContext);
   boost::system::error_code ec;
   auto endpoint = boost::asio::connect(socket, resolver.resolve(options._serverHost, service, ec));
