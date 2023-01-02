@@ -4,6 +4,7 @@
 
 #include "Fifo.h"
 #include "Logger.h"
+#include "Options.h"
 #include "Utility.h"
 #include <chrono>
 #include <fcntl.h>
@@ -14,7 +15,7 @@
 
 namespace fifo {
 
-HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
+HEADER Fifo::readHeader(int fd, const Options& options) {
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -22,7 +23,7 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
     if (result == -1) {
       // non-blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
+	auto event = pollFd(fd, POLLIN, options);
 	if (event == POLLIN)
 	  continue;
 	throw std::runtime_error(std::strerror(errno));
@@ -47,14 +48,14 @@ HEADER Fifo::readHeader(int fd, int maxRepeatEINTR) {
   return decodeHeader(buffer);
 }
 
-bool Fifo::readString(int fd, char* received, size_t size, int maxRepeatEINTR) {
+bool Fifo::readString(int fd, char* received, size_t size, const Options& options) {
   size_t readSoFar = 0;
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
       // non-blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN, maxRepeatEINTR);
+	auto event = pollFd(fd, POLLIN, options);
 	if (event == POLLIN)
 	  continue;
       }
@@ -101,7 +102,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
   return true;
 }
 
-short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
+short Fifo::pollFd(int& fd, short expected, const Options& options) {
   int rep = 0;
   pollfd pfd{ fd, expected, 0 };
   do {
@@ -117,7 +118,7 @@ short Fifo::pollFd(int& fd, short expected, int maxRepeatEINTR) {
       LogError << '-' << std::strerror(errno) << std::endl;
       return POLLERR;
     }
-  } while (errno == EINTR && rep++ < maxRepeatEINTR);
+  } while (errno == EINTR && rep++ < options._numberRepeatEINTR);
   if (pfd.revents & POLLHUP)
     return POLLHUP;
   else
@@ -149,15 +150,15 @@ bool Fifo::setPipeSize(int fd, long requested) {
 }
 
 // unblock the call open(...O_RDONLY) by opening the write end.
-void Fifo::onExit(std::string_view fifoName, int numberRepeatENXIO, int ENXIOwait) {
+void Fifo::onExit(std::string_view fifoName, const Options& options) {
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
   int rep = 0;
   do {
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
-  } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < numberRepeatENXIO);
+      std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
+  } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < options._numberRepeatENXIO);
   if (fd == -1)
     Info << '-' << std::strerror(errno) << ' ' << fifoName << std::endl;
 }

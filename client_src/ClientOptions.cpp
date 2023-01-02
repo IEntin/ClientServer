@@ -4,17 +4,15 @@
 
 #include "ClientOptions.h"
 #include "AppOptions.h"
-#include "Compression.h"
-#include <filesystem>
 #include <iostream>
 
-ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) {
+ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
+  Options(jsonName) {
   AppOptions appOptions(jsonName);
   _communicationType = appOptions.get("CommunicationType", std::string(""));
   _fifoClient = _communicationType == "FIFO";
   _tcpClient = _communicationType == "TCP";
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
-  _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   if (externalDataStream)
     _dataStream = externalDataStream;
   else {
@@ -33,20 +31,11 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   else
     _instrStream = nullptr;
   _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
-  _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
-  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 10);
-  _ENXIOwait = appOptions.get("ENXIOwai", 20);
   _serverHost = appOptions.get("ServerHost", std::string("127.0.0.1"));
   _tcpPort = appOptions.get("TcpPort", std::string("49172"));
-  _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
-  _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 5000);
   _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 2000);
   _enableHeartbeat = appOptions.get("EnableHeartbeat", true);
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);
-  _timing = appOptions.get("Timing", false);
-  _setPipeSize = appOptions.get("SetPipeSize", true);
-  _logThreshold = translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

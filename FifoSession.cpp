@@ -77,7 +77,7 @@ bool FifoSession::start() {
 
 void FifoSession::stop() {
   _stopped = true;
-  Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
+  Fifo::onExit(_fifoName, _options);
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {

@@ -68,7 +68,7 @@ bool readMsgBody(int fd,
 	 << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
     std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
-    if (!fifo::Fifo::readString(fd, buffer.data(), comprSize, options._numberRepeatEINTR))
+    if (!fifo::Fifo::readString(fd, buffer.data(), comprSize, options))
       return false;
     uncompressed.resize(uncomprSize);
     if (!Compression::uncompress(buffer, comprSize, uncompressed))
@@ -76,7 +76,7 @@ bool readMsgBody(int fd,
   }
   else {
     uncompressed.resize(uncomprSize);
-    if (!fifo::Fifo::readString(fd, uncompressed.data(), uncomprSize, options._numberRepeatEINTR))
+    if (!fifo::Fifo::readString(fd, uncompressed.data(), uncomprSize, options))
       return false;
   }
   return true;
@@ -84,7 +84,7 @@ bool readMsgBody(int fd,
 
 bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const ServerOptions& options) {
   try {
-    header = fifo::Fifo::readHeader(fd, options._numberRepeatEINTR);
+    header = fifo::Fifo::readHeader(fd, options);
   }
   catch (const std::exception& e) {
     LogError << ' ' << e.what() << std::endl;

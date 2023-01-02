@@ -35,7 +35,7 @@ int main() {
       LogError << ' ' << strerror(errno) << std::endl;
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
-    Chronometer chronometer(options._timingEnabled, __FILE__, __LINE__);
+    Chronometer chronometer(options._timing, __FILE__, __LINE__);
     if (!TaskController::create(options))
       return 3;
     int sig = 0;

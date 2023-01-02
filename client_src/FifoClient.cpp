@@ -34,7 +34,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 
 FifoClient::~FifoClient() {
   Metrics::save();
-  Fifo::onExit(_fifoName, _options._numberRepeatENXIO, _options._ENXIOwait);
+  Fifo::onExit(_fifoName, _options);
   Trace << std::endl;
 }
 
@@ -82,7 +82,7 @@ bool FifoClient::receive() {
   }
   _status = STATUS::NONE;
   try {
-    HEADER header = Fifo::readHeader(_fdRead, _options._numberRepeatEINTR);
+    HEADER header = Fifo::readHeader(_fdRead, _options);
     if (!readReply(header)) {
       LogError << ":failed." << std::endl;
       return false;
@@ -99,7 +99,7 @@ bool FifoClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
   ssize_t comprSize = extractCompressedSize(header);
   buffer.reserve(comprSize);
-  if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options._numberRepeatEINTR)) {
+  if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options)) {
     LogError << ":failed." << std::endl;
     return false;
   }
@@ -129,10 +129,10 @@ bool FifoClient::receiveStatus() {
 	    << ' ' << _options._acceptorName << std::endl;
       return false;
     }
-    HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+    HEADER header = Fifo::readHeader(fd, _options);
     size_t size = extractUncompressedSize(header);
     _clientId.resize(size);
-    if (!Fifo::readString(fd, _clientId.data(), size, _options._numberRepeatEINTR)) {
+    if (!Fifo::readString(fd, _clientId.data(), size, _options)) {
       LogError << ":failed." << std::endl;
       return false;
     }

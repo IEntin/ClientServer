@@ -37,12 +37,12 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
 	    << ' ' << _options._acceptorName << std::endl;
       return { HEADERTYPE::ERROR, emptyString };
     }
-    HEADER header = Fifo::readHeader(fd, _options._numberRepeatEINTR);
+    HEADER header = Fifo::readHeader(fd, _options);
     size_t size = extractUncompressedSize(header);
     std::string clientId;
     if (size > 0) {
       clientId.resize(size);
-      if (!Fifo::readString(fd, clientId.data(), size, _options._numberRepeatEINTR)) {
+      if (!Fifo::readString(fd, clientId.data(), size, _options)) {
 	LogError << ":failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
@@ -103,7 +103,7 @@ void FifoAcceptor::stop() {
   }
   // stop the acceptor
   _stopped = true;
-  Fifo::onExit(_options._acceptorName, _options._numberRepeatENXIO, _options._ENXIOwait);
+  Fifo::onExit(_options._acceptorName, _options);
   // have threads join
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
