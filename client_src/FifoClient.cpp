@@ -27,7 +27,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
       throw std::runtime_error("FifoClient::receiveStatus failed");
   }
   catch (boost::interprocess::interprocess_exception& e) {
-    LogError << '-' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     throw std::runtime_error("named mutex lock failure.");
   }
 }
@@ -70,19 +70,19 @@ bool FifoClient::receive() {
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
-    LogError << '-' << _fifoName << '-' << std::strerror(errno) << std::endl;
+    LogError << _fifoName << '-' << std::strerror(errno) << std::endl;
     return false;
   }
   _status = STATUS::NONE;
   try {
     HEADER header = Fifo::readHeader(_fdRead, _options);
     if (!readReply(header)) {
-      LogError << ":failed." << std::endl;
+      LogError << "failed." << std::endl;
       return false;
     }
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     return false;
   }
   return true;
@@ -93,7 +93,7 @@ bool FifoClient::readReply(const HEADER& header) {
   ssize_t comprSize = extractCompressedSize(header);
   buffer.reserve(comprSize);
   if (!Fifo::readString(_fdRead, buffer.data(), comprSize, _options)) {
-    LogError << ":failed." << std::endl;
+    LogError << "failed." << std::endl;
     return false;
   }
   return printReply(buffer, header);
@@ -103,7 +103,7 @@ bool FifoClient::wakeupAcceptor() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
   if (_fdWrite == -1) {
-    LogError << '-' << std::strerror(errno)
+    LogError << std::strerror(errno)
 	  << ' ' << _options._acceptorName << std::endl;
     return false;
   }
@@ -118,15 +118,15 @@ bool FifoClient::receiveStatus() {
     utility::CloseFileDescriptor closefd(fd);
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      LogError << '-' << std::strerror(errno)
-	    << ' ' << _options._acceptorName << std::endl;
+      LogError << std::strerror(errno) << ' '
+	       << _options._acceptorName << std::endl;
       return false;
     }
     HEADER header = Fifo::readHeader(fd, _options);
     size_t size = extractUncompressedSize(header);
     _clientId.resize(size);
     if (!Fifo::readString(fd, _clientId.data(), size, _options)) {
-      LogError << ":failed." << std::endl;
+      LogError << "failed." << std::endl;
       return false;
     }
     _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
@@ -136,9 +136,9 @@ bool FifoClient::receiveStatus() {
       break;
     case STATUS::MAX_SPECIFIC_SESSIONS:
       Warn << "\n\t!!!!!!!!!\n"
-	   << "\tThe number of running fifo sessions is at pool capacity.\n"
+	   << "\tThe number of fifo sessions is at pool capacity.\n"
 	   << "\tThis client will wait in the queue for available thread.\n"
-	   << "\tIf any other running fifo client is closed, this client\n"
+	   << "\tIf any other fifo client is closed, this client\n"
 	   << "\twill start running.\n"
 	   << "\tYou can also close this client and try again later,\n"
 	   << "\tbut spot in the queue will be lost.\n"
@@ -153,7 +153,7 @@ bool FifoClient::receiveStatus() {
     }
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     return false;
   }
   return true;

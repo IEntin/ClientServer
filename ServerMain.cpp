@@ -32,7 +32,7 @@ int main() {
     sigset_t set;
     sigemptyset(&set);
     if (sigaddset(&set, SIGINT) == -1)
-      LogError << ' ' << strerror(errno) << std::endl;
+      LogError << strerror(errno) << std::endl;
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
@@ -40,7 +40,7 @@ int main() {
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
-      LogError << ' ' << strerror(errno) << std::endl;
+      LogError << strerror(errno) << std::endl;
     Metrics::save();
     TaskController::destroy();
     int closed = fcloseall();
@@ -48,11 +48,11 @@ int main() {
     return 0;
   }
   catch (const std::exception& e) {
-    LogError << ':' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     return 5;
   }
   catch (...) {
-    LogError << ':' << strerror(errno) << std::endl;
+    LogError << strerror(errno) << std::endl;
     return 6;
   }
 }

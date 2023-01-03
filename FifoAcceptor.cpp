@@ -33,8 +33,8 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     // blocks until the client opens writing end
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      LogError << '-' << std::strerror(errno)
-	    << ' ' << _options._acceptorName << std::endl;
+      LogError << std::strerror(errno)
+	       << ' ' << _options._acceptorName << std::endl;
       return { HEADERTYPE::ERROR, emptyString };
     }
     HEADER header = Fifo::readHeader(fd, _options);
@@ -43,14 +43,14 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     if (size > 0) {
       clientId.resize(size);
       if (!Fifo::readString(fd, clientId.data(), size, _options)) {
-	LogError << ":failed." << std::endl;
+	LogError << "failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
     }
     return { extractHeaderType(header), std::move(clientId) };
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     return { HEADERTYPE::ERROR, emptyString };
   }
 }
@@ -87,8 +87,8 @@ bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
   if (mkfifo(_options._acceptorName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << '-' << std::strerror(errno)
-	  << '-' << _options._acceptorName << std::endl;
+    LogError << std::strerror(errno) << '-'
+	     << _options._acceptorName << std::endl;
     return false;
   }
   _threadPoolAcceptor.push(shared_from_this());
@@ -121,7 +121,7 @@ void FifoAcceptor::filterSessions() {
   for (auto it = _sessions.begin(); it != _sessions.end(); ) {
     auto session = it->second.lock();
     if (session) {
-      if (!session->check()) {
+      if (!session->isAlive()) {
 	session->stop();
 	it = _sessions.erase(it);
 	_threadPoolSession.removeFromQueue(session);

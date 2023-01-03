@@ -49,7 +49,7 @@ void TcpSession::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
   MemoryPool::destroyBuffers();
 }
@@ -75,7 +75,7 @@ bool TcpSession::onReceiveRequest() {
     size_t uncompressedSize = extractUncompressedSize(_header);
     _uncompressed.resize(uncompressedSize);
     if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
-      LogError << ":decompression failed." << std::endl;
+      LogError << "decompression failed." << std::endl;
       return false;
     }
   }
@@ -120,7 +120,7 @@ void TcpSession::readHeader() {
       }
       _header = decodeHeader(_headerBuffer);
       if (!isOk(_header)) {
-	LogError << ": header is invalid." << std::endl;
+	LogError << "header is invalid." << std::endl;
 	return;
       }
       _request.clear();
@@ -138,7 +138,7 @@ void TcpSession::readRequest() {
       if (!self)
 	return;
       if (ec) {
-	LogError << ':' << ec.what() << std::endl;
+	LogError << ec.what() << std::endl;
 	return;
       }
       onReceiveRequest();
@@ -154,7 +154,7 @@ void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> ne
       if (!self)
 	return;
       if (ec) {
-	LogError << ':' << ec.what() << std::endl;
+	LogError << ec.what() << std::endl;
 	return;
       }
       if (nextFunc)
@@ -167,7 +167,7 @@ void TcpSession::asyncWait() {
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
   if (ec) {
-    LogError << ':' << ec.what() << std::endl;
+    LogError << ec.what() << std::endl;
     return;
   }
   _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
@@ -177,9 +177,9 @@ void TcpSession::asyncWait() {
 	return;
       if (ec != boost::asio::error::operation_aborted) {
 	if (ec)
-	  LogError << ':' << ec.what() << std::endl;
+	  LogError << ec.what() << std::endl;
 	else {
-	  LogError << ": timeout" << std::endl;
+	  LogError << "timeout" << std::endl;
 	  _status = STATUS::TCP_TIMEOUT;
 	}
       }

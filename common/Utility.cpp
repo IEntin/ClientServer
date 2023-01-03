@@ -16,7 +16,7 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    LogError << ':' << std::strerror(errno) << std::endl;
+    LogError << std::strerror(errno) << std::endl;
   _fd = -1;
 }
 
@@ -68,13 +68,13 @@ bool displayStatus(STATUS status) {
     LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
     return true;
   case STATUS::MAX_TOTAL_SESSIONS:
-    Logger(LOG_LEVEL::WARN) << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
+    Warn << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
     return false;
   case STATUS::MAX_SPECIFIC_SESSIONS:
-    Logger(LOG_LEVEL::WARN) << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
+    Warn << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
     return false;
   default:
-    LogError << ":unexpected problem" << std::endl;
+    LogError << "unexpected problem" << std::endl;
     return true;
   }
 }

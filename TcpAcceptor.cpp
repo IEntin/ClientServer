@@ -36,7 +36,7 @@ bool TcpAcceptor::start() {
     _threadPoolAcceptor.push(shared_from_this());
   }
   if (ec) {
-    LogError << ' ' << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
+    LogError << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
     return false;
   }
   return true;
@@ -62,7 +62,7 @@ void TcpAcceptor::run() {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
 }
 
@@ -71,7 +71,7 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
   auto [success, ec] = readMsg(socket, _header, clientId);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
-    LogError << ':' << ec.what() << std::endl;
+    LogError << ec.what() << std::endl;
     return { HEADERTYPE::ERROR, _sessions.end(), false };
   }
   HEADERTYPE type = extractHeaderType(_header);
@@ -93,7 +93,7 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   auto session = std::make_shared<TcpSession>(_options, details, clientId);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
-    LogError << "-duplicate clientId" << std::endl;
+    LogError << "duplicate clientId" << std::endl;
     return false;
   }
   session->start();
@@ -108,7 +108,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
   size_t transferred[[maybe_unused]] =
     boost::asio::write(socket, boost::asio::buffer(heartbeatBuffer), ec);
   if (ec) {
-    LogError << ':' << ec.what() << std::endl;
+    LogError << ec.what() << std::endl;
     return;
   }
   Logger(LOG_LEVEL::INFO, std::clog, false) << "*" << std::flush;

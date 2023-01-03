@@ -30,7 +30,7 @@ void Metrics::save() {
       std::distance(std::filesystem::directory_iterator(_procFdPath), std::filesystem::directory_iterator{});
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
 }
 
@@ -47,13 +47,13 @@ size_t Metrics::getMaxRss() {
   try {
     struct rusage usage;
     if (getrusage(RUSAGE_SELF, &usage)) {
-      LogError << ':' << strerror(errno) << std::endl;
+      LogError << strerror(errno) << std::endl;
       return 0;
     }
     return usage.ru_maxrss;
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
   return 0;
 }

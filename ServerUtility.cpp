@@ -42,7 +42,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
       std::copy(compressedView.data(), compressedView.data() + compressedView.size(), buffer.begin() + HEADER_SIZE);
     }
     catch (const std::exception& e) {
-      LogError << ' ' << e.what() << std::endl;
+      LogError << e.what() << std::endl;
       return std::string_view();
     }
   }
@@ -87,7 +87,7 @@ bool receiveRequest(int fd, std::vector<char>& message, HEADER& header, const Se
     header = fifo::Fifo::readHeader(fd, options);
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }

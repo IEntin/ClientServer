@@ -25,10 +25,10 @@ void ThreadPool::stop() {
 	thread.join();
   }
   catch (const std::system_error& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     return;
   }
-  Trace << " ... _threads joined ..." << std::endl;
+  Trace << "... _threads joined ..." << std::endl;
 }
 
 void  ThreadPool::createThread() {
@@ -57,7 +57,7 @@ void ThreadPool::push(RunnablePtr runnable) {
   if (size() < _maxSize && runnable->getNumberObjects() > size()) {
     // this works if all runnables are of the same derived class
     createThread();
-    Debug << ":numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
+    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
   _queue.push_back(runnable);
   _queueCondition.notify_all();

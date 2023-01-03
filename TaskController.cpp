@@ -81,7 +81,7 @@ void TaskController::processTask(const HEADER& header, std::vector<char>& input,
     task->getResponse(response);
   }
   catch (std::future_error& e) {
-    LogError << ':' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
 }
 
@@ -154,10 +154,10 @@ void TaskController::Worker::run() noexcept {
       barrier.arrive_and_wait();
     }
     catch (std::exception& e) {
-      LogError << ':' << e.what() << std::endl;
+      LogError << e.what() << std::endl;
     }
     catch (...) {
-      LogError << " ! exception caught." << std::endl;
+      LogError << "! exception caught." << std::endl;
     }
   }
 }

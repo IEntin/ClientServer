@@ -32,10 +32,10 @@ void TaskBuilder::run() {
     }
   }
   catch (std::exception& e) {
-    LogError << ':' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
   catch (...) {
-    LogError << "-exception caught." << std::endl;
+    LogError << "exception caught." << std::endl;
   }
 }
 
@@ -57,12 +57,12 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
     }
   }
   catch (const std::future_error& e) {
-    LogError << ':' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
   catch (const std::out_of_range& e) {
-    LogError << ' ' << e.what()
-	  << ". Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
+    LogError << e.what()
+      << ". Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
     return TaskBuilderState::ERROR;
   }
   return state;
@@ -96,7 +96,7 @@ TaskBuilderState TaskBuilder::createSubtask() {
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
   thread_local static std::string line;
   if (_subtaskProduceIndex >= _subtasks.size()) {
-    LogError << ":std::out_of_range avoided.\n"
+    LogError << "std::out_of_range avoided.\n"
 	  << "Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
     return TaskBuilderState::ERROR;
   }
@@ -116,7 +116,7 @@ TaskBuilderState TaskBuilder::createSubtask() {
     }
   }
   catch (const std::exception& e) {
-    LogError << ' ' << e.what() << std::endl;
+    LogError << e.what() << std::endl;
     subtask._state = TaskBuilderState::ERROR;
     return TaskBuilderState::ERROR;
   }
@@ -134,7 +134,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
 	_subtask._promise.set_value();
       }
       catch (const std::exception& e) {
-	LogError << ' ' << e.what() << std::endl;
+	LogError << e.what() << std::endl;
 	_subtask._state = TaskBuilderState::ERROR;
       }
     }
@@ -160,7 +160,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
       }
     }
     catch (const std::exception& e) {
-      LogError << ' ' << e.what() << std::endl;
+      LogError << e.what() << std::endl;
       return TaskBuilderState::ERROR;
     }
   }
