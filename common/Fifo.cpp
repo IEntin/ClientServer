@@ -163,10 +163,4 @@ void Fifo::onExit(std::string_view fifoName, const Options& options) {
     Info << '-' << std::strerror(errno) << ' ' << fifoName << std::endl;
 }
 
-// true if fifo exists with any state
-bool Fifo::exists(std::string_view name) {
-  struct stat buffer;
-  return stat(name.data(), &buffer) == 0;
-}
-
 } // end of namespace fifo

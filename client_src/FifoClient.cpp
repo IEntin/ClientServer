@@ -55,19 +55,12 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     if (_fdWrite >= 0) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
-      if (stopped())
-	return false;
-      return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
+       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
     }
     // wait mode
     // server stopped
-    if (!Fifo::exists(_fifoName))
+    if (!std::filesystem::exists(_fifoName))
       return false;
-    // client closed
-    if (stopped()) {
-      std::filesystem::remove(_fifoName);
-      return false;
-    }
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   return false;

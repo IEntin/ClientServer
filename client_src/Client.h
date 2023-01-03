@@ -52,10 +52,4 @@ class Client {
 
   virtual bool run() = 0;
 
-  static std::atomic_flag _stopFlag;
-
-  static void setStopFlag();
-
-  static bool stopped() { return _stopFlag.test(); }
-
 };

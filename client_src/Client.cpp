@@ -10,8 +10,6 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-std::atomic_flag Client::_stopFlag;
-
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
@@ -106,13 +104,9 @@ void Client::start() {
     if (_options._enableHeartbeat) {
       _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
       _heartbeat->start();
-     }
+    }
   }
   catch (const std::exception& e) {
     Warn << ' ' << e.what() << std::endl;
   }
-}
-
-void Client::setStopFlag() {
-  _stopFlag.test_and_set();
 }

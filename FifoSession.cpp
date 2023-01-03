@@ -34,7 +34,7 @@ FifoSession::~FifoSession() {
 
 void FifoSession::run() {
   CountRunning countRunning;
-  if (!Fifo::exists(_fifoName))
+  if (!std::filesystem::exists(_fifoName))
     return;
   while (!_stopped) {
     HEADER header;
@@ -135,6 +135,26 @@ bool FifoSession::sendStatusToClient() {
   std::copy(_clientId.cbegin(), _clientId.cend(), buffer.begin() + HEADER_SIZE);
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
     LogError << ": failed." << std::endl;
+  return true;
+}
+
+bool FifoSession::check() {
+  if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
+    int fd = -1;
+    utility::CloseFileDescriptor cfdw(fd);
+    int rep = 0;
+    do {
+      fd = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
+      if (fd == -1 && (errno == ENXIO || errno == EINTR))
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+    } while (fd == -1 &&
+	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+    if (fd == -1) {
+      LogError << '-' << std::strerror(errno) << ' ' << _fifoName << std::endl;
+      MemoryPool::destroyBuffers();
+      return false;
+    }
+  }
   return true;
 }
 

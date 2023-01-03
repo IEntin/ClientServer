@@ -62,6 +62,7 @@ void FifoAcceptor::run() {
       break;
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
+      filterSessions();
       createSession();
       break;
     default:
@@ -116,5 +117,19 @@ void FifoAcceptor::removeFifoFiles() {
       std::filesystem::remove(entry);
 }
 
+void FifoAcceptor::filterSessions() {
+  for (auto it = _sessions.begin(); it != _sessions.end(); ) {
+    auto session = it->second.lock();
+    if (session) {
+      if (!session->check()) {
+	session->stop();
+	it = _sessions.erase(it);
+	_threadPoolSession.removeFromQueue(session);
+	continue;
+      }
+    }
+    ++it;
+  }
+}
 
 } // end of namespace fifo
