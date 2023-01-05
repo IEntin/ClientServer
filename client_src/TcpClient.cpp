@@ -31,6 +31,13 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::run() {
+  struct OnDestroy {
+    OnDestroy(TcpClient* client) : _client(client) {}
+    ~OnDestroy() {
+      _client->destroySession();
+    }
+    TcpClient* _client = nullptr;
+  } onDestroy(this);
   start();
   return Client::run();
 }
@@ -109,6 +116,24 @@ bool TcpClient::receiveStatus() {
     break;
   default:
     break;
+  }
+  return true;
+}
+
+bool TcpClient::destroySession() {
+  try {
+    boost::asio::ip::tcp::socket socket(_ioContext);
+    auto [endpoint, error] =
+      tcp::setSocket(_ioContext, socket, _options);
+    if (error)
+      return false;
+    size_t size = _clientId.size();
+    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
+    return tcp::sendMsg(socket, header, _clientId).first;
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << std::endl;
+    return false;
   }
   return true;
 }

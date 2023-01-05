@@ -44,7 +44,6 @@ bool TcpSession::start() {
 }
 
 void TcpSession::run() noexcept {
-  CountRunning countRunning;
   try {
     _ioContext.run();
   }
@@ -60,10 +59,10 @@ void TcpSession::stop() {
 
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
-  Info << " total sessions=" << TaskController::totalSessions() << " tcp sessions="
-       << _numberObjects << ",running=" << _numberRunning << std::endl;
+  Info << " total sessions=" << TaskController::totalSessions()
+       << " tcp sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    Warn << "\nThe number of running tcp clients=" << _numberRunning
+    Warn << "\nThe number of tcp clients=" << _numberObjects
 	 << " is at thread pool capacity." << std::endl;
 }
 

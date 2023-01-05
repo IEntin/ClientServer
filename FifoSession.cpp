@@ -33,7 +33,6 @@ FifoSession::~FifoSession() {
 }
 
 void FifoSession::run() {
-  CountRunning countRunning;
   if (!std::filesystem::exists(_fifoName))
     return;
   while (!_stopped) {
@@ -57,10 +56,9 @@ void FifoSession::run() {
 void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
   Info << "total sessions=" << TaskController::totalSessions()
-       << " fifo sessions="  << _numberObjects
-       << ",running=" << _numberRunning << std::endl;
+       << " fifo sessions="  << _numberObjects << std::endl;
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
-    Warn << "\nThe number of running fifo clients=" << _numberRunning
+    Warn << "\nThe number of fifo clients=" << _numberObjects
 	 << " is at thread pool capacity." << std::endl;
 }
 

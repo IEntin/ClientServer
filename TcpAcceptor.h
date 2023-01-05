@@ -43,9 +43,9 @@ private:
 
   bool createSession(ConnectionDetailsPtr details);
 
-  void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
+  void destroySession(SessionMap::iterator it);
 
-  void filterSessions();
+  void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   const ServerOptions& _options;
   boost::asio::io_context _ioContext;

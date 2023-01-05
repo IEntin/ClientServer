@@ -134,9 +134,11 @@ void TcpAcceptor::accept() {
 	auto [type, it, success] = findSession(details->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  filterSessions();
 	  if (!createSession(details))
 	    return;
+	  break;
+	case HEADERTYPE::DESTROY_SESSION:
+	  destroySession(it);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(details->_socket);
@@ -149,14 +151,13 @@ void TcpAcceptor::accept() {
     });
 }
 
-void TcpAcceptor::filterSessions() {
-  for (auto it = _sessions.begin(); it != _sessions.end();) {
-    auto session = it->second.lock();
-    if (!session)
-      it = _sessions.erase(it);
-    else
-      ++it;
+void TcpAcceptor::destroySession(SessionMap::iterator it) {
+  auto session = it->second.lock();
+  if (session) {
+    session->stop();
+    _threadPoolSession.removeFromQueue(session);
   }
+  _sessions.erase(it);
 }
 
 } // end of namespace tcp
