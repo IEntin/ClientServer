@@ -55,12 +55,21 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     if (_fdWrite >= 0) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
-       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
+      if (_stopFlag.test()) {
+	destroySession();
+	return false;
+      }
+      return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
     }
-    // wait mode
     // server stopped
     if (!std::filesystem::exists(_fifoName))
       return false;
+    // client closed
+    if (_stopFlag.test()) {
+      // status waiting
+      destroySession();
+      return false;
+    }
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   return false;
@@ -156,6 +165,21 @@ bool FifoClient::receiveStatus() {
     LogError << e.what() << std::endl;
     return false;
   }
+  return true;
+}
+
+bool FifoClient::destroySession() {
+  utility::CloseFileDescriptor cfdw(_fdWrite);
+  _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
+  if (_fdWrite == -1) {
+    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+    return false;
+  }
+  size_t size = _clientId.size();
+  std::vector<char> buffer(HEADER_SIZE + size);
+  encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
+  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
+  Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
   return true;
 }
 

@@ -62,8 +62,10 @@ void FifoAcceptor::run() {
       break;
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      filterSessions();
       createSession();
+      break;
+    case HEADERTYPE::DESTROY_SESSION:
+      destroySession(key);
       break;
     default:
       break;
@@ -81,6 +83,19 @@ bool FifoAcceptor::createSession() {
     return false;
   _threadPoolSession.push(session);
   return true;
+}
+
+void FifoAcceptor::destroySession(const std::string& key) {
+  auto it = _sessions.find(key);
+  if (it != _sessions.end()) {
+    auto weakPtr = it->second;
+    auto session = weakPtr.lock();
+    if (session) {
+      session->stop();
+      _threadPoolSession.removeFromQueue(session);
+      _sessions.erase(it);
+    }
+  }
 }
 
 bool FifoAcceptor::start() {
@@ -115,21 +130,6 @@ void FifoAcceptor::removeFifoFiles() {
   for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
-}
-
-void FifoAcceptor::filterSessions() {
-  for (auto it = _sessions.begin(); it != _sessions.end(); ) {
-    auto session = it->second.lock();
-    if (session) {
-      if (!session->isAlive()) {
-	session->stop();
-	it = _sessions.erase(it);
-	_threadPoolSession.removeFromQueue(session);
-	continue;
-      }
-    }
-    ++it;
-  }
 }
 
 } // end of namespace fifo

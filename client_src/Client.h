@@ -40,6 +40,8 @@ class Client {
 
   TcpClientHeartbeatPtr _heartbeat;
 
+  static std::atomic_flag _stopFlag;
+
  public:
 
   virtual ~Client();
@@ -51,5 +53,9 @@ class Client {
   virtual bool receiveStatus() = 0;
 
   virtual bool run() = 0;
+
+  static void setStopFlag();
+
+  static bool stopped() { return _stopFlag.test(); }
 
 };

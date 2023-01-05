@@ -8,6 +8,11 @@
 #include "Metrics.h"
 #include "FifoClient.h"
 #include "TcpClient.h"
+#include <csignal>
+
+void signal_handler(int) {
+  Client::setStopFlag();
+}
 
 int main() {
   struct DoAtEnd {
@@ -17,6 +22,8 @@ int main() {
     }
   } doAtEnd;
   ClientOptions options("ClientOptions.json");
+  if (options._fifoClient)
+    std::signal(SIGINT, signal_handler);
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);

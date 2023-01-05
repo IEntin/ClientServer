@@ -10,7 +10,7 @@
 
 namespace tcp {
 
-  TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
+TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
   _socket(_ioContext),
   _periodTimer(_ioContext),

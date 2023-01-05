@@ -10,6 +10,8 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
+std::atomic_flag Client::_stopFlag = false;
+
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
@@ -109,4 +111,8 @@ void Client::start() {
   catch (const std::exception& e) {
     Warn << e.what() << std::endl;
   }
+}
+
+void Client::setStopFlag() {
+  _stopFlag.test_and_set();
 }

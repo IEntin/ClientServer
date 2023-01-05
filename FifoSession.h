@@ -30,7 +30,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   ~FifoSession() override;
   bool start() override;
   void stop() override;
-  bool isAlive();
 };
 
 } // end of namespace fifo

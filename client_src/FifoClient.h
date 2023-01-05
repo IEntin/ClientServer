@@ -22,6 +22,8 @@ class FifoClient : public Client {
 
   bool wakeupAcceptor();
 
+  bool destroySession();
+
   std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;

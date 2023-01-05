@@ -138,24 +138,4 @@ bool FifoSession::sendStatusToClient() {
   return true;
 }
 
-bool FifoSession::isAlive() {
-  if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
-    int fd = -1;
-    utility::CloseFileDescriptor cfdw(fd);
-    int rep = 0;
-    do {
-      fd = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-      if (fd == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-    } while (fd == -1 &&
-	     (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-    if (fd == -1) {
-      LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
-      MemoryPool::destroyBuffers();
-      return false;
-    }
-  }
-  return true;
-}
-
 } // end of namespace fifo
