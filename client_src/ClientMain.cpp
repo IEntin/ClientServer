@@ -10,7 +10,7 @@
 #include "TcpClient.h"
 #include <csignal>
 
-void signal_handler(int) {
+void signalHandler(int) {
   Client::setStopFlag();
 }
 
@@ -22,8 +22,14 @@ int main() {
     }
   } doAtEnd;
   ClientOptions options("ClientOptions.json");
-  if (options._fifoClient)
-    std::signal(SIGINT, signal_handler);
+  std::signal(SIGINT, signalHandler);
+  std::signal(SIGTERM, signalHandler);
+  sigset_t set;
+  sigemptyset(&set);
+  if (sigaddset(&set, SIGINT) == -1)
+    LogError << strerror(errno) << std::endl;
+  if (sigaddset(&set, SIGTERM) == -1)
+    LogError << strerror(errno) << std::endl;
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
