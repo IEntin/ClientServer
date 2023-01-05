@@ -19,5 +19,5 @@
   "ENXIOwait" : 10,
   "SetPipeSize" : true,
   "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",
-  "LogThreshold" : "TRACE"
+  "LogThreshold" : "INFO"
 }
