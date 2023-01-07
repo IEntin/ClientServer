@@ -33,8 +33,7 @@ TaskControllerWeakPtr TaskController::weakInstance() {
 // when the current barrier phase completes.
 
 void TaskController::onTaskCompletion() noexcept {
-  TaskControllerWeakPtr weakPtr(_single);
-  auto ptr = weakPtr.lock();
+  TaskControllerPtr ptr = _single;
   if (ptr)
     ptr->onCompletion();
 }
@@ -126,11 +125,17 @@ void TaskController::wakeupThreads() {
 
 std::atomic<unsigned>& TaskController::totalSessions() {
   static std::atomic<unsigned> zero;
-  TaskControllerWeakPtr weakPtr = _single;
-  auto ptr = weakPtr.lock();
+  TaskControllerPtr ptr = _single;
+  return ptr ? ptr->_totalSessions : zero;
+}
+
+std::pair<unsigned, STATUS> TaskController::checkCapacity() {
+  TaskControllerPtr ptr = _single;
   if (!ptr)
-    return zero;
-  return ptr->_totalSessions;
+    return { 0, STATUS::NONE };
+  STATUS status = ptr->_totalSessions > ptr->_options._maxTotalSessions ?
+    STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
+  return { ptr->_totalSessions, status };
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :

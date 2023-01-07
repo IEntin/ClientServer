@@ -144,18 +144,10 @@ bool FifoClient::receiveStatus() {
     case STATUS::NONE:
       break;
     case STATUS::MAX_SPECIFIC_SESSIONS:
-      Warn << "\n\t!!!!!!!!!\n"
-	   << "\tThe number of fifo sessions is at pool capacity.\n"
-	   << "\tThis client will wait in the queue for available thread.\n"
-	   << "\tIf any other fifo client is closed, this client\n"
-	   << "\twill start running.\n"
-	   << "\tYou can also close this client and try again later,\n"
-	   << "\tbut spot in the queue will be lost.\n"
-	   << "\tThe setting is \"MaxFifoSessions\" in ServerOptions.json.\n"
-	   << "\t!!!!!!!!!" << std::endl;
+      utility::displayMaxSpecificSessionsWarn("fifo");
       break;
     case STATUS::MAX_TOTAL_SESSIONS:
-      // TBD
+      utility::displayMaxTotalSessionsWarn();
       break;
     default:
       break;

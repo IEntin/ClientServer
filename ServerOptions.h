@@ -14,6 +14,7 @@ struct ServerOptions : Options {
   int _numberWorkThreads;
   unsigned _maxTcpSessions;
   unsigned _maxFifoSessions;
+  unsigned _maxTotalSessions;
   int _tcpTimeout;
   bool _sortInput;
 };

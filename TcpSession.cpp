@@ -59,11 +59,19 @@ void TcpSession::stop() {
 
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
-  Info << " total sessions=" << TaskController::totalSessions()
+  Info << "total sessions=" << TaskController::totalSessions()
        << " tcp sessions=" << _numberObjects << std::endl;
-  if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
+  if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of tcp clients=" << _numberObjects
-	 << " is at thread pool capacity." << std::endl;
+	 << " exceeds thread pool capacity." << std::endl;
+    return;
+  }
+  auto [ totalSessions, status ] = TaskController::checkCapacity();
+  if (status == STATUS::MAX_TOTAL_SESSIONS) {
+    Warn << "\nTotal clients=" << totalSessions
+	 << " exceeds system capacity." << std::endl;
+    _status = status;
+  }
 }
 
 bool TcpSession::onReceiveRequest() {
@@ -109,8 +117,14 @@ void TcpSession::readHeader() {
       auto self = weakPtr.lock();
       if (!self)
 	return;
-      if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
+      switch (_status) {
+      case STATUS::MAX_SPECIFIC_SESSIONS:
+      case STATUS::MAX_TOTAL_SESSIONS:
 	_status = STATUS::NONE;
+	break;
+      default:
+	break;
+      }
       if (ec) {
 	LOG_LEVEL level = ec == boost::asio::error::eof ? LOG_LEVEL::WARN : LOG_LEVEL::ERROR;
 	Logger(level) << CODELOCATION << ':' << ec.what() << std::endl;

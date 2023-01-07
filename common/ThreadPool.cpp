@@ -54,8 +54,8 @@ void ThreadPool::push(RunnablePtr runnable) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);
-  if (size() < _maxSize && runnable->getNumberObjects() > size()) {
-    // this works if all runnables are of the same derived class
+  if (runnable->getNumberObjects() > size() &&
+      size() < _maxSize) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }

@@ -145,4 +145,8 @@ void readFile(const std::string& name, std::vector<char>& buffer);
 
 bool displayStatus(STATUS status);
 
+void displayMaxTotalSessionsWarn();
+
+void displayMaxSpecificSessionsWarn(std::string_view type);
+
 } // end of namespace utility

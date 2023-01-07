@@ -4,9 +4,9 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
-#include "Logger.h"
 #include "Metrics.h"
 #include "Tcp.h"
+#include "Utility.h"
 
 namespace tcp {
 
@@ -98,21 +98,11 @@ bool TcpClient::receiveStatus() {
   }
   _status = extractStatus(header);
   switch (_status) {
-  case STATUS::NONE:
-    break;
   case STATUS::MAX_SPECIFIC_SESSIONS:
-    Warn << "\n\t!!!!!!!!!\n"
-	 << "\tThe number of tcp sessions is at pool capacity.\n"
-	 << "\tThis client will wait in the queue for available thread.\n"
-	 << "\tIf any other tcp client is closed, this client\n"
-	 << "\twill start running.\n"
-	 << "\tYou can also close this client and try again later,\n"
-	 << "\tbut spot in the queue will be lost.\n"
-	 << "\tThe setting is \"MaxTcpSessions\" in ServerOptions.json.\n"
-	 << "\t!!!!!!!!!" << std::endl;
+    utility::displayMaxSpecificSessionsWarn("tcp");
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
-    // TBD
+    utility::displayMaxTotalSessionsWarn();
     break;
   default:
     break;

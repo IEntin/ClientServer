@@ -36,8 +36,8 @@ void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     return;
   while (!_stopped) {
-    HEADER header;
     _uncompressedRequest.clear();
+    HEADER header;
     if (!receiveRequest(_uncompressedRequest, header))
       break;
     static thread_local Response response;
@@ -56,10 +56,18 @@ void FifoSession::run() {
 void FifoSession::checkCapacity() {
   Runnable::checkCapacity();
   Info << "total sessions=" << TaskController::totalSessions()
-       << " fifo sessions="  << _numberObjects << std::endl;
-  if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
+       << " fifo sessions=" << _numberObjects << std::endl;
+  if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of fifo clients=" << _numberObjects
-	 << " is at thread pool capacity." << std::endl;
+	 << " exceeds thread pool capacity." << std::endl;
+    return;
+  }
+  auto [ totalSessions, status ] = TaskController::checkCapacity();
+  if (status == STATUS::MAX_TOTAL_SESSIONS) {
+    Warn << "\nTotal clients=" << totalSessions
+	 << " exceeds system capacity." << std::endl;
+    _status = status;
+  }
 }
 
 bool FifoSession::start() {
@@ -79,8 +87,14 @@ void FifoSession::stop() {
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
-  if (_status == STATUS::MAX_SPECIFIC_SESSIONS)
+  switch (_status) {
+  case STATUS::MAX_SPECIFIC_SESSIONS:
+  case STATUS::MAX_TOTAL_SESSIONS:
     _status = STATUS::NONE;
+    break;
+  default:
+    break;
+  }
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
   fdRead = open(_fifoName.data(), O_RDONLY);

@@ -11,6 +11,8 @@
   "AcceptorBaseName" : "Acceptor",
   "MaxTcpSessions" : 20,
   "MaxFifoSessions" : 20,
+  "_comment": "overload disabled by large value",
+  "MaxTotalSessions" : 50,
   "TcpPort" : 49152,
   "_comment": "below in milliseconds",
   "TcpTimeout" : 1000,
