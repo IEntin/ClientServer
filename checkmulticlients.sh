@@ -6,7 +6,7 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -ne 1 ]]
 then
-    echo "Usage: ./checkmulticlients.sh <number of clients of each type> 2>&1 | tee checkmclog.txt"
+    echo "Usage: ./checkmulticlients.sh <number of clients> 2>&1 | tee checkmclog.txt"
     echo "Prerequisites:"
     echo "Make sure that \"MaxFifoSessions\" and"
     echo "\"MaxTcpSessions\" in the ServerOptions.json are"
@@ -34,7 +34,7 @@ rm -f ../Fifos/*
 
 export c
 
-for (( c=1; c<=2*$1; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
     rm -f ../Client$c/*
 done
@@ -46,7 +46,7 @@ done
 
 mkdir -p ../Fifos
 
-for (( c=1; c<=2*$1; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
     mkdir -p ../Client$c
 done
@@ -54,17 +54,23 @@ done
 # create data directory links in every client directory
 # copy scripts and ClientOptions.json
 
-for (( c=1; c<=2*$1; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
     (cd ../Client$c; ln -sf $cwd/data .; cp $cwd/script.sh .; cp $cwd/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
-# make second half of the clients FIFO:
+# make even clients FIFO:
 
-for (( c=$1+1; c<=2*$1; c++ ))
+c=1
+while [ $c -le $1 ]
 do
-    (cd ../Client$c;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
+    REMAINDER=$(( $c % 2 ))
+    if [ $REMAINDER -eq 0 ]
+    then
+	(cd ../Client$c;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
+    fi
+    c=$(($c+1))
 done
 
 # build binaries and copy client binary to Client* directories
@@ -72,7 +78,7 @@ done
 
 make -j4 SANITIZE=$2
 
-for (( c=1; c<=2*$1; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
     /bin/cp -f client ../Client$c
 done
@@ -88,7 +94,7 @@ sleep 1
 
 # Start clients.
 
-for (( c=1; c<=2*$1; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
     ( cd ../Client$c; ./client > /dev/null& )
 done

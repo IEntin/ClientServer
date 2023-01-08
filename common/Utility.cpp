@@ -82,8 +82,8 @@ bool displayStatus(STATUS status) {
 void displayMaxTotalSessionsWarn() {
   Warn << "\n\t!!!!!!!!!\n"
        << "\tThe total number of sessions exceeds system capacity.\n"
-       << "\tThis client will wait in the queue for available thread.\n"
-       << "\tIf any other client is closed, this client will start\n"
+       << "\tThis client will wait in the queue until load subsides.\n"
+       << "\tIf some other clients are closed, this client will start\n"
        << "\trunning.\n"
        << "\tYou can also close this client and try again later,\n"
        << "\tbut spot in the queue will be lost.\n"
