@@ -8,12 +8,13 @@
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
+#include "SessionContainer.h"
 #include "TaskController.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 namespace fifo {
 
@@ -21,13 +22,13 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   RunnableT(options._maxFifoSessions),
   _options(options),
   _clientId(clientId) {
-  TaskController::totalSessions()++;
+  _status = SessionContainer::incrementTotalSessions();
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
-  TaskController::totalSessions()--;
+  SessionContainer::decrementTotalSessions();
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
 }
@@ -35,6 +36,8 @@ FifoSession::~FifoSession() {
 void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     return;
+  if (_status == STATUS::MAX_TOTAL_SESSIONS)
+    _status.wait(STATUS::MAX_TOTAL_SESSIONS);
   while (!_stopped) {
     _uncompressedRequest.clear();
     HEADER header;
@@ -54,19 +57,18 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
-  Runnable::checkCapacity();
-  Info << "total sessions=" << TaskController::totalSessions()
+  unsigned totalSessions = SessionContainer::totalSessions();
+  Info << "total sessions=" << totalSessions
        << " fifo sessions=" << _numberObjects << std::endl;
+  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+    Warn << "\nTotal clients=" << totalSessions
+	 << " exceeds system capacity." << std::endl;
+    return;
+  }
+  Runnable::checkCapacity();
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of fifo clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
-    return;
-  }
-  auto [ totalSessions, status ] = TaskController::checkCapacity();
-  if (status == STATUS::MAX_TOTAL_SESSIONS) {
-    Warn << "\nTotal clients=" << totalSessions
-	 << " exceeds system capacity." << std::endl;
-    _status = status;
   }
 }
 
@@ -82,8 +84,21 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
+  STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
+  if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
+    _status = STATUS::NONE;
+    _status.notify_one();
+  }
   _stopped = true;
   Fifo::onExit(_fifoName, _options);
+}
+
+void FifoSession::notify() {
+  STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
+  if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
+    _status = STATUS::NONE;
+    _status.notify_one();
+  }
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {

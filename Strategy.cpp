@@ -4,15 +4,20 @@
 
 #include "Strategy.h"
 #include "FifoAcceptor.h"
+#include "ServerOptions.h"
+#include "SessionContainer.h"
 #include "TcpAcceptor.h"
 
-bool Strategy::start(const ServerOptions& options) {
-  auto tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(options);
+Strategy::Strategy(const ServerOptions& options) :
+  _options(options), _sessionContainer(options) {}
+
+bool Strategy::start() {
+  auto tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(_options, _sessionContainer);
   _tcpAcceptor = tcpAcceptor;
   if (!tcpAcceptor->start())
     return false;
 
-  auto fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(options);
+  auto fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(_options, _sessionContainer);
   _fifoAcceptor = fifoAcceptor;
   return fifoAcceptor->start();
 }

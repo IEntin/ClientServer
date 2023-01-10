@@ -9,9 +9,9 @@
 #include "MemoryPool.h"
 #include "Metrics.h"
 #include "Utility.h"
-#include <fcntl.h>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
+#include <fcntl.h>
 #include <filesystem>
 
 namespace fifo {

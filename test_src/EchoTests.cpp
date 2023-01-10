@@ -7,6 +7,7 @@
 #include "FifoClient.h"
 #include "Logger.h"
 #include "ServerOptions.h"
+#include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
@@ -17,7 +18,9 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
+      StrategySelector strategySelector(TestEnvironment::_serverOptions);
+      Strategy& strategy = strategySelector.get();
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
@@ -36,7 +39,9 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
+      StrategySelector strategySelector(TestEnvironment::_serverOptions);
+      Strategy& strategy = strategySelector.get();
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       fifo::FifoClient client(TestEnvironment::_clientOptions);

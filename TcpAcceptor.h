@@ -10,16 +10,18 @@
 
 struct ServerOptions;
 
-namespace tcp {
+class SessionContainer;
 
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
+
+namespace tcp {
 
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public RunnableT<TcpAcceptor> {
  public:
-  explicit TcpAcceptor(const ServerOptions& options);
+  TcpAcceptor(const ServerOptions& options, SessionContainer& sessionContainer);
 
   ~TcpAcceptor() override;
 
@@ -54,7 +56,8 @@ private:
   HEADER _header;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
-  SessionMap _sessions;
+  SessionMap& _sessions;
+  std::mutex& _mutex;
 };
 
 } // end of namespace tcp

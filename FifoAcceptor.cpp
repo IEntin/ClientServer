@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "Header.h"
 #include "ServerOptions.h"
+#include "SessionContainer.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -16,10 +17,11 @@
 
 namespace fifo {
 
-FifoAcceptor::FifoAcceptor(const ServerOptions& options) :
+  FifoAcceptor::FifoAcceptor(const ServerOptions& options, SessionContainer& sessionContainer) :
   _options(options),
-  _threadPoolSession(_options._maxFifoSessions) {
-}
+  _threadPoolSession(_options._maxFifoSessions),
+  _sessions(sessionContainer._sessions),
+  _mutex(sessionContainer._sessionMutex) {}
 
 FifoAcceptor::~FifoAcceptor() {
   Trace << std::endl;
@@ -74,6 +76,7 @@ void FifoAcceptor::run() {
 }
 
 bool FifoAcceptor::createSession() {
+  std::lock_guard lock(_mutex);  
   std::string clientId = utility::getUniqueId();
   auto session =
     std::make_shared<FifoSession>(_options, clientId);

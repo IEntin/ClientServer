@@ -8,16 +8,11 @@
 
 class TransactionStrategy : public Strategy {
  public:
-  TransactionStrategy() = default;
+  TransactionStrategy(const ServerOptions& options);
   
   ~TransactionStrategy() override {}
 
  protected:
 
    void create(const ServerOptions& options) override;
-
-   bool start(const ServerOptions& options) override;
-
-   void stop() override;
- private:
 };

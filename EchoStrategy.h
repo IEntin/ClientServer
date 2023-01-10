@@ -12,13 +12,9 @@ class EchoStrategy : public Strategy {
 
    void create(const ServerOptions& options) override;
 
-   bool start(const ServerOptions& options) override;
-
-   void stop() override;
-
  public:
 
-  EchoStrategy() = default;
+  EchoStrategy(const ServerOptions& options);
 
   ~EchoStrategy() override {}
 };

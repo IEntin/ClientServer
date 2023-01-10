@@ -6,6 +6,7 @@
 #include "FifoClient.h"
 #include "Logger.h"
 #include "ServerOptions.h"
+#include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
@@ -22,7 +23,9 @@ struct LogicTest : testing::Test {
       TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
+      StrategySelector strategySelector(TestEnvironment::_serverOptions);
+      Strategy& strategy = strategySelector.get();
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
@@ -49,7 +52,9 @@ struct LogicTest : testing::Test {
       TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._bufferSize = serverMemPoolSize;
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
+      StrategySelector strategySelector(TestEnvironment::_serverOptions);
+      Strategy& strategy = strategySelector.get();
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
@@ -149,7 +154,9 @@ struct LogicTestAltFormat : testing::Test {
     try {
       // start server
       TestEnvironment::_serverOptions._processType = "Transaction";
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
+      StrategySelector strategySelector(TestEnvironment::_serverOptions);
+      Strategy& strategy = strategySelector.get();
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
       // start client
       TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
       TestEnvironment::_clientOptions._diagnostics = true;
@@ -180,7 +187,9 @@ struct LogicTestSortInput : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._sortInput = sort;
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions));
+      StrategySelector strategySelector(TestEnvironment::_serverOptions);
+      Strategy& strategy = strategySelector.get();
+      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
       // start client
       TestEnvironment::_clientOptions._diagnostics = true;
       tcp::TcpClient client(TestEnvironment::_clientOptions);

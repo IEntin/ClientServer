@@ -5,20 +5,20 @@
 #include "TaskController.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "StrategySelector.h"
+#include "Strategy.h"
 #include "Task.h"
 
 TaskControllerPtr TaskController::_single;
 
-TaskController::TaskController(const ServerOptions& options) :
+TaskController::TaskController(const ServerOptions& options, Strategy& strategy) :
   _options(options),
-  _sortInput(_options._sortInput),
-  _barrier(_options._numberWorkThreads, onTaskCompletion),
-  _threadPool(_options._numberWorkThreads),
-  _strategy(StrategySelector::get(_options)) {
+  _sortInput(options._sortInput),
+  _barrier(options._numberWorkThreads, onTaskCompletion),
+  _threadPool(options._numberWorkThreads),
+  _strategy(strategy) {
   // start with empty task
   _task = std::make_shared<Task>();
-  _strategy.create(_options);
+  _strategy.create(options);
 }
 
 TaskController::~TaskController() {
@@ -60,7 +60,7 @@ void TaskController::onCompletion() {
 bool TaskController::start() {
   for (int i = 0; i < _options._numberWorkThreads; ++i) {
     auto worker = std::make_shared<Worker>(_single);
-   _threadPool.push(worker);
+    _threadPool.push(worker);
   }
   return true;
 }
@@ -97,10 +97,10 @@ bool TaskController::isDiagnosticsEnabled() {
   return false;
 }
 
-bool TaskController::create(ServerOptions& options) {
-  _single = std::make_shared<TaskController>(options);
+bool TaskController::create(ServerOptions& options, Strategy& strategy) {
+  _single = std::make_shared<TaskController>(options, strategy);
   _single->start();
-  return _single->_strategy.start(options);
+  return _single->_strategy.start();
 }
 
 void  TaskController::stop() {
@@ -121,21 +121,6 @@ void TaskController::destroy() {
 
 void TaskController::wakeupThreads() {
   push(std::make_shared<Task>());
-}
-
-std::atomic<unsigned>& TaskController::totalSessions() {
-  static std::atomic<unsigned> zero;
-  TaskControllerPtr ptr = _single;
-  return ptr ? ptr->_totalSessions : zero;
-}
-
-std::pair<unsigned, STATUS> TaskController::checkCapacity() {
-  TaskControllerPtr ptr = _single;
-  if (!ptr)
-    return { 0, STATUS::NONE };
-  STATUS status = ptr->_totalSessions > ptr->_options._maxTotalSessions ?
-    STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
-  return { ptr->_totalSessions, status };
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :

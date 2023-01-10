@@ -3,11 +3,14 @@
  */
 
 #include "Chronometer.h"
+#include "CommonConstants.h"
 #include "Globals.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
+#include "StrategySelector.h"
 #include "TaskController.h"
 #include "Logger.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
 #include <cassert>
 #include <csignal>
 #include <cstring>
@@ -37,9 +40,11 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << std::endl;
     ServerOptions options("ServerOptions.json");
+    StrategySelector strategySelector(options);
+    Strategy& strategy = strategySelector.get();
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
-    if (!TaskController::create(options))
+    if (!TaskController::create(options, strategy))
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
@@ -48,6 +53,7 @@ int main() {
     TaskController::destroy();
     int closed = fcloseall();
     assert(closed == 0);
+    boost::interprocess::named_mutex::remove(WAKEUP_MUTEX);
     return 0;
   }
   catch (const std::exception& e) {

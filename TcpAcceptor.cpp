@@ -6,17 +6,20 @@
 #include "ConnectionDetails.h"
 #include "Logger.h"
 #include "ServerOptions.h"
+#include "SessionContainer.h"
 #include "TcpSession.h"
 #include "Tcp.h"
 
 namespace tcp {
 
-TcpAcceptor::TcpAcceptor(const ServerOptions& options) :
+TcpAcceptor::TcpAcceptor(const ServerOptions& options, SessionContainer& sessionContainer) :
   _options(options),
   _ioContext(1),
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
-  _threadPoolSession(_options._maxTcpSessions) {}
+  _threadPoolSession(_options._maxTcpSessions),
+  _sessions(sessionContainer._sessions),
+  _mutex(sessionContainer._sessionMutex) {}
 
 TcpAcceptor::~TcpAcceptor() {
   Trace << std::endl;
@@ -87,6 +90,7 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
 }
 
 bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
+  std::lock_guard lock(_mutex);  
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();

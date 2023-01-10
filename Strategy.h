@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SessionContainer.h"
 #include <memory>
 
 struct ServerOptions;
@@ -24,20 +25,24 @@ class Strategy {
 
  public:
 
-  virtual ~Strategy() {}
+  Strategy(const ServerOptions& options);
+
+  virtual ~Strategy() {};
 
   virtual void create(const ServerOptions& options) = 0;
 
-  virtual bool start(const ServerOptions& options) = 0;
+  bool start();
 
-  virtual void stop() = 0;
+  void stop();
 
  protected:
 
-  Strategy() = default;
+  const ServerOptions& _options;
 
   TcpAcceptorWeakPtr _tcpAcceptor;
 
   FifoAcceptorWeakPtr _fifoAcceptor;
+
+  SessionContainer _sessionContainer;
 
 };

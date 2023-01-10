@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
+#include "SessionContainer.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
 #include "Tcp.h"
@@ -26,13 +27,13 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  TaskController::totalSessions()++;
+  _status = SessionContainer::incrementTotalSessions();
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   boost::asio::post(_ioContext, [this] { readHeader(); });
 }
 
 TcpSession::~TcpSession() {
-  TaskController::totalSessions()--;
+  SessionContainer::decrementTotalSessions();
   Trace << std::endl;
 }
 
@@ -44,6 +45,8 @@ bool TcpSession::start() {
 }
 
 void TcpSession::run() noexcept {
+  if (_status == STATUS::MAX_TOTAL_SESSIONS)
+    _status.wait(STATUS::MAX_TOTAL_SESSIONS);
   try {
     _ioContext.run();
   }
@@ -54,23 +57,35 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::stop() {
+  STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
+  if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
+    _status = STATUS::NONE;
+    _status.notify_one();
+  }
   _ioContext.stop();
 }
 
+void TcpSession::notify() {
+  STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
+  if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
+    _status = STATUS::NONE;
+    _status.notify_one();
+  }
+}
+
 void TcpSession::checkCapacity() {
-  Runnable::checkCapacity();
-  Info << "total sessions=" << TaskController::totalSessions()
+  unsigned totalSessions = SessionContainer::totalSessions();
+  Info << "total sessions=" << totalSessions
        << " tcp sessions=" << _numberObjects << std::endl;
+  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+    Warn << "\nTotal clients=" << totalSessions
+	 << " exceeds system capacity." << std::endl;
+    return;
+  }
+  Runnable::checkCapacity();
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of tcp clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
-    return;
-  }
-  auto [ totalSessions, status ] = TaskController::checkCapacity();
-  if (status == STATUS::MAX_TOTAL_SESSIONS) {
-    Warn << "\nTotal clients=" << totalSessions
-	 << " exceeds system capacity." << std::endl;
-    _status = status;
   }
 }
 

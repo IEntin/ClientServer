@@ -6,14 +6,13 @@
 #include "ServerOptions.h"
 #include "Logger.h"
 
-TransactionStrategy StrategySelector::_transactionStrategy;
+StrategySelector::StrategySelector(const ServerOptions& options) :
+  _options(options), _echoStrategy(options), _transactionStrategy(options) {}
 
-EchoStrategy StrategySelector::_echoStrategy;
-
-Strategy& StrategySelector::get(const ServerOptions& options) {
-  if (options._processType == "Transaction")
+Strategy& StrategySelector::get() {
+  if (_options._processType == "Transaction")
     return _transactionStrategy;
-  else if (options._processType == "Echo")
+  else if (_options._processType == "Echo")
     return _echoStrategy;
   else {
     LogError << ":Strategy is not specified. Setting Transaction strategy." << std::endl; 

@@ -34,6 +34,7 @@ public:
   bool start() override;
   void stop() override;
   void checkCapacity() override;
+  void notify() override;
 private:
   void readHeader();
   void readRequest();

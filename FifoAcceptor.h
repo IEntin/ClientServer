@@ -9,6 +9,10 @@
 
 struct ServerOptions;
 
+class SessionContainer;
+
+using SessionMap = std::map<std::string, RunnableWeakPtr>;
+
 enum class HEADERTYPE : char;
 
 namespace fifo {
@@ -25,12 +29,13 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   const ServerOptions& _options;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
-  std::map<std::string, FifoSessionWeakPtr> _sessions;
  public:
-  FifoAcceptor(const ServerOptions& options);
+  FifoAcceptor(const ServerOptions& options, SessionContainer& sessionContainer);
   ~FifoAcceptor() override;
   bool start() override;
   void stop() override;
+  SessionMap& _sessions;
+  std::mutex& _mutex;
 };
 
 } // end of namespace fifo

@@ -13,15 +13,17 @@ class StrategySelector {
 
  public:
 
-  static Strategy& get(const ServerOptions& options);
+  StrategySelector(const ServerOptions& options);
+
+  ~StrategySelector() {}
+
+  Strategy& get();
 
  private:
-  StrategySelector() = delete;
+  const ServerOptions& _options;
 
-  ~StrategySelector() = delete;
+  EchoStrategy _echoStrategy;
 
-  static TransactionStrategy _transactionStrategy;
-
-  static EchoStrategy _echoStrategy;
+  TransactionStrategy _transactionStrategy;
 
 };
