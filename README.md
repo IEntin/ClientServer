@@ -78,13 +78,16 @@ In practice, this allows concurrent running of multiple clients without manual\
 
 .........
 
-It is possible to put restrictions on the number of tcp and/or fifo sessions the server\
+There are configurable  restrictions on the number of tcp and/or fifo sessions the server\
 is handling. If a new client exceeds this limit it remains up but enrers a waiting mode.\
 When one of the previously started clients exits, the waiting client at the head of the\
 queue starts running.\
+Another restriction is on the total number of sessions.\
+Both restrictions can be enabled at the same time. The second takes precedence.
 There can be any number of waiting clients.\
-Of course, a waiting client can also be closed and tried again later.\
-The relevant settings are "MaxTcpSessions" and "MaxFifoSessions" in the ServerOptions.json.
+A waiting client can also be closed and tried again later.\
+The relevant settings are "MaxTcpSessions", "MaxFifoSessions" and "MaxTotalSessions"\
+in the ServerOptions.json.
 
 Generally, the number of clients is limited only by hardware performance, in particular\
 by the number of cpu cores.\
