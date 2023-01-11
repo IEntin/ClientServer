@@ -39,8 +39,7 @@ FifoSession::~FifoSession() {
 void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     return;
-  if (_status == STATUS::MAX_TOTAL_SESSIONS)
-    _status.wait(STATUS::MAX_TOTAL_SESSIONS);
+  _status.wait(STATUS::MAX_TOTAL_SESSIONS);
   while (!_stopped) {
     _uncompressedRequest.clear();
     HEADER header;

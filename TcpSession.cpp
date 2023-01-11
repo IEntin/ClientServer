@@ -47,8 +47,7 @@ bool TcpSession::start() {
 }
 
 void TcpSession::run() noexcept {
-  if (_status == STATUS::MAX_TOTAL_SESSIONS)
-    _status.wait(STATUS::MAX_TOTAL_SESSIONS);
+  _status.wait(STATUS::MAX_TOTAL_SESSIONS);
   try {
     _ioContext.run();
   }
