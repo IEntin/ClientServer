@@ -74,7 +74,7 @@ can be started concurrently by the script checkmulticlients.sh.\
 System wide (actually globally) unique pipe name is an analogy of the\
 unique combination of ip address and ephemeral port in the tcp case.\
 In practice, this allows concurrent running of multiple clients without manual\
- configuration.
+configuration.
 
 .........
 
@@ -83,20 +83,17 @@ is handling. If a new client exceeds this limit it remains up but enrers a waiti
 When one of the previously started clients exits, the waiting client at the head of the\
 queue starts running.\
 Another restriction is on the total number of sessions.\
-Both restrictions can be enabled at the same time. The second takes precedence.
+Both restrictions can be applied simultaneously. The second takes precedence.
 There can be any number of waiting clients.\
 A waiting client can also be closed and tried again later.\
 The relevant settings are "MaxTcpSessions", "MaxFifoSessions" and "MaxTotalSessions"\
-in the ServerOptions.json.
+in ServerOptions.json.
 
-Generally, the number of clients is limited only by hardware performance, in particular\
-by the number of cpu cores.\
-This server was tested with up to 20 clients with mixed client types. The server and all\
-clients are running on the same desktop which, of course, is not a realistic usage.\
-Observed latency is proportional to the number of clients. We explain this by\
-proportionally increasing load on work threads running processing logic on the desktop with\
-only 4 cores. This is the bottleneck, not the transport operations. Performance is expected\
-to improve with increase of the number of cpu cores.
+There are no logical restrictions on the number of clients. Observed latency is strictly\
+proportional to the number of clients due to increasing load on worker threads running\
+processing logic.\
+This server was tested with 20 clients of mixed types. The server and all clients are\
+running on the same desktop. In real case clients will run on different hosts.
 
 ........
 
