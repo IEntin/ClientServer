@@ -47,6 +47,7 @@ bool TcpAcceptor::start() {
 }
 
 void TcpAcceptor::stop() {
+  std::lock_guard lock(_mutex);  
   boost::asio::post(_ioContext, [this] () {
     auto self = shared_from_this();
     _stopped = true;
@@ -91,7 +92,7 @@ TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& sock
 }
 
 bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
-  std::lock_guard lock(_mutex);  
+  std::lock_guard lock(_mutex);
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();

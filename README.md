@@ -89,9 +89,9 @@ A waiting client can also be closed and tried again later.\
 The relevant settings are "MaxTcpSessions", "MaxFifoSessions" and "MaxTotalSessions"\
 in ServerOptions.json.
 
-There are no logical restrictions on the number of clients. Observed latency is strictly\
-proportional to the number of clients due to increasing load on worker threads running\
-processing logic.\
+There are no software or hardware restrictions on the number of clients. Observed\
+latency is strictly proportional to the number of clients due to increasing load\
+on worker threads running processing logic. Only performance is a limiting factor.\
 This server was tested with 20 clients of mixed types. The server and all clients are\
 running on the same desktop. In real case clients will run on different hosts.
 

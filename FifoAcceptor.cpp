@@ -76,7 +76,7 @@ void FifoAcceptor::run() {
 }
 
 bool FifoAcceptor::createSession() {
-  std::lock_guard lock(_mutex);  
+  std::lock_guard lock(_mutex);
   std::string clientId = utility::getUniqueId();
   auto session =
     std::make_shared<FifoSession>(_options, clientId, _sessionContainer);
@@ -113,6 +113,7 @@ bool FifoAcceptor::start() {
 }
 
 void FifoAcceptor::stop() {
+  std::lock_guard lock(_mutex);
   // stop the children
   for (auto& [clientId, weakPtr] : _sessions) {
     RunnablePtr runnable = weakPtr.lock();
