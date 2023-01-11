@@ -27,6 +27,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   void removeFifoFiles();
   void destroySession(const std::string& key);
   const ServerOptions& _options;
+  SessionContainer& _sessionContainer;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
  public:

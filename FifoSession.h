@@ -12,11 +12,16 @@ using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
+class SessionContainer;
+
+class SessionContainer;
+
 namespace fifo {
 
 class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   public RunnableT<FifoSession> {
   const ServerOptions& _options;
+  SessionContainer& _sessionContainer;
   std::string _clientId;
   std::string _fifoName;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
@@ -26,7 +31,9 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   void checkCapacity() override;
   bool sendStatusToClient();
  public:
-  FifoSession(const ServerOptions& options, std::string_view clientId);
+  FifoSession(const ServerOptions& options,
+	      std::string_view clientId,
+	      SessionContainer& sessionContainer);
   ~FifoSession() override;
   bool start() override;
   void stop() override;

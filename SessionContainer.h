@@ -16,12 +16,12 @@ class SessionContainer {
  public:
   SessionContainer(const ServerOptions& options);
   ~SessionContainer() = default;
-  static STATUS incrementTotalSessions();
-  static STATUS decrementTotalSessions();
-  static std::atomic<unsigned>& totalSessions();
-  static const ServerOptions* _options;
-  static SessionMap _sessions;
-  static std::atomic<STATUS> _status;
-  static std::atomic<unsigned> _totalSessions;
-  static std::mutex _sessionMutex;
+  const ServerOptions& _options;
+  std::mutex _sessionMutex;
+  std::atomic<STATUS> _status;
+  SessionMap _sessions;
+  STATUS incrementTotalSessions();
+  STATUS decrementTotalSessions();
+  std::atomic<unsigned>& totalSessions();
+  std::atomic<unsigned> _totalSessions;
 };

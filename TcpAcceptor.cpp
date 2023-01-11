@@ -14,6 +14,7 @@ namespace tcp {
 
 TcpAcceptor::TcpAcceptor(const ServerOptions& options, SessionContainer& sessionContainer) :
   _options(options),
+  _sessionContainer(sessionContainer),
   _ioContext(1),
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
@@ -94,7 +95,7 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
-  auto session = std::make_shared<TcpSession>(_options, details, clientId);
+  auto session = std::make_shared<TcpSession>(_options, details, clientId, _sessionContainer);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
     LogError << "duplicate clientId" << std::endl;

@@ -5,7 +5,6 @@
 #include "FifoAcceptor.h"
 #include "Fifo.h"
 #include "FifoSession.h"
-#include "Logger.h"
 #include "Header.h"
 #include "ServerOptions.h"
 #include "SessionContainer.h"
@@ -19,6 +18,7 @@ namespace fifo {
 
   FifoAcceptor::FifoAcceptor(const ServerOptions& options, SessionContainer& sessionContainer) :
   _options(options),
+  _sessionContainer(sessionContainer),
   _threadPoolSession(_options._maxFifoSessions),
   _sessions(sessionContainer._sessions),
   _mutex(sessionContainer._sessionMutex) {}
@@ -79,7 +79,7 @@ bool FifoAcceptor::createSession() {
   std::lock_guard lock(_mutex);  
   std::string clientId = utility::getUniqueId();
   auto session =
-    std::make_shared<FifoSession>(_options, clientId);
+    std::make_shared<FifoSession>(_options, clientId, _sessionContainer);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");
   if (!session->start())
