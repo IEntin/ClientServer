@@ -28,6 +28,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   void destroySession(const std::string& key);
   const ServerOptions& _options;
   SessionContainer& _sessionContainer;
+  SessionMap& _sessions;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
  public:
@@ -35,8 +36,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   ~FifoAcceptor() override;
   bool start() override;
   void stop() override;
-  SessionMap& _sessions;
-  std::mutex& _mutex;
 };
 
 } // end of namespace fifo

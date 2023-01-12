@@ -51,14 +51,13 @@ private:
 
   const ServerOptions& _options;
   SessionContainer& _sessionContainer;
+  SessionMap& _sessions;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
-  SessionMap& _sessions;
-  std::mutex& _mutex;
 };
 
 } // end of namespace tcp

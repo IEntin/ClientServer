@@ -15,12 +15,11 @@ namespace tcp {
 TcpAcceptor::TcpAcceptor(const ServerOptions& options, SessionContainer& sessionContainer) :
   _options(options),
   _sessionContainer(sessionContainer),
+  _sessions(sessionContainer._tcpSessions),
   _ioContext(1),
   _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
-  _threadPoolSession(_options._maxTcpSessions),
-  _sessions(sessionContainer._sessions),
-  _mutex(sessionContainer._sessionMutex) {}
+  _threadPoolSession(_options._maxTcpSessions) {}
 
 TcpAcceptor::~TcpAcceptor() {
   Trace << std::endl;
@@ -47,7 +46,6 @@ bool TcpAcceptor::start() {
 }
 
 void TcpAcceptor::stop() {
-  std::lock_guard lock(_mutex);  
   boost::asio::post(_ioContext, [this] () {
     auto self = shared_from_this();
     _stopped = true;
@@ -84,7 +82,6 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
 }
 
 bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
-  std::lock_guard lock(_mutex);
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();

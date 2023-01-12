@@ -19,9 +19,8 @@ namespace fifo {
   FifoAcceptor::FifoAcceptor(const ServerOptions& options, SessionContainer& sessionContainer) :
   _options(options),
   _sessionContainer(sessionContainer),
-  _threadPoolSession(_options._maxFifoSessions),
-  _sessions(sessionContainer._sessions),
-  _mutex(sessionContainer._sessionMutex) {}
+  _sessions(sessionContainer._fifoSessions),
+  _threadPoolSession(_options._maxFifoSessions) {}
 
 FifoAcceptor::~FifoAcceptor() {
   Trace << std::endl;
@@ -76,7 +75,6 @@ void FifoAcceptor::run() {
 }
 
 bool FifoAcceptor::createSession() {
-  std::lock_guard lock(_mutex);
   std::string clientId = utility::getUniqueId();
   auto session =
     std::make_shared<FifoSession>(_options, clientId, _sessionContainer);
@@ -113,7 +111,6 @@ bool FifoAcceptor::start() {
 }
 
 void FifoAcceptor::stop() {
-  std::lock_guard lock(_mutex);
   // stop the children
   for (auto& [clientId, weakPtr] : _sessions) {
     RunnablePtr runnable = weakPtr.lock();

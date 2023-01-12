@@ -14,8 +14,6 @@ struct ServerOptions;
 
 class SessionContainer;
 
-class SessionContainer;
-
 namespace fifo {
 
 class FifoSession final : public std::enable_shared_from_this<FifoSession>,
@@ -38,7 +36,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   bool start() override;
   void stop() override;
   void notify() override;
-  const std::string& getClientId() const { return _clientId; }
 };
 
 } // end of namespace fifo
