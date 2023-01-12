@@ -95,7 +95,7 @@ void displayMaxSpecificSessionsWarn(std::string_view type) {
   Warn << "\n\t!!!!!!!!!\n"
        << "\tThe number of " << type << " sessions exceeds pool capacity.\n"
        << "\tThis client will wait in the queue for available thread.\n"
-       << "\tIf any other " << type << " client is closed, this client\n"
+       << "\tIf some other " << type << " clients are closed, this client\n"
        << "\twill start running.\n"
        << "\tYou can also close this client and try again later,\n"
        << "\tbut spot in the queue will be lost.\n"
