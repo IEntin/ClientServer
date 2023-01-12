@@ -87,6 +87,7 @@ void displayMaxTotalSessionsWarn() {
        << "\trunning.\n"
        << "\tYou can also close this client and try again later,\n"
        << "\tbut spot in the queue will be lost.\n"
+       << "\tSee \"MaxTotalSessions\" in ServerOptions.json.\n"
        << "\t!!!!!!!!!" << std::endl;
 }
 
@@ -98,6 +99,8 @@ void displayMaxSpecificSessionsWarn(std::string_view type) {
        << "\twill start running.\n"
        << "\tYou can also close this client and try again later,\n"
        << "\tbut spot in the queue will be lost.\n"
+       << "\tSee \"Max" << (type == "fifo" ? "Fifo" : "Tcp") << "Sessions\""
+       << " in ServerOptions.json.\n"
        << "\t!!!!!!!!!" << std::endl;
 }
 

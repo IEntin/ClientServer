@@ -14,7 +14,7 @@ std::atomic<unsigned>& SessionContainer::totalSessions() {
 }
 
 STATUS SessionContainer::incrementTotalSessions() {
-  std::lock_guard lock(_sessionMutex);
+  std::lock_guard lock(_mutex);
   _totalSessions++;
   _status = _totalSessions > _options._maxTotalSessions ?
     STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
@@ -22,7 +22,7 @@ STATUS SessionContainer::incrementTotalSessions() {
 }
 
 STATUS SessionContainer::decrementTotalSessions() {
-  std::lock_guard lock(_sessionMutex);
+  std::lock_guard lock(_mutex);
   _totalSessions--;
   if (_totalSessions > _options._maxTotalSessions)
     return _status;

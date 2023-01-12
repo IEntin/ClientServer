@@ -27,5 +27,5 @@ class SessionContainer {
   const ServerOptions& _options;
   std::atomic<STATUS> _status;
   std::atomic<unsigned> _totalSessions;
-  std::mutex _sessionMutex;
+  std::mutex _mutex;
 };
