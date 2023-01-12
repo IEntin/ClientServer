@@ -20,6 +20,7 @@ class SessionContainer {
   std::mutex _sessionMutex;
   std::atomic<STATUS> _status;
   SessionMap _sessions;
+  const SessionMap::iterator _itEnd = _sessions.end();
   STATUS incrementTotalSessions();
   STATUS decrementTotalSessions();
   std::atomic<unsigned>& totalSessions();

@@ -22,8 +22,7 @@ int main() {
     }
   } doAtEnd;
   ClientOptions options("ClientOptions.json");
-  if (options._fifoClient)
-    std::signal(SIGINT, signalHandler);
+  std::signal(SIGINT, signalHandler);
   std::signal(SIGTERM, signalHandler);
   sigset_t set;
   sigemptyset(&set);

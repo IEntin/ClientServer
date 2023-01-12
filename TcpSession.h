@@ -40,6 +40,7 @@ public:
   void stop() override;
   void checkCapacity() override;
   void notify() override;
+  const std::string& getClientId() const { return _clientId; }
 private:
   void readHeader();
   void readRequest();

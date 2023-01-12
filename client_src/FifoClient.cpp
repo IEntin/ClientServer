@@ -171,8 +171,7 @@ bool FifoClient::destroySession() {
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
-  Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
-  return true;
+  return Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
 }
 
 } // end of namespace fifo

@@ -33,7 +33,7 @@ private:
 
   struct Request {
     HEADERTYPE _type;
-    SessionMap::iterator _iterator;
+    std::string _clientId;
     bool _success;
   };
 
@@ -41,11 +41,11 @@ private:
 
   void run() override;
 
-  Request findSession(boost::asio::ip::tcp::socket& socket);
+  Request receiveRequest(boost::asio::ip::tcp::socket& socket);
 
   bool createSession(ConnectionDetailsPtr details);
 
-  void destroySession(SessionMap::iterator it);
+  void destroySession(const std::string& clientId);
 
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 

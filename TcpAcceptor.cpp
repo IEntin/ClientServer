@@ -71,24 +71,16 @@ void TcpAcceptor::run() {
   }
 }
 
-TcpAcceptor::Request TcpAcceptor::findSession(boost::asio::ip::tcp::socket& socket) {
+TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& socket) {
   std::string clientId;
   auto [success, ec] = readMsg(socket, _header, clientId);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
     LogError << ec.what() << std::endl;
-    return { HEADERTYPE::ERROR, _sessions.end(), false };
+    return { HEADERTYPE::ERROR, clientId, false };
   }
   HEADERTYPE type = extractHeaderType(_header);
-  SessionMap::iterator it = _sessions.end();
-  if (!clientId.empty()) {
-    it = _sessions.find(clientId);
-    if (it == _sessions.end()) {
-      Info << ":related session not found" << std::endl;
-      return { HEADERTYPE::ERROR, _sessions.end(), false };
-    }
-  }
-  return { type, it, true };
+  return { type, clientId, true };
 }
 
 bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
@@ -137,14 +129,16 @@ void TcpAcceptor::accept() {
 	logger << CODELOCATION << ':' << ec.what() << std::endl;
       }
       else {
-	auto [type, it, success] = findSession(details->_socket);
+	auto [type, clientId, success] = receiveRequest(details->_socket);
+	if (!success)
+	  return;
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
 	  if (!createSession(details))
 	    return;
 	  break;
 	case HEADERTYPE::DESTROY_SESSION:
-	  destroySession(it);
+	  destroySession(clientId);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(details->_socket);
@@ -157,12 +151,15 @@ void TcpAcceptor::accept() {
     });
 }
 
-void TcpAcceptor::destroySession(SessionMap::iterator it) {
+void TcpAcceptor::destroySession(const std::string& clientId) {
+  auto it = _sessions.find(clientId);
+  if (it == _sessionContainer._itEnd)
+    return;
   auto session = it->second.lock();
-  if (session) {
-    session->stop();
-    _threadPoolSession.removeFromQueue(session);
-  }
+  if (!session)
+    return;
+  session->stop();
+  _threadPoolSession.removeFromQueue(session);
   _sessions.erase(it);
 }
 

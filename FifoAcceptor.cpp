@@ -90,7 +90,7 @@ bool FifoAcceptor::createSession() {
 
 void FifoAcceptor::destroySession(const std::string& key) {
   auto it = _sessions.find(key);
-  if (it != _sessions.end()) {
+  if (it != _sessionContainer._itEnd) {
     auto weakPtr = it->second;
     auto session = weakPtr.lock();
     if (session) {
