@@ -31,7 +31,6 @@ ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* external
   else
     _instrStream = nullptr;
   _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
-  _serverHost = appOptions.get("ServerHost", std::string("127.0.0.1"));
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 5000);
   _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 2000);
   _enableHeartbeat = appOptions.get("EnableHeartbeat", true);

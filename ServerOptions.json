@@ -12,6 +12,7 @@
   "MaxTcpSessions" : 20,
   "MaxFifoSessions" : 20,
   "MaxTotalSessions" : 30,
+  "ServerAddress" : "127.0.0.1",
   "TcpPort" : 49152,
   "_comment": "below in milliseconds",
   "TcpTimeout" : 5000,

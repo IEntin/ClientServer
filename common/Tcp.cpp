@@ -14,7 +14,7 @@ setSocket(boost::asio::io_context& ioContext,
 	  const ClientOptions& options) {
   boost::asio::ip::tcp::resolver resolver(ioContext);
   boost::system::error_code ec;
-  auto endpoint = boost::asio::connect(socket, resolver.resolve(options._serverHost, options._tcpPortS, ec));
+  auto endpoint = boost::asio::connect(socket, resolver.resolve(options._serverAddress, options._tcpPort, ec));
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)

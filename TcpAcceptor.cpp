@@ -17,7 +17,6 @@ TcpAcceptor::TcpAcceptor(const ServerOptions& options, SessionContainer& session
   _sessionContainer(sessionContainer),
   _sessions(sessionContainer._tcpSessions),
   _ioContext(1),
-  _endpoint(boost::asio::ip::address_v4::any(), _options._tcpPort),
   _acceptor(_ioContext),
   _threadPoolSession(_options._maxTcpSessions) {}
 
@@ -27,7 +26,10 @@ TcpAcceptor::~TcpAcceptor() {
 
 bool TcpAcceptor::start() {
   boost::system::error_code ec;
-  _acceptor.open(_endpoint.protocol(), ec);
+  boost::asio::ip::tcp::resolver resolver(_ioContext);
+  _endpoint = *resolver.resolve(_options._serverAddress, _options._tcpPort, ec).begin();
+  if (!ec)
+    _acceptor.open(_endpoint.protocol(), ec);
   if (!ec)
     _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
   if (!ec)

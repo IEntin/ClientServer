@@ -15,8 +15,8 @@ struct Options {
   size_t _bufferSize;
   std::string _fifoDirectoryName;
   std::string _acceptorName;
-  unsigned short _tcpPort;
-  std::string _tcpPortS;
+  std::string _serverAddress;
+  std::string _tcpPort;
   int _numberRepeatEINTR;
   int _numberRepeatENXIO;
   int _ENXIOwait;

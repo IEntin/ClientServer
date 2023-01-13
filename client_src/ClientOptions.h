@@ -19,7 +19,6 @@ struct ClientOptions : Options {
   // max number iterations when _runLoop is true,
   // unlimited if it is 0.
   int _maxNumberTasks;
-  std::string _serverHost;
   int _heartbeatPeriod;
   int _heartbeatTimeout;
   bool _enableHeartbeat;
