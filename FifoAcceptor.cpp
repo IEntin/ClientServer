@@ -76,7 +76,7 @@ void FifoAcceptor::run() {
 
 bool FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
-  auto session =
+  RunnablePtr session =
     std::make_shared<FifoSession>(_options, clientId, _sessionContainer);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");

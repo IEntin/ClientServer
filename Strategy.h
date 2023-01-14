@@ -9,18 +9,6 @@
 
 struct ServerOptions;
 
-namespace tcp {
-  class TcpAcceptor;
-}
-
-using TcpAcceptorWeakPtr = std::weak_ptr<tcp::TcpAcceptor>;
-
-namespace fifo {
-  class FifoAcceptor;
-}
-
-using FifoAcceptorWeakPtr = std::weak_ptr<fifo::FifoAcceptor>;
-
 class Strategy {
 
  public:
@@ -39,9 +27,9 @@ class Strategy {
 
   const ServerOptions& _options;
 
-  TcpAcceptorWeakPtr _tcpAcceptor;
+  RunnableWeakPtr _tcpAcceptor;
 
-  FifoAcceptorWeakPtr _fifoAcceptor;
+  RunnableWeakPtr _fifoAcceptor;
 
   SessionContainer _sessionContainer;
 

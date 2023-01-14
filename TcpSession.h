@@ -20,14 +20,7 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
-using TcpSessionPtr = std::shared_ptr<class TcpSession>;
-
-using TcpHeartbeatWeakPtr = std::weak_ptr<class TcpHeartbeat>;
-
-using TcpAcceptorPtr = std::shared_ptr<class TcpAcceptor>;
-
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
-  friend class TcpHeartbeat;
 public:
   TcpSession(const ServerOptions& options,
 	     ConnectionDetailsPtr details,
@@ -35,12 +28,12 @@ public:
 	     SessionContainer& sessionContainer);
   ~TcpSession() override;
 
+private:
   void run() noexcept override;
   bool start() override;
   void stop() override;
   void checkCapacity() override;
   void notify() override;
-private:
   void readHeader();
   void readRequest();
   void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = nullptr);

@@ -25,10 +25,6 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
 
   ~TcpAcceptor() override;
 
-  bool start() override;
-
-  void stop() override;
-
 private:
 
   struct Request {
@@ -36,6 +32,10 @@ private:
     std::string _clientId;
     bool _success;
   };
+
+  bool start() override;
+
+  void stop() override;
 
   void accept();
 
@@ -53,7 +53,6 @@ private:
   SessionContainer& _sessionContainer;
   SessionMap& _sessions;
   boost::asio::io_context _ioContext;
-  boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
   ThreadPool _threadPoolAcceptor;

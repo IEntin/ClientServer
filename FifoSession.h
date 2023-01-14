@@ -26,6 +26,9 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
   void run() override;
+  bool start() override;
+  void stop() override;
+  void notify() override;
   void checkCapacity() override;
   bool sendStatusToClient();
  public:
@@ -33,9 +36,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
 	      std::string_view clientId,
 	      SessionContainer& sessionContainer);
   ~FifoSession() override;
-  bool start() override;
-  void stop() override;
-  void notify() override;
 };
 
 } // end of namespace fifo

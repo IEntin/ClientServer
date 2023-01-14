@@ -27,13 +27,14 @@ TcpAcceptor::~TcpAcceptor() {
 bool TcpAcceptor::start() {
   boost::system::error_code ec;
   boost::asio::ip::tcp::resolver resolver(_ioContext);
-  _endpoint = *resolver.resolve(_options._serverAddress, _options._tcpPort, ec).begin();
+  boost::asio::ip::tcp::endpoint endpoint =
+    *resolver.resolve(_options._serverAddress, _options._tcpPort, ec).begin();
   if (!ec)
-    _acceptor.open(_endpoint.protocol(), ec);
+    _acceptor.open(endpoint.protocol(), ec);
   if (!ec)
     _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
   if (!ec)
-    _acceptor.bind(_endpoint, ec);
+    _acceptor.bind(endpoint, ec);
   if (!ec)
     _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
   if (!ec) {
@@ -87,7 +88,8 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
-  auto session = std::make_shared<TcpSession>(_options, details, clientId, _sessionContainer);
+  RunnablePtr session =
+    std::make_shared<TcpSession>(_options, details, clientId, _sessionContainer);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
     LogError << "duplicate clientId" << std::endl;

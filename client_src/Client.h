@@ -11,12 +11,6 @@
 struct ClientOptions;
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
- 
-namespace tcp {
-  class TcpClientHeartbeat;
-}
-
-using TcpClientHeartbeatPtr = std::shared_ptr<class tcp::TcpClientHeartbeat>;
 
 class Client {
 
@@ -38,7 +32,7 @@ class Client {
 
   std::string _clientId;
 
-  TcpClientHeartbeatPtr _heartbeat;
+  RunnablePtr _heartbeat;
 
   static std::atomic_flag _stopFlag;
 
@@ -55,7 +49,5 @@ class Client {
   virtual bool run() = 0;
 
   static void setStopFlag();
-
-  static bool stopped() { return _stopFlag.test(); }
 
 };

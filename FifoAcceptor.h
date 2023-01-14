@@ -17,11 +17,11 @@ enum class HEADERTYPE : char;
 
 namespace fifo {
 
-using FifoSessionWeakPtr = std::weak_ptr<class FifoSession>;
-
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   public RunnableT<FifoAcceptor> {
   void run() override;
+  bool start() override;
+  void stop() override;
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
   bool createSession();
   void removeFifoFiles();
@@ -34,8 +34,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
  public:
   FifoAcceptor(const ServerOptions& options, SessionContainer& sessionContainer);
   ~FifoAcceptor() override;
-  bool start() override;
-  void stop() override;
 };
 
 } // end of namespace fifo

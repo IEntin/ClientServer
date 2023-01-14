@@ -12,21 +12,21 @@ Strategy::Strategy(const ServerOptions& options) :
   _options(options), _sessionContainer(options) {}
 
 bool Strategy::start() {
-  auto tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(_options, _sessionContainer);
+  RunnablePtr tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(_options, _sessionContainer);
   _tcpAcceptor = tcpAcceptor;
   if (!tcpAcceptor->start())
     return false;
 
-  auto fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(_options, _sessionContainer);
+  RunnablePtr fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(_options, _sessionContainer);
   _fifoAcceptor = fifoAcceptor;
   return fifoAcceptor->start();
 }
 
 void Strategy::stop() {
-  auto tcpAcceptor = _tcpAcceptor.lock();
+  RunnablePtr tcpAcceptor = _tcpAcceptor.lock();
   if (tcpAcceptor)
     tcpAcceptor->stop();
-  auto fifoAcceptor = _fifoAcceptor.lock();
+  RunnablePtr fifoAcceptor = _fifoAcceptor.lock();
   if (fifoAcceptor)
     fifoAcceptor->stop();
 }
