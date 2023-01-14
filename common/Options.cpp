@@ -13,8 +13,9 @@ Options::Options(const std::string& jsonName) {
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
-  _tcpPort = appOptions.get("TcpPort", std::string("49152"));;
+  _tcpPort = appOptions.get("TcpPort", 49153);
+  _portString = std::to_string(_tcpPort);
+  _tcpService = _portString;
   _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 10);
   _ENXIOwait = appOptions.get("ENXIOwai", 20);

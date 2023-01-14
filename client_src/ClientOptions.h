@@ -13,6 +13,7 @@ struct ClientOptions : Options {
   std::string _communicationType;
   bool _fifoClient;
   bool _tcpClient;
+  std::string _serverAddress;
   std::string _sourceName;
   std::ostream* _dataStream;
   std::ostream* _instrStream;

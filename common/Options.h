@@ -15,8 +15,8 @@ struct Options {
   size_t _bufferSize;
   std::string _fifoDirectoryName;
   std::string _acceptorName;
-  std::string _serverAddress;
-  std::string _tcpPort;
+  unsigned short _tcpPort;
+  std::string_view _tcpService;
   int _numberRepeatEINTR;
   int _numberRepeatENXIO;
   int _ENXIOwait;
@@ -24,4 +24,6 @@ struct Options {
   bool _timing;
   bool _setPipeSize;
   LOG_LEVEL _logThreshold;
+private:
+  std::string _portString;
 };
