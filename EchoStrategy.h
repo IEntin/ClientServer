@@ -10,7 +10,7 @@ class EchoStrategy : public Strategy {
 
  protected:
 
-  void create(const ServerOptions& options) override;
+  void set(const ServerOptions& options) override;
 
  public:
 

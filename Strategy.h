@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "Runnable.h"
-
 struct ServerOptions;
 
 class Strategy {
@@ -16,6 +14,6 @@ class Strategy {
 
   virtual ~Strategy() {};
 
-  virtual void create(const ServerOptions& options) = 0;
+  virtual void set(const ServerOptions& options) = 0;
 
 };

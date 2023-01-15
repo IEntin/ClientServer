@@ -6,12 +6,15 @@
 #include "FifoAcceptor.h"
 #include "ServerOptions.h"
 #include "Strategy.h"
+#include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 
 Server::Server(const ServerOptions& options) :
-  _options(options), _strategySelector(options), _strategy(_strategySelector.get()) {
-  _strategy.create(options);
+  _options(options) {
+  StrategySelector strategySelector(options);
+  Strategy& strategy = strategySelector.get();
+  strategy.set(options);
 }
 
 bool Server::start() {

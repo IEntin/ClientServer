@@ -5,10 +5,10 @@
 #include "Chronometer.h"
 #include "CommonConstants.h"
 #include "Globals.h"
+#include "Logger.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
-#include "Logger.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <cassert>
 #include <csignal>

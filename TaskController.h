@@ -27,14 +27,13 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
     Worker(const Worker& other) = delete;
     Worker& operator =(const Worker& other) = delete;
     bool start() override { return true; }
+    void stop() override {}
     void run() noexcept override;
     TaskControllerWeakPtr _taskController;
   public:
     explicit Worker(TaskControllerWeakPtr taskController);
     ~Worker() override {}
-    void stop() override {}
   };
-  using WorkerWeakPtr = std::weak_ptr<Worker>;
   using CompletionFunction = void (*) () noexcept;
   TaskController(const TaskController& other) = delete;
   TaskController& operator =(const TaskController& other) = delete;

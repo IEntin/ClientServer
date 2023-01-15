@@ -8,6 +8,6 @@
 
 EchoStrategy::EchoStrategy() {}
 
-void EchoStrategy::create(const ServerOptions&) {
+void EchoStrategy::set(const ServerOptions&) {
   Task::setProcessMethod(Echo::processRequest);
 }

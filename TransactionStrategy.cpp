@@ -10,7 +10,7 @@
 
 TransactionStrategy::TransactionStrategy() {}
 
-void TransactionStrategy::create(const ServerOptions& options) {
+void TransactionStrategy::set(const ServerOptions& options) {
   if (!Ad::load(options._adsFileName))
     return;
   Task::setPreprocessMethod(Transaction::normalizeSizeKey);
