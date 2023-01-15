@@ -9,7 +9,7 @@
 
 struct ServerOptions;
 
-class ServerManager;
+class Server;
 
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
@@ -27,12 +27,12 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   void removeFifoFiles();
   void destroySession(const std::string& key);
   const ServerOptions& _options;
-  ServerManager& _serverManager;
+  Server& _server;
   SessionMap& _sessions;
   ThreadPool _threadPoolAcceptor;
   ThreadPool _threadPoolSession;
  public:
-  FifoAcceptor(const ServerOptions& options, ServerManager& serverManager);
+  FifoAcceptor(const ServerOptions& options, Server& server);
   ~FifoAcceptor() override;
 
   void notify() override;

@@ -6,16 +6,16 @@
 #include "ConnectionDetails.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "ServerManager.h"
+#include "Server.h"
 #include "TcpSession.h"
 #include "Tcp.h"
 
 namespace tcp {
 
-TcpAcceptor::TcpAcceptor(const ServerOptions& options, ServerManager& serverManager) :
+TcpAcceptor::TcpAcceptor(const ServerOptions& options, Server& server) :
   _options(options),
-  _serverManager(serverManager),
-  _sessions(serverManager._tcpSessions),
+  _server(server),
+  _sessions(server._tcpSessions),
   _ioContext(1),
   _acceptor(_ioContext),
   _threadPoolSession(_options._maxTcpSessions) {}
@@ -86,7 +86,7 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
   RunnablePtr session =
-    std::make_shared<TcpSession>(_options, details, clientId, _serverManager);
+    std::make_shared<TcpSession>(_options, details, clientId, _server);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
     LogError << "duplicate clientId" << std::endl;
@@ -151,7 +151,7 @@ void TcpAcceptor::accept() {
 
 void TcpAcceptor::destroySession(const std::string& clientId) {
   auto it = _sessions.find(clientId);
-  if (it == _serverManager._itEnd)
+  if (it == _server._itEnd)
     return;
   auto session = it->second.lock();
   if (!session)

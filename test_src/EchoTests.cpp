@@ -7,7 +7,7 @@
 #include "FifoClient.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "ServerManager.h"
+#include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 
@@ -17,13 +17,13 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      ServerManager serverManager(TestEnvironment::_serverOptions);
-      ASSERT_TRUE(serverManager.start());
+      Server server(TestEnvironment::_serverOptions);
+      ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      serverManager.stop();
+      server.stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
@@ -37,13 +37,13 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      ServerManager serverManager(TestEnvironment::_serverOptions);
-      ASSERT_TRUE(serverManager.start());
+      Server server(TestEnvironment::_serverOptions);
+      ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       fifo::FifoClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      serverManager.stop();
+      server.stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }

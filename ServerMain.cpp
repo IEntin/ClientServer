@@ -7,7 +7,7 @@
 #include "Globals.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
-#include "ServerManager.h"
+#include "Server.h"
 #include "Logger.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <cassert>
@@ -41,14 +41,14 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
-    ServerManager serverManager(options);
-    if (!serverManager.start())
+    Server server(options);
+    if (!server.start())
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << std::endl;
     Metrics::save();
-    serverManager.stop();
+    server.stop();
     int closed = fcloseall();
     assert(closed == 0);
     boost::interprocess::named_mutex::remove(WAKEUP_MUTEX);

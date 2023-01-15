@@ -11,7 +11,7 @@
 
 struct ServerOptions;
 
-class ServerManager;
+class Server;
 
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
@@ -22,7 +22,7 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public RunnableT<TcpAcceptor> {
  public:
-  TcpAcceptor(const ServerOptions& options, ServerManager& serverManager);
+  TcpAcceptor(const ServerOptions& options, Server& server);
 
   ~TcpAcceptor() override;
 
@@ -53,7 +53,7 @@ private:
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   const ServerOptions& _options;
-  ServerManager& _serverManager;
+  Server& _server;
   SessionMap& _sessions;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;

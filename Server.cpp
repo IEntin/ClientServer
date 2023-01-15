@@ -2,19 +2,19 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ServerManager.h"
+#include "Server.h"
 #include "FifoAcceptor.h"
 #include "ServerOptions.h"
 #include "Strategy.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 
-ServerManager::ServerManager(const ServerOptions& options) :
+Server::Server(const ServerOptions& options) :
   _options(options), _strategySelector(options), _strategy(_strategySelector.get()) {
   _strategy.create(options);
 }
 
-bool ServerManager::start() {
+bool Server::start() {
   if (!TaskController::create(_options))
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(_options, *this);
@@ -25,7 +25,7 @@ bool ServerManager::start() {
   return _fifoAcceptor->start();
 }
 
-void ServerManager::stop() {
+void Server::stop() {
   if (_tcpAcceptor)
     _tcpAcceptor->stop();
   if (_fifoAcceptor)
@@ -33,11 +33,11 @@ void ServerManager::stop() {
   TaskController::destroy();
 }
 
-std::atomic<unsigned>& ServerManager::totalSessions() {
+std::atomic<unsigned>& Server::totalSessions() {
   return _totalSessions;
 }
 
-STATUS ServerManager::incrementTotalSessions() {
+STATUS Server::incrementTotalSessions() {
   std::lock_guard lock(_mutex);
   _totalSessions++;
   _status = _totalSessions > _options._maxTotalSessions ?
@@ -45,7 +45,7 @@ STATUS ServerManager::incrementTotalSessions() {
   return _status;
 }
 
-STATUS ServerManager::decrementTotalSessions() {
+STATUS Server::decrementTotalSessions() {
   std::lock_guard lock(_mutex);
   _totalSessions--;
   if (_totalSessions > _options._maxTotalSessions)

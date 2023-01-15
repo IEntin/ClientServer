@@ -12,14 +12,14 @@ using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
-class ServerManager;
+class Server;
 
 namespace fifo {
 
 class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   public RunnableT<FifoSession> {
   const ServerOptions& _options;
-  ServerManager& _serverManager;
+  Server& _server;
   std::string _clientId;
   std::string _fifoName;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
@@ -34,7 +34,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
  public:
   FifoSession(const ServerOptions& options,
 	      std::string_view clientId,
-	      ServerManager& serverManager);
+	      Server& server);
   ~FifoSession() override;
 };
 

@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Runnable.h"
-#include <memory>
 
 struct ServerOptions;
 
@@ -13,7 +12,7 @@ class Strategy {
 
  public:
 
-  Strategy();
+  Strategy() = default;
 
   virtual ~Strategy() {};
 

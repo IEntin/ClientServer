@@ -12,7 +12,7 @@ using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
-class ServerManager;
+class Server;
 
 namespace tcp {
 
@@ -25,7 +25,7 @@ public:
   TcpSession(const ServerOptions& options,
 	     ConnectionDetailsPtr details,
 	     std::string_view clientId,
-	     ServerManager& serverManager);
+	     Server& server);
   ~TcpSession() override;
 
 private:
@@ -41,7 +41,7 @@ private:
   bool onReceiveRequest();
   bool sendReply(const Response& response);
   const ServerOptions& _options;
-  ServerManager& _serverManager;
+  Server& _server;
   const std::string _clientId;
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;

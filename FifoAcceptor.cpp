@@ -7,7 +7,7 @@
 #include "FifoSession.h"
 #include "Header.h"
 #include "ServerOptions.h"
-#include "ServerManager.h"
+#include "Server.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -16,10 +16,10 @@
 
 namespace fifo {
 
-  FifoAcceptor::FifoAcceptor(const ServerOptions& options, ServerManager& serverManager) :
+  FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
   _options(options),
-  _serverManager(serverManager),
-  _sessions(serverManager._fifoSessions),
+  _server(server),
+  _sessions(server._fifoSessions),
   _threadPoolSession(_options._maxFifoSessions) {}
 
 FifoAcceptor::~FifoAcceptor() {
@@ -77,7 +77,7 @@ void FifoAcceptor::run() {
 bool FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   RunnablePtr session =
-    std::make_shared<FifoSession>(_options, clientId, _serverManager);
+    std::make_shared<FifoSession>(_options, clientId, _server);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");
   if (!session->start())
@@ -88,7 +88,7 @@ bool FifoAcceptor::createSession() {
 
 void FifoAcceptor::destroySession(const std::string& key) {
   auto it = _sessions.find(key);
-  if (it != _serverManager._itEnd) {
+  if (it != _server._itEnd) {
     auto weakPtr = it->second;
     auto session = weakPtr.lock();
     if (session) {

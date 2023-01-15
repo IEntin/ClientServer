@@ -14,10 +14,10 @@ using SessionMap = std::map<std::string, RunnableWeakPtr>;
 struct ServerOptions;
 class Strategy;
 
-class ServerManager {
+class Server {
  public:
-  ServerManager(const ServerOptions& options);
-  ~ServerManager() = default;
+  Server(const ServerOptions& options);
+  ~Server() = default;
   SessionMap _fifoSessions;
   SessionMap _tcpSessions;
   bool start();
