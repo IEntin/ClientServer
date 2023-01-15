@@ -10,11 +10,11 @@ class EchoStrategy : public Strategy {
 
  protected:
 
-   void create(const ServerOptions& options) override;
+  void create(const ServerOptions& options) override;
 
  public:
 
-  EchoStrategy(const ServerOptions& options);
+  EchoStrategy();
 
   ~EchoStrategy() override {}
 };

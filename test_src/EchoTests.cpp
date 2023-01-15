@@ -7,8 +7,7 @@
 #include "FifoClient.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "StrategySelector.h"
-#include "TaskController.h"
+#include "ServerManager.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 
@@ -18,14 +17,13 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      StrategySelector strategySelector(TestEnvironment::_serverOptions);
-      Strategy& strategy = strategySelector.get();
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
+      ServerManager serverManager(TestEnvironment::_serverOptions);
+      ASSERT_TRUE(serverManager.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::destroy();
+      serverManager.stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
@@ -39,14 +37,13 @@ struct EchoTest : testing::Test {
       // start server
       TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      StrategySelector strategySelector(TestEnvironment::_serverOptions);
-      Strategy& strategy = strategySelector.get();
-      ASSERT_TRUE(TaskController::create(TestEnvironment::_serverOptions, strategy));
+      ServerManager serverManager(TestEnvironment::_serverOptions);
+      ASSERT_TRUE(serverManager.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       fifo::FifoClient client(TestEnvironment::_clientOptions);
       ASSERT_TRUE(client.run());
-      TaskController::destroy();
+      serverManager.stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }

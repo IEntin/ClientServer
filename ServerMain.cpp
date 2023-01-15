@@ -7,14 +7,13 @@
 #include "Globals.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
-#include "StrategySelector.h"
-#include "TaskController.h"
+#include "ServerManager.h"
 #include "Logger.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <cassert>
 #include <csignal>
 #include <cstring>
- 
+
 void signalHandler([[maybe_unused]] int signal) {
   Globals::_stopFlag.test_and_set();
 }
@@ -40,17 +39,16 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << std::endl;
     ServerOptions options("ServerOptions.json");
-    StrategySelector strategySelector(options);
-    Strategy& strategy = strategySelector.get();
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
-    if (!TaskController::create(options, strategy))
+    ServerManager serverManager(options);
+    if (!serverManager.start())
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << std::endl;
     Metrics::save();
-    TaskController::destroy();
+    serverManager.stop();
     int closed = fcloseall();
     assert(closed == 0);
     boost::interprocess::named_mutex::remove(WAKEUP_MUTEX);

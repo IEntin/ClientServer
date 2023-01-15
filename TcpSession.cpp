@@ -9,7 +9,7 @@
 #include "Logger.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
-#include "SessionContainer.h"
+#include "ServerManager.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
 #include "Tcp.h"
@@ -19,23 +19,23 @@ namespace tcp {
 TcpSession::TcpSession(const ServerOptions& options,
 		       ConnectionDetailsPtr details,
 		       std::string_view clientId,
-		       SessionContainer& sessionContainer) :
+		       ServerManager& serverManager) :
   RunnableT(options._maxTcpSessions),
   _options(options),
-  _sessionContainer(sessionContainer),
+  _serverManager(serverManager),
   _clientId(clientId),
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  _status = _sessionContainer.incrementTotalSessions();
+  _status = _serverManager.incrementTotalSessions();
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   boost::asio::post(_ioContext, [this] { readHeader(); });
 }
 
 TcpSession::~TcpSession() {
-  _sessionContainer.decrementTotalSessions();
+  _serverManager.decrementTotalSessions();
   Trace << std::endl;
 }
 
@@ -75,7 +75,7 @@ void TcpSession::notify() {
 }
 
 void TcpSession::checkCapacity() {
-  unsigned totalSessions = _sessionContainer.totalSessions();
+  unsigned totalSessions = _serverManager.totalSessions();
   Info << "total sessions=" << totalSessions
        << " tcp sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_TOTAL_SESSIONS) {

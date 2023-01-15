@@ -7,7 +7,7 @@
 #include "Logger.h"
 
 StrategySelector::StrategySelector(const ServerOptions& options) :
-  _options(options), _echoStrategy(options), _transactionStrategy(options) {}
+  _options(options) {}
 
 Strategy& StrategySelector::get() {
   if (_options._processType == "Transaction")

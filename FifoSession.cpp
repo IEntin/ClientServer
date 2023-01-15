@@ -8,7 +8,7 @@
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
-#include "SessionContainer.h"
+#include "ServerManager.h"
 #include "TaskController.h"
 #include "Utility.h"
 #include <fcntl.h>
@@ -20,18 +20,18 @@ namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options,
 			 std::string_view clientId,
-			 SessionContainer& sessionContainer) :
+			 ServerManager& serverManager) :
   RunnableT(options._maxFifoSessions),
   _options(options),
-  _sessionContainer(sessionContainer),
+  _serverManager(serverManager),
   _clientId(clientId) {
-  _status = _sessionContainer.incrementTotalSessions();
+  _status = _serverManager.incrementTotalSessions();
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
-  _sessionContainer.decrementTotalSessions();
+  _serverManager.decrementTotalSessions();
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
 }
@@ -59,7 +59,7 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
-  unsigned totalSessions = _sessionContainer.totalSessions();
+  unsigned totalSessions = _serverManager.totalSessions();
   Info << "total sessions=" << totalSessions
        << " fifo sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_TOTAL_SESSIONS) {

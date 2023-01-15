@@ -8,7 +8,7 @@
 
 class TransactionStrategy : public Strategy {
  public:
-  TransactionStrategy(const ServerOptions& options);
+  TransactionStrategy();
   
   ~TransactionStrategy() override {}
 

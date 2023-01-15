@@ -5,12 +5,13 @@
 #pragma once
 
 #include "ThreadPool.h"
+#include "Header.h"
 #include <boost/asio.hpp>
 #include <map>
 
 struct ServerOptions;
 
-class SessionContainer;
+class ServerManager;
 
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
@@ -21,9 +22,11 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public RunnableT<TcpAcceptor> {
  public:
-  TcpAcceptor(const ServerOptions& options, SessionContainer& sessionContainer);
+  TcpAcceptor(const ServerOptions& options, ServerManager& serverManager);
 
   ~TcpAcceptor() override;
+
+  void notify() override;
 
 private:
 
@@ -33,13 +36,13 @@ private:
     bool _success;
   };
 
+  void run() override;
+
   bool start() override;
 
   void stop() override;
 
   void accept();
-
-  void run() override;
 
   Request receiveRequest(boost::asio::ip::tcp::socket& socket);
 
@@ -50,7 +53,7 @@ private:
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   const ServerOptions& _options;
-  SessionContainer& _sessionContainer;
+  ServerManager& _serverManager;
   SessionMap& _sessions;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;

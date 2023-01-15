@@ -19,8 +19,6 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
-class Strategy;
-
 struct ServerOptions;
 
 class TaskController : public std::enable_shared_from_this<TaskController> {
@@ -56,14 +54,13 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
   Phase _phase = PREPROCESSTASK;
-  Strategy& _strategy;
   std::mutex _queueMutex;
   static TaskControllerPtr _single;
  public:
-  TaskController(const ServerOptions& options, Strategy& strategy);
+  TaskController(const ServerOptions& options);
   ~TaskController();
   void processTask(const HEADER& header, std::vector<char>& input, Response& response);
-  static bool create(ServerOptions& options, Strategy& strategy);
+  static bool create(const ServerOptions& options);
   static void destroy();
   static TaskControllerWeakPtr weakInstance();
   static bool isDiagnosticsEnabled();

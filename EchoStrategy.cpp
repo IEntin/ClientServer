@@ -6,7 +6,7 @@
 #include "Echo.h"
 #include "Task.h"
 
-EchoStrategy::EchoStrategy(const ServerOptions& options) : Strategy(options) {}
+EchoStrategy::EchoStrategy() {}
 
 void EchoStrategy::create(const ServerOptions&) {
   Task::setProcessMethod(Echo::processRequest);

@@ -5,20 +5,17 @@
 #include "TaskController.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "Strategy.h"
 #include "Task.h"
 
 TaskControllerPtr TaskController::_single;
 
-TaskController::TaskController(const ServerOptions& options, Strategy& strategy) :
+TaskController::TaskController(const ServerOptions& options) :
   _options(options),
   _sortInput(options._sortInput),
   _barrier(options._numberWorkThreads, onTaskCompletion),
-  _threadPool(options._numberWorkThreads),
-  _strategy(strategy) {
+  _threadPool(options._numberWorkThreads) {
   // start with empty task
   _task = std::make_shared<Task>();
-  _strategy.create(options);
 }
 
 TaskController::~TaskController() {
@@ -97,15 +94,12 @@ bool TaskController::isDiagnosticsEnabled() {
   return false;
 }
 
-bool TaskController::create(ServerOptions& options, Strategy& strategy) {
-  _single = std::make_shared<TaskController>(options, strategy);
-  _single->start();
-  return _single->_strategy.start();
+bool TaskController::create(const ServerOptions& options) {
+  _single = std::make_shared<TaskController>(options);
+  return _single->start();
 }
 
 void  TaskController::stop() {
-  // stop acceptors
-  _strategy.stop();
   // stop threads
   _stopped = true;
   wakeupThreads();

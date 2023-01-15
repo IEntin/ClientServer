@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SessionContainer.h"
+#include "Runnable.h"
 #include <memory>
 
 struct ServerOptions;
@@ -13,24 +13,10 @@ class Strategy {
 
  public:
 
-  Strategy(const ServerOptions& options);
+  Strategy();
 
   virtual ~Strategy() {};
 
   virtual void create(const ServerOptions& options) = 0;
-
-  bool start();
-
-  void stop();
-
- protected:
-
-  const ServerOptions& _options;
-
-  RunnableWeakPtr _tcpAcceptor;
-
-  RunnableWeakPtr _fifoAcceptor;
-
-  SessionContainer _sessionContainer;
 
 };
