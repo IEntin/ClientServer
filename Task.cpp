@@ -45,6 +45,10 @@ bool Task::processNext() {
     RequestRow& row = _rows[_indices[pointer]];
     std::string_view key = row._key;
     std::string_view request = row._value;
+    if (!_processRequest) {
+      LogError << "_processRequest is nullptr, Strategy must be set!" << std::endl;
+      return false;
+    }
     _response[row._index] = _processRequest(key, request);
     return true;
   }

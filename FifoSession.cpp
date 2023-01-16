@@ -25,7 +25,6 @@ FifoSession::FifoSession(const ServerOptions& options,
   _options(options),
   _server(server),
   _clientId(clientId) {
-  _status = _server.incrementTotalSessions();
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
@@ -59,12 +58,13 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
-  unsigned totalSessions = _server.totalSessions();
+  auto [status, totalSessions] = _server.incrementTotalSessions();
   Info << "total sessions=" << totalSessions
        << " fifo sessions=" << _numberObjects << std::endl;
-  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+  if (status == STATUS::MAX_TOTAL_SESSIONS) {
     Warn << "\nTotal clients=" << totalSessions
 	 << " exceeds system capacity." << std::endl;
+    _status = status;
     return;
   }
   Runnable::checkCapacity();
@@ -80,9 +80,7 @@ bool FifoSession::start() {
     return false;
   }
   checkCapacity();
-  if (!sendStatusToClient())
-    return false;
-  return true;
+  return sendStatusToClient();
 }
 
 void FifoSession::stop() {

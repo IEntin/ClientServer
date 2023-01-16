@@ -20,9 +20,8 @@ class Server {
   SessionMap _tcpSessions;
   bool start();
   void stop();
-  STATUS incrementTotalSessions();
+  std::pair<STATUS, unsigned> incrementTotalSessions();
   STATUS decrementTotalSessions();
-  std::atomic<unsigned>& totalSessions();
   // can be any SessionMap map
   const SessionMap::iterator _itEnd = _fifoSessions.end();
  private:

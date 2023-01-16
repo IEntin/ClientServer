@@ -36,16 +36,12 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-std::atomic<unsigned>& Server::totalSessions() {
-  return _totalSessions;
-}
-
-STATUS Server::incrementTotalSessions() {
+std::pair<STATUS, unsigned>  Server::incrementTotalSessions() {
   std::lock_guard lock(_mutex);
   _totalSessions++;
   _status = _totalSessions > _options._maxTotalSessions ?
     STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
-  return _status;
+  return { _status, _totalSessions} ;
 }
 
 STATUS Server::decrementTotalSessions() {

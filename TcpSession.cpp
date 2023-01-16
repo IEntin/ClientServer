@@ -28,7 +28,6 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  _status = _server.incrementTotalSessions();
   _socket.set_option(boost::asio::socket_base::reuse_address(true));
   boost::asio::post(_ioContext, [this] { readHeader(); });
 }
@@ -74,12 +73,13 @@ void TcpSession::notify() {
 }
 
 void TcpSession::checkCapacity() {
-  unsigned totalSessions = _server.totalSessions();
+  auto [status, totalSessions] = _server.incrementTotalSessions();
   Info << "total sessions=" << totalSessions
        << " tcp sessions=" << _numberObjects << std::endl;
-  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+  if (status == STATUS::MAX_TOTAL_SESSIONS) {
     Warn << "\nTotal clients=" << totalSessions
 	 << " exceeds system capacity." << std::endl;
+    _status = status;
     return;
   }
   Runnable::checkCapacity();
