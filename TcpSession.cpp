@@ -28,7 +28,12 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  _socket.set_option(boost::asio::socket_base::reuse_address(true));
+  boost::system::error_code ec;
+  _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
+  if (ec) {
+    LogError << ec.what() << std::endl;
+    return;
+  }
   boost::asio::post(_ioContext, [this] { readHeader(); });
 }
 
