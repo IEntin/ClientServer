@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Header.h"
 #include "ThreadPool.h"
 #include <barrier>
 #include <map>

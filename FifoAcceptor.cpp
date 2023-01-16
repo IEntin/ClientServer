@@ -5,7 +5,6 @@
 #include "FifoAcceptor.h"
 #include "Fifo.h"
 #include "FifoSession.h"
-#include "Header.h"
 #include "ServerOptions.h"
 #include "Server.h"
 #include "Utility.h"

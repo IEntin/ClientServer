@@ -4,7 +4,6 @@
 
 #include "TcpClientHeartbeat.h"
 #include "ClientOptions.h"
-#include "ConnectionDetails.h"
 #include "Logger.h"
 #include "Tcp.h"
 
