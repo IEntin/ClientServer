@@ -55,21 +55,16 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     if (_fdWrite >= 0) {
       if (_options._setPipeSize)
 	Fifo::setPipeSize(_fdWrite, subtask.size());
-      if (_stopFlag.test()) {
-	destroySession();
+      if (_stopFlag.test())
 	return false;
-      }
       return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
     }
     // server stopped
     if (!std::filesystem::exists(_fifoName))
       return false;
     // client closed
-    if (_stopFlag.test()) {
-      // status waiting
-      destroySession();
+    if (_stopFlag.test())
       return false;
-    }
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   return false;
@@ -162,7 +157,24 @@ bool FifoClient::receiveStatus() {
 
 bool FifoClient::destroySession() {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
+  int rep = 0;
+  while (_fdWrite == -1) {
+    do {
+      _fdWrite = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+      if (_fdWrite == -1) {
+	switch (errno) {
+	case ENXIO:
+	case EINTR:
+	  std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+	  break;
+	default:
+	  LogError << std::strerror(errno) << std::endl;
+	  return false;
+	  break;
+	}
+      }
+    } while (_fdWrite == -1 && rep++ < _options._numberRepeatENXIO);
+  }
   if (_fdWrite == -1) {
     LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;

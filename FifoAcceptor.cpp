@@ -18,7 +18,6 @@ namespace fifo {
   FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
   _options(options),
   _server(server),
-  _sessions(server._fifoSessions),
   _threadPoolSession(_options._maxFifoSessions) {}
 
 FifoAcceptor::~FifoAcceptor() {
@@ -87,7 +86,7 @@ bool FifoAcceptor::createSession() {
 
 void FifoAcceptor::destroySession(const std::string& key) {
   auto it = _sessions.find(key);
-  if (it != _server._itEnd) {
+  if (it != _sessions.end()) {
     auto weakPtr = it->second;
     auto session = weakPtr.lock();
     if (session) {
@@ -110,15 +109,15 @@ bool FifoAcceptor::start() {
 }
 
 void FifoAcceptor::stop() {
+  // stop the acceptor
+  _stopped = true;
+  Fifo::onExit(_options._acceptorName, _options);
   // stop the children
   for (auto& [clientId, weakPtr] : _sessions) {
     RunnablePtr runnable = weakPtr.lock();
     if (runnable)
       runnable->stop();
   }
-  // stop the acceptor
-  _stopped = true;
-  Fifo::onExit(_options._acceptorName, _options);
   // have threads join
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
@@ -129,14 +128,6 @@ void FifoAcceptor::removeFifoFiles() {
   for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
-}
-
-void FifoAcceptor::notify() {
-  for (auto& [ key, weakPtr ] : _sessions) {
-    auto session = weakPtr.lock();
-    if (session)
-      session->notify();
-  }
 }
 
 } // end of namespace fifo

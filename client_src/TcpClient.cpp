@@ -31,13 +31,6 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::run() {
-  struct OnDestroy {
-    OnDestroy(TcpClient* client) : _client(client) {}
-    ~OnDestroy() {
-      _client->destroySession();
-    }
-    TcpClient* _client = nullptr;
-  } onDestroy(this);
   start();
   return Client::run();
 }

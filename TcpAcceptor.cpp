@@ -15,7 +15,6 @@ namespace tcp {
 TcpAcceptor::TcpAcceptor(const ServerOptions& options, Server& server) :
   _options(options),
   _server(server),
-  _sessions(server._tcpSessions),
   _ioContext(1),
   _acceptor(_ioContext),
   _threadPoolSession(_options._maxTcpSessions) {}
@@ -151,7 +150,7 @@ void TcpAcceptor::accept() {
 
 void TcpAcceptor::destroySession(const std::string& clientId) {
   auto it = _sessions.find(clientId);
-  if (it == _server._itEnd)
+  if (it == _sessions.end())
     return;
   auto session = it->second.lock();
   if (!session)
@@ -159,14 +158,6 @@ void TcpAcceptor::destroySession(const std::string& clientId) {
   session->stop();
   _threadPoolSession.removeFromQueue(session);
   _sessions.erase(it);
-}
-
-void TcpAcceptor::notify() {
-  for (auto& [ key, weakPtr ] : _sessions) {
-    auto session = weakPtr.lock();
-    if (session)
-      session->notify();
-  }
 }
 
 } // end of namespace tcp

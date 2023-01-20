@@ -16,19 +16,23 @@ class Server {
  public:
   Server(const ServerOptions& options);
   ~Server() = default;
-  SessionMap _fifoSessions;
-  SessionMap _tcpSessions;
   bool start();
   void stop();
-  std::pair<STATUS, unsigned> incrementTotalSessions();
-  STATUS decrementTotalSessions();
-  // can be any SessionMap map
-  const SessionMap::iterator _itEnd = _fifoSessions.end();
- private:
+  unsigned registerSession(RunnableWeakPtr weakPtr);
+  void deregisterSession(RunnableWeakPtr weakPtr);
+  struct CountRunningSessions {
+    CountRunningSessions() { _runningSessions++; }
+    ~CountRunningSessions() { _runningSessions--; }
+  };
+private:
+  void removeFromMap(RunnablePtr session);
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
-  std::atomic<STATUS> _status;
   std::atomic<unsigned> _totalSessions;
+  using WaitingMap = std::map<unsigned, RunnableWeakPtr>;
+  WaitingMap _waitingSessions;
+  std::atomic<unsigned> _mapIndex = 0;
   std::mutex _mutex;
+  static std::atomic<unsigned> _runningSessions;
 };

@@ -25,8 +25,6 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
 
   ~TcpAcceptor() override;
 
-  void notify() override;
-
 private:
 
   struct Request {
@@ -53,7 +51,7 @@ private:
 
   const ServerOptions& _options;
   Server& _server;
-  SessionMap& _sessions;
+  SessionMap _sessions;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;

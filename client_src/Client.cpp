@@ -15,8 +15,6 @@ std::atomic_flag Client::_stopFlag = false;
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
-  if (_heartbeat)
-    _heartbeat->stop();
   _threadPoolTaskBuilder.stop();
   Trace << std::endl;
 }
@@ -49,6 +47,15 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 }
 
 bool Client::run() {
+  struct DestroySession {
+    DestroySession(Client* client) : _client(client) {}
+    ~DestroySession() {
+      if (_client->_heartbeat)
+	_client->_heartbeat->stop();
+      _client->destroySession();
+    }
+    Client* _client = nullptr;
+  } destroy(this);
   try {
     int numberTasks = 0;
     auto taskBuilder = std::make_shared<TaskBuilder>(_options);

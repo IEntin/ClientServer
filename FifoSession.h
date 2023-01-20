@@ -27,7 +27,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   void run() override;
   bool start() override;
   void stop() override;
-  void notify() override;
+  bool notify() override;
   void checkCapacity() override;
   bool sendStatusToClient();
  public:

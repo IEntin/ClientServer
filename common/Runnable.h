@@ -29,8 +29,8 @@ class Runnable {
       _status = STATUS::MAX_SPECIFIC_SESSIONS;
   }
   virtual std::string_view getType() const = 0;
-  virtual void notify() {}
-  STATUS getStatus() const { return _status; }
+  virtual bool notify() { return false; }
+  std::atomic<STATUS>& getStatus() { return _status; }
 
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;

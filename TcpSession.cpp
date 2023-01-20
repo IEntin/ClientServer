@@ -38,7 +38,6 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
-  _server.decrementTotalSessions();
   Trace << std::endl;
 }
 
@@ -51,6 +50,7 @@ bool TcpSession::start() {
 
 void TcpSession::run() noexcept {
   _status.wait(STATUS::MAX_TOTAL_SESSIONS);
+  Server::CountRunningSessions countRunning;
   try {
     _ioContext.run();
   }
@@ -61,6 +61,7 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::stop() {
+  _server.deregisterSession(weak_from_this());
   STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
   if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
     _status = STATUS::NONE;
@@ -69,22 +70,22 @@ void TcpSession::stop() {
   _ioContext.stop();
 }
 
-void TcpSession::notify() {
+bool TcpSession::notify() {
   STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
   if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
-    _status = STATUS::NONE;
     _status.notify_one();
+    return true;
   }
+  return false;
 }
 
 void TcpSession::checkCapacity() {
-  auto [status, totalSessions] = _server.incrementTotalSessions();
+  unsigned totalSessions = _server.registerSession(shared_from_this());
   Info << "total sessions=" << totalSessions
        << " tcp sessions=" << _numberObjects << std::endl;
-  if (status == STATUS::MAX_TOTAL_SESSIONS) {
+  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
     Warn << "\nTotal clients=" << totalSessions
 	 << " exceeds system capacity." << std::endl;
-    _status = status;
     return;
   }
   Runnable::checkCapacity();

@@ -156,9 +156,19 @@ void Fifo::onExit(std::string_view fifoName, const Options& options) {
   int rep = 0;
   do {
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (fd == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
-  } while (fd == -1 && (errno == ENXIO || errno == EINTR) && rep++ < options._numberRepeatENXIO);
+    if (fd == -1) {
+      switch (errno) {
+      case ENXIO:
+      case EINTR:
+	std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
+	break;
+      default:
+	Info << std::strerror(errno) << ' ' << fifoName << std::endl;
+	return;
+	break;
+      }
+    }
+  } while (fd == -1 && rep++ < options._numberRepeatENXIO);
   if (fd == -1)
     Info << std::strerror(errno) << ' ' << fifoName << std::endl;
 }

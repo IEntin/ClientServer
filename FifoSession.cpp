@@ -30,7 +30,6 @@ FifoSession::FifoSession(const ServerOptions& options,
 }
 
 FifoSession::~FifoSession() {
-  _server.decrementTotalSessions();
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
 }
@@ -40,6 +39,7 @@ void FifoSession::run() {
     return;
   _status.wait(STATUS::MAX_TOTAL_SESSIONS);
   while (!_stopped) {
+    Server::CountRunningSessions countRunning;
     _uncompressedRequest.clear();
     HEADER header;
     if (!receiveRequest(_uncompressedRequest, header))
@@ -58,13 +58,12 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
-  auto [status, totalSessions] = _server.incrementTotalSessions();
+  unsigned totalSessions = _server.registerSession(shared_from_this());
   Info << "total sessions=" << totalSessions
        << " fifo sessions=" << _numberObjects << std::endl;
-  if (status == STATUS::MAX_TOTAL_SESSIONS) {
+  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
     Warn << "\nTotal clients=" << totalSessions
 	 << " exceeds system capacity." << std::endl;
-    _status = status;
     return;
   }
   Runnable::checkCapacity();
@@ -84,6 +83,7 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
+  _server.deregisterSession(weak_from_this());
   STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
   if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
     _status = STATUS::NONE;
@@ -93,12 +93,13 @@ void FifoSession::stop() {
   Fifo::onExit(_fifoName, _options);
 }
 
-void FifoSession::notify() {
+bool FifoSession::notify() {
   STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
   if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
-    _status = STATUS::NONE;
     _status.notify_one();
+    return true;
   }
+  return false;
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
@@ -134,10 +135,20 @@ bool FifoSession::sendResponse(const Response& response) {
   int rep = 0;
   do {
     fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-      std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-  } while (fdWrite == -1 &&
-	   (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
+    if (fdWrite == -1) {
+      switch (errno) {
+      case ENXIO:
+      case EINTR:
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+	break;
+      default:
+	Info << std::strerror(errno) << ' ' << _fifoName << std::endl;
+	MemoryPool::destroyBuffers();
+	return false;
+	break;
+      }
+    }
+  } while (fdWrite == -1 && rep++ < _options._numberRepeatENXIO);
   if (fdWrite == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();

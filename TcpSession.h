@@ -32,7 +32,7 @@ private:
   bool start() override;
   void stop() override;
   void checkCapacity() override;
-  void notify() override;
+  bool notify() override;
   void readHeader();
   void readRequest();
   void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = nullptr);
