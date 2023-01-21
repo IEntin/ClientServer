@@ -48,7 +48,8 @@ unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   std::atomic<STATUS>& status = session->getStatus();
   status = _runningSessions >= _options._maxTotalSessions ?
     STATUS::MAX_TOTAL_SESSIONS : status.load();
-  if (status == STATUS::MAX_TOTAL_SESSIONS) {
+  if (status != STATUS::NONE) {
+    session->_waiting = true;
     auto [it, success] = _waitingSessions.emplace(_mapIndex++, session);
     if (!success) {
       LogError << "_waitingSessions.emplace failed." << std::endl;
@@ -58,38 +59,23 @@ unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   return _totalSessions;
 }
 
-void Server::deregisterSession(RunnableWeakPtr weakPtr) {
+void Server::deregisterSession() {
   std::lock_guard lock(_mutex);
   _totalSessions--;
-  auto session = weakPtr.lock();
-  if (!session)
-    return;
-  std::atomic<STATUS>& status = session->getStatus();
-  if (status != STATUS::NONE) {
-    removeFromMap(session);
-    return;
-  }
-  if (_waitingSessions.empty()) {
-    Trace << "_waitingSessions.empty()" << std::endl;
-    return;
-  }
-  auto it = _waitingSessions.begin();
-  auto savedWeakPtr = it->second;
-  auto savedSession = savedWeakPtr.lock();
-  if (savedSession) {
-    savedSession->notify();
-    _waitingSessions.erase(it);
-  }
-}
-
-void Server::removeFromMap(RunnablePtr session) {
-  for (auto pr : _waitingSessions) {
-    auto savedSession = pr.second.lock();
-    if (savedSession) {
-      if (savedSession == session) {
-	_waitingSessions.erase(pr.first);
-	return;
+  if (_runningSessions <= _options._maxTotalSessions) {
+    for (auto it = _waitingSessions.begin(); it != _waitingSessions.end();) {
+      auto savedWeakPtr = it->second;
+      auto savedSession = savedWeakPtr.lock();
+      if (savedSession) {
+	if (savedSession->notify()) {
+	  it = _waitingSessions.erase(it);
+	  return;
+	}
+	else
+	  ++it;
       }
+      else
+	it = _waitingSessions.erase(it);
     }
   }
 }

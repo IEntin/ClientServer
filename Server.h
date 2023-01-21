@@ -13,19 +13,18 @@ using SessionMap = std::map<std::string, RunnableWeakPtr>;
 struct ServerOptions;
 
 class Server {
- public:
+public:
   Server(const ServerOptions& options);
   ~Server() = default;
   bool start();
   void stop();
   unsigned registerSession(RunnableWeakPtr weakPtr);
-  void deregisterSession(RunnableWeakPtr weakPtr);
+  void deregisterSession();
   struct CountRunningSessions {
     CountRunningSessions() { _runningSessions++; }
     ~CountRunningSessions() { _runningSessions--; }
   };
 private:
-  void removeFromMap(RunnablePtr session);
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;

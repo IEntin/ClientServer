@@ -37,7 +37,7 @@ FifoSession::~FifoSession() {
 void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     return;
-  _status.wait(STATUS::MAX_TOTAL_SESSIONS);
+  _waiting.wait(true);
   while (!_stopped) {
     Server::CountRunningSessions countRunning;
     _uncompressedRequest.clear();
@@ -58,6 +58,7 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
+  Runnable::checkCapacity();
   unsigned totalSessions = _server.registerSession(shared_from_this());
   Info << "total sessions=" << totalSessions
        << " fifo sessions=" << _numberObjects << std::endl;
@@ -66,7 +67,6 @@ void FifoSession::checkCapacity() {
 	 << " exceeds system capacity." << std::endl;
     return;
   }
-  Runnable::checkCapacity();
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of fifo clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
@@ -83,7 +83,7 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
-  _server.deregisterSession(weak_from_this());
+  _server.deregisterSession();
   STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
   if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
     _status = STATUS::NONE;
@@ -94,9 +94,9 @@ void FifoSession::stop() {
 }
 
 bool FifoSession::notify() {
-  STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
-  if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
-    _status.notify_one();
+  if (_numberObjects <= _options._maxFifoSessions + 1) {
+    _waiting = false;
+    _waiting.notify_one();
     return true;
   }
   return false;

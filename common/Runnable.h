@@ -32,6 +32,7 @@ class Runnable {
   virtual bool notify() { return false; }
   std::atomic<STATUS>& getStatus() { return _status; }
 
+  std::atomic<bool> _waiting = false;
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
