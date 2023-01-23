@@ -19,19 +19,17 @@ public:
   bool start();
   void stop();
   unsigned registerSession(RunnableWeakPtr weakPtr);
-  void deregisterSession();
-  struct CountRunningSessions {
-    CountRunningSessions() { _runningSessions++; }
-    ~CountRunningSessions() { _runningSessions--; }
-  };
+  void deregisterSession(RunnableWeakPtr weakP);
+  void incrementNumberSessions() { _totalSessions++; }
+  void decrementNumberSessions() { _totalSessions--; }
 private:
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
-  std::atomic<unsigned> _totalSessions;
+  std::atomic<unsigned> _totalSessions = 0;
   using WaitingMap = std::map<unsigned, RunnableWeakPtr>;
   WaitingMap _waitingSessions;
   std::atomic<unsigned> _mapIndex = 0;
   std::mutex _mutex;
-  static std::atomic<unsigned> _runningSessions;
+  void removeFromMap(RunnablePtr runnable);
 };

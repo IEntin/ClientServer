@@ -32,13 +32,14 @@ private:
   bool start() override;
   void stop() override;
   void checkCapacity() override;
-  bool notify() override;
+  bool notify(std::string_view stopping) override;
   void readHeader();
   void readRequest();
   void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = nullptr);
   void asyncWait();
   bool onReceiveRequest();
   bool sendReply(const Response& response);
+  bool sendStatusToClient();
   const ServerOptions& _options;
   Server& _server;
   const std::string _clientId;

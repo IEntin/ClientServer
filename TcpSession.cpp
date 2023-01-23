@@ -28,6 +28,7 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
+  server.incrementNumberSessions();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -38,11 +39,16 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
+  _server.decrementNumberSessions();
   Trace << std::endl;
 }
 
 bool TcpSession::start() {
   checkCapacity();
+  return sendStatusToClient();
+}
+
+bool TcpSession::sendStatusToClient() {
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
   return sendMsg(_socket, header, _clientId).first;
@@ -50,7 +56,7 @@ bool TcpSession::start() {
 
 void TcpSession::run() noexcept {
   _waiting.wait(true);
-  Server::CountRunningSessions countRunning;
+  CountRunning countRunning;
   try {
     _ioContext.run();
   }
@@ -61,20 +67,23 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::stop() {
-  _server.deregisterSession();
-  STATUS expected = STATUS::MAX_TOTAL_SESSIONS;
-  if (_status.compare_exchange_strong(expected, STATUS::NONE)) {
-    _status = STATUS::NONE;
-    _status.notify_one();
-  }
+  _server.deregisterSession(weak_from_this());
+  bool expected = true;
+  if (_waiting.compare_exchange_strong(expected, false))
+    _waiting.notify_one();
   _ioContext.stop();
 }
 
-bool TcpSession::notify() {
-  if (_numberObjects <= _options._maxTcpSessions + 1) {
-    _waiting = false;
-    _waiting.notify_one();
-    return true;
+bool TcpSession::notify(std::string_view stopping) {
+  unsigned numberRunning = CountRunning::_numberRunning;
+  Trace << "numberRunning=" << numberRunning
+	<< " totalRunning=" << _totalRunning << std::endl;
+  if (stopping == _type || numberRunning < _options._maxTcpSessions) {
+    bool expected = true;
+    if (_waiting.compare_exchange_strong(expected, false)) {
+      _waiting.notify_one();
+      return true;
+    }
   }
   return false;
 }

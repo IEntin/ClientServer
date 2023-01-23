@@ -11,8 +11,6 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 
-std::atomic<unsigned> Server::_runningSessions = 0;
-
 Server::Server(const ServerOptions& options) :
   _options(options) {
   StrategySelector strategySelector(options);
@@ -44,9 +42,8 @@ unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   RunnablePtr session = weakPtr.lock();
   if (!session)
     return 0;
-  _totalSessions++;
   std::atomic<STATUS>& status = session->getStatus();
-  status = _runningSessions >= _options._maxTotalSessions ?
+  status = _totalSessions > _options._maxTotalSessions ?
     STATUS::MAX_TOTAL_SESSIONS : status.load();
   if (status != STATUS::NONE) {
     session->_waiting = true;
@@ -59,23 +56,39 @@ unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   return _totalSessions;
 }
 
-void Server::deregisterSession() {
+void Server::deregisterSession(RunnableWeakPtr weakPt) {
   std::lock_guard lock(_mutex);
-  _totalSessions--;
-  if (_runningSessions <= _options._maxTotalSessions) {
-    for (auto it = _waitingSessions.begin(); it != _waitingSessions.end();) {
-      auto savedWeakPtr = it->second;
-      auto savedSession = savedWeakPtr.lock();
-      if (savedSession) {
-	if (savedSession->notify()) {
-	  it = _waitingSessions.erase(it);
-	  return;
-	}
-	else
-	  ++it;
+  auto caller = weakPt.lock();
+  if (!caller)
+    return;
+  if (caller->_waiting) {
+    removeFromMap(caller);
+    caller->_waiting = false;
+    caller->_waiting.notify_one();
+    return;
+  }
+  std::string_view stopping = caller->getType();
+  for (auto it = _waitingSessions.begin(); it != _waitingSessions.end();) {
+    auto savedWeakPtr = it->second;
+    auto savedSession = savedWeakPtr.lock();
+    if (savedSession) {
+      if (savedSession->notify(stopping)) {
+	it = _waitingSessions.erase(it);
+	return;
       }
       else
-	it = _waitingSessions.erase(it);
+	++it;
+    }
+    else
+      it = _waitingSessions.erase(it);
+  }
+}
+
+void Server::removeFromMap(RunnablePtr session) {
+  for (auto it = _waitingSessions.begin(); it != _waitingSessions.end(); ++it) {
+    if (auto savedSession = it->second.lock(); savedSession && savedSession == session) {
+      _waitingSessions.erase(it);
+      break;
     }
   }
 }

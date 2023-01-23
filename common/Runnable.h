@@ -29,13 +29,14 @@ class Runnable {
       _status = STATUS::MAX_SPECIFIC_SESSIONS;
   }
   virtual std::string_view getType() const = 0;
-  virtual bool notify() { return false; }
+  virtual bool notify([[maybe_unused]] std::string_view stopping) { return false; }
   std::atomic<STATUS>& getStatus() { return _status; }
 
   std::atomic<bool> _waiting = false;
   const unsigned _maxNumberThreads;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
+  static inline std::atomic<unsigned> _totalRunning = 0;
 };
 
 // The Curiously Recurring Template Pattern (CRTP)
@@ -48,7 +49,12 @@ class RunnableT : public Runnable {
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
-  static inline std::atomic<unsigned> _numberObjects;
+  struct CountRunning {
+    CountRunning() { _numberRunning++; _totalRunning++; }
+    ~CountRunning() { _numberRunning--; _totalRunning--; }
+    static inline std::atomic<unsigned> _numberRunning = 0;
+  };
+  static inline std::atomic<unsigned> _numberObjects = 0;
   static inline const std::string _type = typeid(T).name();
  public:
   unsigned getNumberObjects() const override {
