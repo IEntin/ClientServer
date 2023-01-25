@@ -19,7 +19,7 @@ public:
   bool start();
   void stop();
   unsigned registerSession(RunnableWeakPtr weakPtr);
-  void deregisterSession(RunnableWeakPtr weakP);
+  void deregisterSession(RunnableWeakPtr weakPtr);
   void incrementNumberSessions() { _totalSessions++; }
   void decrementNumberSessions() { _totalSessions--; }
 private:

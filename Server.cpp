@@ -56,9 +56,9 @@ unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   return _totalSessions;
 }
 
-void Server::deregisterSession(RunnableWeakPtr weakPt) {
+void Server::deregisterSession(RunnableWeakPtr weakPtr) {
   std::lock_guard lock(_mutex);
-  auto caller = weakPt.lock();
+  auto caller = weakPtr.lock();
   if (!caller)
     return;
   if (caller->_waiting) {
