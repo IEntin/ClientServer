@@ -20,8 +20,6 @@ public:
   void stop();
   unsigned registerSession(RunnableWeakPtr weakPtr);
   void deregisterSession(RunnableWeakPtr weakPtr);
-  void incrementNumberSessions() { _totalSessions++; }
-  void decrementNumberSessions() { _totalSessions--; }
 private:
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;

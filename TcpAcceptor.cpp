@@ -153,7 +153,7 @@ void TcpAcceptor::destroySession(const std::string& clientId) {
     return;
   auto session = it->second.lock();
   if (session) {
-    session->stop();
+    _server.deregisterSession(session);
     _threadPoolSession.removeFromQueue(session);
   }
   _sessions.erase(it);

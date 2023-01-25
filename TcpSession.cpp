@@ -28,7 +28,6 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  server.incrementNumberSessions();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -39,7 +38,6 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
-  _server.decrementNumberSessions();
   Trace << std::endl;
 }
 
@@ -67,7 +65,6 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::stop() {
-  _server.deregisterSession(weak_from_this());
   bool expected = true;
   if (_waiting.compare_exchange_strong(expected, false))
     _waiting.notify_one();
@@ -75,10 +72,9 @@ void TcpSession::stop() {
 }
 
 bool TcpSession::notify(std::string_view stopping) {
-  unsigned numberRunning = CountRunning::_numberRunning;
-  Trace << "numberRunning=" << numberRunning
+  Trace << "numberRunning=" << CountRunning::_numberRunning
 	<< " totalRunning=" << _totalRunning << std::endl;
-  if (stopping == _type || numberRunning < _options._maxTcpSessions) {
+  if (stopping == _type || CountRunning::_numberRunning < _options._maxTcpSessions) {
     bool expected = true;
     if (_waiting.compare_exchange_strong(expected, false)) {
       _waiting.notify_one();

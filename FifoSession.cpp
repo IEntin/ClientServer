@@ -25,7 +25,6 @@ FifoSession::FifoSession(const ServerOptions& options,
   _options(options),
   _server(server),
   _clientId(clientId) {
-  server.incrementNumberSessions();
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
@@ -33,7 +32,6 @@ FifoSession::FifoSession(const ServerOptions& options,
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
-  _server.decrementNumberSessions();
 }
 
 void FifoSession::run() {
@@ -85,7 +83,6 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
-  _server.deregisterSession(weak_from_this());
   bool expected = true;
   if (_waiting.compare_exchange_strong(expected, false))
     _waiting.notify_one();
@@ -93,11 +90,10 @@ void FifoSession::stop() {
   Fifo::onExit(_fifoName, _options);
 }
 
-bool FifoSession::notify(std::string_view stopping) {
-  unsigned numberRunning = CountRunning::_numberRunning;
-  Trace << "numberRunning=" << numberRunning
+bool FifoSession::notify(std::string_view type) {
+  Trace << "numberFifoRunning=" << CountRunning::_numberRunning
 	<< " totalRunning=" << _totalRunning << std::endl;
-  if (stopping == _type || numberRunning < _options._maxFifoSessions) {
+  if (type == _type || CountRunning::_numberRunning < _options._maxFifoSessions) {
     bool expected = true;
     if (_waiting.compare_exchange_strong(expected, false)) {
       _waiting.notify_one();

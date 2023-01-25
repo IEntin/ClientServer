@@ -90,7 +90,7 @@ void FifoAcceptor::destroySession(const std::string& key) {
     auto weakPtr = it->second;
     auto session = weakPtr.lock();
     if (session) {
-      session->stop();
+      _server.deregisterSession(session);
       _threadPoolSession.removeFromQueue(session);
       _sessions.erase(it);
     }

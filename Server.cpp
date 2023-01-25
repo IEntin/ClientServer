@@ -39,6 +39,7 @@ void Server::stop() {
 
 unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   std::lock_guard lock(_mutex);
+  _totalSessions++;
   RunnablePtr session = weakPtr.lock();
   if (!session)
     return 0;
@@ -58,23 +59,30 @@ unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
 
 void Server::deregisterSession(RunnableWeakPtr weakPtr) {
   std::lock_guard lock(_mutex);
-  auto caller = weakPtr.lock();
-  if (!caller)
-    return;
-  if (caller->_waiting) {
-    removeFromMap(caller);
-    caller->_waiting = false;
-    caller->_waiting.notify_one();
-    return;
+  struct StopSession {
+    StopSession(RunnableWeakPtr weakPtr) : _weakPtr(weakPtr) {}
+    ~StopSession() {
+      if (auto session = _weakPtr.lock(); session)
+	session->stop();
+    }
+    RunnableWeakPtr _weakPtr;
+  } stopSession(weakPtr);
+  _totalSessions--;
+  std::string_view type;
+  if (auto session = weakPtr.lock(); session) {
+    type = session->getType();
+    if (session->_waiting) {
+      removeFromMap(session);
+      session->_waiting = false;
+      session->_waiting.notify_one();
+      return;
+    }
   }
-  std::string_view stopping = caller->getType();
   for (auto it = _waitingSessions.begin(); it != _waitingSessions.end();) {
-    auto savedWeakPtr = it->second;
-    auto savedSession = savedWeakPtr.lock();
-    if (savedSession) {
-      if (savedSession->notify(stopping)) {
+    if (auto waiting = it->second.lock(); waiting) {
+      if (waiting->notify(type)) {
 	it = _waitingSessions.erase(it);
-	return;
+	break;
       }
       else
 	++it;
@@ -86,7 +94,7 @@ void Server::deregisterSession(RunnableWeakPtr weakPtr) {
 
 void Server::removeFromMap(RunnablePtr session) {
   for (auto it = _waitingSessions.begin(); it != _waitingSessions.end(); ++it) {
-    if (auto savedSession = it->second.lock(); savedSession && savedSession == session) {
+    if (auto waiting = it->second.lock(); waiting && waiting == session) {
       _waitingSessions.erase(it);
       break;
     }
