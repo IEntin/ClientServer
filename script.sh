@@ -13,6 +13,7 @@ trap "exit" SIGHUP SIGINT SIGTERM
 
 for number in {1..500}
 do
-./client
+    ./client
+    sleep 0.01
 echo repeated $number times
 done

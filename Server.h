@@ -18,6 +18,8 @@ public:
   ~Server() = default;
   bool start();
   void stop();
+  void incrementTotalSessions() { _totalSessions++; }
+  void decrementTotalSessions() { if (_totalSessions > 0) _totalSessions--; }
   unsigned registerSession(RunnableWeakPtr weakPtr);
   void deregisterSession(RunnableWeakPtr weakPtr);
 private:

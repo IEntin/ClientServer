@@ -25,11 +25,13 @@ FifoSession::FifoSession(const ServerOptions& options,
   _options(options),
   _server(server),
   _clientId(clientId) {
+  server.incrementTotalSessions();
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
+  _server.decrementTotalSessions();
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
 }

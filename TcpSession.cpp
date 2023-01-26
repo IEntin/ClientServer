@@ -28,6 +28,7 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
+  server.incrementTotalSessions();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -38,6 +39,7 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
+  _server.decrementTotalSessions();
   Trace << std::endl;
 }
 

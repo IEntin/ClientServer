@@ -39,7 +39,6 @@ void Server::stop() {
 
 unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
   std::lock_guard lock(_mutex);
-  _totalSessions++;
   RunnablePtr session = weakPtr.lock();
   if (!session)
     return 0;
@@ -67,7 +66,6 @@ void Server::deregisterSession(RunnableWeakPtr weakPtr) {
     }
     RunnableWeakPtr _weakPtr;
   } stopSession(weakPtr);
-  _totalSessions--;
   std::string_view type;
   if (auto session = weakPtr.lock(); session) {
     type = session->getType();
