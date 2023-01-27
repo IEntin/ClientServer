@@ -71,8 +71,6 @@ void Server::deregisterSession(RunnableWeakPtr weakPtr) {
     type = session->getType();
     if (session->_waiting) {
       removeFromMap(session);
-      session->_waiting = false;
-      session->_waiting.notify_one();
       return;
     }
   }
