@@ -37,10 +37,10 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-void Server::registerSession(RunnableWeakPtr weakPtr) {
+void Server::registerSession(RunnablePtr session, ThreadPool& threadPool) {
   std::lock_guard lock(_mutex);
-  RunnablePtr session = weakPtr.lock();
-  if (!session)
+  _totalSessions++;
+  if (!session->start())
     return;
   std::atomic<STATUS>& status = session->getStatus();
   if (status != STATUS::NONE) {
@@ -50,6 +50,7 @@ void Server::registerSession(RunnableWeakPtr weakPtr) {
       LogError << "_waitingSessions.emplace failed." << std::endl;
     }
   }
+  threadPool.push(session);
 }
 
 void Server::deregisterSession(RunnableWeakPtr weakPtr) {

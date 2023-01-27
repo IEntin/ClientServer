@@ -62,8 +62,8 @@ void FifoAcceptor::run() {
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       {
-	RunnablePtr session = createSession();
-	_server.registerSession(session);
+	auto session = createSession();
+	_server.registerSession(session, _threadPoolSession);
       }
       break;
     case HEADERTYPE::DESTROY_SESSION:
@@ -78,25 +78,20 @@ void FifoAcceptor::run() {
 RunnablePtr FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   RunnablePtr session =
-    std::make_shared<FifoSession>(_options, clientId, _server);
+    std::make_shared<FifoSession>(_options, clientId);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");
-  if (!session->start())
-    return session;
-  _threadPoolSession.push(session);
   return session;
 }
 
 void FifoAcceptor::destroySession(const std::string& key) {
-  auto it = _sessions.find(key);
-  if (it != _sessions.end()) {
-    auto weakPtr = it->second;
-    auto session = weakPtr.lock();
-    if (session) {
-      _server.deregisterSession(session);
+  if (Server::totalSessions() > 0)
+    Server::totalSessions()--;
+  if (auto it = _sessions.find(key); it != _sessions.end()) {
+    _server.deregisterSession(it->second);
+    if (auto session = it->second.lock(); session)
       _threadPoolSession.removeFromQueue(session);
-      _sessions.erase(it);
-    }
+    _sessions.erase(it);
   }
 }
 

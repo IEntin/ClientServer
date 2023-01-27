@@ -17,18 +17,15 @@ namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
 		       ConnectionDetailsPtr details,
-		       std::string_view clientId,
-		       Server& server) :
+		       std::string_view clientId) :
   RunnableT(options._maxTcpSessions),
   _options(options),
-  _server(server),
   _clientId(clientId),
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  server.incrementTotalSessions();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -39,7 +36,6 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
-  _server.decrementTotalSessions();
   Trace << std::endl;
 }
 

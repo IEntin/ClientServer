@@ -50,9 +50,9 @@ bool Client::run() {
   struct DestroySession {
     DestroySession(Client* client) : _client(client) {}
     ~DestroySession() {
+      _client->destroySession();
       if (_client->_heartbeat)
 	_client->_heartbeat->stop();
-      _client->destroySession();
     }
     Client* _client = nullptr;
   } destroy(this);

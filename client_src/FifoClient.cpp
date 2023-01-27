@@ -104,16 +104,17 @@ bool FifoClient::readReply(const HEADER& header) {
 }
 
 bool FifoClient::wakeupAcceptor() {
-  utility::CloseFileDescriptor cfdw(_fdWrite);
-  _fdWrite = open(_options._acceptorName.data(), O_WRONLY);
-  if (_fdWrite == -1) {
-    LogError << std::strerror(errno)
-	  << ' ' << _options._acceptorName << std::endl;
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
+  fd = open(_options._acceptorName.data(), O_WRONLY);
+  if (fd == -1) {
+    LogError << std::strerror(errno) << ' '
+	     << _options._acceptorName << std::endl;
     return false;
   }
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
-  return Fifo::writeString(_fdWrite, std::string_view(buffer, HEADER_SIZE)); 
+  return Fifo::writeString(fd, std::string_view(buffer, HEADER_SIZE)); 
 }
 
 bool FifoClient::receiveStatus() {
@@ -156,26 +157,25 @@ bool FifoClient::receiveStatus() {
 }
 
 bool FifoClient::destroySession() {
-  utility::CloseFileDescriptor cfdw(_fdWrite);
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
   int rep = 0;
-  while (_fdWrite == -1) {
-    do {
-      _fdWrite = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-      if (_fdWrite == -1) {
-	switch (errno) {
-	case ENXIO:
-	case EINTR:
-	  std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-	  break;
-	default:
-	  LogError << std::strerror(errno) << std::endl;
-	  return false;
-	  break;
-	}
+  do {
+    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    if (fd == -1) {
+      switch (errno) {
+      case ENXIO:
+      case EINTR:
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+	break;
+      default:
+	LogError << std::strerror(errno) << std::endl;
+	return false;
+	break;
       }
-    } while (_fdWrite == -1 && rep++ < _options._numberRepeatENXIO);
-  }
-  if (_fdWrite == -1) {
+    }
+  } while (fd == -1 && rep++ < _options._numberRepeatENXIO);
+  if (fd == -1) {
     LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
@@ -183,7 +183,7 @@ bool FifoClient::destroySession() {
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
   std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
-  return Fifo::writeString(_fdWrite, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
+  return Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
 }
 
 } // end of namespace fifo

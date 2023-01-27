@@ -12,17 +12,17 @@ using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 struct ServerOptions;
 
+class ThreadPool;
+
 class Server {
 public:
   Server(const ServerOptions& options);
   ~Server() = default;
   bool start();
   void stop();
-  void incrementTotalSessions() { _totalSessions++; }
-  void decrementTotalSessions() { if (_totalSessions > 0) _totalSessions--; }
-  void registerSession(RunnableWeakPtr weakPtr);
+  void registerSession(RunnablePtr weakPtr, ThreadPool& threadPool);
   void deregisterSession(RunnableWeakPtr weakPtr);
-  static unsigned totalSessions() { return _totalSessions; }
+  static std::atomic<unsigned>& totalSessions() { return _totalSessions; }
 private:
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;

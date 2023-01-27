@@ -18,21 +18,16 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options,
-			 std::string_view clientId,
-			 Server& server) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId) :
   RunnableT(options._maxFifoSessions),
   _options(options),
-  _server(server),
   _clientId(clientId) {
-  server.incrementTotalSessions();
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
-  _server.decrementTotalSessions();
-  std::filesystem::remove(_fifoName);
+ std::filesystem::remove(_fifoName);
   Trace << std::endl;
 }
 
