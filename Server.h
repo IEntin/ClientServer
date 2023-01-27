@@ -20,16 +20,17 @@ public:
   void stop();
   void incrementTotalSessions() { _totalSessions++; }
   void decrementTotalSessions() { if (_totalSessions > 0) _totalSessions--; }
-  unsigned registerSession(RunnableWeakPtr weakPtr);
+  void registerSession(RunnableWeakPtr weakPtr);
   void deregisterSession(RunnableWeakPtr weakPtr);
+  static unsigned totalSessions() { return _totalSessions; }
 private:
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
-  std::atomic<unsigned> _totalSessions = 0;
   using WaitingMap = std::map<unsigned, RunnableWeakPtr>;
   WaitingMap _waitingSessions;
   std::atomic<unsigned> _mapIndex = 0;
   std::mutex _mutex;
   void removeFromMap(RunnablePtr runnable);
+  static inline std::atomic<unsigned> _totalSessions = 0;
 };

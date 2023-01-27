@@ -43,7 +43,7 @@ private:
 
   Request receiveRequest(boost::asio::ip::tcp::socket& socket);
 
-  bool createSession(ConnectionDetailsPtr details);
+  RunnablePtr createSession(ConnectionDetailsPtr details);
 
   void destroySession(const std::string& clientId);
 

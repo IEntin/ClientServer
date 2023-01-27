@@ -61,7 +61,10 @@ void FifoAcceptor::run() {
       break;
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      createSession();
+      {
+	RunnablePtr session = createSession();
+	_server.registerSession(session);
+      }
       break;
     case HEADERTYPE::DESTROY_SESSION:
       destroySession(key);
@@ -72,16 +75,16 @@ void FifoAcceptor::run() {
   }
 }
 
-bool FifoAcceptor::createSession() {
+RunnablePtr FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   RunnablePtr session =
     std::make_shared<FifoSession>(_options, clientId, _server);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");
   if (!session->start())
-    return false;
+    return session;
   _threadPoolSession.push(session);
-  return true;
+  return session;
 }
 
 void FifoAcceptor::destroySession(const std::string& key) {

@@ -79,7 +79,7 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
   return { type, clientId, true };
 }
 
-bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
+RunnablePtr TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
@@ -88,11 +88,11 @@ bool TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
     LogError << "duplicate clientId" << std::endl;
-    return false;
+    return session;
   }
   session->start();
   _threadPoolSession.push(session);
-  return true;
+  return session;
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -130,8 +130,10 @@ void TcpAcceptor::accept() {
 	  return;
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  if (!createSession(details))
-	    return;
+	  {
+	    RunnablePtr session = createSession(details);
+	    _server.registerSession(session);
+	  }
 	  break;
 	case HEADERTYPE::DESTROY_SESSION:
 	  destroySession(clientId);

@@ -37,23 +37,19 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-unsigned Server::registerSession(RunnableWeakPtr weakPtr) {
+void Server::registerSession(RunnableWeakPtr weakPtr) {
   std::lock_guard lock(_mutex);
   RunnablePtr session = weakPtr.lock();
   if (!session)
-    return 0;
+    return;
   std::atomic<STATUS>& status = session->getStatus();
-  status = _totalSessions > _options._maxTotalSessions ?
-    STATUS::MAX_TOTAL_SESSIONS : status.load();
   if (status != STATUS::NONE) {
     session->_waiting = true;
     auto [it, success] = _waitingSessions.emplace(_mapIndex++, session);
     if (!success) {
       LogError << "_waitingSessions.emplace failed." << std::endl;
-      return 0;
     }
   }
-  return _totalSessions;
 }
 
 void Server::deregisterSession(RunnableWeakPtr weakPtr) {

@@ -88,11 +88,12 @@ bool TcpSession::notify(std::string_view stopping) {
 
 void TcpSession::checkCapacity() {
   Runnable::checkCapacity();
-  unsigned totalSessions = _server.registerSession(shared_from_this());
-  Info << "total sessions=" << totalSessions
+  _status = Server::totalSessions() > _options._maxTotalSessions ?
+    STATUS::MAX_TOTAL_SESSIONS : _status.load();
+  Info << "total sessions=" << Server::totalSessions()
        << " tcp sessions=" << _numberObjects << std::endl;
   if (_status == STATUS::MAX_TOTAL_SESSIONS) {
-    Warn << "\nTotal clients=" << totalSessions
+    Warn << "\nTotal clients=" << Server::totalSessions()
 	 << " exceeds system capacity." << std::endl;
     return;
   }
