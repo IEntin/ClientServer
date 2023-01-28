@@ -83,19 +83,19 @@ bool TcpSession::notify(std::string_view stopping) {
 }
 
 void TcpSession::checkCapacity() {
-  Runnable::checkCapacity();
-  _status = Server::totalSessions() > _options._maxTotalSessions ?
-    STATUS::MAX_TOTAL_SESSIONS : _status.load();
   Info << "total sessions=" << Server::totalSessions()
        << " tcp sessions=" << _numberObjects << std::endl;
-  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
-    Warn << "\nTotal clients=" << Server::totalSessions()
-	 << " exceeds system capacity." << std::endl;
-    return;
-  }
+  Runnable::checkCapacity();
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of tcp clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
+    return;
+  }
+  _status = _totalRunning >= _options._maxTotalSessions ?
+    STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
+  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+    Warn << "\nTotal clients=" << Server::totalSessions()
+	 << " exceeds system capacity." << std::endl;
   }
 }
 

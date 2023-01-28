@@ -22,6 +22,6 @@ class Metrics {
   static std::string _procFdPath;
   static std::string _procThreadPath;
   static size_t _maxRss;
-  static unsigned _numberThreads;
-  static unsigned _numberOpenFDs;
+  static int _numberThreads;
+  static int _numberOpenFDs;
 };

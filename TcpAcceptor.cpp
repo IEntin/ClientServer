@@ -49,9 +49,10 @@ void TcpAcceptor::stop() {
     auto self = shared_from_this();
     _stopped = true;
     _ioContext.stop();
-    for (auto pr : _sessions) {
-      if (auto session = pr.second.lock(); session)
+    for (auto it = _sessions.begin(); it != _sessions.end();) {
+      if (auto session = it->second.lock(); session)
 	session->stop();
+      it = _sessions.erase(it);
     }
   });
   _threadPoolAcceptor.stop();
@@ -148,8 +149,7 @@ void TcpAcceptor::accept() {
 }
 
 void TcpAcceptor::destroySession(const std::string& clientId) {
-  if (Server::totalSessions() > 0)
-    Server::totalSessions()--;
+  Server::totalSessions()--;
   if (auto it = _sessions.find(clientId); it != _sessions.end()) {
     _server.deregisterSession(it->second);
     if (auto session = it->second.lock(); session)

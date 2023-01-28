@@ -34,7 +34,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   const ClientOptions& _options;
   std::ifstream _input;
   std::vector<Subtask> _subtasks;
-  std::atomic<unsigned> _subtaskConsumeIndex = 0;
+  std::atomic<int> _subtaskConsumeIndex = 0;
   std::atomic<unsigned> _subtaskProduceIndex = 0;
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;

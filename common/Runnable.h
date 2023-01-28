@@ -16,14 +16,14 @@ using RunnableWeakPtr = std::weak_ptr<class Runnable>;
 
 class Runnable {
  public:
-  explicit Runnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
+  explicit Runnable(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberThreads(maxNumberThreads) {}
   virtual ~Runnable() {}
   virtual void run() = 0;
   virtual bool start() = 0;
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
-  virtual unsigned getNumberObjects() const = 0;
+  virtual int getNumberObjects() const = 0;
   virtual void checkCapacity() {
     if (getNumberObjects() > _maxNumberThreads)
       _status = STATUS::MAX_SPECIFIC_SESSIONS;
@@ -33,10 +33,10 @@ class Runnable {
   std::atomic<STATUS>& getStatus() { return _status; }
 
   std::atomic<bool> _waiting = false;
-  const unsigned _maxNumberThreads;
+  const int _maxNumberThreads;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
-  static inline std::atomic<unsigned> _totalRunning = 0;
+  static inline std::atomic<int> _totalRunning = 0;
 };
 
 // The Curiously Recurring Template Pattern (CRTP)
@@ -45,19 +45,19 @@ class Runnable {
 template <class T>
 class RunnableT : public Runnable {
  protected:
-  explicit RunnableT(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
+  explicit RunnableT(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
   struct CountRunning {
     CountRunning() { _numberRunning++; _totalRunning++; }
     ~CountRunning() { _numberRunning--; _totalRunning--; }
-    static inline std::atomic<unsigned> _numberRunning = 0;
+    static inline std::atomic<int> _numberRunning = 0;
   };
-  static inline std::atomic<unsigned> _numberObjects = 0;
+  static inline std::atomic<int> _numberObjects = 0;
   static inline const std::string _type = typeid(T).name();
  public:
-  unsigned getNumberObjects() const override {
+  int getNumberObjects() const override {
     return _numberObjects;
   }
 };

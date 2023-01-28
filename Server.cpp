@@ -30,6 +30,7 @@ bool Server::start() {
 }
 
 void Server::stop() {
+  std::lock_guard lock(_mutex);
   if (_tcpAcceptor)
     _tcpAcceptor->stop();
   if (_fifoAcceptor)

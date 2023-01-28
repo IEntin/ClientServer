@@ -9,7 +9,7 @@
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public RunnableT<TestRunnable> {
 public:
-  TestRunnable(unsigned maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
+  TestRunnable(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
     RunnableT(maxNumberThreads) {}
 
   ~TestRunnable() override {}
@@ -28,9 +28,9 @@ public:
 std::atomic<bool> TestRunnable::_stopFlag;
 
 TEST(ThreadPoolTest, Fixed) {
-  unsigned maxNumberThreads = 10;
+  int maxNumberThreads = 10;
   ThreadPool pool(maxNumberThreads);
-  for (unsigned i = 0; i < 2 * maxNumberThreads; ++i) {
+  for (int i = 0; i < 2 * maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnable->start();
     if (i < maxNumberThreads)
@@ -51,8 +51,8 @@ TEST(ThreadPoolTest, Fixed) {
 
 TEST(ThreadPoolTest, Variable) {
   ThreadPool pool;
-  const unsigned numberObjects = 20;
-  for (unsigned i = 0; i < numberObjects; ++i) {
+  const int numberObjects = 20;
+  for (int i = 0; i < numberObjects; ++i) {
     auto runnable = std::make_shared<TestRunnable>();
     runnable->start();
     ASSERT_TRUE(runnable->_status == STATUS::NONE);

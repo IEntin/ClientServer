@@ -85,8 +85,7 @@ RunnablePtr FifoAcceptor::createSession() {
 }
 
 void FifoAcceptor::destroySession(const std::string& key) {
-  if (Server::totalSessions() > 0)
-    Server::totalSessions()--;
+  Server::totalSessions()--;
   if (auto it = _sessions.find(key); it != _sessions.end()) {
     _server.deregisterSession(it->second);
     if (auto session = it->second.lock(); session)
@@ -110,11 +109,11 @@ void FifoAcceptor::stop() {
   // stop the acceptor
   _stopped = true;
   Fifo::onExit(_options._acceptorName, _options);
-  // stop the children
-  for (auto& [clientId, weakPtr] : _sessions) {
-    RunnablePtr runnable = weakPtr.lock();
-    if (runnable)
-      runnable->stop();
+  // stop the sessions
+  for (auto it = _sessions.begin(); it != _sessions.end();) {
+    if (auto session = it->second.lock(); session)
+      session->stop();
+    it = _sessions.erase(it);
   }
   // have threads join
   _threadPoolAcceptor.stop();

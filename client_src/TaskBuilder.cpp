@@ -19,7 +19,7 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
   // than half of content. The actual number of subtasks
   // is supposed to be smaller than this estimate.
   size_t sourceSize = std::filesystem::file_size(_options._sourceName);
-  unsigned expectedNumberSubtasks = (3 * sourceSize / 2 / _options._bufferSize + 1);
+  int expectedNumberSubtasks = (3 * sourceSize / 2 / _options._bufferSize + 1);
   _subtasks.resize(expectedNumberSubtasks);
 }
 

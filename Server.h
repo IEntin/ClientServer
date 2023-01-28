@@ -22,15 +22,15 @@ public:
   void stop();
   void registerSession(RunnablePtr weakPtr, ThreadPool& threadPool);
   void deregisterSession(RunnableWeakPtr weakPtr);
-  static std::atomic<unsigned>& totalSessions() { return _totalSessions; }
+  static std::atomic<int>& totalSessions() { return _totalSessions; }
 private:
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
-  using WaitingMap = std::map<unsigned, RunnableWeakPtr>;
+  using WaitingMap = std::map<int, RunnableWeakPtr>;
   WaitingMap _waitingSessions;
-  std::atomic<unsigned> _mapIndex = 0;
+  std::atomic<int> _mapIndex = 0;
   std::mutex _mutex;
   void removeFromMap(RunnablePtr runnable);
-  static inline std::atomic<unsigned> _totalSessions = 0;
+  static inline std::atomic<int> _totalSessions = 0;
 };

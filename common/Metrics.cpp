@@ -12,8 +12,8 @@ size_t Metrics::_pid;
 std::string Metrics::_procFdPath;
 std::string Metrics::_procThreadPath;
 size_t Metrics::_maxRss = 0;
-unsigned Metrics::_numberThreads = 0;
-unsigned Metrics::_numberOpenFDs = 0;
+int Metrics::_numberThreads = 0;
+int Metrics::_numberOpenFDs = 0;
 
 void Metrics::save() {
   _pid = getpid();

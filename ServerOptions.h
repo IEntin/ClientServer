@@ -12,9 +12,9 @@ struct ServerOptions : Options {
   std::string _processType;
   std::string _adsFileName;
   int _numberWorkThreads;
-  unsigned _maxTcpSessions;
-  unsigned _maxFifoSessions;
-  unsigned _maxTotalSessions;
+  int _maxTcpSessions;
+  int _maxFifoSessions;
+  int _maxTotalSessions;
   int _tcpTimeout;
   bool _sortInput;
 };
