@@ -10,7 +10,7 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-std::atomic_flag Client::_stopFlag = false;
+std::atomic_flag Client::_stopFlag;
 
 Client::Client(const ClientOptions& options) : _options(options) {}
 
