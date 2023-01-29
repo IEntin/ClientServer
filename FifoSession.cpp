@@ -56,7 +56,7 @@ void FifoSession::run() {
 
 void FifoSession::checkCapacity() {
   Info << "total sessions=" << Server::totalSessions()
-       << " tcp sessions=" << _numberObjects
+       << " fifo sessions=" << _numberObjects
        << " _numberRunning=" << _numberRunning
        << " _totalRunning=" << _totalRunning
        << std::endl;
