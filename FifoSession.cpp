@@ -34,8 +34,8 @@ FifoSession::~FifoSession() {
 void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     return;
-  _waiting.wait(true);
   DecrementRunning decrementRunning;
+  _waiting.wait(true);
   while (!_stopped) {
     _uncompressedRequest.clear();
     HEADER header;

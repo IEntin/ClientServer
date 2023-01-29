@@ -51,8 +51,8 @@ bool TcpSession::sendStatusToClient() {
 }
 
 void TcpSession::run() noexcept {
-  _waiting.wait(true);
   DecrementRunning decrementRunning;
+  _waiting.wait(true);
   try {
     _ioContext.run();
   }
