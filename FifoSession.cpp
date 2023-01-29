@@ -35,8 +35,8 @@ void FifoSession::run() {
   if (!std::filesystem::exists(_fifoName))
     return;
   _waiting.wait(true);
+  DecrementRunning decrementRunning;
   while (!_stopped) {
-    CountRunning countRunning;
     _uncompressedRequest.clear();
     HEADER header;
     if (!receiveRequest(_uncompressedRequest, header))
@@ -56,7 +56,10 @@ void FifoSession::run() {
 
 void FifoSession::checkCapacity() {
   Info << "total sessions=" << Server::totalSessions()
-       << " fifo sessions=" << _numberObjects << std::endl;
+       << " tcp sessions=" << _numberObjects
+       << " _numberRunning=" << _numberRunning
+       << " _totalRunning=" << _totalRunning
+       << std::endl;
   Runnable::checkCapacity();
   if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
     Warn << "\nThe number of fifo clients=" << _numberObjects
@@ -68,7 +71,10 @@ void FifoSession::checkCapacity() {
   if (_status == STATUS::MAX_TOTAL_SESSIONS) {
     Warn << "\nTotal clients=" << Server::totalSessions()
 	 << " exceeds system capacity." << std::endl;
+    return;
   }
+  _numberRunning++;
+  _totalRunning++;
 }
 
 bool FifoSession::start() {
@@ -89,9 +95,9 @@ void FifoSession::stop() {
 }
 
 bool FifoSession::notify(std::string_view type) {
-  Trace << "numberFifoRunning=" << CountRunning::_numberRunning
+  Trace << "numberFifoRunning=" << _numberRunning
 	<< " totalRunning=" << _totalRunning << std::endl;
-  if (type == _type || CountRunning::_numberRunning < _options._maxFifoSessions) {
+  if (type == _type || _numberRunning < _maxNumberThreads) {
     bool expected = true;
     if (_waiting.compare_exchange_strong(expected, false)) {
       _waiting.notify_one();

@@ -49,12 +49,15 @@ class RunnableT : public Runnable {
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
-  struct CountRunning {
-    CountRunning() { _numberRunning++; _totalRunning++; }
-    ~CountRunning() { _numberRunning--; _totalRunning--; }
-    static inline std::atomic<int> _numberRunning = 0;
+  struct DecrementRunning {
+    DecrementRunning() = default;
+    ~DecrementRunning() {
+      _numberRunning--;
+      _totalRunning--;
+    }
   };
   static inline std::atomic<int> _numberObjects = 0;
+  static inline std::atomic<int> _numberRunning = 0;
   static inline const std::string _type = typeid(T).name();
  public:
   int getNumberObjects() const override {
