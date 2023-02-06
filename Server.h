@@ -5,14 +5,10 @@
 #pragma once
 
 #include "Runnable.h"
-#include <map>
+#include "ThreadPoolSessions.h"
 #include <mutex>
 
-using SessionMap = std::map<std::string, RunnableWeakPtr>;
-
 struct ServerOptions;
-
-class ThreadPool;
 
 class Server {
 public:
@@ -20,17 +16,13 @@ public:
   ~Server() = default;
   bool start();
   void stop();
-  void registerSession(RunnablePtr weakPtr, ThreadPool& threadPool);
-  void deregisterSession(RunnableWeakPtr weakPtr);
+  ThreadPoolSessions& getThreadPool() { return _threadPoolSessions; }
   static std::atomic<int>& totalSessions() { return _totalSessions; }
 private:
   const ServerOptions& _options;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
-  using WaitingMap = std::map<int, RunnableWeakPtr>;
-  WaitingMap _waitingSessions;
-  std::atomic<int> _mapIndex = 0;
   std::mutex _mutex;
-  void removeFromMap(RunnablePtr runnable);
+  ThreadPoolSessions _threadPoolSessions;
   static inline std::atomic<int> _totalSessions = 0;
 };

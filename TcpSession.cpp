@@ -17,15 +17,18 @@ namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
 		       ConnectionDetailsPtr details,
-		       std::string_view clientId) :
+		       std::string_view clientId,
+		       ThreadPoolSessions& threadPool) :
   RunnableT(options._maxTcpSessions),
   _options(options),
   _clientId(clientId),
+  _threadPool(threadPool),
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
+  Server::totalSessions()++;
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -36,12 +39,13 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
+  Server::totalSessions()--;
   Trace << std::endl;
 }
 
 bool TcpSession::start() {
-  checkCapacity();
-  return sendStatusToClient();
+  _threadPool.push(shared_from_this(), &Runnable::sendStatusToClient);
+  return true;
 }
 
 bool TcpSession::sendStatusToClient() {
@@ -51,8 +55,7 @@ bool TcpSession::sendStatusToClient() {
 }
 
 void TcpSession::run() noexcept {
-  DecrementRunning decrementRunning;
-  _waiting.wait(true);
+  CountRunning countRunning;
   try {
     _ioContext.run();
   }
@@ -63,46 +66,25 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::stop() {
-  bool expected = true;
-  if (_waiting.compare_exchange_strong(expected, false))
-    _waiting.notify_one();
   _ioContext.stop();
 }
 
-bool TcpSession::notify(std::string_view stopping) {
-  Trace << "numberRunning=" << _numberRunning
-	<< " totalRunning=" << _totalRunning << std::endl;
-  if (stopping == _type || _numberRunning < _maxNumberThreads) {
-    bool expected = true;
-    if (_waiting.compare_exchange_strong(expected, false)) {
-      _waiting.notify_one();
-      return true;
-    }
-  }
-  return false;
-}
-
 void TcpSession::checkCapacity() {
-  Info << "total sessions=" << Server::totalSessions()
-       << " tcp sessions=" << _numberObjects
-       << " _numberRunning=" << _numberRunning
-       << " _totalRunning=" << _totalRunning
+  Info << "Number tcp clients=" << _numberObjects
+       << ", max number tcp running=" << _maxNumberRunningByType
        << std::endl;
-  Runnable::checkCapacity();
-  if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
+  switch (_status) {
+  case STATUS::MAX_SPECIFIC_SESSIONS:
     Warn << "\nThe number of tcp clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
-    return;
-  }
-  _status = _totalRunning >= _options._maxTotalSessions ?
-    STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
-  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+    break;
+  case STATUS::MAX_TOTAL_SESSIONS:
     Warn << "\nTotal clients=" << Server::totalSessions()
 	 << " exceeds system capacity." << std::endl;
-    return;
+    break;
+  default:
+    break;
   }
-  _numberRunning++;
-  _totalRunning++;
 }
 
 bool TcpSession::onReceiveRequest() {

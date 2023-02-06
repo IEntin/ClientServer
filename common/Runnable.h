@@ -16,27 +16,27 @@ using RunnableWeakPtr = std::weak_ptr<class Runnable>;
 
 class Runnable {
  public:
-  explicit Runnable(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
-    _maxNumberThreads(maxNumberThreads) {}
+  explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
+    _maxNumberRunningByType(maxNumberRunningByType) {}
   virtual ~Runnable() {}
   virtual void run() = 0;
   virtual bool start() = 0;
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
   virtual int getNumberObjects() const = 0;
+  virtual int getNumberRunningByType() const = 0;
   virtual void checkCapacity() {
-    if (getNumberObjects() > _maxNumberThreads)
+    if (getNumberObjects() > _maxNumberRunningByType)
       _status = STATUS::MAX_SPECIFIC_SESSIONS;
   }
   virtual std::string_view getType() const = 0;
-  virtual bool notify([[maybe_unused]] std::string_view stopping) { return false; }
+  virtual bool sendStatusToClient() { return true; }
   std::atomic<STATUS>& getStatus() { return _status; }
 
-  std::atomic<bool> _waiting = false;
-  const int _maxNumberThreads;
+  const int _maxNumberRunningByType;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
-  static inline std::atomic<int> _totalRunning = 0;
+  static inline std::atomic<int> _numberRunningTotal = 0;
 };
 
 // The Curiously Recurring Template Pattern (CRTP)
@@ -49,20 +49,18 @@ class RunnableT : public Runnable {
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
-  struct DecrementRunning {
-    DecrementRunning() = default;
-    ~DecrementRunning() {
-      _numberRunning--;
-      _totalRunning--;
-    }
-  };
   static inline std::atomic<int> _numberObjects = 0;
-  static inline std::atomic<int> _numberRunning = 0;
+  static inline std::atomic<int> _numberRunningByType = 0;
   static inline const std::string _type = typeid(T).name();
  public:
+  struct CountRunning {
+    CountRunning() { _numberRunningByType++; _numberRunningTotal++; }
+    ~CountRunning() { _numberRunningByType--; _numberRunningTotal--; }
+  };
   int getNumberObjects() const override {
     return _numberObjects;
   }
+  int getNumberRunningByType() const override { return _numberRunningByType; }
 };
 
 class KillThread : public RunnableT<KillThread> {

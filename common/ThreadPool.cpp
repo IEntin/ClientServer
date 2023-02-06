@@ -3,12 +3,14 @@
  */
 
 #include "ThreadPool.h"
+#include "Header.h"
 #include "Logger.h"
 #include <cassert>
 
 std::shared_ptr<KillThread> ThreadPool::_killThread = std::make_shared<KillThread>();
 
-ThreadPool::ThreadPool(int maxSize) : _maxSize(maxSize) {}
+ThreadPool::ThreadPool(int maxSize) :
+  _maxSize(maxSize) {}
 
 ThreadPool::~ThreadPool() {
   Trace << std::endl;
@@ -33,31 +35,36 @@ void ThreadPool::stop() {
 
 void  ThreadPool::createThread() {
   _threads.emplace_back([this] () {
-			  while (true) {
-			    // additional scope for fast recycling
-			    // of the finished runnable
-			    {
-			      // this blocks waiting for a new runnable
-			      RunnablePtr runnable = get();
-			      if (!runnable)
-				continue;
-			      // this kills the thread
-			      if (runnable->killThread())
-				break;
-			      runnable->run();
-			    }
-			  }
-			});
+    while (true) {
+      // additional scope for fast recycling
+      // of the finished runnable
+      {
+	// this blocks waiting for a new runnable
+	RunnablePtr runnable = get();
+	if (!runnable)
+	  continue;
+	// this kills the thread
+	if (runnable->killThread())
+	  break;
+	runnable->run();
+      }
+    }
+  });
 }
 
 void ThreadPool::push(RunnablePtr runnable) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);
-  if (runnable->getNumberObjects() > size() && size() < _maxSize) {
+  bool condition1 = runnable->getNumberObjects() > size();
+  bool condition2 = size() < _maxSize;
+  if (condition1 && condition2) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
+  else if (!condition2)
+    runnable->_status = STATUS::MAX_SPECIFIC_SESSIONS;
+  runnable->checkCapacity();
   _queue.push_back(runnable);
   _queueCondition.notify_all();
 }

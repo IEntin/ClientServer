@@ -11,6 +11,8 @@ using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
+class ThreadPoolSessions;
+
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
@@ -19,7 +21,10 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
 public:
-  TcpSession(const ServerOptions& options, ConnectionDetailsPtr details, std::string_view clientId);
+  TcpSession(const ServerOptions& options,
+	     ConnectionDetailsPtr details,
+	     std::string_view clientId,
+	     ThreadPoolSessions& threadPool);
   ~TcpSession() override;
 
 private:
@@ -27,16 +32,16 @@ private:
   bool start() override;
   void stop() override;
   void checkCapacity() override;
-  bool notify(std::string_view stopping) override;
+  bool sendStatusToClient() override;
   void readHeader();
   void readRequest();
   void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = nullptr);
   void asyncWait();
   bool onReceiveRequest();
   bool sendReply(const Response& response);
-  bool sendStatusToClient();
   const ServerOptions& _options;
   const std::string _clientId;
+  ThreadPoolSessions& _threadPool;
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;

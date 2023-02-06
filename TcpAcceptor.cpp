@@ -17,7 +17,7 @@ TcpAcceptor::TcpAcceptor(const ServerOptions& options, Server& server) :
   _server(server),
   _ioContext(1),
   _acceptor(_ioContext),
-  _threadPoolSession(_options._maxTcpSessions) {}
+  _threadPoolSession(_server.getThreadPool()) {}
 
 TcpAcceptor::~TcpAcceptor() {
   Trace << std::endl;
@@ -56,7 +56,6 @@ void TcpAcceptor::stop() {
     }
   });
   _threadPoolAcceptor.stop();
-  _threadPoolSession.stop();
 }
 
 void TcpAcceptor::run() {
@@ -85,7 +84,7 @@ RunnablePtr TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
   RunnablePtr session =
-    std::make_shared<TcpSession>(_options, details, clientId);
+    std::make_shared<TcpSession>(_options, details, clientId, _threadPoolSession);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted) {
     LogError << "duplicate clientId" << std::endl;
@@ -131,7 +130,7 @@ void TcpAcceptor::accept() {
 	case HEADERTYPE::CREATE_SESSION:
 	  {
 	    auto session = createSession(details);
-	    _server.registerSession(session, _threadPoolSession);
+	    session->start();
 	  }
 	  break;
 	case HEADERTYPE::DESTROY_SESSION:
@@ -149,11 +148,11 @@ void TcpAcceptor::accept() {
 }
 
 void TcpAcceptor::destroySession(const std::string& clientId) {
-  Server::totalSessions()--;
   if (auto it = _sessions.find(clientId); it != _sessions.end()) {
-    _server.deregisterSession(it->second);
-    if (auto session = it->second.lock(); session)
+    if (auto session = it->second.lock(); session) {
+      session->stop();
       _threadPoolSession.removeFromQueue(session);
+    }
     _sessions.erase(it);
   }
 }

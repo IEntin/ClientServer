@@ -18,7 +18,7 @@ namespace fifo {
   FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
   _options(options),
   _server(server),
-  _threadPoolSession(_options._maxFifoSessions) {}
+  _threadPoolSession(_server.getThreadPool()) {}
 
 FifoAcceptor::~FifoAcceptor() {
   Trace << std::endl;
@@ -63,7 +63,7 @@ void FifoAcceptor::run() {
     case HEADERTYPE::CREATE_SESSION:
       {
 	auto session = createSession();
-	_server.registerSession(session, _threadPoolSession);
+	session->start();
       }
       break;
     case HEADERTYPE::DESTROY_SESSION:
@@ -78,18 +78,18 @@ void FifoAcceptor::run() {
 RunnablePtr FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   RunnablePtr session =
-    std::make_shared<FifoSession>(_options, clientId);
+    std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   assert(inserted && "duplicate clientId");
   return session;
 }
 
 void FifoAcceptor::destroySession(const std::string& key) {
-  Server::totalSessions()--;
   if (auto it = _sessions.find(key); it != _sessions.end()) {
-    _server.deregisterSession(it->second);
-    if (auto session = it->second.lock(); session)
+    if (auto session = it->second.lock(); session) {
+      session->stop();
       _threadPoolSession.removeFromQueue(session);
+    }
     _sessions.erase(it);
   }
 }
@@ -117,7 +117,6 @@ void FifoAcceptor::stop() {
   }
   // have threads join
   _threadPoolAcceptor.stop();
-  _threadPoolSession.stop();
   removeFifoFiles();
 }
 
@@ -128,4 +127,3 @@ void FifoAcceptor::removeFifoFiles() {
 }
 
 } // end of namespace fifo
-

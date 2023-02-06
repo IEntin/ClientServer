@@ -11,6 +11,8 @@ struct ServerOptions;
 
 class Server;
 
+class ThreadPoolSessions;
+
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 enum class HEADERTYPE : char;
@@ -30,7 +32,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   Server& _server;
   SessionMap _sessions;
   ThreadPool _threadPoolAcceptor;
-  ThreadPool _threadPoolSession;
+  ThreadPoolSessions& _threadPoolSession;
  public:
   FifoAcceptor(const ServerOptions& options, Server& server);
   ~FifoAcceptor() override;

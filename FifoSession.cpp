@@ -18,24 +18,26 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolSessions& threadPool) :
   RunnableT(options._maxFifoSessions),
   _options(options),
-  _clientId(clientId) {
+  _clientId(clientId),
+  _threadPool(threadPool) {
+  Server::totalSessions()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
  std::filesystem::remove(_fifoName);
+  Server::totalSessions()--;
   Trace << std::endl;
 }
 
 void FifoSession::run() {
+  CountRunning countRunning;
   if (!std::filesystem::exists(_fifoName))
     return;
-  DecrementRunning decrementRunning;
-  _waiting.wait(true);
   while (!_stopped) {
     _uncompressedRequest.clear();
     HEADER header;
@@ -55,26 +57,21 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
-  Info << "total sessions=" << Server::totalSessions()
-       << " fifo sessions=" << _numberObjects
-       << " _numberRunning=" << _numberRunning
-       << " _totalRunning=" << _totalRunning
+  Info << "Number fifo clients=" << _numberObjects
+       << ", max number fifo running=" << _maxNumberRunningByType
        << std::endl;
-  Runnable::checkCapacity();
-  if (_status == STATUS::MAX_SPECIFIC_SESSIONS) {
+  switch (_status) {
+  case STATUS::MAX_SPECIFIC_SESSIONS:
     Warn << "\nThe number of fifo clients=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
-    return;
-  }
-  _status = _totalRunning >= _options._maxTotalSessions ?
-    STATUS::MAX_TOTAL_SESSIONS : STATUS::NONE;
-  if (_status == STATUS::MAX_TOTAL_SESSIONS) {
+    break;
+  case STATUS::MAX_TOTAL_SESSIONS:
     Warn << "\nTotal clients=" << Server::totalSessions()
 	 << " exceeds system capacity." << std::endl;
-    return;
+    break;
+  default:
+    break;
   }
-  _numberRunning++;
-  _totalRunning++;
 }
 
 bool FifoSession::start() {
@@ -82,29 +79,14 @@ bool FifoSession::start() {
     LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
     return false;
   }
-  checkCapacity();
-  return sendStatusToClient();
+  _threadPool.push(shared_from_this());
+  sendStatusToClient();
+  return true;
 }
 
 void FifoSession::stop() {
-  bool expected = true;
-  if (_waiting.compare_exchange_strong(expected, false))
-    _waiting.notify_one();
   _stopped = true;
   Fifo::onExit(_fifoName, _options);
-}
-
-bool FifoSession::notify(std::string_view type) {
-  Trace << "numberFifoRunning=" << _numberRunning
-	<< " totalRunning=" << _totalRunning << std::endl;
-  if (type == _type || _numberRunning < _maxNumberThreads) {
-    bool expected = true;
-    if (_waiting.compare_exchange_strong(expected, false)) {
-      _waiting.notify_one();
-      return true;
-    }
-  }
-  return false;
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {

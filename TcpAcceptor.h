@@ -14,6 +14,8 @@ class Server;
 
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
+class ThreadPoolSessions;
+
 namespace tcp {
 
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
@@ -56,7 +58,7 @@ private:
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
   ThreadPool _threadPoolAcceptor;
-  ThreadPool _threadPoolSession;
+  ThreadPoolSessions& _threadPoolSession;
 };
 
 } // end of namespace tcp
