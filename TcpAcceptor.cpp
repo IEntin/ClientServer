@@ -49,11 +49,10 @@ void TcpAcceptor::stop() {
     auto self = shared_from_this();
     _stopped = true;
     _ioContext.stop();
-    for (auto it = _sessions.begin(); it != _sessions.end();) {
-      if (auto session = it->second.lock(); session)
+    for (auto& pr : _sessions)
+      if (auto session = pr.second.lock(); session)
 	session->stop();
-      it = _sessions.erase(it);
-    }
+    _sessions.clear();
   });
   _threadPoolAcceptor.stop();
 }

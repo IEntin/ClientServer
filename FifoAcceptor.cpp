@@ -109,14 +109,13 @@ void FifoAcceptor::stop() {
   // stop the acceptor
   _stopped = true;
   Fifo::onExit(_options._acceptorName, _options);
-  // stop the sessions
-  for (auto it = _sessions.begin(); it != _sessions.end();) {
-    if (auto session = it->second.lock(); session)
-      session->stop();
-    it = _sessions.erase(it);
-  }
-  // have threads join
   _threadPoolAcceptor.stop();
+  // stop the sessions
+  for (auto& pr : _sessions)
+    if (auto session = pr.second.lock(); session)
+      session->stop();
+  _sessions.clear();
+  // have threads join
   removeFifoFiles();
 }
 

@@ -79,8 +79,7 @@ bool FifoSession::start() {
     LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
     return false;
   }
-  _threadPool.push(shared_from_this());
-  sendStatusToClient();
+  _threadPool.push(shared_from_this(), &Runnable::sendStatusToClient);
   return true;
 }
 

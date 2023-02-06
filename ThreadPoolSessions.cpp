@@ -62,7 +62,7 @@ void ThreadPoolSessions::push(RunnablePtr runnable, std::function<bool(RunnableP
   // can run one more of type
   bool condition2 = runnable->getNumberObjects() <= runnable->_maxNumberRunningByType;
   // can run one more of any
-  bool condition3 = runnable->_numberRunningTotal < _maxNumberRunningTotal;
+  bool condition3 = size() < _maxNumberRunningTotal;
   if (condition1 && condition2 && condition3) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
