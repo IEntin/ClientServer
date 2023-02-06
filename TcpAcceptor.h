@@ -4,24 +4,16 @@
 
 #pragma once
 
+#include "Acceptor.h"
 #include "ThreadPool.h"
 #include <boost/asio.hpp>
-#include <map>
-
-struct ServerOptions;
-
-class Server;
-
-using SessionMap = std::map<std::string, RunnableWeakPtr>;
-
-class ThreadPoolSessions;
 
 namespace tcp {
 
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
-  public RunnableT<TcpAcceptor> {
+  public Acceptor {
  public:
   TcpAcceptor(const ServerOptions& options, Server& server);
 
@@ -45,20 +37,14 @@ private:
 
   Request receiveRequest(boost::asio::ip::tcp::socket& socket);
 
-  RunnablePtr createSession(ConnectionDetailsPtr details);
-
-  void destroySession(const std::string& clientId);
+  void createSession(ConnectionDetailsPtr details);
 
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
-  const ServerOptions& _options;
-  Server& _server;
-  SessionMap _sessions;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
   ThreadPool _threadPoolAcceptor;
-  ThreadPoolSessions& _threadPoolSession;
 };
 
 } // end of namespace tcp

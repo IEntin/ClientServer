@@ -4,35 +4,22 @@
 
 #pragma once
 
+#include "Acceptor.h"
 #include "ThreadPool.h"
-#include <map>
-
-struct ServerOptions;
-
-class Server;
-
-class ThreadPoolSessions;
-
-using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 enum class HEADERTYPE : char;
 
 namespace fifo {
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
-  public RunnableT<FifoAcceptor> {
+  public Acceptor {
   void run() override;
   bool start() override;
   void stop() override;
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
-  RunnablePtr createSession();
+  void createSession();
   void removeFifoFiles();
-  void destroySession(const std::string& key);
-  const ServerOptions& _options;
-  Server& _server;
-  SessionMap _sessions;
   ThreadPool _threadPoolAcceptor;
-  ThreadPoolSessions& _threadPoolSession;
  public:
   FifoAcceptor(const ServerOptions& options, Server& server);
   ~FifoAcceptor() override;

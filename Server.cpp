@@ -12,7 +12,7 @@
 
 Server::Server(const ServerOptions& options) :
   _options(options),
-  _threadPoolSessions(_options._maxTotalSessions) {
+  _threadPoolSession(_options._maxTotalSessions) {
   StrategySelector strategySelector(options);
   Strategy& strategy = strategySelector.get();
   strategy.set(options);
@@ -30,11 +30,10 @@ bool Server::start() {
 }
 
 void Server::stop() {
-  std::lock_guard lock(_mutex);
   if (_tcpAcceptor)
     _tcpAcceptor->stop();
   if (_fifoAcceptor)
     _fifoAcceptor->stop();
-  _threadPoolSessions.stop();
+  _threadPoolSession.stop();
   TaskController::destroy();
 }

@@ -13,11 +13,9 @@
 namespace tcp {
 
 TcpAcceptor::TcpAcceptor(const ServerOptions& options, Server& server) :
-  _options(options),
-  _server(server),
+  Acceptor(options, server),
   _ioContext(1),
-  _acceptor(_ioContext),
-  _threadPoolSession(_server.getThreadPool()) {}
+  _acceptor(_ioContext) {}
 
 TcpAcceptor::~TcpAcceptor() {
   Trace << std::endl;
@@ -49,10 +47,7 @@ void TcpAcceptor::stop() {
     auto self = shared_from_this();
     _stopped = true;
     _ioContext.stop();
-    for (auto& pr : _sessions)
-      if (auto session = pr.second.lock(); session)
-	session->stop();
-    _sessions.clear();
+    Acceptor::stop();
   });
   _threadPoolAcceptor.stop();
 }
@@ -78,18 +73,13 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
   return { type, clientId, true };
 }
 
-RunnablePtr TcpAcceptor::createSession(ConnectionDetailsPtr details) {
+void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::ostringstream os;
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
   RunnablePtr session =
     std::make_shared<TcpSession>(_options, details, clientId, _threadPoolSession);
-  auto [it, inserted] = _sessions.emplace(clientId, session);
-  if (!inserted) {
-    LogError << "duplicate clientId" << std::endl;
-    return session;
-  }
-  return session;
+  startSession(clientId, session);
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -127,10 +117,7 @@ void TcpAcceptor::accept() {
 	  return;
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  {
-	    auto session = createSession(details);
-	    session->start();
-	  }
+	  createSession(details);
 	  break;
 	case HEADERTYPE::DESTROY_SESSION:
 	  destroySession(clientId);
@@ -144,16 +131,6 @@ void TcpAcceptor::accept() {
 	accept();
       }
     });
-}
-
-void TcpAcceptor::destroySession(const std::string& clientId) {
-  if (auto it = _sessions.find(clientId); it != _sessions.end()) {
-    if (auto session = it->second.lock(); session) {
-      session->stop();
-      _threadPoolSession.removeFromQueue(session);
-    }
-    _sessions.erase(it);
-  }
 }
 
 } // end of namespace tcp

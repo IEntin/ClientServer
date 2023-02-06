@@ -16,9 +16,7 @@
 namespace fifo {
 
   FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
-  _options(options),
-  _server(server),
-  _threadPoolSession(_server.getThreadPool()) {}
+    Acceptor(options, server) {}
 
 FifoAcceptor::~FifoAcceptor() {
   Trace << std::endl;
@@ -61,10 +59,7 @@ void FifoAcceptor::run() {
       break;
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      {
-	auto session = createSession();
-	session->start();
-      }
+      createSession();
       break;
     case HEADERTYPE::DESTROY_SESSION:
       destroySession(key);
@@ -75,23 +70,11 @@ void FifoAcceptor::run() {
   }
 }
 
-RunnablePtr FifoAcceptor::createSession() {
+void FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   RunnablePtr session =
     std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
-  auto [it, inserted] = _sessions.emplace(clientId, session);
-  assert(inserted && "duplicate clientId");
-  return session;
-}
-
-void FifoAcceptor::destroySession(const std::string& key) {
-  if (auto it = _sessions.find(key); it != _sessions.end()) {
-    if (auto session = it->second.lock(); session) {
-      session->stop();
-      _threadPoolSession.removeFromQueue(session);
-    }
-    _sessions.erase(it);
-  }
+  startSession(clientId, session);
 }
 
 bool FifoAcceptor::start() {
@@ -106,16 +89,10 @@ bool FifoAcceptor::start() {
 }
 
 void FifoAcceptor::stop() {
-  // stop the acceptor
   _stopped = true;
   Fifo::onExit(_options._acceptorName, _options);
   _threadPoolAcceptor.stop();
-  // stop the sessions
-  for (auto& pr : _sessions)
-    if (auto session = pr.second.lock(); session)
-      session->stop();
-  _sessions.clear();
-  // have threads join
+  Acceptor::stop();
   removeFifoFiles();
 }
 
