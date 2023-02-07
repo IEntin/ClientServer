@@ -43,13 +43,12 @@ bool TcpAcceptor::start() {
 }
 
 void TcpAcceptor::stop() {
+  _stopped = true;
   boost::asio::post(_ioContext, [this] () {
     auto self = shared_from_this();
-    _stopped = true;
     _ioContext.stop();
     Acceptor::stop();
   });
-  _threadPoolAcceptor.stop();
 }
 
 void TcpAcceptor::run() {
@@ -123,7 +122,8 @@ void TcpAcceptor::accept() {
 	  destroySession(clientId);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
-	  replyHeartbeat(details->_socket);
+	  if (!_stopped)
+	    replyHeartbeat(details->_socket);
 	  break;
 	default:
 	  break;

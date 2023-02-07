@@ -34,6 +34,7 @@ void Server::stop() {
     _tcpAcceptor->stop();
   if (_fifoAcceptor)
     _fifoAcceptor->stop();
+  _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();
 }

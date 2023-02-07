@@ -18,7 +18,7 @@ namespace tcp {
 TcpSession::TcpSession(const ServerOptions& options,
 		       ConnectionDetailsPtr details,
 		       std::string_view clientId,
-		       ThreadPoolSessions& threadPool) :
+		       ThreadPoolSession& threadPool) :
   RunnableT(options._maxTcpSessions),
   _options(options),
   _clientId(clientId),

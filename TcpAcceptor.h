@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Acceptor.h"
-#include "ThreadPool.h"
 #include <boost/asio.hpp>
 
 namespace tcp {
@@ -44,7 +43,6 @@ private:
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
-  ThreadPool _threadPoolAcceptor;
 };
 
 } // end of namespace tcp

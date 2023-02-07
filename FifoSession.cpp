@@ -18,7 +18,7 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolSessions& threadPool) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolSession& threadPool) :
   RunnableT(options._maxFifoSessions),
   _options(options),
   _clientId(clientId),

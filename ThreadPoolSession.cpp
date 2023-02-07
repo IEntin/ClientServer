@@ -2,22 +2,22 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ThreadPoolSessions.h"
+#include "ThreadPoolSession.h"
 #include "Header.h"
 #include "Logger.h"
 #include "Server.h"
 #include <cassert>
 
-std::shared_ptr<KillThread> ThreadPoolSessions::_killThread = std::make_shared<KillThread>();
+std::shared_ptr<KillThread> ThreadPoolSession::_killThread = std::make_shared<KillThread>();
 
-ThreadPoolSessions::ThreadPoolSessions(int maxNumberRunningTotal) :
+ThreadPoolSession::ThreadPoolSession(int maxNumberRunningTotal) :
   _maxNumberRunningTotal(maxNumberRunningTotal) {}
 
-ThreadPoolSessions::~ThreadPoolSessions() {
+ThreadPoolSession::~ThreadPoolSession() {
   Trace << std::endl;
 }
 
-void ThreadPoolSessions::stop() {
+void ThreadPoolSession::stop() {
   // wake up and join threads
   assert(!_stopFlag.test_and_set() && "repeated call");
   try {
@@ -34,7 +34,7 @@ void ThreadPoolSessions::stop() {
   Trace << "... _threads joined ..." << std::endl;
 }
 
-void ThreadPoolSessions::createThread() {
+void ThreadPoolSession::createThread() {
   _threads.emplace_back([this] () {
     while (true) {
       // additional scope for fast recycling
@@ -53,7 +53,7 @@ void ThreadPoolSessions::createThread() {
   });
 }
 
-void ThreadPoolSessions::push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func) {
+void ThreadPoolSession::push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);
@@ -80,7 +80,7 @@ void ThreadPoolSessions::push(RunnablePtr runnable, std::function<bool(RunnableP
   _queueCondition.notify_one();
 }
 
-RunnablePtr ThreadPoolSessions::get() {
+RunnablePtr ThreadPoolSession::get() {
   std::unique_lock lock(_queueMutex);
   while (true) {
     _queueCondition.wait(lock, [this] { return !_queue.empty(); });
@@ -94,7 +94,7 @@ RunnablePtr ThreadPoolSessions::get() {
   }
 }
 
-void ThreadPoolSessions::removeFromQueue(RunnablePtr toRemove) {
+void ThreadPoolSession::removeFromQueue(RunnablePtr toRemove) {
   std::unique_lock lock(_queueMutex);
   for (auto it = _queue.begin(); it < _queue.end(); ++it) {
     if (*it == toRemove) {

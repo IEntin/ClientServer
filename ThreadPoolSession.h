@@ -11,9 +11,9 @@
 #include <thread>
 #include <vector>
 
-class ThreadPoolSessions {
+class ThreadPoolSession {
   void createThread();
-  ThreadPoolSessions& operator =(const ThreadPoolSessions& other) = delete;
+  ThreadPoolSession& operator =(const ThreadPoolSession& other) = delete;
   std::vector<std::jthread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
@@ -22,9 +22,9 @@ class ThreadPoolSessions {
   std::atomic_flag _stopFlag;
   static std::shared_ptr<class KillThread> _killThread;
   public:
-  ThreadPoolSessions(int maxNumberRunningTotal);
-  ~ThreadPoolSessions();
-  ThreadPoolSessions(const ThreadPoolSessions& other) = delete;
+  ThreadPoolSession(int maxNumberRunningTotal);
+  ~ThreadPoolSession();
+  ThreadPoolSession(const ThreadPoolSession& other) = delete;
   void stop();
   void push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func = nullptr);
   RunnablePtr get();

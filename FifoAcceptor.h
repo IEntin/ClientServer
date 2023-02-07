@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Acceptor.h"
-#include "ThreadPool.h"
 
 enum class HEADERTYPE : char;
 
@@ -19,7 +18,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
   void createSession();
   void removeFifoFiles();
-  ThreadPool _threadPoolAcceptor;
+  void openAcceptorWriteEnd();
  public:
   FifoAcceptor(const ServerOptions& options, Server& server);
   ~FifoAcceptor() override;

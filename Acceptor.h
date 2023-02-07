@@ -13,7 +13,9 @@ using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 class Server;
 
-class ThreadPoolSessions;
+class ThreadPool;
+
+class ThreadPoolSession;
 
 class Acceptor : public RunnableT<Acceptor> {
 public:
@@ -26,6 +28,7 @@ protected:
 
   const ServerOptions& _options;
   Server& _server;
-  ThreadPoolSessions& _threadPoolSession;
+  ThreadPool& _threadPoolAcceptor;
+  ThreadPoolSession& _threadPoolSession;
   SessionMap _sessions;
 };

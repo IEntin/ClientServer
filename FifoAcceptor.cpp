@@ -15,10 +15,11 @@
 
 namespace fifo {
 
-  FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
-    Acceptor(options, server) {}
+FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
+  Acceptor(options, server) {}
 
 FifoAcceptor::~FifoAcceptor() {
+  removeFifoFiles();
   Trace << std::endl;
 }
 
@@ -32,8 +33,10 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     if (fd == -1) {
       LogError << std::strerror(errno) << ' '
 	       << _options._acceptorName << std::endl;
-      return { HEADERTYPE::ERROR, emptyString };
+      //return { HEADERTYPE::ERROR, emptyString };
     }
+    if (_stopped)
+      return { HEADERTYPE::ERROR, emptyString };
     HEADER header = Fifo::readHeader(fd, _options);
     size_t size = extractUncompressedSize(header);
     std::string clientId;
@@ -55,8 +58,10 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
 void FifoAcceptor::run() {
   while (!_stopped) {
     auto [type, key] = unblockAcceptor();
-    if (_stopped)
-      break;
+    if (_stopped) {
+      Acceptor::stop();
+      return;
+    }
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       createSession();
@@ -88,12 +93,34 @@ bool FifoAcceptor::start() {
   return true;
 }
 
+void FifoAcceptor::openAcceptorWriteEnd() {
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
+  int rep = 0;
+  do {
+    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
+    if (fd == -1) {
+      switch (errno) {
+      case ENXIO:
+      case EINTR:
+	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
+	break;
+      default:
+	LogError << std::strerror(errno) << std::endl;
+	return;
+	break;
+      }
+    }
+  } while (fd == -1 && rep++ < _options._numberRepeatENXIO);
+  if (fd == -1) {
+    Debug << std::strerror(errno) << ' '
+	  << _options._acceptorName << std::endl;
+  }
+}
+
 void FifoAcceptor::stop() {
   _stopped = true;
-  Fifo::onExit(_options._acceptorName, _options);
-  _threadPoolAcceptor.stop();
-  Acceptor::stop();
-  removeFifoFiles();
+  openAcceptorWriteEnd();
 }
 
 void FifoAcceptor::removeFifoFiles() {

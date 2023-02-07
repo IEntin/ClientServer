@@ -11,7 +11,7 @@ using Response = std::vector<std::string>;
 
 struct ServerOptions;
 
-class ThreadPoolSessions;
+class ThreadPoolSession;
 
 namespace tcp {
 
@@ -24,7 +24,7 @@ public:
   TcpSession(const ServerOptions& options,
 	     ConnectionDetailsPtr details,
 	     std::string_view clientId,
-	     ThreadPoolSessions& threadPool);
+	     ThreadPoolSession& threadPool);
   ~TcpSession() override;
 
 private:
@@ -41,7 +41,7 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
-  ThreadPoolSessions& _threadPool;
+  ThreadPoolSession& _threadPool;
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;
