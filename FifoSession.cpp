@@ -8,8 +8,8 @@
 #include "MemoryPool.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
-#include "Server.h"
 #include "TaskController.h"
+#include "ThreadPoolSession.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -23,14 +23,14 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   _options(options),
   _clientId(clientId),
   _threadPool(threadPool) {
-  Server::totalSessions()++;
+  _threadPool.numberRelatedObjects()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
  std::filesystem::remove(_fifoName);
-  Server::totalSessions()--;
+  _threadPool.numberRelatedObjects()--;
   Trace << std::endl;
 }
 
@@ -66,7 +66,7 @@ void FifoSession::checkCapacity() {
 	 << " exceeds thread pool capacity." << std::endl;
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
-    Warn << "\nTotal clients=" << Server::totalSessions()
+    Warn << "\nTotal clients=" << _threadPool.numberRelatedObjects()
 	 << " exceeds system capacity." << std::endl;
     break;
   default:

@@ -6,7 +6,7 @@
 #include "Fifo.h"
 #include "FifoSession.h"
 #include "ServerOptions.h"
-#include "Server.h"
+#include "ThreadPoolBase.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -15,8 +15,10 @@
 
 namespace fifo {
 
-FifoAcceptor::FifoAcceptor(const ServerOptions& options, Server& server) :
-  Acceptor(options, server) {}
+FifoAcceptor::FifoAcceptor(const ServerOptions& options,
+			   ThreadPoolBase& threadPoolAcceptor,
+			   ThreadPoolSession& threadPoolSession) :
+  Acceptor(options, threadPoolAcceptor, threadPoolSession) {}
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();

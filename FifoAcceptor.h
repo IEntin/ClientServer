@@ -20,7 +20,9 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   void removeFifoFiles();
   void openAcceptorWriteEnd();
  public:
-  FifoAcceptor(const ServerOptions& options, Server& server);
+  FifoAcceptor(const ServerOptions& options,
+	       ThreadPoolBase& threadPoolAcceptor,
+	       ThreadPoolSession& threadPoolSession);
   ~FifoAcceptor() override;
 };
 

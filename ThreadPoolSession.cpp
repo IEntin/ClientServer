@@ -5,7 +5,6 @@
 #include "ThreadPoolSession.h"
 #include "Header.h"
 #include "Logger.h"
-#include "Server.h"
 
 ThreadPoolSession::ThreadPoolSession(int maxNumberRunningTotal) :
   _maxNumberRunningTotal(maxNumberRunningTotal) {}
@@ -19,7 +18,7 @@ void ThreadPoolSession::push(RunnablePtr runnable, std::function<bool(RunnablePt
     return;
   std::lock_guard lock(_queueMutex);
   // need one more thread
-  bool condition1 = Server::totalSessions() > size();
+  bool condition1 = _numberRelatedObjects > size();
   // can run one more of type
   bool condition2 = runnable->getNumberObjects() <= runnable->_maxNumberRunningByType;
   // can run one more of any

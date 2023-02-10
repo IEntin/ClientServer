@@ -8,9 +8,9 @@
 #include "Logger.h"
 #include "MemoryPool.h"
 #include "ServerOptions.h"
-#include "Server.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
+#include "ThreadPoolSession.h"
 #include "Tcp.h"
 
 namespace tcp {
@@ -28,7 +28,7 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  Server::totalSessions()++;
+  _threadPool.numberRelatedObjects()++;
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -39,7 +39,7 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
-  Server::totalSessions()--;
+  _threadPool.numberRelatedObjects()--;
   Trace << std::endl;
 }
 
@@ -79,7 +79,7 @@ void TcpSession::checkCapacity() {
 	 << " exceeds thread pool capacity." << std::endl;
     break;
   case STATUS::MAX_TOTAL_SESSIONS:
-    Warn << "\nTotal clients=" << Server::totalSessions()
+    Warn << "\nTotal clients=" << _threadPool.numberRelatedObjects()
 	 << " exceeds system capacity." << std::endl;
     break;
   default:

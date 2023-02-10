@@ -6,14 +6,16 @@
 #include "ConnectionDetails.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "Server.h"
 #include "TcpSession.h"
+#include "ThreadPoolBase.h"
 #include "Tcp.h"
 
 namespace tcp {
 
-TcpAcceptor::TcpAcceptor(const ServerOptions& options, Server& server) :
-  Acceptor(options, server),
+TcpAcceptor::TcpAcceptor(const ServerOptions& options,
+			 ThreadPoolBase& threadPoolAcceptor,
+			 ThreadPoolSession& threadPoolSession) :
+  Acceptor(options, threadPoolAcceptor, threadPoolSession),
   _ioContext(1),
   _acceptor(_ioContext) {}
 
