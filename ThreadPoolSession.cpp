@@ -8,49 +8,11 @@
 #include "Server.h"
 #include <cassert>
 
-std::shared_ptr<KillThread> ThreadPoolSession::_killThread = std::make_shared<KillThread>();
-
 ThreadPoolSession::ThreadPoolSession(int maxNumberRunningTotal) :
   _maxNumberRunningTotal(maxNumberRunningTotal) {}
 
 ThreadPoolSession::~ThreadPoolSession() {
   Trace << std::endl;
-}
-
-void ThreadPoolSession::stop() {
-  // wake up and join threads
-  assert(!_stopFlag.test_and_set() && "repeated call");
-  try {
-    for (int i = 0; i < size(); ++i)
-      push(_killThread);
-    for (auto& thread : _threads)
-      if (thread.joinable())
-	thread.join();
-  }
-  catch (const std::system_error& e) {
-    LogError << e.what() << std::endl;
-    return;
-  }
-  Trace << "... _threads joined ..." << std::endl;
-}
-
-void ThreadPoolSession::createThread() {
-  _threads.emplace_back([this] () {
-    while (true) {
-      // additional scope for fast recycling
-      // of the finished runnable
-      {
-	// this blocks waiting for a new runnable
-	RunnablePtr runnable = get();
-	if (!runnable)
-	  continue;
-	// this kills the thread
-	if (runnable->killThread())
-	  break;
-	runnable->run();
-      }
-    }
-  });
 }
 
 void ThreadPoolSession::push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func) {
@@ -90,16 +52,6 @@ RunnablePtr ThreadPoolSession::get() {
 	_queue.erase(it);
 	return runnable;
       }
-    }
-  }
-}
-
-void ThreadPoolSession::removeFromQueue(RunnablePtr toRemove) {
-  std::unique_lock lock(_queueMutex);
-  for (auto it = _queue.begin(); it < _queue.end(); ++it) {
-    if (*it == toRemove) {
-      _queue.erase(it);
-      break;
     }
   }
 }

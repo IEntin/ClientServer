@@ -23,6 +23,10 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _subtasks.resize(expectedNumberSubtasks);
 }
 
+TaskBuilder::~TaskBuilder() {
+  Trace << std::endl;
+}
+
 void TaskBuilder::run() {
   try {
     while (true) {
@@ -38,8 +42,20 @@ void TaskBuilder::run() {
   }
 }
 
+bool TaskBuilder::start() {
+  return true;
+}
+
+void TaskBuilder::stop() {
+  _stopped = true;
+  std::vector<char> task;
+  getTask(task);
+}
+
 TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
   TaskBuilderState state = TaskBuilderState::NONE;
+  if (_stopped)
+    return TaskBuilderState::STOPPED;
   try {
     auto& subtask = _subtasks.at(_subtaskConsumeIndex);
     _subtaskConsumeIndex++;

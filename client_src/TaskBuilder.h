@@ -16,7 +16,8 @@ enum class TaskBuilderState : int {
   NONE,
   SUBTASKDONE,
   TASKDONE,
-  ERROR
+  ERROR,
+  STOPPED
 };
 
 struct Subtask {
@@ -28,7 +29,6 @@ struct Subtask {
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   TaskBuilderState compressSubtask(Subtask& subtask, char* beg, char* end, bool alldone);
-
   int copyRequestWithId(char* dst, std::string_view line);
 
   const ClientOptions& _options;
@@ -39,13 +39,11 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
   void run() override;
-  bool start() override { return true; }
-  void stop() override {}
-
+  bool start() override;
  public:
-
   TaskBuilder(const ClientOptions& options);
-  ~TaskBuilder() override {}
+  ~TaskBuilder() override;
+  void stop() override;
   TaskBuilderState getTask(std::vector<char>& task);
   TaskBuilderState createSubtask();
 };

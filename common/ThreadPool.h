@@ -13,6 +13,7 @@
 enum class STATUS : char;
 
 class ThreadPool {
+protected:
   void createThread();
   ThreadPool& operator =(const ThreadPool& other) = delete;
   std::vector<std::jthread> _threads;
@@ -24,11 +25,11 @@ class ThreadPool {
   static std::shared_ptr<class KillThread> _killThread;
   public:
   explicit ThreadPool(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
-  ~ThreadPool();
+  virtual ~ThreadPool();
   ThreadPool(const ThreadPool& other) = delete;
   void stop();
   void push(RunnablePtr runnable);
-  RunnablePtr get();
+  virtual RunnablePtr get();
   int size() const { return _threads.size(); }
   int maxSize() const { return _maxSize; }
   void removeFromQueue(RunnablePtr toRemove);

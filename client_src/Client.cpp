@@ -47,26 +47,24 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 }
 
 bool Client::run() {
-  struct DestroySession {
-    DestroySession(Client* client) : _client(client) {}
-    ~DestroySession() {
-      _client->destroySession();
-      if (_client->_heartbeat)
-	_client->_heartbeat->stop();
+  struct Destroy {
+    Destroy(Client* client) : _client(client) {}
+    ~Destroy() {
+      _client->stop();
     }
     Client* _client = nullptr;
   } destroy(this);
   try {
     int numberTasks = 0;
-    auto taskBuilder = std::make_shared<TaskBuilder>(_options);
-    _threadPoolTaskBuilder.push(taskBuilder);
+    _taskBuilder = std::make_shared<TaskBuilder>(_options);
+    _threadPoolTaskBuilder.push(_taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
-      auto savedBuild = std::move(taskBuilder);
+      auto savedBuild = std::move(_taskBuilder);
       if (_options._runLoop) {
 	// start construction of the next task in the background
-	taskBuilder = std::make_shared<TaskBuilder>(_options);
-	_threadPoolTaskBuilder.push(taskBuilder);
+	_taskBuilder = std::make_shared<TaskBuilder>(_options);
+	_threadPoolTaskBuilder.push(_taskBuilder);
       }
       if (!processTask(savedBuild))
 	return false;
@@ -78,6 +76,14 @@ bool Client::run() {
     LogError << e.what() << std::endl;
   }
   return true;
+}
+
+void Client::stop() {
+  destroySession();
+  if (_heartbeat)
+    _heartbeat->stop();
+  if (_taskBuilder)
+    _taskBuilder->stop();
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
