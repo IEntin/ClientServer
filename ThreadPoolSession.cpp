@@ -6,7 +6,6 @@
 #include "Header.h"
 #include "Logger.h"
 #include "Server.h"
-#include <cassert>
 
 ThreadPoolSession::ThreadPoolSession(int maxNumberRunningTotal) :
   _maxNumberRunningTotal(maxNumberRunningTotal) {}

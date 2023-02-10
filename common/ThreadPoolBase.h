@@ -19,6 +19,7 @@ protected:
   std::condition_variable _queueCondition;
   std::deque<RunnablePtr> _queue;
   std::atomic_flag _stopFlag;
+  std::atomic<int> _numberRelatedObjects = 0;
   static std::shared_ptr<class KillThread> _killThread;
 public:
   ThreadPoolBase();
@@ -29,7 +30,7 @@ public:
   virtual RunnablePtr get();
   int size() const { return _threads.size(); }
   void removeFromQueue(RunnablePtr toRemove);
+  std::atomic<int>& numberRelatedObjects() { return _numberRelatedObjects; }
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
-  static inline std::atomic<int> _numberRelatedObjects = 0;
 };

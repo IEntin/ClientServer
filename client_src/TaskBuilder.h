@@ -11,6 +11,7 @@
 #include <fstream>
 
 struct ClientOptions;
+class ThreadPoolBase;
 
 enum class TaskBuilderState : int {
   NONE,
@@ -38,10 +39,11 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   std::atomic<unsigned> _subtaskProduceIndex = 0;
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
+  ThreadPoolBase& _threadPool;
   void run() override;
   bool start() override;
  public:
-  TaskBuilder(const ClientOptions& options);
+  TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool);
   ~TaskBuilder() override;
   void stop() override;
   TaskBuilderState getTask(std::vector<char>& task);

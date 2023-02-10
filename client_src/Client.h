@@ -21,7 +21,7 @@ class Client {
 
   const ClientOptions& _options;
 
-  ThreadPoolBase _threadPoolTaskBuilder;
+  ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   std::string _clientId;
   RunnablePtr _heartbeat;

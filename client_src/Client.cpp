@@ -15,7 +15,7 @@ std::atomic_flag Client::_stopFlag;
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
-  _threadPoolTaskBuilder.stop();
+  _threadPoolClient.stop();
   Trace << std::endl;
 }
 
@@ -56,15 +56,15 @@ bool Client::run() {
   } destroy(this);
   try {
     int numberTasks = 0;
-    _taskBuilder = std::make_shared<TaskBuilder>(_options);
-    _threadPoolTaskBuilder.push(_taskBuilder);
+    _taskBuilder = std::make_shared<TaskBuilder>(_options, _threadPoolClient);
+    _threadPoolClient.push(_taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       auto savedBuild = std::move(_taskBuilder);
       if (_options._runLoop) {
 	// start construction of the next task in the background
-	_taskBuilder = std::make_shared<TaskBuilder>(_options);
-	_threadPoolTaskBuilder.push(_taskBuilder);
+	_taskBuilder = std::make_shared<TaskBuilder>(_options, _threadPoolClient);
+	_threadPoolClient.push(_taskBuilder);
       }
       if (!processTask(savedBuild))
 	return false;
@@ -117,7 +117,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 void Client::start() {
   try {
     if (_options._enableHeartbeat) {
-      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
+      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _threadPoolClient);
       _heartbeat->start();
     }
   }

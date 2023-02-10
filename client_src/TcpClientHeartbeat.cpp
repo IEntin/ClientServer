@@ -6,25 +6,27 @@
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "Tcp.h"
+#include "ThreadPoolBase.h"
 
 namespace tcp {
 
-TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
+TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, ThreadPoolBase& threadPoolClient) :
   _options(options),
+  _threadPoolClient(threadPoolClient),
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext) {
-  ThreadPoolBase::_numberRelatedObjects++;
+  _threadPoolClient.numberRelatedObjects()++;
 }
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
-  ThreadPoolBase::_numberRelatedObjects--;
+  _threadPoolClient.numberRelatedObjects()--;
   Trace << std::endl;
 }
 
 bool TcpClientHeartbeat::start() {
   boost::asio::post(_ioContext, [this] { write(); });
-  _threadPool.push(shared_from_this());
+  _threadPoolClient.push(shared_from_this());
   return true;
 }
 
@@ -48,7 +50,6 @@ void TcpClientHeartbeat::stop() {
   catch (const boost::system::system_error& e) {
     LogError << e.what() << std::endl;
   }
-  _threadPool.stop();
 }
 
 void TcpClientHeartbeat::heartbeatWait() {

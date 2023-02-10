@@ -11,11 +11,11 @@ Acceptor::Acceptor(const ServerOptions& options, Server& server) :
   _options(options), _server(server),
   _threadPoolAcceptor(_server.getThreadPoolAcceptor()),
   _threadPoolSession(_server.getThreadPoolSession()) {
-  ThreadPoolBase::_numberRelatedObjects++;
+  _threadPoolAcceptor.numberRelatedObjects()++;
 }
 
 Acceptor::~Acceptor() {
-  ThreadPoolBase::_numberRelatedObjects--;
+  _threadPoolAcceptor.numberRelatedObjects()--;
   Trace << std::endl;
 }
 

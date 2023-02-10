@@ -5,7 +5,6 @@
 #include "ThreadPool.h"
 #include "Header.h"
 #include "Logger.h"
-#include <cassert>
 
 ThreadPool::ThreadPool(int maxSize) :
   _maxSize(maxSize) {}

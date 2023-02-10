@@ -10,9 +10,10 @@
 #include "Utility.h"
 #include <filesystem>
 
-TaskBuilder::TaskBuilder(const ClientOptions& options) :
-  _options(options) {
-  ThreadPoolBase::_numberRelatedObjects++;
+TaskBuilder::TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool) :
+  _options(options),
+  _threadPool(threadPool) {
+  _threadPool.numberRelatedObjects()++;
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
@@ -26,7 +27,7 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
 }
 
 TaskBuilder::~TaskBuilder() {
-  ThreadPoolBase::_numberRelatedObjects--;
+  _threadPool.numberRelatedObjects()--;
   Trace << std::endl;
 }
 
