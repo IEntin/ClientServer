@@ -8,12 +8,9 @@
 #include <map>
 
 struct ServerOptions;
-
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
-
 class Server;
-
-class ThreadPool;
+class ThreadPoolBase;
 
 class ThreadPoolSession;
 
@@ -28,7 +25,7 @@ protected:
 
   const ServerOptions& _options;
   Server& _server;
-  ThreadPool& _threadPoolAcceptor;
+  ThreadPoolBase& _threadPoolAcceptor;
   ThreadPoolSession& _threadPoolSession;
   SessionMap _sessions;
 };

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ThreadPool.h"
+#include "ThreadPoolBase.h"
 #include <boost/asio.hpp>
 
 struct ClientOptions;
@@ -12,32 +12,20 @@ struct ClientOptions;
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
-
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHeartbeat>,
   public RunnableT<TcpClientHeartbeat> {
-
  public:
-
   TcpClientHeartbeat(const ClientOptions& options);
-
   ~TcpClientHeartbeat() override;
-
  private:
-
   void run() noexcept override;
-
   bool start() override;
-
   void stop() override;
-
   void heartbeatWait();
-
   void timeoutWait();
-
   void write();
-
   void read();
 
   const ClientOptions& _options;
@@ -46,7 +34,7 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   AsioTimer _periodTimer;
   AsioTimer _timeoutTimer;
   char _heartbeatBuffer[HEADER_SIZE] = {};
-  ThreadPool _threadPool;
+  ThreadPoolBase _threadPool;
 };
 
 } // end of namespace tcp

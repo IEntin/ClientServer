@@ -4,35 +4,18 @@
 
 #pragma once
 
-#include "Runnable.h"
-#include <condition_variable>
-#include <deque>
-#include <thread>
-#include <vector>
+#include "ThreadPoolBase.h"
 
 enum class STATUS : char;
 
-class ThreadPool {
+class ThreadPool : public ThreadPoolBase {
 protected:
-  void createThread();
   ThreadPool& operator =(const ThreadPool& other) = delete;
-  std::vector<std::jthread> _threads;
-  std::mutex _queueMutex;
-  std::condition_variable _queueCondition;
-  std::deque<RunnablePtr> _queue;
   const int _maxSize;
-  std::atomic_flag _stopFlag;
-  static std::shared_ptr<class KillThread> _killThread;
-  public:
+public:
   explicit ThreadPool(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
-  virtual ~ThreadPool();
+  ~ThreadPool() override;
   ThreadPool(const ThreadPool& other) = delete;
-  void stop();
   void push(RunnablePtr runnable);
-  virtual RunnablePtr get();
-  int size() const { return _threads.size(); }
   int maxSize() const { return _maxSize; }
-  void removeFromQueue(RunnablePtr toRemove);
-  // used in tests
-  std::vector<std::jthread>& getThreads() { return _threads; }
 };

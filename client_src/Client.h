@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ThreadPool.h"
+#include "ThreadPoolBase.h"
 #include <atomic>
 
 struct ClientOptions;
@@ -21,7 +21,7 @@ class Client {
 
   const ClientOptions& _options;
 
-  ThreadPool _threadPoolTaskBuilder;
+  ThreadPoolBase _threadPoolTaskBuilder;
   std::atomic<STATUS> _status = STATUS::NONE;
   std::string _clientId;
   RunnablePtr _heartbeat;

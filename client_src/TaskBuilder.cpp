@@ -6,11 +6,13 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "MemoryPool.h"
+#include "ThreadPoolBase.h"
 #include "Utility.h"
 #include <filesystem>
 
 TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _options(options) {
+  ThreadPoolBase::_numberRelatedObjects++;
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
@@ -24,6 +26,7 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
 }
 
 TaskBuilder::~TaskBuilder() {
+  ThreadPoolBase::_numberRelatedObjects--;
   Trace << std::endl;
 }
 
