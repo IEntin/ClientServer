@@ -15,7 +15,6 @@ std::atomic_flag Client::_stopFlag;
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
-  _threadPoolClient.stop();
   Trace << std::endl;
 }
 
@@ -84,6 +83,7 @@ void Client::stop() {
     _heartbeat->stop();
   if (_taskBuilder)
     _taskBuilder->stop();
+  _threadPoolClient.stop();
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
