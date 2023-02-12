@@ -15,12 +15,9 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, ThreadPoolB
   _threadPoolClient(threadPoolClient),
   _socket(_ioContext),
   _periodTimer(_ioContext),
-  _timeoutTimer(_ioContext) {
-  _threadPoolClient.numberRelatedObjects()++;
-}
+  _timeoutTimer(_ioContext) {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
-  _threadPoolClient.numberRelatedObjects()--;
   Trace << std::endl;
 }
 
