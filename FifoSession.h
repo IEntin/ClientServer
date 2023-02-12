@@ -5,12 +5,11 @@
 #pragma once
 
 #include "Runnable.h"
+#include "ThreadPoolReference.h"
 #include <vector>
 
 using Response = std::vector<std::string>;
-
 struct ServerOptions;
-
 class ThreadPoolSession;
 
 namespace fifo {
@@ -19,7 +18,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   public RunnableT<FifoSession> {
   const ServerOptions& _options;
   std::string _clientId;
-  ThreadPoolSession& _threadPool;
+  ThreadPoolReference _threadPool;
   std::string _fifoName;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);

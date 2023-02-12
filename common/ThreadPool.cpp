@@ -13,7 +13,8 @@ ThreadPool::~ThreadPool() {
   Trace << std::endl;
 }
 
-void ThreadPool::push(RunnablePtr runnable) {
+void ThreadPool::push(RunnablePtr runnable,
+		      [[maybe_unused]] std::function<bool(RunnablePtr)> func) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);

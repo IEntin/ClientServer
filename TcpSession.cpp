@@ -13,6 +13,8 @@
 #include "ThreadPoolSession.h"
 #include "Tcp.h"
 
+class ThreadPoolSession;
+
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
@@ -28,7 +30,6 @@ TcpSession::TcpSession(const ServerOptions& options,
   _socket(details->_socket),
   _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
-  _threadPool.numberRelatedObjects()++;
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -39,7 +40,6 @@ TcpSession::TcpSession(const ServerOptions& options,
 }
 
 TcpSession::~TcpSession() {
-  _threadPool.numberRelatedObjects()--;
   Trace << std::endl;
 }
 

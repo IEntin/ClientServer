@@ -13,12 +13,9 @@ Acceptor::Acceptor(const ServerOptions& options,
 		   ThreadPoolSession& threadPoolSession) :
   _options(options),
   _threadPoolAcceptor(threadPoolAcceptor),
-  _threadPoolSession(threadPoolSession) {
-  _threadPoolAcceptor.numberRelatedObjects()++;
-}
+  _threadPoolSession(threadPoolSession) {}
 
 Acceptor::~Acceptor() {
-  _threadPoolAcceptor.numberRelatedObjects()--;
   Trace << std::endl;
 }
 

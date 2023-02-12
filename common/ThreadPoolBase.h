@@ -7,6 +7,7 @@
 #include "Runnable.h"
 #include <condition_variable>
 #include <deque>
+#include <functional>
 #include <thread>
 #include <vector>
 
@@ -26,11 +27,13 @@ public:
   virtual ~ThreadPoolBase();
   ThreadPoolBase(const ThreadPoolBase& other) = delete;
   void stop();
-  void push(RunnablePtr runnable);
+  virtual void push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func = nullptr);
   virtual RunnablePtr get();
   int size() const { return _threads.size(); }
   void removeFromQueue(RunnablePtr toRemove);
   std::atomic<int>& numberRelatedObjects() { return _numberRelatedObjects; }
+  void increment() { _numberRelatedObjects++; }
+  void decrement() { _numberRelatedObjects--; }
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };

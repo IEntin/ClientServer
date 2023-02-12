@@ -23,14 +23,12 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   _options(options),
   _clientId(clientId),
   _threadPool(threadPool) {
-  _threadPool.numberRelatedObjects()++;
   _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
  std::filesystem::remove(_fifoName);
-  _threadPool.numberRelatedObjects()--;
   Trace << std::endl;
 }
 

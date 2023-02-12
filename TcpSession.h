@@ -5,18 +5,16 @@
 #pragma once
 
 #include "Runnable.h"
+#include "ThreadPoolReference.h"
 #include <boost/asio.hpp>
 
 using Response = std::vector<std::string>;
-
 struct ServerOptions;
-
 class ThreadPoolSession;
 
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
-
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
@@ -41,7 +39,7 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
-  ThreadPoolSession& _threadPool;
+  ThreadPoolReference _threadPool;
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;

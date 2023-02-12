@@ -13,7 +13,6 @@
 TaskBuilder::TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool) :
   _options(options),
   _threadPool(threadPool) {
-  _threadPool.numberRelatedObjects()++;
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
@@ -27,7 +26,6 @@ TaskBuilder::TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPoo
 }
 
 TaskBuilder::~TaskBuilder() {
-  _threadPool.numberRelatedObjects()--;
   Trace << std::endl;
 }
 

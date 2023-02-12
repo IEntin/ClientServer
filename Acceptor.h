@@ -5,11 +5,11 @@
 #pragma once
 
 #include "Runnable.h"
+#include "ThreadPoolReference.h"
 #include <map>
 
 struct ServerOptions;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
-class ThreadPoolBase;
 class ThreadPoolSession;
 
 class Acceptor : public RunnableT<Acceptor> {
@@ -24,7 +24,7 @@ protected:
   void destroySession(const std::string& key);
 
   const ServerOptions& _options;
-  ThreadPoolBase& _threadPoolAcceptor;
+  ThreadPoolReference _threadPoolAcceptor;
   ThreadPoolSession& _threadPoolSession;
   SessionMap _sessions;
 };

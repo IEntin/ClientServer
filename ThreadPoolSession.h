@@ -5,7 +5,6 @@
 #pragma once
 
 #include "ThreadPool.h"
-#include <functional>
 
 class ThreadPoolSession : public ThreadPool {
   ThreadPoolSession& operator =(const ThreadPoolSession& other) = delete;
@@ -15,5 +14,5 @@ class ThreadPoolSession : public ThreadPool {
   ~ThreadPoolSession() override;
   ThreadPoolSession(const ThreadPoolSession& other) = delete;
   RunnablePtr get() override;
-  void push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func = nullptr);
+  void push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func = nullptr) override;
 };
