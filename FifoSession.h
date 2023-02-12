@@ -10,7 +10,7 @@
 
 using Response = std::vector<std::string>;
 struct ServerOptions;
-class ThreadPoolSession;
+class ThreadPoolDiffObj;
 
 namespace fifo {
 
@@ -29,7 +29,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   void checkCapacity() override;
   bool sendStatusToClient() override;
  public:
-  FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolSession& threadPool);
+  FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolDiffObj& threadPool);
   ~FifoSession() override;
 };
 

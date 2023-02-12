@@ -5,7 +5,7 @@
 #pragma once
 
 #include "ThreadPoolBase.h"
-#include "ThreadPoolSession.h"
+#include "ThreadPoolDiffObj.h"
 
 struct ServerOptions;
 
@@ -20,5 +20,5 @@ private:
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   ThreadPoolBase _threadPoolAcceptor;
-  ThreadPoolSession _threadPoolSession;
+  ThreadPoolDiffObj _threadPoolSession;
 };

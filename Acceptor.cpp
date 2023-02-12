@@ -4,13 +4,13 @@
 
 #include "Acceptor.h"
 #include "ThreadPoolBase.h"
-#include "ThreadPoolSession.h"
+#include "ThreadPoolDiffObj.h"
 #include "Logger.h"
 #include <cassert>
 
 Acceptor::Acceptor(const ServerOptions& options,
 		   ThreadPoolBase& threadPoolAcceptor,
-		   ThreadPoolSession& threadPoolSession) :
+		   ThreadPoolDiffObj& threadPoolSession) :
   _options(options),
   _threadPoolAcceptor(threadPoolAcceptor),
   _threadPoolSession(threadPoolSession) {}

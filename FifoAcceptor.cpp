@@ -17,7 +17,7 @@ namespace fifo {
 
 FifoAcceptor::FifoAcceptor(const ServerOptions& options,
 			   ThreadPoolBase& threadPoolAcceptor,
-			   ThreadPoolSession& threadPoolSession) :
+			   ThreadPoolDiffObj& threadPoolSession) :
   Acceptor(options, threadPoolAcceptor, threadPoolSession) {}
 
 FifoAcceptor::~FifoAcceptor() {

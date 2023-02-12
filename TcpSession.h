@@ -10,7 +10,7 @@
 
 using Response = std::vector<std::string>;
 struct ServerOptions;
-class ThreadPoolSession;
+class ThreadPoolDiffObj;
 
 namespace tcp {
 
@@ -22,7 +22,7 @@ public:
   TcpSession(const ServerOptions& options,
 	     ConnectionDetailsPtr details,
 	     std::string_view clientId,
-	     ThreadPoolSession& threadPool);
+	     ThreadPoolDiffObj& threadPool);
   ~TcpSession() override;
 
 private:

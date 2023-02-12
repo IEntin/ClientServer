@@ -22,7 +22,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
  public:
   FifoAcceptor(const ServerOptions& options,
 	       ThreadPoolBase& threadPoolAcceptor,
-	       ThreadPoolSession& threadPoolSession);
+	       ThreadPoolDiffObj& threadPoolSession);
   ~FifoAcceptor() override;
 };
 

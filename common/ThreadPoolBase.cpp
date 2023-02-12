@@ -50,8 +50,7 @@ void  ThreadPoolBase::createThread() {
   });
 }
 
-void ThreadPoolBase::push(RunnablePtr runnable,
-			  [[maybe_unused]] std::function<bool(RunnablePtr)> func) {
+void ThreadPoolBase::push(RunnablePtr runnable) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);

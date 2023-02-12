@@ -14,7 +14,7 @@ namespace tcp {
 
 TcpAcceptor::TcpAcceptor(const ServerOptions& options,
 			 ThreadPoolBase& threadPoolAcceptor,
-			 ThreadPoolSession& threadPoolSession) :
+			 ThreadPoolDiffObj& threadPoolSession) :
   Acceptor(options, threadPoolAcceptor, threadPoolSession),
   _ioContext(1),
   _acceptor(_ioContext) {}

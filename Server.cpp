@@ -12,7 +12,7 @@
 
 Server::Server(const ServerOptions& options) :
   _options(options),
-  _threadPoolSession(_options._maxTotalSessions) {
+  _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
   StrategySelector strategySelector(options);
   Strategy& strategy = strategySelector.get();
   strategy.set(options);

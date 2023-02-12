@@ -17,8 +17,8 @@ class ThreadPoolReference {
   std::atomic<int>& numberRelatedObjects() {
     return _threadPool.numberRelatedObjects();
   }
-  void push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func = nullptr) {
-    _threadPool.push(runnable, func);
+  void push(RunnablePtr runnable) {
+    _threadPool.push(runnable);
   }
  private:
   ThreadPoolBase& _threadPool;

@@ -16,7 +16,7 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
  public:
   TcpAcceptor(const ServerOptions& options,
 	      ThreadPoolBase& threadPoolAcceptor,
-	      ThreadPoolSession& threadPoolSession);
+	      ThreadPoolDiffObj& threadPoolSession);
   ~TcpAcceptor() override;
 private:
   struct Request {

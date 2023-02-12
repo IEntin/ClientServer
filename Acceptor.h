@@ -10,7 +10,7 @@
 
 struct ServerOptions;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
-class ThreadPoolSession;
+class ThreadPoolDiffObj;
 
 class Acceptor : public RunnableT<Acceptor> {
 public:
@@ -18,13 +18,13 @@ public:
 protected:
   Acceptor(const ServerOptions& options,
 	   ThreadPoolBase& threadPoolAcceptor,
-	   ThreadPoolSession& threadPoolSession);
+	   ThreadPoolDiffObj& threadPoolSession);
   void stop() override = 0;
   bool startSession(std::string_view clientId, RunnablePtr session);
   void destroySession(const std::string& key);
 
   const ServerOptions& _options;
   ThreadPoolReference _threadPoolAcceptor;
-  ThreadPoolSession& _threadPoolSession;
+  ThreadPoolDiffObj& _threadPoolSession;
   SessionMap _sessions;
 };

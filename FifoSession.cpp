@@ -9,7 +9,7 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
-#include "ThreadPoolSession.h"
+#include "ThreadPoolDiffObj.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -18,7 +18,7 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolSession& threadPool) :
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolDiffObj& threadPool) :
   RunnableT(options._maxFifoSessions),
   _options(options),
   _clientId(clientId),
@@ -77,7 +77,7 @@ bool FifoSession::start() {
     LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
     return false;
   }
-  _threadPool.push(shared_from_this(), &Runnable::sendStatusToClient);
+  _threadPool.push(shared_from_this());
   return true;
 }
 

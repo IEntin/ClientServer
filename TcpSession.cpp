@@ -10,17 +10,17 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
-#include "ThreadPoolSession.h"
+#include "ThreadPoolDiffObj.h"
 #include "Tcp.h"
 
-class ThreadPoolSession;
+class ThreadPoolDiffObj;
 
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
 		       ConnectionDetailsPtr details,
 		       std::string_view clientId,
-		       ThreadPoolSession& threadPool) :
+		       ThreadPoolDiffObj& threadPool) :
   RunnableT(options._maxTcpSessions),
   _options(options),
   _clientId(clientId),
@@ -44,7 +44,7 @@ TcpSession::~TcpSession() {
 }
 
 bool TcpSession::start() {
-  _threadPool.push(shared_from_this(), &Runnable::sendStatusToClient);
+  _threadPool.push(shared_from_this());
   return true;
 }
 

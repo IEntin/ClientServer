@@ -2,18 +2,19 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ThreadPoolSession.h"
+#include "ThreadPoolDiffObj.h"
 #include "Header.h"
 #include "Logger.h"
 
-ThreadPoolSession::ThreadPoolSession(int maxNumberRunningTotal) :
-  _maxNumberRunningTotal(maxNumberRunningTotal) {}
+ThreadPoolDiffObj::ThreadPoolDiffObj(int maxNumberRunningTotal, std::function<bool(RunnablePtr)> func) :
+  _maxNumberRunningTotal(maxNumberRunningTotal),
+  _func(func) {}
 
-ThreadPoolSession::~ThreadPoolSession() {
+ThreadPoolDiffObj::~ThreadPoolDiffObj() {
   Trace << std::endl;
 }
 
-void ThreadPoolSession::push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func) {
+void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);
@@ -34,13 +35,13 @@ void ThreadPoolSession::push(RunnablePtr runnable, std::function<bool(RunnablePt
       runnable->_status = STATUS::MAX_TOTAL_SESSIONS;
   }
   runnable->checkCapacity();
-  if (func)
-    func(runnable);
+  if (_func)
+    _func(runnable);
   _queue.push_back(runnable);
   _queueCondition.notify_one();
 }
 
-RunnablePtr ThreadPoolSession::get() {
+RunnablePtr ThreadPoolDiffObj::get() {
   std::unique_lock lock(_queueMutex);
   while (true) {
     _queueCondition.wait(lock, [this] { return !_queue.empty(); });

@@ -27,7 +27,7 @@ public:
   virtual ~ThreadPoolBase();
   ThreadPoolBase(const ThreadPoolBase& other) = delete;
   void stop();
-  virtual void push(RunnablePtr runnable, std::function<bool(RunnablePtr)> func = nullptr);
+  virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
   int size() const { return _threads.size(); }
   void removeFromQueue(RunnablePtr toRemove);
