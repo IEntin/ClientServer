@@ -2,11 +2,20 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+/*
+This thread pool works with any number of different
+runnable types with constraints on the number of
+objects of every type and on the total number of
+runnable objects. It creates new threads on demand
+avoiding creation of redundant threads.
+*/
+
 #include "ThreadPoolDiffObj.h"
 #include "Header.h"
 #include "Logger.h"
 
-ThreadPoolDiffObj::ThreadPoolDiffObj(int maxNumberRunningTotal, std::function<bool(RunnablePtr)> func) :
+ThreadPoolDiffObj::ThreadPoolDiffObj(int maxNumberRunningTotal,
+				     std::function<bool(RunnablePtr)> func) :
   _maxNumberRunningTotal(maxNumberRunningTotal),
   _func(func) {}
 
