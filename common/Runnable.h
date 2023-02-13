@@ -27,7 +27,7 @@ class Runnable {
   virtual int getNumberRunningByType() const = 0;
   virtual void checkCapacity() {
     if (getNumberObjects() > _maxNumberRunningByType)
-      _status = STATUS::MAX_SPECIFIC_SESSIONS;
+      _status = STATUS::MAX_SPECIFIC_OBJECTS;
   }
   virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }

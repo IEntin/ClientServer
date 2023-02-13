@@ -139,10 +139,10 @@ bool FifoClient::receiveStatus() {
     switch (_status) {
     case STATUS::NONE:
       break;
-    case STATUS::MAX_SPECIFIC_SESSIONS:
+    case STATUS::MAX_SPECIFIC_OBJECTS:
       utility::displayMaxSpecificSessionsWarn("fifo");
       break;
-    case STATUS::MAX_TOTAL_SESSIONS:
+    case STATUS::MAX_TOTAL_OBJECTS:
       utility::displayMaxTotalSessionsWarn();
       break;
     default:

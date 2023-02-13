@@ -39,9 +39,9 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   }
   else {
     if (!condition2)
-      runnable->_status = STATUS::MAX_SPECIFIC_SESSIONS;
+      runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
     else if (!condition3)
-      runnable->_status = STATUS::MAX_TOTAL_SESSIONS;
+      runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   }
   runnable->checkCapacity();
   if (_func)

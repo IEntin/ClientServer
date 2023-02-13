@@ -67,11 +67,11 @@ bool displayStatus(STATUS status) {
  case STATUS::HEARTBEAT_TIMEOUT:
     LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
     return true;
-  case STATUS::MAX_TOTAL_SESSIONS:
-    Warn << "STATUS::MAX_TOTAL_SESSIONS" << std::endl;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    Warn << "Exceeded max total number clients" << std::endl;
     return false;
-  case STATUS::MAX_SPECIFIC_SESSIONS:
-    Warn << "STATUS::MAX_SPECIFIC_SESSIONS" << std::endl;
+  case STATUS::MAX_SPECIFIC_OBJECTS:
+    Warn << "Exceeded max number specific clients" << std::endl;
     return false;
   default:
     LogError << "unexpected problem" << std::endl;
