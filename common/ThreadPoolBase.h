@@ -7,13 +7,13 @@
 #include "Runnable.h"
 #include <condition_variable>
 #include <deque>
-#include <functional>
 #include <thread>
 #include <vector>
 
 class ThreadPoolBase {
 protected:
   void createThread();
+  ThreadPoolBase(const ThreadPoolBase& other) = delete;
   ThreadPoolBase& operator =(const ThreadPoolBase& other) = delete;
   std::vector<std::jthread> _threads;
   std::mutex _queueMutex;
@@ -25,7 +25,6 @@ protected:
 public:
   ThreadPoolBase();
   virtual ~ThreadPoolBase();
-  ThreadPoolBase(const ThreadPoolBase& other) = delete;
   void stop();
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();

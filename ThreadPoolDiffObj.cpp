@@ -14,9 +14,8 @@ avoiding creation of redundant threads.
 #include "Header.h"
 #include "Logger.h"
 
-ThreadPoolDiffObj::ThreadPoolDiffObj(int maxNumberRunningTotal,
-				     std::function<bool(RunnablePtr)> func) :
-  _maxNumberRunningTotal(maxNumberRunningTotal),
+ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func) :
+  ThreadPool(maxSize),
   _func(func) {}
 
 ThreadPoolDiffObj::~ThreadPoolDiffObj() {
@@ -32,7 +31,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   // can run one more of type
   bool condition2 = runnable->getNumberObjects() <= runnable->_maxNumberRunningByType;
   // can run one more of any
-  bool condition3 = size() < _maxNumberRunningTotal;
+  bool condition3 = size() < _maxSize;
   if (condition1 && condition2 && condition3) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
