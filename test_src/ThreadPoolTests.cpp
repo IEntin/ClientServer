@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ThreadPool.h"
+#include "ThreadPoolSameObj.h"
 #include "Logger.h"
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
@@ -29,7 +29,7 @@ std::atomic<bool> TestRunnable::_stopFlag;
 
 TEST(ThreadPoolTest, Fixed) {
   int maxNumberThreads = 10;
-  ThreadPool pool(maxNumberThreads);
+  ThreadPoolSameObj pool(maxNumberThreads);
   for (int i = 0; i < 2 * maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnable->start();
@@ -50,7 +50,7 @@ TEST(ThreadPoolTest, Fixed) {
 }
 
 TEST(ThreadPoolTest, Variable) {
-  ThreadPool pool;
+  ThreadPoolSameObj pool;
   const int numberObjects = 20;
   for (int i = 0; i < numberObjects; ++i) {
     auto runnable = std::make_shared<TestRunnable>();

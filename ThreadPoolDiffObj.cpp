@@ -5,9 +5,9 @@
 /*
 This thread pool works with any number of different
 runnable types with constraints on the number of
-objects of every type and on the total number of
-runnable objects. It creates new threads on demand
-avoiding creation of redundant threads.
+running objects of every type and on the total number
+of running objects. It creates threads on demand
+not creating redundant threads.
 */
 
 #include "ThreadPoolDiffObj.h"
@@ -15,7 +15,7 @@ avoiding creation of redundant threads.
 #include "Logger.h"
 
 ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func) :
-  ThreadPool(maxSize),
+  ThreadPoolBase(maxSize),
   _func(func) {}
 
 ThreadPoolDiffObj::~ThreadPoolDiffObj() {
@@ -30,16 +30,14 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   bool condition1 = _numberRelatedObjects > size();
   // can run one more of type
   bool condition2 = runnable->getNumberObjects() <= runnable->_maxNumberRunningByType;
-  // can run one more of any
-  bool condition3 = size() < _maxSize;
-  if (condition1 && condition2 && condition3) {
+  if (condition1 && condition2 && size() < _maxSize) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
   else {
     if (!condition2)
       runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
-    else if (!condition3)
+    else if (runnable->_numberRunningTotal >= _maxSize)
       runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   }
   runnable->checkCapacity();

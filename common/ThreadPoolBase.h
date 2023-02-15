@@ -21,9 +21,10 @@ protected:
   std::deque<RunnablePtr> _queue;
   std::atomic_flag _stopFlag;
   std::atomic<int> _numberRelatedObjects = 0;
+  const int _maxSize;
   static std::shared_ptr<class KillThread> _killThread;
 public:
-  ThreadPoolBase();
+  ThreadPoolBase(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
   virtual ~ThreadPoolBase();
   void stop();
   virtual void push(RunnablePtr runnable);
@@ -33,6 +34,7 @@ public:
   std::atomic<int>& numberRelatedObjects() { return _numberRelatedObjects; }
   void increment() { _numberRelatedObjects++; }
   void decrement() { _numberRelatedObjects--; }
+  int maxSize() const { return _maxSize; }
   // used in tests
   std::vector<std::jthread>& getThreads() { return _threads; }
 };

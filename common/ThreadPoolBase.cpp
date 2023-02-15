@@ -8,7 +8,7 @@
 
 std::shared_ptr<KillThread> ThreadPoolBase::_killThread = std::make_shared<KillThread>();
 
-ThreadPoolBase::ThreadPoolBase() {}
+ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
   Trace << std::endl;

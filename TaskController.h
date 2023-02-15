@@ -4,20 +4,16 @@
 
 #pragma once
 
-#include "ThreadPool.h"
+#include "ThreadPoolSameObj.h"
 #include <barrier>
 #include <map>
 #include <queue>
 #include <vector>
 
 using Response = std::vector<std::string>;
-
 using TaskPtr = std::shared_ptr<class Task>;
-
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
-
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
-
 struct ServerOptions;
 
 class TaskController : public std::enable_shared_from_this<TaskController> {
@@ -47,7 +43,7 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   const bool _sortInput;
   std::atomic<bool> _stopped = false;
   std::barrier<CompletionFunction> _barrier;
-  ThreadPool _threadPool;
+  ThreadPoolSameObj _threadPool;
   TaskPtr _task;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;

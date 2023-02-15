@@ -2,18 +2,23 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ThreadPool.h"
+#include "ThreadPoolSameObj.h"
 #include "Header.h"
 #include "Logger.h"
 
-ThreadPool::ThreadPool(int maxSize) :
-  _maxSize(maxSize) {}
+/*
+This thread pool works with single runnable type
+with a constraint on the number of running objects
+of this type. It creates new threads on demand not
+creating redundant threads.
+*/
+ThreadPoolSameObj::ThreadPoolSameObj(int maxSize) : ThreadPoolBase(maxSize) {}
 
-ThreadPool::~ThreadPool() {
+ThreadPoolSameObj::~ThreadPoolSameObj() {
   Trace << std::endl;
 }
 
-void ThreadPool::push(RunnablePtr runnable) {
+void ThreadPoolSameObj::push(RunnablePtr runnable) {
   if (!runnable)
     return;
   std::lock_guard lock(_queueMutex);

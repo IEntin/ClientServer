@@ -12,8 +12,7 @@ TaskControllerPtr TaskController::_single;
 TaskController::TaskController(const ServerOptions& options) :
   _options(options),
   _sortInput(options._sortInput),
-  _barrier(options._numberWorkThreads, onTaskCompletion),
-  _threadPool(options._numberWorkThreads) {
+  _barrier(options._numberWorkThreads, onTaskCompletion) {
   // start with empty task
   _task = std::make_shared<Task>();
 }

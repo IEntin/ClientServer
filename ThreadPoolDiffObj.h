@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "ThreadPool.h"
+#include "ThreadPoolBase.h"
 #include <functional>
 
-class ThreadPoolDiffObj : public ThreadPool {
+class ThreadPoolDiffObj : public ThreadPoolBase {
   ThreadPoolDiffObj(const ThreadPoolDiffObj& other) = delete;
   ThreadPoolDiffObj& operator =(const ThreadPoolDiffObj& other) = delete;
   std::function<bool(RunnablePtr)> _func = nullptr;
