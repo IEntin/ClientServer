@@ -6,6 +6,7 @@
 #include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Compression.h"
+#include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
@@ -78,6 +79,7 @@ bool Client::run() {
 }
 
 void Client::stop() {
+  Metrics::save();
   destroySession();
   if (_heartbeat)
     _heartbeat->stop();

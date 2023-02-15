@@ -4,7 +4,6 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
-#include "Metrics.h"
 #include "Tcp.h"
 #include "Utility.h"
 
@@ -26,7 +25,6 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
-  Metrics::save();
   Trace << std::endl;
 }
 
