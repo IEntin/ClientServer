@@ -37,7 +37,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   else {
     if (!condition2)
       runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
-    else if (runnable->_numberRunningTotal >= _maxSize)
+    else if (_numberRelatedObjects > _maxSize)
       runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   }
   runnable->checkCapacity();

@@ -35,7 +35,6 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     if (fd == -1) {
       LogError << std::strerror(errno) << ' '
 	       << _options._acceptorName << std::endl;
-      //return { HEADERTYPE::ERROR, emptyString };
     }
     if (_stopped)
       return { HEADERTYPE::ERROR, emptyString };
