@@ -46,13 +46,16 @@ std::pair<bool, boost::system::error_code>
 sendMsg(boost::asio::ip::tcp::socket& socket,
 	const HEADER& header,
 	std::string_view msg) {
-  size_t size = isCompressed(header) ? extractCompressedSize(header) : extractUncompressedSize(header);
-  std::vector<char> buffer(HEADER_SIZE + size);
-  encodeHeader(buffer.data(), header);
-  std::copy(msg.cbegin(), msg.cend(), buffer.data() + HEADER_SIZE);
+  char buffer[HEADER_SIZE] = {};
+  encodeHeader(buffer, header);
   boost::system::error_code ec;
   size_t bytes[[maybe_unused]] =
-    boost::asio::write(socket, boost::asio::buffer(buffer), ec);
+    boost::asio::write(socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
+  if (ec) {
+    LogError << ec.what() << std::endl;
+    return { false, ec };
+  }
+  bytes = boost::asio::write(socket, boost::asio::buffer(msg), ec);
   if (ec) {
     LogError << ec.what() << std::endl;
     return { false, ec };

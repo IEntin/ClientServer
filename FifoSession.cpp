@@ -135,12 +135,13 @@ bool FifoSession::sendStatusToClient() {
     return false;
   }
   size_t size = _clientId.size();
-  std::vector<char> buffer(HEADER_SIZE + size);
-  encodeHeader(buffer.data(), HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.begin() + HEADER_SIZE);
-  if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + size)))
+  char buffer[HEADER_SIZE] = {};
+  encodeHeader(buffer, HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
+  if (!Fifo::writeString(fd, std::string_view(buffer, HEADER_SIZE))) {
     LogError << "failed." << std::endl;
-  return true;
+    return false;
+  }
+  return Fifo::writeString(fd, std::string_view(_clientId));
 }
 
 } // end of namespace fifo

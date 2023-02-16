@@ -161,10 +161,11 @@ bool FifoClient::destroySession() {
   if (fd == -1)
     return false;
   size_t size = _clientId.size();
-  std::vector<char> buffer(HEADER_SIZE + size);
+  std::vector<char> buffer(HEADER_SIZE);
   encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  std::copy(_clientId.cbegin(), _clientId.cend(), buffer.data() + HEADER_SIZE);
-  return Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE + _clientId.size()));
+  if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE)))
+    return false;
+  return Fifo::writeString(fd, std::string_view(_clientId));
 }
 
 } // end of namespace fifo
