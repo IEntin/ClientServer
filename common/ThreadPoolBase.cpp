@@ -51,8 +51,6 @@ void  ThreadPoolBase::createThread() {
 }
 
 void ThreadPoolBase::push(RunnablePtr runnable) {
-  if (!runnable)
-    return;
   std::lock_guard lock(_queueMutex);
   if (_numberRelatedObjects > size()) {
     createThread();

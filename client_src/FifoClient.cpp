@@ -157,26 +157,9 @@ bool FifoClient::receiveStatus() {
 bool FifoClient::destroySession() {
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
-  int rep = 0;
-  do {
-    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-    if (fd == -1) {
-      switch (errno) {
-      case ENXIO:
-      case EINTR:
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-	break;
-      default:
-	LogError << std::strerror(errno) << std::endl;
-	return false;
-	break;
-      }
-    }
-  } while (fd == -1 && rep++ < _options._numberRepeatENXIO);
-  if (fd == -1) {
-    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+  fd = Fifo::openWriteEndNonBlock(_options._acceptorName, _options);
+  if (fd == -1)
     return false;
-  }
   size_t size = _clientId.size();
   std::vector<char> buffer(HEADER_SIZE + size);
   encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);

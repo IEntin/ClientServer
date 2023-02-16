@@ -153,6 +153,11 @@ bool Fifo::setPipeSize(int fd, long requested) {
 void Fifo::onExit(std::string_view fifoName, const Options& options) {
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
+  fd = openWriteEndNonBlock(fifoName, options);
+}
+
+int Fifo::openWriteEndNonBlock(std::string_view fifoName, const Options& options) {
+  int fd = -1;
   int rep = 0;
   do {
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
@@ -163,14 +168,13 @@ void Fifo::onExit(std::string_view fifoName, const Options& options) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
 	break;
       default:
-	Info << std::strerror(errno) << ' ' << fifoName << std::endl;
-	return;
 	break;
       }
     }
   } while (fd == -1 && rep++ < options._numberRepeatENXIO);
   if (fd == -1)
     Info << std::strerror(errno) << ' ' << fifoName << std::endl;
+  return fd;
 }
 
 } // end of namespace fifo

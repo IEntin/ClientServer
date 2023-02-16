@@ -14,7 +14,6 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 namespace fifo {
 
@@ -116,23 +115,7 @@ bool FifoSession::sendResponse(const Response& response) {
   // open(...) no matter what).
   int fdWrite = -1;
   utility::CloseFileDescriptor cfdw(fdWrite);
-  int rep = 0;
-  do {
-    fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-    if (fdWrite == -1) {
-      switch (errno) {
-      case ENXIO:
-      case EINTR:
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-	break;
-      default:
-	Info << std::strerror(errno) << ' ' << _fifoName << std::endl;
-	MemoryPool::destroyBuffers();
-	return false;
-	break;
-      }
-    }
-  } while (fdWrite == -1 && rep++ < _options._numberRepeatENXIO);
+  fdWrite = Fifo::openWriteEndNonBlock(_fifoName, _options);
   if (fdWrite == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();

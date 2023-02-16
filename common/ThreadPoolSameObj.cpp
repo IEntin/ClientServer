@@ -19,8 +19,6 @@ ThreadPoolSameObj::~ThreadPoolSameObj() {
 }
 
 void ThreadPoolSameObj::push(RunnablePtr runnable) {
-  if (!runnable)
-    return;
   std::lock_guard lock(_queueMutex);
   bool condition1 = runnable->getNumberObjects() > size();
   bool condition2 = size() < _maxSize;

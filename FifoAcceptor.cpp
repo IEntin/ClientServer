@@ -94,34 +94,11 @@ bool FifoAcceptor::start() {
   return true;
 }
 
-void FifoAcceptor::openAcceptorWriteEnd() {
-  int fd = -1;
-  utility::CloseFileDescriptor cfdw(fd);
-  int rep = 0;
-  do {
-    fd = open(_options._acceptorName.data(), O_WRONLY | O_NONBLOCK);
-    if (fd == -1) {
-      switch (errno) {
-      case ENXIO:
-      case EINTR:
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-	break;
-      default:
-	LogError << std::strerror(errno) << std::endl;
-	return;
-	break;
-      }
-    }
-  } while (fd == -1 && rep++ < _options._numberRepeatENXIO);
-  if (fd == -1) {
-    Debug << std::strerror(errno) << ' '
-	  << _options._acceptorName << std::endl;
-  }
-}
-
 void FifoAcceptor::stop() {
   _stopped = true;
-  openAcceptorWriteEnd();
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
+  fd = Fifo::openWriteEndNonBlock(_options._acceptorName, _options);
 }
 
 void FifoAcceptor::removeFifoFiles() {

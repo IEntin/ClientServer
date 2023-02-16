@@ -23,8 +23,6 @@ ThreadPoolDiffObj::~ThreadPoolDiffObj() {
 }
 
 void ThreadPoolDiffObj::push(RunnablePtr runnable) {
-  if (!runnable)
-    return;
   std::lock_guard lock(_queueMutex);
   // need one more thread
   bool condition1 = _numberRelatedObjects > size();
@@ -34,12 +32,10 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
-  else {
-    if (!condition2)
-      runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
-    else if (runnable->_numberRunningTotal >= _maxSize)
-      runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
-  }
+  else if (!condition2)
+    runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
+  else if (runnable->_numberRunningTotal >= _maxSize)
+    runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   runnable->checkCapacity();
   if (_func)
     _func(runnable);
