@@ -113,11 +113,11 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view message = serverutility::buildReply(response, _options._compressor, _status);
-  if (message.empty())
+  std::string_view body = serverutility::buildReply(response, _headerBuffer, _options._compressor, _status);
+  if (body.empty())
     return false;
   asyncWait();
-  write(message, &TcpSession::readHeader);
+  write(body, &TcpSession::readHeader);
   return true;
 }
 
@@ -171,10 +171,14 @@ void TcpSession::readRequest() {
     }));
 }
 
-void TcpSession::write(std::string_view msg, std::function<void(TcpSession*)> nextFunc) {
+void TcpSession::write(std::string_view body, std::function<void(TcpSession*)> nextFunc) {
   auto weakPtr = weak_from_this();
+  static thread_local std::vector<boost::asio::const_buffer> buffers;
+  buffers.clear();
+  buffers.push_back(boost::asio::buffer(_headerBuffer, HEADER_SIZE));
+  buffers.push_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,
-    boost::asio::buffer(msg.data(), msg.size()), boost::asio::bind_executor(_strand,
+    buffers, boost::asio::bind_executor(_strand,
     [this, weakPtr, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = weakPtr.lock();
       if (!self)

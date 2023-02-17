@@ -105,9 +105,10 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
 }
 
 bool FifoSession::sendResponse(const Response& response) {
-  std::string_view message =
-    serverutility::buildReply(response, _options._compressor, _status);
-  if (message.empty())
+  char headerBuffer[HEADER_SIZE] = {};
+  std::string_view body =
+    serverutility::buildReply(response, headerBuffer, _options._compressor, _status);
+  if (body.empty())
     return false;
   // Open write fd in NONBLOCK mode in order to protect the server
   // from a client crashed or killed with SIGKILL and resume operation
@@ -122,8 +123,9 @@ bool FifoSession::sendResponse(const Response& response) {
     return false;
   }
   if (_options._setPipeSize)
-    Fifo::setPipeSize(fdWrite, message.size());
-  return Fifo::writeString(fdWrite, message);
+    Fifo::setPipeSize(fdWrite, body.size() + HEADER_SIZE);
+  return Fifo::writeString(fdWrite, std::string_view(headerBuffer, HEADER_SIZE)) &&
+    Fifo::writeString(fdWrite, body);
 }
 
 bool FifoSession::sendStatusToClient() {

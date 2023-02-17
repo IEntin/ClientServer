@@ -11,7 +11,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, COMPRESSORS compressor, STATUS status) {
+std::string_view buildReply(const Response& response, char* headerBuffer, COMPRESSORS compressor, STATUS status) {
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor != COMPRESSORS::NONE;
@@ -20,26 +20,25 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();
-  size_t requestedSize = uncomprSize + HEADER_SIZE;
-  std::vector<char>& buffer = MemoryPool::instance().getSecondBuffer(requestedSize);
-  buffer.resize(requestedSize);
-  ssize_t pos = HEADER_SIZE;
+  std::vector<char>& buffer = MemoryPool::instance().getSecondBuffer(uncomprSize);
+  buffer.resize(uncomprSize);
+  ssize_t pos = 0;
   for (const auto& entry : response) {
     std::copy(entry.cbegin(), entry.cend(), buffer.begin() + pos);
     pos += entry.size();
   }
   if (bcompressed) {
     try {
-      std::string_view compressedView = Compression::compress(buffer.data() + HEADER_SIZE, uncomprSize);
-      buffer.resize(HEADER_SIZE + compressedView.size());
-      encodeHeader(buffer.data(),
+      std::string_view compressedView = Compression::compress(buffer.data(), uncomprSize);
+      buffer.resize(compressedView.size());
+      encodeHeader(headerBuffer,
 		   HEADERTYPE::SESSION,
 		   uncomprSize,
 		   compressedView.size(),
 		   compressor,
 		   false,
 		   status);
-      std::copy(compressedView.data(), compressedView.data() + compressedView.size(), buffer.begin() + HEADER_SIZE);
+      return std::string_view(compressedView.data(), compressedView.size());
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
@@ -47,7 +46,7 @@ std::string_view buildReply(const Response& response, COMPRESSORS compressor, ST
     }
   }
   else
-    encodeHeader(buffer.data(),
+    encodeHeader(headerBuffer,
 		 HEADERTYPE::SESSION,
 		 uncomprSize,
 		 uncomprSize,

@@ -22,6 +22,6 @@ readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& paylo
 std::pair<bool, boost::system::error_code>
 sendMsg(boost::asio::ip::tcp::socket& socket,
 	const HEADER& header,
-	std::string_view payload = std::string_view());
+	std::string_view body = std::string_view());
 
 } // end of namespace tcp

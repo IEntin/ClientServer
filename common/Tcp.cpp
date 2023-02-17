@@ -45,17 +45,15 @@ readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& paylo
 std::pair<bool, boost::system::error_code>
 sendMsg(boost::asio::ip::tcp::socket& socket,
 	const HEADER& header,
-	std::string_view msg) {
+	std::string_view body) {
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, header);
+  std::vector<boost::asio::const_buffer> buffers;
+  buffers.push_back(boost::asio::buffer(buffer, HEADER_SIZE));
+  if (!body.empty())
+    buffers.push_back(boost::asio::buffer(body));
   boost::system::error_code ec;
-  size_t bytes[[maybe_unused]] =
-    boost::asio::write(socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
-  if (ec) {
-    LogError << ec.what() << std::endl;
-    return { false, ec };
-  }
-  bytes = boost::asio::write(socket, boost::asio::buffer(msg), ec);
+  size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
   if (ec) {
     LogError << ec.what() << std::endl;
     return { false, ec };
