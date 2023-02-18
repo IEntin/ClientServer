@@ -12,7 +12,7 @@ bool AppOptions::initialize() {
   try {
     boost::property_tree::read_json(_fileName, _ptree);
   }
-  catch (std::exception& e) {
+  catch (const std::exception& e) {
     static auto& printOnce[[maybe_unused]] =
       LogError << e.what() << ",\n"
 	    << "default values will be returned, by design in tests." << std::endl;

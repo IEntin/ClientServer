@@ -7,6 +7,7 @@
 #include "CommonConstants.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
+#include "TaskBuilder.h"
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -41,7 +42,7 @@ bool FifoClient::run() {
   return Client::run();
 }
 
-bool FifoClient::send(const std::vector<char>& subtask) {
+bool FifoClient::send(const Subtask& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
   while (_fdWrite == -1) {
     int rep = 0;
@@ -52,10 +53,11 @@ bool FifoClient::send(const std::vector<char>& subtask) {
     } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
     if (_fdWrite >= 0) {
       if (_options._setPipeSize)
-	Fifo::setPipeSize(_fdWrite, subtask.size());
+	Fifo::setPipeSize(_fdWrite, subtask._body.size());
       if (_stopFlag.test())
 	return false;
-      return Fifo::writeString(_fdWrite, std::string_view(subtask.data(), subtask.size()));
+      std::string_view body(subtask._body.data(), subtask._body.size());
+      return Fifo::sendMsg(_fdWrite, subtask._header, body);
     }
     // server stopped
     if (!std::filesystem::exists(_fifoName))

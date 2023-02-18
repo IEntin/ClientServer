@@ -96,10 +96,17 @@ bool Fifo::writeString(int fd, std::string_view str) {
   }
   if (str.size() != written) {
     LogError << "str.size()=" << str.size()
-	  << "!=written=" << written << std::endl;
+	     << "!=written=" << written << std::endl;
     return false;
   }
   return true;
+}
+
+bool Fifo::sendMsg(int fd, const HEADER& header, std::string_view body) {
+  char buffer[HEADER_SIZE] = {};
+  encodeHeader(buffer, header);
+  return writeString(fd, std::string_view(buffer, HEADER_SIZE)) &&
+    writeString(fd, std::string_view(body.data(), body.size()));
 }
 
 short Fifo::pollFd(int& fd, short expected, const Options& options) {

@@ -60,7 +60,7 @@ void Task::finish() {
   try {
     _promise.set_value();
   }
-  catch (std::future_error& e) {
+  catch (const std::future_error& e) {
     LogError << e.what() << std::endl;
   }
 }

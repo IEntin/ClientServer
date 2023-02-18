@@ -130,7 +130,7 @@ bool Ad::load(const std::string& filename) {
     try {
       it->second.emplace_back(row);
     }
-    catch (std::exception& e) {
+    catch (const std::exception& e) {
       Warn << e.what() << ":key-value=" << '\"' << it->first
 	   << "\":\"" << row._value << "\",skipping." << std::endl;
       if (it->second.empty())

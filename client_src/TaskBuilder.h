@@ -22,14 +22,18 @@ enum class TaskBuilderState : int {
 };
 
 struct Subtask {
-  std::vector<char> _chars;
+  HEADER _header;
+  std::vector<char> _body;
   std::promise<void> _promise;
   TaskBuilderState _state = TaskBuilderState::NONE;
 };
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
-  TaskBuilderState compressSubtask(Subtask& subtask, char* beg, char* end, bool alldone);
+  TaskBuilderState compressSubtask(Subtask& subtask,
+				   const std::vector<char>& aggregate,
+				   size_t aggregateSize,
+				   bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 
   const ClientOptions& _options;
@@ -46,6 +50,6 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool);
   ~TaskBuilder() override;
   void stop() override;
-  TaskBuilderState getTask(std::vector<char>& task);
+  TaskBuilderState getSubtask(Subtask& task);
   TaskBuilderState createSubtask();
 };

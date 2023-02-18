@@ -75,7 +75,7 @@ void TaskController::processTask(const HEADER& header, std::vector<char>& input,
     future.get();
     task->getResponse(response);
   }
-  catch (std::future_error& e) {
+  catch (const std::future_error& e) {
     LogError << e.what() << std::endl;
   }
 }
@@ -136,7 +136,7 @@ void TaskController::Worker::run() noexcept {
       while (task->processNext());
       barrier.arrive_and_wait();
     }
-    catch (std::exception& e) {
+    catch (const std::exception& e) {
       LogError << e.what() << std::endl;
     }
     catch (...) {

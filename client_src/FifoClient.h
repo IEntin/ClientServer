@@ -12,16 +12,12 @@ namespace fifo {
 
 class FifoClient : public Client {
 
-  bool send(const std::vector<char>& msg) override;
-
+  bool send(const Subtask& subtask) override;
   bool receive() override;
-
   bool receiveStatus() override;
-
   bool destroySession() override;
 
   bool readReply(const HEADER& header);
-
   bool wakeupAcceptor();
 
   std::string _fifoName;
@@ -29,13 +25,10 @@ class FifoClient : public Client {
   int _fdWrite = -1;
 
  public:
-
   FifoClient(const ClientOptions& options);
-
   ~FifoClient() override;
 
   bool run() override;
-
 };
 
 } // end of namespace fifo

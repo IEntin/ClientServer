@@ -7,6 +7,7 @@
 #include "ThreadPoolBase.h"
 #include <atomic>
 
+struct Subtask;
 struct ClientOptions;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 
@@ -31,7 +32,7 @@ class Client {
  public:
   virtual ~Client();
 
-  virtual bool send(const std::vector<char>& msg) = 0;
+  virtual bool send(const Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
   virtual bool run() = 0;

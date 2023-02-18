@@ -5,8 +5,6 @@
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
 #include "Compression.h"
-#include "MemoryPool.h"
-#include "ThreadPoolBase.h"
 #include "Utility.h"
 #include <filesystem>
 
@@ -17,9 +15,9 @@ TaskBuilder::TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPoo
   if(!_input)
     throw std::ios::failure("Error opening file");
   // rough estimate of a number of subtasks in task
-  // assuming service info (id, header) is not larger
-  // than half of content. The actual number of subtasks
-  // is supposed to be smaller than this estimate.
+  // assuming id is not larger than half of content. 
+  // The actual number of subtasks is supposed to
+  // be smaller than this estimate:
   size_t sourceSize = std::filesystem::file_size(_options._sourceName);
   int expectedNumberSubtasks = (3 * sourceSize / 2 / _options._bufferSize + 1);
   _subtasks.resize(expectedNumberSubtasks);
@@ -36,7 +34,7 @@ void TaskBuilder::run() {
 	break;
     }
   }
-  catch (std::exception& e) {
+  catch (const std::exception& e) {
     LogError << e.what() << std::endl;
   }
   catch (...) {
@@ -50,11 +48,11 @@ bool TaskBuilder::start() {
 
 void TaskBuilder::stop() {
   _stopped = true;
-  std::vector<char> task;
-  getTask(task);
+  Subtask subtask;
+  getSubtask(subtask);
 }
 
-TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
+TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
   TaskBuilderState state = TaskBuilderState::NONE;
   if (_stopped)
     return TaskBuilderState::STOPPED;
@@ -67,7 +65,8 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
     switch (state) {
     case TaskBuilderState::SUBTASKDONE:
     case TaskBuilderState::TASKDONE:
-      subtask._chars.swap(task);
+      subtask._header.swap(task._header);
+      subtask._body.swap(task._body);
       break;
     default:
       break;
@@ -78,8 +77,7 @@ TaskBuilderState TaskBuilder::getTask(std::vector<char>& task) {
     return TaskBuilderState::ERROR;
   }
   catch (const std::out_of_range& e) {
-    LogError << e.what()
-      << ". Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
+    LogError << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
   return state;
@@ -102,31 +100,30 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // Read requests from the source, generate id for each.
 // The source can be a file or a message received from
 // another device.
-// Aggregate requests for sending many in one shot
-// to reduce the number of write/read system calls.
-// The size of the aggregate depends on the configured buffer size.
+// Aggregate requests for sending many in one shot to
+// reduce the number of system calls. The size of the
+// aggregate depends on the configured buffer size.
 
 TaskBuilderState TaskBuilder::createSubtask() {
   thread_local static std::vector<char> aggregate(_options._bufferSize);
   size_t aggregateSize = 0;
-  // rough estimate for id and header to avoid reallocation.
+  // rough estimate for subtask size to avoid reallocation.
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
   thread_local static std::string line;
   if (_subtaskProduceIndex >= _subtasks.size()) {
-    LogError << "std::out_of_range avoided.\n"
-	  << "Increase \"ExpectedMaxNumberSubtasksInTask\" in ClientOptions.json!" << std::endl;
+    LogError << "std::out_of_range avoided.\n" << std::endl;
     return TaskBuilderState::ERROR;
   }
   auto& subtask = _subtasks.at(_subtaskProduceIndex);
   _subtaskProduceIndex++;
   try {
     while (std::getline(_input, line)) {
-      aggregate.reserve(HEADER_SIZE + aggregateSize + _nextIdSz + line.size() + 1);
-      int copied = copyRequestWithId(aggregate.data() + aggregateSize + HEADER_SIZE, line);
+      aggregate.reserve(aggregateSize + _nextIdSz + line.size() + 1);
+      int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
       aggregateSize += copied;
       bool alldone = _input.peek() == std::istream::traits_type::eof();
       if (aggregateSize >= maxSubtaskSize || alldone) {
-	return compressSubtask(subtask, aggregate.data(), aggregate.data() + aggregateSize + HEADER_SIZE, alldone);
+	return compressSubtask(subtask, aggregate, aggregateSize, alldone);
       }
       else
 	continue;
@@ -143,7 +140,10 @@ TaskBuilderState TaskBuilder::createSubtask() {
 // Compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char* end, bool alldone) {
+TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
+					      const std::vector<char>& aggregate,
+					      size_t aggregateSize,
+					      bool alldone) {
   struct SatisfyPromise {
     SatisfyPromise(Subtask& subtask) : _subtask(subtask) {}
     ~SatisfyPromise() {
@@ -160,20 +160,29 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
   bool bcompressed = _options._compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  size_t uncomprSize = end - beg - HEADER_SIZE;
+  size_t uncomprSize = aggregateSize;
   if (bcompressed) {
     try {
-      std::string_view compressedView = Compression::compress(beg + HEADER_SIZE, uncomprSize);
+      std::string_view compressedView = Compression::compress(aggregate.data(), uncomprSize);
       // LZ4 may generate compressed larger than uncompressed.
       // In this case an uncompressed subtask is sent.
       if (compressedView.size() >= uncomprSize) {
-	encodeHeader(beg, HEADERTYPE::SESSION, uncomprSize, uncomprSize, COMPRESSORS::NONE, _options._diagnostics);
-	subtask._chars.assign(beg, end);
+	subtask._header = { HEADERTYPE::SESSION,
+	  uncomprSize,
+	  uncomprSize,
+	  COMPRESSORS::NONE,
+	  _options._diagnostics,
+	  STATUS::NONE };
+	subtask._body.assign(aggregate.data(), aggregate.data() + aggregateSize);
       }
       else {
-	encodeHeader(beg, HEADERTYPE::SESSION, uncomprSize, compressedView.size(), _options._compressor, _options._diagnostics);
-	std::copy(compressedView.data(), compressedView.data() + compressedView.size(), beg + HEADER_SIZE);
-	subtask._chars.assign(beg, beg + HEADER_SIZE + compressedView.size());
+	subtask._header = { HEADERTYPE::SESSION,
+	  uncomprSize,
+	  compressedView.size(),
+	  _options._compressor,
+	  _options._diagnostics,
+	  STATUS::NONE };
+	subtask._body.assign(compressedView.cbegin(), compressedView.cend());
       }
     }
     catch (const std::exception& e) {
@@ -182,8 +191,13 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask, char* beg, char*
     }
   }
   else {
-    encodeHeader(beg, HEADERTYPE::SESSION, uncomprSize, uncomprSize, _options._compressor, _options._diagnostics);
-    subtask._chars.assign(beg, end);
+    subtask._header = { HEADERTYPE::SESSION,
+      uncomprSize,
+      uncomprSize,
+      _options._compressor,
+      _options._diagnostics,
+      STATUS::NONE };
+    subtask._body.assign(aggregate.data(), aggregate.data() + aggregateSize);
   }
   if (subtask._state != TaskBuilderState::ERROR)
     subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;

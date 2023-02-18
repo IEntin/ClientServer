@@ -4,6 +4,7 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
+#include "TaskBuilder.h"
 #include "Tcp.h"
 #include "Utility.h"
 
@@ -33,15 +34,12 @@ bool TcpClient::run() {
   return Client::run();
 }
 
-bool TcpClient::send(const std::vector<char>& msg) {
-  boost::system::error_code ec;
-  size_t result[[maybe_unused]] =
-    boost::asio::write(_socket, boost::asio::buffer(msg), ec);
-  if (ec) {
+bool TcpClient::send(const Subtask& subtask) {
+  std::string_view body(subtask._body.data(), subtask._body.size());
+  auto [success, ec] = sendMsg(_socket, subtask._header, body);
+  if (ec)
     LogError << ec.what() << std::endl;
-    return false;
-  }
-  return true;
+  return success;
 }
 
 bool TcpClient::receive() {
@@ -104,13 +102,12 @@ bool TcpClient::receiveStatus() {
 bool TcpClient::destroySession() {
   try {
     boost::asio::ip::tcp::socket socket(_ioContext);
-    auto [endpoint, error] =
-      tcp::setSocket(_ioContext, socket, _options);
+    auto [endpoint, error] = setSocket(_ioContext, socket, _options);
     if (error)
       return false;
     size_t size = _clientId.size();
     HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
-    return tcp::sendMsg(socket, header, _clientId).first;
+    return sendMsg(socket, header, _clientId).first;
   }
   catch (const std::exception& e) {
     Warn << e.what() << std::endl;

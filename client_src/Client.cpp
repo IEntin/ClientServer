@@ -25,9 +25,9 @@ Client::~Client() {
 // content in one shot.
 
 bool Client::processTask(TaskBuilderPtr taskBuilder) {
-  std::vector<char> task;
+  static Subtask task;
   while (true) {
-    TaskBuilderState state = taskBuilder->getTask(task);
+    TaskBuilderState state = taskBuilder->getSubtask(task);
     switch (state) {
     case TaskBuilderState::ERROR:
       LogError << "TaskBuilder failed." << std::endl;
