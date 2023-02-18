@@ -13,7 +13,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _processType = appOptions.get("ProcessType", std::string("Transaction"));
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);
-  _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::jthread::hardware_concurrency();
+  _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();
   _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);

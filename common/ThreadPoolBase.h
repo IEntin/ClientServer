@@ -15,7 +15,7 @@ protected:
   void createThread();
   ThreadPoolBase(const ThreadPoolBase& other) = delete;
   ThreadPoolBase& operator =(const ThreadPoolBase& other) = delete;
-  std::vector<std::jthread> _threads;
+  std::vector<std::thread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::deque<RunnablePtr> _queue;
@@ -36,5 +36,5 @@ public:
   void decrement() { _numberRelatedObjects--; }
   int maxSize() const { return _maxSize; }
   // used in tests
-  std::vector<std::jthread>& getThreads() { return _threads; }
+  std::vector<std::thread>& getThreads() { return _threads; }
 };

@@ -25,6 +25,7 @@ Client::~Client() {
 // content in one shot.
 
 bool Client::processTask(TaskBuilderPtr taskBuilder) {
+  // static here is safe and saves on memory allocations
   static Subtask task;
   while (true) {
     TaskBuilderState state = taskBuilder->getSubtask(task);
