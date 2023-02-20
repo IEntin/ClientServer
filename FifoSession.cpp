@@ -136,14 +136,9 @@ bool FifoSession::sendStatusToClient() {
     LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
-  size_t size = _clientId.size();
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  if (!Fifo::writeString(fd, std::string_view(buffer, HEADER_SIZE))) {
-    LogError << "failed." << std::endl;
-    return false;
-  }
-  return Fifo::writeString(fd, std::string_view(_clientId));
+  size_t size = _fifoName.size();
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  return Fifo::sendMsg(fd, header, _fifoName);
 }
 
 } // end of namespace fifo

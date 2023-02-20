@@ -39,6 +39,4 @@ class Client {
   virtual bool destroySession() = 0;
 
   void stop();
-
-  static void setStopFlag();
 };

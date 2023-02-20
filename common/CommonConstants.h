@@ -7,3 +7,5 @@
 inline constexpr const char* WAKEUP_MUTEX = "wakeupMutex";
 
 inline constexpr int MAX_NUMBER_THREADS_DEFAULT = 1000;
+
+inline constexpr const char* FILE_SERVER_RUNNING = ".server_running";

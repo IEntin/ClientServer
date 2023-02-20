@@ -96,6 +96,13 @@ void TcpClientHeartbeat::timeoutWait() {
 }
 
 void TcpClientHeartbeat::read() {
+  // receives interrupt and unblocks read on CtrlC in wait mode
+  boost::system::error_code ec;
+  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
+  if (ec) {
+    LogError << ec.what() << std::endl;
+    return;
+  }
   auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
     [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
@@ -150,6 +157,13 @@ void TcpClientHeartbeat::write() {
     setSocket(_ioContext, _socket, _options);
   if (error) {
     LogError << error.what() << std::endl;
+    return;
+  }
+  // receives interrupt and unblocks read on CtrlC in wait mode
+  boost::system::error_code ec;
+  _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
+  if (ec) {
+    LogError << ec.what() << std::endl;
     return;
   }
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false);

@@ -13,6 +13,7 @@
 #include <cassert>
 #include <csignal>
 #include <cstring>
+#include <filesystem>
 
 void signalHandler([[maybe_unused]] int signal) {
   Globals::_stopFlag.test_and_set();
@@ -47,6 +48,7 @@ int main() {
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << std::endl;
+    std::filesystem::remove(options._controlFileName);
     Metrics::save();
     server.stop();
     int closed = fcloseall();

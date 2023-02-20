@@ -128,7 +128,3 @@ void Client::start() {
     Warn << e.what() << std::endl;
   }
 }
-
-void Client::setStopFlag() {
-  _stopFlag.test_and_set();
-}

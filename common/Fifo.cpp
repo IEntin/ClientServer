@@ -156,11 +156,14 @@ bool Fifo::setPipeSize(int fd, long requested) {
   return false;
 }
 
-// unblock the call open(...O_RDONLY) by opening the write end.
+// unblock the call to blocking open calls by opening opposite end.
 void Fifo::onExit(std::string_view fifoName, const Options& options) {
-  int fd = -1;
-  utility::CloseFileDescriptor cfdw(fd);
-  fd = openWriteEndNonBlock(fifoName, options);
+  int fdWrite = -1;
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  fdWrite = openWriteEndNonBlock(fifoName, options);
+  int fdRead = -1;
+  utility::CloseFileDescriptor cfdr(fdRead);
+  fdRead = openReadEndNonBlock(fifoName, options);
 }
 
 int Fifo::openWriteEndNonBlock(std::string_view fifoName, const Options& options) {
@@ -179,8 +182,25 @@ int Fifo::openWriteEndNonBlock(std::string_view fifoName, const Options& options
       }
     }
   } while (fd == -1 && rep++ < options._numberRepeatENXIO);
-  if (fd == -1)
-    Info << std::strerror(errno) << ' ' << fifoName << std::endl;
+  return fd;
+}
+
+int Fifo::openReadEndNonBlock(std::string_view fifoName, const Options& options) {
+  int fd = -1;
+  int rep = 0;
+  do {
+    fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
+    if (fd == -1) {
+      switch (errno) {
+      case ENXIO:
+      case EINTR:
+	std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
+	break;
+      default:
+	break;
+      }
+    }
+  } while (fd == -1 && rep++ < options._numberRepeatENXIO);
   return fd;
 }
 

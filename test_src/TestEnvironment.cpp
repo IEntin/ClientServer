@@ -34,6 +34,7 @@ void TestEnvironment::SetUp() {
 }
 
 void TestEnvironment::TearDown() {
+  std::filesystem::remove(TestEnvironment::_serverOptionsOrg._controlFileName);
   Metrics::save();
   Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);
 }

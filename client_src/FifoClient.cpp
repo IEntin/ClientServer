@@ -16,6 +16,10 @@
 
 namespace fifo {
 
+namespace {
+std::string fifoName;
+} // end of anonimous namespace
+
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
   try {
@@ -25,6 +29,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
       return;
     if (!receiveStatus())
       throw std::runtime_error("FifoClient::receiveStatus failed");
+    fifoName = _fifoName;
   }
   catch (boost::interprocess::interprocess_exception& e) {
     LogError << e.what() << std::endl;
@@ -44,33 +49,23 @@ bool FifoClient::run() {
 
 bool FifoClient::send(const Subtask& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  while (_fdWrite == -1) {
-    int rep = 0;
-    do {
-      _fdWrite = open(_fifoName.data(), O_WRONLY | O_NONBLOCK);
-      if (_fdWrite == -1 && (errno == ENXIO || errno == EINTR))
-	std::this_thread::sleep_for(std::chrono::milliseconds(_options._ENXIOwait));
-    } while (_fdWrite == -1 && (errno == ENXIO || errno == EINTR) && rep++ < _options._numberRepeatENXIO);
-    if (_fdWrite >= 0) {
-      if (_options._setPipeSize)
-	Fifo::setPipeSize(_fdWrite, subtask._body.size());
-      if (_stopFlag.test())
-	return false;
-      std::string_view body(subtask._body.data(), subtask._body.size());
-      return Fifo::sendMsg(_fdWrite, subtask._header, body);
-    }
-    // server stopped
-    if (!std::filesystem::exists(_fifoName))
-      return false;
-    // client closed
-    if (_stopFlag.test())
-      return false;
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+  _fdWrite = open(_fifoName.data(), O_WRONLY);
+  if (_stopFlag.test())
+    return false;
+  if (!std::filesystem::exists(_options._controlFileName))
+    return false;
+  if (_fdWrite >= 0) {
+    if (_options._setPipeSize)
+      Fifo::setPipeSize(_fdWrite, subtask._body.size());
+    std::string_view body(subtask._body.data(), subtask._body.size());
+    return Fifo::sendMsg(_fdWrite, subtask._header, body);
   }
   return false;
 }
 
 bool FifoClient::receive() {
+  if (!std::filesystem::exists(_options._controlFileName))
+    return false;
   utility::CloseFileDescriptor cfdr(_fdRead);
   _fdRead = open(_fifoName.data(), O_RDONLY);
   if (_fdRead == -1) {
@@ -129,12 +124,12 @@ bool FifoClient::receiveStatus() {
     }
     HEADER header = Fifo::readHeader(fd, _options);
     size_t size = extractUncompressedSize(header);
-    _clientId.resize(size);
-    if (!Fifo::readString(fd, _clientId.data(), size, _options)) {
+    _fifoName.resize(size);
+    if (!Fifo::readString(fd, _fifoName.data(), size, _options)) {
       LogError << "failed." << std::endl;
       return false;
     }
-    _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(_clientId);
+    _clientId = std::filesystem::path(_fifoName).filename();
     _status = extractStatus(header);
     switch (_status) {
     case STATUS::NONE:
@@ -168,6 +163,14 @@ bool FifoClient::destroySession() {
   if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE)))
     return false;
   return Fifo::writeString(fd, std::string_view(_clientId));
+}
+
+void FifoClient::setStopFlag(const ClientOptions& options) {
+  int old_errno = errno;
+  _stopFlag.test_and_set();
+  Fifo::openWriteEndNonBlock(fifoName, options) ;
+  Fifo::openReadEndNonBlock(fifoName, options);
+  errno = old_errno;
 }
 
 } // end of namespace fifo

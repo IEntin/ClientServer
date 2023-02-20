@@ -23,6 +23,7 @@ public:
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);
   static int openWriteEndNonBlock(std::string_view fifoName, const Options& options);
+  static int openReadEndNonBlock(std::string_view fifoName, const Options& options);
 };
 
 } // end of namespace fifo

@@ -16,7 +16,6 @@ class FifoClient : public Client {
   bool receive() override;
   bool receiveStatus() override;
   bool destroySession() override;
-
   bool readReply(const HEADER& header);
   bool wakeupAcceptor();
 
@@ -29,6 +28,8 @@ class FifoClient : public Client {
   ~FifoClient() override;
 
   bool run() override;
+
+  static void setStopFlag(const ClientOptions& options);
 };
 
 } // end of namespace fifo

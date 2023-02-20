@@ -10,8 +10,13 @@
 #include "TcpClient.h"
 #include <csignal>
 
+namespace {
+  ClientOptions options("ClientOptions.json");
+} // end of anonimous namespace
+
 void signalHandler(int) {
-  Client::setStopFlag();
+  if (options._fifoClient)
+    fifo::FifoClient::setStopFlag(options);
 }
 
 int main() {
@@ -21,7 +26,6 @@ int main() {
       Metrics::print();
     }
   } doAtEnd;
-  ClientOptions options("ClientOptions.json");
   std::signal(SIGINT, signalHandler);
   std::signal(SIGTERM, signalHandler);
   sigset_t set;

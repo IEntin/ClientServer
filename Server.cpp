@@ -9,6 +9,7 @@
 #include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
+#include <fstream>
 
 Server::Server(const ServerOptions& options) :
   _options(options),
@@ -30,7 +31,10 @@ bool Server::start() {
   _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(_options,
 						       _threadPoolAcceptor,
 						       _threadPoolSession);
-  return _fifoAcceptor->start();
+  if (!_fifoAcceptor->start())
+    return false;
+  std::ofstream file(_options._controlFileName);
+  return true;
 }
 
 void Server::stop() {
