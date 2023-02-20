@@ -11,7 +11,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, char* headerBuffer, COMPRESSORS compressor, STATUS status) {
+std::string_view buildReply(const Response& response, HEADER& header, COMPRESSORS compressor, STATUS status) {
   if (response.empty())
     return std::string_view();
   bool bcompressed = compressor != COMPRESSORS::NONE;
@@ -31,13 +31,7 @@ std::string_view buildReply(const Response& response, char* headerBuffer, COMPRE
     try {
       std::string_view compressedView = Compression::compress(buffer.data(), uncomprSize);
       buffer.resize(compressedView.size());
-      encodeHeader(headerBuffer,
-		   HEADERTYPE::SESSION,
-		   uncomprSize,
-		   compressedView.size(),
-		   compressor,
-		   false,
-		   status);
+      header = { HEADERTYPE::SESSION, uncomprSize, compressedView.size(), compressor, false, status };
       return std::string_view(compressedView.data(), compressedView.size());
     }
     catch (const std::exception& e) {
@@ -46,13 +40,7 @@ std::string_view buildReply(const Response& response, char* headerBuffer, COMPRE
     }
   }
   else
-    encodeHeader(headerBuffer,
-		 HEADERTYPE::SESSION,
-		 uncomprSize,
-		 uncomprSize,
-		 compressor,
-		 false,
-		 status);
+    header = { HEADERTYPE::SESSION, uncomprSize, uncomprSize, compressor, false, status };
   return std::string_view(buffer.cbegin(), buffer.cend());
 }
 

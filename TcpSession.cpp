@@ -113,7 +113,7 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view body = serverutility::buildReply(response, _headerBuffer, _options._compressor, _status);
+  std::string_view body = serverutility::buildReply(response, _header, _options._compressor, _status);
   if (body.empty())
     return false;
   asyncWait();
@@ -175,6 +175,7 @@ void TcpSession::write(std::string_view body, std::function<void(TcpSession*)> n
   auto weakPtr = weak_from_this();
   static thread_local std::vector<boost::asio::const_buffer> buffers;
   buffers.clear();
+  encodeHeader(_headerBuffer, _header);
   buffers.push_back(boost::asio::buffer(_headerBuffer, HEADER_SIZE));
   buffers.push_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,

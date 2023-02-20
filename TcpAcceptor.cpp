@@ -84,11 +84,7 @@ void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  char heartbeatBuffer[HEADER_SIZE] = {};
-  encodeHeader(heartbeatBuffer, _header);
-  boost::system::error_code ec;
-  size_t transferred[[maybe_unused]] =
-    boost::asio::write(socket, boost::asio::buffer(heartbeatBuffer), ec);
+  auto [success, ec] = sendMsg(socket, _header);
   if (ec) {
     LogError << ec.what() << std::endl;
     return;

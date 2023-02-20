@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "CommonConstants.h"
 #include "Fifo.h"
-#include "MemoryPool.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
@@ -107,9 +106,8 @@ bool FifoClient::wakeupAcceptor() {
 	     << _options._acceptorName << std::endl;
     return false;
   }
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status);
-  return Fifo::writeString(fd, std::string_view(buffer, HEADER_SIZE)); 
+  HEADER header = { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
+  return Fifo::sendMsg(fd, header);
 }
 
 bool FifoClient::receiveStatus() {
@@ -158,11 +156,8 @@ bool FifoClient::destroySession() {
   if (fd == -1)
     return false;
   size_t size = _clientId.size();
-  std::vector<char> buffer(HEADER_SIZE);
-  encodeHeader(buffer.data(), HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status);
-  if (!Fifo::writeString(fd, std::string_view(buffer.data(), HEADER_SIZE)))
-    return false;
-  return Fifo::writeString(fd, std::string_view(_clientId));
+  HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  return Fifo::sendMsg(fd, header, _clientId);
 }
 
 void FifoClient::setStopFlag(const ClientOptions& options) {
