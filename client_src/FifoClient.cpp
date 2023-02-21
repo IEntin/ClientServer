@@ -15,9 +15,7 @@
 
 namespace fifo {
 
-namespace {
-std::string fifoName;
-} // end of anonimous namespace
+std::string FifoClient::_fifoName;
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
@@ -28,7 +26,6 @@ FifoClient::FifoClient(const ClientOptions& options) :
       return;
     if (!receiveStatus())
       throw std::runtime_error("FifoClient::receiveStatus failed");
-    fifoName = _fifoName;
   }
   catch (boost::interprocess::interprocess_exception& e) {
     LogError << e.what() << std::endl;
@@ -163,8 +160,8 @@ bool FifoClient::destroySession() {
 void FifoClient::setStopFlag(const ClientOptions& options) {
   int old_errno = errno;
   _stopFlag.test_and_set();
-  Fifo::openWriteEndNonBlock(fifoName, options) ;
-  Fifo::openReadEndNonBlock(fifoName, options);
+  Fifo::openWriteEndNonBlock(_fifoName, options) ;
+  Fifo::openReadEndNonBlock(_fifoName, options);
   errno = old_errno;
 }
 

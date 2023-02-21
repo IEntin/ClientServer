@@ -19,9 +19,9 @@ class FifoClient : public Client {
   bool readReply(const HEADER& header);
   bool wakeupAcceptor();
 
-  std::string _fifoName;
   int _fdRead = -1;
   int _fdWrite = -1;
+  static std::string _fifoName;
 
  public:
   FifoClient(const ClientOptions& options);
