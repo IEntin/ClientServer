@@ -19,8 +19,10 @@ Options::Options(const std::string& jsonName) {
   _portString = std::to_string(_tcpPort);
   _tcpService = _portString;
   _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
-  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 10);
-  _ENXIOwait = appOptions.get("ENXIOwai", 20);
+  // next 2 parameters may be decreased for better responsiveness
+  // or increased to prevent deadlocking on slow machines.
+  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 5);
+  _ENXIOwait = appOptions.get("ENXIOwai", 10);
   _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
   _timing = appOptions.get("Timing", false);
   _setPipeSize = appOptions.get("SetPipeSize", true);
