@@ -22,15 +22,13 @@ Server::Server(const ServerOptions& options) :
 bool Server::start() {
   if (!TaskController::create(_options))
     return false;
-  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(_options,
-						    _threadPoolAcceptor,
-						    _threadPoolSession);
+  _tcpAcceptor =
+    std::make_shared<tcp::TcpAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
   if (!_tcpAcceptor->start())
     return false;
 
-  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(_options,
-						       _threadPoolAcceptor,
-						       _threadPoolSession);
+  _fifoAcceptor =
+    std::make_shared<fifo::FifoAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
   if (!_fifoAcceptor->start())
     return false;
   std::ofstream file(_options._controlFileName);

@@ -72,10 +72,6 @@ void FifoSession::checkCapacity() {
 }
 
 bool FifoSession::start() {
-  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
-    return false;
-  }
   _threadPool.push(shared_from_this());
   return true;
 }
@@ -130,14 +126,13 @@ bool FifoSession::sendResponse(const Response& response) {
 bool FifoSession::sendStatusToClient() {
   int fd = -1;
   utility::CloseFileDescriptor closeFd(fd);
-  fd = open(_options._acceptorName.data(), O_WRONLY);
+  fd = open(_fifoName.data(), O_WRONLY);
   if (fd == -1) {
-    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+    LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  size_t size = _fifoName.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(fd, header, _fifoName);
+  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
+  return Fifo::sendMsg(fd, header);
 }
 
 } // end of namespace fifo

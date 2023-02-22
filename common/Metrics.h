@@ -5,8 +5,6 @@
 #pragma once
 
 #include "Logger.h"
-#include <cstddef>
-#include <string>
 
 class Metrics {
  public:

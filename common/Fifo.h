@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include <string_view>
 
 struct Options;
 

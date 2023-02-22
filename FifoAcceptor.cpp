@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 namespace fifo {
 
@@ -40,15 +39,15 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
       return { HEADERTYPE::ERROR, emptyString };
     HEADER header = Fifo::readHeader(fd, _options);
     size_t size = extractUncompressedSize(header);
-    std::string clientId;
+    std::string key;
     if (size > 0) {
-      clientId.resize(size);
-      if (!Fifo::readString(fd, clientId.data(), size, _options)) {
+      key.resize(size);
+      if (!Fifo::readString(fd, key.data(), size, _options)) {
 	LogError << "failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }
     }
-    return { extractHeaderType(header), std::move(clientId) };
+    return { extractHeaderType(header), std::move(key) };
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
@@ -65,7 +64,7 @@ void FifoAcceptor::run() {
     }
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      createSession();
+      createSession(key);
       break;
     case HEADERTYPE::DESTROY_SESSION:
       destroySession(key);
@@ -76,11 +75,10 @@ void FifoAcceptor::run() {
   }
 }
 
-void FifoAcceptor::createSession() {
-  std::string clientId = utility::getUniqueId();
+void FifoAcceptor::createSession(std::string_view key) {
   RunnablePtr session =
-    std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
-  startSession(clientId, session);
+    std::make_shared<FifoSession>(_options, key, _threadPoolSession);
+  startSession(key, session);
 }
 
 bool FifoAcceptor::start() {

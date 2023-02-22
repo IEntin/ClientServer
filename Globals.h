@@ -7,5 +7,5 @@
 #include <atomic>
 
 struct Globals {
-  static std::atomic_flag _stopFlag;
+  static inline std::atomic_flag _stopFlag;
 };

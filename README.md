@@ -34,10 +34,10 @@ Session can be extremely short-lived, e.g. it might service one submillisecond r
 in another extreme it can run for the life time of the server. With this architecture it\
 is important to limit creation of new threads and use thread pools. 
 
-This server is using thread pools for both tcp and fifo sessions, see ThreadPool class for a\
-generic thread pool. Thread pool creates threads on demand comparing the number of objects of a given\
-class and the number of already created threads. This prevents creation of redundant threads possible if\
-maximum allowed by the configuration were created in advance.
+This server is using thread pools for both tcp and fifo sessions, see ThreadPool... classes in\
+the code. Thread pool creates threads on demand comparing the number of objects of a given\
+class and the number of already created threads. This prevents creation of redundant threads\
+possible if maximum allowed number of threads were created in advance.
 
 In some cases fifo has better performance and possibly stronger security than tcp. Due to protocol\
 with predictable sequence of reads and writes, it is possible to make pipes bidirectional. This\
@@ -64,17 +64,15 @@ Tcp clients are using the standard ephemeral port mechanism.\
 For fifo clients an analogous acceptor method is used.\
 The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
-unblocks the pipe by opening its writing end. The server generates UUID,\
-creates a new pipe with this name in the appropriate directory, and\
-sends pipe name and status information to the client.\
-It is also necessary to synchronize access to the acceptor, so that only\
-one starting client unblocks acceptor at a time. A named mutex (boost\
-interprocess library) makes it. Tests show that any number of fifo clients\
-can be started concurrently by the script checkmulticlients.sh.\
-System wide (actually globally) unique pipe name is an analogy of the\
-unique combination of ip address and ephemeral port in the tcp case.\
-In practice, this allows concurrent running of multiple clients without manual\
-configuration.
+unblocks acceptor by opening its writing end, generates UUID, creates a new\
+pipe with this name in the appropriate directory, and sends pipe name to the\
+acceptor which creates a new session.\
+Only one starting client creates a session at a time due to blocking\
+open(...) call, so there is no need in synchronization. Tests show that any\
+number of fifo clients can be started concurrently by the script\
+checkmulticlients.sh.\
+Globally unique pipe name is an analogy of the unique combination\
+of ip address and ephemeral port in the tcp case.
 
 .........
 

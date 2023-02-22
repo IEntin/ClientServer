@@ -4,14 +4,12 @@
 
 #include "FifoClient.h"
 #include "ClientOptions.h"
-#include "CommonConstants.h"
 #include "Fifo.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
 #include <fcntl.h>
 #include <filesystem>
+#include <sys/stat.h>
 
 namespace fifo {
 
@@ -19,18 +17,16 @@ std::string FifoClient::_fifoName;
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
-  try {
-    boost::interprocess::named_mutex wakeupMutex{ boost::interprocess::open_or_create, WAKEUP_MUTEX };
-    boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock{ wakeupMutex };
-    if (!wakeupAcceptor())
-      return;
-    if (!receiveStatus())
-      throw std::runtime_error("FifoClient::receiveStatus failed");
+  _clientId = utility::getUniqueId();
+  _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
+    return;
   }
-  catch (boost::interprocess::interprocess_exception& e) {
-    LogError << e.what() << std::endl;
-    throw std::runtime_error("named mutex lock failure.");
-  }
+  if (!wakeupAcceptor())
+    throw std::runtime_error("FifoClient::wakeupAcceptor failed");
+  if (!receiveStatus())
+    throw std::runtime_error("FifoClient::receiveStatus failed");
 }
 
 FifoClient::~FifoClient() {
@@ -99,32 +95,25 @@ bool FifoClient::wakeupAcceptor() {
   utility::CloseFileDescriptor cfdw(fd);
   fd = open(_options._acceptorName.data(), O_WRONLY);
   if (fd == -1) {
-    LogError << std::strerror(errno) << ' '
-	     << _options._acceptorName << std::endl;
+    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
-  HEADER header = { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(fd, header);
+  size_t size = _clientId.size();
+  HEADER header =
+    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  return Fifo::sendMsg(fd, header, _clientId);
 }
 
 bool FifoClient::receiveStatus() {
   try {
     int fd = -1;
     utility::CloseFileDescriptor closefd(fd);
-    fd = open(_options._acceptorName.data(), O_RDONLY);
+    fd = open(_fifoName.data(), O_RDONLY);
     if (fd == -1) {
-      LogError << std::strerror(errno) << ' '
-	       << _options._acceptorName << std::endl;
+      LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;
     }
     HEADER header = Fifo::readHeader(fd, _options);
-    size_t size = extractUncompressedSize(header);
-    _fifoName.resize(size);
-    if (!Fifo::readString(fd, _fifoName.data(), size, _options)) {
-      LogError << "failed." << std::endl;
-      return false;
-    }
-    _clientId = std::filesystem::path(_fifoName).filename();
     _status = extractStatus(header);
     switch (_status) {
     case STATUS::NONE:

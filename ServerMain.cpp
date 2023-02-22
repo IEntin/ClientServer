@@ -3,13 +3,11 @@
  */
 
 #include "Chronometer.h"
-#include "CommonConstants.h"
 #include "Globals.h"
 #include "Logger.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
 #include <cassert>
 #include <csignal>
 #include <cstring>
@@ -53,7 +51,6 @@ int main() {
     server.stop();
     int closed = fcloseall();
     assert(closed == 0);
-    boost::interprocess::named_mutex::remove(WAKEUP_MUTEX);
     return 0;
   }
   catch (const std::exception& e) {
