@@ -14,11 +14,11 @@ TcpClient::TcpClient(const ClientOptions& options) :
   Client(options),
   _socket(_ioContext) {
   auto [endpoint, error] =
-    setSocket(_ioContext, _socket, _options);
+    Tcp::setSocket(_ioContext, _socket, _options);
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
-  auto [success, ec] = sendMsg(_socket, header);
+  auto [success, ec] = Tcp::sendMsg(_socket, header);
   if (!success)
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())
@@ -36,7 +36,7 @@ bool TcpClient::run() {
 
 bool TcpClient::send(const Subtask& subtask) {
   std::string_view body(subtask._body.data(), subtask._body.size());
-  auto [success, ec] = sendMsg(_socket, subtask._header, body);
+  auto [success, ec] = Tcp::sendMsg(_socket, subtask._header, body);
   if (ec)
     LogError << ec.what() << std::endl;
   return success;
@@ -50,16 +50,11 @@ bool TcpClient::receive() {
     LogError << ec.what() << std::endl;
     return false;
   }
-  ec.clear();
-  char buffer[HEADER_SIZE] = {};
-  size_t result[[maybe_unused]] =
-    boost::asio::read(_socket, boost::asio::buffer(buffer, HEADER_SIZE), ec);
-  if (ec) {
-    LogError << ec.what() << std::endl;
+  HEADER header;
+  auto [success, error] = Tcp::readHeader(_socket, header);
+  if (error)
     return false;
-  }
   _status = STATUS::NONE;
-  HEADER header = decodeHeader(buffer);
   return readReply(header);
 }
 
@@ -79,7 +74,7 @@ bool TcpClient::readReply(const HEADER& header) {
 
 bool TcpClient::receiveStatus() {
   HEADER header;
-  auto [success, ec] = readMsg(_socket, header, _clientId);
+  auto [success, ec] = Tcp::readMsg(_socket, header, _clientId);
   assert(!isCompressed(header) && "expected uncompressed");
   if (ec) {
     throw(std::runtime_error(ec.what()));
@@ -102,12 +97,12 @@ bool TcpClient::receiveStatus() {
 bool TcpClient::destroySession() {
   try {
     boost::asio::ip::tcp::socket socket(_ioContext);
-    auto [endpoint, error] = setSocket(_ioContext, socket, _options);
+    auto [endpoint, error] = Tcp::setSocket(_ioContext, socket, _options);
     if (error)
       return false;
     size_t size = _clientId.size();
     HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
-    return sendMsg(socket, header, _clientId).first;
+    return Tcp::sendMsg(socket, header, _clientId).first;
   }
   catch (const std::exception& e) {
     Warn << e.what() << std::endl;

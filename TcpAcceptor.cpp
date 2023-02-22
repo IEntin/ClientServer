@@ -64,7 +64,7 @@ void TcpAcceptor::run() {
 
 TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& socket) {
   std::string clientId;
-  auto [success, ec] = readMsg(socket, _header, clientId);
+  auto [success, ec] = Tcp::readMsg(socket, _header, clientId);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
     LogError << ec.what() << std::endl;
@@ -84,7 +84,7 @@ void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  auto [success, ec] = sendMsg(socket, _header);
+  auto [success, ec] = Tcp::sendMsg(socket, _header);
   if (ec) {
     LogError << ec.what() << std::endl;
     return;

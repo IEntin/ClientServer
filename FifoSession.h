@@ -17,9 +17,8 @@ namespace fifo {
 class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   public RunnableT<FifoSession> {
   const ServerOptions& _options;
-  std::string _clientId;
+  const std::string _fifoName;
   ThreadPoolReference _threadPool;
-  std::string _fifoName;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
@@ -29,7 +28,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   void checkCapacity() override;
   bool sendStatusToClient() override;
  public:
-  FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolDiffObj& threadPool);
+  FifoSession(const ServerOptions& options, const std::string& clientId, ThreadPoolDiffObj& threadPool);
   ~FifoSession() override;
 };
 

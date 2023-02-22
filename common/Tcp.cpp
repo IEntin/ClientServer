@@ -9,7 +9,7 @@
 namespace tcp {
 
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
-setSocket(boost::asio::io_context& ioContext,
+Tcp::setSocket(boost::asio::io_context& ioContext,
 	  boost::asio::ip::tcp::socket& socket,
 	  const ClientOptions& options) {
   boost::asio::ip::tcp::resolver resolver(ioContext);
@@ -24,7 +24,7 @@ setSocket(boost::asio::io_context& ioContext,
 }
 
 std::pair<bool, boost::system::error_code>
-readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload) {
+Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   char buffer[HEADER_SIZE] = {};
   boost::system::error_code ec;
   size_t transferred[[maybe_unused]] =
@@ -32,10 +32,19 @@ readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& paylo
   if (ec)
     return { false, ec };
   header = decodeHeader(buffer);
+  return { true, ec };
+}
+
+std::pair<bool, boost::system::error_code>
+Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload) {
+  auto [success, ec] = readHeader(socket, header);
+  if (ec)
+    return { false, ec };
   size_t size = isCompressed(header) ? extractCompressedSize(header) : extractUncompressedSize(header);
   if (size > 0) {
     payload.resize(size);
-    transferred = boost::asio::read(socket, boost::asio::buffer(payload), ec);
+    boost::system::error_code ec;
+    size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload), ec);
     if (ec)
       return { false, ec };
   }
@@ -43,7 +52,7 @@ readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& paylo
 }
 
 std::pair<bool, boost::system::error_code>
-sendMsg(boost::asio::ip::tcp::socket& socket,
+Tcp::sendMsg(boost::asio::ip::tcp::socket& socket,
 	const HEADER& header,
 	std::string_view body) {
   char buffer[HEADER_SIZE] = {};

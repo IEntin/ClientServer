@@ -75,7 +75,7 @@ void FifoAcceptor::run() {
   }
 }
 
-void FifoAcceptor::createSession(std::string_view key) {
+void FifoAcceptor::createSession(const std::string& key) {
   RunnablePtr session =
     std::make_shared<FifoSession>(_options, key, _threadPoolSession);
   startSession(key, session);

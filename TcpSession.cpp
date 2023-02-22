@@ -10,8 +10,8 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
-#include "ThreadPoolDiffObj.h"
 #include "Tcp.h"
+#include "ThreadPoolDiffObj.h"
 
 class ThreadPoolDiffObj;
 
@@ -51,7 +51,7 @@ bool TcpSession::start() {
 bool TcpSession::sendStatusToClient() {
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
-  return sendMsg(_socket, header, _clientId).first;
+  return Tcp::sendMsg(_socket, header, _clientId).first;
 }
 
 void TcpSession::run() noexcept {

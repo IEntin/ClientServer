@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <string>
+
 inline constexpr int MAX_NUMBER_THREADS_DEFAULT = 1000;
 
-inline constexpr const char* FILE_SERVER_RUNNING = ".server_running";
+inline const std::string FILE_SERVER_RUNNING = ".server_running";

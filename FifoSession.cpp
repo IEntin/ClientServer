@@ -17,12 +17,11 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId, ThreadPoolDiffObj& threadPool) :
+FifoSession::FifoSession(const ServerOptions& options, const std::string& clientId, ThreadPoolDiffObj& threadPool) :
   RunnableT(options._maxFifoSessions),
   _options(options),
-  _clientId(clientId),
+  _fifoName(_options._fifoDirectoryName + '/' + clientId),
   _threadPool(threadPool) {
-  _fifoName.append(_options._fifoDirectoryName).append(1,'/').append(clientId);
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
@@ -119,7 +118,7 @@ bool FifoSession::sendResponse(const Response& response) {
     return false;
   }
   if (_options._setPipeSize)
-    Fifo::setPipeSize(fdWrite, body.size() + HEADER_SIZE);
+    Fifo::setPipeSize(fdWrite, body.size());
   return Fifo::sendMsg(fdWrite, header, body);
 }
 
