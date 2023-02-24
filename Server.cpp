@@ -4,11 +4,13 @@
 
 #include "Server.h"
 #include "FifoAcceptor.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 #include "Strategy.h"
 #include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
+#include <filesystem>
 #include <fstream>
 
 Server::Server(const ServerOptions& options) :
@@ -20,18 +22,25 @@ Server::Server(const ServerOptions& options) :
 }
 
 bool Server::start() {
-  if (!TaskController::create(_options))
-    return false;
-  _tcpAcceptor =
-    std::make_shared<tcp::TcpAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
-  if (!_tcpAcceptor->start())
-    return false;
+  try {
+    if (!TaskController::create(_options))
+      return false;
+    _tcpAcceptor =
+      std::make_shared<tcp::TcpAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
+    if (!_tcpAcceptor->start())
+      return false;
 
-  _fifoAcceptor =
-    std::make_shared<fifo::FifoAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
-  if (!_fifoAcceptor->start())
+    _fifoAcceptor =
+      std::make_shared<fifo::FifoAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
+    if (!_fifoAcceptor->start())
+      return false;
+    std::ofstream file(_options._controlFileName);
+    std::filesystem::permissions(_options._controlFileName, std::filesystem::perms::none);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what();
     return false;
-  std::ofstream file(_options._controlFileName);
+  }
   return true;
 }
 

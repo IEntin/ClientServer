@@ -86,8 +86,8 @@ bool Fifo::writeString(int fd, std::string_view str) {
       if (errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
-	LogError << strerror(errno) << ", written="
-	      << written << " str.size()=" << str.size() << std::endl;
+	LogError << strerror(errno) << ", written=" << written
+		 << " str.size()=" << str.size() << std::endl;
 	return false;
       }
     }
