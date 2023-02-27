@@ -69,7 +69,7 @@ RunnablePtr ThreadPoolBase::get() {
 }
 
 void ThreadPoolBase::removeFromQueue(RunnablePtr toRemove) {
-  std::unique_lock lock(_queueMutex);
+  std::lock_guard lock(_queueMutex);
   for (auto it = _queue.begin(); it < _queue.end(); ++it) {
     if (*it == toRemove) {
       _queue.erase(it);
