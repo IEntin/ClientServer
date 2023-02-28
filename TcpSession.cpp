@@ -13,8 +13,6 @@
 #include "Tcp.h"
 #include "ThreadPoolDiffObj.h"
 
-class ThreadPoolDiffObj;
-
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
