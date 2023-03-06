@@ -103,8 +103,13 @@ sleep 30
 
 echo "###############"
 
+var=$(ps -ef | grep -w './client' | grep -v 'grep')
+
+echo "$var"
+echo -n "number started clients "
+echo "$var"|wc -l
+
 set -x
-ps -ef | grep -w './client' | grep -v 'grep'
 set +x
 
 echo "###############"
