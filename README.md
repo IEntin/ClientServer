@@ -64,13 +64,12 @@ Tcp clients are using the standard ephemeral port mechanism.\
 For fifo clients an analogous acceptor method is used.\
 The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
-unblocks acceptor by opening its writing end, generates UUID, creates a new\
-pipe with this name in the appropriate directory, and sends pipe name to the\
-acceptor which creates a new session.\
-Only one starting client creates a session at a time due to blocking\
-open(...) call, so there is no need in synchronization. Tests show that any\
-number of fifo clients can be started concurrently by the script\
-checkmulticlients.sh.\
+unblocks acceptor by opening its writing end, generates UUID which serves as\
+a pipe name, and sends this name to the acceptor which creates a pipe and a\
+new session.\
+Only one starting client creates a session at a time due to syncronization by\
+a named_mutex. Tests show that any number of fifo clients can be started\
+concurrently by the script checkmulticlients.sh.\
 Globally unique pipe name is an analogy of the unique combination\
 of ip address and ephemeral port in the tcp case.
 

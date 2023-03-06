@@ -20,7 +20,7 @@
   "ServerAddress" : "127.0.0.1",
   "TcpPort" : 49152,
   "NumberRepeatEINTR" : 3,
-  "NumberRepeatENXIO" : 20,
+  "NumberRepeatENXIO" : 25,
   "ENXIOwait" : 5,
   "SetPipeSize" : true,
   "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",

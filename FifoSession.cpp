@@ -17,17 +17,20 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, const std::string& clientId, ThreadPoolDiffObj& threadPool) :
+FifoSession::FifoSession(const ServerOptions& options,
+			 std::string_view clientId,
+			 ThreadPoolDiffObj& threadPool) :
   RunnableT(options._maxFifoSessions),
   _options(options),
-  _fifoName(_options._fifoDirectoryName + '/' + clientId),
+  _clientId(clientId),
+  _fifoName(_options._fifoDirectoryName + '/' + _clientId),
   _threadPool(threadPool) {
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
 FifoSession::~FifoSession() {
  std::filesystem::remove(_fifoName);
-  Trace << std::endl;
+ Trace << std::endl;
 }
 
 void FifoSession::run() {
@@ -71,6 +74,10 @@ void FifoSession::checkCapacity() {
 }
 
 bool FifoSession::start() {
+  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
+    return false;
+  }
   _threadPool.push(shared_from_this());
   return true;
 }
@@ -125,7 +132,7 @@ bool FifoSession::sendResponse(const Response& response) {
 bool FifoSession::sendStatusToClient() {
   int fd = -1;
   utility::CloseFileDescriptor closeFd(fd);
-  fd = open(_fifoName.data(), O_WRONLY);
+  fd = open(_options._acceptorName.data(), O_WRONLY);
   if (fd == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;

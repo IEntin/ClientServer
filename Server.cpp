@@ -10,6 +10,7 @@
 #include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
 #include <filesystem>
 #include <fstream>
 
@@ -49,6 +50,7 @@ void Server::stop() {
     _tcpAcceptor->stop();
   if (_fifoAcceptor)
     _fifoAcceptor->stop();
+  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();

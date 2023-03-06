@@ -21,7 +21,6 @@ HEADER Fifo::readHeader(int fd, const Options& options) {
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      // non-blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
 	auto event = pollFd(fd, POLLIN, options);
 	if (event == POLLIN)

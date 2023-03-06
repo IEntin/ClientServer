@@ -99,12 +99,12 @@ do
     ( cd ../Client$c; ./client > /dev/null& )
 done
 
-sleep 60
+sleep 30
 
 echo "###############"
 
 set -x
-ps -ef | grep client
+ps -ef | grep -w './client' | grep -v 'grep'
 set +x
 
 echo "###############"

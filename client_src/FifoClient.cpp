@@ -7,6 +7,8 @@
 #include "Fifo.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 #include <fcntl.h>
 #include <filesystem>
 #include <sys/stat.h>
@@ -17,16 +19,19 @@ std::string FifoClient::_fifoName;
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
-  _clientId = utility::getUniqueId();
-  _fifoName = _options._fifoDirectoryName + '/' + _clientId;
-  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
-    return;
+  try {
+    boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
+    boost::interprocess::scoped_lock<boost::interprocess::named_mutex> lock(mutex);
+    _clientId = utility::getUniqueId();
+    _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+    if (!wakeupAcceptor())
+      throw std::runtime_error("FifoClient::wakeupAcceptor failed");
+    if (!receiveStatus())
+      throw std::runtime_error("FifoClient::receiveStatus failed");
   }
-  if (!wakeupAcceptor())
-    throw std::runtime_error("FifoClient::wakeupAcceptor failed");
-  if (!receiveStatus())
-    throw std::runtime_error("FifoClient::receiveStatus failed");
+  catch (const boost::interprocess::interprocess_exception& e) {
+    LogError << e.what() << std::endl;
+  }
 }
 
 FifoClient::~FifoClient() {
@@ -108,7 +113,7 @@ bool FifoClient::receiveStatus() {
   try {
     int fd = -1;
     utility::CloseFileDescriptor closefd(fd);
-    fd = open(_fifoName.data(), O_RDONLY);
+    fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
       LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
       return false;

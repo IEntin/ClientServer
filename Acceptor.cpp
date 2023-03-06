@@ -21,7 +21,8 @@ Acceptor::~Acceptor() {
 
 bool Acceptor::startSession(std::string_view clientId, RunnablePtr session) {
   auto [it, inserted] = _sessions.emplace(clientId, session);
-  assert(inserted && "duplicate clientId");
+  if (!inserted)
+    return false;
   return session->start();
 }
 
