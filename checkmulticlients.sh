@@ -99,31 +99,32 @@ do
     ( cd ../Client$c; ./client > /dev/null& )
 done
 
-sleep 30
+sleep 60
 
-echo "###############"
+clients=$(ps -ef | grep -w './client' | grep -v 'grep')
 
-var=$(ps -ef | grep -w './client' | grep -v 'grep')
+fifos=$(ls ../Fifos)
 
-echo "$var"
-echo -n "number started clients "
-echo "$var"|wc -l
+kill $SERVER_PID
 
-set -x
-set +x
+sleep 2
 
-echo "###############"
+sync
 
-set -x
-ls ../Fifos
-set +x
+printf "\n$clients\n"
 
-echo "###############"
+sync
 
-set -x
-kill -SIGINT $SERVER_PID
-set +x
+printf "\n$fifos\n"
 
-sleep 1
+sync
+
+printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
+
+sync
 
 date
+
+sync
+
+sleep 1

@@ -127,10 +127,16 @@ template <Integral T>
 }
 
 inline std::string getUniqueId() {
+  try {
   auto uuid = boost::uuids::random_generator()();
   std::string str = boost::uuids::to_string(uuid);
   auto itEnd = std::remove(str.begin(), str.end(), '-');
   return { str.begin(), itEnd };
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+    return "";
+  }
 }
 
 struct CloseFileDescriptor {
