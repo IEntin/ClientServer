@@ -64,7 +64,7 @@ void FifoAcceptor::run() {
     }
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      createSession(key);
+      createSession();
       break;
     case HEADERTYPE::DESTROY_SESSION:
       destroySession(key);
@@ -75,10 +75,11 @@ void FifoAcceptor::run() {
   }
 }
 
-void FifoAcceptor::createSession(const std::string& key) {
+void FifoAcceptor::createSession() {
+  std::string clientId = utility::getUniqueId();
   RunnablePtr session =
-    std::make_shared<FifoSession>(_options, key, _threadPoolSession);
-  startSession(key, session);
+    std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
+  startSession(clientId, session);
 }
 
 bool FifoAcceptor::start() {

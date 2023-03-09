@@ -4,15 +4,9 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
-if [[ ( $@ == "--help") ||  $@ == "-h" || $# -ne 1 ]]
+if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
-    echo "Usage: ./checkmulticlients.sh <number of clients> 2>&1 | tee checkmclog.txt"
-    echo "Prerequisites:"
-    echo "Make sure that \"MaxFifoSessions\" and"
-    echo "\"MaxTcpSessions\" in the ServerOptions.json are"
-    echo "large enough to start expected number of clients."
-    echo "The script will print cpu stats snd contents"
-    echo "of the ../Fifos directory at the end of the run."
+    echo "Usage: ./checkmulticlients.sh <number of clients> [sanitizer] 2>&1 | tee checkmclog.txt"
     exit 0
 fi
 

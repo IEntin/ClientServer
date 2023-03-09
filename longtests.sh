@@ -16,4 +16,4 @@ set -e
 
 ./checkstuff.sh
 ./runtests.sh 50
-./checkmulticlients.sh 5
+./checkmulticlients.sh 20 thread

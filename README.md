@@ -51,8 +51,8 @@ Special consideration was given to the shutdown process of fifo server and clien
 in the default blocking mode the process is hanging on open(fd, ...) until another end of the pipe is open too.\
 The process can be gracefully shutdown in this case if another end of the pipe opened for writing or reading\
 appropriately. Special code is necessary to handle this procedure, and it is successful only with controlled shutdown\
-initiated by SIGINT. This is a serious restriction, in particular, the server cannot be protected from client\
-crashes which puts the server in a non responding state.
+initiated by SIGINT or SIGTERM. This is a serious restriction, in particular, the server cannot be protected from\
+client crashes which put the server in a non responding state.
 
 To solve this problem the writing ends of the pipes are opened in a non blocking\
 mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the client being down\
@@ -64,18 +64,18 @@ Tcp clients are using the standard ephemeral port mechanism.\
 For fifo clients an analogous acceptor method is used.\
 The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
-unblocks acceptor by opening its writing end, generates UUID which serves as\
-a pipe name, and sends this name to the acceptor which creates a pipe and a\
-new session.\
-Only one starting client creates a session at a time due to syncronization by\
-a named_mutex. Tests show that any number of fifo clients can be started\
-concurrently by the script checkmulticlients.sh.\
+unblocks acceptor by opening its writing end. The server (acceptor) generates\
+UUID pipe name, creates the pipe and a new session, and sends pipe name to\
+the client.\
+Only one starting client creates a session at a time. This process is\
+syncronized by a named_mutex. Tests show that any number of clients\
+can be started concurrently by the script checkmulticlients.sh.\
 Globally unique pipe name is an analogy of the unique combination\
 of ip address and ephemeral port in the tcp case.
 
 .........
 
-There are configurable  restrictions on the number of tcp and/or fifo sessions the server\
+There are configurable restrictions on the number of tcp and/or fifo sessions the server\
 is handling. If a new client exceeds this limit it remains up but enrers a waiting mode.\
 When one of the previously started clients exits, the waiting client at the head of the\
 queue starts running.\

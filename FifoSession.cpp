@@ -137,8 +137,9 @@ bool FifoSession::sendStatusToClient() {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(fd, header);
+  size_t size = _clientId.size();
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  return Fifo::sendMsg(fd, header, _clientId);
 }
 
 } // end of namespace fifo
