@@ -112,7 +112,7 @@ bool FifoClient::receiveStatus() {
     utility::CloseFileDescriptor closefd(fd);
     fd = open(_options._acceptorName.data(), O_RDONLY);
     if (fd == -1) {
-      LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
+      LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
       return false;
     }
     HEADER header = Fifo::readHeader(fd, _options);
