@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "ThreadPoolBase.h"
 #include "ThreadPoolDiffObj.h"
 
 struct ServerOptions;
@@ -12,7 +11,7 @@ struct ServerOptions;
 class Server {
 public:
   Server(const ServerOptions& options);
-  ~Server() = default;
+  ~Server();
   bool start();
   void stop();
 private:

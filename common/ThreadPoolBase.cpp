@@ -4,25 +4,30 @@
 
 #include "ThreadPoolBase.h"
 #include "Logger.h"
-#include <cassert>
 
 std::shared_ptr<KillThread> ThreadPoolBase::_killThread = std::make_shared<KillThread>();
 
 ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
+  stop();
   Trace << std::endl;
 }
 
 void ThreadPoolBase::stop() {
   // wake up and join threads
-  assert(!_stopFlag.test_and_set() && "repeated call");
   try {
     for (int i = 0; i < size(); ++i)
       push(_killThread);
-    for (auto& thread : _threads)
-      if (thread.joinable())
-	thread.join();
+    for (auto& thread : _threads) {
+      // prevents core dump. Should not happen.
+      if (thread.get_id() == std::this_thread::get_id()) {
+	if (thread.joinable())
+	  thread.detach();
+      }
+      else if (thread.joinable())
+	  thread.join();
+    }
   }
   catch (const std::system_error& e) {
     LogError << e.what() << std::endl;

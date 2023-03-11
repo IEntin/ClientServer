@@ -3,7 +3,6 @@
  */
 
 #include "Acceptor.h"
-#include "ThreadPoolBase.h"
 #include "ThreadPoolDiffObj.h"
 #include "Logger.h"
 #include <cassert>

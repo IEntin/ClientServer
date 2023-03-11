@@ -19,7 +19,6 @@ protected:
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::deque<RunnablePtr> _queue;
-  std::atomic_flag _stopFlag;
   std::atomic<int> _numberRelatedObjects = 0;
   const int _maxSize;
   static std::shared_ptr<class KillThread> _killThread;

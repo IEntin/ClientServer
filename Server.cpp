@@ -22,6 +22,10 @@ Server::Server(const ServerOptions& options) :
   strategy.set(options);
 }
 
+Server::~Server() {
+  Trace << std::endl;
+}
+
 bool Server::start() {
   try {
     if (!TaskController::create(_options))
