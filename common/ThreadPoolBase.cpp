@@ -15,18 +15,22 @@ ThreadPoolBase::~ThreadPoolBase() {
 }
 
 void ThreadPoolBase::stop() {
-  // wake up and join threads
+  // It is safe and cheap to call this more than once.
+  // Wake up and join threads
   try {
     for (int i = 0; i < size(); ++i)
       push(_killThread);
-    for (auto& thread : _threads) {
-      // prevents core dump. Should not happen.
-      if (thread.get_id() == std::this_thread::get_id()) {
-	if (thread.joinable())
+    for (auto it = _threads.begin(); it != _threads.end(); ) {
+      auto& thread = *it;
+      if (thread.joinable()) {
+	// prevents core dump in case of a code defect.
+	// Should not happen.
+	if (thread.get_id() == std::this_thread::get_id())
 	  thread.detach();
-      }
-      else if (thread.joinable())
+	else
 	  thread.join();
+      }
+      it = _threads.erase(it);
     }
   }
   catch (const std::system_error& e) {
