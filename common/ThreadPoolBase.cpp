@@ -25,8 +25,10 @@ void ThreadPoolBase::stop() {
       if (thread.joinable()) {
 	// prevents core dump in case of a code defect.
 	// Should not happen.
-	if (thread.get_id() == std::this_thread::get_id())
+	if (thread.get_id() == std::this_thread::get_id()) {
 	  thread.detach();
+	  Warn << "thread detached." << std::endl;
+	}
 	else
 	  thread.join();
       }
