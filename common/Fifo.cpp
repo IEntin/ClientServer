@@ -169,6 +169,8 @@ int Fifo::openWriteEndNonBlock(std::string_view fifoName, const Options& options
   int fd = -1;
   int rep = 0;
   do {
+    close(fd);
+    fd = -1;
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
       switch (errno) {
@@ -188,6 +190,8 @@ int Fifo::openReadEndNonBlock(std::string_view fifoName, const Options& options)
   int fd = -1;
   int rep = 0;
   do {
+    close(fd);
+    fd = -1;
     fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
     if (fd == -1) {
       switch (errno) {

@@ -156,8 +156,7 @@ bool FifoClient::destroySession() {
 void FifoClient::setStopFlag(const ClientOptions& options) {
   int old_errno = errno;
   _stopFlag.test_and_set();
-  Fifo::openWriteEndNonBlock(_fifoName, options) ;
-  Fifo::openReadEndNonBlock(_fifoName, options);
+  Fifo::onExit(_fifoName, options) ;
   errno = old_errno;
 }
 

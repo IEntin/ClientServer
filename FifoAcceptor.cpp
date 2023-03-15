@@ -95,9 +95,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  int fd = -1;
-  utility::CloseFileDescriptor cfdw(fd);
-  fd = Fifo::openWriteEndNonBlock(_options._acceptorName, _options);
+  Fifo::onExit(_options._acceptorName, _options);
 }
 
 void FifoAcceptor::removeFifoFiles() {
