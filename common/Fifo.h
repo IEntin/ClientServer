@@ -23,8 +23,8 @@ public:
   static bool sendMsg(int fd, const HEADER& header, std::string_view body = std::string_view());
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);
-  static int openWriteEndNonBlock(std::string_view fifoName, const Options& options);
-  static int openReadEndNonBlock(std::string_view fifoName, const Options& options);
+  static int openWriteNonBlock(std::string_view fifoName, const Options& options);
+  static int openReadNonBlock(std::string_view fifoName);
 };
 
 } // end of namespace fifo

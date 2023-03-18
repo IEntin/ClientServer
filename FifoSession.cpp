@@ -118,7 +118,7 @@ bool FifoSession::sendResponse(const Response& response) {
   // open(...) no matter what).
   int fdWrite = -1;
   utility::CloseFileDescriptor cfdw(fdWrite);
-  fdWrite = Fifo::openWriteEndNonBlock(_fifoName, _options);
+  fdWrite = Fifo::openWriteNonBlock(_fifoName, _options);
   if (fdWrite == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();

@@ -44,21 +44,30 @@ bool FifoClient::run() {
 
 bool FifoClient::send(const Subtask& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  _fdWrite = open(_fifoName.data(), O_WRONLY);
-  if (_stopFlag.test())
-    return false;
-  if (!std::filesystem::exists(_options._controlFileName))
-    return false;
-  if (_fdWrite >= 0) {
-    if (_options._setPipeSize)
-      Fifo::setPipeSize(_fdWrite, subtask._body.size());
-    std::string_view body(subtask._body.data(), subtask._body.size());
-    return Fifo::sendMsg(_fdWrite, subtask._header, body);
+  while (_fdWrite == -1) {
+    _fdWrite = Fifo::openWriteNonBlock(_fifoName, _options);
+    if (_fdWrite >= 0) {
+      if (_stopFlag.test())
+	return false;
+      if (_options._setPipeSize)
+	Fifo::setPipeSize(_fdWrite, subtask._body.size());
+      std::string_view body(subtask._body.data(), subtask._body.size());
+      return Fifo::sendMsg(_fdWrite, subtask._header, body);
+    }
+    // server stopped
+    if (!std::filesystem::exists(_options._controlFileName))
+      return false;
+    // client closed
+    if (_stopFlag.test())
+      return false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(POLLING_PERIOD_CLIENT_CLOSED));
   }
   return false;
 }
 
 bool FifoClient::receive() {
+  if (_stopFlag.test())
+    return false;
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
   utility::CloseFileDescriptor cfdr(_fdRead);
@@ -145,7 +154,7 @@ bool FifoClient::receiveStatus() {
 bool FifoClient::destroySession() {
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
-  fd = Fifo::openWriteEndNonBlock(_options._acceptorName, _options);
+  fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
   if (fd == -1)
     return false;
   size_t size = _clientId.size();

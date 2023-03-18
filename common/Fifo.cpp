@@ -159,13 +159,13 @@ bool Fifo::setPipeSize(int fd, long requested) {
 void Fifo::onExit(std::string_view fifoName, const Options& options) {
   int fdWrite = -1;
   utility::CloseFileDescriptor cfdw(fdWrite);
-  fdWrite = openWriteEndNonBlock(fifoName, options);
+  fdWrite = openWriteNonBlock(fifoName, options);
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
-  fdRead = openReadEndNonBlock(fifoName, options);
+  fdRead = openReadNonBlock(fifoName);
 }
 
-int Fifo::openWriteEndNonBlock(std::string_view fifoName, const Options& options) {
+int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
   int fd = -1;
   int rep = 0;
   do {
@@ -186,24 +186,10 @@ int Fifo::openWriteEndNonBlock(std::string_view fifoName, const Options& options
   return fd;
 }
 
-int Fifo::openReadEndNonBlock(std::string_view fifoName, const Options& options) {
-  int fd = -1;
-  int rep = 0;
-  do {
-    close(fd);
-    fd = -1;
-    fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
-    if (fd == -1) {
-      switch (errno) {
-      case ENXIO:
-      case EINTR:
-	std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
-	break;
-      default:
-	break;
-      }
-    }
-  } while (fd == -1 && rep++ < options._numberRepeatENXIO);
+int Fifo::openReadNonBlock(std::string_view fifoName) {
+  int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
+  if (fd == -1)
+    Info << std::strerror(errno) << std::endl;
   return fd;
 }
 

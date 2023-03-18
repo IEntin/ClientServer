@@ -39,24 +39,13 @@ the code. Thread pool creates threads on demand comparing the number of objects 
 class and the number of already created threads. This prevents creation of redundant threads\
 possible if maximum allowed number of threads were created in advance.
 
-In some cases fifo has better performance and possibly stronger security than tcp. Due to protocol\
+In some cases fifo has better performance and is more secure than tcp. Due to protocol\
 with predictable sequence of reads and writes, it is possible to make pipes bidirectional. This\
 situation is unlike e.g. chat application or similar when unidirectional fifo is normally used.\
 In this application after every write the code closes write file descriptor and opens read fd for the\
 same end of the pipe, and so on. This significantly simplifies the setup - one fifo per client. See\
-below fragments of configuration in ServerOptions.json for the server and ClientOptions.json for clients.\
-Testing showed that performance impact of fd reopening is small especially for large batches.
-
-Special consideration was given to the shutdown process of fifo server and clients. The problem is that\
-in the default blocking mode the process is hanging on open(fd, ...) until another end of the pipe is open too.\
-The process can be gracefully shutdown in this case if another end of the pipe opened for writing or reading\
-appropriately. Special code is necessary to handle this procedure, and it is successful only with controlled shutdown\
-initiated by SIGINT or SIGTERM. This is a serious restriction, in particular, the server cannot be protected from\
-client crashes which put the server in a non responding state.
-
-To solve this problem the writing ends of the pipes are opened in a non blocking\
-mode: open(fd, O_WRONLY | O_NONBLOCK). With this modification the client being down\
-for any reason leaves the server in a valid state.\
+fragments of the configuration in ServerOptions.json for the server and ClientOptions.json for clients.\
+Testing showed that performance impact of fd reopening is small.
 ........
 
 The number and identity of fifo and tcp clients are not known in advance.\
@@ -90,14 +79,13 @@ There are no software or hardware restrictions on the number of clients. Observe
 latency is strictly proportional to the number of clients due to increasing load\
 on worker threads running processing logic. Only performance is a limiting factor.\
 This server was tested with 20 clients of mixed types. The server and all clients are\
-running on the same desktop. In real case clients will run on different hosts.
+running on the same desktop. In real case tcp clients will run on different hosts.
 
 ........
 
-Another note on named pipes:\
-The code is increasing the pipe size to make read and write "atomic".\
+Fifo code is increasing the pipe size to make read and write "atomic".\
 This operation requires sudo access if requested size exceeds 1MB\
-(with used configuration, original buffer size is 64 KB). If more than 1MB is necessary:\
+(with original configuration, buffer size is 64 KB). If more than 1MB is necessary:\
 sudo ./server\
 and\
 sudo ./client\
