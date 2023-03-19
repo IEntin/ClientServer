@@ -18,7 +18,7 @@ class FifoClient : public Client {
   bool destroySession() override;
   bool readReply(const HEADER& header);
   bool wakeupAcceptor();
-
+  static bool destroy(const ClientOptions& options);
   int _fdRead = -1;
   int _fdWrite = -1;
   static std::string _fifoName;

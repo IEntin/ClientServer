@@ -44,14 +44,23 @@ bool FifoClient::run() {
 
 bool FifoClient::send(const Subtask& subtask) {
   utility::CloseFileDescriptor cfdw(_fdWrite);
-  _fdWrite = open(_fifoName.data(), O_WRONLY);
-  if (_fdWrite >= 0) {
+  while (_fdWrite == -1) {
+    _fdWrite = Fifo::openWriteNonBlock(_fifoName, _options);
+    if (_fdWrite >= 0) {
+      if (_stopFlag.test())
+	return false;
+      if (_options._setPipeSize)
+	Fifo::setPipeSize(_fdWrite, subtask._body.size());
+      std::string_view body(subtask._body.data(), subtask._body.size());
+      return Fifo::sendMsg(_fdWrite, subtask._header, body);
+    }
+    // server stopped
+    if (!std::filesystem::exists(_options._controlFileName))
+      return false;
+    // client closed
     if (_stopFlag.test())
       return false;
-    if (_options._setPipeSize)
-      Fifo::setPipeSize(_fdWrite, subtask._body.size());
-    std::string_view body(subtask._body.data(), subtask._body.size());
-    return Fifo::sendMsg(_fdWrite, subtask._header, body);
+    std::this_thread::sleep_for(std::chrono::milliseconds(POLLING_PERIOD_CLIENT_CLOSED));
   }
   return false;
 }
@@ -142,31 +151,21 @@ bool FifoClient::receiveStatus() {
   return true;
 }
 
-bool FifoClient::destroy(const ClientOptions& options) {
+bool FifoClient::destroySession() {
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
-  fd = Fifo::openWriteNonBlock(options._acceptorName, options);
+  fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
   if (fd == -1)
     return false;
   size_t size = _clientId.size();
-  HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
+  HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, _status };
   return Fifo::sendMsg(fd, header, _clientId);
 }
 
-bool FifoClient::destroySession() {
-  // don't do it second time
-  if (_stopFlag.test())
-    return true;
-  return destroy(_options);
-}
-
 void FifoClient::setStopFlag(const ClientOptions& options) {
-  // avoid spoiled errno
   int old_errno = errno;
   _stopFlag.test_and_set();
-  // calling only open and write, should be safe.
-  destroy(options);
-  Fifo::onExit(_fifoName, options);
+  Fifo::onExit(_fifoName, options) ;
   errno = old_errno;
 }
 

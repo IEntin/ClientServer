@@ -24,9 +24,9 @@ class Client {
 
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
-  std::string _clientId;
   RunnablePtr _heartbeat;
   TaskBuilderPtr _taskBuilder;
+  static std::string _clientId;
   static std::atomic_flag _stopFlag;
 
  public:
