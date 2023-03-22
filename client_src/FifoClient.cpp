@@ -166,7 +166,6 @@ void FifoClient::setStopFlag(const ClientOptions& options) {
   _stopFlag.test_and_set();
   // calling only open and write, should be safe.
   destroy(options);
-  Fifo::onExit(_fifoName, options);
   errno = old_errno;
 }
 
