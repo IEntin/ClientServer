@@ -19,8 +19,10 @@ class FifoClient : public Client {
   bool readReply(const HEADER& header);
   bool wakeupAcceptor();
   static bool destroy(const ClientOptions& options);
-  int _fdRead = -1;
-  int _fdWrite = -1;
+  int _fdReadS = -1;
+  int _fdWriteS = -1;
+  int _fdReadA = -1;
+  inline static int _fdWriteA = -1;
   static std::string _fifoName;
 
  public:
@@ -29,7 +31,7 @@ class FifoClient : public Client {
 
   bool run() override;
 
-  static void setStopFlag(const ClientOptions& options);
+  static void setCloseFlag(const ClientOptions& options);
 };
 
 } // end of namespace fifo

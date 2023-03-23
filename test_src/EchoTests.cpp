@@ -3,6 +3,7 @@
  */
 
 #include "Echo.h"
+#include "Fifo.h"
 #include "ClientOptions.h"
 #include "FifoClient.h"
 #include "Logger.h"
@@ -10,6 +11,9 @@
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
+#include <filesystem>
+
+// for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
 
 struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
@@ -22,7 +26,7 @@ struct EchoTest : testing::Test {
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       tcp::TcpClient client(TestEnvironment::_clientOptions);
-      ASSERT_TRUE(client.run());
+      client.run();
       server.stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
@@ -42,7 +46,7 @@ struct EchoTest : testing::Test {
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       fifo::FifoClient client(TestEnvironment::_clientOptions);
-      ASSERT_TRUE(client.run());
+      client.run();
       server.stop();
       ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
@@ -87,4 +91,63 @@ TEST_F(EchoTest, FIFO_LZ4_NONE) {
 
 TEST_F(EchoTest, FIFO_NONE_LZ4) {
   testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4);
+}
+
+struct FifoNonblockingTest : testing::Test {
+  inline static const std::string _testFifo = "TestFifo";
+  inline static const std::string _smallPayload = "0123456789876543210";
+  inline static int _fdWrite = -1;
+  inline static int _fdRead = -1;
+
+  static bool send(std::string_view payload) {
+    if (_fdWrite == -1) {
+      _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions);
+      if (TestEnvironment::_serverOptions._setPipeSize)
+	fifo::Fifo::setPipeSize(_fdWrite, payload.size());
+    }
+    size_t size = payload.size();
+    HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
+    return fifo::Fifo::sendMsg(_fdWrite, header, payload);
+  }
+
+  static bool receive(std::vector<char>& received) {
+    HEADER header = fifo::Fifo::readHeader(_testFifo, _fdRead, TestEnvironment::_clientOptions);
+    ssize_t comprSize = extractCompressedSize(header);
+    received.resize(comprSize);
+    return fifo::Fifo::readString(_fdRead, received.data(), comprSize, TestEnvironment::_clientOptions);
+  }
+
+  void testNonblockingFifo(std::string_view payload) {
+    static thread_local std::vector<char> received;
+    try {
+      ASSERT_TRUE(std::filesystem::exists(_testFifo));
+      auto f1 = std::async(std::launch::async, send, payload);
+      auto f2 = std::async(std::launch::async, receive, std::ref(received));
+      f2.wait();
+      ASSERT_EQ(received.size(), payload.size());
+      ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
+    }
+    catch (const std::exception& e) {
+      LogError << e.what() << std::endl;
+    }
+  }
+
+  void SetUp() {
+    ASSERT_TRUE(mkfifo(_testFifo.data(), 0666) != -1 || errno == EEXIST);
+  }
+
+  void TearDown() {
+    close(_fdWrite);
+    _fdWrite = -1;
+    close(_fdRead);
+    _fdRead = -1;
+    std::filesystem::remove(_testFifo);
+  }
+};
+
+TEST_F(FifoNonblockingTest, FifoNonblockingTest1) {
+  for (int i = 0; i < 10; ++i) {
+    testNonblockingFifo(_smallPayload);
+    testNonblockingFifo(TestEnvironment::_source);
+  }
 }

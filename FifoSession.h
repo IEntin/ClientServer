@@ -9,6 +9,7 @@
 #include <vector>
 
 using Response = std::vector<std::string>;
+struct Options;
 struct ServerOptions;
 class ThreadPoolDiffObj;
 
@@ -21,8 +22,14 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   std::string _fifoName;
   ThreadPoolReference _threadPool;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
-  bool sendResponse(const Response& response);
+  bool readMsgBody(const HEADER& header,
+		   std::vector<char>& uncompressed,
+		   const Options& options);
+   bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
+  int _fdWriteS = -1;
+  int _fdReadS = -1;
+  int _fdWriteA = -1;
   void run() override;
   bool start() override;
   void stop() override;

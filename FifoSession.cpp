@@ -88,6 +88,8 @@ void FifoSession::stop() {
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
+  if (_stopped)
+    return false;
   switch (_status) {
   case STATUS::MAX_SPECIFIC_OBJECTS:
   case STATUS::MAX_TOTAL_OBJECTS:
@@ -96,17 +98,49 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   default:
     break;
   }
-  int fdRead = -1;
-  utility::CloseFileDescriptor cfdr(fdRead);
-  fdRead = open(_fifoName.data(), O_RDONLY);
-  if (fdRead == -1) {
+  utility::CloseFileDescriptor cfdr(_fdReadS);
+  _fdReadS = open(_fifoName.data(), O_RDONLY);
+  if (_fdReadS == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
-  return serverutility::receiveRequest(fdRead, message, header, _options);
+  try {
+    header = Fifo::readHeader(_fdReadS, _options);
+    return readMsgBody(header, message, _options);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+    MemoryPool::destroyBuffers();
+    return false;
+  }
+}
+
+bool FifoSession::readMsgBody(const HEADER& header,
+			      std::vector<char>& uncompressed,
+			      const Options& options) {
+  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
+  bool bcompressed = isCompressed(header);
+  static auto& printOnce[[maybe_unused]] =
+    Debug << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
+  if (bcompressed) {
+    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
+    if (!Fifo::readString(_fdReadS, buffer.data(), comprSize, options))
+      return false;
+    uncompressed.resize(uncomprSize);
+    if (!Compression::uncompress(buffer, comprSize, uncompressed))
+      return false;
+  }
+  else {
+    uncompressed.resize(uncomprSize);
+    if (!Fifo::readString(_fdReadS, uncompressed.data(), uncomprSize, options))
+      return false;
+  }
+  return true;
 }
 
 bool FifoSession::sendResponse(const Response& response) {
+  if (_stopped)
+    return false;
   HEADER header;
   std::string_view body =
     serverutility::buildReply(response, header, _options._compressor, _status);
@@ -116,30 +150,28 @@ bool FifoSession::sendResponse(const Response& response) {
   // from a client crashed or killed with SIGKILL and resume operation
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
-  int fdWrite = -1;
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  fdWrite = Fifo::openWriteNonBlock(_fifoName, _options);
-  if (fdWrite == -1) {
+  utility::CloseFileDescriptor cfdw(_fdWriteS);
+  _fdWriteS = Fifo::openWriteNonBlock(_fifoName, _options);
+  if (_fdWriteS == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
   if (_options._setPipeSize)
-    Fifo::setPipeSize(fdWrite, body.size());
-  return Fifo::sendMsg(fdWrite, header, body);
+    Fifo::setPipeSize(_fdWriteS, body.size());
+  return Fifo::sendMsg(_fdWriteS, header, body);
 }
 
 bool FifoSession::sendStatusToClient() {
-  int fd = -1;
-  utility::CloseFileDescriptor closeFd(fd);
-  fd = open(_options._acceptorName.data(), O_WRONLY);
-  if (fd == -1) {
+  utility::CloseFileDescriptor closeFd(_fdWriteA);
+  _fdWriteA = Fifo::openWriteNonBlock(_options._acceptorName, _options);
+  if (_fdWriteA == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(fd, header, _clientId);
+  return Fifo::sendMsg(_fdWriteA, header, _clientId);
 }
 
 } // end of namespace fifo

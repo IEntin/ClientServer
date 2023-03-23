@@ -15,6 +15,45 @@
 
 namespace fifo {
 
+// non blocking read
+HEADER Fifo::readHeader(std::string_view name, int& fd, const Options& options) {
+  if (fd == -1)
+    fd = open(name.data(), O_RDONLY | O_NONBLOCK);
+  size_t readSoFar = 0;
+  char buffer[HEADER_SIZE] = {};
+  while (readSoFar < HEADER_SIZE) {
+    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
+    if (result == -1) {
+      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+	Fifo::pollFd(fd, POLLIN, options);
+	continue;
+      }
+      else {
+	LogError << std::strerror(errno) << std::endl;
+	throw std::runtime_error(std::strerror(errno));
+      }
+    }
+    else if (result == 0) {
+      int event = -1;
+      do {
+	int fdOld = fd;
+	fd = open(name.data(), O_RDONLY | O_NONBLOCK);
+	close(fdOld);
+	event = Fifo::pollFd(fd, POLLIN, options);
+      } while (event != POLLIN);
+      continue;
+    }
+    else
+      readSoFar += static_cast<size_t>(result);
+  }
+  if (readSoFar != HEADER_SIZE) {
+    LogError << "HEADER_SIZE=" << HEADER_SIZE
+	     << " readSoFar=" << readSoFar << std::endl;
+    throw std::runtime_error(std::strerror(errno));
+  }
+  return decodeHeader(buffer);
+}
+
 HEADER Fifo::readHeader(int fd, const Options& options) {
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
@@ -52,7 +91,7 @@ bool Fifo::readString(int fd, char* received, size_t size, const Options& option
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
-      // non-blocking read
+      // non blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
 	auto event = pollFd(fd, POLLIN, options);
 	if (event == POLLIN)
@@ -179,6 +218,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
 	break;
       default:
+	return fd;
 	break;
       }
     }

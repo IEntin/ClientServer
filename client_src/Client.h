@@ -27,7 +27,7 @@ class Client {
   RunnablePtr _heartbeat;
   TaskBuilderPtr _taskBuilder;
   static std::string _clientId;
-  static std::atomic_flag _stopFlag;
+  static std::atomic_flag _closeFlag;
 
  public:
   virtual ~Client();
