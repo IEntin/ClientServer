@@ -105,8 +105,8 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
     return false;
   }
   try {
-    header = Fifo::readHeader(_fdReadS, _options);
-    return readMsgBody(header, message, _options);
+    header = Fifo::readHeader(_fdReadS);
+    return readMsgBody(header, message);
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
@@ -115,16 +115,14 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   }
 }
 
-bool FifoSession::readMsgBody(const HEADER& header,
-			      std::vector<char>& uncompressed,
-			      const Options& options) {
+bool FifoSession::readMsgBody(const HEADER& header, std::vector<char>& uncompressed) {
   const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
   bool bcompressed = isCompressed(header);
   static auto& printOnce[[maybe_unused]] =
     Debug << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
   if (bcompressed) {
     std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
-    if (!Fifo::readString(_fdReadS, buffer.data(), comprSize, options))
+    if (!Fifo::readString(_fdReadS, buffer.data(), comprSize))
       return false;
     uncompressed.resize(uncomprSize);
     if (!Compression::uncompress(buffer, comprSize, uncompressed))
@@ -132,7 +130,7 @@ bool FifoSession::readMsgBody(const HEADER& header,
   }
   else {
     uncompressed.resize(uncomprSize);
-    if (!Fifo::readString(_fdReadS, uncompressed.data(), uncomprSize, options))
+    if (!Fifo::readString(_fdReadS, uncompressed.data(), uncomprSize))
       return false;
   }
   return true;

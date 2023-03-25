@@ -18,7 +18,6 @@ Options::Options(const std::string& jsonName) {
   _tcpPort = appOptions.get("TcpPort", 49153);
   _portString = std::to_string(_tcpPort);
   _tcpService = _portString;
-  _numberRepeatEINTR = appOptions.get("NumberRepeatEINTR", 3);
   // next 2 parameters may be decreased for better responsiveness
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 25);

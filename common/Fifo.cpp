@@ -16,17 +16,19 @@
 namespace fifo {
 
 // non blocking read
-HEADER Fifo::readHeader(std::string_view name, int& fd, const Options& options) {
+HEADER Fifo::readHeader(std::string_view name, int& fd) {
   if (fd == -1)
-    fd = open(name.data(), O_RDONLY | O_NONBLOCK);
+    fd = openReadNonBlock(name);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	Fifo::pollFd(fd, POLLIN, options);
-	continue;
+	auto event = Fifo::pollFd(fd, POLLIN);
+	if (event == POLLIN)
+	  continue;
+	throw std::runtime_error(std::strerror(errno));
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -37,9 +39,9 @@ HEADER Fifo::readHeader(std::string_view name, int& fd, const Options& options) 
       int event = -1;
       do {
 	int fdOld = fd;
-	fd = open(name.data(), O_RDONLY | O_NONBLOCK);
+	fd = openReadNonBlock(name);
 	close(fdOld);
-	event = Fifo::pollFd(fd, POLLIN, options);
+	event = Fifo::pollFd(fd, POLLIN);
       } while (event != POLLIN);
       continue;
     }
@@ -54,14 +56,64 @@ HEADER Fifo::readHeader(std::string_view name, int& fd, const Options& options) 
   return decodeHeader(buffer);
 }
 
-HEADER Fifo::readHeader(int fd, const Options& options) {
+// non blocking read
+bool Fifo::readMsg(std::string_view name,
+		   int& fd,
+		   HEADER& header,
+		   std::vector<char>& body) {
+  int fdOld = fd;
+  fd = openReadNonBlock(name);
+  close(fdOld);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN, options);
+	auto event = Fifo::pollFd(fd, POLLIN);
+	if (event == POLLIN)
+	  continue;
+	throw std::runtime_error(std::strerror(errno));
+      }
+      else {
+	LogError << std::strerror(errno) << std::endl;
+	throw std::runtime_error(std::strerror(errno));
+      }
+    }
+    else if (result == 0) {
+      int event = -1;
+      do {
+	int fdOld = fd;
+	fd = openReadNonBlock(name);
+	close(fdOld);
+	event = Fifo::pollFd(fd, POLLIN);
+      } while (event != POLLIN);
+      continue;
+    }
+    else
+      readSoFar += static_cast<size_t>(result);
+  }
+  if (readSoFar != HEADER_SIZE) {
+    LogError << "HEADER_SIZE=" << HEADER_SIZE
+	     << " readSoFar=" << readSoFar << std::endl;
+    throw std::runtime_error(std::strerror(errno));
+  }
+  header = decodeHeader(buffer);
+  if (!isOk(header))
+    return false;
+  size_t comprSize = extractCompressedSize(header);
+  body.resize(comprSize);
+  return readString(fd, body.data(), comprSize);
+}
+
+HEADER Fifo::readHeader(int fd) {
+  size_t readSoFar = 0;
+  char buffer[HEADER_SIZE] = {};
+  while (readSoFar < HEADER_SIZE) {
+    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
+    if (result == -1) {
+      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+	auto event = pollFd(fd, POLLIN);
 	if (event == POLLIN)
 	  continue;
 	throw std::runtime_error(std::strerror(errno));
@@ -86,14 +138,14 @@ HEADER Fifo::readHeader(int fd, const Options& options) {
   return decodeHeader(buffer);
 }
 
-bool Fifo::readString(int fd, char* received, size_t size, const Options& options) {
+bool Fifo::readString(int fd, char* received, size_t size) {
   size_t readSoFar = 0;
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
       // non blocking read
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN, options);
+	auto event = pollFd(fd, POLLIN);
 	if (event == POLLIN)
 	  continue;
       }
@@ -147,14 +199,11 @@ bool Fifo::sendMsg(int fd, const HEADER& header, std::string_view body) {
     writeString(fd, std::string_view(body.data(), body.size()));
 }
 
-short Fifo::pollFd(int& fd, short expected, const Options& options) {
-  int rep = 0;
+short Fifo::pollFd(int& fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   do {
     pfd.revents = 0;
     int presult = poll(&pfd, 1, -1);
-    if (errno == EINTR)
-      continue;
     if (presult <= 0) {
       LogError << "timeout,should not hit this" << std::endl;
       return 0;
@@ -163,7 +212,7 @@ short Fifo::pollFd(int& fd, short expected, const Options& options) {
       LogError << std::strerror(errno) << std::endl;
       return POLLERR;
     }
-  } while (errno == EINTR && rep++ < options._numberRepeatEINTR);
+  } while (errno == EINTR);
   if (pfd.revents & POLLHUP)
     return POLLHUP;
   else
@@ -204,7 +253,8 @@ void Fifo::onExit(std::string_view fifoName, const Options& options) {
   fdRead = openReadNonBlock(fifoName);
 }
 
-int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
+int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options, int repeat) {
+  int maxNumberRepeat = repeat == 0 ? options._numberRepeatENXIO : repeat;
   int fd = -1;
   int rep = 0;
   do {
@@ -222,7 +272,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
 	break;
       }
     }
-  } while (fd == -1 && rep++ < options._numberRepeatENXIO);
+  } while (fd == -1 && rep++ < maxNumberRepeat);
   return fd;
 }
 

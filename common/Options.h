@@ -18,7 +18,6 @@ struct Options {
   std::string _acceptorName;
   unsigned short _tcpPort;
   std::string_view _tcpService;
-  int _numberRepeatEINTR;
   int _numberRepeatENXIO;
   int _ENXIOwait;
   COMPRESSORS _compressor;

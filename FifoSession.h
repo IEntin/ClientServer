@@ -22,9 +22,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   std::string _fifoName;
   ThreadPoolReference _threadPool;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
-  bool readMsgBody(const HEADER& header,
-		   std::vector<char>& uncompressed,
-		   const Options& options);
+  bool readMsgBody(const HEADER& header, std::vector<char>& uncompressed);
    bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
   int _fdWriteS = -1;

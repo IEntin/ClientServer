@@ -11,6 +11,7 @@
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
+#include "Utility.h"
 #include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
@@ -96,33 +97,39 @@ TEST_F(EchoTest, FIFO_NONE_LZ4) {
 struct FifoNonblockingTest : testing::Test {
   inline static const std::string _testFifo = "TestFifo";
   inline static const std::string _smallPayload = "0123456789876543210";
-  inline static int _fdWrite = -1;
-  inline static int _fdRead = -1;
-
-  static bool send(std::string_view payload) {
-    if (_fdWrite == -1) {
-      _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions);
-      if (TestEnvironment::_serverOptions._setPipeSize)
-	fifo::Fifo::setPipeSize(_fdWrite, payload.size());
-    }
+  int _fdWrite = -1;
+  int _fdRead = -1;
+  FifoNonblockingTest() = default;
+  ~FifoNonblockingTest() {
+    close(_fdWrite);
+    _fdWrite = -1;
+    close(_fdRead);
+    _fdRead = -1;
+  }
+  bool send(std::string_view payload) {
+    int fdOld = _fdWrite;
+    _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions, 1000);
+    close(fdOld);
+    if (TestEnvironment::_serverOptions._setPipeSize)
+      fifo::Fifo::setPipeSize(_fdWrite, payload.size());
     size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
     return fifo::Fifo::sendMsg(_fdWrite, header, payload);
   }
 
-  static bool receive(std::vector<char>& received) {
-    HEADER header = fifo::Fifo::readHeader(_testFifo, _fdRead, TestEnvironment::_clientOptions);
-    ssize_t comprSize = extractCompressedSize(header);
-    received.resize(comprSize);
-    return fifo::Fifo::readString(_fdRead, received.data(), comprSize, TestEnvironment::_clientOptions);
+  bool receive(std::vector<char>& received) {
+    HEADER header;
+    return fifo::Fifo::readMsg(_testFifo, _fdRead, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
     static thread_local std::vector<char> received;
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
-      auto f1 = std::async(std::launch::async, send, payload);
-      auto f2 = std::async(std::launch::async, receive, std::ref(received));
+      auto f1 = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
+      // uncomment to test send and receive happening at different times.
+      //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      auto f2 = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
       f2.wait();
       ASSERT_EQ(received.size(), payload.size());
       ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
@@ -137,10 +144,6 @@ struct FifoNonblockingTest : testing::Test {
   }
 
   void TearDown() {
-    close(_fdWrite);
-    _fdWrite = -1;
-    close(_fdRead);
-    _fdRead = -1;
     std::filesystem::remove(_testFifo);
   }
 };

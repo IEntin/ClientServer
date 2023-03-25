@@ -37,12 +37,12 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
     }
     if (_stopped)
       return { HEADERTYPE::ERROR, emptyString };
-    HEADER header = Fifo::readHeader(fd, _options);
+    HEADER header = Fifo::readHeader(fd);
     size_t size = extractUncompressedSize(header);
     std::string key;
     if (size > 0) {
       key.resize(size);
-      if (!Fifo::readString(fd, key.data(), size, _options)) {
+      if (!Fifo::readString(fd, key.data(), size)) {
 	LogError << "failed." << std::endl;
 	return { HEADERTYPE::ERROR, emptyString };
       }

@@ -69,7 +69,7 @@ bool FifoClient::receive() {
   }
   _status = STATUS::NONE;
   try {
-    HEADER header = Fifo::readHeader(_fdReadS, _options);
+    HEADER header = Fifo::readHeader(_fdReadS);
     if (!readReply(header)) {
       LogError << "failed." << std::endl;
       return false;
@@ -86,7 +86,7 @@ bool FifoClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
   ssize_t comprSize = extractCompressedSize(header);
   buffer.reserve(comprSize);
-  if (!Fifo::readString(_fdReadS, buffer.data(), comprSize, _options)) {
+  if (!Fifo::readString(_fdReadS, buffer.data(), comprSize)) {
     LogError << "failed." << std::endl;
     return false;
   }
@@ -113,11 +113,11 @@ bool FifoClient::receiveStatus() {
       LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
       return false;
     }
-    HEADER header = Fifo::readHeader(_fdReadA, _options);
+    HEADER header = Fifo::readHeader(_fdReadA);
     _status = extractStatus(header);
     size_t size = extractUncompressedSize(header);
     _clientId.resize(size);
-    if (!Fifo::readString(_fdReadA, _clientId.data(), size, _options))
+    if (!Fifo::readString(_fdReadA, _clientId.data(), size))
       return false;
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
     switch (_status) {
