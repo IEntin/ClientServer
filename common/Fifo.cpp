@@ -17,8 +17,7 @@ namespace fifo {
 
 // non blocking read
 HEADER Fifo::readHeader(std::string_view name, int& fd) {
-  if (fd == -1)
-    fd = openReadNonBlock(name);
+  fd = openReadNonBlock(name, fd);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -38,9 +37,7 @@ HEADER Fifo::readHeader(std::string_view name, int& fd) {
     else if (result == 0) {
       int event = -1;
       do {
-	int fdOld = fd;
-	fd = openReadNonBlock(name);
-	close(fdOld);
+	fd = openReadNonBlock(name, fd);
 	event = Fifo::pollFd(fd, POLLIN);
       } while (event != POLLIN);
       continue;
@@ -57,13 +54,11 @@ HEADER Fifo::readHeader(std::string_view name, int& fd) {
 }
 
 // non blocking read
-bool Fifo::readMsg(std::string_view name,
-		   int& fd,
-		   HEADER& header,
-		   std::vector<char>& body) {
-  int fdOld = fd;
-  fd = openReadNonBlock(name);
-  close(fdOld);
+bool Fifo::readMsgNonBlock(std::string_view name,
+			   int& fd,
+			   HEADER& header,
+			   std::vector<char>& body) {
+  fd = openReadNonBlock(name, fd);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -83,9 +78,7 @@ bool Fifo::readMsg(std::string_view name,
     else if (result == 0) {
       int event = -1;
       do {
-	int fdOld = fd;
-	fd = openReadNonBlock(name);
-	close(fdOld);
+	fd = openReadNonBlock(name, fd);
 	event = Fifo::pollFd(fd, POLLIN);
       } while (event != POLLIN);
       continue;
@@ -250,11 +243,10 @@ void Fifo::onExit(std::string_view fifoName, const Options& options) {
   fdWrite = openWriteNonBlock(fifoName, options);
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
-  fdRead = openReadNonBlock(fifoName);
+  fdRead = openReadNonBlock(fifoName, fdRead);
 }
 
-int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options, int repeat) {
-  int maxNumberRepeat = repeat == 0 ? options._numberRepeatENXIO : repeat;
+int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
   int fd = -1;
   int rep = 0;
   do {
@@ -272,12 +264,14 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options, i
 	break;
       }
     }
-  } while (fd == -1 && rep++ < maxNumberRepeat);
+  } while (fd == -1 && rep++ < options._numberRepeatENXIO);
   return fd;
 }
 
-int Fifo::openReadNonBlock(std::string_view fifoName) {
-  int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
+int Fifo::openReadNonBlock(std::string_view fifoName, int& fd) {
+  int fdOld = fd;
+  fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
+  close(fdOld);
   if (fd == -1)
     Info << std::strerror(errno) << std::endl;
   return fd;

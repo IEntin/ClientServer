@@ -99,16 +99,22 @@ struct FifoNonblockingTest : testing::Test {
   inline static const std::string _smallPayload = "0123456789876543210";
   int _fdWrite = -1;
   int _fdRead = -1;
-  FifoNonblockingTest() = default;
+  FifoNonblockingTest() {
+    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
+      LogError << strerror(errno) << std::endl;
+    _fdRead = fifo::Fifo::openReadNonBlock(_testFifo, _fdRead);
+    _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions);
+  }
   ~FifoNonblockingTest() {
     close(_fdWrite);
     _fdWrite = -1;
     close(_fdRead);
     _fdRead = -1;
+    std::filesystem::remove(_testFifo);
   }
   bool send(std::string_view payload) {
     int fdOld = _fdWrite;
-    _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions, 1000);
+    _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions);
     close(fdOld);
     if (TestEnvironment::_serverOptions._setPipeSize)
       fifo::Fifo::setPipeSize(_fdWrite, payload.size());
@@ -119,7 +125,7 @@ struct FifoNonblockingTest : testing::Test {
 
   bool receive(std::vector<char>& received) {
     HEADER header;
-    return fifo::Fifo::readMsg(_testFifo, _fdRead, header, received);
+    return fifo::Fifo::readMsgNonBlock(_testFifo, _fdRead, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
@@ -139,13 +145,9 @@ struct FifoNonblockingTest : testing::Test {
     }
   }
 
-  void SetUp() {
-    ASSERT_TRUE(mkfifo(_testFifo.data(), 0666) != -1 || errno == EEXIST);
-  }
+  void SetUp() {}
 
-  void TearDown() {
-    std::filesystem::remove(_testFifo);
-  }
+  void TearDown() {}
 };
 
 TEST_F(FifoNonblockingTest, FifoNonblockingTest1) {
