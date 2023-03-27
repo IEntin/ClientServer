@@ -24,13 +24,11 @@ HEADER Fifo::readHeader(std::string_view name, int& fd) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	short event = -1;
-	do {
-	  event = Fifo::pollFd(fd, POLLIN);
-	  if (event == -1)
-	    throw std::runtime_error(std::strerror(errno));
-	} while (event != POLLIN);
-	continue;
+	auto event = Fifo::pollFd(fd, POLLIN);
+	if (event <= 0)
+	  throw std::runtime_error(std::strerror(errno));
+	else if (event == POLLIN)
+	  continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -38,14 +36,12 @@ HEADER Fifo::readHeader(std::string_view name, int& fd) {
       }
     }
     else if (result == 0) {
-      int event = -1;
-      do {
-	fd = openReadNonBlock(name, fd);
-	event = Fifo::pollFd(fd, POLLIN);
-	if (event == -1)
-	  throw std::runtime_error(std::strerror(errno));
-      } while (event != POLLIN);
-      continue;
+      fd = openReadNonBlock(name, fd);
+      auto event = Fifo::pollFd(fd, POLLIN);
+      if (event <= 0)
+	throw std::runtime_error(std::strerror(errno));
+      else if (event == POLLIN)
+	continue;
     }
     else
       readSoFar += static_cast<size_t>(result);
@@ -70,13 +66,11 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	short event = -1;
-	do {
-	  event = Fifo::pollFd(fd, POLLIN);
-	  if (event == -1)
-	    throw std::runtime_error(std::strerror(errno));
-	} while (event != POLLIN);
-	continue;
+	auto event = Fifo::pollFd(fd, POLLIN);
+	if (event <= 0)
+	  throw std::runtime_error(std::strerror(errno));
+	else if (event == POLLIN)
+	  continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -84,14 +78,12 @@ bool Fifo::readMsgNonBlock(std::string_view name,
       }
     }
     else if (result == 0) {
-      short event = -1;
-      do {
-	fd = openReadNonBlock(name, fd);
-	event = Fifo::pollFd(fd, POLLIN);
-	if (event == -1)
-	  throw std::runtime_error(std::strerror(errno));
-      } while (event != POLLIN);
-      continue;
+      fd = openReadNonBlock(name, fd);
+      auto event = Fifo::pollFd(fd, POLLIN);
+      if (event <= 0)
+	throw std::runtime_error(std::strerror(errno));
+      else if (event == POLLIN)
+	continue;
     }
     else
       readSoFar += static_cast<size_t>(result);
@@ -115,14 +107,12 @@ HEADER Fifo::readHeader(int fd) {
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      short event = -1;
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	do {
-	  event = pollFd(fd, POLLIN);
-	  if (event == -1)
-	    throw std::runtime_error(std::strerror(errno));
-	} while (event != POLLIN);
-	continue;
+	auto event = pollFd(fd, POLLIN);
+	if (event <= 0)
+	  throw std::runtime_error(std::strerror(errno));
+	else if (event == POLLIN)
+	  continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -149,15 +139,12 @@ bool Fifo::readString(int fd, char* received, size_t size) {
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
-      // non blocking read
-      short event = -1;
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	do {
-	  event = pollFd(fd, POLLIN);
-	  if (event == -1)
-	    return false;
-	} while (event != POLLIN);
-	continue;
+	auto event = pollFd(fd, POLLIN);
+	if (event <= 0)
+	  return false;
+	else if (event == POLLIN)
+	  continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -216,15 +203,19 @@ short Fifo::pollFd(int& fd, short expected) {
     int result = poll(&pfd, 1, -1);
     if (result <= 0) {
       LogError << strerror(errno) << std::endl;
-      return 0;
+      return result;
     }
     else if (pfd.revents & POLLERR) {
       LogError << std::strerror(errno) << std::endl;
-      return -1;
+      return POLLERR;
     }
     else if (pfd.revents & POLLHUP) {
       LogError << std::strerror(errno) << std::endl;
-      return -1;
+      return POLLHUP;
+    }
+    else if (pfd.revents & POLLNVAL) {
+      LogError << std::strerror(errno) << std::endl;
+      return POLLNVAL;
     }
     else if (pfd.revents & expected)
       return expected;
