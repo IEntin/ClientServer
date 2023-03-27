@@ -133,7 +133,8 @@ struct FifoNonblockingTest : testing::Test {
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
       auto f1 = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
-      // uncomment to test send and receive happening at different times.
+      // uncomment to test with time interval between send
+      // and receive. This test takes about 20 seconds.
       //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       auto f2 = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
       f2.wait();

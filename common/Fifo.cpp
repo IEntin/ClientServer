@@ -24,10 +24,13 @@ HEADER Fifo::readHeader(std::string_view name, int& fd) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = Fifo::pollFd(fd, POLLIN);
-	if (event == POLLIN)
-	  continue;
-	throw std::runtime_error(std::strerror(errno));
+	short event = -1;
+	do {
+	  event = Fifo::pollFd(fd, POLLIN);
+	  if (event == -1)
+	    throw std::runtime_error(std::strerror(errno));
+	} while (event != POLLIN);
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -39,6 +42,8 @@ HEADER Fifo::readHeader(std::string_view name, int& fd) {
       do {
 	fd = openReadNonBlock(name, fd);
 	event = Fifo::pollFd(fd, POLLIN);
+	if (event == -1)
+	  throw std::runtime_error(std::strerror(errno));
       } while (event != POLLIN);
       continue;
     }
@@ -65,10 +70,13 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = Fifo::pollFd(fd, POLLIN);
-	if (event == POLLIN)
-	  continue;
-	throw std::runtime_error(std::strerror(errno));
+	short event = -1;
+	do {
+	  event = Fifo::pollFd(fd, POLLIN);
+	  if (event == -1)
+	    throw std::runtime_error(std::strerror(errno));
+	} while (event != POLLIN);
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -76,10 +84,12 @@ bool Fifo::readMsgNonBlock(std::string_view name,
       }
     }
     else if (result == 0) {
-      int event = -1;
+      short event = -1;
       do {
 	fd = openReadNonBlock(name, fd);
 	event = Fifo::pollFd(fd, POLLIN);
+	if (event == -1)
+	  throw std::runtime_error(std::strerror(errno));
       } while (event != POLLIN);
       continue;
     }
@@ -105,11 +115,14 @@ HEADER Fifo::readHeader(int fd) {
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
+      short event = -1;
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN);
-	if (event == POLLIN)
-	  continue;
-	throw std::runtime_error(std::strerror(errno));
+	do {
+	  event = pollFd(fd, POLLIN);
+	  if (event == -1)
+	    throw std::runtime_error(std::strerror(errno));
+	} while (event != POLLIN);
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -137,10 +150,14 @@ bool Fifo::readString(int fd, char* received, size_t size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
       // non blocking read
+      short event = -1;
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN);
-	if (event == POLLIN)
-	  continue;
+	do {
+	  event = pollFd(fd, POLLIN);
+	  if (event == -1)
+	    return false;
+	} while (event != POLLIN);
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -196,20 +213,24 @@ short Fifo::pollFd(int& fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   do {
     pfd.revents = 0;
-    int presult = poll(&pfd, 1, -1);
-    if (presult <= 0) {
-      LogError << "timeout,should not hit this" << std::endl;
+    int result = poll(&pfd, 1, -1);
+    if (result <= 0) {
+      LogError << strerror(errno) << std::endl;
       return 0;
     }
     else if (pfd.revents & POLLERR) {
       LogError << std::strerror(errno) << std::endl;
-      return POLLERR;
+      return -1;
     }
+    else if (pfd.revents & POLLHUP) {
+      LogError << std::strerror(errno) << std::endl;
+      return -1;
+    }
+    else if (pfd.revents & expected)
+      return expected;
+    else
+      return -1;
   } while (errno == EINTR);
-  if (pfd.revents & POLLHUP)
-    return POLLHUP;
-  else
-    return pfd.revents;
 }
 
 bool Fifo::setPipeSize(int fd, long requested) {

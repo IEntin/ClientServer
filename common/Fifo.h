@@ -15,6 +15,8 @@ namespace fifo {
 class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;
+
+  static short pollFd(int& fd, short expected);
 public:
   // non blocking
   static HEADER readHeader(std::string_view name, int& fd);
@@ -33,7 +35,6 @@ public:
   static void onExit(std::string_view fifoName, const Options& options);
   static int openWriteNonBlock(std::string_view fifoName, const Options& options);
   static int openReadNonBlock(std::string_view fifoName, int& fd);
-  static short pollFd(int& fd, short expected);
 };
 
 } // end of namespace fifo
