@@ -94,8 +94,59 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     throw std::runtime_error(std::strerror(errno));
   }
   header = decodeHeader(buffer);
-  if (!isOk(header))
+  if (!isOk(header)) {
+    LogError << "header is invalid." << std::endl;
     return false;
+  }
+  size_t comprSize = extractCompressedSize(header);
+  body.resize(comprSize);
+  return readString(fd, body.data(), comprSize);
+}
+// blocking read
+bool Fifo::readMsgBlock(std::string_view name,
+			int& fd,
+			HEADER& header,
+			std::vector<char>& body) {
+  utility::CloseFileDescriptor cfdr(fd);
+  fd = open(name.data(), O_RDONLY);
+  if (fd == -1) {
+    LogError << name << '-' << std::strerror(errno) << std::endl;
+    return false;
+  }
+  size_t readSoFar = 0;
+  char buffer[HEADER_SIZE] = {};
+  while (readSoFar < HEADER_SIZE) {
+    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
+    if (result == -1) {
+      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+	auto event = Fifo::pollFd(fd, POLLIN);
+	if (event <= 0)
+	  throw std::runtime_error(std::strerror(errno));
+	else if (event == POLLIN)
+	  continue;
+      }
+      else {
+	LogError << std::strerror(errno) << std::endl;
+	throw std::runtime_error(std::strerror(errno));
+      }
+    }
+    else if (result == 0) {
+      Info << (errno ? std::strerror(errno) : "EOF") << std::endl;
+      return false;
+    }
+    else
+      readSoFar += static_cast<size_t>(result);
+  }
+  if (readSoFar != HEADER_SIZE) {
+    LogError << "HEADER_SIZE=" << HEADER_SIZE
+	     << " readSoFar=" << readSoFar << std::endl;
+    throw std::runtime_error(std::strerror(errno));
+  }
+  header = decodeHeader(buffer);
+  if (!isOk(header)) {
+    LogError << "header is invalid." << std::endl;
+    return false;
+  }
   size_t comprSize = extractCompressedSize(header);
   body.resize(comprSize);
   return readString(fd, body.data(), comprSize);

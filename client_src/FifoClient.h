@@ -16,7 +16,6 @@ class FifoClient : public Client {
   bool receive() override;
   bool receiveStatus() override;
   bool destroySession() override;
-  bool readReply(const HEADER& header);
   bool wakeupAcceptor();
   static bool destroy(const ClientOptions& options);
   int _fdReadS = -1;

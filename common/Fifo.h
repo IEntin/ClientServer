@@ -26,6 +26,11 @@ public:
 			      HEADER& header,
 			      std::vector<char>& body);
   // blocking
+  static bool readMsgBlock(std::string_view name,
+			   int& fd,
+			   HEADER& header,
+			   std::vector<char>& body);
+  // blocking
   static HEADER readHeader(int fd);
 
   static bool readString(int fd, char* received, size_t size);

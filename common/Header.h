@@ -86,7 +86,17 @@ inline STATUS extractStatus(const HEADER& header) {
 }
 
 inline bool isOk(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header) == STATUS::NONE;
+  STATUS status = extractStatus(header);
+  switch(status) {
+  case STATUS::NONE:
+  case STATUS::MAX_TOTAL_OBJECTS:
+  case STATUS::MAX_SPECIFIC_OBJECTS:
+    return true;
+    break;
+  default:
+    return false;
+    break;
+  }
 }
 
 void encodeHeader(char* buffer,

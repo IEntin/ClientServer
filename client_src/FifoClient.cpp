@@ -61,36 +61,19 @@ bool FifoClient::receive() {
     return false;
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
-  utility::CloseFileDescriptor cfdr(_fdReadS);
-  _fdReadS = open(_fifoName.data(), O_RDONLY);
-  if (_fdReadS == -1) {
-    LogError << _fifoName << '-' << std::strerror(errno) << std::endl;
-    return false;
-  }
   _status = STATUS::NONE;
   try {
-    HEADER header = Fifo::readHeader(_fdReadS);
-    if (!readReply(header)) {
-      LogError << "failed." << std::endl;
+    thread_local static std::vector<char> buffer;
+    HEADER header;
+    if (!Fifo::readMsgBlock(_fifoName, _fdReadS, header, buffer))
       return false;
-    }
+    return printReply(buffer, header);
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
     return false;
   }
   return true;
-}
-
-bool FifoClient::readReply(const HEADER& header) {
-  thread_local static std::vector<char> buffer;
-  ssize_t comprSize = extractCompressedSize(header);
-  buffer.reserve(comprSize);
-  if (!Fifo::readString(_fdReadS, buffer.data(), comprSize)) {
-    LogError << "failed." << std::endl;
-    return false;
-  }
-  return printReply(buffer, header);
 }
 
 bool FifoClient::wakeupAcceptor() {
@@ -107,18 +90,12 @@ bool FifoClient::wakeupAcceptor() {
 
 bool FifoClient::receiveStatus() {
   try {
-    utility::CloseFileDescriptor closefd(_fdReadA);
-    _fdReadA = open(_options._acceptorName.data(), O_RDONLY);
-    if (_fdReadA == -1) {
-      LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
+    HEADER header;
+    std::vector<char> buffer;
+    if (!Fifo::readMsgBlock(_options._acceptorName, _fdReadA, header, buffer))
       return false;
-    }
-    HEADER header = Fifo::readHeader(_fdReadA);
+    _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
-    size_t size = extractUncompressedSize(header);
-    _clientId.resize(size);
-    if (!Fifo::readString(_fdReadA, _clientId.data(), size))
-      return false;
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
     switch (_status) {
     case STATUS::NONE:
