@@ -116,8 +116,6 @@ struct FifoNonblockingTest : testing::Test {
     int fdOld = _fdWrite;
     _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo, TestEnvironment::_serverOptions);
     close(fdOld);
-    if (TestEnvironment::_serverOptions._setPipeSize)
-      fifo::Fifo::setPipeSize(_fdWrite, payload.size());
     size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
     return fifo::Fifo::sendMsg(_fdWrite, header, payload);
@@ -132,12 +130,30 @@ struct FifoNonblockingTest : testing::Test {
     static thread_local std::vector<char> received;
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
-      auto f1 = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
+      auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
       // uncomment to test with time interval between send
       // and receive. This test takes about 20 seconds.
       //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      auto f2 = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
-      f2.wait();
+      auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
+      fr.wait();
+      ASSERT_EQ(received.size(), payload.size());
+      ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
+    }
+    catch (const std::exception& e) {
+      LogError << e.what() << std::endl;
+    }
+  }
+
+  void testNonblockingFifoReverse(std::string_view payload) {
+    static thread_local std::vector<char> received;
+    try {
+      ASSERT_TRUE(std::filesystem::exists(_testFifo));
+      auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
+      // uncomment to test with time interval between receive
+      // and send. This test takes about 20 seconds.
+      //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
+      fr.wait();
       ASSERT_EQ(received.size(), payload.size());
       ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
     }
@@ -151,9 +167,16 @@ struct FifoNonblockingTest : testing::Test {
   void TearDown() {}
 };
 
-TEST_F(FifoNonblockingTest, FifoNonblockingTest1) {
+TEST_F(FifoNonblockingTest, FifoNonblockingTestD) {
   for (int i = 0; i < 10; ++i) {
     testNonblockingFifo(_smallPayload);
     testNonblockingFifo(TestEnvironment::_source);
+  }
+}
+
+TEST_F(FifoNonblockingTest, FifoNonblockingTestReverse) {
+  for (int i = 0; i < 10; ++i) {
+    testNonblockingFifoReverse(_smallPayload);
+    testNonblockingFifoReverse(TestEnvironment::_source);
   }
 }

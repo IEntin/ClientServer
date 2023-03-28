@@ -328,6 +328,8 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
       }
     }
   } while (fd == -1 && rep++ < options._numberRepeatENXIO);
+  if (fd >= 0 && options._setPipeSize)
+    setPipeSize(fd, options._pipeSize);
   return fd;
 }
 

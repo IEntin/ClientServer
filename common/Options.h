@@ -23,6 +23,7 @@ struct Options {
   COMPRESSORS _compressor;
   bool _timing;
   bool _setPipeSize;
+  size_t _pipeSize;
   LOG_LEVEL _logThreshold;
 private:
   std::string _portString;

@@ -29,6 +29,9 @@ FifoSession::FifoSession(const ServerOptions& options,
 }
 
 FifoSession::~FifoSession() {
+  close(_fdWriteS);
+  close(_fdReadS);
+  close(_fdWriteA);
  std::filesystem::remove(_fifoName);
  Trace << std::endl;
 }
@@ -99,41 +102,28 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
     break;
   }
   utility::CloseFileDescriptor cfdr(_fdReadS);
-  _fdReadS = open(_fifoName.data(), O_RDONLY);
-  if (_fdReadS == -1) {
-    LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
-    return false;
-  }
   try {
-    header = Fifo::readHeader(_fdReadS);
-    return readMsgBody(header, message);
+    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer();
+    if (!Fifo::readMsgBlock(_fifoName, _fdReadS, header, buffer))
+      return false;
+    bool bcompressed = isCompressed(header);
+    static auto& printOnce[[maybe_unused]] =
+      Debug << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
+    if (bcompressed) {
+      message.resize(extractUncompressedSize(header));
+      size_t comprSize = extractCompressedSize(header);
+      if (!Compression::uncompress(buffer, comprSize, message))
+	return false;
+    }
+    else
+      message.swap(buffer);
+    return true;
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
-}
-
-bool FifoSession::readMsgBody(const HEADER& header, std::vector<char>& uncompressed) {
-  const auto& [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
-  bool bcompressed = isCompressed(header);
-  static auto& printOnce[[maybe_unused]] =
-    Debug << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
-  if (bcompressed) {
-    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(comprSize);
-    if (!Fifo::readString(_fdReadS, buffer.data(), comprSize))
-      return false;
-    uncompressed.resize(uncomprSize);
-    if (!Compression::uncompress(buffer, comprSize, uncompressed))
-      return false;
-  }
-  else {
-    uncompressed.resize(uncomprSize);
-    if (!Fifo::readString(_fdReadS, uncompressed.data(), uncomprSize))
-      return false;
-  }
-  return true;
 }
 
 bool FifoSession::sendResponse(const Response& response) {
@@ -155,8 +145,6 @@ bool FifoSession::sendResponse(const Response& response) {
     MemoryPool::destroyBuffers();
     return false;
   }
-  if (_options._setPipeSize)
-    Fifo::setPipeSize(_fdWriteS, body.size());
   return Fifo::sendMsg(_fdWriteS, header, body);
 }
 

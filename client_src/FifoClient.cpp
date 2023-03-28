@@ -49,7 +49,7 @@ bool FifoClient::send(const Subtask& subtask) {
     if (_closeFlag.test())
       return false;
     if (_options._setPipeSize)
-      Fifo::setPipeSize(_fdWriteS, subtask._body.size());
+      Fifo::setPipeSize(_fdWriteS, _options._pipeSize);
     std::string_view body(subtask._body.data(), subtask._body.size());
     return Fifo::sendMsg(_fdWriteS, subtask._header, body);
   }
