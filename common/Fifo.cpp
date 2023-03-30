@@ -25,17 +25,17 @@ bool Fifo::readMsgNonBlock(std::string_view name,
   int fdWrite = -1;
   utility::CloseFileDescriptor cfdw(fdWrite);
   fdWrite = openWriteNonBlock(name, options);
+  if (pollFd(fdRead, POLLIN) == -1)
+    return false;
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fdRead, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = Fifo::pollFd(fdRead, POLLIN);
-	if (event <= 0)
+	if (pollFd(fdRead, POLLIN) == -1)
 	  throw std::runtime_error(std::strerror(errno));
-	else if (event == POLLIN)
-	  continue;
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -44,11 +44,9 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     }
     else if (result == 0) {
       fdRead = openReadNonBlock(name, fdRead);
-      auto event = Fifo::pollFd(fdRead, POLLIN);
-      if (event <= 0)
+      if (pollFd(fdRead, POLLIN) == -1)
 	throw std::runtime_error(std::strerror(errno));
-      else if (event == POLLIN)
-	continue;
+      continue;
     }
     else
       readSoFar += static_cast<size_t>(result);
@@ -78,17 +76,17 @@ bool Fifo::readMsgBlock(std::string_view name,
     LogError << name << '-' << std::strerror(errno) << std::endl;
     return false;
   }
+  if (pollFd(fd, POLLIN) == -1)
+    return false;
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = Fifo::pollFd(fd, POLLIN);
-	if (event <= 0)
+	if (pollFd(fd, POLLIN) == -1)
 	  throw std::runtime_error(std::strerror(errno));
-	else if (event == POLLIN)
-	  continue;
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -96,7 +94,7 @@ bool Fifo::readMsgBlock(std::string_view name,
       }
     }
     else if (result == 0) {
-      Info << (errno ? std::strerror(errno) : "EOF") << std::endl;
+      Debug << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return false;
     }
     else
@@ -124,11 +122,9 @@ HEADER Fifo::readHeader(int fd) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN);
-	if (event <= 0)
+	if (pollFd(fd, POLLIN) == -1)
 	  throw std::runtime_error(std::strerror(errno));
-	else if (event == POLLIN)
-	  continue;
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -136,7 +132,7 @@ HEADER Fifo::readHeader(int fd) {
       }
     }
     else if (result == 0) {
-      Info << (errno ? std::strerror(errno) : "EOF") << std::endl;
+      Debug << (errno ? std::strerror(errno) : "EOF") << std::endl;
       return { HEADERTYPE::ERROR, 0, 0, COMPRESSORS::NONE, false, STATUS::FIFO_PROBLEM };
     }
     else
@@ -156,11 +152,9 @@ bool Fifo::readString(int fd, char* received, size_t size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = pollFd(fd, POLLIN);
-	if (event <= 0)
+	if (pollFd(fd, POLLIN) == -1)
 	  return false;
-	else if (event == POLLIN)
-	  continue;
+	continue;
       }
       else {
 	LogError << std::strerror(errno) << std::endl;
@@ -182,6 +176,8 @@ bool Fifo::readString(int fd, char* received, size_t size) {
 }
 
 bool Fifo::writeString(int fd, std::string_view str) {
+  if (pollFd(fd, POLLOUT) == -1)
+    return false;
   size_t written = 0;
   while (written < str.size()) {
     ssize_t result = write(fd, str.data() + written, str.size() - written);
@@ -221,15 +217,15 @@ short Fifo::pollFd(int& fd, short expected) {
     return result;
   }
   else if (pfd.revents & POLLERR) {
-    LogError << std::strerror(errno) << std::endl;
+    Info << std::strerror(errno) << std::endl;
     return POLLERR;
   }
   else if (pfd.revents & POLLHUP) {
-    LogError << std::strerror(errno) << std::endl;
+    Debug << std::strerror(errno) << std::endl;
     return POLLHUP;
   }
   else if (pfd.revents & POLLNVAL) {
-    LogError << std::strerror(errno) << std::endl;
+    Debug << std::strerror(errno) << std::endl;
     return POLLNVAL;
   }
   else if (pfd.revents & expected)
@@ -248,13 +244,13 @@ bool Fifo::setPipeSize(int fd, long requested) {
     int ret = fcntl(fd, F_SETPIPE_SZ, requested);
     if (ret < 0) {
       static auto& printOnce[[maybe_unused]] =
-	LogError << std::strerror(errno) << ":\n"
-		 << "su privileges required, ignore." << std::endl;
+	Info << std::strerror(errno) << ":\n"
+	     << "su privileges required, ignore." << std::endl;
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
-      LogError << std::strerror(errno) << std::endl;
+      Info << std::strerror(errno) << std::endl;
       return false;
     }
     return newSz >= requested || requested < currentSz;

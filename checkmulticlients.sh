@@ -99,6 +99,8 @@ clients=$(ps -ef | grep -w './client' | grep -v 'grep')
 
 fifos=$(ls ../Fifos)
 
+echo -e "\nkilling server\n"
+
 kill $SERVER_PID
 
 sleep 2
