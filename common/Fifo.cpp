@@ -15,58 +15,23 @@
 
 namespace fifo {
 
-// non blocking read
-HEADER Fifo::readHeader(std::string_view name, int& fd) {
-  fd = openReadNonBlock(name, fd);
-  size_t readSoFar = 0;
-  char buffer[HEADER_SIZE] = {};
-  while (readSoFar < HEADER_SIZE) {
-    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
-    if (result == -1) {
-      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = Fifo::pollFd(fd, POLLIN);
-	if (event <= 0)
-	  throw std::runtime_error(std::strerror(errno));
-	else if (event == POLLIN)
-	  continue;
-      }
-      else {
-	LogError << std::strerror(errno) << std::endl;
-	throw std::runtime_error(std::strerror(errno));
-      }
-    }
-    else if (result == 0) {
-      fd = openReadNonBlock(name, fd);
-      auto event = Fifo::pollFd(fd, POLLIN);
-      if (event <= 0)
-	throw std::runtime_error(std::strerror(errno));
-      else if (event == POLLIN)
-	continue;
-    }
-    else
-      readSoFar += static_cast<size_t>(result);
-  }
-  if (readSoFar != HEADER_SIZE) {
-    LogError << "HEADER_SIZE=" << HEADER_SIZE
-	     << " readSoFar=" << readSoFar << std::endl;
-    throw std::runtime_error(std::strerror(errno));
-  }
-  return decodeHeader(buffer);
-}
-
-// non blocking read
 bool Fifo::readMsgNonBlock(std::string_view name,
-			   int& fd,
 			   HEADER& header,
-			   std::vector<char>& body) {
-  fd = openReadNonBlock(name, fd);
+			   std::vector<char>& body,
+			   const Options& options) {
+  int fdRead = -1;
+  utility::CloseFileDescriptor cfdr(fdRead);
+  fdRead = openReadNonBlock(name, fdRead);
+  int fdWrite = -1;
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  fdWrite = openWriteNonBlock(name, options);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
-    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
+    ssize_t result = read(fdRead, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
       if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	auto event = Fifo::pollFd(fd, POLLIN);
+	auto event = Fifo::pollFd(fdRead, POLLIN);
 	if (event <= 0)
 	  throw std::runtime_error(std::strerror(errno));
 	else if (event == POLLIN)
@@ -78,8 +43,8 @@ bool Fifo::readMsgNonBlock(std::string_view name,
       }
     }
     else if (result == 0) {
-      fd = openReadNonBlock(name, fd);
-      auto event = Fifo::pollFd(fd, POLLIN);
+      fdRead = openReadNonBlock(name, fdRead);
+      auto event = Fifo::pollFd(fdRead, POLLIN);
       if (event <= 0)
 	throw std::runtime_error(std::strerror(errno));
       else if (event == POLLIN)
@@ -100,9 +65,9 @@ bool Fifo::readMsgNonBlock(std::string_view name,
   }
   size_t comprSize = extractCompressedSize(header);
   body.resize(comprSize);
-  return readString(fd, body.data(), comprSize);
+  return readString(fdRead, body.data(), comprSize);
 }
-// blocking read
+
 bool Fifo::readMsgBlock(std::string_view name,
 			int& fd,
 			HEADER& header,
@@ -249,30 +214,28 @@ bool Fifo::sendMsg(int fd, const HEADER& header, std::string_view body) {
 
 short Fifo::pollFd(int& fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
-  do {
-    pfd.revents = 0;
-    int result = poll(&pfd, 1, -1);
-    if (result <= 0) {
-      LogError << strerror(errno) << std::endl;
-      return result;
-    }
-    else if (pfd.revents & POLLERR) {
-      LogError << std::strerror(errno) << std::endl;
-      return POLLERR;
-    }
-    else if (pfd.revents & POLLHUP) {
-      LogError << std::strerror(errno) << std::endl;
-      return POLLHUP;
-    }
-    else if (pfd.revents & POLLNVAL) {
-      LogError << std::strerror(errno) << std::endl;
-      return POLLNVAL;
-    }
-    else if (pfd.revents & expected)
-      return expected;
-    else
-      return -1;
-  } while (errno == EINTR);
+  pfd.revents = 0;
+  int result = poll(&pfd, 1, -1);
+  if (result <= 0) {
+    LogError << strerror(errno) << std::endl;
+    return result;
+  }
+  else if (pfd.revents & POLLERR) {
+    LogError << std::strerror(errno) << std::endl;
+    return POLLERR;
+  }
+  else if (pfd.revents & POLLHUP) {
+    LogError << std::strerror(errno) << std::endl;
+    return POLLHUP;
+  }
+  else if (pfd.revents & POLLNVAL) {
+    LogError << std::strerror(errno) << std::endl;
+    return POLLNVAL;
+  }
+  else if (pfd.revents & expected)
+    return expected;
+  else
+    return -1;
 }
 
 bool Fifo::setPipeSize(int fd, long requested) {
@@ -301,12 +264,12 @@ bool Fifo::setPipeSize(int fd, long requested) {
 
 // unblock the call to blocking open calls by opening opposite end.
 void Fifo::onExit(std::string_view fifoName, const Options& options) {
-  int fdWrite = -1;
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  fdWrite = openWriteNonBlock(fifoName, options);
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
   fdRead = openReadNonBlock(fifoName, fdRead);
+  int fdWrite = -1;
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  fdWrite = openWriteNonBlock(fifoName, options);
 }
 
 int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {

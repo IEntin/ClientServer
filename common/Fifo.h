@@ -18,14 +18,11 @@ class Fifo {
 
   static short pollFd(int& fd, short expected);
 public:
-  // non blocking
-  static HEADER readHeader(std::string_view name, int& fd);
-  // non blocking
   static bool readMsgNonBlock(std::string_view name,
-			      int& fd,
 			      HEADER& header,
-			      std::vector<char>& body);
-  // blocking
+			      std::vector<char>& body,
+			      const Options& options);
+
   static bool readMsgBlock(std::string_view name,
 			   int& fd,
 			   HEADER& header,

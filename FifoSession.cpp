@@ -29,11 +29,9 @@ FifoSession::FifoSession(const ServerOptions& options,
 }
 
 FifoSession::~FifoSession() {
-  close(_fdWriteS);
   close(_fdReadS);
-  close(_fdWriteA);
- std::filesystem::remove(_fifoName);
- Trace << std::endl;
+  std::filesystem::remove(_fifoName);
+  Trace << std::endl;
 }
 
 void FifoSession::run() {
@@ -101,10 +99,11 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   default:
     break;
   }
-  utility::CloseFileDescriptor cfdr(_fdReadS);
+  int fd = -1;
+  utility::CloseFileDescriptor cfdr(fd);
   try {
     std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer();
-    if (!Fifo::readMsgBlock(_fifoName, _fdReadS, header, buffer))
+    if (!Fifo::readMsgBlock(_fifoName, fd, header, buffer))
       return false;
     bool bcompressed = isCompressed(header);
     static auto& printOnce[[maybe_unused]] =
@@ -138,26 +137,28 @@ bool FifoSession::sendResponse(const Response& response) {
   // from a client crashed or killed with SIGKILL and resume operation
   // after a client restarted (in block mode the server will just hang on
   // open(...) no matter what).
-  utility::CloseFileDescriptor cfdw(_fdWriteS);
-  _fdWriteS = Fifo::openWriteNonBlock(_fifoName, _options);
-  if (_fdWriteS == -1) {
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
+  fd = Fifo::openWriteNonBlock(_fifoName, _options);
+  if (fd == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
-  return Fifo::sendMsg(_fdWriteS, header, body);
+  return Fifo::sendMsg(fd, header, body);
 }
 
 bool FifoSession::sendStatusToClient() {
-  utility::CloseFileDescriptor closeFd(_fdWriteA);
-  _fdWriteA = Fifo::openWriteNonBlock(_options._acceptorName, _options);
-  if (_fdWriteA == -1) {
+  int fd = -1;
+  utility::CloseFileDescriptor closeFd(fd);
+  fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
+  if (fd == -1) {
     LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
     return false;
   }
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(_fdWriteA, header, _clientId);
+  return Fifo::sendMsg(fd, header, _clientId);
 }
 
 } // end of namespace fifo

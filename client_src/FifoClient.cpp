@@ -33,6 +33,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 }
 
 FifoClient::~FifoClient() {
+  close(_fdReadS);
   Fifo::onExit(_fifoName, _options);
   Trace << std::endl;
 }
@@ -43,15 +44,16 @@ bool FifoClient::run() {
 }
 
 bool FifoClient::send(const Subtask& subtask) {
-  utility::CloseFileDescriptor cfdw(_fdWriteS);
-  _fdWriteS = open(_fifoName.data(), O_WRONLY);
-  if (_fdWriteS >= 0) {
+  int fd = -1;
+  utility::CloseFileDescriptor cfdw(fd);
+  fd = open(_fifoName.data(), O_WRONLY);
+  if (fd >= 0) {
     if (_closeFlag.test())
       return false;
     if (_options._setPipeSize)
-      Fifo::setPipeSize(_fdWriteS, _options._pipeSize);
+      Fifo::setPipeSize(fd, _options._pipeSize);
     std::string_view body(subtask._body.data(), subtask._body.size());
-    return Fifo::sendMsg(_fdWriteS, subtask._header, body);
+    return Fifo::sendMsg(fd, subtask._header, body);
   }
   return false;
 }
@@ -62,10 +64,12 @@ bool FifoClient::receive() {
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
   _status = STATUS::NONE;
+  int fd = -1;
+  utility::CloseFileDescriptor cfdr(fd);
   try {
     thread_local static std::vector<char> buffer;
     HEADER header;
-    if (!Fifo::readMsgBlock(_fifoName, _fdReadS, header, buffer))
+    if (!Fifo::readMsgBlock(_fifoName, fd, header, buffer))
       return false;
     return printReply(buffer, header);
   }
@@ -77,22 +81,24 @@ bool FifoClient::receive() {
 }
 
 bool FifoClient::wakeupAcceptor() {
-  utility::CloseFileDescriptor cfdw(_fdWriteA);
-  _fdWriteA = open(_options._acceptorName.data(), O_WRONLY);
-  if (_fdWriteA == -1) {
+  int fd = open(_options._acceptorName.data(), O_WRONLY);
+  utility::CloseFileDescriptor cfdw(fd);
+  if (fd == -1) {
     LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(_fdWriteA, header);
+  return Fifo::sendMsg(fd, header);
 }
 
 bool FifoClient::receiveStatus() {
   try {
     HEADER header;
     std::vector<char> buffer;
-    if (!Fifo::readMsgBlock(_options._acceptorName, _fdReadA, header, buffer))
+    int fd = -1;
+    utility::CloseFileDescriptor cfdr(fd);
+    if (!Fifo::readMsgBlock(_options._acceptorName, fd, header, buffer))
       return false;
     _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
@@ -118,13 +124,13 @@ bool FifoClient::receiveStatus() {
 }
 
 bool FifoClient::destroy(const ClientOptions& options) {
-  utility::CloseFileDescriptor cfdw(_fdWriteA);
-  _fdWriteA = Fifo::openWriteNonBlock(options._acceptorName, options);
-  if (_fdWriteA == -1)
+  int fd = Fifo::openWriteNonBlock(options._acceptorName, options);
+  utility::CloseFileDescriptor cfdw(fd);
+  if (fd == -1)
     return false;
   size_t size = _clientId.size();
   HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
-  return Fifo::sendMsg(_fdWriteA, header, _clientId);
+  return Fifo::sendMsg(fd, header, _clientId);
 }
 
 bool FifoClient::destroySession() {
