@@ -17,21 +17,17 @@ class Fifo {
   ~Fifo() = delete;
 
   static short pollFd(int& fd, short expected);
-public:
+  static bool readString(int fd, char* received, size_t size);
+ public:
   static bool readMsgNonBlock(std::string_view name,
 			      HEADER& header,
 			      std::vector<char>& body,
 			      const Options& options);
 
   static bool readMsgBlock(std::string_view name,
-			   int& fd,
 			   HEADER& header,
 			   std::vector<char>& body);
-  // blocking
-  static HEADER readHeader(int fd);
-
-  static bool readString(int fd, char* received, size_t size);
-  static bool writeString(int fd, std::string_view str);
+ static bool writeString(int fd, std::string_view str);
   static bool sendMsg(int fd, const HEADER& header, std::string_view body = std::string_view());
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);

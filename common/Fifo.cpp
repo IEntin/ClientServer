@@ -67,11 +67,10 @@ bool Fifo::readMsgNonBlock(std::string_view name,
 }
 
 bool Fifo::readMsgBlock(std::string_view name,
-			int& fd,
 			HEADER& header,
 			std::vector<char>& body) {
+  int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
-  fd = open(name.data(), O_RDONLY);
   if (fd == -1) {
     LogError << name << '-' << std::strerror(errno) << std::endl;
     return false;
@@ -113,37 +112,6 @@ bool Fifo::readMsgBlock(std::string_view name,
   size_t comprSize = extractCompressedSize(header);
   body.resize(comprSize);
   return readString(fd, body.data(), comprSize);
-}
-
-HEADER Fifo::readHeader(int fd) {
-  size_t readSoFar = 0;
-  char buffer[HEADER_SIZE] = {};
-  while (readSoFar < HEADER_SIZE) {
-    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
-    if (result == -1) {
-      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-	if (pollFd(fd, POLLIN) == -1)
-	  throw std::runtime_error(std::strerror(errno));
-	continue;
-      }
-      else {
-	LogError << std::strerror(errno) << std::endl;
-	throw std::runtime_error(std::strerror(errno));
-      }
-    }
-    else if (result == 0) {
-      Debug << (errno ? std::strerror(errno) : "EOF") << std::endl;
-      return { HEADERTYPE::ERROR, 0, 0, COMPRESSORS::NONE, false, STATUS::FIFO_PROBLEM };
-    }
-    else
-      readSoFar += static_cast<size_t>(result);
-  }
-  if (readSoFar != HEADER_SIZE) {
-    LogError << "HEADER_SIZE=" << HEADER_SIZE
-	     << " readSoFar=" << readSoFar << std::endl;
-    throw std::runtime_error(std::strerror(errno));
-  }
-  return decodeHeader(buffer);
 }
 
 bool Fifo::readString(int fd, char* received, size_t size) {

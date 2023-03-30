@@ -99,11 +99,9 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   default:
     break;
   }
-  int fd = -1;
-  utility::CloseFileDescriptor cfdr(fd);
   try {
     std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer();
-    if (!Fifo::readMsgBlock(_fifoName, fd, header, buffer))
+    if (!Fifo::readMsgBlock(_fifoName, header, buffer))
       return false;
     bool bcompressed = isCompressed(header);
     static auto& printOnce[[maybe_unused]] =

@@ -64,12 +64,10 @@ bool FifoClient::receive() {
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
   _status = STATUS::NONE;
-  int fd = -1;
-  utility::CloseFileDescriptor cfdr(fd);
   try {
     thread_local static std::vector<char> buffer;
     HEADER header;
-    if (!Fifo::readMsgBlock(_fifoName, fd, header, buffer))
+    if (!Fifo::readMsgBlock(_fifoName, header, buffer))
       return false;
     return printReply(buffer, header);
   }
@@ -96,9 +94,7 @@ bool FifoClient::receiveStatus() {
   try {
     HEADER header;
     std::vector<char> buffer;
-    int fd = -1;
-    utility::CloseFileDescriptor cfdr(fd);
-    if (!Fifo::readMsgBlock(_options._acceptorName, fd, header, buffer))
+    if (!Fifo::readMsgBlock(_options._acceptorName, header, buffer))
       return false;
     _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
