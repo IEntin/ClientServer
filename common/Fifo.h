@@ -27,7 +27,7 @@ class Fifo {
   static bool readMsgBlock(std::string_view name,
 			   HEADER& header,
 			   std::vector<char>& body);
- static bool writeString(int fd, std::string_view str);
+  static bool writeString(int fd, std::string_view str);
   static bool sendMsg(int fd, const HEADER& header, std::string_view body = std::string_view());
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);

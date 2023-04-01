@@ -66,7 +66,12 @@ void FifoAcceptor::run() {
 
 void FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
-  RunnablePtr session =
+  std::string fifoName(_options._fifoDirectoryName + '/' + clientId);
+  if (mkfifo(fifoName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << fifoName << std::endl;
+    return;
+  }
+  auto session =
     std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
   startSession(clientId, session);
 }

@@ -75,10 +75,6 @@ void FifoSession::checkCapacity() {
 }
 
 bool FifoSession::start() {
-  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << _fifoName << std::endl;
-    return false;
-  }
   _threadPool.push(shared_from_this());
   return true;
 }

@@ -32,7 +32,7 @@ bool Fifo::readMsgNonBlock(std::string_view name,
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fdRead, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	if (pollFd(fdRead, POLLIN) == -1)
 	  throw std::runtime_error(std::strerror(errno));
 	continue;
@@ -82,7 +82,7 @@ bool Fifo::readMsgBlock(std::string_view name,
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	if (pollFd(fd, POLLIN) == -1)
 	  throw std::runtime_error(std::strerror(errno));
 	continue;
@@ -119,7 +119,7 @@ bool Fifo::readString(int fd, char* received, size_t size) {
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
-      if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
 	if (pollFd(fd, POLLIN) == -1)
 	  return false;
 	continue;
@@ -241,12 +241,10 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
   int rep = 0;
   do {
     close(fd);
-    fd = -1;
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
       switch (errno) {
       case ENXIO:
-      case EINTR:
 	std::this_thread::sleep_for(std::chrono::milliseconds(options._ENXIOwait));
 	break;
       default:
