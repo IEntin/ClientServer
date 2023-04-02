@@ -13,7 +13,6 @@
   "RunLoop" : true,
   "_comment": "0 for unlimited",
   "MaxNumberTasks" : 0,
-  "EnableHeartbeat" : true,
   "_comment": "below in milliseconds",
   "HeartbeatPeriod" : 15000,
   "HeartbeatTimeout" : 5000,

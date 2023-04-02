@@ -55,7 +55,15 @@ void  ThreadPoolBase::createThread() {
 	// this kills the thread
 	if (runnable->killThread())
 	  break;
-	runnable->run();
+	try {
+	  runnable->run();
+	}
+	catch (const std::exception& e) {
+	  LogError << e.what() << std::endl;
+	}
+	catch (...) {
+	  LogError << "exception caught." << std::endl;
+	}
       }
     }
   });

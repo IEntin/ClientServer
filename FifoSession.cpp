@@ -29,6 +29,7 @@ FifoSession::FifoSession(const ServerOptions& options,
 }
 
 FifoSession::~FifoSession() {
+  Fifo::onExit(_fifoName, _options);
   close(_fdReadS);
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
@@ -147,7 +148,7 @@ bool FifoSession::sendStatusToClient() {
   utility::CloseFileDescriptor closeFd(fd);
   fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
   if (fd == -1) {
-    LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
+    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
     return false;
   }
   size_t size = _clientId.size();

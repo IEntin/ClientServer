@@ -101,7 +101,7 @@ struct FifoNonblockingTest : testing::Test {
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << std::endl;
-    _fdRead = fifo::Fifo::openReadNonBlock(_testFifo, _fdRead);
+    _fdRead = fifo::Fifo::openReadNonBlock(_testFifo);
  }
   ~FifoNonblockingTest() {
     close(_fdRead);
@@ -130,6 +130,7 @@ struct FifoNonblockingTest : testing::Test {
       //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
       fr.wait();
+      fs.wait();
       ASSERT_EQ(received.size(), payload.size());
       ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
     }
@@ -148,6 +149,7 @@ struct FifoNonblockingTest : testing::Test {
       //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
       fr.wait();
+      fs.wait();
       ASSERT_EQ(received.size(), payload.size());
       ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
     }

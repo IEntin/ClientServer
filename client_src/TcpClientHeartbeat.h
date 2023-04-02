@@ -21,7 +21,7 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   TcpClientHeartbeat(const ClientOptions& options, ThreadPoolBase& threadPoolClient);
   ~TcpClientHeartbeat() override;
  private:
-  void run() noexcept override;
+  void run() override;
   bool start() override;
   void stop() override;
   void heartbeatWait();

@@ -22,7 +22,6 @@ struct ClientOptions : Options {
   int _maxNumberTasks;
   int _heartbeatPeriod;
   int _heartbeatTimeout;
-  bool _enableHeartbeat;
   bool _diagnostics;
   bool _runLoop;
 };

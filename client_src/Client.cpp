@@ -120,12 +120,10 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
 
 void Client::start() {
   try {
-    if (_options._enableHeartbeat) {
-      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _threadPoolClient);
-      _heartbeat->start();
-    }
+    _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _threadPoolClient);
+    _heartbeat->start();
   }
   catch (const std::exception& e) {
-    Warn << e.what() << std::endl;
+    LogError << e.what() << std::endl;
   }
 }

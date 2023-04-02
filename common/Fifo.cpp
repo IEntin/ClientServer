@@ -21,7 +21,7 @@ bool Fifo::readMsgNonBlock(std::string_view name,
 			   const Options& options) {
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
-  fdRead = openReadNonBlock(name, fdRead);
+  fdRead = openReadNonBlock(name);
   int fdWrite = -1;
   utility::CloseFileDescriptor cfdw(fdWrite);
   fdWrite = openWriteNonBlock(name, options);
@@ -43,7 +43,7 @@ bool Fifo::readMsgNonBlock(std::string_view name,
       }
     }
     else if (result == 0) {
-      fdRead = openReadNonBlock(name, fdRead);
+      fdRead = openReadNonBlock(name);
       if (pollFd(fdRead, POLLIN) == -1)
 	throw std::runtime_error(std::strerror(errno));
       continue;
@@ -230,7 +230,7 @@ bool Fifo::setPipeSize(int fd, long requested) {
 void Fifo::onExit(std::string_view fifoName, const Options& options) {
   int fdRead = -1;
   utility::CloseFileDescriptor cfdr(fdRead);
-  fdRead = openReadNonBlock(fifoName, fdRead);
+  fdRead = openReadNonBlock(fifoName);
   int fdWrite = -1;
   utility::CloseFileDescriptor cfdw(fdWrite);
   fdWrite = openWriteNonBlock(fifoName, options);
@@ -258,12 +258,10 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
   return fd;
 }
 
-int Fifo::openReadNonBlock(std::string_view fifoName, int& fd) {
-  int fdOld = fd;
-  fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
-  close(fdOld);
+int Fifo::openReadNonBlock(std::string_view fifoName) {
+  int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1)
-    Info << std::strerror(errno) << std::endl;
+    Info << std::strerror(errno) << ' ' << fifoName << std::endl;
   return fd;
 }
 

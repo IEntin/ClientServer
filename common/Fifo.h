@@ -32,7 +32,7 @@ class Fifo {
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);
   static int openWriteNonBlock(std::string_view fifoName, const Options& options);
-  static int openReadNonBlock(std::string_view fifoName, int& fd);
+  static int openReadNonBlock(std::string_view fifoName);
 };
 
 } // end of namespace fifo

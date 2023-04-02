@@ -27,20 +27,8 @@ bool TcpClientHeartbeat::start() {
   return true;
 }
 
-void TcpClientHeartbeat::run() noexcept {
-  try {
-    _ioContext.run();
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    // This will eventually (after at most
-    // a heartbeat period) close the client
-    // if the server was killed with SIGKILL (9).
-    // Not remommended, use SIGINT (Ctrl C) or
-    // SIGTERM to close server or client cleanly
-    // immediately.
-    std::exit(7);
-  }
+void TcpClientHeartbeat::run() {
+  _ioContext.run();
 }
 
 void TcpClientHeartbeat::stop() {
