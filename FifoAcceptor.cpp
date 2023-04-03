@@ -20,7 +20,6 @@ FifoAcceptor::FifoAcceptor(const ServerOptions& options,
   Acceptor(options, threadPoolAcceptor, threadPoolSession) {}
 
 FifoAcceptor::~FifoAcceptor() {
-  Fifo::onExit(_options._acceptorName, _options);
   removeFifoFiles();
   Trace << std::endl;
 }
