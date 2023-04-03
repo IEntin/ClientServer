@@ -11,7 +11,6 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-std::string Client::_clientId;
 std::atomic_flag Client::_closeFlag;
 
 Client::Client(const ClientOptions& options) : _options(options) {}

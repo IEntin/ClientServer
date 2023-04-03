@@ -15,8 +15,6 @@
 
 namespace fifo {
 
-std::string FifoClient::_fifoName;
-
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
   try {

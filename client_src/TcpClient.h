@@ -19,6 +19,7 @@ class TcpClient : public Client {
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
+  std::string _clientId;
  public:
   TcpClient(const ClientOptions& options);
   ~TcpClient() override;
