@@ -4,6 +4,12 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+if [[ ( $@ == "--help") ||  $@ == "-h" || $# -gt 1 ]]
+then
+    echo "Usage: ./runShortSessions in any client directory." 
+    exit 0
+fi
+
 set -e
 
 trap "exit" SIGHUP SIGINT SIGTERM
