@@ -15,7 +15,6 @@ class FifoClient : public Client {
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
-  bool destroySession() override;
   bool wakeupAcceptor();
   static bool destroy(const ClientOptions& options);
   int _fdReadS = -1;

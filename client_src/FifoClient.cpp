@@ -42,6 +42,8 @@ bool FifoClient::run() {
 }
 
 bool FifoClient::send(const Subtask& subtask) {
+  if (!std::filesystem::exists(_fifoName))
+    return false;
   int fd = -1;
   utility::CloseFileDescriptor cfdw(fd);
   fd = open(_fifoName.data(), O_WRONLY);
@@ -125,13 +127,6 @@ bool FifoClient::destroy(const ClientOptions& options) {
   size_t size = _clientId.size();
   HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
   return Fifo::sendMsg(fd, header, _clientId);
-}
-
-bool FifoClient::destroySession() {
-  // don't do it second time
-  if (_closeFlag.test())
-    return true;
-  return destroy(_options);
 }
 
 void FifoClient::setCloseFlag(const ClientOptions& options) {

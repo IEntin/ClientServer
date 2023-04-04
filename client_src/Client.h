@@ -35,7 +35,7 @@ class Client {
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
   virtual bool run() = 0;
-  virtual bool destroySession() = 0;
+  virtual bool destroySession() { return true; }
 
   void stop();
 };

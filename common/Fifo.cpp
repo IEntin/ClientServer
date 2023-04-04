@@ -8,6 +8,7 @@
 #include "Utility.h"
 #include <chrono>
 #include <fcntl.h>
+#include <filesystem>
 #include <poll.h>
 #include <sys/stat.h>
 #include <thread>
@@ -259,6 +260,8 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
 }
 
 int Fifo::openReadNonBlock(std::string_view fifoName) {
+  if (!std::filesystem::exists(fifoName))
+    return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1)
     Info << std::strerror(errno) << ' ' << fifoName << std::endl;

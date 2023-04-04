@@ -80,6 +80,8 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
+  if (_stopped)
+    return;
   _stopped = true;
   Fifo::onExit(_fifoName, _options);
 }
@@ -143,6 +145,8 @@ bool FifoSession::sendResponse(const Response& response) {
 }
 
 bool FifoSession::sendStatusToClient() {
+  if (_stopped)
+    return false;
   int fd = -1;
   utility::CloseFileDescriptor closeFd(fd);
   fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
