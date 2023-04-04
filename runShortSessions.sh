@@ -6,7 +6,7 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -gt 1 ]]
 then
-    echo "Usage: ./runShortSessions in any client directory." 
+    echo "Usage: ./runShortSessions in any or all client directories." 
     exit 0
 fi
 
