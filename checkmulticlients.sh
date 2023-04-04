@@ -50,7 +50,7 @@ done
 
 for (( c=1; c<=$1; c++ ))
 do
-    (cd ../Client$c; ln -sf $cwd/data .; cp $cwd/script.sh .; cp $cwd/ClientOptions.json .)
+    (cd ../Client$c; ln -sf $cwd/data .; cp $cwd/runShortSessions.sh .; cp $cwd/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client

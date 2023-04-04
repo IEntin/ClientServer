@@ -87,13 +87,16 @@ endif
 
 WARNINGS := -Wall -Wextra -pedantic-errors
 
-MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) -DENABLEPCH=$(ENABLEPCH)
+MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) \
+-DENABLEPCH=$(ENABLEPCH)
 
 BOOST_INCLUDES := /usr/local/boost_1_81_0
 
-INCLUDES := -I$(COMMONDIR) -I. -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) -I$(TESTSRCDIR) -I$(LZ4DIR)
+INCLUDES := -I$(COMMONDIR) -I. -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
+-I$(TESTSRCDIR) -I$(LZ4DIR)
 
-CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a -MMD -MP $(WARNINGS) $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
+CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a -MMD -MP $(WARNINGS) \
+$(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
 BUILDDIR := build
 
@@ -109,7 +112,8 @@ $(BUILDDIR)/%.o : %.cpp $(PCH)
 
 LZ4SRC := $(LZ4DIR)/lz4.cpp
 COMMONSRC := $(wildcard $(COMMONDIR)/*.cpp)
-COMMONOBJ := $(patsubst $(COMMONDIR)/%.cpp, $(BUILDDIR)/%.o, $(COMMONSRC)) $(patsubst $(LZ4DIR)/%.cpp, $(BUILDDIR)/%.o, $(LZ4SRC))
+COMMONOBJ := $(patsubst $(COMMONDIR)/%.cpp, $(BUILDDIR)/%.o, $(COMMONSRC)) $(patsubst \
+$(LZ4DIR)/%.cpp, $(BUILDDIR)/%.o, $(LZ4SRC))
 
 SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
@@ -129,7 +133,8 @@ TESTSRC = $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
-	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread
+	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(SERVERFILTEREDOBJ) \
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread
 
 RUNTESTSPSEUDOTARGET := runtests
 
@@ -140,7 +145,8 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 .PHONY: clean cleanall
 
 clean:
-	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
+	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
+gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ .server_running
 
 cleanall : clean
 	$(RM) *.gch */*.gch *.pch */*.pch

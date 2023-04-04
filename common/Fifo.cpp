@@ -177,7 +177,7 @@ bool Fifo::sendMsg(int fd, const HEADER& header, std::string_view body) {
     writeString(fd, std::string_view(body.data(), body.size()));
 }
 
-short Fifo::pollFd(int& fd, short expected) {
+short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   pfd.revents = 0;
   int result = poll(&pfd, 1, -1);
