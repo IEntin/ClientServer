@@ -4,13 +4,18 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+set -e
+
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -gt 1 ]]
 then
-    echo "Usage: ./runShortSessions in any or all client directories." 
-    exit 0
-fi
+    echo "Usage: './runShortSessions.sh' in any one or any number of 
+or all client directories. It is a test of server stability under 
+concurrent load from multiple clients of different types frequently 
+creating and destroying sessions. It can be ran on binaries built 
+with thread or address sanitizer or on a plain build."
 
-set -e
+     exit 0
+fi
 
 trap "exit" SIGHUP SIGINT SIGTERM
 
