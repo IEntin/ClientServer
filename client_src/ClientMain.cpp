@@ -26,8 +26,9 @@ int main() {
       Metrics::print();
     }
   } doAtEnd;
-  std::signal(SIGINT, signalHandler);
-  std::signal(SIGTERM, signalHandler);
+  signal(SIGINT, signalHandler);
+  signal(SIGTERM, signalHandler);
+  signal(SIGPIPE, SIG_IGN);
   sigset_t set;
   sigemptyset(&set);
   if (sigaddset(&set, SIGINT) == -1)
@@ -38,7 +39,6 @@ int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  signal(SIGPIPE, SIG_IGN);
   try {
     if (options._fifoClient) {
       fifo::FifoClient client(options);

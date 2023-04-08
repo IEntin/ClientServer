@@ -7,6 +7,8 @@
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
 
+std::atomic<bool> stopFlag = false;
+
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public RunnableT<TestRunnable> {
 public:
   TestRunnable(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
@@ -14,7 +16,7 @@ public:
 
   ~TestRunnable() override {}
   void run() override {
-    while (!_stopFlag)
+    while (!stopFlag)
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   bool start() override {
@@ -22,10 +24,7 @@ public:
     return true;
   }
   void stop() override {}
-
-  static std::atomic<bool> _stopFlag;
 };
-std::atomic<bool> TestRunnable::_stopFlag;
 
 TEST(ThreadPoolTest, Fixed) {
   int maxNumberThreads = 10;
@@ -40,13 +39,13 @@ TEST(ThreadPoolTest, Fixed) {
     pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
-  TestRunnable::_stopFlag = true;
+  stopFlag = true;
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
-  TestRunnable::_stopFlag = false;
+  stopFlag = false;
 }
 
 TEST(ThreadPoolTest, Variable) {
@@ -64,11 +63,11 @@ TEST(ThreadPoolTest, Variable) {
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }
   ASSERT_TRUE(pool.size() == numberObjects);
-  TestRunnable::_stopFlag = true;
+  stopFlag = true;
   pool.stop();
   bool allJoined = true;
   for (auto& thread : pool.getThreads())
     allJoined = allJoined && !thread.joinable();
   ASSERT_TRUE(allJoined);
-  TestRunnable::_stopFlag = false;
+  stopFlag = false;
 }

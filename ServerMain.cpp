@@ -13,9 +13,7 @@
 #include <cstring>
 #include <filesystem>
 
-void signalHandler([[maybe_unused]] int signal) {
-  Globals::_stopFlag.test_and_set();
-}
+void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
   struct DoAtEnd {
@@ -26,8 +24,8 @@ int main() {
   } doAtEnd;
   try {
     signal(SIGPIPE, SIG_IGN);
-    std::signal(SIGINT, signalHandler);
-    std::signal(SIGTERM, signalHandler);
+    signal(SIGINT, signalHandler);
+    signal(SIGTERM, signalHandler);
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);

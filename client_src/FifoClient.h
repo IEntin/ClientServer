@@ -17,7 +17,6 @@ class FifoClient : public Client {
   bool receiveStatus() override;
   bool wakeupAcceptor();
   static bool destroy(const ClientOptions& options);
-  int _fdReadS = -1;
   std::string _fifoName;
   static inline std::string _clientId;
 

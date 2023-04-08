@@ -24,7 +24,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   bool receiveRequest(std::vector<char>& message, HEADER& header);
    bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;
-  int _fdReadS = -1;
   void run() override;
   bool start() override;
   void stop() override;

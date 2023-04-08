@@ -31,7 +31,6 @@ FifoClient::FifoClient(const ClientOptions& options) :
 }
 
 FifoClient::~FifoClient() {
-  close(_fdReadS);
   Fifo::onExit(_fifoName, _options);
   Trace << std::endl;
 }

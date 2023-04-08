@@ -29,7 +29,6 @@ FifoSession::FifoSession(const ServerOptions& options,
 }
 
 FifoSession::~FifoSession() {
-  close(_fdReadS);
   std::filesystem::remove(_fifoName);
   Trace << std::endl;
 }
