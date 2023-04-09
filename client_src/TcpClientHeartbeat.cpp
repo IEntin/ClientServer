@@ -15,7 +15,9 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, ThreadPoolB
   _threadPoolClient(threadPoolClient),
   _socket(_ioContext),
   _periodTimer(_ioContext),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext),
+  _period(_options._heartbeatPeriod),
+  _timeout(_options._heartbeatTimeout) {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
   Trace << std::endl;
@@ -35,6 +37,8 @@ void TcpClientHeartbeat::stop() {
   try {
     _stopped = true;
     boost::asio::post(_ioContext, [this] {
+      _period = 1;
+      _timeout = 1;
       _periodTimer.cancel();
       _timeoutTimer.cancel();
     });
@@ -46,7 +50,7 @@ void TcpClientHeartbeat::stop() {
 
 void TcpClientHeartbeat::heartbeatWait() {
   boost::system::error_code ec;
-  _periodTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
+  _periodTimer.expires_from_now(std::chrono::milliseconds(_period), ec);
   if (ec) {
     LogError << ec.what() << std::endl;
     return;
@@ -70,7 +74,7 @@ void TcpClientHeartbeat::heartbeatWait() {
 void TcpClientHeartbeat::timeoutWait() {
   auto weakPtr = weak_from_this();
   boost::system::error_code ec;
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatTimeout), ec);
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_timeout), ec);
   if (ec) {
     LogError << ec.what() << std::endl;
     return;
