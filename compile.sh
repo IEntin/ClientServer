@@ -2,7 +2,7 @@
 
 set -e
 
-trap "exit" SIGHUP SIGINT SIGTERM
+trap EXIT SIGHUP SIGINT SIGTERM
 
 make -j4 SANITIZE=$1 OPTIMIZE=$2
 

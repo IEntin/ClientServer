@@ -4,7 +4,7 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
-trap "exit" SIGHUP SIGINT SIGTERM
+trap EXIT SIGHUP SIGINT SIGTERM
 
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 

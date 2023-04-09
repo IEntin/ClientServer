@@ -12,7 +12,7 @@ namespace tcp {
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
-  public Acceptor {
+  public virtual Acceptor {
  public:
   TcpAcceptor(const ServerOptions& options,
 	      ThreadPoolBase& threadPoolAcceptor,

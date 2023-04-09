@@ -17,7 +17,20 @@ with thread or address sanitizer or on a plain build."
      exit 0
 fi
 
-trap "exit" SIGHUP SIGINT SIGTERM
+function cleanup {
+    echo "restoring ClientOptions.json RunLoop : true"
+    (sed -i 's/"RunLoop" : false/"RunLoop" : true/' ClientOptions.json)
+}
+
+function interrupted {
+    echo "interrupted"
+}
+
+trap interrupted SIGINT
+
+trap interrupted SIGTERM
+
+trap cleanup EXIT
 
 (sed -i 's/"RunLoop" : true/"RunLoop" : false/' ClientOptions.json)
 
@@ -26,5 +39,3 @@ do
     (./client)
     echo repeated $c times
 done
-
-(sed -i 's/"RunLoop" : false/"RunLoop" : true/' ClientOptions.json)

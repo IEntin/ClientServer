@@ -6,12 +6,10 @@
 
 #include "Acceptor.h"
 
-enum class HEADERTYPE : char;
-
 namespace fifo {
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
-  public Acceptor {
+  public virtual Acceptor {
   void run() override;
   bool start() override;
   void stop() override;

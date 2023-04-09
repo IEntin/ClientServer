@@ -18,7 +18,7 @@ echo $cwd
 
 set -e
 
-trap "exit" SIGHUP SIGINT SIGTERM
+trap EXIT SIGHUP SIGINT SIGTERM
 
 date
 

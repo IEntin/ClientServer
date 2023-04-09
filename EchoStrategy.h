@@ -6,7 +6,7 @@
 
 #include "Strategy.h"
 
-class EchoStrategy : public Strategy {
+class EchoStrategy : public virtual Strategy {
 
  protected:
 
