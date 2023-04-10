@@ -39,3 +39,7 @@ do
     (./client)
     echo repeated $c times
 done
+
+sync
+date
+sync
