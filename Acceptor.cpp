@@ -19,6 +19,7 @@ Acceptor::~Acceptor() {
 }
 
 bool Acceptor::startSession(std::string_view clientId, RunnablePtr session) {
+  std::scoped_lock lock(_mutex);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)
     return false;
@@ -26,6 +27,7 @@ bool Acceptor::startSession(std::string_view clientId, RunnablePtr session) {
 }
 
 void Acceptor::destroySession(const std::string& clientId) {
+  std::scoped_lock lock(_mutex);
   if (auto it = _sessions.find(clientId); it != _sessions.end()) {
     if (auto session = it->second.lock(); session) {
       session->stop();
@@ -36,8 +38,8 @@ void Acceptor::destroySession(const std::string& clientId) {
 }
 
 void Acceptor::stop() {
+  std::scoped_lock lock(_mutex);
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->stop();
-  _sessions.clear();
 }

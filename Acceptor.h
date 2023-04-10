@@ -7,6 +7,7 @@
 #include "Runnable.h"
 #include "ThreadPoolReference.h"
 #include <map>
+#include <mutex>
 
 struct ServerOptions;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
@@ -26,5 +27,6 @@ protected:
   const ServerOptions& _options;
   ThreadPoolReference _threadPoolAcceptor;
   ThreadPoolDiffObj& _threadPoolSession;
-  SessionMap _sessions;
+  inline static SessionMap _sessions;
+  inline static std::mutex _mutex;
 };
