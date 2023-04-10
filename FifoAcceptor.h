@@ -9,7 +9,7 @@
 namespace fifo {
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
-  public virtual Acceptor {
+  public Acceptor {
   void run() override;
   bool start() override;
   void stop() override;
