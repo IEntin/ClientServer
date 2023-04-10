@@ -6,7 +6,7 @@
 
 #include "Strategy.h"
 
-class TransactionStrategy : public virtual Strategy {
+class TransactionStrategy : public Strategy {
  public:
   TransactionStrategy();
   
