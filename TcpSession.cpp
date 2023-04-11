@@ -7,6 +7,7 @@
 #include "ConnectionDetails.h"
 #include "Logger.h"
 #include "MemoryPool.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
@@ -15,14 +16,13 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options,
+TcpSession::TcpSession(Server& server,
 		       ConnectionDetailsPtr details,
-		       std::string_view clientId,
-		       ThreadPoolDiffObj& threadPool) :
-  RunnableT(options._maxTcpSessions),
-  _options(options),
+		       std::string_view clientId) :
+  RunnableT(server.getOptions()._maxTcpSessions),
+  _options(server.getOptions()),
   _clientId(clientId),
-  _threadPool(threadPool),
+  _threadPool(server.getThreadPoolSession()),
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),

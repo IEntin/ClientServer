@@ -8,7 +8,6 @@
 
 class Server;
 struct ServerOptions;
-class ThreadPoolDiffObj;
 
 namespace fifo {
 
@@ -23,7 +22,6 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   Server& _server;
   const ServerOptions& _options;
   ThreadPoolReference _threadPoolAcceptor;
-  ThreadPoolDiffObj& _threadPoolSession;
  public:
   FifoAcceptor(Server& server);
   ~FifoAcceptor() override;

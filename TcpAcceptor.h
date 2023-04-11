@@ -9,7 +9,6 @@
 
 class Server;
 struct ServerOptions;
-class ThreadPoolDiffObj;
 
 namespace tcp {
 
@@ -39,7 +38,6 @@ private:
   Server& _server;
   const ServerOptions& _options;
   ThreadPoolReference _threadPoolAcceptor;
-  ThreadPoolDiffObj& _threadPoolSession;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;

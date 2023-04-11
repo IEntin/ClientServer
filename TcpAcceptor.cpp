@@ -8,7 +8,6 @@
 #include "Server.h"
 #include "ServerOptions.h"
 #include "TcpSession.h"
-#include "ThreadPoolBase.h"
 #include "Tcp.h"
 
 namespace tcp {
@@ -17,7 +16,6 @@ TcpAcceptor::TcpAcceptor(Server& server) :
   _server(server),
   _options(_server.getOptions()),
   _threadPoolAcceptor(server.getThreadPoolAcceptor()),
-  _threadPoolSession(_server.getThreadPoolSession()),
   _ioContext(1),
   _acceptor(_ioContext) {}
 
@@ -81,7 +79,7 @@ void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   os << details->_socket.remote_endpoint() << std::flush;
   std::string clientId = os.str();
   RunnablePtr session =
-    std::make_shared<TcpSession>(_options, details, clientId, _threadPoolSession);
+    std::make_shared<TcpSession>(_server, details, clientId);
   _server.startSession(clientId, session);
 }
 

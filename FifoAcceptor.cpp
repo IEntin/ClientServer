@@ -7,7 +7,6 @@
 #include "FifoSession.h"
 #include "Server.h"
 #include "ServerOptions.h"
-#include "ThreadPoolBase.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <filesystem>
@@ -18,8 +17,7 @@ namespace fifo {
 FifoAcceptor::FifoAcceptor(Server& server) :
   _server(server),
   _options(_server.getOptions()),
-  _threadPoolAcceptor(server.getThreadPoolAcceptor()),
-  _threadPoolSession(_server.getThreadPoolSession()) {}
+  _threadPoolAcceptor(server.getThreadPoolAcceptor()) {}
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
@@ -73,8 +71,7 @@ void FifoAcceptor::createSession() {
     LogError << std::strerror(errno) << '-' << fifoName << std::endl;
     return;
   }
-  auto session =
-    std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
+  auto session = std::make_shared<FifoSession>(_server, clientId);
   _server.startSession(clientId, session);
 }
 

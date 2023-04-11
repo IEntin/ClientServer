@@ -6,6 +6,7 @@
 #include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "TaskController.h"
@@ -17,14 +18,12 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options,
-			 std::string_view clientId,
-			 ThreadPoolDiffObj& threadPool) :
-  RunnableT(options._maxFifoSessions),
-  _options(options),
+FifoSession::FifoSession(Server& server, std::string_view clientId) :
+  RunnableT(server.getOptions()._maxFifoSessions),
+  _options(server.getOptions()),
   _clientId(clientId),
   _fifoName(_options._fifoDirectoryName + '/' + _clientId),
-  _threadPool(threadPool) {
+  _threadPool(server.getThreadPoolSession()) {
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
