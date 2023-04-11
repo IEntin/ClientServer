@@ -5,6 +5,7 @@
 #include "FifoAcceptor.h"
 #include "Fifo.h"
 #include "FifoSession.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "ThreadPoolBase.h"
 #include "Utility.h"
@@ -14,10 +15,11 @@
 
 namespace fifo {
 
-FifoAcceptor::FifoAcceptor(const ServerOptions& options,
-			   ThreadPoolBase& threadPoolAcceptor,
-			   ThreadPoolDiffObj& threadPoolSession) :
-  Acceptor(options, threadPoolAcceptor, threadPoolSession) {}
+FifoAcceptor::FifoAcceptor(Server& server) :
+  _server(server),
+  _options(_server.getOptions()),
+  _threadPoolAcceptor(server.getThreadPoolAcceptor()),
+  _threadPoolSession(_server.getThreadPoolSession()) {}
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
@@ -48,7 +50,7 @@ void FifoAcceptor::run() {
   while (!_stopped) {
     auto [type, key] = unblockAcceptor();
     if (_stopped) {
-      Acceptor::stop();
+      _server.stopSessions();
       return;
     }
     switch (type) {
@@ -56,7 +58,7 @@ void FifoAcceptor::run() {
       createSession();
       break;
     case HEADERTYPE::DESTROY_SESSION:
-      destroySession(key);
+      _server.destroySession(key);
       break;
     default:
       break;
@@ -73,7 +75,7 @@ void FifoAcceptor::createSession() {
   }
   auto session =
     std::make_shared<FifoSession>(_options, clientId, _threadPoolSession);
-  startSession(clientId, session);
+  _server.startSession(clientId, session);
 }
 
 bool FifoAcceptor::start() {

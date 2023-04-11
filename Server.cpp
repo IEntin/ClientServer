@@ -30,13 +30,11 @@ bool Server::start() {
   try {
     if (!TaskController::create(_options))
       return false;
-    _tcpAcceptor =
-      std::make_shared<tcp::TcpAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
+    _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
     if (!_tcpAcceptor->start())
       return false;
 
-    _fifoAcceptor =
-      std::make_shared<fifo::FifoAcceptor>(_options, _threadPoolAcceptor, _threadPoolSession);
+    _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
     if (!_fifoAcceptor->start())
       return false;
     std::ofstream file(_options._controlFileName);
@@ -58,4 +56,30 @@ void Server::stop() {
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();
+}
+
+bool Server::startSession(std::string_view clientId, RunnablePtr session) {
+  std::scoped_lock lock(_mutex);
+  auto [it, inserted] = _sessions.emplace(clientId, session);
+  if (!inserted)
+    return false;
+  return session->start();
+}
+
+void Server::destroySession(const std::string& clientId) {
+  std::scoped_lock lock(_mutex);
+  if (auto it = _sessions.find(clientId); it != _sessions.end()) {
+    if (auto session = it->second.lock(); session) {
+      session->stop();
+      _threadPoolSession.removeFromQueue(session);
+    }
+    _sessions.erase(it);
+  }
+}
+
+void Server::stopSessions() {
+  std::scoped_lock lock(_mutex);
+  for (auto& pr : _sessions)
+    if (auto session = pr.second.lock(); session)
+      session->stop();
 }

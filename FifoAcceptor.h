@@ -4,22 +4,28 @@
 
 #pragma once
 
-#include "Acceptor.h"
+#include "ThreadPoolReference.h"
+
+class Server;
+struct ServerOptions;
+class ThreadPoolDiffObj;
 
 namespace fifo {
 
 class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
-  public Acceptor {
+  public RunnableT<FifoAcceptor> {
   void run() override;
   bool start() override;
   void stop() override;
   std::pair<HEADERTYPE, std::string> unblockAcceptor();
   void createSession();
   void removeFifoFiles();
+  Server& _server;
+  const ServerOptions& _options;
+  ThreadPoolReference _threadPoolAcceptor;
+  ThreadPoolDiffObj& _threadPoolSession;
  public:
-  FifoAcceptor(const ServerOptions& options,
-	       ThreadPoolBase& threadPoolAcceptor,
-	       ThreadPoolDiffObj& threadPoolSession);
+  FifoAcceptor(Server& server);
   ~FifoAcceptor() override;
 };
 

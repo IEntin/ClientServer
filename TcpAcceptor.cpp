@@ -5,6 +5,7 @@
 #include "TcpAcceptor.h"
 #include "ConnectionDetails.h"
 #include "Logger.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "TcpSession.h"
 #include "ThreadPoolBase.h"
@@ -12,10 +13,11 @@
 
 namespace tcp {
 
-TcpAcceptor::TcpAcceptor(const ServerOptions& options,
-			 ThreadPoolBase& threadPoolAcceptor,
-			 ThreadPoolDiffObj& threadPoolSession) :
-  Acceptor(options, threadPoolAcceptor, threadPoolSession),
+TcpAcceptor::TcpAcceptor(Server& server) :
+  _server(server),
+  _options(_server.getOptions()),
+  _threadPoolAcceptor(server.getThreadPoolAcceptor()),
+  _threadPoolSession(_server.getThreadPoolSession()),
   _ioContext(1),
   _acceptor(_ioContext) {}
 
@@ -49,7 +51,7 @@ void TcpAcceptor::stop() {
   boost::asio::post(_ioContext, [this] () {
     auto self = shared_from_this();
     _ioContext.stop();
-    Acceptor::stop();
+    _server.stopSessions();
   });
 }
 
@@ -80,7 +82,7 @@ void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::string clientId = os.str();
   RunnablePtr session =
     std::make_shared<TcpSession>(_options, details, clientId, _threadPoolSession);
-  startSession(clientId, session);
+  _server.startSession(clientId, session);
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -117,7 +119,7 @@ void TcpAcceptor::accept() {
 	  createSession(details);
 	  break;
 	case HEADERTYPE::DESTROY_SESSION:
-	  destroySession(clientId);
+	  _server.destroySession(clientId);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  if (!_stopped)

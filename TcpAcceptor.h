@@ -4,19 +4,21 @@
 
 #pragma once
 
-#include "Acceptor.h"
+#include "ThreadPoolReference.h"
 #include <boost/asio.hpp>
+
+class Server;
+struct ServerOptions;
+class ThreadPoolDiffObj;
 
 namespace tcp {
 
 using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
-  public Acceptor {
+  public RunnableT<TcpAcceptor> {
  public:
-  TcpAcceptor(const ServerOptions& options,
-	      ThreadPoolBase& threadPoolAcceptor,
-	      ThreadPoolDiffObj& threadPoolSession);
+  TcpAcceptor(Server& server);
   ~TcpAcceptor() override;
 private:
   struct Request {
@@ -34,6 +36,10 @@ private:
   void createSession(ConnectionDetailsPtr details);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
+  Server& _server;
+  const ServerOptions& _options;
+  ThreadPoolReference _threadPoolAcceptor;
+  ThreadPoolDiffObj& _threadPoolSession;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
