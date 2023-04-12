@@ -24,6 +24,8 @@ public:
 	     std::string_view clientId);
   ~TcpSession() override;
 
+  const std::string& getId() const override { return _clientId; }
+
 private:
   void run() noexcept override;
   bool start() override;

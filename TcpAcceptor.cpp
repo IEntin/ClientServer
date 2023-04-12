@@ -9,6 +9,7 @@
 #include "ServerOptions.h"
 #include "TcpSession.h"
 #include "Tcp.h"
+#include "Utility.h"
 
 namespace tcp {
 
@@ -75,9 +76,7 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
 }
 
 void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
-  std::ostringstream os;
-  os << details->_socket.remote_endpoint() << std::flush;
-  std::string clientId = os.str();
+  std::string clientId = utility::getUniqueId();;
   RunnablePtr session =
     std::make_shared<TcpSession>(_server, details, clientId);
   _server.startSession(clientId, session);

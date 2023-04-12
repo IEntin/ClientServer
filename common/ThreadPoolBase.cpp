@@ -77,7 +77,7 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
-  _queue.push_back(runnable);
+  _queue.emplace_back(runnable);
   _queueCondition.notify_all();
 }
 
@@ -89,10 +89,10 @@ RunnablePtr ThreadPoolBase::get() {
   return runnable;
 }
 
-void ThreadPoolBase::removeFromQueue(RunnablePtr toRemove) {
+void ThreadPoolBase::removeFromQueue(const std::string& clientId) {
   std::lock_guard lock(_queueMutex);
   for (auto it = _queue.begin(); it < _queue.end(); ++it) {
-    if (*it == toRemove) {
+    if ((*it)->getId() == clientId) {
       _queue.erase(it);
       break;
     }

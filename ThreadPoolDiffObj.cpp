@@ -39,7 +39,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   runnable->checkCapacity();
   if (_func)
     _func(runnable);
-  _queue.push_back(runnable);
+  _queue.emplace_back(runnable);
   _queueCondition.notify_one();
 }
 
