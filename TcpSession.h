@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "Runnable.h"
 #include "ThreadPoolReference.h"
 #include <boost/asio.hpp>
 
 using Response = std::vector<std::string>;
 class Server;
 struct ServerOptions;
+class ThreadPoolDiffObj;
 
 namespace tcp {
 
@@ -40,7 +40,7 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
-  ThreadPoolReference _threadPool;
+  ThreadPoolReference<ThreadPoolDiffObj> _threadPool;
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;

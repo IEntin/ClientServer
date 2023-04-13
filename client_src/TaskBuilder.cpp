@@ -5,6 +5,7 @@
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
 #include "Compression.h"
+#include "ThreadPoolBase.h"
 #include "Utility.h"
 #include <filesystem>
 

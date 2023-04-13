@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "ThreadPoolBase.h"
+#include "Runnable.h"
 
-class ThreadPoolReference {
+template <typename T> class ThreadPoolReference {
  public:
-  ThreadPoolReference(ThreadPoolBase& threadPool) : _threadPool(threadPool) {
+  ThreadPoolReference(T& threadPool) : _threadPool(threadPool) {
     _threadPool.increment();
   }
   ~ThreadPoolReference() {
@@ -21,5 +21,5 @@ class ThreadPoolReference {
     _threadPool.push(runnable);
   }
  private:
-  ThreadPoolBase& _threadPool;
+  T& _threadPool;
 };

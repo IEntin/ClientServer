@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "Runnable.h"
 #include "ThreadPoolReference.h"
 #include <vector>
 
 using Response = std::vector<std::string>;
 struct ServerOptions;
 class Server;
+class ThreadPoolDiffObj;
 
 namespace fifo {
 
@@ -19,7 +19,7 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
-  ThreadPoolReference _threadPool;
+  ThreadPoolReference<ThreadPoolDiffObj> _threadPool;
   bool receiveRequest(std::vector<char>& message, HEADER& header);
    bool sendResponse(const Response& response);
   std::vector<char> _uncompressedRequest;

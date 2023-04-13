@@ -8,6 +8,7 @@
 
 class Server;
 struct ServerOptions;
+class ThreadPoolBase;
 
 namespace fifo {
 
@@ -21,7 +22,7 @@ class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
   void removeFifoFiles();
   Server& _server;
   const ServerOptions& _options;
-  ThreadPoolReference _threadPoolAcceptor;
+  ThreadPoolReference<ThreadPoolBase> _threadPoolAcceptor;
  public:
   FifoAcceptor(Server& server);
   ~FifoAcceptor() override;

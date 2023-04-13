@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Runnable.h"
 #include "ThreadPoolReference.h"
 #include <future>
 #include <string_view>
@@ -12,6 +11,7 @@
 #include <fstream>
 
 struct ClientOptions;
+class ThreadPoolBase;
 
 enum class TaskBuilderState : int {
   NONE,
@@ -43,7 +43,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   std::atomic<unsigned> _subtaskProduceIndex = 0;
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
-  ThreadPoolReference _threadPool;
+  ThreadPoolReference<ThreadPoolBase> _threadPool;
   void run() override;
   bool start() override;
  public:
