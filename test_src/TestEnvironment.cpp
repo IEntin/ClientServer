@@ -34,9 +34,14 @@ void TestEnvironment::SetUp() {
 }
 
 void TestEnvironment::TearDown() {
-  std::filesystem::remove(TestEnvironment::_serverOptionsOrg._controlFileName);
-  Metrics::save();
-  Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);
+  try {
+    std::filesystem::remove(TestEnvironment::_serverOptionsOrg._controlFileName);
+    Metrics::save();
+    Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+  }
 }
 
 void TestEnvironment::reset() {

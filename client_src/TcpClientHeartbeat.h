@@ -36,8 +36,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   AsioTimer _periodTimer;
   AsioTimer _timeoutTimer;
   char _heartbeatBuffer[HEADER_SIZE] = {};
-  unsigned _period = 0;
-  unsigned _timeout = 0;
 };
 
 } // end of namespace tcp

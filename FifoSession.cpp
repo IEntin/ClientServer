@@ -28,15 +28,20 @@ FifoSession::FifoSession(Server& server, std::string_view clientId) :
 }
 
 FifoSession::~FifoSession() {
-  std::filesystem::remove(_fifoName);
-  Trace << std::endl;
+  try {
+    std::filesystem::remove(_fifoName);
+    Trace << std::endl;
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+  }
 }
 
 void FifoSession::run() {
   CountRunning countRunning;
   if (!std::filesystem::exists(_fifoName))
     return;
-  while (!_stopped) {
+  while (true) {
     _uncompressedRequest.clear();
     HEADER header;
     if (!receiveRequest(_uncompressedRequest, header))
@@ -78,15 +83,10 @@ bool FifoSession::start() {
 }
 
 void FifoSession::stop() {
-  if (_stopped)
-    return;
   _stopped = true;
-  Fifo::onExit(_fifoName, _options);
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
-  if (_stopped)
-    return false;
   switch (_status) {
   case STATUS::MAX_SPECIFIC_OBJECTS:
   case STATUS::MAX_TOTAL_OBJECTS:
@@ -120,8 +120,6 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
 }
 
 bool FifoSession::sendResponse(const Response& response) {
-  if (_stopped)
-    return false;
   HEADER header;
   std::string_view body =
     serverutility::buildReply(response, header, _options._compressor, _status);
@@ -143,8 +141,6 @@ bool FifoSession::sendResponse(const Response& response) {
 }
 
 bool FifoSession::sendStatusToClient() {
-  if (_stopped)
-    return false;
   int fd = -1;
   utility::CloseFileDescriptor closeFd(fd);
   fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);

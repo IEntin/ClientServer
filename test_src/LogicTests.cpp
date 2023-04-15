@@ -28,8 +28,10 @@ struct LogicTest : testing::Test {
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      client.run();
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	client.run();
+      }
       server.stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
@@ -56,8 +58,10 @@ struct LogicTest : testing::Test {
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
-      fifo::FifoClient client(TestEnvironment::_clientOptions);
-      client.run();
+      {
+	fifo::FifoClient client(TestEnvironment::_clientOptions);
+	client.run();
+      }
       server.stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
@@ -156,8 +160,10 @@ struct LogicTestAltFormat : testing::Test {
       // start client
       TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
       TestEnvironment::_clientOptions._diagnostics = true;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      client.run();
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	client.run();
+      }
       server.stop();
       std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
@@ -187,8 +193,10 @@ struct LogicTestSortInput : testing::Test {
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._diagnostics = true;
-      tcp::TcpClient client(TestEnvironment::_clientOptions);
-      client.run();
+      {
+	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	client.run();
+      }
       server.stop();
       std::string_view calibratedOutput = TestEnvironment::_outputD;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());

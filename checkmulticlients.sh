@@ -18,9 +18,22 @@ echo $cwd
 
 set -e
 
-trap EXIT SIGHUP SIGINT SIGTERM
+trap SIGHUP SIGINT SIGTERM
 
 date
+
+function printReport {
+    printf "\n$clients\n"
+    sync
+    printf "\n$fifos\n"
+    sync
+    printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
+    sync
+    date
+    sync
+}
+
+trap printReport EXIT
 
 # clean Client* and Fifos directories
 
@@ -104,22 +117,6 @@ echo -e "\nkilling server\n"
 kill $SERVER_PID
 
 sleep 2
-
-sync
-
-printf "\n$clients\n"
-
-sync
-
-printf "\n$fifos\n"
-
-sync
-
-printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
-
-sync
-
-date
 
 sync
 
