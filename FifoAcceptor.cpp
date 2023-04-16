@@ -47,10 +47,6 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
 void FifoAcceptor::run() {
   while (!_stopped) {
     auto [type, key] = unblockAcceptor();
-    if (_stopped) {
-      _server.stopSessions();
-      return;
-    }
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       createSession();

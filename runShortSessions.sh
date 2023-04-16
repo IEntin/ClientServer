@@ -18,12 +18,14 @@ with thread or address sanitizer or on a plain build."
 fi
 
 function cleanup {
-    echo "restoring ClientOptions.json RunLoop : true"
+    printf "\nrestoring ClientOptions.json 'RunLoop : true'\n"
     (sed -i 's/"RunLoop" : false/"RunLoop" : true/' ClientOptions.json)
+    sync
 }
 
 function interrupted {
-    echo "interrupted"
+    printf "interrupted"
+    sync
 }
 
 trap interrupted SIGINT
@@ -36,10 +38,11 @@ trap cleanup EXIT
 
 for (( c=1; c<501; c++ ))
 do
-    (./client)
-    echo repeated $c times
+	(./client)
+    	sync
+   	printf "\nrepeated %d times \n" $c
+   	sync
 done
 
-sync
 date
 sync

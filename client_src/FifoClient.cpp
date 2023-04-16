@@ -78,7 +78,7 @@ bool FifoClient::receive() {
 }
 
 bool FifoClient::wakeupAcceptor() {
-  int fd = open(_options._acceptorName.data(), O_WRONLY);
+  int fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
   utility::CloseFileDescriptor cfdw(fd);
   if (fd == -1) {
     LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;

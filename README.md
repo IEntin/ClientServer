@@ -7,7 +7,7 @@ Run './deploy.sh -h' to see the details.
 
 Prerequisites:
 
-Header only boost libraries, currently boost 1_81.
+Header only boost libraries, currently boost 1_82.
 
 google tests must be installed:\
 sudo apt-get install libgtest-dev\
