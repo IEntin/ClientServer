@@ -41,18 +41,25 @@ bool FifoClient::run() {
 }
 
 bool FifoClient::send(const Subtask& subtask) {
-  if (!std::filesystem::exists(_fifoName))
-    return false;
-  int fd = -1;
-  utility::CloseFileDescriptor cfdw(fd);
-  fd = open(_fifoName.data(), O_WRONLY);
-  if (fd >= 0) {
+  int fdWrite = -1;
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  while (fdWrite == -1) {
+    fdWrite = Fifo::openWriteNonBlock(_fifoName, _options);
+    if (fdWrite >= 0) {
+      if (_options._setPipeSize)
+	Fifo::setPipeSize(fdWrite, subtask._body.size());
+      if (_closeFlag.test())
+	return false;
+      std::string_view body(subtask._body.data(), subtask._body.size());
+      return Fifo::sendMsg(fdWrite, subtask._header, body);
+   }
+    // server stopped
+    if (!std::filesystem::exists(_fifoName))
+      return false;
+    // client closed
     if (_closeFlag.test())
       return false;
-    if (_options._setPipeSize)
-      Fifo::setPipeSize(fd, _options._pipeSize);
-    std::string_view body(subtask._body.data(), subtask._body.size());
-    return Fifo::sendMsg(fd, subtask._header, body);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
   }
   return false;
 }

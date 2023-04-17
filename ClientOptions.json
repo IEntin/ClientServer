@@ -1,5 +1,5 @@
 {
-  "CommunicationType" : "TCP",
+  "ClientType" : "TCP",
   "Diagnostics" : false,
   "FifoDirectoryName" : "../Fifos",
   "AcceptorBaseName" : "Acceptor",
@@ -19,7 +19,7 @@
   "ServerAddress" : "127.0.0.1",
   "TcpPort" : 49152,
   "NumberRepeatENXIO" : 25,
-  "ENXIOwait" : 5,
+  "ENXIOwait" : 10,
   "SetPipeSize" : true,
   "PipeSize" : 1000000,
   "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",

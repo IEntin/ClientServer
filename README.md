@@ -160,7 +160,7 @@ tcp:
 
 client #1:\
 communication type:\
-  "CommunicationType" : ["TCP" | "FIFO"]
+  "ClientType" : ["TCP" | "FIFO"]
 
 fifo:\
   "FifoDirectoryName" : "the same as for the server",\

@@ -10,7 +10,7 @@
 struct ClientOptions : Options {
   explicit ClientOptions(const std::string& jsonName = "", std::ostream* externalDataStream = nullptr);
   ~ClientOptions() = default;
-  std::string _communicationType;
+  std::string _clientType;
   bool _fifoClient;
   bool _tcpClient;
   std::string _serverAddress;

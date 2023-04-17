@@ -59,7 +59,7 @@ done
 
 for c in 2 4
 do
-  (cd ../Client$c;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
+  (cd ../Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
 done
 
 # build binaries and copy client binary to Client* directories

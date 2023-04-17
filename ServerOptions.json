@@ -16,7 +16,7 @@
   "_comment": "in milliseconds",
   "TcpTimeout" : 5000,
   "NumberRepeatENXIO" : 25,
-  "ENXIOwait" : 5,
+  "ENXIOwait" : 10,
   "SetPipeSize" : true,
   "PipeSize" : 1000000,
   "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",

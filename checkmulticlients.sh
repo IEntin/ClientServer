@@ -75,7 +75,7 @@ do
     REMAINDER=$(( $c % 2 ))
     if [ $REMAINDER -eq 0 ]
     then
-	(cd ../Client$c;sed -i 's/"CommunicationType" : "TCP"/"CommunicationType" : "FIFO"/' ClientOptions.json)
+	(cd ../Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
     fi
     c=$(($c+1))
 done
