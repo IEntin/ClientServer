@@ -125,32 +125,13 @@ bool FifoSession::sendResponse(const Response& response) {
     serverutility::buildReply(response, header, _options._compressor, _status);
   if (body.empty())
     return false;
-  // Open write fd in NONBLOCK mode in order to protect the server
-  // from a client crashed or killed with SIGKILL and resume operation
-  // after a client restarted (in block mode the server will just hang on
-  // open(...) no matter what).
-  int fd = -1;
-  utility::CloseFileDescriptor cfdw(fd);
-  fd = Fifo::openWriteNonBlock(_fifoName, _options);
-  if (fd == -1) {
-    LogError << std::strerror(errno) << ' ' << _fifoName << std::endl;
-    MemoryPool::destroyBuffers();
-    return false;
-  }
-  return Fifo::sendMsg(fd, header, body);
+  return Fifo::sendMsg(_fifoName, header, _options, body);
 }
 
 bool FifoSession::sendStatusToClient() {
-  int fd = -1;
-  utility::CloseFileDescriptor closeFd(fd);
-  fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
-  if (fd == -1) {
-    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return false;
-  }
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(fd, header, _clientId);
+  return Fifo::sendMsg(_options._acceptorName, header, _options, _clientId);
 }
 
 } // end of namespace fifo

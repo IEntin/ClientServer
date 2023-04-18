@@ -157,11 +157,20 @@ bool Fifo::writeString(int fd, std::string_view str) {
   return true;
 }
 
-bool Fifo::sendMsg(int fd, const HEADER& header, std::string_view body) {
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, header);
-  return writeString(fd, std::string_view(buffer, HEADER_SIZE)) &&
-    writeString(fd, std::string_view(body.data(), body.size()));
+bool Fifo::sendMsg(std::string_view name,
+		   const HEADER& header,
+		   const Options& options,
+		   std::string_view body) {
+  int fdWrite = openWriteNonBlock(name, options);
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  if (fdWrite == -1)
+    return false;
+  else {
+    char buffer[HEADER_SIZE] = {};
+    encodeHeader(buffer, header);
+    return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
+      writeString(fdWrite, std::string_view(body.data(), body.size()));
+  }
 }
 
 short Fifo::pollFd(int fd, short expected) {

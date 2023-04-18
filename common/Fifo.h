@@ -28,7 +28,10 @@ class Fifo {
 			   HEADER& header,
 			   std::vector<char>& body);
   static bool writeString(int fd, std::string_view str);
-  static bool sendMsg(int fd, const HEADER& header, std::string_view body = std::string_view());
+  static bool sendMsg(std::string_view name,
+		      const HEADER& header,
+		      const Options& options,
+		      std::string_view body = std::string_view());
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);
   static int openWriteNonBlock(std::string_view fifoName, const Options& options);

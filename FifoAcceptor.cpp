@@ -36,7 +36,6 @@ std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
       return { HEADERTYPE::ERROR, emptyString };
     std::string key(body.cbegin(), body.cend());
     return { extractHeaderType(header), std::move(key) };
- 
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;

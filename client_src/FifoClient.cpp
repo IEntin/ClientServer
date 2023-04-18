@@ -41,16 +41,13 @@ bool FifoClient::run() {
 }
 
 bool FifoClient::send(const Subtask& subtask) {
-  int fdWrite = -1;
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  while (fdWrite == -1) {
-    fdWrite = Fifo::openWriteNonBlock(_fifoName, _options);
-    if (fdWrite >= 0) {
-      if (_closeFlag.test())
-	return false;
-      std::string_view body(subtask._body.data(), subtask._body.size());
-      return Fifo::sendMsg(fdWrite, subtask._header, body);
-    }
+  std::string_view body(subtask._body.data(), subtask._body.size());
+  while (true) {
+    if (_closeFlag.test())
+      return false;
+    if (Fifo::sendMsg(_fifoName, subtask._header, _options, body))
+      return true;
+    // waiting client
     // server stopped
     if (!std::filesystem::exists(_fifoName))
       return false;
@@ -83,15 +80,9 @@ bool FifoClient::receive() {
 }
 
 bool FifoClient::wakeupAcceptor() {
-  int fd = Fifo::openWriteNonBlock(_options._acceptorName, _options);
-  utility::CloseFileDescriptor cfdw(fd);
-  if (fd == -1) {
-    LogError << std::strerror(errno) << ' ' << _options._acceptorName << std::endl;
-    return false;
-  }
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
-  return Fifo::sendMsg(fd, header);
+  return Fifo::sendMsg(_options._acceptorName, header, _options);
 }
 
 bool FifoClient::receiveStatus() {
@@ -124,13 +115,9 @@ bool FifoClient::receiveStatus() {
 }
 
 bool FifoClient::destroy(const ClientOptions& options) {
-  int fd = Fifo::openWriteNonBlock(options._acceptorName, options);
-  utility::CloseFileDescriptor cfdw(fd);
-  if (fd == -1)
-    return false;
   size_t size = _clientId.size();
   HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
-  return Fifo::sendMsg(fd, header, _clientId);
+  return Fifo::sendMsg(options._acceptorName, header, options, _clientId);
 }
 
 void FifoClient::setCloseFlag(const ClientOptions& options) {
