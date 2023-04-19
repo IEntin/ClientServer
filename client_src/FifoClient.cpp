@@ -9,9 +9,7 @@
 #include "Utility.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
-#include <fcntl.h>
 #include <filesystem>
-#include <sys/stat.h>
 
 namespace fifo {
 

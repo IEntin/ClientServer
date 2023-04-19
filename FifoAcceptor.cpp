@@ -8,7 +8,6 @@
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Utility.h"
-#include <fcntl.h>
 #include <filesystem>
 #include <sys/stat.h>
 

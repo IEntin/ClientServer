@@ -11,7 +11,6 @@
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
-#include "Utility.h"
 #include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
