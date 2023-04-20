@@ -100,14 +100,11 @@ TEST_F(EchoTest, FIFO_NONE_LZ4) {
 struct FifoNonblockingTest : testing::Test {
   inline static const std::string _testFifo = "TestFifo";
   inline static const std::string _smallPayload = "0123456789876543210";
-  int _fdRead = -1;
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << std::endl;
-    _fdRead = fifo::Fifo::openReadNonBlock(_testFifo);
  }
   ~FifoNonblockingTest() {
-    close(_fdRead);
     std::filesystem::remove(_testFifo);
   }
   bool send(std::string_view payload) {
@@ -117,7 +114,7 @@ struct FifoNonblockingTest : testing::Test {
   }
   bool receive(std::vector<char>& received) {
     HEADER header;
-    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received, TestEnvironment::_clientOptions);
+    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
@@ -125,9 +122,8 @@ struct FifoNonblockingTest : testing::Test {
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
       auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
-      // uncomment to test with time interval between send
-      // and receive. This test takes about 20 seconds.
-      //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      // Optional interval between send and receive
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
       auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
       fr.wait();
       fs.wait();
@@ -144,9 +140,8 @@ struct FifoNonblockingTest : testing::Test {
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
       auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
-      // uncomment to test with time interval between receive
-      // and send. This test takes about 20 seconds.
-      //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      // Optional interval between receive and send
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
       auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
       fr.wait();
       fs.wait();

@@ -21,8 +21,7 @@ class Fifo {
  public:
   static bool readMsgNonBlock(std::string_view name,
 			      HEADER& header,
-			      std::vector<char>& body,
-			      const Options& options);
+			      std::vector<char>& body);
 
   static bool readMsgBlock(std::string_view name,
 			   HEADER& header,

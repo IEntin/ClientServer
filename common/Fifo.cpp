@@ -10,24 +10,15 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <poll.h>
-#include <sys/stat.h>
 #include <thread>
-#include <unistd.h>
 
 namespace fifo {
 
 bool Fifo::readMsgNonBlock(std::string_view name,
 			   HEADER& header,
-			   std::vector<char>& body,
-			   const Options& options) {
-  int fdRead = -1;
+			   std::vector<char>& body) {
+  int fdRead = openReadNonBlock(name);
   utility::CloseFileDescriptor cfdr(fdRead);
-  fdRead = openReadNonBlock(name);
-  int fdWrite = -1;
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  fdWrite = openWriteNonBlock(name, options);
-  if (fdWrite == -1)
-    return false;
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -42,7 +33,9 @@ bool Fifo::readMsgNonBlock(std::string_view name,
       }
     }
     else if (result == 0) {
+      int fdOld = fdRead;
       fdRead = openReadNonBlock(name);
+      close(fdOld);
       continue;
     }
     else
