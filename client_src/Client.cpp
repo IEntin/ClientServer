@@ -17,6 +17,7 @@ Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
   Trace << std::endl;
+  stop();
 }
 
 // Allows to read and process the source in parts with sizes
@@ -48,13 +49,6 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 }
 
 bool Client::run() {
-  struct Destroy {
-    Destroy(Client* client) : _client(client) {}
-    ~Destroy() {
-      _client->stop();
-    }
-    Client* _client = nullptr;
-  } destroy(this);
   try {
     int numberTasks = 0;
     _taskBuilder = std::make_shared<TaskBuilder>(_options, _threadPoolClient);

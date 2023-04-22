@@ -58,14 +58,15 @@ struct LogicTest : testing::Test {
       TestEnvironment::_clientOptions._compressor = clientCompressor;
       TestEnvironment::_clientOptions._bufferSize = clientMemPoolSize;
       TestEnvironment::_clientOptions._diagnostics = diagnostics;
+      std::string_view calibratedOutput = diagnostics ?
+	TestEnvironment::_outputD : TestEnvironment::_outputND;
       {
 	fifo::FifoClient client(TestEnvironment::_clientOptions);
 	client.run();
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
       }
       server.stop();
-      std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;

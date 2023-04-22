@@ -116,8 +116,6 @@ echo -e "\nkilling server\n"
 
 kill $SERVER_PID
 
-sleep 2
+sleep 5
 
 sync
-
-sleep 1

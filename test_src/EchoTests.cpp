@@ -28,10 +28,10 @@ struct EchoTest : testing::Test {
       {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
       }
       server.stop();
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
