@@ -75,12 +75,12 @@ bool Client::run() {
 
 void Client::stop() {
   Metrics::save();
-  destroySession();
   if (_heartbeat)
     _heartbeat->stop();
   if (_taskBuilder)
     _taskBuilder->stop();
   _threadPoolClient.stop();
+  destroySession();
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
