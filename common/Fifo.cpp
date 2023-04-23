@@ -35,7 +35,8 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     else if (result == 0) {
       int fdOld = fdRead;
       fdRead = openReadNonBlock(name);
-      close(fdOld);
+      if (fdOld != -1)
+	close(fdOld);
       continue;
     }
     else
@@ -226,7 +227,8 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
   int fd = -1;
   int rep = 0;
   do {
-    close(fd);
+    if (fd != -1)
+      close(fd);
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
       switch (errno) {
@@ -239,7 +241,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
       }
     }
   } while (fd == -1 && rep++ < options._numberRepeatENXIO);
-  if (fd >= 0 && options._setPipeSize)
+  if (fd != -1 && options._setPipeSize)
     setPipeSize(fd, options._pipeSize);
   return fd;
 }
