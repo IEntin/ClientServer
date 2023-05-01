@@ -10,18 +10,21 @@
 #include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
+#include <boost/interprocess/sync/named_mutex.hpp>
 #include <filesystem>
 #include <fstream>
 
 Server::Server(const ServerOptions& options) :
   _options(options),
   _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
+  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   StrategySelector strategySelector(options);
   Strategy& strategy = strategySelector.get();
   strategy.set(options);
 }
 
 Server::~Server() {
+  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   Trace << std::endl;
 }
 
