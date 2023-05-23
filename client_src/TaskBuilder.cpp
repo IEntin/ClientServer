@@ -60,8 +60,7 @@ TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
   try {
     auto& subtask = _subtasks.at(_subtaskConsumeIndex);
     _subtaskConsumeIndex++;
-    auto future = subtask._promise.get_future();
-    future.get();
+    subtask._state.wait(TaskBuilderState::NONE);
     state = subtask._state;
     switch (state) {
     case TaskBuilderState::SUBTASKDONE:
@@ -72,10 +71,6 @@ TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
     default:
       break;
     }
-  }
-  catch (const std::future_error& e) {
-    LogError << e.what() << std::endl;
-    return TaskBuilderState::ERROR;
   }
   catch (const std::out_of_range& e) {
     LogError << e.what() << std::endl;
@@ -133,6 +128,7 @@ TaskBuilderState TaskBuilder::createSubtask() {
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
     subtask._state = TaskBuilderState::ERROR;
+    subtask._state.notify_one();
     return TaskBuilderState::ERROR;
   }
   return TaskBuilderState::NONE;
@@ -145,19 +141,6 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
 					      const std::vector<char>& aggregate,
 					      size_t aggregateSize,
 					      bool alldone) {
-  struct SatisfyPromise {
-    SatisfyPromise(Subtask& subtask) : _subtask(subtask) {}
-    ~SatisfyPromise() {
-      try {
-	_subtask._promise.set_value();
-      }
-      catch (const std::exception& e) {
-	LogError << e.what() << std::endl;
-	_subtask._state = TaskBuilderState::ERROR;
-      }
-    }
-    Subtask& _subtask;
-  } satisfyPromise(subtask);
   bool bcompressed = _options._compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
@@ -200,7 +183,10 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
       STATUS::NONE };
     subtask._body.assign(aggregate.data(), aggregate.data() + aggregateSize);
   }
-  if (subtask._state != TaskBuilderState::ERROR)
+  if (subtask._state != TaskBuilderState::ERROR) {
     subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+    subtask._state.notify_one();
+  }
+
   return subtask._state;
 }

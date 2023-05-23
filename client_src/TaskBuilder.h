@@ -5,7 +5,6 @@
 #pragma once
 
 #include "ThreadPoolReference.h"
-#include <future>
 #include <string_view>
 #include <vector>
 #include <fstream>
@@ -22,10 +21,12 @@ enum class TaskBuilderState : int {
 };
 
 struct Subtask {
+  Subtask() = default;
+  Subtask(const Subtask&) : _state(TaskBuilderState::NONE) {}
+  ~Subtask() = default;
   HEADER _header;
   std::vector<char> _body;
-  std::promise<void> _promise;
-  TaskBuilderState _state = TaskBuilderState::NONE;
+  std::atomic<TaskBuilderState> _state = TaskBuilderState::NONE;
 };
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
