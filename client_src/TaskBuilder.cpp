@@ -30,10 +30,7 @@ TaskBuilder::~TaskBuilder() {
 
 void TaskBuilder::run() {
   try {
-    while (true) {
-      if (createSubtask() != TaskBuilderState::SUBTASKDONE)
-	break;
-    }
+    while (createSubtask() == TaskBuilderState::SUBTASKDONE) {}
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
@@ -41,10 +38,6 @@ void TaskBuilder::run() {
   catch (...) {
     LogError << "exception caught." << std::endl;
   }
-}
-
-bool TaskBuilder::start() {
-  return true;
 }
 
 void TaskBuilder::stop() {
@@ -183,10 +176,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
       STATUS::NONE };
     subtask._body.assign(aggregate.data(), aggregate.data() + aggregateSize);
   }
-  if (subtask._state != TaskBuilderState::ERROR) {
-    subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
-    subtask._state.notify_one();
-  }
-
+  subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+  subtask._state.notify_one();
   return subtask._state;
 }

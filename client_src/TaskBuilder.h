@@ -46,7 +46,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   int _nextIdSz = 4;
   ThreadPoolReference<ThreadPoolBase> _threadPool;
   void run() override;
-  bool start() override;
+  bool start() override { return true; }
  public:
   TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool);
   ~TaskBuilder() override;
