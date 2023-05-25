@@ -7,21 +7,14 @@
 #include "Compression.h"
 #include "ThreadPoolBase.h"
 #include "Utility.h"
-#include <filesystem>
 
 TaskBuilder::TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool) :
   _options(options),
+  _subtasks(1),
   _threadPool(threadPool) {
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
-  // rough estimate of a number of subtasks in task
-  // assuming id is not larger than half of content. 
-  // The actual number of subtasks is supposed to
-  // be smaller than this estimate:
-  size_t sourceSize = std::filesystem::file_size(_options._sourceName);
-  int expectedNumberSubtasks = (3 * sourceSize / 2 / _options._bufferSize + 1);
-  _subtasks.resize(expectedNumberSubtasks);
 }
 
 TaskBuilder::~TaskBuilder() {
@@ -51,8 +44,7 @@ TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
   if (_stopped)
     return TaskBuilderState::STOPPED;
   try {
-    auto& subtask = _subtasks.at(_subtaskConsumeIndex);
-    _subtaskConsumeIndex++;
+    auto& subtask = _subtasks.front();
     subtask._state.wait(TaskBuilderState::NONE);
     state = subtask._state;
     switch (state) {
@@ -64,8 +56,12 @@ TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
     default:
       break;
     }
+    if (state == TaskBuilderState::SUBTASKDONE) {
+      std::scoped_lock lock(_mutex);
+      _subtasks.pop_front();
+    }
   }
-  catch (const std::out_of_range& e) {
+  catch (const std::exception& e) {
     LogError << e.what() << std::endl;
     return TaskBuilderState::ERROR;
   }
@@ -96,24 +92,22 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 TaskBuilderState TaskBuilder::createSubtask() {
   thread_local static std::vector<char> aggregate(_options._bufferSize);
   size_t aggregateSize = 0;
-  // rough estimate for subtask size to avoid reallocation.
+  // rough estimate for subtask size to minimize reallocation.
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
   thread_local static std::string line;
-  if (_subtaskProduceIndex >= _subtasks.size()) {
-    LogError << "std::out_of_range avoided.\n" << std::endl;
-    return TaskBuilderState::ERROR;
+  auto& subtask = _subtasks.back();
+  {
+    std::scoped_lock lock(_mutex);
+    _subtasks.emplace_back();
   }
-  auto& subtask = _subtasks.at(_subtaskProduceIndex);
-  _subtaskProduceIndex++;
   try {
     while (std::getline(_input, line)) {
       aggregate.reserve(aggregateSize + _nextIdSz + line.size() + 1);
       int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
       aggregateSize += copied;
       bool alldone = _input.peek() == std::istream::traits_type::eof();
-      if (aggregateSize >= maxSubtaskSize || alldone) {
+      if (aggregateSize >= maxSubtaskSize || alldone)
 	return compressSubtask(subtask, aggregate, aggregateSize, alldone);
-      }
       else
 	continue;
     }

@@ -5,6 +5,8 @@
 #pragma once
 
 #include "ThreadPoolReference.h"
+#include <deque>
+#include <mutex>
 #include <string_view>
 #include <vector>
 #include <fstream>
@@ -39,12 +41,11 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   const ClientOptions& _options;
   std::ifstream _input;
-  std::vector<Subtask> _subtasks;
-  std::atomic<int> _subtaskConsumeIndex = 0;
-  std::atomic<unsigned> _subtaskProduceIndex = 0;
+  std::deque<Subtask> _subtasks;
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
   ThreadPoolReference<ThreadPoolBase> _threadPool;
+  std::mutex _mutex;
   void run() override;
   bool start() override { return true; }
  public:
