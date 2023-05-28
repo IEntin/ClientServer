@@ -94,21 +94,4 @@ bool TcpClient::receiveStatus() {
   return true;
 }
 
-bool TcpClient::destroySession() {
-  try {
-    boost::asio::ip::tcp::socket socket(_ioContext);
-    auto [endpoint, error] = Tcp::setSocket(_ioContext, socket, _options);
-    if (error)
-      return false;
-    size_t size = _clientId.size();
-    HEADER header{ HEADERTYPE::DESTROY_SESSION , size, size, COMPRESSORS::NONE, false, _status };
-    return Tcp::sendMsg(socket, header, _clientId).first;
-  }
-  catch (const std::exception& e) {
-    Warn << e.what() << std::endl;
-    return false;
-  }
-  return true;
-}
-
 } // end of namespace tcp

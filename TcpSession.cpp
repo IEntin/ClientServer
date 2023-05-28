@@ -68,7 +68,7 @@ void TcpSession::stop() {
 }
 
 void TcpSession::checkCapacity() {
-  Info << "Number tcp clients=" << _numberObjects
+  Info << "Number tcp sessions=" << _numberObjects
        << ", max number tcp running=" << _maxNumberRunningByType
        << std::endl;
   switch (_status) {

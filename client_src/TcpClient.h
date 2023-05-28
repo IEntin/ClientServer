@@ -15,7 +15,6 @@ class TcpClient : public Client {
   bool receive() override;
   bool receiveStatus() override;
   bool readReply(const HEADER& header);
-  bool destroySession() override;
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;

@@ -115,9 +115,6 @@ void TcpAcceptor::accept() {
 	case HEADERTYPE::CREATE_SESSION:
 	  createSession(details);
 	  break;
-	case HEADERTYPE::DESTROY_SESSION:
-	  _server.destroySession(clientId);
-	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  if (!_stopped)
 	    replyHeartbeat(details->_socket);

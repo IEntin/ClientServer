@@ -56,10 +56,8 @@ TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
     default:
       break;
     }
-    if (state == TaskBuilderState::SUBTASKDONE) {
-      std::scoped_lock lock(_mutex);
-      _subtasks.pop_front();
-    }
+    std::scoped_lock lock(_mutex);
+    _subtasks.pop_front();
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;

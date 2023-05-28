@@ -58,7 +58,7 @@ void FifoSession::run() {
 }
 
 void FifoSession::checkCapacity() {
-  Info << "Number fifo clients=" << _numberObjects
+  Info << "Number fifo sessions=" << _numberObjects
        << ", max number fifo running=" << _maxNumberRunningByType
        << std::endl;
   switch (_status) {
