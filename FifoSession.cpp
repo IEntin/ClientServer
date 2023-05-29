@@ -63,11 +63,11 @@ void FifoSession::checkCapacity() {
        << std::endl;
   switch (_status) {
   case STATUS::MAX_SPECIFIC_OBJECTS:
-    Warn << "\nThe number of fifo clients=" << _numberObjects
+    Warn << "\nThe number of fifo sessions=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
-    Warn << "\nTotal clients=" << _threadPool.numberRelatedObjects()
+    Warn << "\nTotal sessions=" << _threadPool.numberRelatedObjects()
 	 << " exceeds system capacity." << std::endl;
     break;
   default:
