@@ -170,12 +170,10 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
       STATUS::NONE };
     body.assign(aggregate.data(), aggregate.data() + aggregateSize);
   }
-  {
-    std::scoped_lock lock(_mutex);
-    subtask._header.swap(header);
-    subtask._body.swap(body);
-    subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
-    subtask._state.notify_one();
-  }
+  std::scoped_lock lock(_mutex);
+  subtask._header.swap(header);
+  subtask._body.swap(body);
+  subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+  subtask._state.notify_one();
   return subtask._state;
 }
