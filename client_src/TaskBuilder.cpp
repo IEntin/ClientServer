@@ -130,28 +130,30 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
   static auto& printOnce[[maybe_unused]] =
     Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   size_t uncomprSize = aggregateSize;
+  HEADER header;
+  std::vector<char> body;
   if (bcompressed) {
     try {
       std::string_view compressedView = Compression::compress(aggregate.data(), uncomprSize);
       // LZ4 may generate compressed larger than uncompressed.
       // In this case an uncompressed subtask is sent.
       if (compressedView.size() >= uncomprSize) {
-	subtask._header = { HEADERTYPE::SESSION,
+	header = { HEADERTYPE::SESSION,
 	  uncomprSize,
 	  uncomprSize,
 	  COMPRESSORS::NONE,
 	  _options._diagnostics,
 	  STATUS::NONE };
-	subtask._body.assign(aggregate.data(), aggregate.data() + aggregateSize);
+	body.assign(aggregate.data(), aggregate.data() + aggregateSize);
       }
       else {
-	subtask._header = { HEADERTYPE::SESSION,
+	header = { HEADERTYPE::SESSION,
 	  uncomprSize,
 	  compressedView.size(),
 	  _options._compressor,
 	  _options._diagnostics,
 	  STATUS::NONE };
-	subtask._body.assign(compressedView.cbegin(), compressedView.cend());
+	body.assign(compressedView.cbegin(), compressedView.cend());
       }
     }
     catch (const std::exception& e) {
@@ -160,15 +162,20 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
     }
   }
   else {
-    subtask._header = { HEADERTYPE::SESSION,
+    header = { HEADERTYPE::SESSION,
       uncomprSize,
       uncomprSize,
       _options._compressor,
       _options._diagnostics,
       STATUS::NONE };
-    subtask._body.assign(aggregate.data(), aggregate.data() + aggregateSize);
+    body.assign(aggregate.data(), aggregate.data() + aggregateSize);
   }
-  subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
-  subtask._state.notify_one();
+  {
+    std::scoped_lock lock(_mutex);
+    subtask._header.swap(header);
+    subtask._body.swap(body);
+    subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+    subtask._state.notify_one();
+  }
   return subtask._state;
 }
