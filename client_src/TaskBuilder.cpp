@@ -33,16 +33,8 @@ void TaskBuilder::run() {
   }
 }
 
-void TaskBuilder::stop() {
-  _stopped = true;
-  Subtask subtask;
-  getSubtask(subtask);
-}
-
 TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
   TaskBuilderState state = TaskBuilderState::NONE;
-  if (_stopped)
-    return TaskBuilderState::STOPPED;
   try {
     auto& subtask = _subtasks.front();
     subtask._state.wait(TaskBuilderState::NONE);

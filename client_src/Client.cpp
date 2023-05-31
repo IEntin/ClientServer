@@ -77,10 +77,7 @@ void Client::stop() {
   Metrics::save();
   if (_heartbeat)
     _heartbeat->stop();
-  if (_taskBuilder)
-    _taskBuilder->stop();
   _threadPoolClient.stop();
-  destroySession();
 }
 
 bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {

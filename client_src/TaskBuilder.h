@@ -18,8 +18,7 @@ enum class TaskBuilderState : int {
   NONE,
   SUBTASKDONE,
   TASKDONE,
-  ERROR,
-  STOPPED
+  ERROR
 };
 
 struct Subtask {
@@ -51,7 +50,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
  public:
   TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool);
   ~TaskBuilder() override;
-  void stop() override;
+  void stop() override {}
   TaskBuilderState getSubtask(Subtask& task);
   TaskBuilderState createSubtask();
 };
