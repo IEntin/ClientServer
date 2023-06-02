@@ -41,7 +41,7 @@ private:
   ThreadPoolReference<ThreadPoolDiffObj> _threadPool;
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
-  boost::asio::ip::tcp::socket& _socket;
+  boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;

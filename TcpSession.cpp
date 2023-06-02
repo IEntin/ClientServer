@@ -23,7 +23,7 @@ TcpSession::TcpSession(Server& server, ConnectionDetailsPtr details, std::string
   _threadPool(server.getThreadPoolSession()),
   _details(details),
   _ioContext(details->_ioContext),
-  _socket(details->_socket),
+  _socket(std::move(details->_socket)),
   _timeoutTimer(_ioContext) {
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);

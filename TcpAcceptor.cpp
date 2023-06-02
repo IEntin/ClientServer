@@ -95,7 +95,6 @@ void TcpAcceptor::accept() {
   auto details = std::make_shared<ConnectionDetails>();
   auto weak = weak_from_this();
   _acceptor.async_accept(details->_socket,
-			 details->_endpoint,
     [details, this, weak](boost::system::error_code ec) {
       if (_stopped)
 	return;

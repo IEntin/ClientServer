@@ -13,7 +13,6 @@ struct ConnectionDetails {
   ConnectionDetails() : _ioContext(1), _socket(_ioContext) {}
   ~ConnectionDetails() = default;
   boost::asio::io_context _ioContext;
-  boost::asio::ip::tcp::endpoint _endpoint;
   boost::asio::ip::tcp::socket _socket;
 };
 
