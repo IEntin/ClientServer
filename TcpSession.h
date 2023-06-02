@@ -19,9 +19,7 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
 public:
-  TcpSession(Server& server,
-	     ConnectionDetailsPtr details,
-	     std::string_view clientId);
+  TcpSession(Server& server, ConnectionDetailsPtr details, std::string_view clientId);
   ~TcpSession() override;
 
   const std::string& getId() const override { return _clientId; }
@@ -34,7 +32,7 @@ private:
   bool sendStatusToClient() override;
   void readHeader();
   void readRequest();
-  void write(std::string_view msg, std::function<void(TcpSession*)> nextFunc = nullptr);
+  void write(std::string_view msg);
   void asyncWait();
   bool onReceiveRequest();
   bool sendReply(const Response& response);
@@ -44,7 +42,6 @@ private:
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket& _socket;
-  boost::asio::strand<boost::asio::io_context::executor_type> _strand;
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;

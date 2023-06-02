@@ -16,7 +16,9 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(Server& server, ConnectionDetailsPtr details, std::string_view clientId) :
+TcpSession::TcpSession(Server& server,
+		       ConnectionDetailsPtr details,
+		       std::string_view clientId) :
   RunnableT(server.getOptions()._maxTcpSessions),
   _options(server.getOptions()),
   _clientId(clientId),
@@ -24,6 +26,7 @@ TcpSession::TcpSession(Server& server, ConnectionDetailsPtr details, std::string
   _details(details),
   _ioContext(details->_ioContext),
   _socket(details->_socket),
+  _strand(boost::asio::make_strand(_ioContext)),
   _timeoutTimer(_ioContext) {
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
@@ -112,7 +115,7 @@ bool TcpSession::sendReply(const Response& response) {
   if (body.empty())
     return false;
   asyncWait();
-  write(body);
+  write(body, &TcpSession::readHeader);
   return true;
 }
 
@@ -120,7 +123,7 @@ void TcpSession::readHeader() {
   asyncWait();
   auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket,
-  boost::asio::buffer(_headerBuffer),
+  boost::asio::buffer(_headerBuffer), boost::asio::bind_executor(_strand,
     [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = weakPtr.lock();
       if (!self)
@@ -147,13 +150,13 @@ void TcpSession::readHeader() {
       _request.clear();
       _request.resize(extractCompressedSize(_header));
       readRequest();
-    });
+    }));
 }
 
 void TcpSession::readRequest() {
   auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket,
-    boost::asio::buffer(_request),
+    boost::asio::buffer(_request), boost::asio::bind_executor(_strand,
     [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = weakPtr.lock();
       if (!self)
@@ -163,10 +166,10 @@ void TcpSession::readRequest() {
 	return;
       }
       onReceiveRequest();
-    });
+    }));
 }
 
-void TcpSession::write(std::string_view body) {
+void TcpSession::write(std::string_view body, std::function<void(TcpSession*)> nextFunc) {
   auto weakPtr = weak_from_this();
   static thread_local std::vector<boost::asio::const_buffer> buffers;
   buffers.clear();
@@ -174,8 +177,8 @@ void TcpSession::write(std::string_view body) {
   buffers.emplace_back(boost::asio::buffer(_headerBuffer, HEADER_SIZE));
   buffers.emplace_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,
-    buffers,
-    [this, weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    buffers, boost::asio::bind_executor(_strand,
+    [this, weakPtr, nextFunc](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = weakPtr.lock();
       if (!self)
 	return;
@@ -183,8 +186,9 @@ void TcpSession::write(std::string_view body) {
 	LogError << ec.what() << std::endl;
 	return;
       }
-      readHeader();
-    });
+      if (nextFunc)
+	nextFunc(this);
+    }));
 }
 
 void TcpSession::asyncWait() {
@@ -195,19 +199,20 @@ void TcpSession::asyncWait() {
     LogError << ec.what() << std::endl;
     return;
   }
-  _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
-    auto self = weakPtr.lock();
-    if (!self)
-      return;
-    if (ec != boost::asio::error::operation_aborted) {
-      if (ec)
-	LogError << ec.what() << std::endl;
-      else {
-	LogError << "timeout" << std::endl;
-	_status = STATUS::TCP_TIMEOUT;
+  _timeoutTimer.async_wait(boost::asio::bind_executor(_strand,
+    [this, weakPtr](const boost::system::error_code& ec) {
+      auto self = weakPtr.lock();
+      if (!self)
+	return;
+      if (ec != boost::asio::error::operation_aborted) {
+	if (ec)
+	  LogError << ec.what() << std::endl;
+	else {
+	  LogError << "timeout" << std::endl;
+	  _status = STATUS::TCP_TIMEOUT;
+	}
       }
-    }
-  });
+    }));
 }
 
 } // end of namespace tcp
