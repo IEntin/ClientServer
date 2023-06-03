@@ -70,10 +70,8 @@ bool Server::startSession(std::string_view clientId, RunnablePtr session) {
 void Server::destroySession(const std::string& clientId) {
   std::scoped_lock lock(_mutex);
   if (auto it = _sessions.find(clientId); it != _sessions.end()) {
-    if (auto session = it->second.lock(); session) {
+    if (auto session = it->second.lock(); session)
       session->stop();
-      _threadPoolSession.removeFromQueue(clientId);
-    }
     _sessions.erase(it);
   }
 }

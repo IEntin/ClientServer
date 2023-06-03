@@ -88,13 +88,3 @@ RunnablePtr ThreadPoolBase::get() {
   _queue.pop_front();
   return runnable;
 }
-
-void ThreadPoolBase::removeFromQueue(const std::string& clientId) {
-  std::lock_guard lock(_queueMutex);
-  for (auto it = _queue.begin(); it < _queue.end(); ++it) {
-    if ((*it)->getId() == clientId) {
-      _queue.erase(it);
-      break;
-    }
-  }
-}

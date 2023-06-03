@@ -37,7 +37,7 @@ FifoSession::~FifoSession() {
 
 void FifoSession::run() {
   CountRunning countRunning;
-  if (!std::filesystem::exists(_fifoName))
+  if (_stopped)
     return;
   while (true) {
     _uncompressedRequest.clear();

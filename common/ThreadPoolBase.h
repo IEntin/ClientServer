@@ -29,7 +29,6 @@ public:
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
   int size() const { return _threads.size(); }
-  void removeFromQueue(const std::string& clientId);
   std::atomic<int>& numberRelatedObjects() { return _numberRelatedObjects; }
   void increment() { _numberRelatedObjects++; }
   void decrement() { _numberRelatedObjects--; }
