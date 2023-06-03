@@ -29,12 +29,6 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
-  sigset_t set;
-  sigemptyset(&set);
-  if (sigaddset(&set, SIGINT) == -1)
-    LogError << strerror(errno) << std::endl;
-  if (sigaddset(&set, SIGTERM) == -1)
-    LogError << strerror(errno) << std::endl;
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);

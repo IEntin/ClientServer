@@ -19,6 +19,7 @@ class FifoClient : public Client {
   static bool destroy(const ClientOptions& options);
   std::string _fifoName;
   static inline std::string _clientId;
+  static inline std::atomic_flag _closeFlag;
 
  public:
   FifoClient(const ClientOptions& options);

@@ -5,7 +5,6 @@
 #pragma once
 
 #include "ThreadPoolBase.h"
-#include <atomic>
 
 struct Subtask;
 struct ClientOptions;
@@ -26,7 +25,6 @@ class Client {
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnablePtr _heartbeat;
   TaskBuilderPtr _taskBuilder;
-  static std::atomic_flag _closeFlag;
 
  public:
   virtual ~Client();
