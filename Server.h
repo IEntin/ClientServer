@@ -21,7 +21,6 @@ public:
   ThreadPoolBase& getThreadPoolAcceptor() { return _threadPoolAcceptor; }
   ThreadPoolDiffObj& getThreadPoolSession() { return _threadPoolSession; }
   bool startSession(std::string_view clientId, RunnablePtr session);
-  void destroySession(const std::string& key);
   void stopSessions();
 private:
   const ServerOptions& _options;

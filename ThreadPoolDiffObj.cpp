@@ -27,7 +27,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   // need one more thread
   bool condition1 = _numberRelatedObjects > size();
   // can run one more of type
-  bool condition2 = runnable->getNumberObjects() <= runnable->_maxNumberRunningByType;
+  bool condition2 = runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType;
   if (condition1 && condition2 && size() < _maxSize) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;

@@ -49,9 +49,6 @@ void FifoAcceptor::run() {
     case HEADERTYPE::CREATE_SESSION:
       createSession();
       break;
-    case HEADERTYPE::DESTROY_SESSION:
-      _server.destroySession(key);
-      break;
     default:
       break;
     }

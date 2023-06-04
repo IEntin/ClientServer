@@ -5,8 +5,6 @@
 #pragma once
 
 #include "Client.h"
-#include <string>
-#include <vector>
 
 namespace fifo {
 
@@ -16,10 +14,8 @@ class FifoClient : public Client {
   bool receive() override;
   bool receiveStatus() override;
   bool wakeupAcceptor();
-  static bool destroy(const ClientOptions& options);
-  std::string _fifoName;
+  static inline std::string _fifoName;
   static inline std::string _clientId;
-  static inline std::atomic_flag _closeFlag;
 
  public:
   FifoClient(const ClientOptions& options);
@@ -27,7 +23,7 @@ class FifoClient : public Client {
 
   bool run() override;
 
-  static void setCloseFlag(const ClientOptions& options);
+  static void onClose();
 };
 
 } // end of namespace fifo

@@ -37,6 +37,8 @@ FifoSession::~FifoSession() {
 
 void FifoSession::run() {
   CountRunning countRunning;
+  if (!std::filesystem::exists(_fifoName))
+    return;
   if (_stopped)
     return;
   while (true) {
@@ -85,6 +87,8 @@ void FifoSession::stop() {
 }
 
 bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
+  if (!std::filesystem::exists(_fifoName))
+    return false;
   switch (_status) {
   case STATUS::MAX_SPECIFIC_OBJECTS:
   case STATUS::MAX_TOTAL_OBJECTS:
@@ -118,6 +122,8 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
 }
 
 bool FifoSession::sendResponse(const Response& response) {
+  if (!std::filesystem::exists(_fifoName))
+    return false;
   HEADER header;
   std::string_view body =
     serverutility::buildReply(response, header, _options._compressor, _status);

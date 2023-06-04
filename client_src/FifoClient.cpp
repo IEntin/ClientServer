@@ -41,16 +41,11 @@ bool FifoClient::run() {
 bool FifoClient::send(const Subtask& subtask) {
   std::string_view body(subtask._body.data(), subtask._body.size());
   while (true) {
-    if (_closeFlag.test())
-      return false;
     if (Fifo::sendMsg(_fifoName, subtask._header, _options, body))
       return true;
     // waiting client
     // server stopped
     if (!std::filesystem::exists(_fifoName))
-      return false;
-    // client closed
-    if (_closeFlag.test())
       return false;
     std::this_thread::sleep_for(std::chrono::milliseconds(FIFO_CLIENT_POLLING_PERIOD));
   }
@@ -58,8 +53,6 @@ bool FifoClient::send(const Subtask& subtask) {
 }
 
 bool FifoClient::receive() {
-  if (_closeFlag.test())
-    return false;
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
   _status = STATUS::NONE;
@@ -112,18 +105,10 @@ bool FifoClient::receiveStatus() {
   return true;
 }
 
-bool FifoClient::destroy(const ClientOptions& options) {
-  size_t size = _clientId.size();
-  HEADER header = { HEADERTYPE::DESTROY_SESSION, size, size, COMPRESSORS::NONE, false, STATUS::NONE };
-  return Fifo::sendMsg(options._acceptorName, header, options, _clientId);
-}
-
-void FifoClient::setCloseFlag(const ClientOptions& options) {
+void FifoClient::onClose() {
   // prevent spoiled errno
   int old_errno = errno;
-  _closeFlag.test_and_set();
-  // calling only open and write
-  destroy(options);
+  unlink(_fifoName.data());
   errno = old_errno;
 }
 
