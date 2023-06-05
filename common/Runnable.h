@@ -31,7 +31,6 @@ class Runnable {
   }
   virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }
-  virtual const std::string& getId() const { static const std::string empty; return empty; }
   std::atomic<STATUS>& getStatus() { return _status; }
   const int _maxNumberRunningByType;
   std::atomic<bool> _stopped = false;

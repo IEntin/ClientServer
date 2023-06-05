@@ -3,7 +3,6 @@
  */
 
 #include "ThreadPoolSameObj.h"
-#include "Header.h"
 #include "Logger.h"
 
 /*

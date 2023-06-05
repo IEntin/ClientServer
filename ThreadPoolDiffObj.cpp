@@ -11,7 +11,6 @@ not creating redundant threads.
 */
 
 #include "ThreadPoolDiffObj.h"
-#include "Header.h"
 #include "Logger.h"
 
 ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func) :
@@ -34,7 +33,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   }
   else if (!condition2)
     runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
-  else if (runnable->_numberRunningTotal >= _maxSize)
+  else if (runnable->_numberRunningTotal == _maxSize)
     runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   runnable->checkCapacity();
   if (_func)

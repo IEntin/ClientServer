@@ -31,8 +31,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
  public:
   FifoSession(Server& server, std::string_view clientId);
   ~FifoSession() override;
-
-  const std::string& getId() const override { return _clientId; }
 };
 
 } // end of namespace fifo
