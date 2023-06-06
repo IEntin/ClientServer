@@ -16,7 +16,7 @@ class Client {
   Client(const ClientOptions& options);
 
   bool processTask(TaskBuilderPtr taskBuilder);
-  bool printReply(const std::vector<char>& buffer, const HEADER& header);
+  bool printReply(std::string_view buffer, const HEADER& header);
   void start();
 
   const ClientOptions& _options;

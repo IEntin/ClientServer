@@ -171,7 +171,7 @@ void TcpSession::write(std::string_view body) {
   static thread_local std::vector<boost::asio::const_buffer> buffers;
   buffers.clear();
   encodeHeader(_headerBuffer, _header);
-  buffers.emplace_back(boost::asio::buffer(_headerBuffer, HEADER_SIZE));
+  buffers.emplace_back(boost::asio::buffer(_headerBuffer));
   buffers.emplace_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,
     buffers,

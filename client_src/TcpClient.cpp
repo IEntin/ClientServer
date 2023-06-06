@@ -43,33 +43,15 @@ bool TcpClient::send(const Subtask& subtask) {
 }
 
 bool TcpClient::receive() {
-  // receives interrupt and unblocks read on CtrlC in wait mode
-  boost::system::error_code ec;
-  _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-  if (ec) {
-    LogError << ec.what() << std::endl;
-    return false;
-  }
   HEADER header;
-  auto [success, error] = Tcp::readHeader(_socket, header);
-  if (error)
-    return false;
-  _status = STATUS::NONE;
-  return readReply(header);
-}
-
-bool TcpClient::readReply(const HEADER& header) {
   thread_local static std::vector<char> buffer;
-  ssize_t comprSize = extractCompressedSize(header);
-  buffer.resize(comprSize);
-  boost::system::error_code ec;
-  size_t transferred[[maybe_unused]] =
-    boost::asio::read(_socket, boost::asio::buffer(buffer, comprSize), ec);
+  auto [success, ec] = Tcp::readMsg(_socket, header, buffer);
   if (ec) {
     LogError << ec.what() << std::endl;
     return false;
   }
-  return printReply(buffer, header);
+  _status = STATUS::NONE;
+  return printReply(std::string_view(buffer.data(), buffer.size()), header);
 }
 
 bool TcpClient::receiveStatus() {

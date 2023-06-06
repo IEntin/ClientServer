@@ -78,7 +78,7 @@ void Client::stop() {
   _threadPoolClient.stop();
 }
 
-bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
+bool Client::printReply(std::string_view buffer, const HEADER& header) {
   if (_heartbeat) {
     STATUS status = _heartbeat->getStatus();
     if (utility::displayStatus(status))
@@ -102,7 +102,7 @@ bool Client::printReply(const std::vector<char>& buffer, const HEADER& header) {
       stream << uncompressedView << std::flush;
   }
   else
-    stream << std::string_view(buffer.data(), comprSize) << std::flush;
+    stream << buffer << std::flush;
   return true;
 }
 
