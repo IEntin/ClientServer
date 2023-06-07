@@ -13,12 +13,13 @@ namespace tcp {
 TcpClient::TcpClient(const ClientOptions& options) :
   Client(options),
   _socket(_ioContext) {
+  static const std::vector<char> empty;
   auto [endpoint, error] =
     Tcp::setSocket(_ioContext, _socket, _options);
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, _status };
-  auto [success, ec] = Tcp::sendMsg(_socket, header);
+  auto [success, ec] = Tcp::sendMsg(_socket, header, empty);
   if (!success)
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())
@@ -35,8 +36,7 @@ bool TcpClient::run() {
 }
 
 bool TcpClient::send(const Subtask& subtask) {
-  std::string_view body(subtask._body.data(), subtask._body.size());
-  auto [success, ec] = Tcp::sendMsg(_socket, subtask._header, body);
+  auto [success, ec] = Tcp::sendMsg(_socket, subtask._header, subtask._body);
   if (ec)
     LogError << ec.what() << std::endl;
   return success;

@@ -9,7 +9,6 @@
 #include <vector>
 
 using Response = std::vector<std::string>;
-struct ServerOptions;
 
 namespace serverutility {
 

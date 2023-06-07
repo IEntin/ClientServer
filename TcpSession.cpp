@@ -5,7 +5,6 @@
 #include "TcpSession.h"
 #include "Compression.h"
 #include "ConnectionDetails.h"
-#include "Logger.h"
 #include "MemoryPool.h"
 #include "Server.h"
 #include "ServerOptions.h"

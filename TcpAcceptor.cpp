@@ -4,7 +4,6 @@
 
 #include "TcpAcceptor.h"
 #include "ConnectionDetails.h"
-#include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "TcpSession.h"
@@ -83,7 +82,8 @@ void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  auto [success, ec] = Tcp::sendMsg(socket, _header);
+  static const std::vector<char> empty;
+  auto [success, ec] = Tcp::sendMsg(socket, _header, empty);
   if (ec) {
     LogError << ec.what() << std::endl;
     return;

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include "Logger.h"
 #include <boost/asio.hpp>
 
 struct ClientOptions;
@@ -40,10 +41,25 @@ public:
     return { true, ec };
   }
 
+  template <typename P>
   std::pair<bool, boost::system::error_code>
   static sendMsg(boost::asio::ip::tcp::socket& socket,
 		 const HEADER& header,
-		 std::string_view body = std::string_view());
+		 const P &body) {
+    char buffer[HEADER_SIZE] = {};
+    encodeHeader(buffer, header);
+    std::vector<boost::asio::const_buffer> buffers;
+    buffers.emplace_back(boost::asio::buffer(buffer));
+    if (!body.empty())
+      buffers.emplace_back(boost::asio::buffer(body));
+    boost::system::error_code ec;
+    size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+    if (ec) {
+      LogError << ec.what() << std::endl;
+      return { false, ec };
+    }
+    return { true, ec };
+  }
 };
 
 } // end of namespace tcp
