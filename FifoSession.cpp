@@ -64,7 +64,7 @@ void FifoSession::checkCapacity() {
        << ", max number fifo running=" << _maxNumberRunningByType
        << std::endl;
   switch (_status) {
-  case STATUS::MAX_SPECIFIC_OBJECTS:
+  case STATUS::MAX_OBJECTS_OF_TYPE:
     Warn << "\nThe number of fifo sessions=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
     break;
@@ -90,7 +90,7 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
   if (!std::filesystem::exists(_fifoName))
     return false;
   switch (_status) {
-  case STATUS::MAX_SPECIFIC_OBJECTS:
+  case STATUS::MAX_OBJECTS_OF_TYPE:
   case STATUS::MAX_TOTAL_OBJECTS:
     _status = STATUS::NONE;
     break;

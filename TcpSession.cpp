@@ -68,7 +68,7 @@ void TcpSession::checkCapacity() {
        << ", max number tcp running=" << _maxNumberRunningByType
        << std::endl;
   switch (_status) {
-  case STATUS::MAX_SPECIFIC_OBJECTS:
+  case STATUS::MAX_OBJECTS_OF_TYPE:
     Warn << "\nThe number of tcp sessions=" << _numberObjects
 	 << " exceeds thread pool capacity." << std::endl;
     break;
@@ -125,7 +125,7 @@ void TcpSession::readHeader() {
       if (!self)
 	return;
       switch (_status) {
-      case STATUS::MAX_SPECIFIC_OBJECTS:
+      case STATUS::MAX_OBJECTS_OF_TYPE:
       case STATUS::MAX_TOTAL_OBJECTS:
 	_status = STATUS::NONE;
 	break;

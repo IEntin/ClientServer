@@ -41,7 +41,7 @@ enum class STATUS : char {
   HEARTBEAT_PROBLEM,
   HEARTBEAT_TIMEOUT,
   MAX_TOTAL_OBJECTS,
-  MAX_SPECIFIC_OBJECTS,
+  MAX_OBJECTS_OF_TYPE,
   ERROR
 };
 
@@ -89,7 +89,7 @@ inline bool isOk(const HEADER& header) {
   switch(status) {
   case STATUS::NONE:
   case STATUS::MAX_TOTAL_OBJECTS:
-  case STATUS::MAX_SPECIFIC_OBJECTS:
+  case STATUS::MAX_OBJECTS_OF_TYPE:
     return true;
     break;
   default:

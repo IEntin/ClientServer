@@ -35,7 +35,7 @@ TEST(ThreadPoolTest, Fixed) {
     if (i < maxNumberThreads)
       ASSERT_TRUE(runnable->_status == STATUS::NONE);
     else
-      ASSERT_TRUE(runnable->_status == STATUS::MAX_SPECIFIC_OBJECTS);
+      ASSERT_TRUE(runnable->_status == STATUS::MAX_OBJECTS_OF_TYPE);
     pool.push(runnable);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());

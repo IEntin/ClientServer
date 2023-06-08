@@ -153,6 +153,6 @@ bool displayStatus(STATUS status);
 
 void displayMaxTotalSessionsWarn();
 
-void displayMaxSpecificSessionsWarn(std::string_view type);
+void displayMaxSessionsOfTypeWarn(std::string_view type);
 
 } // end of namespace utility

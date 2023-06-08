@@ -70,8 +70,8 @@ bool displayStatus(STATUS status) {
   case STATUS::MAX_TOTAL_OBJECTS:
     Warn << "Exceeded max total number clients" << std::endl;
     return false;
-  case STATUS::MAX_SPECIFIC_OBJECTS:
-    Warn << "Exceeded max number specific clients" << std::endl;
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    Warn << "Exceeded max number clients of type" << std::endl;
     return false;
   default:
     LogError << "unexpected problem" << std::endl;
@@ -90,7 +90,7 @@ void displayMaxTotalSessionsWarn() {
        << "\t!!!!!!!!!" << std::endl;
 }
 
-void displayMaxSpecificSessionsWarn(std::string_view type) {
+void displayMaxSessionsOfTypeWarn(std::string_view type) {
   Warn << "\n\t!!!!!!!!!\n"
        << "\tThe number of " << type << " sessions exceeds pool capacity.\n"
        << "\tThis client is waiting in the queue for available thread.\n"

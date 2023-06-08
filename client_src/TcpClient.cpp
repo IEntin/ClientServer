@@ -64,8 +64,8 @@ bool TcpClient::receiveStatus() {
   }
   _status = extractStatus(header);
   switch (_status) {
-  case STATUS::MAX_SPECIFIC_OBJECTS:
-    utility::displayMaxSpecificSessionsWarn("tcp");
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    utility::displayMaxSessionsOfTypeWarn("tcp");
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
     utility::displayMaxTotalSessionsWarn();

@@ -26,7 +26,7 @@ void ThreadPoolSameObj::push(RunnablePtr runnable) {
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }
   else if (!condition2)
-    runnable->_status = STATUS::MAX_SPECIFIC_OBJECTS;
+    runnable->_status = STATUS::MAX_OBJECTS_OF_TYPE;
   runnable->checkCapacity();
   _queue.emplace_back(runnable);
   _queueCondition.notify_all();

@@ -88,8 +88,8 @@ bool FifoClient::receiveStatus() {
     switch (_status) {
     case STATUS::NONE:
       break;
-    case STATUS::MAX_SPECIFIC_OBJECTS:
-      utility::displayMaxSpecificSessionsWarn("fifo");
+    case STATUS::MAX_OBJECTS_OF_TYPE:
+      utility::displayMaxSessionsOfTypeWarn("fifo");
       break;
     case STATUS::MAX_TOTAL_OBJECTS:
       utility::displayMaxTotalSessionsWarn();
