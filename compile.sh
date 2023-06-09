@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Copyright (C) 2021 Ilya Entin
+#
+
 set -e
 
 trap EXIT SIGHUP SIGINT SIGTERM

@@ -2,7 +2,7 @@ Copyright (C) 2021 Ilya Entin.
 
 ### Fast Linux Lockless Clent-Server with FIFO and TCP clients
 
-To test this software clone the project and use deploy.sh script in the project root.\
+To test this software clone the project, run makeCrypto.sh, and use deploy.sh script in the project root.\
 Run './deploy.sh -h' to see the details.
 
 Prerequisites:
