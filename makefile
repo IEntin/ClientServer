@@ -38,6 +38,7 @@ COMMONDIR := common
 LZ4DIR := lz4
 TESTSRCDIR := test_src
 CRYPTODIR := crypto
+CRYPTOLIB := libs/libcryptopp.a
 DATADIR := data
 
 SERVERBIN := server
@@ -120,20 +121,20 @@ SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
-server : $(COMMONOBJ) $(SERVEROBJ)
+server : $(COMMONOBJ) $(SERVEROBJ) $(CRYPTOLIB)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -Llibs -lcryptopp
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
-$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
+$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ) $(CRYPTOLIB)
 	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -Llibs -lcryptopp
 
 TESTSRC = $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
-$(TESTBIN) : $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
+$(TESTBIN) : $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ) $(CRYPTOLIB)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(SERVERFILTEREDOBJ) \
 $(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -Llibs -lcryptopp
 
