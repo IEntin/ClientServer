@@ -12,6 +12,10 @@ using Response = std::vector<std::string>;
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, HEADER& header, COMPRESSORS compressor, STATUS status);
+std::string_view buildReply(const Response& response,
+			    HEADER& header,
+			    COMPRESSORS compressor,
+			    bool encrypted,
+			    STATUS status);
 
 } // end of namespace serverutility

@@ -23,6 +23,7 @@ Options::Options(const std::string& jsonName) {
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
   _ENXIOwait = appOptions.get("ENXIOwai", 10);
   _compressor = Compression::isCompressionEnabled(appOptions.get("Compression", std::string(LZ4)));
+  _encrypted = appOptions.get("Encrypted", false);
   _timing = appOptions.get("Timing", false);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);

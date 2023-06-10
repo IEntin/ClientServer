@@ -134,6 +134,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
 	  uncomprSize,
 	  uncomprSize,
 	  COMPRESSORS::NONE,
+	  _options._encrypted,
 	  _options._diagnostics,
 	  STATUS::NONE };
 	body.assign(aggregate.data(), aggregate.data() + aggregateSize);
@@ -143,6 +144,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
 	  uncomprSize,
 	  compressedView.size(),
 	  _options._compressor,
+	  _options._encrypted,
 	  _options._diagnostics,
 	  STATUS::NONE };
 	body.assign(compressedView.cbegin(), compressedView.cend());
@@ -158,6 +160,7 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
       uncomprSize,
       uncomprSize,
       _options._compressor,
+      _options._encrypted,
       _options._diagnostics,
       STATUS::NONE };
     body.assign(aggregate.data(), aggregate.data() + aggregateSize);

@@ -126,7 +126,7 @@ bool FifoSession::sendResponse(const Response& response) {
     return false;
   HEADER header;
   std::string_view body =
-    serverutility::buildReply(response, header, _options._compressor, _status);
+    serverutility::buildReply(response, header, _options._compressor, _options._encrypted, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, _options, body);
@@ -134,7 +134,7 @@ bool FifoSession::sendResponse(const Response& response) {
 
 bool FifoSession::sendStatusToClient() {
   size_t size = _clientId.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
   return Fifo::sendMsg(_options._acceptorName, header, _options, _clientId);
 }
 

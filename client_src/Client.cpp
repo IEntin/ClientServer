@@ -84,7 +84,7 @@ bool Client::printReply(std::string_view buffer, const HEADER& header) {
     if (utility::displayStatus(status))
       return false;
   }
-  auto [headerType, uncomprSize, comprSize, compressor, diagnostics, status] = header;
+  auto [headerType, uncomprSize, comprSize, compressor, encrypted, diagnostics, status] = header;
   if (utility::displayStatus(status))
     return false;
   bool bcompressed = isCompressed(header);

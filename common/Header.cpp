@@ -10,6 +10,7 @@ void encodeHeader(char* buffer,
 		  size_t uncomprSz,
 		  size_t comprSz,
 		  COMPRESSORS compressor,
+		  bool encrypted,
 		  bool diagnostics,
 		  STATUS status) {
   try {
@@ -23,6 +24,8 @@ void encodeHeader(char* buffer,
     offset += NUM_FIELD_SIZE;
     buffer[offset] = std::underlying_type_t<COMPRESSORS>(compressor);
     offset += COMPRESSOR_TYPE_SIZE;
+    buffer[offset] = (encrypted ? CRYPTO_CHAR : NCRYPTO_CHAR);
+    offset += CRYPTO_TYPE_SIZE;
     buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
     offset += DIAGNOSTICS_SIZE;
     buffer[offset] = std::underlying_type_t<STATUS>(status);
@@ -33,8 +36,8 @@ void encodeHeader(char* buffer,
 }
 
 void encodeHeader(char* buffer, const HEADER& header) {
-  auto [headerType, uncomprSz, comprSz, compressor, diagnostics, status] = header;
-  encodeHeader(buffer, headerType, uncomprSz, comprSz, compressor, diagnostics, status);
+  auto [headerType, uncomprSz, comprSz, compressor, encrypted, diagnostics, status] = header;
+  encodeHeader(buffer, headerType, uncomprSz, comprSz, compressor, encrypted, diagnostics, status);
 }
 
 HEADER decodeHeader(const char* buffer) {
@@ -52,13 +55,15 @@ HEADER decodeHeader(const char* buffer) {
     offset += NUM_FIELD_SIZE;
     COMPRESSORS compressor = static_cast<COMPRESSORS>(buffer[offset]);
     offset += COMPRESSOR_TYPE_SIZE;
+    bool encrypted = buffer[offset] == CRYPTO_CHAR;
+    offset += CRYPTO_TYPE_SIZE;
     bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
     offset += DIAGNOSTICS_SIZE;
     STATUS status = static_cast<STATUS>(buffer[offset]);
-    return { headerType, uncomprSize, comprSize, compressor, diagnostics, status };
+    return { headerType, uncomprSize, comprSize, compressor, encrypted, diagnostics, status };
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
-    return { headerType, 0, 0, COMPRESSORS::NONE, false, STATUS::BAD_HEADER };
+    return { headerType, 0, 0, COMPRESSORS::NONE, false, false, STATUS::BAD_HEADER };
   }
 }

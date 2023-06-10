@@ -131,8 +131,9 @@ TEST(HeaderTest, 1) {
     size_t uncomprSz = 123456;
     size_t comprSz = 12345;
     COMPRESSORS compressor = COMPRESSORS::LZ4;
+    bool encrypted = false;
     bool diagnostics = true;
-    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
+    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, encrypted, diagnostics);
     HEADER header = decodeHeader(buffer);
     size_t uncomprSzResult = extractUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
@@ -140,10 +141,12 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(comprSz, comprSzResult);
     COMPRESSORS compressorResult = extractCompressor(header);
     ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
+    bool encryptedResult = isEncrypted(header);
+    ASSERT_EQ(encrypted, encryptedResult);
     bool diagnosticsResult = isDiagnosticsEnabled(header);
     ASSERT_EQ(diagnostics, diagnosticsResult);
     compressor = COMPRESSORS::NONE;
-    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, diagnostics);
+    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, comprSz, compressor, encrypted, diagnostics);
     header = decodeHeader(buffer);
     compressorResult = extractCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);

@@ -10,10 +10,14 @@
 inline constexpr int HEADERTYPE_SIZE = 1;
 inline constexpr int NUM_FIELD_SIZE = 10;
 inline constexpr int COMPRESSOR_TYPE_SIZE = 1;
+inline constexpr int CRYPTO_TYPE_SIZE = 1;
 inline constexpr int DIAGNOSTICS_SIZE = 1;
 inline constexpr int STATUS_SIZE = 1;
 inline constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE;
+  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + CRYPTO_TYPE_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE;
+
+inline constexpr char CRYPTO_CHAR = 'C';
+inline constexpr char NCRYPTO_CHAR = 'N';
 
 inline constexpr char DIAGNOSTICS_CHAR = 'D';
 inline constexpr char NDIAGNOSTICS_CHAR = 'N';
@@ -50,11 +54,12 @@ enum class HEADER_INDEX : char {
   UNCOMPRESSED,
   COMPRESSED,
   COMPRESSOR,
+  CRYPTO,
   DIAGNOSTICS,
   STATUS
 };
 
-using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, STATUS>;
+using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, bool, STATUS>;
 
 inline HEADERTYPE extractHeaderType(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
@@ -74,6 +79,10 @@ inline COMPRESSORS extractCompressor(const HEADER& header) {
 
 inline bool isCompressed(const HEADER& header) {
   return extractCompressor(header) != COMPRESSORS::NONE;
+}
+
+inline bool isEncrypted(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::CRYPTO)>(header);
 }
 
 inline bool isDiagnosticsEnabled(const HEADER& header) {
@@ -103,6 +112,7 @@ void encodeHeader(char* buffer,
 		  size_t uncomprSz,
 		  size_t comprSz,
 		  COMPRESSORS,
+		  bool encrypted,
 		  bool diagnostics,
 		  STATUS status = STATUS::NONE);
 

@@ -21,6 +21,7 @@ struct Options {
   int _numberRepeatENXIO;
   int _ENXIOwait;
   COMPRESSORS _compressor;
+  bool _encrypted;
   bool _timing;
   bool _setPipeSize;
   size_t _pipeSize;

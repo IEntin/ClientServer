@@ -44,7 +44,7 @@ bool TcpSession::start() {
 
 bool TcpSession::sendStatusToClient() {
   size_t size = _clientId.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, _status };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
   return Tcp::sendMsg(_socket, header, _clientId).first;
 }
 
@@ -107,7 +107,7 @@ bool TcpSession::onReceiveRequest() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view body = serverutility::buildReply(response, _header, _options._compressor, _status);
+  std::string_view body = serverutility::buildReply(response, _header, _options._compressor, _options._encrypted, _status);
   if (body.empty())
     return false;
   asyncWait();
