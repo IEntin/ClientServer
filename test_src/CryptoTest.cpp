@@ -33,7 +33,8 @@ TEST(CryptoTest, 1) {
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(TestEnvironment::_source.data()), TestEnvironment::_source.size());
   stfEncryptor.MessageEnd();
 
-  memset(key1, 0x00, CryptoPP::AES::MAX_KEYLENGTH);
+  memset(key1, 0x00, sizeof(key1));
+  memset(iv1, 0x00, sizeof(iv1));
 
   CryptoPP::byte key2[CryptoPP::AES::MAX_KEYLENGTH];
   memcpy(key2, skey.c_str(), CryptoPP::AES::MAX_KEYLENGTH);
