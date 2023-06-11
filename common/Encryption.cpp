@@ -8,6 +8,7 @@
 #include "aes.h"
 #include "modes.h"
 #include "filters.h"
+#include <filesystem>
 
 std::vector<unsigned char> Encryption::_key(CryptoPP::AES::MAX_KEYLENGTH);
 std::vector<unsigned char> Encryption::_iv(CryptoPP::AES::BLOCKSIZE);
@@ -19,8 +20,10 @@ void Encryption::initialize() {
   memcpy(_iv.data(), iv, CryptoPP::AES::BLOCKSIZE);
   try {
     std::ofstream keyFile(CRYPTO_KEY_FILE_NAME);
+    std::filesystem::permissions(CRYPTO_KEY_FILE_NAME, std::filesystem::perms::owner_all);
     std::copy(_key.begin(), _key.end(), std::ostream_iterator<unsigned char>(keyFile));
     std::ofstream ivFile(CRYPTO_IV_FILE_NAME);
+    std::filesystem::permissions(CRYPTO_IV_FILE_NAME, std::filesystem::perms::owner_all);
     std::copy(_iv.begin(), _iv.end(), std::ostream_iterator<unsigned char>(ivFile));
   }
   catch (const std::exception& e) {
