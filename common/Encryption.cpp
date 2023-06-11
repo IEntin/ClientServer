@@ -27,3 +27,61 @@ void Encryption::initialize() {
     LogError << e.what();
   }
 }
+
+bool Encryption::recoverKeyAndIv(std::vector<unsigned char>& key,
+				 std::vector<unsigned char>& iv) {
+  try {
+    std::ifstream keyFs(CRYPTO_KEY_FILE_NAME);
+    std::copy(std::istream_iterator<unsigned char>(keyFs), 
+	      std::istream_iterator<unsigned char>(), 
+	      std::back_inserter(key));
+
+    std::ifstream ivFs(CRYPTO_IV_FILE_NAME);
+    std::copy(std::istream_iterator<unsigned char>(ivFs), 
+	      std::istream_iterator<unsigned char>(), 
+	      std::back_inserter(iv));
+    return true;
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+    return false;
+  }
+}
+
+bool Encryption::encrypt(const std::string& source,
+			 const std::vector<unsigned char>& key,
+			 const std::vector<unsigned char>& iv,
+			 std::string& ciphertext) {
+  try {
+    CryptoPP::AES::Encryption aesEncryption(key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+    CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
+
+    CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(ciphertext));
+    stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
+    stfEncryptor.MessageEnd();
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+    return false;
+  }
+  return true;
+}
+
+bool Encryption::decrypt(const std::string& ciphertext,
+			 const std::vector<unsigned char>& key,
+			 const std::vector<unsigned char>& iv,
+			 std::string& decryptedtext) {
+  try {
+    CryptoPP::AES::Decryption aesDecryption(key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+    CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
+
+    CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decryptedtext));
+    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(ciphertext.c_str()), ciphertext.size());
+    stfDecryptor.MessageEnd();
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+    return false;
+  }
+  return true;
+}
