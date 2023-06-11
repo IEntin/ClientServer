@@ -13,3 +13,7 @@ inline const std::string FILE_SERVER_RUNNING = ".server_running";
 inline constexpr const char* FIFO_NAMED_MUTEX = "FIFO_NAMED_MUTEX";
 
 inline constexpr int FIFO_CLIENT_POLLING_PERIOD = 250;
+
+inline const std::string CRYPTO_KEY_FILE_NAME = ".cryptoKey";
+
+inline const std::string CRYPTO_IV_FILE_NAME = ".cryptoIv";

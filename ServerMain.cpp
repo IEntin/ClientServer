@@ -3,6 +3,7 @@
  */
 
 #include "Chronometer.h"
+#include "Encryption.h"
 #include "Globals.h"
 #include "Logger.h"
 #include "Metrics.h"
@@ -38,12 +39,15 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
+    Encryption::initialize();
     Server server(options);
     if (!server.start())
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << std::endl;
+    std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+    std::filesystem::remove(CRYPTO_IV_FILE_NAME);
     std::filesystem::remove(options._controlFileName);
     Metrics::save();
     server.stop();

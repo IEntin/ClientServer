@@ -4,6 +4,8 @@
 
 #include "TestEnvironment.h"
 #include "ClientOptions.h"
+#include "CommonConstants.h"
+#include "Encryption.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -22,6 +24,7 @@ const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
+    Encryption::initialize();
     _source = utility::readFile(_clientOptions._sourceName);
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
@@ -35,6 +38,8 @@ void TestEnvironment::SetUp() {
 
 void TestEnvironment::TearDown() {
   try {
+    std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+    std::filesystem::remove(CRYPTO_IV_FILE_NAME);
     std::filesystem::remove(TestEnvironment::_serverOptionsOrg._controlFileName);
     Metrics::save();
     Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);

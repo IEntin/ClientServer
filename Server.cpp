@@ -24,7 +24,12 @@ Server::Server(const ServerOptions& options) :
 }
 
 Server::~Server() {
-  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
+  try {
+    boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+  }
   Trace << std::endl;
 }
 
