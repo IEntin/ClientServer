@@ -12,14 +12,14 @@ class Encryption {
   static void initialize();
   static bool recoverKeyAndIv(std::vector<unsigned char>& key,
 			      std::vector<unsigned char>& iv);
-  static bool encrypt(const std::string& source,
+  static bool encrypt(std::string_view source,
 		      const std::vector<unsigned char>& key,
 		      const std::vector<unsigned char>& iv,
-		      std::string& ciphertext);
-  static bool decrypt(const std::string& ciphertext,
+		      std::string& cipher);
+  static bool decrypt(std::string_view cipher,
 		      const std::vector<unsigned char>& key,
 		      const std::vector<unsigned char>& iv,
-		      std::string& decryptedtext);
+		      std::string& decrypted);
   static const std::vector<unsigned char>& getKey() { return _key; }
   static const std::vector<unsigned char>& getIv() { return _iv; }
  private:

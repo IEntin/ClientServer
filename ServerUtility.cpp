@@ -4,6 +4,7 @@
 
 #include "ServerUtility.h"
 #include "Compression.h"
+#include "Encryption.h"
 #include "Logger.h"
 #include "MemoryPool.h"
 #include "TaskController.h"
@@ -61,10 +62,18 @@ bool processRequest(const HEADER& header, std::vector<char>& request, Response& 
   }
   else
     static auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
+  std::string_view requestView(request.data(), request.size());
+  std::string_view uncompressedView(uncompressed.data(), uncompressed.size());
+  /*
+  bool bencrypted = isEncrypted(header);
+  static thread_local std::string decrypted;
+  if (!Encryption::decrypt(uncompressedView, Encryption::getKey(), Encryption::getIv(), decrypted))
+    return false;
+  */
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();
   if (taskController) {
-    taskController->processTask(header, (bcompressed ? uncompressed : request), response);
+    taskController->processTask(header, (bcompressed ? uncompressedView : requestView), response);
     return true;
   }
   return false;

@@ -53,7 +53,7 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
  public:
   TaskController(const ServerOptions& options);
   ~TaskController();
-  void processTask(const HEADER& header, std::vector<char>& input, Response& response);
+  void processTask(const HEADER& header, std::string_view input, Response& response);
   static bool create(const ServerOptions& options);
   static void destroy();
   static TaskControllerWeakPtr weakInstance();

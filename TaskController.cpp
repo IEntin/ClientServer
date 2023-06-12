@@ -67,7 +67,7 @@ void TaskController::push(TaskPtr task) {
   _queueCondition.notify_all();
 }
 
-void TaskController::processTask(const HEADER& header, std::vector<char>& input, Response& response) {
+void TaskController::processTask(const HEADER& header, std::string_view input, Response& response) {
   try {
     TaskPtr task = std::make_shared<Task>(header, input);
     auto future = task->getPromise().get_future();

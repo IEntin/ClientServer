@@ -51,15 +51,15 @@ bool Encryption::recoverKeyAndIv(std::vector<unsigned char>& key,
   }
 }
 
-bool Encryption::encrypt(const std::string& source,
+bool Encryption::encrypt(std::string_view source,
 			 const std::vector<unsigned char>& key,
 			 const std::vector<unsigned char>& iv,
-			 std::string& ciphertext) {
+			 std::string& cipher) {
   try {
     CryptoPP::AES::Encryption aesEncryption(key.data(), CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
 
-    CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(ciphertext));
+    CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
     stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
     stfEncryptor.MessageEnd();
   }
@@ -70,16 +70,16 @@ bool Encryption::encrypt(const std::string& source,
   return true;
 }
 
-bool Encryption::decrypt(const std::string& ciphertext,
+bool Encryption::decrypt(std::string_view cipher,
 			 const std::vector<unsigned char>& key,
 			 const std::vector<unsigned char>& iv,
-			 std::string& decryptedtext) {
+			 std::string& decrypted) {
   try {
     CryptoPP::AES::Decryption aesDecryption(key.data(), CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
 
-    CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decryptedtext));
-    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(ciphertext.c_str()), ciphertext.size());
+    CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
+    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
     stfDecryptor.MessageEnd();
   }
   catch (const std::exception& e) {
