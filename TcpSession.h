@@ -32,7 +32,6 @@ private:
   void readRequest();
   void write(std::string_view msg);
   void asyncWait();
-  bool onReceiveRequest();
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
@@ -44,7 +43,6 @@ private:
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;
   std::vector<char> _request;
-  std::vector<char> _uncompressed;
 };
 
 } // end of namespace tcp

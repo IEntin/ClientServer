@@ -6,6 +6,7 @@
 #include "Compression.h"
 #include "Logger.h"
 #include "MemoryPool.h"
+#include "TaskController.h"
 
 namespace serverutility {
 
@@ -43,6 +44,30 @@ std::string_view buildReply(const Response& response,
   else
     header = { HEADERTYPE::SESSION, uncomprSize, uncomprSize, compressor, encrypted, false, status };
   return { buffer.data(), buffer.size() };
+}
+
+bool processRequest(const HEADER& header, std::vector<char>& request, Response& response) {
+  static thread_local std::vector<char> uncompressed;
+  uncompressed.clear();
+  bool bcompressed = isCompressed(header);
+  if (bcompressed) {
+    static auto& printOnce[[maybe_unused]] = Trace << " received compressed." << std::endl;
+    size_t uncompressedSize = extractUncompressedSize(header);
+    uncompressed.resize(uncompressedSize);
+    if (!Compression::uncompress(request, request.size(), uncompressed)) {
+      LogError << "decompression failed." << std::endl;
+      return false;
+    }
+  }
+  else
+    static auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
+  auto weakPtr = TaskController::weakInstance();
+  auto taskController = weakPtr.lock();
+  if (taskController) {
+    taskController->processTask(header, (bcompressed ? uncompressed : request), response);
+    return true;
+  }
+  return false;
 }
 
 } // end of namespace serverutility

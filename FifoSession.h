@@ -20,9 +20,8 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   std::string _clientId;
   std::string _fifoName;
   ThreadPoolReference<ThreadPoolDiffObj> _threadPool;
-  bool receiveRequest(std::vector<char>& message, HEADER& header);
-   bool sendResponse(const Response& response);
-  std::vector<char> _uncompressedRequest;
+  bool receiveRequest(HEADER& header);
+  bool sendResponse(const Response& response);
   void run() override;
   bool start() override;
   void stop() override;

@@ -3,13 +3,11 @@
  */
 
 #include "TcpSession.h"
-#include "Compression.h"
 #include "ConnectionDetails.h"
 #include "MemoryPool.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
-#include "TaskController.h"
 #include "Tcp.h"
 #include "ThreadPoolDiffObj.h"
 
@@ -81,31 +79,6 @@ void TcpSession::checkCapacity() {
   }
 }
 
-bool TcpSession::onReceiveRequest() {
-  _uncompressed.clear();
-  bool bcompressed = isCompressed(_header);
-  if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] = Trace << " received compressed." << std::endl;
-    size_t uncompressedSize = extractUncompressedSize(_header);
-    _uncompressed.resize(uncompressedSize);
-    if (!Compression::uncompress(_request, _request.size(), _uncompressed)) {
-      LogError << "decompression failed." << std::endl;
-      return false;
-    }
-  }
-  else
-    static auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
-  static thread_local Response response;
-  response.clear();
-  auto weakPtr = TaskController::weakInstance();
-  auto taskController = weakPtr.lock();
-  if (taskController)
-    taskController->processTask(_header, (bcompressed ? _uncompressed : _request), response);
-  else
-    return false;
-  return sendReply(response);
-}
-
 bool TcpSession::sendReply(const Response& response) {
   std::string_view body = serverutility::buildReply(response, _header, _options._compressor, _options._encrypted, _status);
   if (body.empty())
@@ -161,7 +134,10 @@ void TcpSession::readRequest() {
 	LogError << ec.what() << std::endl;
 	return;
       }
-      onReceiveRequest();
+      static thread_local Response response;
+      response.clear();
+      if (serverutility::processRequest(_header, _request, response))
+	sendReply(response);
     });
 }
 

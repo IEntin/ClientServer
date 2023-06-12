@@ -3,13 +3,11 @@
  */
 
 #include "FifoSession.h"
-#include "Compression.h"
 #include "Fifo.h"
 #include "MemoryPool.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
-#include "TaskController.h"
 #include "ThreadPoolDiffObj.h"
 #include "Utility.h"
 #include <filesystem>
@@ -42,19 +40,8 @@ void FifoSession::run() {
   if (_stopped)
     return;
   while (true) {
-    _uncompressedRequest.clear();
     HEADER header;
-    if (!receiveRequest(_uncompressedRequest, header))
-      break;
-    static thread_local Response response;
-    response.clear();
-    auto weakPtr = TaskController::weakInstance();
-    auto taskController = weakPtr.lock();
-    if (taskController)
-      taskController->processTask(header, _uncompressedRequest, response);
-    else
-      break;
-    if (!sendResponse(response))
+    if (!receiveRequest(header))
       break;
   }
 }
@@ -86,7 +73,7 @@ void FifoSession::stop() {
   _stopped = true;
 }
 
-bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
+bool FifoSession::receiveRequest(HEADER& header) {
   if (!std::filesystem::exists(_fifoName))
     return false;
   switch (_status) {
@@ -98,27 +85,21 @@ bool FifoSession::receiveRequest(std::vector<char>& message, HEADER& header) {
     break;
   }
   try {
-    std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer();
-    if (!Fifo::readMsgBlock(_fifoName, header, buffer))
+    static thread_local std::vector<char> request;
+    request.clear();
+    if (!Fifo::readMsgBlock(_fifoName, header, request))
       return false;
-    bool bcompressed = isCompressed(header);
-    static auto& printOnce[[maybe_unused]] =
-      Debug << (bcompressed ? " received compressed" : " received not compressed") << std::endl;
-    if (bcompressed) {
-      message.resize(extractUncompressedSize(header));
-      size_t comprSize = extractCompressedSize(header);
-      if (!Compression::uncompress(buffer, comprSize, message))
-	return false;
-    }
-    else
-      message.swap(buffer);
-    return true;
+    static thread_local Response response;
+    response.clear();
+    if (serverutility::processRequest(header, request, response))
+      return sendResponse(response);
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
     MemoryPool::destroyBuffers();
     return false;
   }
+  return true;
 }
 
 bool FifoSession::sendResponse(const Response& response) {
