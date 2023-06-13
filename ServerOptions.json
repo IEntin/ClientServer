@@ -6,7 +6,7 @@
   "NumberWorkThreads" : 0,
   "Compression" : "LZ4",
   "_comment": "Encryption is not yet implemented",
-  "Encrypted" : true,
+  "Encrypted" : false,
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
   "FifoDirectoryName" : "../Fifos",

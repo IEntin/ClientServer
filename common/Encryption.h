@@ -7,11 +7,18 @@
 #include <string>
 #include <vector>
 
+struct CryptoKeys {
+  CryptoKeys();
+  std::vector<unsigned char> _key;
+  std::vector<unsigned char> _iv;
+  bool _valid = false;
+private:
+  bool recover();
+};
+
 class Encryption {
  public:
   static void initialize();
-  static bool recoverKeyAndIv(std::vector<unsigned char>& key,
-			      std::vector<unsigned char>& iv);
   static bool encrypt(std::string_view source,
 		      const std::vector<unsigned char>& key,
 		      const std::vector<unsigned char>& iv,

@@ -7,7 +7,6 @@
   "OutputFileName" : "",
   "InstrumentationFn" : "",
   "Compression" : "LZ4",
-  "_comment": "Encryption is not yet implemented",
   "Encrypted" : true,
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,

@@ -18,6 +18,7 @@ enum class TaskBuilderState : int {
   NONE,
   SUBTASKDONE,
   TASKDONE,
+  ENCRYPTIONERROR,
   ERROR
 };
 
@@ -32,10 +33,10 @@ struct Subtask {
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
-  TaskBuilderState compressSubtask(Subtask& subtask,
-				   const std::vector<char>& aggregate,
-				   size_t aggregateSize,
-				   bool alldone);
+  TaskBuilderState encryptCompressSubtask(Subtask& subtask,
+					  const std::vector<char>& aggregate,
+					  size_t aggregateSize,
+					  bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 
   const ClientOptions& _options;

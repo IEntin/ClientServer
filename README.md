@@ -2,10 +2,15 @@ Copyright (C) 2021 Ilya Entin.
 
 ### Fast Linux Lockless Clent-Server with FIFO and TCP clients
 
-To test this software clone the project, run makeCrypto.sh <Crypto++ tar file>, \
-where current Crypto++ tar is cryptopp-CRYPTOPP_8_7_0.tar.gz in the repository,
+To test this software clone the project, run makeCrypto.sh <Crypto++ tar file>,\
+where current Crypto++ tar is cryptopp-CRYPTOPP_8_7_0.tar.gz in the repository,\
 and use deploy.sh script in the project root.\
-Run './deploy.sh -h' to see the details.
+Run './deploy.sh -h' to see the details.\
+Crypto files (.cryptoKey.sec and .cryptoIv.sec) are created by the server\
+and must be distributed securely to the clients after server startup but\
+before client's startup.\
+Test scripts are doing this automatically.\
+On server shutdown all instances of crypto files must be removed.
 
 Prerequisites:
 

@@ -4,6 +4,7 @@
 
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
+#include "Encryption.h"
 #include "Compression.h"
 #include "ThreadPoolBase.h"
 #include "Utility.h"
@@ -97,7 +98,7 @@ TaskBuilderState TaskBuilder::createSubtask() {
       aggregateSize += copied;
       bool alldone = _input.peek() == std::istream::traits_type::eof();
       if (aggregateSize >= maxSubtaskSize || alldone)
-	return compressSubtask(subtask, aggregate, aggregateSize, alldone);
+	return encryptCompressSubtask(subtask, aggregate, aggregateSize, alldone);
       else
 	continue;
     }
@@ -111,37 +112,48 @@ TaskBuilderState TaskBuilder::createSubtask() {
   return TaskBuilderState::NONE;
 }
 
-// Compress requests if options require.
+// Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
-					      const std::vector<char>& aggregate,
-					      size_t aggregateSize,
-					      bool alldone) {
+TaskBuilderState TaskBuilder::encryptCompressSubtask(Subtask& subtask,
+						     const std::vector<char>& aggregate,
+						     size_t aggregateSize,
+						     bool alldone) {
   bool bcompressed = _options._compressor == COMPRESSORS::LZ4;
   static auto& printOnce[[maybe_unused]] =
     Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  size_t uncomprSize = aggregateSize;
   HEADER header;
+  static thread_local std::string cipher;
+  cipher.clear();
+  std::string_view rawSource(aggregate.data(), aggregateSize);
+  if (_options._encrypted) {
+    static thread_local CryptoKeys cryptoKeys;
+    if (!Encryption::encrypt(rawSource, cryptoKeys._key, cryptoKeys._iv, cipher)) {
+      LogError << "encryption failed." << std::endl;
+      return TaskBuilderState::ENCRYPTIONERROR;
+    }
+  }
+  std::string_view encryptedView(cipher.data(), cipher.size());
+  std::string_view compressionSource = _options._encrypted ? encryptedView : rawSource;
   std::vector<char> body;
   if (bcompressed) {
     try {
-      std::string_view compressedView = Compression::compress(aggregate.data(), uncomprSize);
+      std::string_view compressedView = Compression::compress(compressionSource.data(), compressionSource.size());
       // LZ4 may generate compressed larger than uncompressed.
       // In this case an uncompressed subtask is sent.
-      if (compressedView.size() >= uncomprSize) {
+      if (compressedView.size() >= compressionSource.size()) {
 	header = { HEADERTYPE::SESSION,
-	  uncomprSize,
-	  uncomprSize,
+	  compressionSource.size(),
+	  compressionSource.size(),
 	  COMPRESSORS::NONE,
 	  _options._encrypted,
 	  _options._diagnostics,
 	  STATUS::NONE };
-	body.assign(aggregate.data(), aggregate.data() + aggregateSize);
+	body.assign(compressionSource.cbegin(), compressionSource.cend());
       }
       else {
 	header = { HEADERTYPE::SESSION,
-	  uncomprSize,
+	  compressionSource.size(),
 	  compressedView.size(),
 	  _options._compressor,
 	  _options._encrypted,
@@ -157,13 +169,13 @@ TaskBuilderState TaskBuilder::compressSubtask(Subtask& subtask,
   }
   else {
     header = { HEADERTYPE::SESSION,
-      uncomprSize,
-      uncomprSize,
+      compressionSource.size(),
+      compressionSource.size(),
       _options._compressor,
       _options._encrypted,
       _options._diagnostics,
       STATUS::NONE };
-    body.assign(aggregate.data(), aggregate.data() + aggregateSize);
+    body.assign(compressionSource.cbegin(), compressionSource.cend());
   }
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);

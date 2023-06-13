@@ -148,7 +148,7 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 
 clean:
 	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
-gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ .server_running
+gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ .server_running *.sec
 
 cleanall : clean
 	$(RM) *.gch */*.gch *.pch */*.pch

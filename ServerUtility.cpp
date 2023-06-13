@@ -47,7 +47,9 @@ std::string_view buildReply(const Response& response,
   return { buffer.data(), buffer.size() };
 }
 
-bool processRequest(const HEADER& header, std::vector<char>& request, Response& response) {
+bool processRequest(const HEADER& header, std::vector<char>& received, Response& response) {
+  std::string_view receivedView(received.data(), received.size());
+  std::string_view encryptedView;
   static thread_local std::vector<char> uncompressed;
   uncompressed.clear();
   bool bcompressed = isCompressed(header);
@@ -55,25 +57,31 @@ bool processRequest(const HEADER& header, std::vector<char>& request, Response& 
     static auto& printOnce[[maybe_unused]] = Trace << " received compressed." << std::endl;
     size_t uncompressedSize = extractUncompressedSize(header);
     uncompressed.resize(uncompressedSize);
-    if (!Compression::uncompress(request, request.size(), uncompressed)) {
+    if (!Compression::uncompress(received, received.size(), uncompressed)) {
       LogError << "decompression failed." << std::endl;
       return false;
     }
+    encryptedView = { uncompressed.data(), uncompressed.size() };
   }
-  else
+  else {
     static auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
-  std::string_view requestView(request.data(), request.size());
-  std::string_view uncompressedView(uncompressed.data(), uncompressed.size());
-  /*
-  bool bencrypted = isEncrypted(header);
+    encryptedView = receivedView;
+  }
+  std::string_view decryptedView;
   static thread_local std::string decrypted;
-  if (!Encryption::decrypt(uncompressedView, Encryption::getKey(), Encryption::getIv(), decrypted))
-    return false;
-  */
+  decrypted.clear();
+  if (isEncrypted(header)) {
+    if (!Encryption::decrypt(encryptedView, Encryption::getKey(), Encryption::getIv(), decrypted))
+      return false;
+    decryptedView = { decrypted.data(), decrypted.size() };
+  }
+  else {
+    decryptedView = encryptedView;
+  }
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();
   if (taskController) {
-    taskController->processTask(header, (bcompressed ? uncompressedView : requestView), response);
+    taskController->processTask(header, decryptedView, response);
     return true;
   }
   return false;

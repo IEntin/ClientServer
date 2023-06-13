@@ -10,6 +10,33 @@
 #include "filters.h"
 #include <filesystem>
 
+CryptoKeys::CryptoKeys() {
+  _valid = recover();
+}
+
+bool CryptoKeys::recover() {
+  try {
+    if (!(std::filesystem::exists(CRYPTO_KEY_FILE_NAME) &&
+	  std::filesystem::exists(CRYPTO_IV_FILE_NAME))) {
+      LogError << "security files not found" << std::endl;
+      return false;
+    }
+    std::ifstream keyFs(CRYPTO_KEY_FILE_NAME);
+    std::copy(std::istream_iterator<unsigned char>(keyFs), 
+	      std::istream_iterator<unsigned char>(), 
+	      std::back_inserter(_key));
+    std::ifstream ivFs(CRYPTO_IV_FILE_NAME);
+    std::copy(std::istream_iterator<unsigned char>(ivFs), 
+	      std::istream_iterator<unsigned char>(), 
+	      std::back_inserter(_iv));
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+    return false;
+  }
+  return true;
+}
+
 std::vector<unsigned char> Encryption::_key(CryptoPP::AES::MAX_KEYLENGTH);
 std::vector<unsigned char> Encryption::_iv(CryptoPP::AES::BLOCKSIZE);
 
@@ -28,26 +55,6 @@ void Encryption::initialize() {
   }
   catch (const std::exception& e) {
     LogError << e.what();
-  }
-}
-
-bool Encryption::recoverKeyAndIv(std::vector<unsigned char>& key,
-				 std::vector<unsigned char>& iv) {
-  try {
-    std::ifstream keyFs(CRYPTO_KEY_FILE_NAME);
-    std::copy(std::istream_iterator<unsigned char>(keyFs), 
-	      std::istream_iterator<unsigned char>(), 
-	      std::back_inserter(key));
-
-    std::ifstream ivFs(CRYPTO_IV_FILE_NAME);
-    std::copy(std::istream_iterator<unsigned char>(ivFs), 
-	      std::istream_iterator<unsigned char>(), 
-	      std::back_inserter(iv));
-    return true;
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    return false;
   }
 }
 

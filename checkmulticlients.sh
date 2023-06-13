@@ -103,6 +103,7 @@ sleep 1
 
 for (( c=1; c<=$1; c++ ))
 do
+    cp .cryptoKey.sec .cryptoIv.sec ../Client$c
     ( cd ../Client$c; ./client > /dev/null& )
 done
 
@@ -117,5 +118,12 @@ echo -e "\nkilling server\n"
 kill $SERVER_PID
 
 sleep 5
+
+rm -f .cryptoKey.sec .cryptoIv.sec
+
+for (( c=1; c<=$1; c++ ))
+do
+    ( cd ../Client$c; rm -f .cryptoKey.sec .cryptoIv.sec ../Client$c )
+done
 
 sync
