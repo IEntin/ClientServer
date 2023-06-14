@@ -28,7 +28,6 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   STATUS encryptCompressSubtask(Subtask& subtask,
 				const std::vector<char>& data,
-				size_t dataSize,
 				bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 

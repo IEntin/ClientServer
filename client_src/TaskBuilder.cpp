@@ -67,7 +67,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
   *ptr = ']';
   int offset = ptr - dst + 1;
   _nextIdSz = offset + 1;
-  std::copy(line.data(), line.data() + line.size(), dst + offset);
+  std::copy(line.cbegin(), line.cend(), dst + offset);
   offset += line.size();
   *(dst + offset) = '\n';
   return ++offset;
@@ -81,7 +81,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // aggregate depends on the configured buffer size.
 
 STATUS TaskBuilder::createSubtask() {
-  thread_local static std::vector<char> aggregate(_options._bufferSize);
+  thread_local static std::vector<char> aggregate;
   size_t aggregateSize = 0;
   // rough estimate for subtask size to minimize reallocation.
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
@@ -93,12 +93,15 @@ STATUS TaskBuilder::createSubtask() {
   }
   try {
     while (std::getline(_input, line)) {
-      aggregate.reserve(aggregateSize + _nextIdSz + line.size() + 1);
+      aggregate.resize(aggregateSize + _nextIdSz + line.size() + 1);
       int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
       aggregateSize += copied;
       bool alldone = _input.peek() == std::istream::traits_type::eof();
-      if (aggregateSize >= maxSubtaskSize || alldone)
-	return encryptCompressSubtask(subtask, aggregate, aggregateSize, alldone);
+      if (aggregateSize >= maxSubtaskSize || alldone) {
+	// remove last eol
+	aggregate.pop_back();
+	return encryptCompressSubtask(subtask, aggregate, alldone);
+      }
       else
 	continue;
     }
@@ -117,18 +120,12 @@ STATUS TaskBuilder::createSubtask() {
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
 					   const std::vector<char>& data,
-					   size_t dataSize,
 					   bool alldone) {
   HEADER header;
   static thread_local std::vector<char> body;
   body.clear();
-  STATUS status = commonutils::encryptCompressData(_options,
-						   data,
-						   dataSize,
-						   header,
-						   body,
-						   _options._diagnostics,
-						   STATUS::NONE);
+  STATUS status =
+    commonutils::encryptCompressData(_options, data, header, body, _options._diagnostics);
   bool failed = false;
   switch (status) {
   case STATUS::ERROR:

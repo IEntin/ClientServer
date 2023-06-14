@@ -12,7 +12,6 @@ namespace commonutils {
 
 STATUS encryptCompressData(const Options& options,
 			   const std::vector<char>& data,
-			   size_t dataSize,
 			   HEADER& header,
 			   std::vector<char>& body,
 			   bool diagnostics,
@@ -22,7 +21,7 @@ STATUS encryptCompressData(const Options& options,
     Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
   static thread_local std::string cipher;
   cipher.clear();
-  std::string_view rawSource(data.data(), dataSize);
+  std::string_view rawSource(data.data(), data.size());
   if (options._encrypted) {
     static thread_local CryptoKeys cryptoKeys;
     if (!Encryption::encrypt(rawSource, cryptoKeys._key, cryptoKeys._iv, cipher)) {

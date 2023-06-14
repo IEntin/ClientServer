@@ -30,13 +30,8 @@ std::string_view buildReply(const Options&options,
   }
   static thread_local std::vector<char> body;
   body.clear();
-  STATUS result = commonutils::encryptCompressData(options,
-						   data,
-						   uncomprSize,
-						   header,
-						   body,
-						   false,
-						   status);
+  STATUS result =
+    commonutils::encryptCompressData(options, data,  header, body, false, status);
   bool failed = false;
   switch (result) {
   case STATUS::ERROR:

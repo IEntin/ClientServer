@@ -15,11 +15,10 @@ namespace commonutils {
 
 STATUS encryptCompressData(const Options& options,
 			   const std::vector<char>& data,
-			   size_t dataSize,
 			   HEADER& header,
 			   std::vector<char>& body,
 			   bool diagnostics,
-			   STATUS status);
+			   STATUS status = STATUS::NONE);
 
 std::string_view decompressDecrypt(const HEADER& header, const std::vector<char>& received);
 
