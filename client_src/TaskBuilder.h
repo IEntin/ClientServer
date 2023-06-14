@@ -11,32 +11,25 @@
 #include <vector>
 #include <fstream>
 
+enum class STATUS : char;
 struct ClientOptions;
 class ThreadPoolBase;
 
-enum class TaskBuilderState : int {
-  NONE,
-  SUBTASKDONE,
-  TASKDONE,
-  ENCRYPTIONERROR,
-  ERROR
-};
-
 struct Subtask {
   Subtask() = default;
-  Subtask(const Subtask&) : _state(TaskBuilderState::NONE) {}
+  Subtask(const Subtask&) : _state(STATUS::NONE) {}
   ~Subtask() = default;
   HEADER _header;
   std::vector<char> _body;
-  std::atomic<TaskBuilderState> _state = TaskBuilderState::NONE;
+  std::atomic<STATUS> _state = STATUS::NONE;
 };
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
-  TaskBuilderState encryptCompressSubtask(Subtask& subtask,
-					  const std::vector<char>& aggregate,
-					  size_t aggregateSize,
-					  bool alldone);
+  STATUS encryptCompressSubtask(Subtask& subtask,
+				const std::vector<char>& data,
+				size_t dataSize,
+				bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 
   const ClientOptions& _options;
@@ -52,6 +45,6 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool);
   ~TaskBuilder() override;
   void stop() override {}
-  TaskBuilderState getSubtask(Subtask& task);
-  TaskBuilderState createSubtask();
+  STATUS getSubtask(Subtask& task);
+  STATUS createSubtask();
 };

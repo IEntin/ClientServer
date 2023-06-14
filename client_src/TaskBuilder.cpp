@@ -4,8 +4,8 @@
 
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
-#include "Encryption.h"
-#include "Compression.h"
+#include "CommonUtils.h"
+#include "Header.h"
 #include "ThreadPoolBase.h"
 #include "Utility.h"
 
@@ -24,7 +24,7 @@ TaskBuilder::~TaskBuilder() {
 
 void TaskBuilder::run() {
   try {
-    while (createSubtask() == TaskBuilderState::SUBTASKDONE) {}
+    while (createSubtask() == STATUS::SUBTASK_DONE) {}
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
@@ -34,15 +34,15 @@ void TaskBuilder::run() {
   }
 }
 
-TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
-  TaskBuilderState state = TaskBuilderState::NONE;
+STATUS TaskBuilder::getSubtask(Subtask& task) {
+  STATUS state = STATUS::NONE;
   try {
     auto& subtask = _subtasks.front();
-    subtask._state.wait(TaskBuilderState::NONE);
+    subtask._state.wait(STATUS::NONE);
     state = subtask._state;
     switch (state) {
-    case TaskBuilderState::SUBTASKDONE:
-    case TaskBuilderState::TASKDONE:
+    case STATUS::SUBTASK_DONE:
+    case STATUS::TASK_DONE:
       subtask._header.swap(task._header);
       subtask._body.swap(task._body);
       break;
@@ -54,7 +54,7 @@ TaskBuilderState TaskBuilder::getSubtask(Subtask& task) {
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
-    return TaskBuilderState::ERROR;
+    return STATUS::ERROR;
   }
   return state;
 }
@@ -80,7 +80,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // reduce the number of system calls. The size of the
 // aggregate depends on the configured buffer size.
 
-TaskBuilderState TaskBuilder::createSubtask() {
+STATUS TaskBuilder::createSubtask() {
   thread_local static std::vector<char> aggregate(_options._bufferSize);
   size_t aggregateSize = 0;
   // rough estimate for subtask size to minimize reallocation.
@@ -105,82 +105,44 @@ TaskBuilderState TaskBuilder::createSubtask() {
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
-    subtask._state = TaskBuilderState::ERROR;
+    subtask._state = STATUS::ERROR;
     subtask._state.notify_one();
-    return TaskBuilderState::ERROR;
+    return STATUS::ERROR;
   }
-  return TaskBuilderState::NONE;
+  return STATUS::NONE;
 }
 
 // Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-TaskBuilderState TaskBuilder::encryptCompressSubtask(Subtask& subtask,
-						     const std::vector<char>& aggregate,
-						     size_t aggregateSize,
-						     bool alldone) {
-  bool bcompressed = _options._compressor == COMPRESSORS::LZ4;
-  static auto& printOnce[[maybe_unused]] =
-    Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
+STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
+					   const std::vector<char>& data,
+					   size_t dataSize,
+					   bool alldone) {
   HEADER header;
-  static thread_local std::string cipher;
-  cipher.clear();
-  std::string_view rawSource(aggregate.data(), aggregateSize);
-  if (_options._encrypted) {
-    static thread_local CryptoKeys cryptoKeys;
-    if (!Encryption::encrypt(rawSource, cryptoKeys._key, cryptoKeys._iv, cipher)) {
-      LogError << "encryption failed." << std::endl;
-      return TaskBuilderState::ENCRYPTIONERROR;
-    }
-  }
-  std::string_view encryptedView(cipher.data(), cipher.size());
-  std::string_view compressionSource = _options._encrypted ? encryptedView : rawSource;
   std::vector<char> body;
-  if (bcompressed) {
-    try {
-      std::string_view compressedView = Compression::compress(compressionSource.data(), compressionSource.size());
-      // LZ4 may generate compressed larger than uncompressed.
-      // In this case an uncompressed subtask is sent.
-      if (compressedView.size() >= compressionSource.size()) {
-	header = { HEADERTYPE::SESSION,
-	  compressionSource.size(),
-	  compressionSource.size(),
-	  COMPRESSORS::NONE,
-	  _options._encrypted,
-	  _options._diagnostics,
-	  STATUS::NONE };
-	body.assign(compressionSource.cbegin(), compressionSource.cend());
-      }
-      else {
-	header = { HEADERTYPE::SESSION,
-	  compressionSource.size(),
-	  compressedView.size(),
-	  _options._compressor,
-	  _options._encrypted,
-	  _options._diagnostics,
-	  STATUS::NONE };
-	body.assign(compressedView.cbegin(), compressedView.cend());
-      }
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-      return TaskBuilderState::ERROR;
-    }
+  STATUS status = commonutils::encryptCompressData(_options,
+						   data,
+						   dataSize,
+						   header,
+						   body,
+						   _options._diagnostics);
+  bool failed = false;
+  switch (status) {
+  case STATUS::ERROR:
+  case STATUS::COMPRESSION_PROBLEM:
+  case STATUS::ENCRYPTION_PROBLEM:
+    failed = true;
+    break;
+  default:
+    break;
   }
-  else {
-    header = { HEADERTYPE::SESSION,
-      compressionSource.size(),
-      compressionSource.size(),
-      _options._compressor,
-      _options._encrypted,
-      _options._diagnostics,
-      STATUS::NONE };
-    body.assign(compressionSource.cbegin(), compressionSource.cend());
-  }
+  if (failed)
+    return status;
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.swap(body);
-  subtask._state = alldone ? TaskBuilderState::TASKDONE : TaskBuilderState::SUBTASKDONE;
+  subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._state.notify_one();
   return subtask._state;
 }

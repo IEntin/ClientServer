@@ -19,7 +19,7 @@ std::string_view buildReply(const Response& response,
 			    STATUS status);
 
 bool processRequest(const HEADER& header,
-		    std::vector<char>& received,
+		    const std::vector<char>& received,
 		    Response& response);
 
 } // end of namespace serverutility

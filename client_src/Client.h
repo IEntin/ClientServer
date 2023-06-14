@@ -6,6 +6,7 @@
 
 #include "ThreadPoolBase.h"
 
+enum class STATUS : char;
 struct Subtask;
 struct ClientOptions;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;

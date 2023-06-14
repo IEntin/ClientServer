@@ -4,7 +4,7 @@
 
 #include "ServerUtility.h"
 #include "Compression.h"
-#include "Encryption.h"
+#include "CommonUtils.h"
 #include "Logger.h"
 #include "MemoryPool.h"
 #include "TaskController.h"
@@ -19,7 +19,7 @@ std::string_view buildReply(const Response& response,
   if (response.empty())
     return {};
   bool bcompressed = compressor != COMPRESSORS::NONE;
-  static auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::DEBUG)
+  static thread_local auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::DEBUG)
     << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
@@ -47,37 +47,10 @@ std::string_view buildReply(const Response& response,
   return { buffer.data(), buffer.size() };
 }
 
-bool processRequest(const HEADER& header, std::vector<char>& received, Response& response) {
-  std::string_view receivedView(received.data(), received.size());
-  std::string_view encryptedView;
-  static thread_local std::vector<char> uncompressed;
-  uncompressed.clear();
-  bool bcompressed = isCompressed(header);
-  if (bcompressed) {
-    static auto& printOnce[[maybe_unused]] = Trace << " received compressed." << std::endl;
-    size_t uncompressedSize = extractUncompressedSize(header);
-    uncompressed.resize(uncompressedSize);
-    if (!Compression::uncompress(received, received.size(), uncompressed)) {
-      LogError << "decompression failed." << std::endl;
-      return false;
-    }
-    encryptedView = { uncompressed.data(), uncompressed.size() };
-  }
-  else {
-    static auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
-    encryptedView = receivedView;
-  }
-  std::string_view decryptedView;
-  static thread_local std::string decrypted;
-  decrypted.clear();
-  if (isEncrypted(header)) {
-    if (!Encryption::decrypt(encryptedView, Encryption::getKey(), Encryption::getIv(), decrypted))
-      return false;
-    decryptedView = { decrypted.data(), decrypted.size() };
-  }
-  else {
-    decryptedView = encryptedView;
-  }
+bool processRequest(const HEADER& header, const std::vector<char>& received, Response& response) {
+  std::string_view decryptedView = commonutils::decompressDecrypt(header, received);
+  if (decryptedView.empty())
+    return false;
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();
   if (taskController) {

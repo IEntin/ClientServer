@@ -6,6 +6,7 @@
 #include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Compression.h"
+#include "Header.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
@@ -27,16 +28,16 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
   // static here is safe and saves on memory allocations
   static Subtask task;
   while (true) {
-    TaskBuilderState state = taskBuilder->getSubtask(task);
+    STATUS state = taskBuilder->getSubtask(task);
     switch (state) {
-    case TaskBuilderState::ERROR:
+    case STATUS::ERROR:
       LogError << "TaskBuilder failed." << std::endl;
       return false;
-    case TaskBuilderState::SUBTASKDONE:
-    case TaskBuilderState::TASKDONE:
+    case STATUS::SUBTASK_DONE:
+    case STATUS::TASK_DONE:
       if (!(send(task) && receive()))
 	return false;
-      if (state == TaskBuilderState::TASKDONE)
+      if (state == STATUS::TASK_DONE)
 	return true;
       break;
     default:
