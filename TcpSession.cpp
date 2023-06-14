@@ -80,7 +80,7 @@ void TcpSession::checkCapacity() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view body = serverutility::buildReply(response, _header, _options._compressor, _options._encrypted, _status);
+  std::string_view body = serverutility::buildReply(_options, response, _header, _status);
   if (body.empty())
     return false;
   asyncWait();

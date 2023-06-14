@@ -15,7 +15,8 @@ STATUS encryptCompressData(const Options& options,
 			   size_t dataSize,
 			   HEADER& header,
 			   std::vector<char>& body,
-			   bool diagnostics) {
+			   bool diagnostics,
+			   STATUS status) {
   bool bcompressed = options._compressor == COMPRESSORS::LZ4;
   static thread_local auto& printOnce[[maybe_unused]] =
     Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
@@ -43,7 +44,7 @@ STATUS encryptCompressData(const Options& options,
 	  COMPRESSORS::NONE,
 	  options._encrypted,
 	  diagnostics,
-	  STATUS::NONE };
+	  status };
 	body.assign(compressionSource.cbegin(), compressionSource.cend());
       }
       else {
@@ -53,7 +54,7 @@ STATUS encryptCompressData(const Options& options,
 	  options._compressor,
 	  options._encrypted,
 	  diagnostics,
-	  STATUS::NONE };
+	  status };
 	body.assign(compressedView.cbegin(), compressedView.cend());
       }
     }
@@ -69,7 +70,7 @@ STATUS encryptCompressData(const Options& options,
       options._compressor,
       options._encrypted,
       diagnostics,
-      STATUS::NONE };
+      status };
     body.assign(compressionSource.cbegin(), compressionSource.cend());
   }
   return STATUS::NONE;

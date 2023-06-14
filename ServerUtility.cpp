@@ -3,48 +3,53 @@
  */
 
 #include "ServerUtility.h"
-#include "Compression.h"
 #include "CommonUtils.h"
 #include "Logger.h"
-#include "MemoryPool.h"
+#include "Options.h"
 #include "TaskController.h"
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response,
+std::string_view buildReply(const Options&options,
+			    const Response& response,
 			    HEADER& header,
-			    COMPRESSORS compressor,
-			    bool encrypted,
 			    STATUS status) {
+  static std::string_view empty;
   if (response.empty())
     return {};
-  bool bcompressed = compressor != COMPRESSORS::NONE;
-  static thread_local auto& printOnce[[maybe_unused]] = Logger(LOG_LEVEL::DEBUG)
-    << "compression " << (bcompressed ? "enabled." : "disabled.") << std::endl;
   size_t uncomprSize = 0;
   for (const auto& entry : response)
     uncomprSize += entry.size();
-  std::vector<char>& buffer = MemoryPool::instance().getSecondBuffer(uncomprSize);
-  buffer.resize(uncomprSize);
+  static thread_local std::vector<char> data;
+  data.clear();
+  data.resize(uncomprSize);
   ssize_t pos = 0;
   for (const auto& entry : response) {
-    std::copy(entry.cbegin(), entry.cend(), buffer.begin() + pos);
+    std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  if (bcompressed) {
-    try {
-      std::string_view compressedView = Compression::compress(buffer.data(), uncomprSize);
-      header = { HEADERTYPE::SESSION, uncomprSize, compressedView.size(), compressor, encrypted, false, status };
-      return compressedView;
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-      return {};
-    }
+  static thread_local std::vector<char> body;
+  body.clear();
+  STATUS result = commonutils::encryptCompressData(options,
+						   data,
+						   uncomprSize,
+						   header,
+						   body,
+						   false,
+						   status);
+  bool failed = false;
+  switch (result) {
+  case STATUS::ERROR:
+  case STATUS::COMPRESSION_PROBLEM:
+  case STATUS::ENCRYPTION_PROBLEM:
+    failed = true;
+    break;
+  default:
+    break;
   }
-  else
-    header = { HEADERTYPE::SESSION, uncomprSize, uncomprSize, compressor, encrypted, false, status };
-  return { buffer.data(), buffer.size() };
+  if (failed)
+    return empty;
+  return { body.data(), body.size() };
 }
 
 bool processRequest(const HEADER& header, const std::vector<char>& received, Response& response) {

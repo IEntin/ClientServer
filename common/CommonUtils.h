@@ -18,7 +18,8 @@ STATUS encryptCompressData(const Options& options,
 			   size_t dataSize,
 			   HEADER& header,
 			   std::vector<char>& body,
-			   bool diagnostics = false);
+			   bool diagnostics,
+			   STATUS status);
 
 std::string_view decompressDecrypt(const HEADER& header, const std::vector<char>& received);
 

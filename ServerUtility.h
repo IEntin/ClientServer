@@ -8,14 +8,14 @@
 #include <string>
 #include <vector>
 
+struct Options;
 using Response = std::vector<std::string>;
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response,
+std::string_view buildReply(const Options&options,
+			    const Response& response,
 			    HEADER& header,
-			    COMPRESSORS compressor,
-			    bool encrypted,
 			    STATUS status);
 
 bool processRequest(const HEADER& header,

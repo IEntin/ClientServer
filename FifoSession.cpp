@@ -107,7 +107,7 @@ bool FifoSession::sendResponse(const Response& response) {
     return false;
   HEADER header;
   std::string_view body =
-    serverutility::buildReply(response, header, _options._compressor, _options._encrypted, _status);
+    serverutility::buildReply(_options, response, header, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, _options, body);
