@@ -15,7 +15,7 @@
   "MaxTotalSessions" : 33,
   "TcpPort" : 49152,
   "_comment": "in milliseconds",
-  "TcpTimeout" : 5000,
+  "TcpTimeout" : 2000,
   "NumberRepeatENXIO" : 25,
   "ENXIOwait" : 10,
   "SetPipeSize" : true,

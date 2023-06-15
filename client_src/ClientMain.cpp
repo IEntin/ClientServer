@@ -17,6 +17,9 @@ namespace {
 void signalHandler(int) {
   if (options._fifoClient)
     fifo::FifoClient::onClose();
+  else if (options._tcpClient) {
+    tcp::TcpClient::onClose();
+  }
 }
 
 int main() {

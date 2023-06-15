@@ -23,6 +23,8 @@ class TcpClient : public Client {
   ~TcpClient() override;
 
   bool run() override;
+
+  static void onClose();
 };
 
 } // end of namespace tcp
