@@ -5,7 +5,7 @@
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
-#include "Compression.h"
+#include "CommonUtils.h"
 #include "Header.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
@@ -79,31 +79,20 @@ void Client::stop() {
   _threadPoolClient.stop();
 }
 
-bool Client::printReply(std::string_view buffer, const HEADER& header) {
+bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
   if (_heartbeat) {
     STATUS status = _heartbeat->getStatus();
     if (utility::displayStatus(status))
       return false;
   }
-  auto [headerType, uncomprSize, comprSize, compressor, encrypted, diagnostics, status] = header;
-  if (utility::displayStatus(status))
-    return false;
-  bool bcompressed = isCompressed(header);
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  static auto& printOnce[[maybe_unused]] =
-    Trace << (bcompressed ? " received compressed." : " received not compressed.") << std::endl;
-  if (bcompressed) {
-    std::string_view uncompressedView = Compression::uncompress(buffer.data(), comprSize, uncomprSize);
-    if (uncompressedView.empty()) {
-      utility::displayStatus(STATUS::DECOMPRESSION_PROBLEM);
-      return false;
-    }
-    else
-      stream << uncompressedView << std::flush;
+  std::string_view output =  commonutils::decompressDecrypt(header, buffer);
+  if (output.empty()) {
+    utility::displayStatus(STATUS::ERROR);
+    return false;
   }
-  else
-    stream << buffer << std::flush;
+  stream << output << std::flush;
   return true;
 }
 

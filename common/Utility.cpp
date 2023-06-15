@@ -73,6 +73,15 @@ bool displayStatus(STATUS status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     Warn << "Exceeded max number clients of type" << std::endl;
     return false;
+  case STATUS::ENCRYPTION_PROBLEM:
+    Warn << "Encryption problem" << std::endl;
+    return false;
+  case STATUS::DECRYPTION_PROBLEM:
+    Warn << "Decryption problem" << std::endl;
+    return false;
+  case STATUS::ERROR:
+    Warn << "Internal error" << std::endl;
+    return false;
   default:
     LogError << "unexpected problem" << std::endl;
     return true;

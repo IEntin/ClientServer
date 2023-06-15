@@ -51,7 +51,7 @@ bool TcpClient::receive() {
     return false;
   }
   _status = STATUS::NONE;
-  return printReply(std::string_view(buffer.data(), buffer.size()), header);
+  return printReply(header, buffer);
 }
 
 bool TcpClient::receiveStatus() {

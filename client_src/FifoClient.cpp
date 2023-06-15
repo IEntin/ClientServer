@@ -61,7 +61,7 @@ bool FifoClient::receive() {
     HEADER header;
     if (!Fifo::readMsgBlock(_fifoName, header, buffer))
       return false;
-    return printReply(std::string_view(buffer.data(), buffer.size()), header);
+    return printReply(header, buffer);
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;

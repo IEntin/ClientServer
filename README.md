@@ -1,6 +1,6 @@
 Copyright (C) 2021 Ilya Entin.
 
-### Fast Linux Lockless Clent-Server with FIFO and TCP clients
+### Fast Linux Lockless Clent-Server with FIFO and TCP clients, encryption and compression
 
 To test this software clone the project, run makeCrypto.sh <Crypto++ tar file>,\
 where current Crypto++ tar is cryptopp-CRYPTOPP_8_7_0.tar.gz in the repository,\
@@ -248,7 +248,7 @@ We run memory and thread sanitizer and performance profiling for every commit.\
 Warnings are considered failures.
 
 =======
-### Fast Lockless Linux Client-Server with TCP and FIFO clients
+### Fast Lockless Linux Client-Server with TCP and FIFO clients, encryption and compression
 
 Using both bidirectional named pipes and tcp.\
 Lockless: except infrequent queue operations.\

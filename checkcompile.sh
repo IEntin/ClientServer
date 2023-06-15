@@ -26,7 +26,6 @@ function copyClient {
 
 echo
 echo "***** g++ compiler *****"
-echo
 
 echo
 make cleanall
@@ -62,7 +61,6 @@ copyClient
 
 echo
 echo "***** clang++ compiler *****"
-echo
 
 echo
 make cleanall
