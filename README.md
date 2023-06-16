@@ -8,7 +8,8 @@ Then use deploy.sh script in the project root.\
 Run './makeCrypto.sh -h' and './deploy.sh -h' to see the details.\
 Crypto files (.cryptoKey.sec and .cryptoIv.sec) are created by the server\
 and must be distributed securely to the clients after server startup but\
-before client's startup.\
+before client's startup. Use copyCryptoFiles.sh to distribute crypto files\
+to clients after server startup.\
 Test scripts are doing this automatically.\
 On server shutdown all instances of crypto files must be removed.
 
