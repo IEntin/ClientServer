@@ -132,6 +132,9 @@ void TcpSession::readRequest() {
 	return;
       if (ec) {
 	LogError << ec.what() << std::endl;
+	boost::asio::post(_ioContext, [this] {
+	  _timeoutTimer.cancel();
+	});
 	return;
       }
       static thread_local Response response;

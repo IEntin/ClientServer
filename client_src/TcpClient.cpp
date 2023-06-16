@@ -76,11 +76,4 @@ bool TcpClient::receiveStatus() {
   return true;
 }
 
-void TcpClient::onClose() {
-  // prevent spoiled errno
-  int old_errno = errno;
-  _closeFlag.test_and_set();
-  errno = old_errno;
-}
-
 } // end of namespace tcp
