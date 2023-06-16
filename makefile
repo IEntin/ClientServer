@@ -38,7 +38,13 @@ COMMONDIR := common
 LZ4DIR := lz4
 TESTSRCDIR := test_src
 CRYPTODIR := cryptopp
-CRYPTOLIB := $(CRYPTODIR)/libcryptopp.a
+ifeq ($(CMPLR),g++)
+  CRYPTOLIB := $(CRYPTODIR)/libcryptoppgcc.a
+  CRYPTOLIBLINKER := -lcryptoppgcc
+else
+  CRYPTOLIB := $(CRYPTODIR)/libcryptoppclang.a
+  CRYPTOLIBLINKER := -lcryptoppclang
+endif
 DATADIR := data
 
 SERVERBIN := server
@@ -122,21 +128,21 @@ SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 server : $(COMMONOBJ) $(SERVEROBJ) $(CRYPTOLIB)
-	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTODIR) -lcryptopp
+	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTODIR) $(CRYPTOLIBLINKER)
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ) $(CRYPTOLIB)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTODIR) -lcryptopp
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTODIR) $(CRYPTOLIBLINKER)
 
 TESTSRC = $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ = $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ) $(CRYPTOLIB)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -L$(CRYPTODIR) -lcryptopp
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -L$(CRYPTODIR) $(CRYPTOLIBLINKER)
 
 RUNTESTSPSEUDOTARGET := runtests
 
