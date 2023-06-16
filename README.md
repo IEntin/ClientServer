@@ -2,10 +2,10 @@ Copyright (C) 2021 Ilya Entin.
 
 ### Fast Linux Lockless Client-Server with FIFO and TCP clients, encryption and compression
 
-To test this software clone the project, run makeCrypto.sh <Crypto++ tar file>,\
-where current Crypto++ tar is cryptopp-CRYPTOPP_8_7_0.tar.gz in the repository,\
-and use deploy.sh script in the project root.\
-Run './deploy.sh -h' to see the details.\
+To test this software clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
+This script will download requested source and build the library, current source is cryptopp870.zip.\
+Then use deploy.sh script in the project root.\
+Run './makeCrypto.sh -h' and './deploy.sh -h' to see the details.\
 Crypto files (.cryptoKey.sec and .cryptoIv.sec) are created by the server\
 and must be distributed securely to the clients after server startup but\
 before client's startup.\

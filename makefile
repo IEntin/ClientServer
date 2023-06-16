@@ -37,7 +37,7 @@ CLIENTSRCDIR := client_src
 COMMONDIR := common
 LZ4DIR := lz4
 TESTSRCDIR := test_src
-CRYPTODIR := cryptopp-CRYPTOPP_8_7_0
+CRYPTODIR := cryptopp
 CRYPTOLIB := $(CRYPTODIR)/libcryptopp.a
 DATADIR := data
 

@@ -156,6 +156,9 @@ void TcpSession::write(std::string_view body) {
 	return;
       if (ec) {
 	LogError << ec.what() << std::endl;
+	boost::asio::post(_ioContext, [this] {
+	  _timeoutTimer.cancel();
+	});
 	return;
       }
       readHeader();
