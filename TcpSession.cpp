@@ -9,7 +9,6 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "Tcp.h"
-#include "ThreadPoolDiffObj.h"
 
 namespace tcp {
 
