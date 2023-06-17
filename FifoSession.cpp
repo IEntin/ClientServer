@@ -15,7 +15,7 @@
 namespace fifo {
 
 FifoSession::FifoSession(Server& server, std::string_view clientId) :
-  RunnableT(server.getOptions()._maxFifoSessions),
+  RunnableT(server.getOptions()._maxFifoSessions, _name),
   _options(server.getOptions()),
   _clientId(clientId),
   _fifoName(_options._fifoDirectoryName + '/' + _clientId),
@@ -43,24 +43,6 @@ void FifoSession::run() {
     HEADER header;
     if (!receiveRequest(header))
       break;
-  }
-}
-
-void FifoSession::checkCapacity() {
-  Info << "Number fifo sessions=" << _numberObjects
-       << ", max number fifo running=" << _maxNumberRunningByType
-       << std::endl;
-  switch (_status) {
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    Warn << "\nThe number of fifo sessions=" << _numberObjects
-	 << " exceeds thread pool capacity." << std::endl;
-    break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    Warn << "\nTotal sessions=" << _threadPool.numberRelatedObjects()
-	 << " exceeds system capacity." << std::endl;
-    break;
-  default:
-    break;
   }
 }
 

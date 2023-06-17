@@ -15,10 +15,10 @@ fi
 wget https://www.cryptopp.com/$1
 unzip -aoq cryptopp870.zip -d cryptopp
 cd cryptopp
-CXX=clang++ make -j4
+CXX=clang++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
 cp libcryptopp.a libcryptoppclang.a
 make clean
-CXX=g++ make -j4
+CXX=g++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
 cp libcryptopp.a libcryptoppgcc.a
 make clean
 )

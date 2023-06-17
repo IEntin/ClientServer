@@ -26,7 +26,6 @@ private:
   void run() noexcept override;
   bool start() override;
   void stop() override;
-  void checkCapacity() override;
   bool sendStatusToClient() override;
   void readHeader();
   void readRequest();
@@ -36,6 +35,7 @@ private:
   const ServerOptions& _options;
   const std::string _clientId;
   ThreadPoolReference<ThreadPoolDiffObj> _threadPool;
+  static inline std::string_view _name = "tcp";
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket _socket;

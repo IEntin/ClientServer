@@ -73,7 +73,7 @@ void  ThreadPoolBase::createThread() {
 
 void ThreadPoolBase::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
-  if (_numberRelatedObjects > size()) {
+  if (_totalNumberObjects > size()) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
   }

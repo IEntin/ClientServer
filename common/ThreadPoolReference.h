@@ -14,8 +14,8 @@ template <typename T> class ThreadPoolReference {
   ~ThreadPoolReference() {
     _threadPool.decrement();
   }
-  std::atomic<int>& numberRelatedObjects() {
-    return _threadPool.numberRelatedObjects();
+  std::atomic<int>& totalNumberObjects() {
+    return _threadPool.totalNumberObjects();
   }
   void push(RunnablePtr runnable) {
     _threadPool.push(runnable);

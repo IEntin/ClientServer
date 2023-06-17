@@ -14,7 +14,7 @@
 namespace tcp {
 
 TcpSession::TcpSession(Server& server, ConnectionDetailsPtr details, std::string_view clientId) :
-  RunnableT(server.getOptions()._maxTcpSessions),
+  RunnableT(server.getOptions()._maxTcpSessions, _name),
   _options(server.getOptions()),
   _clientId(clientId),
   _threadPool(server.getThreadPoolSession()),
@@ -59,24 +59,6 @@ void TcpSession::run() noexcept {
 
 void TcpSession::stop() {
   _ioContext.stop();
-}
-
-void TcpSession::checkCapacity() {
-  Info << "Number tcp sessions=" << _numberObjects
-       << ", max number tcp running=" << _maxNumberRunningByType
-       << std::endl;
-  switch (_status) {
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    Warn << "\nThe number of tcp sessions=" << _numberObjects
-	 << " exceeds thread pool capacity." << std::endl;
-    break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    Warn << "\nTotal sessions=" << _threadPool.numberRelatedObjects()
-	 << " exceeds system capacity." << std::endl;
-    break;
-  default:
-    break;
-  }
 }
 
 bool TcpSession::sendReply(const Response& response) {

@@ -6,6 +6,7 @@
 
 #include "CommonConstants.h"
 #include "Header.h"
+#include "Logger.h"
 #include <atomic>
 #include <memory>
 #include <string>
@@ -25,13 +26,14 @@ class Runnable {
   virtual bool killThread() const { return false; }
   virtual int getNumberObjects() const = 0;
   virtual int getNumberRunningByType() const = 0;
-  virtual void checkCapacity() {
-    if (getNumberObjects() > _maxNumberRunningByType)
-      _status = STATUS::MAX_OBJECTS_OF_TYPE;
-  }
+  virtual void displayCapacityCheck([[maybe_unused]] std::atomic<int>& totalNumberObjects) const {}
   virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }
   std::atomic<STATUS>& getStatus() { return _status; }
+  void checkCapacity() {
+    if (getNumberObjects() > _maxNumberRunningByType)
+      _status = STATUS::MAX_OBJECTS_OF_TYPE;
+  }
   const int _maxNumberRunningByType;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
@@ -44,10 +46,12 @@ class Runnable {
 template <class T>
 class RunnableT : public Runnable {
  protected:
-  explicit RunnableT(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
-    Runnable(maxNumberThreads) { _numberObjects++; }
+  explicit RunnableT(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT,
+		     std::string_view name = std::string_view()) :
+    Runnable(maxNumberThreads) {_numberObjects++; _name = name; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
+  static inline std::string_view _name;
   static inline std::atomic<int> _numberObjects = 0;
   static inline std::atomic<int> _numberRunningByType = 0;
   static inline const std::string _type = typeid(T).name();
@@ -60,6 +64,25 @@ class RunnableT : public Runnable {
     return _numberObjects;
   }
   int getNumberRunningByType() const override { return _numberRunningByType; }
+
+  void displayCapacityCheck(std::atomic<int>& totalNumberObjects) const override {
+    Info << "Number " << _name << " sessions=" << _numberObjects
+	 << ", Number running " << _name << " sessions=" << _numberRunningByType
+	 << ", max number " << _name << " running=" << _maxNumberRunningByType
+       << std::endl;
+  switch (_status.load()) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    Warn << "\nThe number of " << _name << " sessions=" << _numberObjects
+	 << " exceeds thread pool capacity." << std::endl;
+    break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    Warn << "\nTotal sessions=" << totalNumberObjects
+	 << " exceeds system capacity." << std::endl;
+    break;
+  default:
+    break;
+  }
+}
 };
 
 class KillThread : public RunnableT<KillThread> {

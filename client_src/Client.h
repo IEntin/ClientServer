@@ -26,7 +26,6 @@ class Client {
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnablePtr _heartbeat;
   TaskBuilderPtr _taskBuilder;
-  static inline std::atomic_flag _closeFlag;
  public:
   virtual ~Client();
 
