@@ -15,6 +15,8 @@ protected:
   void createThread();
   ThreadPoolBase(const ThreadPoolBase& other) = delete;
   ThreadPoolBase& operator =(const ThreadPoolBase& other) = delete;
+  void increment() { _totalNumberObjects++; }
+  void decrement() { _totalNumberObjects--; }
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
@@ -29,9 +31,6 @@ public:
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
   int size() const { return _threads.size(); }
-  std::atomic<int>& totalNumberObjects() { return _totalNumberObjects; }
-  void increment() { _totalNumberObjects++; }
-  void decrement() { _totalNumberObjects--; }
   int maxSize() const { return _maxSize; }
   // used in tests
   std::vector<std::thread>& getThreads() { return _threads; }

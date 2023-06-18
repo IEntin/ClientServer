@@ -66,6 +66,7 @@ void  ThreadPoolBase::createThread() {
 	  runnable->stop();
 	  LogError << "exception caught." << std::endl;
 	}
+	decrement();
       }
     }
   });
@@ -73,6 +74,7 @@ void  ThreadPoolBase::createThread() {
 
 void ThreadPoolBase::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
+  increment();
   if (_totalNumberObjects > size()) {
     createThread();
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;

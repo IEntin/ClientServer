@@ -7,10 +7,8 @@
 #include "ThreadPoolBase.h"
 #include <filesystem>
 
-WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag,
-		       const std::string& fifoName,
-		       ThreadPoolBase& threadPool) :
-  _flag(flag), _fifoName(fifoName), _threadPool(threadPool) {}
+WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag, const std::string& fifoName) :
+  _flag(flag), _fifoName(fifoName) {}
 
 WaitSignal::~WaitSignal() {
   Trace << std::endl;

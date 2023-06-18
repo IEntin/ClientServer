@@ -15,8 +15,7 @@ namespace fifo {
 
 FifoAcceptor::FifoAcceptor(Server& server) :
   _server(server),
-  _options(_server.getOptions()),
-  _threadPoolAcceptor(server.getThreadPoolAcceptor()) {}
+  _options(_server.getOptions()) {}
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();

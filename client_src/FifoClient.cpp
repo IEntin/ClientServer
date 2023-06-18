@@ -90,7 +90,7 @@ bool FifoClient::receiveStatus() {
     _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
-    _waitSignal = std::make_shared<WaitSignal>(_closeFlag, _fifoName, _threadPoolClient);
+    _waitSignal = std::make_shared<WaitSignal>(_closeFlag, _fifoName);
     _threadPoolClient.push(_waitSignal);
     switch (_status) {
     case STATUS::NONE:

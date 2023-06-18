@@ -15,7 +15,6 @@ namespace tcp {
 TcpAcceptor::TcpAcceptor(Server& server) :
   _server(server),
   _options(_server.getOptions()),
-  _threadPoolAcceptor(server.getThreadPoolAcceptor()),
   _ioContext(1),
   _acceptor(_ioContext) {}
 

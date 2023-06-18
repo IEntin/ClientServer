@@ -23,6 +23,7 @@ ThreadPoolDiffObj::~ThreadPoolDiffObj() {
 
 void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
+  increment();
   // need one more thread
   bool condition1 = _totalNumberObjects > size();
   // can run one more of type

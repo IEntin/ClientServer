@@ -4,12 +4,11 @@
 
 #pragma once
 
-#include "ThreadPoolReference.h"
+#include "Runnable.h"
 #include <boost/asio.hpp>
 
 class Server;
 struct ServerOptions;
-class ThreadPoolBase;
 
 namespace tcp {
 
@@ -38,7 +37,6 @@ private:
 
   Server& _server;
   const ServerOptions& _options;
-  ThreadPoolReference<ThreadPoolBase> _threadPoolAcceptor;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;

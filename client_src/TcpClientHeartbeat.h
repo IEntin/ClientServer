@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "ThreadPoolReference.h"
+#include "Runnable.h"
 #include <boost/asio.hpp>
 
 struct ClientOptions;
-class ThreadPoolBase;
 
 namespace tcp {
 
@@ -18,7 +17,7 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHeartbeat>,
   public RunnableT<TcpClientHeartbeat> {
  public:
-  TcpClientHeartbeat(const ClientOptions& options, ThreadPoolBase& threadPoolClient);
+  TcpClientHeartbeat(const ClientOptions& options);
   ~TcpClientHeartbeat() override;
  private:
   void run() override;
@@ -30,7 +29,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   void read();
 
   const ClientOptions& _options;
-  ThreadPoolReference<ThreadPoolBase> _threadPoolClient;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _periodTimer;

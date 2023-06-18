@@ -6,13 +6,11 @@
 #include "ClientOptions.h"
 #include "CommonUtils.h"
 #include "Header.h"
-#include "ThreadPoolBase.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool) :
+TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _options(options),
-  _subtasks(1),
-  _threadPool(threadPool) {
+  _subtasks(1) {
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");

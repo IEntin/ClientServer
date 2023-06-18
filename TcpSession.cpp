@@ -16,7 +16,6 @@ TcpSession::TcpSession(Server& server, ConnectionDetailsPtr details, std::string
   RunnableT(server.getOptions()._maxTcpSessions, _name),
   _options(server.getOptions()),
   _clientId(clientId),
-  _threadPool(server.getThreadPoolSession()),
   _details(details),
   _ioContext(details->_ioContext),
   _socket(std::move(details->_socket)),

@@ -16,8 +16,7 @@ FifoSession::FifoSession(Server& server, std::string_view clientId) :
   RunnableT(server.getOptions()._maxFifoSessions, _name),
   _options(server.getOptions()),
   _clientId(clientId),
-  _fifoName(_options._fifoDirectoryName + '/' + _clientId),
-  _threadPool(server.getThreadPoolSession()) {
+  _fifoName(_options._fifoDirectoryName + '/' + _clientId) {
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 

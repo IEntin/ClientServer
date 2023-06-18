@@ -10,9 +10,8 @@
 
 namespace tcp {
 
-TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options, ThreadPoolBase& threadPoolClient) :
+TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _options(options),
-  _threadPoolClient(threadPoolClient),
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext) {}

@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "ThreadPoolReference.h"
+#include "Runnable.h"
 
 class Server;
 struct ServerOptions;
-class ThreadPoolBase;
 
 namespace fifo {
 
@@ -21,7 +20,6 @@ class FifoAcceptor : public RunnableT<FifoAcceptor> {
   void removeFifoFiles();
   Server& _server;
   const ServerOptions& _options;
-  ThreadPoolReference<ThreadPoolBase> _threadPoolAcceptor;
  public:
   FifoAcceptor(Server& server);
   ~FifoAcceptor() override;

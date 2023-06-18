@@ -50,14 +50,14 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 bool Client::run() {
   try {
     int numberTasks = 0;
-    _taskBuilder = std::make_shared<TaskBuilder>(_options, _threadPoolClient);
+    _taskBuilder = std::make_shared<TaskBuilder>(_options);
     _threadPoolClient.push(_taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       auto savedBuild = std::move(_taskBuilder);
       if (_options._runLoop) {
 	// start construction of the next task in the background
-	_taskBuilder = std::make_shared<TaskBuilder>(_options, _threadPoolClient);
+	_taskBuilder = std::make_shared<TaskBuilder>(_options);
 	_threadPoolClient.push(_taskBuilder);
       }
       if (!processTask(savedBuild))
@@ -99,7 +99,7 @@ bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
 void Client::start() {
   try {
     if (_options._heartbeatEnabled) {
-      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _threadPoolClient);
+      _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options);
       _heartbeat->start();
       _threadPoolClient.push(_heartbeat);
     }

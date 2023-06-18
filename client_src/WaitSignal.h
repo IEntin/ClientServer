@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Runnable.h"
-#include "ThreadPoolReference.h"
 
 enum class ACTIONS : int {
   NONE,
@@ -13,18 +12,13 @@ enum class ACTIONS : int {
   STOP
 };
 
-class ThreadPoolBase;
-
 class WaitSignal : public RunnableT<WaitSignal> {
   void run() override;
   bool start() override { return true; }
   void stop() override;
   std::atomic<ACTIONS>& _flag;
   std::string _fifoName;
-  ThreadPoolReference<ThreadPoolBase> _threadPool;
  public:
-  WaitSignal(std::atomic<ACTIONS>& flag,
-	     const std::string& fileName,
-	     ThreadPoolBase& threadPool);
+  WaitSignal(std::atomic<ACTIONS>& flag, const std::string& fileName);
   ~WaitSignal() override;
 };

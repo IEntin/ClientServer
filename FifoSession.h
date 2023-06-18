@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "ThreadPoolReference.h"
+#include "Runnable.h"
 #include <vector>
 
 using Response = std::vector<std::string>;
 struct ServerOptions;
 class Server;
-class ThreadPoolDiffObj;
 
 namespace fifo {
 
@@ -18,7 +17,6 @@ class FifoSession final : public RunnableT<FifoSession> {
   const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
-  ThreadPoolReference<ThreadPoolDiffObj> _threadPool;
   static inline std::string_view _name = "fifo";
   bool receiveRequest(HEADER& header);
   bool sendResponse(const Response& response);

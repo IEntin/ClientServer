@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ThreadPoolReference.h"
+#include "Runnable.h"
 #include <deque>
 #include <mutex>
 #include <string_view>
@@ -13,7 +13,6 @@
 
 enum class STATUS : char;
 struct ClientOptions;
-class ThreadPoolBase;
 
 struct Subtask {
   Subtask() = default;
@@ -36,12 +35,11 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   std::deque<Subtask> _subtasks;
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
-  ThreadPoolReference<ThreadPoolBase> _threadPool;
   std::mutex _mutex;
   void run() override;
   bool start() override { return true; }
  public:
-  TaskBuilder(const ClientOptions& options, ThreadPoolBase& threadPool);
+  TaskBuilder(const ClientOptions& options);
   ~TaskBuilder() override;
   void stop() override {}
   STATUS getSubtask(Subtask& task);
