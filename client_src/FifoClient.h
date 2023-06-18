@@ -15,7 +15,7 @@ class FifoClient : public Client {
   bool receiveStatus() override;
   bool wakeupAcceptor();
   std::string _clientId;
-  static inline std::string _fifoName;
+  std::string _fifoName;
 
  public:
   FifoClient(const ClientOptions& options);
@@ -23,7 +23,7 @@ class FifoClient : public Client {
 
   bool run() override;
 
-  static void onClose();
+  static void onSignal();
 };
 
 } // end of namespace fifo

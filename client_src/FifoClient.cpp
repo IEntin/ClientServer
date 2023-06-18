@@ -7,6 +7,7 @@
 #include "Fifo.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
+#include "WaitSignal.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <filesystem>
@@ -85,6 +86,8 @@ bool FifoClient::receiveStatus() {
     _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+    _waitSignal = std::make_shared<WaitSignal>(_closeFlag, _fifoName, _threadPoolClient);
+    _waitSignal->start();
     switch (_status) {
     case STATUS::NONE:
       break;
@@ -105,11 +108,9 @@ bool FifoClient::receiveStatus() {
   return true;
 }
 
-void FifoClient::onClose() {
-  // prevent spoiled errno
-  int old_errno = errno;
-  unlink(_fifoName.data());
-  errno = old_errno;
+void FifoClient::onSignal() {
+  _closeFlag.store(ACTIONS::ACTION);
+  _closeFlag.notify_one();
 }
 
 } // end of namespace fifo

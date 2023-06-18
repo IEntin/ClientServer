@@ -8,6 +8,12 @@
 #include "ThreadPoolReference.h"
 #include <functional>
 
+enum class ACTIONS : int {
+  NONE,
+  ACTION,
+  STOP
+};
+
 class ThreadPoolBase;
 
 class WaitSignal : public std::enable_shared_from_this<WaitSignal>,
@@ -15,11 +21,12 @@ class WaitSignal : public std::enable_shared_from_this<WaitSignal>,
   void run() override;
   bool start() override;
   void stop() override;
-  std::atomic_flag& _flag;
-  std::function<bool()> _func = nullptr;
-  ThreadPoolReference<ThreadPoolBase> _threadPoolClient;
-  std::atomic<bool> _stopped = false;
+  std::atomic<ACTIONS>& _flag;
+  std::string _fifoName;
+  ThreadPoolReference<ThreadPoolBase> _threadPool;
  public:
-  WaitSignal(std::atomic_flag& flag, std::function<bool()> func, ThreadPoolBase& threadPoolClient);
+  WaitSignal(std::atomic<ACTIONS>& flag,
+	     const std::string& fileName,
+	     ThreadPoolBase& threadPool);
   ~WaitSignal() override;
 };

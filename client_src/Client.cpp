@@ -11,12 +11,15 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
+#include "WaitSignal.h"
+
+std::atomic<ACTIONS> Client::_closeFlag = ACTIONS::NONE;
 
 Client::Client(const ClientOptions& options) : _options(options) {}
 
 Client::~Client() {
-  Trace << std::endl;
   stop();
+  Trace << std::endl;
 }
 
 // Allows to read and process the source in parts with sizes
@@ -76,6 +79,8 @@ void Client::stop() {
   Metrics::save();
   if (_heartbeat)
     _heartbeat->stop();
+  if (_waitSignal)
+    _waitSignal->stop();
   _threadPoolClient.stop();
 }
 

@@ -16,7 +16,7 @@ namespace {
 
 void signalHandler(int) {
   if (options._fifoClient)
-    fifo::FifoClient::onClose();
+    fifo::FifoClient::onSignal();
 }
 
 int main() {
