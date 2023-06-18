@@ -6,7 +6,6 @@
 
 #include "Runnable.h"
 #include "ThreadPoolReference.h"
-#include <functional>
 
 enum class ACTIONS : int {
   NONE,
@@ -16,10 +15,9 @@ enum class ACTIONS : int {
 
 class ThreadPoolBase;
 
-class WaitSignal : public std::enable_shared_from_this<WaitSignal>,
-  public RunnableT<WaitSignal> {
+class WaitSignal : public RunnableT<WaitSignal> {
   void run() override;
-  bool start() override;
+  bool start() override { return true; }
   void stop() override;
   std::atomic<ACTIONS>& _flag;
   std::string _fifoName;

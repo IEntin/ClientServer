@@ -14,6 +14,8 @@
 
 namespace fifo {
 
+std::atomic<ACTIONS> FifoClient::_closeFlag = ACTIONS::NONE;
+
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
   try {
@@ -30,6 +32,8 @@ FifoClient::FifoClient(const ClientOptions& options) :
 }
 
 FifoClient::~FifoClient() {
+  if (_waitSignal)
+    _waitSignal->stop();
   Fifo::onExit(_fifoName, _options);
   Trace << std::endl;
 }
@@ -87,7 +91,7 @@ bool FifoClient::receiveStatus() {
     _status = extractStatus(header);
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
     _waitSignal = std::make_shared<WaitSignal>(_closeFlag, _fifoName, _threadPoolClient);
-    _waitSignal->start();
+    _threadPoolClient.push(_waitSignal);
     switch (_status) {
     case STATUS::NONE:
       break;

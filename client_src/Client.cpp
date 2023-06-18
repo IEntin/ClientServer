@@ -11,9 +11,6 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
-#include "WaitSignal.h"
-
-std::atomic<ACTIONS> Client::_closeFlag = ACTIONS::NONE;
 
 Client::Client(const ClientOptions& options) : _options(options) {}
 
@@ -79,8 +76,6 @@ void Client::stop() {
   Metrics::save();
   if (_heartbeat)
     _heartbeat->stop();
-  if (_waitSignal)
-    _waitSignal->stop();
   _threadPoolClient.stop();
 }
 

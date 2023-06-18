@@ -15,11 +15,6 @@ WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag,
 WaitSignal::~WaitSignal() {
   Trace << std::endl;
 }
-
-bool WaitSignal::start() {
-  _threadPool.push(shared_from_this());
-  return true;
-}
 	       
 void WaitSignal::stop() {
   if (_flag == ACTIONS::NONE) {

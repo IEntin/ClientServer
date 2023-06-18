@@ -6,6 +6,8 @@
 
 #include "Client.h"
 
+enum class ACTIONS : int;
+
 namespace fifo {
 
 class FifoClient : public Client {
@@ -16,6 +18,8 @@ class FifoClient : public Client {
   bool wakeupAcceptor();
   std::string _clientId;
   std::string _fifoName;
+  RunnablePtr _waitSignal;
+  static std::atomic<ACTIONS> _closeFlag;
 
  public:
   FifoClient(const ClientOptions& options);
