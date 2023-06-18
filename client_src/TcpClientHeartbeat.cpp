@@ -23,7 +23,6 @@ TcpClientHeartbeat::~TcpClientHeartbeat() {
 
 bool TcpClientHeartbeat::start() {
   boost::asio::post(_ioContext, [this] { heartbeatWait(); });
-  _threadPoolClient.push(shared_from_this());
   return true;
 }
 

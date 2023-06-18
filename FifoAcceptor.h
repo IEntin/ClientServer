@@ -12,8 +12,7 @@ class ThreadPoolBase;
 
 namespace fifo {
 
-class FifoAcceptor : public std::enable_shared_from_this<FifoAcceptor>,
-  public RunnableT<FifoAcceptor> {
+class FifoAcceptor : public RunnableT<FifoAcceptor> {
   void run() override;
   bool start() override;
   void stop() override;

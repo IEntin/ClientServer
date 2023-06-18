@@ -20,8 +20,8 @@ class Runnable {
   explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberRunningByType(maxNumberRunningByType) {}
   virtual ~Runnable() {}
+  virtual bool start() { return true; }
   virtual void run() = 0;
-  virtual bool start() = 0;
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
   virtual int getNumberObjects() const = 0;

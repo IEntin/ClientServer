@@ -34,11 +34,6 @@ TcpSession::~TcpSession() {
   Trace << std::endl;
 }
 
-bool TcpSession::start() {
-  _threadPool.push(shared_from_this());
-  return true;
-}
-
 bool TcpSession::sendStatusToClient() {
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };

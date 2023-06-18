@@ -44,11 +44,6 @@ void FifoSession::run() {
   }
 }
 
-bool FifoSession::start() {
-  _threadPool.push(shared_from_this());
-  return true;
-}
-
 void FifoSession::stop() {
   _stopped = true;
 }

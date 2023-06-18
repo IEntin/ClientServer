@@ -35,7 +35,6 @@ bool TcpAcceptor::start() {
     _acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
   if (!ec) {
     boost::asio::post(_ioContext, [this] { accept(); });
-    _threadPoolAcceptor.push(shared_from_this());
   }
   if (ec) {
     LogError << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;

@@ -73,7 +73,6 @@ bool FifoAcceptor::start() {
     LogError << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
     return false;
   }
-  _threadPoolAcceptor.push(shared_from_this());
   return true;
 }
 

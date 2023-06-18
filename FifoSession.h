@@ -14,8 +14,7 @@ class ThreadPoolDiffObj;
 
 namespace fifo {
 
-class FifoSession final : public std::enable_shared_from_this<FifoSession>,
-  public RunnableT<FifoSession> {
+class FifoSession final : public RunnableT<FifoSession> {
   const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
@@ -24,7 +23,6 @@ class FifoSession final : public std::enable_shared_from_this<FifoSession>,
   bool receiveRequest(HEADER& header);
   bool sendResponse(const Response& response);
   void run() override;
-  bool start() override;
   void stop() override;
   bool sendStatusToClient() override;
  public:

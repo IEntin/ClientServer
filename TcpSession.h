@@ -24,7 +24,6 @@ public:
 
 private:
   void run() noexcept override;
-  bool start() override;
   void stop() override;
   bool sendStatusToClient() override;
   void readHeader();

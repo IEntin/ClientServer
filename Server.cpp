@@ -40,10 +40,11 @@ bool Server::start() {
     _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
     if (!_tcpAcceptor->start())
       return false;
-
+    _threadPoolAcceptor.push(_tcpAcceptor);
     _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
     if (!_fifoAcceptor->start())
       return false;
+    _threadPoolAcceptor.push(_fifoAcceptor);
     std::ofstream file(_options._controlFileName);
     std::filesystem::permissions(_options._controlFileName, std::filesystem::perms::none);
   }
@@ -69,7 +70,8 @@ bool Server::startSession(std::string_view clientId, RunnablePtr session) {
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)
     return false;
-  return session->start();
+  _threadPoolSession.push(session);
+  return true;
 }
 
 void Server::stopSessions() {

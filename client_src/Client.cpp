@@ -101,6 +101,7 @@ void Client::start() {
     if (_options._heartbeatEnabled) {
       _heartbeat = std::make_shared<tcp::TcpClientHeartbeat>(_options, _threadPoolClient);
       _heartbeat->start();
+      _threadPoolClient.push(_heartbeat);
     }
   }
   catch (const std::exception& e) {
