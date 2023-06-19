@@ -6,7 +6,6 @@
 #include "Chronometer.h"
 #include "ClientOptions.h"
 #include "CommonUtils.h"
-#include "Header.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
@@ -107,4 +106,9 @@ void Client::start() {
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
   }
+}
+
+void Client::onSignal() {
+  _signalFlag.store(ACTIONS::ACTION);
+  _signalFlag.notify_one();
 }

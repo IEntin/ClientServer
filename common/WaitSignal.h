@@ -5,20 +5,14 @@
 #pragma once
 
 #include "Runnable.h"
-
-enum class ACTIONS : int {
-  NONE,
-  ACTION,
-  STOP
-};
+#include <functional>
 
 class WaitSignal : public RunnableT<WaitSignal> {
   void run() override;
-  bool start() override { return true; }
   void stop() override;
   std::atomic<ACTIONS>& _flag;
-  std::string _fifoName;
- public:
-  WaitSignal(std::atomic<ACTIONS>& flag, const std::string& fileName);
+  std::function<void()> _func;
+public:
+  WaitSignal(std::atomic<ACTIONS>& flag, std::function<void()> func);
   ~WaitSignal() override;
 };

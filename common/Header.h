@@ -53,6 +53,12 @@ enum class STATUS : char {
   ERROR
 };
 
+enum class ACTIONS : int {
+  NONE,
+  ACTION,
+  STOP
+};
+
 enum class HEADER_INDEX : char {
   HEADERTYPE,
   UNCOMPRESSED,

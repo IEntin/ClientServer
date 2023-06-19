@@ -6,7 +6,6 @@
 
 #include "ThreadPoolBase.h"
 
-enum class STATUS : char;
 struct Subtask;
 struct ClientOptions;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
@@ -26,6 +25,7 @@ class Client {
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnablePtr _heartbeat;
   TaskBuilderPtr _taskBuilder;
+  static inline std::atomic<ACTIONS> _signalFlag = ACTIONS::NONE;
  public:
   virtual ~Client();
 
@@ -35,4 +35,5 @@ class Client {
   virtual bool run() = 0;
 
   void stop();
+  static void onSignal();
 };

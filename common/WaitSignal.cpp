@@ -4,10 +4,9 @@
 
 #include "WaitSignal.h"
 #include "Logger.h"
-#include <filesystem>
 
-WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag, const std::string& fifoName) :
-  _flag(flag), _fifoName(fifoName) {}
+WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag, std::function<void()> func) :
+  _flag(flag), _func(func) {}
 
 WaitSignal::~WaitSignal() {
   Trace << std::endl;
@@ -22,12 +21,7 @@ void WaitSignal::stop() {
 
 void WaitSignal::run() {
   _flag.wait(ACTIONS::NONE);
-  try {
-    if (_flag == ACTIONS::ACTION) {
-      std::filesystem::remove(_fifoName);
-    }
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+  if (_flag == ACTIONS::ACTION) {
+    _func();
   }
 }

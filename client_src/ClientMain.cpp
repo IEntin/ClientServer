@@ -10,13 +10,8 @@
 #include "TcpClient.h"
 #include <csignal>
 
-namespace {
-  ClientOptions options("ClientOptions.json");
-} // end of anonimous namespace
-
 void signalHandler(int) {
-  if (options._fifoClient)
-    fifo::FifoClient::onSignal();
+  Client::onSignal();
 }
 
 int main() {
@@ -29,6 +24,7 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
+  ClientOptions options("ClientOptions.json");
   Chronometer chronometer(options._timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
