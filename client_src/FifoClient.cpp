@@ -88,14 +88,13 @@ bool FifoClient::receiveStatus() {
     _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+    createSignalWatcher();
     switch (_status) {
     case STATUS::MAX_OBJECTS_OF_TYPE:
       utility::displayMaxSessionsOfTypeWarn("fifo");
-      createSignalWatcher();
       break;
      case STATUS::MAX_TOTAL_OBJECTS:
        utility::displayMaxTotalSessionsWarn();
-       createSignalWatcher();
       break;
     default:
       break;
