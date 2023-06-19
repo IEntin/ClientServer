@@ -88,23 +88,14 @@ bool FifoClient::receiveStatus() {
     _clientId.assign(buffer.begin(), buffer.end());
     _status = extractStatus(header);
     _fifoName = _options._fifoDirectoryName + '/' + _clientId;
-    std::string name = _fifoName;
-    std::function<void()> func = [name]() {
-      try {
-	std::filesystem::remove(name);
-      }
-      catch (const std::exception&e) {
-      }};
-    _waitSignal = std::make_shared<WaitSignal>(_signalFlag, func);
-    _threadPoolClient.push(_waitSignal);
     switch (_status) {
-    case STATUS::NONE:
-      break;
     case STATUS::MAX_OBJECTS_OF_TYPE:
       utility::displayMaxSessionsOfTypeWarn("fifo");
+      createSignalWatcher();
       break;
-    case STATUS::MAX_TOTAL_OBJECTS:
-      utility::displayMaxTotalSessionsWarn();
+     case STATUS::MAX_TOTAL_OBJECTS:
+       utility::displayMaxTotalSessionsWarn();
+       createSignalWatcher();
       break;
     default:
       break;
@@ -115,6 +106,18 @@ bool FifoClient::receiveStatus() {
     return false;
   }
   return true;
+}
+
+void FifoClient::createSignalWatcher() {
+  std::string name = _fifoName;
+  std::function<void()> func = [name]() {
+    try {
+      std::filesystem::remove(name);
+    }
+    catch (const std::exception&e) {
+    }};
+  _waitSignal = std::make_shared<WaitSignal>(_signalFlag, func);
+  _threadPoolClient.push(_waitSignal);
 }
 
 } // end of namespace fifo

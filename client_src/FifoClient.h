@@ -14,6 +14,7 @@ class FifoClient : public Client {
   bool receive() override;
   bool receiveStatus() override;
   bool wakeupAcceptor();
+  void createSignalWatcher();
   std::string _clientId;
   std::string _fifoName;
   RunnablePtr _waitSignal;
