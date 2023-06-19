@@ -16,9 +16,9 @@ using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 struct ServerOptions;
 
-class TaskController : public std::enable_shared_from_this<TaskController> {
+class TaskController {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
-  class Worker : public std::enable_shared_from_this<Worker>, public RunnableT<Worker> {
+  class Worker : public RunnableT<Worker> {
     Worker(const Worker& other) = delete;
     Worker& operator =(const Worker& other) = delete;
     bool start() override { return true; }
