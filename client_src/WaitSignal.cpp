@@ -4,7 +4,6 @@
 
 #include "WaitSignal.h"
 #include "Logger.h"
-#include "ThreadPoolBase.h"
 #include <filesystem>
 
 WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag, const std::string& fifoName) :

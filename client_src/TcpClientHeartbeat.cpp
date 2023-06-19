@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "Tcp.h"
-#include "ThreadPoolBase.h"
 
 namespace tcp {
 
