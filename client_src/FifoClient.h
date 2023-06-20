@@ -17,7 +17,7 @@ class FifoClient : public Client {
   void createSignalWatcher();
   std::string _clientId;
   std::string _fifoName;
-  RunnablePtr _waitSignal;
+  RunnableWeakPtr _signalWatcher;
 
  public:
   FifoClient(const ClientOptions& options);

@@ -23,8 +23,7 @@ class Client {
 
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
-  RunnablePtr _heartbeat;
-  TaskBuilderPtr _taskBuilder;
+  RunnableWeakPtr _heartbeat;
   static inline std::atomic<ACTIONS> _signalFlag = ACTIONS::NONE;
  public:
   virtual ~Client();

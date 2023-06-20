@@ -7,7 +7,7 @@
 #include "Fifo.h"
 #include "TaskBuilder.h"
 #include "Utility.h"
-#include "WaitSignal.h"
+#include "SignalWatcher.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <filesystem>
@@ -30,8 +30,8 @@ FifoClient::FifoClient(const ClientOptions& options) :
 }
 
 FifoClient::~FifoClient() {
-  if (_waitSignal)
-    _waitSignal->stop();
+  if (auto ptr = _signalWatcher.lock(); ptr)
+    ptr->stop();
   Fifo::onExit(_fifoName, _options);
   Trace << std::endl;
 }
@@ -113,10 +113,13 @@ void FifoClient::createSignalWatcher() {
     try {
       std::filesystem::remove(name);
     }
-    catch (const std::exception&e) {
-    }};
-  _waitSignal = std::make_shared<WaitSignal>(_signalFlag, func);
-  _threadPoolClient.push(_waitSignal);
+    catch (const std::exception& e) {
+      LogError << e.what() << std::endl;
+    }
+  };
+  auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);
+  _signalWatcher = ptr;
+  _threadPoolClient.push(ptr);
 }
 
 } // end of namespace fifo

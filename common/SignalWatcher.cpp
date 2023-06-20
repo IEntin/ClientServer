@@ -2,24 +2,24 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "WaitSignal.h"
+#include "SignalWatcher.h"
 #include "Logger.h"
 
-WaitSignal::WaitSignal(std::atomic<ACTIONS>& flag, std::function<void()> func) :
+SignalWatcher::SignalWatcher(std::atomic<ACTIONS>& flag, std::function<void()> func) :
   _flag(flag), _func(func) {}
 
-WaitSignal::~WaitSignal() {
+SignalWatcher::~SignalWatcher() {
   Trace << std::endl;
 }
-	       
-void WaitSignal::stop() {
+
+void SignalWatcher::stop() {
   if (_flag == ACTIONS::NONE) {
     _flag.store(ACTIONS::STOP);
     _flag.notify_all();
   }
 }
 
-void WaitSignal::run() {
+void SignalWatcher::run() {
   _flag.wait(ACTIONS::NONE);
   if (_flag == ACTIONS::ACTION) {
     _func();

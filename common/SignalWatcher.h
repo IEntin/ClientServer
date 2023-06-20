@@ -7,12 +7,12 @@
 #include "Runnable.h"
 #include <functional>
 
-class WaitSignal : public RunnableT<WaitSignal> {
+class SignalWatcher : public RunnableT<SignalWatcher> {
   void run() override;
   void stop() override;
   std::atomic<ACTIONS>& _flag;
   std::function<void()> _func;
 public:
-  WaitSignal(std::atomic<ACTIONS>& flag, std::function<void()> func);
-  ~WaitSignal() override;
+  SignalWatcher(std::atomic<ACTIONS>& flag, std::function<void()> func);
+  ~SignalWatcher() override;
 };
