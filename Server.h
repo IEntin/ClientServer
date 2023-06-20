@@ -18,8 +18,6 @@ public:
   bool start();
   void stop();
   const ServerOptions& getOptions() const { return _options; }
-  ThreadPoolBase& getThreadPoolAcceptor() { return _threadPoolAcceptor; }
-  ThreadPoolDiffObj& getThreadPoolSession() { return _threadPoolSession; }
   bool startSession(std::string_view clientId, RunnablePtr session);
   void stopSessions();
 private:

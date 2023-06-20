@@ -4,7 +4,6 @@
 
 #include "Chronometer.h"
 #include "Encryption.h"
-#include "Globals.h"
 #include "Logger.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
