@@ -18,11 +18,14 @@ class TcpClient : public Client {
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   std::string _clientId;
+  RunnableWeakPtr _signalWatcher;
  public:
   TcpClient(const ClientOptions& options);
   ~TcpClient() override;
 
   bool run() override;
+
+  void createSignalWatcher();
 };
 
 } // end of namespace tcp

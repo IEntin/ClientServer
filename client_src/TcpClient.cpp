@@ -4,6 +4,7 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
+#include "SignalWatcher.h"
 #include "TaskBuilder.h"
 #include "Tcp.h"
 #include "Utility.h"
@@ -27,6 +28,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
 }
 
 TcpClient::~TcpClient() {
+  if (auto ptr = _signalWatcher.lock(); ptr)
+    ptr->stop();
   Trace << std::endl;
 }
 
@@ -66,14 +69,30 @@ bool TcpClient::receiveStatus() {
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     utility::displayMaxSessionsOfTypeWarn("tcp");
+    createSignalWatcher();
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
     utility::displayMaxTotalSessionsWarn();
+    createSignalWatcher();
     break;
   default:
     break;
   }
   return true;
+}
+
+void TcpClient::createSignalWatcher() {
+  boost::asio::ip::tcp::socket& socket(_socket);
+  std::function<void()> func = [&socket]() {
+    boost::system::error_code ec;
+    socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    if (ec) {
+      LogError << ec.what() << std::endl;
+    }
+  };
+  auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);
+  _signalWatcher = ptr;
+  _threadPoolClient.push(ptr);
 }
 
 } // end of namespace tcp
