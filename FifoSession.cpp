@@ -12,11 +12,12 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(Server& server, std::string_view clientId) :
+FifoSession::FifoSession(const Server& server, std::string_view clientId) :
   RunnableT(server.getOptions()._maxFifoSessions, _name),
   _options(server.getOptions()),
   _clientId(clientId),
-  _fifoName(_options._fifoDirectoryName + '/' + _clientId) {
+  _fifoName(_options._fifoDirectoryName + '/' + _clientId),
+  _cryptoKeys(server.getKeys()) {
   Debug << "_fifoName:" << _fifoName << std::endl;
 }
 
@@ -65,7 +66,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
       return false;
     static thread_local Response response;
     response.clear();
-    if (serverutility::processRequest(header, request, response))
+    if (serverutility::processRequest(_cryptoKeys, header, request, response))
       return sendResponse(response);
   }
   catch (const std::exception& e) {
@@ -81,7 +82,7 @@ bool FifoSession::sendResponse(const Response& response) {
     return false;
   HEADER header;
   std::string_view body =
-    serverutility::buildReply(_options, response, header, _status);
+    serverutility::buildReply(_options, _cryptoKeys, response, header, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, _options, body);

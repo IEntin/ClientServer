@@ -10,6 +10,7 @@
 using Response = std::vector<std::string>;
 class Server;
 struct ServerOptions;
+struct CryptoKeys;
 
 namespace tcp {
 
@@ -18,7 +19,7 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
 public:
-  TcpSession(Server& server, ConnectionDetailsPtr details, std::string_view clientId);
+  TcpSession(const Server& server, ConnectionDetailsPtr details, std::string_view clientId);
   ~TcpSession() override;
 
 private:
@@ -32,6 +33,7 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
+  const CryptoKeys& _cryptoKeys;
   static inline std::string_view _name = "tcp";
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;

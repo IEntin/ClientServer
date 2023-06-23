@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Encryption.h"
 #include "ThreadPoolBase.h"
 
 struct Subtask;
@@ -24,6 +25,7 @@ class Client {
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;
+  CryptoKeys _cryptoKeys;
   static inline std::atomic<ACTIONS> _signalFlag = ACTIONS::NONE;
  public:
   virtual ~Client();

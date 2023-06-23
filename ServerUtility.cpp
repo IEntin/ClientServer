@@ -11,6 +11,7 @@
 namespace serverutility {
 
 std::string_view buildReply(const Options&options,
+			    const CryptoKeys& keys,
 			    const Response& response,
 			    HEADER& header,
 			    STATUS status) {
@@ -31,7 +32,7 @@ std::string_view buildReply(const Options&options,
   static thread_local std::vector<char> body;
   body.clear();
   STATUS result =
-    commonutils::encryptCompressData(options, data,  header, body, false, status);
+    commonutils::encryptCompressData(options, keys, data,  header, body, false, status);
   bool failed = false;
   switch (result) {
   case STATUS::ERROR:
@@ -47,8 +48,11 @@ std::string_view buildReply(const Options&options,
   return { body.data(), body.size() };
 }
 
-bool processRequest(const HEADER& header, const std::vector<char>& received, Response& response) {
-  std::string_view decryptedView = commonutils::decompressDecrypt(header, received);
+bool processRequest(const CryptoKeys& keys,
+		    const HEADER& header,
+		    const std::vector<char>& received,
+		    Response& response) {
+  std::string_view decryptedView = commonutils::decompressDecrypt(keys, header, received);
   if (decryptedView.empty())
     return false;
   auto weakPtr = TaskController::weakInstance();

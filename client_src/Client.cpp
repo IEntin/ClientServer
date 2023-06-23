@@ -11,7 +11,7 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-Client::Client(const ClientOptions& options) : _options(options) {}
+Client::Client(const ClientOptions& options) : _options(options), _cryptoKeys(false) {}
 
 Client::~Client() {
   stop();
@@ -49,14 +49,14 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 bool Client::run() {
   try {
     int numberTasks = 0;
-    auto taskBuilder = std::make_shared<TaskBuilder>(_options);
+    auto taskBuilder = std::make_shared<TaskBuilder>(_options, _cryptoKeys);
     _threadPoolClient.push(taskBuilder);
     do {
       Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
       auto savedBuild = std::move(taskBuilder);
       if (_options._runLoop) {
 	// start construction of the next task in the background
-	taskBuilder = std::make_shared<TaskBuilder>(_options);
+	taskBuilder = std::make_shared<TaskBuilder>(_options, _cryptoKeys);
 	_threadPoolClient.push(taskBuilder);
       }
       if (!processTask(savedBuild))
@@ -86,7 +86,7 @@ bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
   }
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view output =  commonutils::decompressDecrypt(header, buffer);
+  std::string_view output =  commonutils::decompressDecrypt(_cryptoKeys, header, buffer);
   if (output.empty()) {
     utility::displayStatus(STATUS::ERROR);
     return false;

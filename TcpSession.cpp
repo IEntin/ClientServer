@@ -12,11 +12,12 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(Server& server, ConnectionDetailsPtr details, std::string_view clientId) :
+TcpSession::TcpSession(const Server& server, ConnectionDetailsPtr details, std::string_view clientId) :
   RunnableT(server.getOptions()._maxTcpSessions, _name),
   _options(server.getOptions()),
   _clientId(clientId),
-  _details(details),
+  _cryptoKeys(server.getKeys()),
+   _details(details),
   _ioContext(details->_ioContext),
   _socket(std::move(details->_socket)),
   _timeoutTimer(_ioContext) {
@@ -55,7 +56,7 @@ void TcpSession::stop() {
 }
 
 bool TcpSession::sendReply(const Response& response) {
-  std::string_view body = serverutility::buildReply(_options, response, _header, _status);
+  std::string_view body = serverutility::buildReply(_options, _cryptoKeys, response, _header, _status);
   if (body.empty())
     return false;
   asyncWait();
@@ -114,7 +115,7 @@ void TcpSession::readRequest() {
       }
       static thread_local Response response;
       response.clear();
-      if (serverutility::processRequest(_header, _request, response))
+      if (serverutility::processRequest(_cryptoKeys, _header, _request, response))
 	sendReply(response);
     });
 }

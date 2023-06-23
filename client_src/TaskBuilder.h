@@ -13,6 +13,7 @@
 
 enum class STATUS : char;
 struct ClientOptions;
+struct CryptoKeys;
 
 struct Subtask {
   Subtask() = default;
@@ -31,6 +32,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   int copyRequestWithId(char* dst, std::string_view line);
 
   const ClientOptions& _options;
+  CryptoKeys& _cryptoKeys;
   std::ifstream _input;
   std::deque<Subtask> _subtasks;
   ssize_t _requestIndex = 0;
@@ -39,7 +41,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   void run() override;
   bool start() override { return true; }
  public:
-  TaskBuilder(const ClientOptions& options);
+  TaskBuilder(const ClientOptions& options, CryptoKeys& cryptoKeys);
   ~TaskBuilder() override;
   void stop() override {}
   STATUS getSubtask(Subtask& task);

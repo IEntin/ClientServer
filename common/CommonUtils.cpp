@@ -11,6 +11,7 @@
 namespace commonutils {
 
 STATUS encryptCompressData(const Options& options,
+			   const CryptoKeys& cryptoKeys,
 			   const std::vector<char>& data,
 			   HEADER& header,
 			   std::vector<char>& body,
@@ -23,8 +24,7 @@ STATUS encryptCompressData(const Options& options,
   cipher.clear();
   std::string_view rawSource(data.data(), data.size());
   if (options._encrypted) {
-    static thread_local CryptoKeys cryptoKeys;
-    if (!Encryption::encrypt(rawSource, cryptoKeys._key, cryptoKeys._iv, cipher)) {
+    if (!Encryption::encrypt(rawSource, cryptoKeys, cipher)) {
       LogError << "encryption failed." << std::endl;
       return STATUS::ENCRYPTION_PROBLEM;
     }
@@ -75,7 +75,9 @@ STATUS encryptCompressData(const Options& options,
   return STATUS::NONE;
 }
 
-std::string_view decompressDecrypt(const HEADER& header, const std::vector<char>& received) {
+  std::string_view decompressDecrypt(const CryptoKeys& cryptoKeys,
+				     const HEADER& header,
+				     const std::vector<char>& received) {
   static std::string_view empty;
   std::string_view receivedView(received.data(), received.size());
   std::string_view encryptedView;
@@ -99,7 +101,7 @@ std::string_view decompressDecrypt(const HEADER& header, const std::vector<char>
   static thread_local std::string decrypted;
   decrypted.clear();
   if (isEncrypted(header)) {
-    if (!Encryption::decrypt(encryptedView, Encryption::getKey(), Encryption::getIv(), decrypted))
+    if (!Encryption::decrypt(encryptedView, cryptoKeys, decrypted))
       return empty;
     return { decrypted.data(), decrypted.size() };
   }

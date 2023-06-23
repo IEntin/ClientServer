@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Encryption.h"
 #include "ThreadPoolDiffObj.h"
 #include <map>
 #include <mutex>
@@ -20,8 +21,10 @@ public:
   const ServerOptions& getOptions() const { return _options; }
   bool startSession(std::string_view clientId, RunnablePtr session);
   void stopSessions();
+  const CryptoKeys& getKeys() const { return _cryptoKeys; }
 private:
   const ServerOptions& _options;
+  CryptoKeys _cryptoKeys;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   ThreadPoolBase _threadPoolAcceptor;

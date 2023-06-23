@@ -9,16 +9,19 @@
 #include <vector>
 
 struct Options;
+struct CryptoKeys;
 using Response = std::vector<std::string>;
 
 namespace serverutility {
 
 std::string_view buildReply(const Options&options,
+			    const CryptoKeys& keys,
 			    const Response& response,
 			    HEADER& header,
 			    STATUS status);
 
-bool processRequest(const HEADER& header,
+bool processRequest(const CryptoKeys& keys,
+		    const HEADER& header,
 		    const std::vector<char>& received,
 		    Response& response);
 

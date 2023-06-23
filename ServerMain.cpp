@@ -3,7 +3,6 @@
  */
 
 #include "Chronometer.h"
-#include "Encryption.h"
 #include "Logger.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
@@ -38,7 +37,6 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
-    Encryption::initialize();
     Server server(options);
     if (!server.start())
       return 3;
