@@ -108,8 +108,10 @@ bool FifoClient::receiveStatus() {
 }
 
 void FifoClient::createSignalWatcher() {
-  std::string name = _fifoName;
-  std::function<void()> func = [name]() {
+  const ClientOptions& options(_options);
+  std::string& name(_fifoName);
+  std::function<void()> func = [&options, name]() {
+    Fifo::onExit(name, options);
     try {
       std::filesystem::remove(name);
     }
