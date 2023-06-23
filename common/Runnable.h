@@ -20,14 +20,14 @@ class Runnable {
   explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberRunningByType(maxNumberRunningByType) {}
   virtual ~Runnable() {}
-  virtual bool start() { return true; }
+  virtual bool start() = 0;
   virtual void run() = 0;
   virtual void stop() = 0;
   virtual bool killThread() const { return false; }
   virtual int getNumberObjects() const = 0;
   virtual int getNumberRunningByType() const = 0;
-  virtual void displayCapacityCheck([[maybe_unused]] std::atomic<int>& totalNumberObjects) const {}
-  virtual std::string_view getType() const = 0;
+  virtual void displayCapacityCheck([[maybe_unused]] std::atomic<int>& totalNumberObjects) const = 0;
+   virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }
   std::atomic<STATUS>& getStatus() { return _status; }
   void checkCapacity() {
@@ -89,6 +89,7 @@ class KillThread : public RunnableT<KillThread> {
   void run() override {}
   bool start() override { return true; }
   void stop() override {}
+  void displayCapacityCheck([[maybe_unused]] std::atomic<int>& totalNumberObjects) const override {}
  public:
   KillThread() = default;
   ~KillThread() override {}

@@ -22,6 +22,7 @@ class FifoSession final : public RunnableT<FifoSession> {
   static inline std::string_view _name = "fifo";
   bool receiveRequest(HEADER& header);
   bool sendResponse(const Response& response);
+  bool start() override { return true; }
   void run() override;
   void stop() override;
   bool sendStatusToClient() override;

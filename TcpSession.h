@@ -23,6 +23,7 @@ public:
   ~TcpSession() override;
 
 private:
+  bool start() override { return true; }
   void run() noexcept override;
   void stop() override;
   bool sendStatusToClient() override;

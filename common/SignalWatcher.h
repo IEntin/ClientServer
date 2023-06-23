@@ -8,6 +8,7 @@
 #include <functional>
 
 class SignalWatcher : public RunnableT<SignalWatcher> {
+  bool start() override { return true; }
   void run() override;
   void stop() override;
   std::atomic<ACTIONS>& _flag;
