@@ -45,6 +45,13 @@ void ThreadPoolBase::stop() {
 void  ThreadPoolBase::createThread() {
   _threads.emplace_back([this] () {
     while (true) {
+      struct Decrement {
+	Decrement(ThreadPoolBase* threadPool) : _threadPool(threadPool) {}
+	~Decrement() {
+	  _threadPool->_totalNumberObjects--;
+	}
+	ThreadPoolBase* _threadPool = nullptr;
+      } decremet(this);
       // additional scope for fast recycling
       // of the finished runnable
       {
@@ -66,7 +73,6 @@ void  ThreadPoolBase::createThread() {
 	  runnable->stop();
 	  LogError << "exception caught." << std::endl;
 	}
-	decrement();
       }
     }
   });

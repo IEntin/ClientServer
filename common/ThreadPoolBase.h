@@ -16,7 +16,6 @@ protected:
   ThreadPoolBase(const ThreadPoolBase& other) = delete;
   ThreadPoolBase& operator =(const ThreadPoolBase& other) = delete;
   void increment() { _totalNumberObjects++; }
-  void decrement() { _totalNumberObjects--; }
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
