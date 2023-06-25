@@ -5,7 +5,7 @@
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
 #include "CommonUtils.h"
-#include "Encryption.h"
+#include "CryptoUtility.h"
  #include "Header.h"
 #include "Utility.h"
 

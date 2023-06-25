@@ -21,22 +21,21 @@ CloseFileDescriptor::~CloseFileDescriptor() {
 }
 
 std::string readFile(const std::string& name) {
-  std::vector<char> buffer;
-  readFile(name, buffer);
-  return { std::make_move_iterator(buffer.begin()), std::make_move_iterator(buffer.end()) };
+  std::ostringstream buffer;
+  std::ifstream ifs(name, std::ios::binary);
+  if (ifs) {
+    buffer << ifs.rdbuf();
+  }
+  return buffer.str();
 }
 
-void readFile(const std::string& name, std::vector<char>& buffer) {
-  std::uintmax_t size = std::filesystem::file_size(name);
-  buffer.resize(size);
-  int fd = -1;
-  CloseFileDescriptor cfd(fd);
-  fd = open(name.data(), O_RDONLY);
-  if (fd == -1)
-    throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
-  ssize_t result = read(fd, buffer.data(), size);
-  if (result == -1)
-    throw std::runtime_error(std::string(std::strerror(errno)) + ':' + name);
+bool writeFile(const std::string& name, const std::string& contents) {
+  std::ofstream ofs(name, std::ios::binary);
+  if (ofs) {
+    ofs << contents;
+    return true;
+  }
+  return false;
 }
 
 bool displayStatus(STATUS status) {

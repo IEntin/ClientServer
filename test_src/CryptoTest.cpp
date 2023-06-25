@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Encryption.h"
+#include "CryptoUtility.h"
 #include "Logger.h"
 #include "TestEnvironment.h"
 #include "aes.h"
@@ -17,10 +17,10 @@ TEST(CryptoTest, 1) {
     std::string_view sourceView(TestEnvironment::_source);
 
     std::string cipher;
-    ASSERT_TRUE(Encryption::encrypt(sourceView, cryptoKeys, cipher));
+    ASSERT_TRUE(CryptoUtility::encrypt(sourceView, cryptoKeys, cipher));
 
     std::string decrypted;
-    ASSERT_TRUE(Encryption::decrypt(cipher, cryptoKeys, decrypted));
+    ASSERT_TRUE(CryptoUtility::decrypt(cipher, cryptoKeys, decrypted));
 
     ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
     ASSERT_EQ(TestEnvironment::_source, decrypted);

@@ -147,7 +147,7 @@ struct CloseFileDescriptor {
 
 std::string readFile(const std::string& name);
 
-void readFile(const std::string& name, std::vector<char>& buffer);
+bool writeFile(const std::string& name, const std::string& contents);
 
 bool displayStatus(STATUS status);
 

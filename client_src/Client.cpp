@@ -11,7 +11,8 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-Client::Client(const ClientOptions& options) : _options(options), _cryptoKeys(false) {}
+Client::Client(const ClientOptions& options) :
+  _options(options), _cryptoKeys(false) {}
 
 Client::~Client() {
   stop();

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Encryption.h"
+#include "CryptoUtility.h"
 #include "ThreadPoolDiffObj.h"
 #include <map>
 #include <mutex>
