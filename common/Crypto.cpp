@@ -6,7 +6,7 @@
 #include "CommonConstants.h"
 #include "Logger.h"
 #include "Utility.h"
-#include "osrng.h"
+#include <osrng.h>
 #include <filesystem>
 
 CryptoKeys::CryptoKeys(bool bmaster, bool invalidateKeys) :
@@ -38,11 +38,14 @@ bool CryptoKeys::generate() {
 
 bool CryptoKeys::recover() {
   std::string keyStrRecovered = utility::readFile(CRYPTO_KEY_FILE_NAME);
+  if (keyStrRecovered.empty()) {
+    return false;
+  }
   _key = { reinterpret_cast<const unsigned char*>(&keyStrRecovered[0]), keyStrRecovered.size() };
   std::string ivStrRecovered = utility::readFile(CRYPTO_IV_FILE_NAME);
   _iv = { reinterpret_cast<const unsigned char*>(&ivStrRecovered[0]), ivStrRecovered.size() };
   _valid = true;
-  return true;
+  return _valid;
 }
 
 bool Crypto::encrypt(std::string_view source,
@@ -50,17 +53,11 @@ bool Crypto::encrypt(std::string_view source,
 		     std::string& cipher) {
   if (keys._key.empty() || keys._iv.empty())
     return false;
-  try {
-    CryptoPP::AES::Encryption aesEncryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
-    CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, keys._iv.data());
-    CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
-    stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
-    stfEncryptor.MessageEnd();
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    return false;
-  }
+  CryptoPP::AES::Encryption aesEncryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+  CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, keys._iv.data());
+  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
+  stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
+  stfEncryptor.MessageEnd();
   return true;
 }
 
@@ -69,19 +66,10 @@ bool Crypto::decrypt(std::string_view cipher,
 		     std::string& decrypted) {
   if (keys._key.empty() || keys._iv.empty())
     return false;
-  try {
-    CryptoPP::AES::Decryption aesDecryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
-    CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, keys._iv.data());
-    CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
-    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
-    stfDecryptor.MessageEnd();
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    throw std::runtime_error("Decription problem.Crypto keys are not refreshed.\n"
-			     "Start the server and copy crypto"
-			     " files to clients!");
-    return false;
-  }
+  CryptoPP::AES::Decryption aesDecryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+  CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, keys._iv.data());
+  CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
+  stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
+  stfDecryptor.MessageEnd();
   return true;
 }

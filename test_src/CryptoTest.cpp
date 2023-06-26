@@ -3,11 +3,13 @@
  */
 
 #include "Crypto.h"
+#include "CommonConstants.h"
 #include "Logger.h"
 #include "TestEnvironment.h"
 #include "aes.h"
 #include "modes.h"
 #include "filters.h"
+#include <filesystem>
 
 TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
@@ -28,4 +30,6 @@ TEST(CryptoTest, 1) {
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
   }
+  std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+  std::filesystem::remove(CRYPTO_IV_FILE_NAME);
 }

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "modes.h"
-#include "secblock.h"
+#include <modes.h>
+#include <secblock.h>
 
 struct CryptoKeys {
   CryptoKeys(bool bmaster, bool invalidateKeys = true);

@@ -12,13 +12,16 @@ then
 fi
 
 (
-wget https://www.cryptopp.com/$1
-unzip -aoq cryptopp870.zip -d cryptopp
-cd cryptopp
-CXX=clang++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
-cp libcryptopp.a libcryptoppclang.a
-make clean
-CXX=g++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
-cp libcryptopp.a libcryptoppgcc.a
-make clean
+    cd /usr/local
+    wget https://www.cryptopp.com/$1
+    unzip -aoq cryptopp870.zip -d cryptopp
+    cd cryptopp
+    mkdir /usr/local/include/cryptopp
+    cp *.h /usr/local/include/cryptopp
+    CXX=clang++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
+    cp libcryptopp.a /usr/local/lib/libcryptoppclang.a
+    make clean
+    CXX=g++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
+    cp libcryptopp.a /usr/local/lib/libcryptoppgcc.a
+    make clean
 )

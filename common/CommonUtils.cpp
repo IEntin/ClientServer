@@ -23,12 +23,9 @@ STATUS encryptCompressData(const Options& options,
   static thread_local std::string cipher;
   cipher.clear();
   std::string_view rawSource(data.data(), data.size());
-  if (options._encrypted) {
-    if (!Crypto::encrypt(rawSource, cryptoKeys, cipher)) {
-      LogError << "encryption failed." << std::endl;
-      return STATUS::ENCRYPTION_PROBLEM;
-    }
-  }
+  if (options._encrypted)
+    if (!Crypto::encrypt(rawSource, cryptoKeys, cipher))
+      throw std::runtime_error("encryption failed.");
   std::string_view encryptedView(cipher.data(), cipher.size());
   std::string_view compressionSource = options._encrypted ? encryptedView : rawSource;
   if (bcompressed) {
