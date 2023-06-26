@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CryptoUtility.h"
+#include "Crypto.h"
 #include "ThreadPoolBase.h"
 
 struct Subtask;

@@ -6,6 +6,8 @@
   "NumberWorkThreads" : 0,
   "Compression" : "LZ4",
   "Encrypted" : true,
+  "_comment": "if true shutdown invalidates crypto key and iv.",
+  "InvalidateKeys" : false,
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
   "FifoDirectoryName" : "../Fifos",

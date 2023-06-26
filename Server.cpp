@@ -16,7 +16,7 @@
 
 Server::Server(const ServerOptions& options) :
   _options(options),
-  _cryptoKeys(true),
+  _cryptoKeys(true, options._invalidateKeys),
   _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   StrategySelector strategySelector(options);

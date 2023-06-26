@@ -2,16 +2,22 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CryptoUtility.h"
+#include "Crypto.h"
 #include "CommonConstants.h"
 #include "Logger.h"
 #include "Utility.h"
 #include "osrng.h"
+#include <filesystem>
 
-CryptoKeys::CryptoKeys(bool bmaster) :
+CryptoKeys::CryptoKeys(bool bmaster, bool invalidateKeys) :
   _key(CryptoPP::AES::MAX_KEYLENGTH), _iv(CryptoPP::AES::BLOCKSIZE) {
-  if (bmaster)
-    _valid = generate();
+  if (bmaster) {
+    if (!(std::filesystem::exists(CRYPTO_KEY_FILE_NAME) &&
+	  std::filesystem::exists(CRYPTO_KEY_FILE_NAME)) || invalidateKeys)
+      _valid = generate();
+    else
+      _valid = recover();
+  }
   else
     _valid = recover();
 }
@@ -39,9 +45,9 @@ bool CryptoKeys::recover() {
   return true;
 }
 
-bool CryptoUtility::encrypt(std::string_view source,
-			    const CryptoKeys& keys,
-			    std::string& cipher) {
+bool Crypto::encrypt(std::string_view source,
+		     const CryptoKeys& keys,
+		     std::string& cipher) {
   if (keys._key.empty() || keys._iv.empty())
     return false;
   try {
@@ -58,9 +64,9 @@ bool CryptoUtility::encrypt(std::string_view source,
   return true;
 }
 
-bool CryptoUtility::decrypt(std::string_view cipher,
-			    const CryptoKeys& keys,
-			    std::string& decrypted) {
+bool Crypto::decrypt(std::string_view cipher,
+		     const CryptoKeys& keys,
+		     std::string& decrypted) {
   if (keys._key.empty() || keys._iv.empty())
     return false;
   try {
@@ -72,9 +78,9 @@ bool CryptoUtility::decrypt(std::string_view cipher,
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
-    LogError << "Decription problem.Crypto keys are not refreshed." << std::endl
-	     << "Start the server and copy crypto files to clients!" << std::endl;
-    std::exit(1);
+    throw std::runtime_error("Decription problem.Crypto keys are not refreshed.\n"
+			     "Start the server and copy crypto"
+			     " files to clients!");
     return false;
   }
   return true;

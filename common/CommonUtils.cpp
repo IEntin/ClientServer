@@ -4,7 +4,7 @@
 
 #include "CommonUtils.h"
 #include "Compression.h"
-#include "CryptoUtility.h"
+#include "Crypto.h"
 #include "Logger.h"
 #include "Options.h"
 
@@ -24,7 +24,7 @@ STATUS encryptCompressData(const Options& options,
   cipher.clear();
   std::string_view rawSource(data.data(), data.size());
   if (options._encrypted) {
-    if (!CryptoUtility::encrypt(rawSource, cryptoKeys, cipher)) {
+    if (!Crypto::encrypt(rawSource, cryptoKeys, cipher)) {
       LogError << "encryption failed." << std::endl;
       return STATUS::ENCRYPTION_PROBLEM;
     }
@@ -101,7 +101,7 @@ STATUS encryptCompressData(const Options& options,
   static thread_local std::string decrypted;
   decrypted.clear();
   if (isEncrypted(header)) {
-    if (!CryptoUtility::decrypt(encryptedView, cryptoKeys, decrypted))
+    if (!Crypto::decrypt(encryptedView, cryptoKeys, decrypted))
       return empty;
     return { decrypted.data(), decrypted.size() };
   }

@@ -5,8 +5,8 @@
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
 #include "CommonUtils.h"
-#include "CryptoUtility.h"
- #include "Header.h"
+#include "Crypto.h"
+#include "Header.h"
 #include "Utility.h"
 
 TaskBuilder::TaskBuilder(const ClientOptions& options, CryptoKeys& cryptoKeys) :

@@ -12,11 +12,11 @@
 
 #define CODELOCATION __FILE__ << ':' << __LINE__ << ' ' << __func__
 
-#define LogError Logger(LOG_LEVEL::ERROR, std::cerr) << CODELOCATION << ' '
-#define Warn Logger(LOG_LEVEL::WARN, std::clog) << CODELOCATION << ' '
-#define Info Logger(LOG_LEVEL::INFO, std::clog) << CODELOCATION << ' '
-#define Debug Logger(LOG_LEVEL::DEBUG, std::clog) << CODELOCATION << ' '
-#define Trace Logger(LOG_LEVEL::TRACE, std::clog) << CODELOCATION << ' '
+#define LogError Logger(LOG_LEVEL::ERROR, std::cerr) << CODELOCATION << ':'
+#define Warn Logger(LOG_LEVEL::WARN, std::clog) << CODELOCATION << ':'
+#define Info Logger(LOG_LEVEL::INFO, std::clog) << CODELOCATION << ':'
+#define Debug Logger(LOG_LEVEL::DEBUG, std::clog) << CODELOCATION << ':'
+#define Trace Logger(LOG_LEVEL::TRACE, std::clog) << CODELOCATION << ':'
 
 enum class LOG_LEVEL : char {
   TRACE,
