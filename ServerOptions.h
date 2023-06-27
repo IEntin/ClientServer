@@ -17,5 +17,6 @@ struct ServerOptions : Options {
   int _maxTotalSessions;
   int _tcpTimeout;
   bool _invalidateKeys;
+  bool _showKeys;
   bool _sortInput;
 };
