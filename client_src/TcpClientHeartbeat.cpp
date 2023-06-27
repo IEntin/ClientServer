@@ -25,7 +25,12 @@ bool TcpClientHeartbeat::start() {
 }
 
 void TcpClientHeartbeat::run() {
-  _ioContext.run();
+  try {
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << std::endl;
+  }
 }
 
 void TcpClientHeartbeat::stop() {

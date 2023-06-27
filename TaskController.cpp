@@ -68,16 +68,11 @@ void TaskController::push(TaskPtr task) {
 }
 
 void TaskController::processTask(const HEADER& header, std::string_view input, Response& response) {
-  try {
-    TaskPtr task = std::make_shared<Task>(header, input);
-    auto future = task->getPromise().get_future();
-    push(task);
-    future.get();
-    task->getResponse(response);
-  }
-  catch (const std::future_error& e) {
-    LogError << e.what() << std::endl;
-  }
+  TaskPtr task = std::make_shared<Task>(header, input);
+  auto future = task->getPromise().get_future();
+  push(task);
+  future.get();
+  task->getResponse(response);
 }
 
 void TaskController::setNextTask() {
@@ -130,17 +125,9 @@ void TaskController::Worker::run() noexcept {
   auto& task = taskController->_task;
   auto& barrier = taskController->_barrier;
   while (!stopped) {
-    try {
-      while (task->extractKeyNext());
-      barrier.arrive_and_wait();
-      while (task->processNext());
-      barrier.arrive_and_wait();
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-    }
-    catch (...) {
-      LogError << "! exception caught." << std::endl;
-    }
+    while (task->extractKeyNext());
+    barrier.arrive_and_wait();
+    while (task->processNext());
+    barrier.arrive_and_wait();
   }
 }

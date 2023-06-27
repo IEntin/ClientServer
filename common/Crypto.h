@@ -20,10 +20,10 @@ private:
 
 class Crypto {
  public:
-  static bool encrypt(std::string_view source,
+  static void encrypt(std::string_view source,
 		      const CryptoKeys& keys,
 		      std::string& cipher);
-  static bool decrypt(std::string_view cipher,
+  static void decrypt(std::string_view cipher,
 		      const CryptoKeys& keys,
 		      std::string& decrypted);
 };

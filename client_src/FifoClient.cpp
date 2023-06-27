@@ -16,17 +16,11 @@ namespace fifo {
 
 FifoClient::FifoClient(const ClientOptions& options) :
   Client(options) {
-  try {
-    boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
-    boost::interprocess::scoped_lock lock(mutex);
-    if (!wakeupAcceptor())
-      throw std::runtime_error("FifoClient::wakeupAcceptor failed");
-    if (!receiveStatus())
-      throw std::runtime_error("FifoClient::receiveStatus failed");
-  }
-  catch (const boost::interprocess::interprocess_exception& e) {
-    LogError << e.what() << std::endl;
-  }
+  boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
+  boost::interprocess::scoped_lock lock(mutex);
+  if (!wakeupAcceptor())
+    return;
+  receiveStatus();
 }
 
 FifoClient::~FifoClient() {
@@ -59,18 +53,11 @@ bool FifoClient::receive() {
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
   _status = STATUS::NONE;
-  try {
-    thread_local static std::vector<char> buffer;
-    HEADER header;
-    if (!Fifo::readMsgBlock(_fifoName, header, buffer))
-      return false;
-    return printReply(header, buffer);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+  thread_local static std::vector<char> buffer;
+  HEADER header;
+  if (!Fifo::readMsgBlock(_fifoName, header, buffer))
     return false;
-  }
-  return true;
+  return printReply(header, buffer);
 }
 
 bool FifoClient::wakeupAcceptor() {
@@ -80,29 +67,23 @@ bool FifoClient::wakeupAcceptor() {
 }
 
 bool FifoClient::receiveStatus() {
-  try {
-    HEADER header;
-    std::vector<char> buffer;
-    if (!Fifo::readMsgBlock(_options._acceptorName, header, buffer))
-      return false;
-    _clientId.assign(buffer.begin(), buffer.end());
-    _status = extractStatus(header);
-    _fifoName = _options._fifoDirectoryName + '/' + _clientId;
-    createSignalWatcher();
-    switch (_status) {
-    case STATUS::MAX_OBJECTS_OF_TYPE:
-      utility::displayMaxSessionsOfTypeWarn("fifo");
-      break;
-     case STATUS::MAX_TOTAL_OBJECTS:
-       utility::displayMaxTotalSessionsWarn();
-      break;
-    default:
-      break;
-    }
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+  HEADER header;
+  std::vector<char> buffer;
+  if (!Fifo::readMsgBlock(_options._acceptorName, header, buffer))
     return false;
+  _clientId.assign(buffer.begin(), buffer.end());
+  _status = extractStatus(header);
+  _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+  createSignalWatcher();
+  switch (_status) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    utility::displayMaxSessionsOfTypeWarn("fifo");
+    break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    utility::displayMaxTotalSessionsWarn();
+    break;
+  default:
+    break;
   }
   return true;
 }
@@ -112,12 +93,7 @@ void FifoClient::createSignalWatcher() {
   std::string& name(_fifoName);
   std::function<void()> func = [&options, name]() {
     Fifo::onExit(name, options);
-    try {
-      std::filesystem::remove(name);
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-    }
+    std::filesystem::remove(name);
   };
   auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);
   _signalWatcher = ptr;

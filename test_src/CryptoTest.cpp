@@ -19,10 +19,10 @@ TEST(CryptoTest, 1) {
     std::string_view sourceView(TestEnvironment::_source);
 
     std::string cipher;
-    ASSERT_TRUE(Crypto::encrypt(sourceView, cryptoKeys, cipher));
+    Crypto::encrypt(sourceView, cryptoKeys, cipher);
 
     std::string decrypted;
-    ASSERT_TRUE(Crypto::decrypt(cipher, cryptoKeys, decrypted));
+    Crypto::decrypt(cipher, cryptoKeys, decrypted);
 
     ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
     ASSERT_EQ(TestEnvironment::_source, decrypted);

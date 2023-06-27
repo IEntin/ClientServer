@@ -24,39 +24,32 @@ STATUS encryptCompressData(const Options& options,
   cipher.clear();
   std::string_view rawSource(data.data(), data.size());
   if (options._encrypted)
-    if (!Crypto::encrypt(rawSource, cryptoKeys, cipher))
-      throw std::runtime_error("encryption failed.");
+    Crypto::encrypt(rawSource, cryptoKeys, cipher);
   std::string_view encryptedView(cipher.data(), cipher.size());
   std::string_view compressionSource = options._encrypted ? encryptedView : rawSource;
   if (bcompressed) {
-    try {
-      std::string_view compressedView = Compression::compress(compressionSource.data(), compressionSource.size());
-      // LZ4 may generate compressed larger than uncompressed.
-      // In this case an uncompressed subtask is sent.
-      if (compressedView.size() >= compressionSource.size()) {
-	header = { HEADERTYPE::SESSION,
-	  compressionSource.size(),
-	  compressionSource.size(),
-	  COMPRESSORS::NONE,
-	  options._encrypted,
-	  diagnostics,
-	  status };
-	body.assign(compressionSource.cbegin(), compressionSource.cend());
-      }
-      else {
-	header = { HEADERTYPE::SESSION,
-	  compressionSource.size(),
-	  compressedView.size(),
-	  options._compressor,
-	  options._encrypted,
-	  diagnostics,
-	  status };
-	body.assign(compressedView.cbegin(), compressedView.cend());
-      }
+    std::string_view compressedView = Compression::compress(compressionSource.data(), compressionSource.size());
+    // LZ4 may generate compressed larger than uncompressed.
+    // In this case an uncompressed subtask is sent.
+    if (compressedView.size() >= compressionSource.size()) {
+      header = { HEADERTYPE::SESSION,
+	compressionSource.size(),
+	compressionSource.size(),
+	COMPRESSORS::NONE,
+	options._encrypted,
+	diagnostics,
+	status };
+      body.assign(compressionSource.cbegin(), compressionSource.cend());
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-      return STATUS::ERROR;
+    else {
+      header = { HEADERTYPE::SESSION,
+	compressionSource.size(),
+	compressedView.size(),
+	options._compressor,
+	options._encrypted,
+	diagnostics,
+	status };
+      body.assign(compressedView.cbegin(), compressedView.cend());
     }
   }
   else {
@@ -98,8 +91,7 @@ STATUS encryptCompressData(const Options& options,
   static thread_local std::string decrypted;
   decrypted.clear();
   if (isEncrypted(header)) {
-    if (!Crypto::decrypt(encryptedView, cryptoKeys, decrypted))
-      return empty;
+    Crypto::decrypt(encryptedView, cryptoKeys, decrypted);
     return { decrypted.data(), decrypted.size() };
   }
   else

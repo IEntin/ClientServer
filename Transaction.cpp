@@ -85,41 +85,36 @@ Transaction::~Transaction() {
 
 std::string Transaction::processRequest(std::string_view key, std::string_view request) noexcept {
   std::string id("[unknown]");
-  try {
-    Transaction transaction(key, request);
-    if (request.empty()) {
-      LogError << "request is empty" << std::endl;
-      transaction._invalid = true;
-      return id.append(INVALID_REQUEST);
-    }
-    if (key.empty()) {
-      LogError << "key is empty" << std::endl;
-      transaction._invalid = true;
-      return id.append(INVALID_REQUEST);
-    }
-    id.assign(transaction._id);
-    static std::vector<Ad> empty;
-    static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
-    static thread_local std::string prevKey;
-    if (key != prevKey) {
-      prevKey = key;
-      adVector = Ad::getAdsBySize(key);
-    }
-    if (adVector.get().empty() || transaction._keywords.empty()) {
-      transaction._invalid = true;
-      LogError << "invalid request:" << transaction._request << " id:" << id << std::endl;
-      return id.append(INVALID_REQUEST);
-    }
-    transaction.matchAds(adVector);
-    if (transaction._noMatch && !TaskController::isDiagnosticsEnabled())
-      return id.append(1, ' ').append(EMPTY_REPLY);
-    std::ostringstream os;
-    os << transaction;
-    return os.str();
+  Transaction transaction(key, request);
+  if (request.empty()) {
+    LogError << "request is empty" << std::endl;
+    transaction._invalid = true;
+    return id.append(INVALID_REQUEST);
   }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+  if (key.empty()) {
+    LogError << "key is empty" << std::endl;
+    transaction._invalid = true;
+    return id.append(INVALID_REQUEST);
   }
+  id.assign(transaction._id);
+  static std::vector<Ad> empty;
+  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
+  static thread_local std::string prevKey;
+  if (key != prevKey) {
+    prevKey = key;
+    adVector = Ad::getAdsBySize(key);
+  }
+  if (adVector.get().empty() || transaction._keywords.empty()) {
+    transaction._invalid = true;
+    LogError << "invalid request:" << transaction._request << " id:" << id << std::endl;
+    return id.append(INVALID_REQUEST);
+  }
+  transaction.matchAds(adVector);
+  if (transaction._noMatch && !TaskController::isDiagnosticsEnabled())
+    return id.append(1, ' ').append(EMPTY_REPLY);
+  std::ostringstream os;
+  os << transaction;
+  return os.str();
   return id.append(PROCESSING_ERROR);
 }
 

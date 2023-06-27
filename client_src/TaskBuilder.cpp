@@ -23,39 +23,25 @@ TaskBuilder::~TaskBuilder() {
 }
 
 void TaskBuilder::run() {
-  try {
-    while (createSubtask() == STATUS::SUBTASK_DONE) {}
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-  }
-  catch (...) {
-    LogError << "exception caught." << std::endl;
-  }
+  while (createSubtask() == STATUS::SUBTASK_DONE) {}
 }
 
 STATUS TaskBuilder::getSubtask(Subtask& task) {
   STATUS state = STATUS::NONE;
-  try {
-    auto& subtask = _subtasks.front();
-    subtask._state.wait(STATUS::NONE);
-    state = subtask._state;
-    switch (state) {
-    case STATUS::SUBTASK_DONE:
-    case STATUS::TASK_DONE:
-      subtask._header.swap(task._header);
-      subtask._body.swap(task._body);
-      break;
-    default:
-      break;
-    }
-    std::scoped_lock lock(_mutex);
-    _subtasks.pop_front();
+  auto& subtask = _subtasks.front();
+  subtask._state.wait(STATUS::NONE);
+  state = subtask._state;
+  switch (state) {
+  case STATUS::SUBTASK_DONE:
+  case STATUS::TASK_DONE:
+    subtask._header.swap(task._header);
+    subtask._body.swap(task._body);
+    break;
+  default:
+    break;
   }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    return STATUS::ERROR;
-  }
+  std::scoped_lock lock(_mutex);
+  _subtasks.pop_front();
   return state;
 }
 
@@ -91,26 +77,18 @@ STATUS TaskBuilder::createSubtask() {
     std::scoped_lock lock(_mutex);
     _subtasks.emplace_back();
   }
-  try {
-    while (std::getline(_input, line)) {
-      aggregate.resize(aggregateSize + _nextIdSz + line.size() + 1);
-      int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
-      aggregateSize += copied;
-      bool alldone = _input.peek() == std::istream::traits_type::eof();
-      if (aggregateSize >= maxSubtaskSize || alldone) {
-	// remove last eol
-	aggregate.pop_back();
-	return encryptCompressSubtask(subtask, aggregate, alldone);
-      }
-      else
-	continue;
+  while (std::getline(_input, line)) {
+    aggregate.resize(aggregateSize + _nextIdSz + line.size() + 1);
+    int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
+    aggregateSize += copied;
+    bool alldone = _input.peek() == std::istream::traits_type::eof();
+    if (aggregateSize >= maxSubtaskSize || alldone) {
+      // remove last eol
+      aggregate.pop_back();
+      return encryptCompressSubtask(subtask, aggregate, alldone);
     }
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    subtask._state = STATUS::ERROR;
-    subtask._state.notify_one();
-    return STATUS::ERROR;
+    else
+      continue;
   }
   return STATUS::NONE;
 }

@@ -25,34 +25,23 @@ Server::Server(const ServerOptions& options) :
 }
 
 Server::~Server() {
-  try {
-    boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-  }
+  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   Trace << std::endl;
 }
 
 bool Server::start() {
-  try {
-    if (!TaskController::create(_options))
-      return false;
-    _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
-    if (!_tcpAcceptor->start())
-      return false;
-    _threadPoolAcceptor.push(_tcpAcceptor);
-    _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
-    if (!_fifoAcceptor->start())
-      return false;
-    _threadPoolAcceptor.push(_fifoAcceptor);
-    std::ofstream file(_options._controlFileName);
-    std::filesystem::permissions(_options._controlFileName, std::filesystem::perms::none);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what();
+  if (!TaskController::create(_options))
     return false;
-  }
+  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
+  if (!_tcpAcceptor->start())
+    return false;
+  _threadPoolAcceptor.push(_tcpAcceptor);
+  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
+  if (!_fifoAcceptor->start())
+    return false;
+  _threadPoolAcceptor.push(_fifoAcceptor);
+  std::ofstream file(_options._controlFileName);
+  std::filesystem::permissions(_options._controlFileName, std::filesystem::perms::none);
   return true;
 }
 

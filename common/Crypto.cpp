@@ -48,28 +48,26 @@ bool CryptoKeys::recover() {
   return _valid;
 }
 
-bool Crypto::encrypt(std::string_view source,
+void Crypto::encrypt(std::string_view source,
 		     const CryptoKeys& keys,
 		     std::string& cipher) {
   if (keys._key.empty() || keys._iv.empty())
-    return false;
+    throw std::runtime_error("empty keys");
   CryptoPP::AES::Encryption aesEncryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, keys._iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
   stfEncryptor.MessageEnd();
-  return true;
 }
 
-bool Crypto::decrypt(std::string_view cipher,
+void Crypto::decrypt(std::string_view cipher,
 		     const CryptoKeys& keys,
 		     std::string& decrypted) {
   if (keys._key.empty() || keys._iv.empty())
-    return false;
+    throw std::runtime_error("empty keys");
   CryptoPP::AES::Decryption aesDecryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, keys._iv.data());
   CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
   stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
   stfDecryptor.MessageEnd();
-  return true;
 }

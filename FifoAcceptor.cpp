@@ -24,21 +24,15 @@ FifoAcceptor::~FifoAcceptor() {
 
 std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
   static std::string emptyString;
-  try {
-    // blocks until the client opens writing end
-    if (_stopped)
-      return { HEADERTYPE::ERROR, emptyString };
-    HEADER header;
-    std::vector<char> body;
-    if (!Fifo::readMsgBlock(_options._acceptorName, header, body))
-      return { HEADERTYPE::ERROR, emptyString };
-    std::string key(body.cbegin(), body.cend());
-    return { extractHeaderType(header), std::move(key) };
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+  // blocks until the client opens writing end
+  if (_stopped)
     return { HEADERTYPE::ERROR, emptyString };
-  }
+  HEADER header;
+  std::vector<char> body;
+  if (!Fifo::readMsgBlock(_options._acceptorName, header, body))
+    return { HEADERTYPE::ERROR, emptyString };
+  std::string key(body.cbegin(), body.cend());
+  return { extractHeaderType(header), std::move(key) };
 }
 
 void FifoAcceptor::run() {
@@ -81,14 +75,9 @@ void FifoAcceptor::stop() {
 }
 
 void FifoAcceptor::removeFifoFiles() {
-  try {
-    for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
-      if (entry.is_fifo())
-	std::filesystem::remove(entry);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-  }
+  for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
+    if (entry.is_fifo())
+      std::filesystem::remove(entry);
 }
 
 } // end of namespace fifo

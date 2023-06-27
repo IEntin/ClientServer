@@ -22,13 +22,8 @@ FifoSession::FifoSession(const Server& server, std::string_view clientId) :
 }
 
 FifoSession::~FifoSession() {
-  try {
-    std::filesystem::remove(_fifoName);
-    Trace << std::endl;
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-  }
+  std::filesystem::remove(_fifoName);
+  Trace << std::endl;
 }
 
 void FifoSession::run() {
@@ -59,22 +54,15 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  try {
-    static thread_local std::vector<char> request;
-    request.clear();
-    if (!Fifo::readMsgBlock(_fifoName, header, request))
-      return false;
-    static thread_local Response response;
-    response.clear();
-    if (serverutility::processRequest(_cryptoKeys, header, request, response))
-      return sendResponse(response);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
-    MemoryPool::destroyBuffers();
+  static thread_local std::vector<char> request;
+  request.clear();
+  if (!Fifo::readMsgBlock(_fifoName, header, request))
     return false;
-  }
-  return true;
+  static thread_local Response response;
+  response.clear();
+  if (serverutility::processRequest(_cryptoKeys, header, request, response))
+    return sendResponse(response);
+  return false;
 }
 
 bool FifoSession::sendResponse(const Response& response) {
