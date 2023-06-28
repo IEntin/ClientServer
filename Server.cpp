@@ -11,9 +11,9 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
-#include <filters.h>
-#include <files.h>
-#include <hex.h>
+#include <cryptopp/files.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
 #include <filesystem>
 #include <fstream>
 

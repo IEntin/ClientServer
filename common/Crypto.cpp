@@ -6,7 +6,7 @@
 #include "CommonConstants.h"
 #include "Logger.h"
 #include "Utility.h"
-#include <osrng.h>
+#include <cryptopp/osrng.h>
 #include <filesystem>
 
 CryptoKeys::CryptoKeys(bool bmaster, bool invalidateKeys) :

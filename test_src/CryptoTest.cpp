@@ -6,9 +6,9 @@
 #include "CommonConstants.h"
 #include "Logger.h"
 #include "TestEnvironment.h"
-#include "aes.h"
-#include "modes.h"
-#include "filters.h"
+#include <cryptopp/aes.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/modes.h>
 #include <filesystem>
 
 TEST(CryptoTest, 1) {
