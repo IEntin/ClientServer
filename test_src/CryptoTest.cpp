@@ -8,9 +8,6 @@
 #include "Logger.h"
 #include "ServerOptions.h"
 #include "TestEnvironment.h"
-#include <cryptopp/aes.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/modes.h>
 #include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=CommonUtilsTest*; done
@@ -44,7 +41,7 @@ struct CommonUtilsTest : testing::Test {
       CryptoKeys cryptoKeys(true);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
-      std::vector<char> data(TestEnvironment::_source.cbegin(), TestEnvironment::_source.cend());
+      std::string_view data(TestEnvironment::_source.data(), TestEnvironment::_source.size());
       HEADER header;
       std::vector<char> body;
       bool diagnostics = false;
@@ -63,6 +60,7 @@ struct CommonUtilsTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -93,9 +91,9 @@ struct CommonUtilsTestEncryptionFirst : testing::Test {
       CryptoKeys cryptoKeys(true);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
-      std::vector<char> data(TestEnvironment::_source.cbegin(), TestEnvironment::_source.cend());
+      std::string_view data = TestEnvironment::_source;
       HEADER header;
-      std::vector<char> body;
+      std::string_view body;
       bool diagnostics = false;
       STATUS result =
 	commonutils::compressEncryptData(TestEnvironment::_serverOptions,
@@ -112,6 +110,7 @@ struct CommonUtilsTestEncryptionFirst : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 

@@ -35,6 +35,7 @@ struct EchoTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -57,6 +58,7 @@ struct EchoTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -132,6 +134,7 @@ struct FifoNonblockingTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -150,6 +153,7 @@ struct FifoNonblockingTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 

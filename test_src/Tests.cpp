@@ -12,10 +12,11 @@ struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string_view input) {
     try{
-      std::string_view compressedView = Compression::compress(input.data(), input.size());
-      std::vector<char> compressed(compressedView.cbegin(), compressedView.cend());
+      static thread_local std::vector<char> buffer;
+      buffer.clear();
+      std::string_view compressedView = Compression::compress(input, buffer);
       std::vector<char> uncompressed(input.size());
-      Compression::uncompress(compressed, uncompressed);
+      Compression::uncompress(compressedView, uncompressed);
       std::string_view uncompressedView(uncompressed.data(), uncompressed.size());
       // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
@@ -132,5 +133,6 @@ TEST(HeaderTest, 1) {
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
+    ASSERT_TRUE(false);
   }
 }

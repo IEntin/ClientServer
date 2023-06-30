@@ -39,6 +39,7 @@ struct LogicTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -70,6 +71,7 @@ struct LogicTest : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -172,6 +174,7 @@ struct LogicTestAltFormat : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 
@@ -205,6 +208,7 @@ struct LogicTestSortInput : testing::Test {
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
+      ASSERT_TRUE(false);
     }
   }
 

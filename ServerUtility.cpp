@@ -29,10 +29,11 @@ std::string_view buildReply(const Options&options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
+  std::string_view dataView(data.data(), data.size());
   static thread_local std::vector<char> body;
   body.clear();
   STATUS result =
-    commonutils::encryptCompressData(options, keys, data,  header, body, false, status);
+    commonutils::encryptCompressData(options, keys, dataView,  header, body, false, status);
   bool failed = false;
   switch (result) {
   case STATUS::ERROR:

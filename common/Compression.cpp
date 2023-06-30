@@ -14,13 +14,11 @@ COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) 
   return compressor;
 }
 
-std::string_view Compression::compress(const char* uncompressed, size_t uncompressedSize) {
-  static thread_local std::vector<char> buffer;
-  buffer.clear();
-  buffer.reserve(LZ4_compressBound(uncompressedSize));
-  size_t compressedSize = LZ4_compress_default(uncompressed,
+std::string_view Compression::compress(std::string_view uncompressed, std::vector<char>& buffer) {
+  buffer.reserve(LZ4_compressBound(uncompressed.size()));
+  size_t compressedSize = LZ4_compress_default(uncompressed.data(),
 					       buffer.data(),
-					       uncompressedSize,
+					       uncompressed.size(),
 					       buffer.capacity());
   if (compressedSize == 0) {
     LogError << (errno ? strerror(errno) : "failed") << std::endl;
@@ -29,7 +27,7 @@ std::string_view Compression::compress(const char* uncompressed, size_t uncompre
   return { buffer.data(), compressedSize };
 }
 
-void Compression::uncompress(const std::vector<char>& compressed, std::vector<char>& uncompressed) {
+void Compression::uncompress(std::string_view compressed, std::vector<char>& uncompressed) {
   ssize_t decomprSize = LZ4_decompress_safe(compressed.data(),
 					    uncompressed.data(),
 					    compressed.size(),
