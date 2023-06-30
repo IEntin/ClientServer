@@ -4,7 +4,6 @@
 
 #include "FifoSession.h"
 #include "Fifo.h"
-#include "MemoryPool.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"

@@ -17,85 +17,110 @@ STATUS encryptCompressData(const Options& options,
 			   std::vector<char>& body,
 			   bool diagnostics,
 			   STATUS status) {
-  bool bcompressed = options._compressor == COMPRESSORS::LZ4;
-  static thread_local auto& printOnce[[maybe_unused]] =
-    Logger(LOG_LEVEL::DEBUG) << "compression " << (bcompressed ? "enabled" : "disabled") << std::endl;
-  static thread_local std::string cipher;
-  cipher.clear();
-  std::string_view rawSource(data.data(), data.size());
-  if (options._encrypted)
-    Crypto::encrypt(rawSource, cryptoKeys, cipher);
-  std::string_view encryptedView(cipher.data(), cipher.size());
-  std::string_view compressionSource = options._encrypted ? encryptedView : rawSource;
-  if (bcompressed) {
-    std::string_view compressedView = Compression::compress(compressionSource.data(), compressionSource.size());
-    // LZ4 may generate compressed larger than uncompressed.
-    // In this case an uncompressed subtask is sent.
-    if (compressedView.size() >= compressionSource.size()) {
-      header = { HEADERTYPE::SESSION,
-	compressionSource.size(),
-	compressionSource.size(),
-	COMPRESSORS::NONE,
-	options._encrypted,
-	diagnostics,
-	status };
-      body.assign(compressionSource.cbegin(), compressionSource.cend());
-    }
-    else {
-      header = { HEADERTYPE::SESSION,
-	compressionSource.size(),
-	compressedView.size(),
-	options._compressor,
-	options._encrypted,
-	diagnostics,
-	status };
-      body.assign(compressedView.cbegin(), compressedView.cend());
-    }
+  std::string_view nextInput(data.data(), data.size());
+  size_t uncomprSize = data.size();
+  size_t comprSize = data.size();
+  if (options._encrypted) {
+    static thread_local std::string cipher;
+    cipher.clear();
+    Crypto::encrypt(nextInput, cryptoKeys, cipher);
+    nextInput = { cipher.data(), cipher.size() };
   }
-  else {
-    header = { HEADERTYPE::SESSION,
-      compressionSource.size(),
-      compressionSource.size(),
-      options._compressor,
-      options._encrypted,
-      diagnostics,
-      status };
-    body.assign(compressionSource.cbegin(), compressionSource.cend());
+  if (options._compressor == COMPRESSORS::LZ4) {
+    std::string_view compressedView = Compression::compress(nextInput.data(), nextInput.size());
+    uncomprSize = nextInput.size();
+    comprSize = compressedView.size();
+    nextInput = { compressedView.data(), compressedView.size() };
   }
+  header = { HEADERTYPE::SESSION,
+    uncomprSize,
+    comprSize,
+    options._compressor,
+    options._encrypted,
+    diagnostics,
+    status };
+  body.assign(nextInput.cbegin(), nextInput.cend());
   return STATUS::NONE;
 }
 
-  std::string_view decompressDecrypt(const CryptoKeys& cryptoKeys,
-				     const HEADER& header,
-				     const std::vector<char>& received) {
-  static std::string_view empty;
-  std::string_view receivedView(received.data(), received.size());
-  std::string_view encryptedView;
-  static thread_local std::vector<char> uncompressed;
-  uncompressed.clear();
-  bool bcompressed = isCompressed(header);
-  if (bcompressed) {
-    static thread_local auto& printOnce[[maybe_unused]] = Trace << " received compressed." << std::endl;
-    size_t uncompressedSize = extractUncompressedSize(header);
-    uncompressed.resize(uncompressedSize);
-    if (!Compression::uncompress(received, received.size(), uncompressed)) {
-      LogError << "decompression failed." << std::endl;
-      return empty;
-    }
-    encryptedView = { uncompressed.data(), uncompressed.size() };
+std::string_view decompressDecrypt(const CryptoKeys& cryptoKeys,
+				   const HEADER& header,
+				   const std::vector<char>& received) {
+  std::string_view nextInput(received.data(), received.size());
+  if (isCompressed(header)) {
+    static thread_local std::vector<char> uncompressed;
+    uncompressed.clear();
+    size_t uncomprSize = extractUncompressedSize(header);
+    uncompressed.resize(uncomprSize);
+    static thread_local std::vector<char> compressed;
+    compressed = { nextInput.cbegin(), nextInput.cend() };
+    Compression::uncompress(compressed, uncompressed);
+    nextInput = { uncompressed.data(), uncomprSize };
   }
-  else {
-    static thread_local auto& printOnce[[maybe_unused]] = Trace << " received not compressed." << std::endl;
-    encryptedView = receivedView;
-  }
-  static thread_local std::string decrypted;
-  decrypted.clear();
   if (isEncrypted(header)) {
-    Crypto::decrypt(encryptedView, cryptoKeys, decrypted);
-    return { decrypted.data(), decrypted.size() };
+    static thread_local std::string decrypted;
+    decrypted.clear();
+    Crypto::decrypt(nextInput, cryptoKeys, decrypted);
+    nextInput = { decrypted.data(), decrypted.size() };
   }
-  else
-    return encryptedView;
+  return nextInput;
+}
+
+
+STATUS compressEncryptData(const Options& options,
+			   const CryptoKeys& cryptoKeys,
+			   const std::vector<char>& data,
+			   HEADER& header,
+			   std::vector<char>& body,
+			   bool diagnostics,
+			   STATUS status) {
+  std::string_view nextInput(data.data(), data.size());
+  size_t uncomprSize = data.size();
+  size_t comprSize = data.size();
+  if (options._compressor == COMPRESSORS::LZ4) {
+    std::string_view compressedView = Compression::compress(nextInput.data(), nextInput.size());
+    uncomprSize = nextInput.size();
+    comprSize = compressedView.size();
+    nextInput = { compressedView.data(), compressedView.size() };
+  }
+  if (options._encrypted) {
+    static thread_local std::string cipher;
+    cipher.clear();
+    Crypto::encrypt(nextInput, cryptoKeys, cipher);
+    nextInput = { cipher.data(), cipher.size() };
+  }
+  header = { HEADERTYPE::SESSION,
+    uncomprSize,
+    comprSize,
+    options._compressor,
+    options._encrypted,
+    diagnostics,
+    status };
+  body.assign(nextInput.cbegin(), nextInput.cend());
+  return STATUS::NONE;
+}
+
+std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
+				   const HEADER& header,
+				   const std::vector<char>& received) {
+  std::string_view nextInput(received.data(), received.size());
+  if (isEncrypted(header)) {
+    static thread_local std::string decrypted;
+    decrypted.clear();
+    Crypto::decrypt(nextInput, cryptoKeys, decrypted);
+    nextInput = { decrypted.data(), decrypted.size() };
+  }
+  if (isCompressed(header)) {
+    static thread_local std::vector<char> uncompressed;
+    uncompressed.clear();
+    size_t uncomprSize = extractUncompressedSize(header);
+    uncompressed.resize(uncomprSize);
+    static thread_local std::vector<char> compressed;
+    compressed = { nextInput.cbegin(), nextInput.cend() };
+    Compression::uncompress(compressed, uncompressed);
+    nextInput = { uncompressed.data(), uncomprSize };
+  }
+  return nextInput;
 }
 
 } // end of namespace commonutils

@@ -13,8 +13,12 @@ fi
 
 (
     cd /usr/local
-    wget https://www.cryptopp.com/$1
+    rm -f $1
+    rm -rf /usr/local/include/cryptopp
+    rm -rf /usr/local/lib/cryptopp
     cryptoppBaseName=$(basename $1 .zip)
+    rm -rf "$cryptoppBaseName"
+    wget https://www.cryptopp.com/$1
     unzip -aoq $1 -d "$cryptoppBaseName"
     mkdir -p /usr/local/lib/cryptopp
     cd "$cryptoppBaseName"

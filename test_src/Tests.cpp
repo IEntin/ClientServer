@@ -13,29 +13,16 @@ struct CompressionTest : testing::Test {
   void testCompressionDecompression1(std::string_view input) {
     try{
       std::string_view compressedView = Compression::compress(input.data(), input.size());
-      // save to a string before buffer is reused in uncompress
-      std::string compressed(compressedView.data(), compressedView.size());
-      std::string_view uncompressedView = Compression::uncompress(compressed.data(), compressed.size(), input.size());
+      std::vector<char> compressed(compressedView.cbegin(), compressedView.cend());
+      std::vector<char> uncompressed(input.size());
+      Compression::uncompress(compressed, uncompressed);
+      std::string_view uncompressedView(uncompressed.data(), uncompressed.size());
       // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
 	Logger(false) << "\n   input.size()=" << input.size()
 		      << " compressedView.size()=" << compressedView.size() << " restored to original:"
 		      << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
       ASSERT_EQ(input, uncompressedView);
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-    }
-  }
-
-  void testCompressionDecompression2(std::string_view input) {
-    try{
-      std::string_view compressedView = Compression::compress(input.data(), input.size());
-      // supplied external buffers to uncompress
-      std::vector<char> uncompressed(input.size());
-      std::vector<char> compressed(compressedView.cbegin(), compressedView.cend());
-      ASSERT_TRUE(Compression::uncompress(compressed, compressed.size(), uncompressed));
-      ASSERT_EQ(input, std::string_view(uncompressed.data(), uncompressed.size()));
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
@@ -49,14 +36,6 @@ TEST_F(CompressionTest, 1_SOURCE) {
 
 TEST_F(CompressionTest, 1_OUTPUTD) {
   testCompressionDecompression1(TestEnvironment::_outputD);
-}
-
-TEST_F(CompressionTest, 2_SOURCE) {
-  testCompressionDecompression2(TestEnvironment::_source);
-}
-
-TEST_F(CompressionTest, 2_OUTPUTD) {
-  testCompressionDecompression2(TestEnvironment::_outputD);
 }
 
 TEST(SplitTest, NoKeepDelim) {

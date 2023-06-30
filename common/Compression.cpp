@@ -6,7 +6,6 @@
 #include "Header.h"
 #include "Logger.h"
 #include "lz4.h"
-#include "MemoryPool.h"
 #include <cstring>
 
 COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) {
@@ -16,47 +15,27 @@ COMPRESSORS Compression::isCompressionEnabled(const std::string& compressorStr) 
 }
 
 std::string_view Compression::compress(const char* uncompressed, size_t uncompressedSize) {
-  std::vector<char>& buffer = MemoryPool::instance().getFirstBuffer(LZ4_compressBound(uncompressedSize));
+  static thread_local std::vector<char> buffer;
+  buffer.clear();
+  buffer.reserve(LZ4_compressBound(uncompressedSize));
   size_t compressedSize = LZ4_compress_default(uncompressed,
 					       buffer.data(),
 					       uncompressedSize,
 					       buffer.capacity());
   if (compressedSize == 0) {
     LogError << (errno ? strerror(errno) : "failed") << std::endl;
-    throw std::runtime_error(std::strerror(errno));
+    throw std::runtime_error("compress failed");
   }
   return { buffer.data(), compressedSize };
 }
 
-std::string_view Compression::uncompress(const char* compressed,
-					 size_t compressedSize,
-					 size_t uncomprSize) {
-  std::vector<char>& uncompressed = MemoryPool::instance().getFirstBuffer(uncomprSize);
-  ssize_t decomprSize = LZ4_decompress_safe(compressed,
-					    uncompressed.data(),
-					    compressedSize,
-					    uncomprSize);
-  if (decomprSize != static_cast<ssize_t>(uncomprSize)) {
-    if (errno)
-      LogError << strerror(errno) << std::endl;
-    return { 0, 0 };
-  }
-  return { uncompressed.data(), uncomprSize };
-}
-
-bool Compression::uncompress(const std::vector<char>& compressed,
-			     size_t compressedSize,
-			     std::vector<char>& uncompressed) {
+void Compression::uncompress(const std::vector<char>& compressed, std::vector<char>& uncompressed) {
   ssize_t decomprSize = LZ4_decompress_safe(compressed.data(),
 					    uncompressed.data(),
-					    compressedSize,
+					    compressed.size(),
 					    uncompressed.size());
-  if (decomprSize != static_cast<ssize_t>(uncompressed.size())) {
-    if (errno)
-      LogError << strerror(errno) << std::endl;
-    return false;
-  }
-  return true;
+  if (decomprSize != static_cast<ssize_t>(uncompressed.size()))
+    throw std::runtime_error("uncompress failed");
 }
 
 int Compression::getCompressBound(int uncomprSize) {

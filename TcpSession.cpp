@@ -4,7 +4,6 @@
 
 #include "TcpSession.h"
 #include "ConnectionDetails.h"
-#include "MemoryPool.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
@@ -48,7 +47,6 @@ void TcpSession::run() noexcept {
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
   }
-  MemoryPool::destroyBuffers();
 }
 
 void TcpSession::stop() {

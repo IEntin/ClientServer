@@ -3,7 +3,6 @@
  */
 
 #include "Task.h"
-#include "MemoryPool.h"
 #include "Utility.h"
 
 ExtractKey Task::_extractKey = nullptr;

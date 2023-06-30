@@ -19,13 +19,7 @@ class Compression {
 
   static std::string_view compress(const char* uncompressed, size_t uncompressedSize);
 
-  static std::string_view uncompress(const char* compressed,
-				     size_t compressedSize,
-				     size_t uncomprSize);
-
-  static bool uncompress(const std::vector<char>& compressed,
-			 size_t compressedSize,
-			 std::vector<char>& uncompressed);
+  static void uncompress(const std::vector<char>& compressed, std::vector<char>& uncompressed);
 
   static int getCompressBound(int uncomprSize);
 };
