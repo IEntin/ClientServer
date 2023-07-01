@@ -100,8 +100,7 @@ STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
 					   const std::vector<char>& data,
 					   bool alldone) {
   HEADER header;
-  static thread_local std::vector<char> body;
-  body.clear();
+  std::string_view body;
   std::string_view dataView(data.data(), data.size());
   STATUS status =
     commonutils::encryptCompressData(_options, _cryptoKeys, dataView, header, body, _options._diagnostics);
@@ -119,7 +118,7 @@ STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
     return status;
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
-  subtask._body.swap(body);
+  std::copy(body.cbegin(), body.cend(), std::back_inserter(subtask._body));
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._state.notify_one();
   return subtask._state;

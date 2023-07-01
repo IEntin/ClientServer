@@ -14,7 +14,7 @@ STATUS encryptCompressData(const Options& options,
 			   const CryptoKeys& cryptoKeys,
 			   std::string_view data,
 			   HEADER& header,
-			   std::vector<char>& body,
+			   std::string_view& body,
 			   bool diagnostics,
 			   STATUS status) {
   std::string_view nextInput(data.data(), data.size());
@@ -41,21 +41,19 @@ STATUS encryptCompressData(const Options& options,
     options._encrypted,
     diagnostics,
     status };
-  body.assign(nextInput.cbegin(), nextInput.cend());
+  body = nextInput;
   return STATUS::NONE;
 }
 
 std::string_view decompressDecrypt(const CryptoKeys& cryptoKeys,
 				   const HEADER& header,
-				   const std::vector<char>& received) {
+				   std::string_view received) {
   std::string_view nextInput(received.data(), received.size());
   if (isCompressed(header)) {
     static thread_local std::vector<char> uncompressed;
     uncompressed.clear();
     size_t uncomprSize = extractUncompressedSize(header);
     uncompressed.resize(uncomprSize);
-    static thread_local std::vector<char> compressed;
-    compressed = { nextInput.cbegin(), nextInput.cend() };
     Compression::uncompress(nextInput, uncompressed);
     nextInput = { uncompressed.data(), uncomprSize };
   }

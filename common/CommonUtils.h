@@ -18,13 +18,13 @@ STATUS encryptCompressData(const Options& options,
 			   const CryptoKeys& cryptoKeys,
 			   std::string_view data,
 			   HEADER& header,
-			   std::vector<char>& body,
+			   std::string_view& body,
 			   bool diagnostics,
 			   STATUS status = STATUS::NONE);
 
 std::string_view decompressDecrypt(const CryptoKeys& cryptoKeys,
 				   const HEADER& header,
-				   const std::vector<char>& received);
+				   std::string_view received);
 
 STATUS compressEncryptData(const Options& options,
 			   const CryptoKeys& cryptoKeys,

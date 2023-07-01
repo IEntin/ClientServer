@@ -83,7 +83,8 @@ bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
   }
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view output =  commonutils::decompressDecrypt(_cryptoKeys, header, buffer);
+  std::string_view bufferView(buffer.data(), buffer.size());
+  std::string_view output = commonutils::decompressDecrypt(_cryptoKeys, header, bufferView);
   if (output.empty()) {
     utility::displayStatus(STATUS::ERROR);
     return false;

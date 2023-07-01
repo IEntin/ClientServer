@@ -43,7 +43,7 @@ struct CommonUtilsTest : testing::Test {
       TestEnvironment::_serverOptions._compressor = compressor;
       std::string_view data(TestEnvironment::_source.data(), TestEnvironment::_source.size());
       HEADER header;
-      std::vector<char> body;
+      std::string_view body;
       bool diagnostics = false;
       STATUS result =
 	commonutils::encryptCompressData(TestEnvironment::_serverOptions,
