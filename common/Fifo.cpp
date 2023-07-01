@@ -52,9 +52,9 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     LogError << "header is invalid." << std::endl;
     return false;
   }
-  size_t comprSize = extractCompressedSize(header);
-  body.resize(comprSize);
-  return readString(fdRead, body.data(), comprSize);
+  size_t payloadSize = extractPayloadSize(header);
+  body.resize(payloadSize);
+  return readString(fdRead, body.data(), payloadSize);
 }
 
 bool Fifo::readMsgBlock(std::string_view name,
@@ -96,9 +96,9 @@ bool Fifo::readMsgBlock(std::string_view name,
     LogError << "header is invalid." << std::endl;
     return false;
   }
-  size_t comprSize = extractCompressedSize(header);
-  body.resize(comprSize);
-  return readString(fd, body.data(), comprSize);
+  size_t payloadSize = extractPayloadSize(header);
+  body.resize(payloadSize);
+  return readString(fd, body.data(), payloadSize);
 }
 
 bool Fifo::readString(int fd, char* received, size_t size) {

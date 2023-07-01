@@ -30,7 +30,7 @@ public:
     auto [success, ec] = readHeader(socket, header);
     if (ec)
       return { false, ec };
-    size_t size = isCompressed(header) ? extractCompressedSize(header) : extractUncompressedSize(header);
+    size_t size = extractPayloadSize(header);
     if (size > 0) {
       payload.resize(size);
       boost::system::error_code ec;

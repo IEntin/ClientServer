@@ -7,6 +7,7 @@
 
 void encodeHeader(char* buffer,
 		  HEADERTYPE headerType,
+		  size_t payloadSz,
 		  size_t uncomprSz,
 		  size_t comprSz,
 		  COMPRESSORS compressor,
@@ -17,6 +18,8 @@ void encodeHeader(char* buffer,
   size_t offset = 0;
   buffer[offset] = std::underlying_type_t<HEADERTYPE>(headerType);
   offset += HEADERTYPE_SIZE;
+  utility::toChars(payloadSz, buffer + offset, NUM_FIELD_SIZE);
+  offset += NUM_FIELD_SIZE;
   utility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
   utility::toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
@@ -31,14 +34,18 @@ void encodeHeader(char* buffer,
 }
 
 void encodeHeader(char* buffer, const HEADER& header) {
-  auto [headerType, uncomprSz, comprSz, compressor, encrypted, diagnostics, status] = header;
-  encodeHeader(buffer, headerType, uncomprSz, comprSz, compressor, encrypted, diagnostics, status);
+  auto [headerType, payloadSz, uncomprSz, comprSz, compressor, encrypted, diagnostics, status] = header;
+  encodeHeader(buffer, headerType, payloadSz, uncomprSz, comprSz, compressor, encrypted, diagnostics, status);
 }
 
 HEADER decodeHeader(const char* buffer) {
   size_t offset = 0;
   HEADERTYPE headerType = static_cast<HEADERTYPE>(buffer[offset]);
   offset += HEADERTYPE_SIZE;
+  size_t payloadSize = 0;
+  std::string_view strt(buffer + offset, NUM_FIELD_SIZE);
+  utility::fromChars(strt, payloadSize);
+  offset += NUM_FIELD_SIZE;
   size_t uncomprSize = 0;
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
   utility::fromChars(stru, uncomprSize);
@@ -54,5 +61,5 @@ HEADER decodeHeader(const char* buffer) {
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
   STATUS status = static_cast<STATUS>(buffer[offset]);
-  return { headerType, uncomprSize, comprSize, compressor, encrypted, diagnostics, status };
+  return { headerType, payloadSize, uncomprSize, comprSize, compressor, encrypted, diagnostics, status };
 }

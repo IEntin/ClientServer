@@ -32,7 +32,7 @@ std::string_view buildReply(const Options&options,
   std::string_view dataView(data.data(), data.size());
   std::string_view body;
   STATUS result =
-    commonutils::encryptCompressData(options, keys, dataView,  header, body, false, status);
+    commonutils::compressEncryptData(options, keys, dataView,  header, body, false, status);
   bool failed = false;
   switch (result) {
   case STATUS::ERROR:
@@ -53,7 +53,7 @@ bool processRequest(const CryptoKeys& keys,
 		    const std::vector<char>& received,
 		    Response& response) {
   std::string_view receivedView(received.data(), received.size());
-  std::string_view decryptedView = commonutils::decompressDecrypt(keys, header, receivedView);
+  std::string_view decryptedView = commonutils::decryptDecompress(keys, header, receivedView);
   if (decryptedView.empty())
     return false;
   auto weakPtr = TaskController::weakInstance();

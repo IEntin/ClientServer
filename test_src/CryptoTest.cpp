@@ -35,56 +35,6 @@ TEST(CryptoTest, 1) {
   std::filesystem::remove(CRYPTO_IV_FILE_NAME);
 }
 
-struct CommonUtilsTest : testing::Test {
-  void test(bool encrypted, COMPRESSORS compressor) {
-    try {
-      CryptoKeys cryptoKeys(true);
-      TestEnvironment::_serverOptions._encrypted = encrypted;
-      TestEnvironment::_serverOptions._compressor = compressor;
-      std::string_view data(TestEnvironment::_source.data(), TestEnvironment::_source.size());
-      HEADER header;
-      std::string_view body;
-      bool diagnostics = false;
-      STATUS result =
-	commonutils::encryptCompressData(TestEnvironment::_serverOptions,
-					 cryptoKeys,
-					 data,
-					 header,
-					 body,
-					 diagnostics,
-					 STATUS::NONE);
-      ASSERT_EQ(result, STATUS::NONE);
-      std::string_view decryptedDecompressed =
-	commonutils::decompressDecrypt(cryptoKeys, header, body);
-      ASSERT_EQ(decryptedDecompressed, TestEnvironment::_source);
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
-      ASSERT_TRUE(false);
-    }
-  }
-
-  void TearDown() {
-    TestEnvironment::reset();
-  }
-};
-
-TEST_F(CommonUtilsTest, ENCRYPTED_LZ4) {
-  test(true, COMPRESSORS::LZ4);
-}
-
-TEST_F(CommonUtilsTest, ENCRYPTED_NONE) {
-  test(true, COMPRESSORS::NONE);
-}
-
-TEST_F(CommonUtilsTest, NOTENCRYPTED_NONE) {
-  test(false, COMPRESSORS::NONE);
-}
-
-TEST_F(CommonUtilsTest, NOTENCRYPTED_LZ4) {
-  test(false, COMPRESSORS::LZ4);
-}
-
 struct CommonUtilsTestEncryptionFirst : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
@@ -104,6 +54,7 @@ struct CommonUtilsTestEncryptionFirst : testing::Test {
 					 diagnostics,
 					 STATUS::NONE);
       ASSERT_EQ(result, STATUS::NONE);
+      ASSERT_EQ(extractPayloadSize(header), body.size());
       std::string_view decryptedDecompressed =
 	commonutils::decryptDecompress(cryptoKeys, header, body);
       ASSERT_EQ(decryptedDecompressed, TestEnvironment::_source);

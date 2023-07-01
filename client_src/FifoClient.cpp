@@ -62,7 +62,7 @@ bool FifoClient::receive() {
 
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
-    { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
+    { HEADERTYPE::CREATE_SESSION, 0, 0, 0, COMPRESSORS::NONE, false, false, _status };
   return Fifo::sendMsg(_options._acceptorName, header, _options);
 }
 
