@@ -4,7 +4,6 @@
 
 #include "ServerUtility.h"
 #include "CommonUtils.h"
-#include "Logger.h"
 #include "Options.h"
 #include "TaskController.h"
 
@@ -32,7 +31,7 @@ std::string_view buildReply(const Options&options,
   std::string_view dataView(data.data(), data.size());
   std::string_view body;
   STATUS result =
-    commonutils::compressEncryptData(options, keys, dataView,  header, body, false, status);
+    commonutils::compressEncrypt(options, keys, dataView,  header, body, false, status);
   bool failed = false;
   switch (result) {
   case STATUS::ERROR:

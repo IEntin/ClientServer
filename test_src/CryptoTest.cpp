@@ -46,13 +46,13 @@ struct CommonUtilsTestEncryptionFirst : testing::Test {
       std::string_view body;
       bool diagnostics = false;
       STATUS result =
-	commonutils::compressEncryptData(TestEnvironment::_serverOptions,
-					 cryptoKeys,
-					 data,
-					 header,
-					 body,
-					 diagnostics,
-					 STATUS::NONE);
+	commonutils::compressEncrypt(TestEnvironment::_serverOptions,
+				     cryptoKeys,
+				     data,
+				     header,
+				     body,
+				     diagnostics,
+				     STATUS::NONE);
       ASSERT_EQ(result, STATUS::NONE);
       ASSERT_EQ(extractPayloadSize(header), body.size());
       std::string_view decryptedDecompressed =

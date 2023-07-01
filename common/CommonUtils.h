@@ -14,13 +14,13 @@ using Response = std::vector<std::string>;
 
 namespace commonutils {
 
-STATUS compressEncryptData(const Options& options,
-			   const CryptoKeys& cryptoKeys,
-			   std::string_view data,
-			   HEADER& header,
-			   std::string_view& body,
-			   bool diagnostics,
-			   STATUS status = STATUS::NONE);
+STATUS compressEncrypt(const Options& options,
+		       const CryptoKeys& cryptoKeys,
+		       std::string_view data,
+		       HEADER& header,
+		       std::string_view& body,
+		       bool diagnostics,
+		       STATUS status = STATUS::NONE);
 
 std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
 				   const HEADER& header,

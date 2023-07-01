@@ -10,13 +10,13 @@
 
 namespace commonutils {
 
-STATUS compressEncryptData(const Options& options,
-			   const CryptoKeys& cryptoKeys,
-			   std::string_view data,
-			   HEADER& header,
-			   std::string_view& body,
-			   bool diagnostics,
-			   STATUS status) {
+STATUS compressEncrypt(const Options& options,
+		       const CryptoKeys& cryptoKeys,
+		       std::string_view data,
+		       HEADER& header,
+		       std::string_view& body,
+		       bool diagnostics,
+		       STATUS status) {
   std::string_view nextInput = data;
   size_t uncomprSize = data.size();
   size_t comprSize = data.size();

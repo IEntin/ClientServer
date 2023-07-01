@@ -3,7 +3,6 @@
  */
 
 #include "TaskController.h"
-#include "Logger.h"
 #include "ServerOptions.h"
 #include "Task.h"
 

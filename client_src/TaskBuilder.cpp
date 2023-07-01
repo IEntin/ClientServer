@@ -103,7 +103,7 @@ STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
   std::string_view body;
   std::string_view dataView(data.data(), data.size());
   STATUS status =
-    commonutils::compressEncryptData(_options, _cryptoKeys, dataView, header, body, _options._diagnostics);
+    commonutils::compressEncrypt(_options, _cryptoKeys, dataView, header, body, _options._diagnostics);
   bool failed = false;
   switch (status) {
   case STATUS::ERROR:
