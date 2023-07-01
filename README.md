@@ -1,6 +1,6 @@
 Copyright (C) 2021 Ilya Entin.
 
-### Fast Linux Lockless Client-Server with FIFO and TCP clients, encryption and compression
+### Fast Linux Lockless Client-Server with FIFO and TCP clients, compression and encryption
 
 To test this software clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
 This script will download requested source and build the library in /usr/local directory,\
@@ -251,7 +251,7 @@ We run memory and thread sanitizer and performance profiling for every commit.\
 Warnings are considered failures.
 
 =======
-### Fast Lockless Linux Client-Server with TCP and FIFO clients, encryption and compression
+### Fast Lockless Linux Client-Server with TCP and FIFO clients, compression and encryption
 
 Using both bidirectional named pipes and tcp.\
 Lockless: except infrequent queue operations.\
