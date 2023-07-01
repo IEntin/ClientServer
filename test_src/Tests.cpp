@@ -108,17 +108,17 @@ TEST(FromCharsTest, FloatingPoint) {
 TEST(HeaderTest, 1) {
   try {
     char buffer[HEADER_SIZE] = {};
+    size_t payloadSz = 123567;
     size_t uncomprSz = 123456;
-    size_t comprSz = 12345;
-    COMPRESSORS compressor = COMPRESSORS::LZ4;
+   COMPRESSORS compressor = COMPRESSORS::LZ4;
     bool encrypted = false;
     bool diagnostics = true;
-    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, uncomprSz, comprSz, compressor, encrypted, diagnostics);
+    encodeHeader(buffer, HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics);
     HEADER header = decodeHeader(buffer);
+    size_t payloadSzResult = extractPayloadSize(header);
+    ASSERT_EQ(payloadSz, payloadSzResult);
     size_t uncomprSzResult = extractUncompressedSize(header);
     ASSERT_EQ(uncomprSz, uncomprSzResult);
-    size_t comprSzResult = extractCompressedSize(header);
-    ASSERT_EQ(comprSz, comprSzResult);
     COMPRESSORS compressorResult = extractCompressor(header);
     ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
     bool encryptedResult = isEncrypted(header);
@@ -126,7 +126,7 @@ TEST(HeaderTest, 1) {
     bool diagnosticsResult = isDiagnosticsEnabled(header);
     ASSERT_EQ(diagnostics, diagnosticsResult);
     compressor = COMPRESSORS::NONE;
-    encodeHeader(buffer, HEADERTYPE::SESSION, uncomprSz, uncomprSz, comprSz, compressor, encrypted, diagnostics);
+    encodeHeader(buffer, HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics);
     header = decodeHeader(buffer);
     compressorResult = extractCompressor(header);
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);

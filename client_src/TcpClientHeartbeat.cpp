@@ -163,7 +163,7 @@ void TcpClientHeartbeat::write() {
     LogError << ec.what() << std::endl;
     return;
   }
-  encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, 0, COMPRESSORS::NONE, false, false);
+  encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false);
   auto weakPtr = weak_from_this();
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),

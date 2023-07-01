@@ -9,7 +9,6 @@ void encodeHeader(char* buffer,
 		  HEADERTYPE headerType,
 		  size_t payloadSz,
 		  size_t uncomprSz,
-		  size_t comprSz,
 		  COMPRESSORS compressor,
 		  bool encrypted,
 		  bool diagnostics,
@@ -22,8 +21,6 @@ void encodeHeader(char* buffer,
   offset += NUM_FIELD_SIZE;
   utility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  utility::toChars(comprSz, buffer + offset, NUM_FIELD_SIZE);
-  offset += NUM_FIELD_SIZE;
   buffer[offset] = std::underlying_type_t<COMPRESSORS>(compressor);
   offset += COMPRESSOR_TYPE_SIZE;
   buffer[offset] = (encrypted ? CRYPTO_CHAR : NCRYPTO_CHAR);
@@ -34,8 +31,8 @@ void encodeHeader(char* buffer,
 }
 
 void encodeHeader(char* buffer, const HEADER& header) {
-  auto [headerType, payloadSz, uncomprSz, comprSz, compressor, encrypted, diagnostics, status] = header;
-  encodeHeader(buffer, headerType, payloadSz, uncomprSz, comprSz, compressor, encrypted, diagnostics, status);
+  auto [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status] = header;
+  encodeHeader(buffer, headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status);
 }
 
 HEADER decodeHeader(const char* buffer) {
@@ -50,10 +47,6 @@ HEADER decodeHeader(const char* buffer) {
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
   utility::fromChars(stru, uncomprSize);
   offset += NUM_FIELD_SIZE;
-  size_t comprSize = 0;
-  std::string_view strc(buffer + offset, NUM_FIELD_SIZE);
-  utility::fromChars(strc, comprSize);
-  offset += NUM_FIELD_SIZE;
   COMPRESSORS compressor = static_cast<COMPRESSORS>(buffer[offset]);
   offset += COMPRESSOR_TYPE_SIZE;
   bool encrypted = buffer[offset] == CRYPTO_CHAR;
@@ -61,5 +54,5 @@ HEADER decodeHeader(const char* buffer) {
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
   STATUS status = static_cast<STATUS>(buffer[offset]);
-  return { headerType, payloadSize, uncomprSize, comprSize, compressor, encrypted, diagnostics, status };
+  return { headerType, payloadSize, uncomprSize, compressor, encrypted, diagnostics, status };
 }

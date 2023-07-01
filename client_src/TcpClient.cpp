@@ -19,7 +19,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
     Tcp::setSocket(_ioContext, _socket, _options);
   if (error)
     throw(std::runtime_error(error.what()));
-  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, 0, COMPRESSORS::NONE, false, false, _status };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
   auto [success, ec] = Tcp::sendMsg(_socket, header, empty);
   if (!success)
     throw(std::runtime_error(ec.what()));

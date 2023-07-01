@@ -19,13 +19,11 @@ STATUS compressEncrypt(const Options& options,
 		       STATUS status) {
   std::string_view nextInput = data;
   size_t uncomprSize = data.size();
-  size_t comprSize = data.size();
   if (options._compressor == COMPRESSORS::LZ4) {
     static thread_local std::vector<char> buffer;
     std::string_view compressedView =
       Compression::compress(data, buffer);
     uncomprSize = nextInput.size();
-    comprSize = compressedView.size();
     nextInput = { compressedView.data(), compressedView.size() };
   }
   if (options._encrypted) {
@@ -37,7 +35,6 @@ STATUS compressEncrypt(const Options& options,
   header = { HEADERTYPE::SESSION,
     nextInput.size(),
     uncomprSize,
-    comprSize,
     options._compressor,
     options._encrypted,
     diagnostics,

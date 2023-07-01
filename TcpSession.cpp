@@ -35,7 +35,7 @@ TcpSession::~TcpSession() {
 
 bool TcpSession::sendStatusToClient() {
   size_t size = _clientId.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, size, COMPRESSORS::NONE, false, false, _status };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
   return Tcp::sendMsg(_socket, header, _clientId).first;
 }
 

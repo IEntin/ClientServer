@@ -111,7 +111,7 @@ struct FifoNonblockingTest : testing::Test {
   }
   bool send(std::string_view payload) {
     size_t size = payload.size();
-    HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE };
+    HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE };
     return fifo::Fifo::sendMsg(_testFifo, header, TestEnvironment::_serverOptions, payload);
   }
   bool receive(std::vector<char>& received) {
