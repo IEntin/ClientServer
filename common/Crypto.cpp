@@ -65,9 +65,16 @@ void Crypto::decrypt(std::string_view cipher,
 		     std::string& decrypted) {
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
-  CryptoPP::AES::Decryption aesDecryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
-  CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, keys._iv.data());
-  CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
-  stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
-  stfDecryptor.MessageEnd();
+  try {
+    CryptoPP::AES::Decryption aesDecryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+    CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, keys._iv.data());
+    CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
+    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
+    stfDecryptor.MessageEnd();
+  }
+  catch (const std::exception& e) {
+    std::string error(e.what());
+    error.append("\n\n\tMake sure crypto files on client site are current!\n");
+    throw std::runtime_error(error);
+  }
 }
