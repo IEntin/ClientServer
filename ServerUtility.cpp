@@ -14,15 +14,14 @@ std::string_view buildReply(const Options&options,
 			    const Response& response,
 			    HEADER& header,
 			    STATUS status) {
-  static std::string_view empty;
   if (response.empty())
     return {};
-  size_t uncomprSize = 0;
+  size_t dataSize = 0;
   for (const auto& entry : response)
-    uncomprSize += entry.size();
+    dataSize += entry.size();
   static thread_local std::vector<char> data;
   data.clear();
-  data.resize(uncomprSize);
+  data.resize(dataSize);
   ssize_t pos = 0;
   for (const auto& entry : response) {
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
@@ -32,18 +31,15 @@ std::string_view buildReply(const Options&options,
   std::string_view body;
   STATUS result =
     commonutils::compressEncrypt(options, keys, dataView,  header, body, false, status);
-  bool failed = false;
   switch (result) {
   case STATUS::ERROR:
   case STATUS::COMPRESSION_PROBLEM:
   case STATUS::ENCRYPTION_PROBLEM:
-    failed = true;
+    return {};
     break;
   default:
     break;
   }
-  if (failed)
-    return empty;
   return { body.data(), body.size() };
 }
 

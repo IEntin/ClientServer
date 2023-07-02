@@ -118,7 +118,8 @@ STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
     return status;
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
-  std::copy(body.cbegin(), body.cend(), std::back_inserter(subtask._body));
+  subtask._body.resize(body.size());
+  std::copy(body.cbegin(), body.cend(), subtask._body.begin());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._state.notify_one();
   return subtask._state;
