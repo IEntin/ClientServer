@@ -6,11 +6,9 @@
 
 #include "Header.h"
 #include <string>
-#include <vector>
 
 struct CryptoKeys;
 struct Options;
-using Response = std::vector<std::string>;
 
 namespace commonutils {
 

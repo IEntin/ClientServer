@@ -4,22 +4,38 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "Header.h"
+#include "lz4.h"
+#include <stdexcept>
+#include <string_view>
 
-inline constexpr std::string_view LZ4 = "LZ4";
+namespace compression {
 
-enum class COMPRESSORS : char;
+inline COMPRESSORS translateName(std::string_view compressorStr) {
+  COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
+  return compressor;
+}
 
-class Compression {
-  Compression() = delete;
-  ~Compression() = delete;
- public:
-  static COMPRESSORS isCompressionEnabled(const std::string& compressorStr);
+template <typename C>
+std::string_view compress(std::string_view uncompressed, C& compressed) {
+  compressed.reserve(LZ4_compressBound(uncompressed.size()));
+  size_t compressedSize = LZ4_compress_default(uncompressed.data(),
+					       compressed.data(),
+					       uncompressed.size(),
+					       compressed.capacity());
+  if (compressedSize == 0)
+    throw std::runtime_error("compress failed");
+  return { compressed.data(), compressedSize };
+}
 
-  static std::string_view compress(std::string_view uncompressed, std::vector<char>& buffer);
+template <typename U>
+void uncompress(std::string_view compressed, U& uncompressed) {
+  ssize_t decomprSize = LZ4_decompress_safe(compressed.data(),
+					    uncompressed.data(),
+					    compressed.size(),
+					    uncompressed.size());
+  if (decomprSize != static_cast<ssize_t>(uncompressed.size()))
+    throw std::runtime_error("uncompress failed");
+}
 
-  static void uncompress(std::string_view compressed, std::vector<char>& uncompressed);
-
-  static int getCompressBound(int uncomprSize);
-};
+} // end of namespace compression

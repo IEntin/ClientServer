@@ -5,7 +5,6 @@
 #include "CommonUtils.h"
 #include "Compression.h"
 #include "Crypto.h"
-#include "Logger.h"
 #include "Options.h"
 
 namespace commonutils {
@@ -21,8 +20,7 @@ STATUS compressEncrypt(const Options& options,
   size_t uncomprSize = data.size();
   if (options._compressor == COMPRESSORS::LZ4) {
     static thread_local std::vector<char> buffer;
-    std::string_view compressedView =
-      Compression::compress(data, buffer);
+    std::string_view compressedView = compression::compress(data, buffer);
     uncomprSize = nextInput.size();
     nextInput = { compressedView.data(), compressedView.size() };
   }
@@ -58,7 +56,7 @@ std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
     uncompressed.clear();
     size_t uncomprSize = extractUncompressedSize(header);
     uncompressed.resize(uncomprSize);
-    Compression::uncompress(nextInput, uncompressed);
+    compression::uncompress(nextInput, uncompressed);
     nextInput = { uncompressed.data(), uncomprSize };
   }
   return nextInput;

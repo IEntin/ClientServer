@@ -14,9 +14,9 @@ struct CompressionTest : testing::Test {
     try{
       static thread_local std::vector<char> buffer;
       buffer.clear();
-      std::string_view compressedView = Compression::compress(input, buffer);
+      std::string_view compressedView = compression::compress(input, buffer);
       std::vector<char> uncompressed(input.size());
-      Compression::uncompress(compressedView, uncompressed);
+      compression::uncompress(compressedView, uncompressed);
       std::string_view uncompressedView(uncompressed.data(), uncompressed.size());
       // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
