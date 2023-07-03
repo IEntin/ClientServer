@@ -10,11 +10,12 @@
 
 struct CompressionTest : testing::Test {
 
-  void testCompressionDecompression1(std::string_view input) {
+  void testCompressionDecompression1(std::string& input) {
     try{
-      static thread_local std::vector<char> buffer;
-      buffer.clear();
-      std::string_view compressedView = compression::compress(input, buffer);
+      std::string_view original(input.data(), input.size());
+      size_t maxCompressedSize = compression::compressBound(input.size());
+      input.reserve(input.size() + maxCompressedSize);
+      std::string_view compressedView = compression::compress(original, input);
       std::vector<char> uncompressed(input.size());
       compression::uncompress(compressedView, uncompressed);
       std::string_view uncompressedView(uncompressed.data(), uncompressed.size());

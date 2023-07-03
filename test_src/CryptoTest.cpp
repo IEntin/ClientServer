@@ -41,14 +41,13 @@ struct CommonUtilsTestEncryptionFirst : testing::Test {
       CryptoKeys cryptoKeys(true);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
-      std::string_view data = TestEnvironment::_source;
       HEADER header;
       std::string_view body;
       bool diagnostics = false;
       STATUS result =
 	commonutils::compressEncrypt(TestEnvironment::_serverOptions,
 				     cryptoKeys,
-				     data,
+				     TestEnvironment::_source,
 				     header,
 				     body,
 				     diagnostics,

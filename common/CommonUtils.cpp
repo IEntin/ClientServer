@@ -3,43 +3,8 @@
  */
 
 #include "CommonUtils.h"
-#include "Compression.h"
-#include "Crypto.h"
-#include "Options.h"
 
 namespace commonutils {
-
-STATUS compressEncrypt(const Options& options,
-		       const CryptoKeys& cryptoKeys,
-		       std::string_view data,
-		       HEADER& header,
-		       std::string_view& body,
-		       bool diagnostics,
-		       STATUS status) {
-  std::string_view nextInput = data;
-  size_t uncomprSize = data.size();
-  if (options._compressor == COMPRESSORS::LZ4) {
-    static thread_local std::vector<char> buffer;
-    std::string_view compressedView = compression::compress(data, buffer);
-    uncomprSize = nextInput.size();
-    nextInput = { compressedView.data(), compressedView.size() };
-  }
-  if (options._encrypted) {
-    static thread_local std::string cipher;
-    cipher.clear();
-    Crypto::encrypt(nextInput, cryptoKeys, cipher);
-    nextInput = { cipher.data(), cipher.size() };
-  }
-  header = { HEADERTYPE::SESSION,
-    nextInput.size(),
-    uncomprSize,
-    options._compressor,
-    options._encrypted,
-    diagnostics,
-    status };
-  body = nextInput;
-  return STATUS::NONE;
-}
 
 std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
 				   const HEADER& header,

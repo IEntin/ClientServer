@@ -27,7 +27,7 @@ struct Subtask {
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   STATUS encryptCompressSubtask(Subtask& subtask,
-				const std::vector<char>& data,
+				std::vector<char>& data,
 				bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 

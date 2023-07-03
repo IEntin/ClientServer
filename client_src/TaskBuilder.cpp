@@ -97,25 +97,21 @@ STATUS TaskBuilder::createSubtask() {
 // Generate header for every aggregated group of requests.
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
-					   const std::vector<char>& data,
+					   std::vector<char>& data,
 					   bool alldone) {
   HEADER header;
   std::string_view body;
-  std::string_view dataView(data.data(), data.size());
   STATUS status =
-    commonutils::compressEncrypt(_options, _cryptoKeys, dataView, header, body, _options._diagnostics);
-  bool failed = false;
+    commonutils::compressEncrypt(_options, _cryptoKeys, data, header, body, _options._diagnostics);
   switch (status) {
   case STATUS::ERROR:
   case STATUS::COMPRESSION_PROBLEM:
   case STATUS::ENCRYPTION_PROBLEM:
-    failed = true;
+    return status;
     break;
   default:
     break;
   }
-  if (failed)
-    return status;
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.resize(body.size());

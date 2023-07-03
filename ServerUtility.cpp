@@ -27,10 +27,9 @@ std::string_view buildReply(const Options&options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  std::string_view dataView(data.data(), data.size());
   std::string_view body;
   STATUS result =
-    commonutils::compressEncrypt(options, keys, dataView,  header, body, false, status);
+    commonutils::compressEncrypt(options, keys, data,  header, body, false, status);
   switch (result) {
   case STATUS::ERROR:
   case STATUS::COMPRESSION_PROBLEM:
