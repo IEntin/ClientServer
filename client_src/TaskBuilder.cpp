@@ -100,18 +100,8 @@ STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
 					   std::vector<char>& data,
 					   bool alldone) {
   HEADER header;
-  std::string_view body;
-  STATUS status =
-    commonutils::compressEncrypt(_options, _cryptoKeys, data, header, body, _options._diagnostics);
-  switch (status) {
-  case STATUS::ERROR:
-  case STATUS::COMPRESSION_PROBLEM:
-  case STATUS::ENCRYPTION_PROBLEM:
-    return status;
-    break;
-  default:
-    break;
-  }
+  std::string_view body =
+    commonutils::compressEncrypt(_options, _cryptoKeys, data, header, _options._diagnostics);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.resize(body.size());

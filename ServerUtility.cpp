@@ -27,19 +27,7 @@ std::string_view buildReply(const Options&options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  std::string_view body;
-  STATUS result =
-    commonutils::compressEncrypt(options, keys, data,  header, body, false, status);
-  switch (result) {
-  case STATUS::ERROR:
-  case STATUS::COMPRESSION_PROBLEM:
-  case STATUS::ENCRYPTION_PROBLEM:
-    return {};
-    break;
-  default:
-    break;
-  }
-  return { body.data(), body.size() };
+  return commonutils::compressEncrypt(options, keys, data,  header, false, status);
 }
 
 bool processRequest(const CryptoKeys& keys,

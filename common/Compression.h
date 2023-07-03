@@ -21,8 +21,7 @@ inline size_t compressBound(size_t uncompressedSize) {
 }
 
 template <typename C>
-std::string_view compress(std::string_view uncompressed, C& buffer) {
-  size_t uncompressedSize = uncompressed.size();
+std::string_view compress(C& buffer, size_t uncompressedSize) {
   size_t compressedSize = LZ4_compress_default(buffer.data(),
 					       buffer.data() + uncompressedSize,
 					       uncompressedSize,

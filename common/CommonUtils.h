@@ -12,20 +12,19 @@
 namespace commonutils {
 
 template <typename B>
-STATUS compressEncrypt(const Options& options,
-		       const CryptoKeys& cryptoKeys,
-		       B& data,
-		       HEADER& header,
-		       std::string_view& body,
-		       bool diagnostics,
-		       STATUS status = STATUS::NONE) {
-  std::string_view nextInput(data.data(), data.size());
+std::string_view compressEncrypt(const Options& options,
+				 const CryptoKeys& cryptoKeys,
+				 B& data,
+				 HEADER& header,
+				 bool diagnostics,
+				 STATUS status = STATUS::NONE) {
+std::string_view nextInput(data.data(), data.size());
   size_t uncomprSize = data.size();
   if (options._compressor == COMPRESSORS::LZ4) {
     size_t maxCompressedSize = compression::compressBound(data.size());
     data.reserve(data.size() + maxCompressedSize);
-    std::string_view compressedView = compression::compress(nextInput, data);
     uncomprSize = nextInput.size();
+    std::string_view compressedView = compression::compress(data, uncomprSize);
     nextInput = { compressedView.data(), compressedView.size() };
   }
   if (options._encrypted) {
@@ -41,8 +40,7 @@ STATUS compressEncrypt(const Options& options,
     options._encrypted,
     diagnostics,
     status };
-  body = nextInput;
-  return STATUS::NONE;
+  return nextInput;
 }
 
 std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
