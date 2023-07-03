@@ -40,6 +40,7 @@ void FifoSession::run() {
 
 void FifoSession::stop() {
   _stopped = true;
+  Fifo::onExit(_fifoName, _options);
 }
 
 bool FifoSession::receiveRequest(HEADER& header) {
