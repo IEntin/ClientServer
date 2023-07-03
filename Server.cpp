@@ -19,7 +19,7 @@
 
 Server::Server(const ServerOptions& options) :
   _options(options),
-  _cryptoKeys(true, options._invalidateKeys),
+  _cryptoKeys(options),
   _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   StrategySelector strategySelector(options);
@@ -34,6 +34,7 @@ Server::~Server() {
 
 bool Server::start() {
   if (_options._showKeys) {
+    std::clog << "KEY SIZE: " << _options._cryptoKeySize << std::endl;
     CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::clog));
     std::clog << "KEY: ";
     CryptoPP::StringSource(_cryptoKeys._key, _cryptoKeys._key.size(), true, new CryptoPP::Redirector(encoder));

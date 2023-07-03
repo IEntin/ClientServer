@@ -18,7 +18,6 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
   _tcpTimeout = appOptions.get("TcpTimeout", 1000);
-  _invalidateKeys = appOptions.get("InvalidateKeys", true);
   _showKeys = appOptions.get("ShowKeys", false);
   _sortInput = appOptions.get("SortInput", true);
 }

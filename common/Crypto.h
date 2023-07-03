@@ -5,14 +5,16 @@
 
 #pragma once
 
-#include <cryptopp/modes.h>
 #include <cryptopp/secblock.h>
 
+struct Options;
+
 struct CryptoKeys {
-  CryptoKeys(bool bmaster, bool invalidateKeys = true);
-  bool _valid = false;
+  CryptoKeys(const Options& options);
+  CryptoKeys();
   CryptoPP::SecByteBlock _key;
   CryptoPP::SecByteBlock _iv;
+  bool _valid = false;
 private:
   bool generate();
   bool recover();

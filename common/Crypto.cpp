@@ -5,21 +5,24 @@
 #include "Crypto.h"
 #include "CommonConstants.h"
 #include "Logger.h"
+#include "Options.h"
 #include "Utility.h"
+#include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
 #include <filesystem>
 
-CryptoKeys::CryptoKeys(bool bmaster, bool invalidateKeys) :
-  _key(CryptoPP::AES::MAX_KEYLENGTH), _iv(CryptoPP::AES::BLOCKSIZE) {
-  if (bmaster) {
-    if (!(std::filesystem::exists(CRYPTO_KEY_FILE_NAME) &&
-	  std::filesystem::exists(CRYPTO_KEY_FILE_NAME)) || invalidateKeys)
-      _valid = generate();
+CryptoKeys::CryptoKeys(const Options& options) :
+  _key(options._cryptoKeySize),
+  _iv(CryptoPP::AES::BLOCKSIZE) {
+  if (!(std::filesystem::exists(CRYPTO_KEY_FILE_NAME) &&
+	std::filesystem::exists(CRYPTO_KEY_FILE_NAME)) || options._invalidateKeys)
+    _valid = generate();
     else
       _valid = recover();
-  }
-  else
-    _valid = recover();
+}
+
+CryptoKeys::CryptoKeys() {
+  _valid = recover();
 }
 
 bool CryptoKeys::generate() {
@@ -53,7 +56,7 @@ void Crypto::encrypt(std::string_view source,
 		     std::string& cipher) {
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
-  CryptoPP::AES::Encryption aesEncryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+  CryptoPP::AES::Encryption aesEncryption(keys._key.data(), keys._key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, keys._iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
@@ -66,7 +69,7 @@ void Crypto::decrypt(std::string_view cipher,
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
   try {
-    CryptoPP::AES::Decryption aesDecryption(keys._key.data(), CryptoPP::AES::MAX_KEYLENGTH);
+    CryptoPP::AES::Decryption aesDecryption(keys._key.data(), keys._key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, keys._iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
     stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());

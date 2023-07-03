@@ -16,7 +16,7 @@ TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
   // exchanged between two parties before communication begins.
   try {
-    CryptoKeys cryptoKeys(true);
+    CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
     std::string_view sourceView(TestEnvironment::_source);
 
     std::string cipher;
@@ -38,7 +38,7 @@ TEST(CryptoTest, 1) {
 struct CommonUtilsTestEncryptionFirst : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
-      CryptoKeys cryptoKeys(true);
+      CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
       HEADER header;

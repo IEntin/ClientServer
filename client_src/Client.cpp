@@ -12,7 +12,7 @@
 #include "Utility.h"
 
 Client::Client(const ClientOptions& options) :
-  _options(options), _cryptoKeys(false) {}
+  _options(options) {}
 
 Client::~Client() {
   stop();
