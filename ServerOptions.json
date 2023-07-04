@@ -10,7 +10,7 @@
   "EncryptionKeySize" : 32,
   "_comment": "if true shutdown invalidates crypto key and iv.",
   "InvalidateKeys" : false,
-  "_comment": "if true logs crypto key and iv on start.",
+  "_comment": "if true logs crypto key and iv !!for debugging!!.",
   "ShowKeys" : false,
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
