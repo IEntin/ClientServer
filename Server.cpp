@@ -11,9 +11,6 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
-#include <cryptopp/files.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/hex.h>
 #include <filesystem>
 #include <fstream>
 
@@ -33,15 +30,8 @@ Server::~Server() {
 }
 
 bool Server::start() {
-  if (_options._showKeys) {
-    std::clog << "KEY SIZE: " << _options._cryptoKeySize << std::endl;
-    CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::clog));
-    std::clog << "KEY: ";
-    CryptoPP::StringSource(_cryptoKeys._key, _cryptoKeys._key.size(), true, new CryptoPP::Redirector(encoder));
-    std::clog << "\nIV: ";
-    CryptoPP::StringSource(_cryptoKeys._iv, _cryptoKeys._iv.size(), true, new CryptoPP::Redirector(encoder));
-    std::clog << std::endl;
-  }
+  if (_options._showKeys)
+    _cryptoKeys.showKeys();
   if (!TaskController::create(_options))
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);

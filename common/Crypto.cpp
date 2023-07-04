@@ -5,13 +5,16 @@
 #include "Crypto.h"
 #include "CommonConstants.h"
 #include "Logger.h"
-#include "Options.h"
+#include "ServerOptions.h"
 #include "Utility.h"
+#include <cryptopp/files.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
 #include <filesystem>
 
-CryptoKeys::CryptoKeys(const Options& options) :
+CryptoKeys::CryptoKeys(const ServerOptions& options) :
   _key(options._cryptoKeySize),
   _iv(CryptoPP::AES::BLOCKSIZE) {
   if (!(std::filesystem::exists(CRYPTO_KEY_FILE_NAME) &&
@@ -49,6 +52,16 @@ bool CryptoKeys::recover() {
   _iv = { reinterpret_cast<const unsigned char*>(&ivStrRecovered[0]), ivStrRecovered.size() };
   _valid = true;
   return _valid;
+}
+
+void CryptoKeys::showKeys() {
+  std::clog << "KEY SIZE: " << _key.size() << std::endl;
+  CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::clog));
+  std::clog << "KEY: ";
+  CryptoPP::StringSource(_key, _key.size(), true, new CryptoPP::Redirector(encoder));
+  std::clog << "\nIV: ";
+  CryptoPP::StringSource(_iv, _iv.size(), true, new CryptoPP::Redirector(encoder));
+  std::clog << std::endl;
 }
 
 void Crypto::encrypt(std::string_view source,

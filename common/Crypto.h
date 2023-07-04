@@ -7,11 +7,12 @@
 
 #include <cryptopp/secblock.h>
 
-struct Options;
+struct ServerOptions;
 
 struct CryptoKeys {
-  CryptoKeys(const Options& options);
+  CryptoKeys(const ServerOptions& options);
   CryptoKeys();
+  void showKeys();
   CryptoPP::SecByteBlock _key;
   CryptoPP::SecByteBlock _iv;
   bool _valid = false;

@@ -95,6 +95,8 @@ bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
 }
 
 void Client::start() {
+  if (_options._showKeys)
+    _cryptoKeys.showKeys();
   if (!_cryptoKeys._valid)
     throw std::runtime_error("invalid or absent crypto files.");
   if (_options._heartbeatEnabled) {
