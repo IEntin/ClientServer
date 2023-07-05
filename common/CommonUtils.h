@@ -23,7 +23,6 @@ std::string_view nextInput(data.data(), data.size());
   if (options._compressor == COMPRESSORS::LZ4) {
     size_t maxCompressedSize = compression::compressBound(data.size());
     data.reserve(data.size() + maxCompressedSize);
-    uncomprSize = nextInput.size();
     std::string_view compressedView = compression::compress(data, uncomprSize);
     nextInput = { compressedView.data(), compressedView.size() };
   }

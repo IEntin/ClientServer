@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Runnable.h"
+#include "Subtask.h"
 #include <deque>
 #include <mutex>
 #include <string_view>
@@ -14,15 +15,6 @@
 enum class STATUS : char;
 struct ClientOptions;
 struct CryptoKeys;
-
-struct Subtask {
-  Subtask() = default;
-  Subtask(const Subtask&) : _state(STATUS::NONE) {}
-  ~Subtask() = default;
-  HEADER _header;
-  std::vector<char> _body;
-  std::atomic<STATUS> _state = STATUS::NONE;
-};
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
