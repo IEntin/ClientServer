@@ -64,7 +64,7 @@ void CryptoKeys::showKeys() {
   std::clog << std::endl;
 }
 
-void Crypto::encrypt(std::string& in_out, const CryptoKeys& keys) {
+void Crypto::encrypt(std::string& data, const CryptoKeys& keys) {
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
   CryptoPP::AES::Encryption aesEncryption(keys._key.data(), keys._key.size());
@@ -72,14 +72,14 @@ void Crypto::encrypt(std::string& in_out, const CryptoKeys& keys) {
   static thread_local std::string cipher;
   cipher.clear();
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
-  stfEncryptor.Put(reinterpret_cast<const unsigned char*>(in_out.data()), in_out.size());
+  stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  in_out.swap(cipher);
+  data.swap(cipher);
 }
 
-void Crypto::decrypt(std::string_view cipher,
-		     const CryptoKeys& keys,
-		     std::string& decrypted) {
+void Crypto::decrypt(std::string& cipher, const CryptoKeys& keys) {
+  static thread_local std::string decrypted;
+  decrypted.clear();
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
   try {
@@ -88,6 +88,7 @@ void Crypto::decrypt(std::string_view cipher,
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
     stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.data()), cipher.size());
     stfDecryptor.MessageEnd();
+    cipher.swap(decrypted);
   }
   catch (const std::exception& e) {
     std::string error(e.what());

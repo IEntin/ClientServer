@@ -96,12 +96,12 @@ STATUS TaskBuilder::createSubtask() {
 // Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& in_out, bool alldone) {
+STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
   HEADER header;
-  commonutils::compressEncrypt(_options, _cryptoKeys, in_out, header, _options._diagnostics);
+  commonutils::compressEncrypt(_options, _cryptoKeys, data, header, _options._diagnostics);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
-  subtask._body.swap(in_out);
+  subtask._body.swap(data);
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._state.notify_one();
   return subtask._state;

@@ -6,25 +6,15 @@
 
 namespace commonutils {
 
-std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
-				   const HEADER& header,
-				   std::string_view received) {
-  std::string_view nextInput = received;
-  if (isEncrypted(header)) {
-    static thread_local std::string decrypted;
-    decrypted.clear();
-    Crypto::decrypt(nextInput, cryptoKeys, decrypted);
-    nextInput = { decrypted.data(), decrypted.size() };
-  }
+void decryptDecompress(const CryptoKeys& cryptoKeys,
+		       const HEADER& header,
+		       std::string& data) {
+  if (isEncrypted(header))
+    Crypto::decrypt(data, cryptoKeys);
   if (isCompressed(header)) {
-    static thread_local std::vector<char> uncompressed;
-    uncompressed.clear();
     size_t uncomprSize = extractUncompressedSize(header);
-    uncompressed.resize(uncomprSize);
-    compression::uncompress(nextInput, uncompressed);
-    nextInput = { uncompressed.data(), uncomprSize };
+    compression::uncompress(data, uncomprSize);
   }
-  return nextInput;
 }
 
 } // end of namespace commonutils

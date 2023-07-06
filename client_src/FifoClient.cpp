@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "Fifo.h"
 #include "TaskBuilder.h"
-#include "Utility.h"
 #include "SignalWatcher.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -53,7 +52,7 @@ bool FifoClient::receive() {
   if (!std::filesystem::exists(_options._controlFileName))
     return false;
   _status = STATUS::NONE;
-  thread_local static std::vector<char> buffer;
+  thread_local static std::string buffer;
   HEADER header;
   if (!Fifo::readMsgBlock(_fifoName, header, buffer))
     return false;

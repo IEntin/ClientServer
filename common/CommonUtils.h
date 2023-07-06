@@ -12,29 +12,28 @@
 namespace commonutils {
 
 template <typename B>
-std::string_view compressEncrypt(const Options& options,
-				 const CryptoKeys& cryptoKeys,
-				 B& in_out,
-				 HEADER& header,
-				 bool diagnostics,
-				 STATUS status = STATUS::NONE) {
-  size_t uncomprSize = in_out.size();
+void compressEncrypt(const Options& options,
+		     const CryptoKeys& cryptoKeys,
+		     B& data,
+		     HEADER& header,
+		     bool diagnostics,
+		     STATUS status = STATUS::NONE) {
+  size_t uncomprSize = data.size();
   if (options._compressor == COMPRESSORS::LZ4)
-    compression::compress(in_out);
+    compression::compress(data);
   if (options._encrypted)
-    Crypto::encrypt(in_out, cryptoKeys);
+    Crypto::encrypt(data, cryptoKeys);
   header = { HEADERTYPE::SESSION,
-    in_out.size(),
+    data.size(),
     uncomprSize,
     options._compressor,
     options._encrypted,
     diagnostics,
     status };
-  return in_out;
 }
 
-std::string_view decryptDecompress(const CryptoKeys& cryptoKeys,
-				   const HEADER& header,
-				   std::string_view received);
+void decryptDecompress(const CryptoKeys& cryptoKeys,
+		       const HEADER& header,
+		       std::string& received);
 
 } // end of namespace commonutils

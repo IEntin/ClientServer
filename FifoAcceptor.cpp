@@ -7,7 +7,6 @@
 #include "FifoSession.h"
 #include "Server.h"
 #include "ServerOptions.h"
-#include "Utility.h"
 #include <filesystem>
 #include <sys/stat.h>
 

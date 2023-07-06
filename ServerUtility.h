@@ -22,7 +22,7 @@ std::string_view buildReply(const Options&options,
 
 bool processRequest(const CryptoKeys& keys,
 		    const HEADER& header,
-		    const std::vector<char>& received,
+		    std::string& received,
 		    Response& response);
 
 } // end of namespace serverutility

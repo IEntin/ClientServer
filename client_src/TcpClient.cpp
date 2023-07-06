@@ -46,7 +46,7 @@ bool TcpClient::send(const Subtask& subtask) {
 
 bool TcpClient::receive() {
   HEADER header;
-  thread_local static std::vector<char> buffer;
+  thread_local static std::string buffer;
   auto [success, ec] = Tcp::readMsg(_socket, header, buffer);
   if (ec) {
     LogError << ec.what() << std::endl;

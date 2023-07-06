@@ -33,16 +33,14 @@ std::string_view buildReply(const Options&options,
 
 bool processRequest(const CryptoKeys& keys,
 		    const HEADER& header,
-		    const std::vector<char>& received,
+		    std::string& received,
 		    Response& response) {
   std::string_view receivedView(received.data(), received.size());
-  std::string_view decryptedView = commonutils::decryptDecompress(keys, header, receivedView);
-  if (decryptedView.empty())
-    return false;
+  commonutils::decryptDecompress(keys, header, received);
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();
   if (taskController) {
-    taskController->processTask(header, decryptedView, response);
+    taskController->processTask(header, received, response);
     return true;
   }
   return false;

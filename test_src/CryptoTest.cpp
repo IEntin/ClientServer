@@ -16,16 +16,15 @@
 TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
   // exchanged between two parties before communication begins.
-  std::string in_out = TestEnvironment::_source;
+  std::string data = TestEnvironment::_source;
   try {
     CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
-    Crypto::encrypt(in_out, cryptoKeys);
+    Crypto::encrypt(data, cryptoKeys);
 
-    std::string decrypted;
-    Crypto::decrypt(in_out, cryptoKeys, decrypted);
+    Crypto::decrypt(data, cryptoKeys);
 
-    ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
-    ASSERT_EQ(TestEnvironment::_source, decrypted);
+    ASSERT_EQ(TestEnvironment::_source.size(), data.size());
+    ASSERT_EQ(TestEnvironment::_source, data);
   }
   catch (const std::exception& e) {
     LogError << e.what() << std::endl;
@@ -37,24 +36,21 @@ TEST(CryptoTest, 1) {
 struct CommonUtilsTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
-      std::string in_out = TestEnvironment::_source;
+      std::string data = TestEnvironment::_source;
       CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
       HEADER header;
       bool diagnostics = false;
-      std::string_view compressEncrypt =
-	commonutils::compressEncrypt(TestEnvironment::_serverOptions,
-				     cryptoKeys,
-				     in_out,
-				     header,
-				     diagnostics,
-				     STATUS::NONE);
-      std::string in = in_out;
-      std::string_view result =
-	commonutils::decryptDecompress(cryptoKeys, header, compressEncrypt);
-      ASSERT_EQ(result.size(), TestEnvironment::_source.size());
-      ASSERT_EQ(result, TestEnvironment::_source);
+      commonutils::compressEncrypt(TestEnvironment::_serverOptions,
+				   cryptoKeys,
+				   data,
+				   header,
+				   diagnostics,
+				   STATUS::NONE);
+      commonutils::decryptDecompress(cryptoKeys, header, data);
+      ASSERT_EQ(data.size(), TestEnvironment::_source.size());
+      ASSERT_EQ(data, TestEnvironment::_source);
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;

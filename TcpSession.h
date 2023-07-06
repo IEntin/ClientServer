@@ -42,7 +42,7 @@ private:
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;
-  std::vector<char> _request;
+  std::string _request;
 };
 
 } // end of namespace tcp

@@ -54,7 +54,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  static thread_local std::vector<char> request;
+  static thread_local std::string request;
   request.clear();
   if (!Fifo::readMsgBlock(_fifoName, header, request))
     return false;

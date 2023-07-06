@@ -12,6 +12,7 @@ struct ServerOptions;
 struct CryptoKeys {
   CryptoKeys(const ServerOptions& options);
   CryptoKeys();
+  ~CryptoKeys() = default;
   void showKeys();
   CryptoPP::SecByteBlock _key;
   CryptoPP::SecByteBlock _iv;
@@ -23,9 +24,7 @@ private:
 
 class Crypto {
  public:
-  static void encrypt(std::string& in_out, const CryptoKeys& keys);
+  static void encrypt(std::string& data, const CryptoKeys& keys);
 
-  static void decrypt(std::string_view cipher,
-		      const CryptoKeys& keys,
-		      std::string& decrypted);
+  static void decrypt(std::string& cipher, const CryptoKeys& keys);
 };

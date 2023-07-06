@@ -75,7 +75,7 @@ void Client::stop() {
   _threadPoolClient.stop();
 }
 
-bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
+bool Client::printReply(const HEADER& header, std::string& buffer) {
   if (auto ptr = _heartbeat.lock(); ptr) {
     STATUS status = ptr->getStatus();
     if (utility::displayStatus(status))
@@ -83,14 +83,12 @@ bool Client::printReply(const HEADER& header, const std::vector<char>& buffer) {
   }
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view bufferView(buffer.data(), buffer.size());
-  std::string_view output =
-    commonutils::decryptDecompress(_cryptoKeys, header, bufferView);
-  if (output.empty()) {
+  commonutils::decryptDecompress(_cryptoKeys, header, buffer);
+  if (buffer.empty()) {
     utility::displayStatus(STATUS::ERROR);
     return false;
   }
-  stream << output << std::flush;
+  stream << buffer << std::flush;
   return true;
 }
 
