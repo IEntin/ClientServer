@@ -64,16 +64,17 @@ void CryptoKeys::showKeys() {
   std::clog << std::endl;
 }
 
-void Crypto::encrypt(std::string_view source,
-		     const CryptoKeys& keys,
-		     std::string& cipher) {
+void Crypto::encrypt(std::string& in_out, const CryptoKeys& keys) {
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
   CryptoPP::AES::Encryption aesEncryption(keys._key.data(), keys._key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, keys._iv.data());
+  static thread_local std::string cipher;
+  cipher.clear();
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
-  stfEncryptor.Put(reinterpret_cast<const unsigned char*>(source.data()), source.size());
+  stfEncryptor.Put(reinterpret_cast<const unsigned char*>(in_out.data()), in_out.size());
   stfEncryptor.MessageEnd();
+  in_out.swap(cipher);
 }
 
 void Crypto::decrypt(std::string_view cipher,

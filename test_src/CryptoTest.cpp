@@ -16,15 +16,13 @@
 TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
   // exchanged between two parties before communication begins.
+  std::string in_out = TestEnvironment::_source;
   try {
     CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
-    std::string_view sourceView(TestEnvironment::_source);
-
-    std::string cipher;
-    Crypto::encrypt(sourceView, cryptoKeys, cipher);
+    Crypto::encrypt(in_out, cryptoKeys);
 
     std::string decrypted;
-    Crypto::decrypt(cipher, cryptoKeys, decrypted);
+    Crypto::decrypt(in_out, cryptoKeys, decrypted);
 
     ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
     ASSERT_EQ(TestEnvironment::_source, decrypted);

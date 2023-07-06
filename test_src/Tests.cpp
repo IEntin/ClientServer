@@ -12,18 +12,17 @@ struct CompressionTest : testing::Test {
 
   void testCompressionDecompression1(std::string& input) {
     try{
-      size_t maxCompressedSize = compression::compressBound(input.size());
-      input.reserve(input.size() + maxCompressedSize);
-      std::string_view compressedView = compression::compress(input, input.size());
-      std::vector<char> uncompressed(input.size());
-      compression::uncompress(compressedView, uncompressed);
-      std::string_view uncompressedView(uncompressed.data(), uncompressed.size());
+      std::string in_out = input;
+      compression::compress(in_out);
+      std::string uncompressed;
+      uncompressed.resize(input.size());
+      compression::uncompress(in_out, uncompressed);
       // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
 	Logger(false) << "\n   input.size()=" << input.size()
-		      << " compressedView.size()=" << compressedView.size() << " restored to original:"
-		      << std::boolalpha << (input == uncompressedView) << '\n' << std::endl;
-      ASSERT_EQ(input, uncompressedView);
+		      << " in_out.size()=" << in_out.size() << " restored to original:"
+		      << std::boolalpha << (input == uncompressed) << '\n' << std::endl;
+      ASSERT_EQ(input, uncompressed);
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;

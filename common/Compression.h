@@ -16,23 +16,10 @@ inline COMPRESSORS translateName(std::string_view compressorStr) {
   return compressor;
 }
 
-inline size_t compressBound(size_t uncompressedSize) {
-  return LZ4_compressBound(uncompressedSize);
-}
-
-template <typename C>
-std::string_view compress(C& buffer, size_t uncompressedSize) {
-  size_t compressedSize = LZ4_compress_default(buffer.data(),
-					       buffer.data() + uncompressedSize,
-					       uncompressedSize,
-					       buffer.capacity());
-  if (compressedSize == 0)
-    throw std::runtime_error("compress failed");
-  return { buffer.data() + uncompressedSize, compressedSize };
-}
-
 template <typename B>
-void compress(B& data, B& buffer) {
+void compress(B& data) {
+  static thread_local std::string buffer;
+  buffer.clear();
   buffer.resize(LZ4_compressBound(data.size()));
   size_t compressedSize = LZ4_compress_default(data.data(),
 					       buffer.data(),
@@ -41,6 +28,7 @@ void compress(B& data, B& buffer) {
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
   buffer.resize(compressedSize);
+  data.swap(buffer);
 }
 
 template <typename U>

@@ -23,9 +23,8 @@ private:
 
 class Crypto {
  public:
-  static void encrypt(std::string_view source,
-		      const CryptoKeys& keys,
-		      std::string& cipher);
+  static void encrypt(std::string& in_out, const CryptoKeys& keys);
+
   static void decrypt(std::string_view cipher,
 		      const CryptoKeys& keys,
 		      std::string& decrypted);

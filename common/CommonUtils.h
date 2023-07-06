@@ -19,19 +19,10 @@ std::string_view compressEncrypt(const Options& options,
 				 bool diagnostics,
 				 STATUS status = STATUS::NONE) {
   size_t uncomprSize = in_out.size();
-  if (options._compressor == COMPRESSORS::LZ4) {
-    in_out.reserve(in_out.size());
-    static thread_local std::string buffer;
-    buffer.clear();
-    compression::compress(in_out, buffer);
-    in_out.swap(buffer);
-  }
-  if (options._encrypted) {
-    static thread_local std::string cipher;
-    cipher.clear();
-    Crypto::encrypt(in_out, cryptoKeys, cipher);
-    in_out.swap(cipher);
-  }
+  if (options._compressor == COMPRESSORS::LZ4)
+    compression::compress(in_out);
+  if (options._encrypted)
+    Crypto::encrypt(in_out, cryptoKeys);
   header = { HEADERTYPE::SESSION,
     in_out.size(),
     uncomprSize,
