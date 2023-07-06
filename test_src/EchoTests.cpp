@@ -16,6 +16,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
 
 struct EchoTest : testing::Test {
+  const std::string _originalSource = TestEnvironment::_source;
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
@@ -28,8 +29,8 @@ struct EchoTest : testing::Test {
       {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
       }
       server.stop();
     }
@@ -53,15 +54,14 @@ struct EchoTest : testing::Test {
 	client.run();
       }
       server.stop();
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), TestEnvironment::_source.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
       ASSERT_TRUE(false);
     }
   }
-
   void TearDown() {
     TestEnvironment::reset();
   }

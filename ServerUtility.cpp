@@ -19,7 +19,7 @@ std::string_view buildReply(const Options&options,
   size_t dataSize = 0;
   for (const auto& entry : response)
     dataSize += entry.size();
-  static thread_local std::vector<char> data;
+  static thread_local std::string data;
   data.clear();
   data.resize(dataSize);
   ssize_t pos = 0;
@@ -27,7 +27,8 @@ std::string_view buildReply(const Options&options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  return commonutils::compressEncrypt(options, keys, data,  header, false, status);
+  commonutils::compressEncrypt(options, keys, data,  header, false, status);
+  return data;
 }
 
 bool processRequest(const CryptoKeys& keys,

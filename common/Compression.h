@@ -31,6 +31,18 @@ std::string_view compress(C& buffer, size_t uncompressedSize) {
   return { buffer.data() + uncompressedSize, compressedSize };
 }
 
+template <typename B>
+void compress(B& data, B& buffer) {
+  buffer.resize(LZ4_compressBound(data.size()));
+  size_t compressedSize = LZ4_compress_default(data.data(),
+					       buffer.data(),
+					       data.size(),
+					       buffer.capacity());
+  if (compressedSize == 0)
+    throw std::runtime_error("compress failed");
+  buffer.resize(compressedSize);
+}
+
 template <typename U>
 void uncompress(std::string_view compressed, U& uncompressed) {
   ssize_t decomprSize = LZ4_decompress_safe(compressed.data(),

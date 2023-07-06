@@ -18,9 +18,7 @@ struct CryptoKeys;
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
-  STATUS encryptCompressSubtask(Subtask& subtask,
-				std::vector<char>& data,
-				bool alldone);
+  STATUS encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 
   const ClientOptions& _options;

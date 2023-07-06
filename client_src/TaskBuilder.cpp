@@ -67,7 +67,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // aggregate depends on the configured buffer size.
 
 STATUS TaskBuilder::createSubtask() {
-  thread_local static std::vector<char> aggregate;
+  thread_local static std::string aggregate;
   size_t aggregateSize = 0;
   // rough estimate for subtask size to minimize reallocation.
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
@@ -96,16 +96,12 @@ STATUS TaskBuilder::createSubtask() {
 // Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask,
-					   std::vector<char>& data,
-					   bool alldone) {
+STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& in_out, bool alldone) {
   HEADER header;
-  std::string_view body =
-    commonutils::compressEncrypt(_options, _cryptoKeys, data, header, _options._diagnostics);
+  commonutils::compressEncrypt(_options, _cryptoKeys, in_out, header, _options._diagnostics);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
-  subtask._body.resize(body.size());
-  std::copy(body.cbegin(), body.cend(), subtask._body.begin());
+  subtask._body.swap(in_out);
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._state.notify_one();
   return subtask._state;

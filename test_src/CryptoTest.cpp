@@ -10,6 +10,7 @@
 #include "TestEnvironment.h"
 #include <filesystem>
 
+// for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=CommonUtilsTest*; done
 
 TEST(CryptoTest, 1) {
@@ -35,25 +36,27 @@ TEST(CryptoTest, 1) {
   std::filesystem::remove(CRYPTO_IV_FILE_NAME);
 }
 
-struct CommonUtilsTestEncryptionFirst : testing::Test {
+struct CommonUtilsTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
+      std::string in_out = TestEnvironment::_source;
       CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
       HEADER header;
       bool diagnostics = false;
-      std::string_view body =
+      std::string_view compressEncrypt =
 	commonutils::compressEncrypt(TestEnvironment::_serverOptions,
 				     cryptoKeys,
-				     TestEnvironment::_source,
+				     in_out,
 				     header,
 				     diagnostics,
 				     STATUS::NONE);
-      ASSERT_EQ(extractPayloadSize(header), body.size());
-      std::string_view decryptedDecompressed =
-	commonutils::decryptDecompress(cryptoKeys, header, body);
-      ASSERT_EQ(decryptedDecompressed, TestEnvironment::_source);
+      std::string in = in_out;
+      std::string_view result =
+	commonutils::decryptDecompress(cryptoKeys, header, compressEncrypt);
+      ASSERT_EQ(result.size(), TestEnvironment::_source.size());
+      ASSERT_EQ(result, TestEnvironment::_source);
     }
     catch (const std::exception& e) {
       LogError << e.what() << std::endl;
@@ -66,18 +69,18 @@ struct CommonUtilsTestEncryptionFirst : testing::Test {
   }
 };
 
-TEST_F(CommonUtilsTestEncryptionFirst, ENCRYPTED_LZ4) {
+TEST_F(CommonUtilsTest, ENCRYPTED_LZ4) {
   test(true, COMPRESSORS::LZ4);
 }
 
-TEST_F(CommonUtilsTestEncryptionFirst, ENCRYPTED_NONE) {
+TEST_F(CommonUtilsTest, ENCRYPTED_NONE) {
   test(true, COMPRESSORS::NONE);
 }
 
-TEST_F(CommonUtilsTestEncryptionFirst, NOTENCRYPTED_NONE) {
+TEST_F(CommonUtilsTest, NOTENCRYPTED_NONE) {
   test(false, COMPRESSORS::NONE);
 }
 
-TEST_F(CommonUtilsTestEncryptionFirst, NOTENCRYPTED_LZ4) {
+TEST_F(CommonUtilsTest, NOTENCRYPTED_LZ4) {
   test(false, COMPRESSORS::LZ4);
 }
