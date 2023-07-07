@@ -155,12 +155,16 @@ void TcpSession::asyncWait() {
     if (!self)
       return;
     if (ec != boost::asio::error::operation_aborted) {
-      if (ec)
+      if (ec) {
 	LogError << ec.what() << std::endl;
+	_status = STATUS::TCP_PROBLEM;
+	throw std::runtime_error(ec.what());
+      }
       else {
 	LogError << "timeout" << std::endl;
 	_status = STATUS::TCP_TIMEOUT;
-      }
+ 	throw std::runtime_error("timeout!");
+     }
     }
   });
 }
