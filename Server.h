@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Crypto.h"
 #include "ThreadPoolDiffObj.h"
 #include <map>
 #include <mutex>
@@ -23,7 +22,6 @@ public:
   void stopSessions();
 private:
   const ServerOptions& _options;
-  CryptoKeys _cryptoKeys;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   ThreadPoolBase _threadPoolAcceptor;

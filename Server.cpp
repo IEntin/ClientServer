@@ -3,6 +3,7 @@
  */
 
 #include "Server.h"
+#include "Crypto.h"
 #include "FifoAcceptor.h"
 #include "Logger.h"
 #include "ServerOptions.h"
@@ -16,7 +17,6 @@
 
 Server::Server(const ServerOptions& options) :
   _options(options),
-  _cryptoKeys(options),
   _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   StrategySelector strategySelector(options);
@@ -30,8 +30,9 @@ Server::~Server() {
 }
 
 bool Server::start() {
+  CryptoKeys keys(_options);
   if (_options._showKeys)
-    _cryptoKeys.showKeys();
+    keys.showKeys();
   if (!TaskController::create(_options))
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
