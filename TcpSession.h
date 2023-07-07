@@ -8,7 +8,6 @@
 #include <boost/asio.hpp>
 
 using Response = std::vector<std::string>;
-class Server;
 struct ServerOptions;
 
 namespace tcp {
@@ -18,7 +17,7 @@ using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
 public:
-  TcpSession(const Server& server, ConnectionDetailsPtr details, std::string_view clientId);
+  TcpSession(const ServerOptions& options, ConnectionDetailsPtr details, std::string_view clientId);
   ~TcpSession() override;
 
 private:

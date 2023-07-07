@@ -54,7 +54,7 @@ void FifoAcceptor::createSession() {
     LogError << std::strerror(errno) << '-' << fifoName << std::endl;
     return;
   }
-  auto session = std::make_shared<FifoSession>(_server, clientId);
+  auto session = std::make_shared<FifoSession>(_options, clientId);
   _server.startSession(clientId, session);
 }
 

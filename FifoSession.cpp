@@ -4,16 +4,15 @@
 
 #include "FifoSession.h"
 #include "Fifo.h"
-#include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include <filesystem>
 
 namespace fifo {
 
-FifoSession::FifoSession(const Server& server, std::string_view clientId) :
-  RunnableT(server.getOptions()._maxFifoSessions, _name),
-  _options(server.getOptions()),
+FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId) :
+  RunnableT(options._maxFifoSessions, _name),
+  _options(options),
   _clientId(clientId),
   _fifoName(_options._fifoDirectoryName + '/' + _clientId) {
   Debug << "_fifoName:" << _fifoName << std::endl;

@@ -75,7 +75,7 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
 void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
   std::string clientId = utility::getUniqueId();;
   RunnablePtr session =
-    std::make_shared<TcpSession>(_server, details, clientId);
+    std::make_shared<TcpSession>(_options, details, clientId);
   _server.startSession(clientId, session);
 }
 

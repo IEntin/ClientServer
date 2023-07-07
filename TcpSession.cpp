@@ -4,16 +4,17 @@
 
 #include "TcpSession.h"
 #include "ConnectionDetails.h"
-#include "Server.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "Tcp.h"
 
 namespace tcp {
 
-TcpSession::TcpSession(const Server& server, ConnectionDetailsPtr details, std::string_view clientId) :
-  RunnableT(server.getOptions()._maxTcpSessions, _name),
-  _options(server.getOptions()),
+TcpSession::TcpSession(const ServerOptions& options,
+		       ConnectionDetailsPtr details,
+		       std::string_view clientId) :
+  RunnableT(options._maxTcpSessions, _name),
+  _options(options),
   _clientId(clientId),
    _details(details),
   _ioContext(details->_ioContext),
