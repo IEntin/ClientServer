@@ -21,7 +21,6 @@ public:
   const ServerOptions& getOptions() const { return _options; }
   bool startSession(std::string_view clientId, RunnablePtr session);
   void stopSessions();
-  const CryptoKeys& getKeys() const { return _cryptoKeys; }
 private:
   const ServerOptions& _options;
   CryptoKeys _cryptoKeys;

@@ -24,7 +24,7 @@ private:
 
 class Crypto {
  public:
-  static void encrypt(std::string& data, const CryptoKeys& keys);
+  static void encrypt(std::string& data);
 
-  static void decrypt(std::string& cipher, const CryptoKeys& keys);
+  static void decrypt(std::string& cipher);
 };

@@ -10,7 +10,6 @@
 using Response = std::vector<std::string>;
 class Server;
 struct ServerOptions;
-struct CryptoKeys;
 
 namespace tcp {
 
@@ -34,7 +33,6 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   const std::string _clientId;
-  const CryptoKeys& _cryptoKeys;
   static inline std::string_view _name = "tcp";
   ConnectionDetailsPtr _details;
   boost::asio::io_context& _ioContext;

@@ -10,7 +10,6 @@
 using Response = std::vector<std::string>;
 struct ServerOptions;
 class Server;
-struct CryptoKeys;
 
 namespace fifo {
 
@@ -18,7 +17,6 @@ class FifoSession final : public RunnableT<FifoSession> {
   const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
-  const CryptoKeys& _cryptoKeys;
   static inline std::string_view _name = "fifo";
   bool receiveRequest(HEADER& header);
   bool sendResponse(const Response& response);

@@ -15,13 +15,11 @@ using Response = std::vector<std::string>;
 namespace serverutility {
 
 std::string_view buildReply(const Options&options,
-			    const CryptoKeys& keys,
 			    const Response& response,
 			    HEADER& header,
 			    STATUS status);
 
-bool processRequest(const CryptoKeys& keys,
-		    const HEADER& header,
+bool processRequest(const HEADER& header,
 		    std::string& received,
 		    Response& response);
 

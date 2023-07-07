@@ -19,9 +19,9 @@ TEST(CryptoTest, 1) {
   std::string data = TestEnvironment::_source;
   try {
     CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
-    Crypto::encrypt(data, cryptoKeys);
+    Crypto::encrypt(data);
 
-    Crypto::decrypt(data, cryptoKeys);
+    Crypto::decrypt(data);
 
     ASSERT_EQ(TestEnvironment::_source.size(), data.size());
     ASSERT_EQ(TestEnvironment::_source, data);
@@ -43,12 +43,11 @@ struct CommonUtilsTest : testing::Test {
       HEADER header;
       bool diagnostics = false;
       commonutils::compressEncrypt(TestEnvironment::_serverOptions,
-				   cryptoKeys,
 				   data,
 				   header,
 				   diagnostics,
 				   STATUS::NONE);
-      commonutils::decryptDecompress(cryptoKeys, header, data);
+      commonutils::decryptDecompress(header, data);
       ASSERT_EQ(data.size(), TestEnvironment::_source.size());
       ASSERT_EQ(data, TestEnvironment::_source);
     }

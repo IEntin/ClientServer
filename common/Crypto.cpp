@@ -64,7 +64,8 @@ void CryptoKeys::showKeys() {
   std::clog << std::endl;
 }
 
-void Crypto::encrypt(std::string& data, const CryptoKeys& keys) {
+void Crypto::encrypt(std::string& data) {
+  static CryptoKeys keys;
   if (keys._key.empty() || keys._iv.empty())
     throw std::runtime_error("empty keys");
   CryptoPP::AES::Encryption aesEncryption(keys._key.data(), keys._key.size());
@@ -77,7 +78,8 @@ void Crypto::encrypt(std::string& data, const CryptoKeys& keys) {
   data.swap(cipher);
 }
 
-void Crypto::decrypt(std::string& cipher, const CryptoKeys& keys) {
+void Crypto::decrypt(std::string& cipher) {
+  static CryptoKeys keys;
   static thread_local std::string decrypted;
   decrypted.clear();
   if (keys._key.empty() || keys._iv.empty())

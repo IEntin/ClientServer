@@ -5,13 +5,11 @@
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
 #include "CommonUtils.h"
-#include "Crypto.h"
 #include "Header.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(const ClientOptions& options, CryptoKeys& cryptoKeys) :
+TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _options(options),
-  _cryptoKeys(cryptoKeys),
   _subtasks(1) {
   _input.open(_options._sourceName, std::ios::binary);
   if(!_input)
@@ -98,7 +96,7 @@ STATUS TaskBuilder::createSubtask() {
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
   HEADER header;
-  commonutils::compressEncrypt(_options, _cryptoKeys, data, header, _options._diagnostics);
+  commonutils::compressEncrypt(_options, data, header, _options._diagnostics);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.swap(data);

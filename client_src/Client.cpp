@@ -50,14 +50,14 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 
 bool Client::run() {
   int numberTasks = 0;
-  auto taskBuilder = std::make_shared<TaskBuilder>(_options, _cryptoKeys);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_options);
   _threadPoolClient.push(taskBuilder);
   do {
     Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
     auto savedBuild = std::move(taskBuilder);
     if (_options._runLoop) {
       // start construction of the next task in the background
-      taskBuilder = std::make_shared<TaskBuilder>(_options, _cryptoKeys);
+      taskBuilder = std::make_shared<TaskBuilder>(_options);
       _threadPoolClient.push(taskBuilder);
     }
     if (!processTask(savedBuild))
@@ -83,7 +83,7 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
   }
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  commonutils::decryptDecompress(_cryptoKeys, header, buffer);
+  commonutils::decryptDecompress(header, buffer);
   if (buffer.empty()) {
     utility::displayStatus(STATUS::ERROR);
     return false;
@@ -93,9 +93,10 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
 }
 
 void Client::start() {
+  CryptoKeys keys;
   if (_options._showKeys)
-    _cryptoKeys.showKeys();
-  if (!_cryptoKeys._valid)
+    keys.showKeys();
+  if (!keys._valid)
     throw std::runtime_error("invalid or absent crypto files.");
   if (_options._heartbeatEnabled) {
     RunnablePtr ptr = std::make_shared<tcp::TcpClientHeartbeat>(_options);

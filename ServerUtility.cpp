@@ -10,7 +10,6 @@
 namespace serverutility {
 
 std::string_view buildReply(const Options&options,
-			    const CryptoKeys& keys,
 			    const Response& response,
 			    HEADER& header,
 			    STATUS status) {
@@ -27,16 +26,15 @@ std::string_view buildReply(const Options&options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  commonutils::compressEncrypt(options, keys, data,  header, false, status);
+  commonutils::compressEncrypt(options, data,  header, false, status);
   return data;
 }
 
-bool processRequest(const CryptoKeys& keys,
-		    const HEADER& header,
+bool processRequest(const HEADER& header,
 		    std::string& received,
 		    Response& response) {
   std::string_view receivedView(received.data(), received.size());
-  commonutils::decryptDecompress(keys, header, received);
+  commonutils::decryptDecompress(header, received);
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();
   if (taskController) {

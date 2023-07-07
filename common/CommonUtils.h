@@ -13,7 +13,6 @@ namespace commonutils {
 
 template <typename B>
 void compressEncrypt(const Options& options,
-		     const CryptoKeys& cryptoKeys,
 		     B& data,
 		     HEADER& header,
 		     bool diagnostics,
@@ -22,7 +21,7 @@ void compressEncrypt(const Options& options,
   if (options._compressor == COMPRESSORS::LZ4)
     compression::compress(data);
   if (options._encrypted)
-    Crypto::encrypt(data, cryptoKeys);
+    Crypto::encrypt(data);
   header = { HEADERTYPE::SESSION,
     data.size(),
     uncomprSize,
@@ -32,8 +31,6 @@ void compressEncrypt(const Options& options,
     status };
 }
 
-void decryptDecompress(const CryptoKeys& cryptoKeys,
-		       const HEADER& header,
-		       std::string& received);
+void decryptDecompress(const HEADER& header, std::string& received);
 
 } // end of namespace commonutils
