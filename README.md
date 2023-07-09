@@ -262,8 +262,8 @@ Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
 Business logic, tasks multithreading, and communication layer are decoupled.
 
-Memory pooling. Most of processing in stable regime after startup is not allocating.\
-Tuning the memory pool size allows to drastically reduce memory footprint of the software,\
+Memory reuse. Most of processing in stable regime after startup is not allocating.\
+Tuning the memory buffer size allows to drastically reduce memory footprint of the software,\
 especially of the client, with moderate speed decrease, which can in turn reduce hardware\
 requirements.
 
