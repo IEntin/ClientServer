@@ -93,10 +93,10 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
 }
 
 void Client::start() {
-  CryptoKeys keys;
-  if (_options._showKeys)
-    keys.showKeys();
-  if (!keys._valid)
+  CryptoKey key;
+  if (_options._showKey)
+    key.showKey();
+  if (!key._valid)
     throw std::runtime_error("invalid or absent crypto files.");
   if (_options._heartbeatEnabled) {
     RunnablePtr ptr = std::make_shared<tcp::TcpClientHeartbeat>(_options);

@@ -11,14 +11,14 @@ then
     echo "after server startup."
     echo "Test client directories are numbered."
     echo "With 20 client directories this command"
-    echo "will copy crypto files to Client1 ... Client20:"
-    echo "./copyCryptoFiles.sh <number of clients>"
+    echo "will copy crypto key to Client1 ... Client20:"
+    echo "./copyCryptoKey.sh <number of clients>"
     exit 0
 fi
 
 for (( c=1; c<=$1; c++ ))
 do
-    cp .cryptoKey.sec .cryptoIv.sec ../Client$c
+    cp .cryptoKey.sec ../Client$c
 done
 
 set -e

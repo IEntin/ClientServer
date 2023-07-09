@@ -18,7 +18,7 @@ TEST(CryptoTest, 1) {
   // exchanged between two parties before communication begins.
   std::string data = TestEnvironment::_source;
   try {
-    CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
+    CryptoKey cryptoKey(TestEnvironment::_serverOptions);
     Crypto::encrypt(data);
 
     Crypto::decrypt(data);
@@ -30,14 +30,13 @@ TEST(CryptoTest, 1) {
     LogError << e.what() << std::endl;
   }
   std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
-  std::filesystem::remove(CRYPTO_IV_FILE_NAME);
 }
 
 struct CommonUtilsTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
       std::string data = TestEnvironment::_source;
-      CryptoKeys cryptoKeys(TestEnvironment::_serverOptions);
+      CryptoKey cryptoKey(TestEnvironment::_serverOptions);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
       HEADER header;

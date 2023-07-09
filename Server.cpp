@@ -30,9 +30,9 @@ Server::~Server() {
 }
 
 bool Server::start() {
-  CryptoKeys keys(_options);
-  if (_options._showKeys)
-    keys.showKeys();
+  CryptoKey key(_options);
+  if (_options._showKey)
+    key.showKey();
   if (!TaskController::create(_options))
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);

@@ -9,7 +9,6 @@
 #include <vector>
 
 struct Options;
-struct CryptoKeys;
 using Response = std::vector<std::string>;
 
 namespace serverutility {

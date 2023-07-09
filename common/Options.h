@@ -22,7 +22,7 @@ struct Options {
   int _ENXIOwait;
   COMPRESSORS _compressor;
   bool _encrypted;
-  bool _showKeys;
+  bool _showKey;
   bool _timing;
   bool _setPipeSize;
   size_t _pipeSize;

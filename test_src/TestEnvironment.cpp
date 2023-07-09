@@ -37,7 +37,6 @@ void TestEnvironment::SetUp() {
 void TestEnvironment::TearDown() {
   try {
     std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
-    std::filesystem::remove(CRYPTO_IV_FILE_NAME);
     std::filesystem::remove(TestEnvironment::_serverOptionsOrg._controlFileName);
     Metrics::save();
     Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);

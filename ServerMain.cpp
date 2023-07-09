@@ -43,9 +43,8 @@ int main() {
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << std::endl;
-    if (options._invalidateKeys) {
+    if (options._invalidateKey) {
       std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
-      std::filesystem::remove(CRYPTO_IV_FILE_NAME);
     }
     std::filesystem::remove(options._controlFileName);
     Metrics::save();

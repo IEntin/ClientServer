@@ -47,9 +47,9 @@ make -j4 PROFILE=1
 $SERVER_DIR/server&
 SERVER_PID=$!
 echo $SERVER_PID
-/bin/cp -f $SERVER_DIR/client $SERVER_DIR/.cryptoKey.sec $SERVER_DIR/.cryptoIv.sec $SERVER_DIR/../Client2
+/bin/cp -f $SERVER_DIR/client $SERVER_DIR/.cryptoKey.sec $SERVER_DIR/../Client2
 
-/bin/cp -f $SERVER_DIR/client $SERVER_DIR/.cryptoKey.sec $SERVER_DIR/.cryptoIv.sec $SERVER_DIR/../Client3
+/bin/cp -f $SERVER_DIR/client $SERVER_DIR/.cryptoKey.sec $SERVER_DIR/../Client3
 
 # Start tcp or fifo client.
 # The directory $SERVER_DIR/../Client2 must exist and have a copy of ClientOptions.json, and the link to SERVER_DIR/data directory.
@@ -81,7 +81,7 @@ gprof -b client gmon.out > $SERVER_DIR/$SECOND_CLIENT_PROFILE
 # These directories are not under git and gmon.out must be removed 'manually'
 # in order not to distort the results of the next run.
 
-(cd $SERVER_DIR; rm -f gmon.out .cryptoKey.sec .cryptoIv.sec)
-(cd $SERVER_DIR/../Client2; rm -f gmon.out .cryptoKey.sec .cryptoIv.sec)
-(cd $SERVER_DIR/../Client3; rm -f gmon.out .cryptoKey.sec .cryptoIv.sec)
+(cd $SERVER_DIR; rm -f gmon.out .cryptoKey.sec)
+(cd $SERVER_DIR/../Client2; rm -f gmon.out .cryptoKey.sec)
+(cd $SERVER_DIR/../Client3; rm -f gmon.out .cryptoKey.sec)
 date

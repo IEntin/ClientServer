@@ -7,13 +7,15 @@ This script will download requested source and build the library in /usr/local d
 one has to be a superuser to do that,current source is cryptopp880.zip.\
 Then run deploy.sh script in the project root.\
 Run './makeCrypto.sh -h' and './deploy.sh -h' to see the details.\
-Crypto files (.cryptoKey.sec and .cryptoIv.sec) are created by the server\
-and must be distributed securely to the clients after server startup but\
-before client started. Use copyCryptoFiles.sh to distribute crypto files\
+Crypto file .cryptoKey.sec is created by the server and must be distributed\
+securely to the clients after server startup but\
+before clients are started. Use copyCryptoKey.sh to distribute the key\
 to clients after server startup. Optionally key is generated every time the server\
 starts and clients need to use a new key every time. By default however, the key is\
-valid until erased (the setting "InvalidateKeys" is false in ServerOptions.json).\
-Test scripts refresh keys internally.\
+valid until erased (the setting "InvalidateKey" is false in ServerOptions.json).\
+Test scripts refresh keys internally. Note that crypto initialization vector iv\
+is generated anew for every message being encrypted and sent for further processing\
+inside the message.
 
 Prerequisites:
 

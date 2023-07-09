@@ -18,7 +18,7 @@ ServerOptions::ServerOptions(const std::string& jsonName) :
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
   _tcpTimeout = appOptions.get("TcpTimeout", 1000);
-  _invalidateKeys = appOptions.get("InvalidateKeys", true);
+  _invalidateKey = appOptions.get("InvalidateKey", true);
   _cryptoKeySize = appOptions.get("EncryptionKeySize", 32);
   _sortInput = appOptions.get("SortInput", true);
 }

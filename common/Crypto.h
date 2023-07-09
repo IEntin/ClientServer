@@ -9,13 +9,12 @@
 
 struct ServerOptions;
 
-struct CryptoKeys {
-  CryptoKeys(const ServerOptions& options);
-  CryptoKeys();
-  ~CryptoKeys() = default;
-  void showKeys();
+struct CryptoKey {
+  CryptoKey(const ServerOptions& options);
+  CryptoKey();
+  ~CryptoKey() = default;
+  void showKey();
   CryptoPP::SecByteBlock _key;
-  CryptoPP::SecByteBlock _iv;
   bool _valid = false;
 private:
   bool generate();

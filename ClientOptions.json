@@ -9,7 +9,7 @@
   "Compression" : "LZ4",
   "Encrypted" : true,
   "_comment": "if true logs crypto key and iv.",
-  "ShowKeys" : false,
+  "ShowKey" : false,
   "DYNAMIC_BUFFER_SIZE" : 3000000,
   "Timing" : true,
   "RunLoop" : true,
