@@ -4,7 +4,6 @@
 
 #include "Crypto.h"
 #include "CommonConstants.h"
-#include "Logger.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 #include <cryptopp/files.h>
@@ -18,8 +17,8 @@ CryptoKey::CryptoKey(const ServerOptions& options) :
   _key(options._cryptoKeySize) {
   if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || options._invalidateKey)
     _valid = generate();
-    else
-      _valid = recover();
+  else
+    _valid = recover();
 }
 
 CryptoKey::CryptoKey() {
@@ -29,7 +28,7 @@ CryptoKey::CryptoKey() {
 bool CryptoKey::generate() {
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(_key, _key.size());
-  std::string keyStr(reinterpret_cast<const char*>(&_key[0]), _key.size());
+  std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
   if (!utility::writeFile(CRYPTO_KEY_FILE_NAME, keyStr))
     return false;
   return _valid;
@@ -40,7 +39,7 @@ bool CryptoKey::recover() {
   if (keyStrRecovered.empty()) {
     return false;
   }
-  _key = { reinterpret_cast<const unsigned char*>(&keyStrRecovered[0]), keyStrRecovered.size() };
+  _key = { reinterpret_cast<const unsigned char*>(keyStrRecovered.data()), keyStrRecovered.size() };
   _valid = true;
   return _valid;
 }
@@ -54,11 +53,11 @@ void CryptoKey::showKey() {
 }
 
 void Crypto::encrypt(std::string& data) {
+  static CryptoKey key;
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
-  std::string ivStr(reinterpret_cast<const char*>(&iv[0]), iv.size());
-  static CryptoKey key;
+  std::string ivStr(reinterpret_cast<const char*>(iv.data()), iv.size());
   if (key._key.empty())
     throw std::runtime_error("empty key");
   CryptoPP::AES::Encryption aesEncryption(key._key.data(), key._key.size());
@@ -74,9 +73,9 @@ void Crypto::encrypt(std::string& data) {
 
 void Crypto::decrypt(std::string& data) {
   static CryptoKey key;
-  std::string ivStr = data.substr(data.size() - CryptoPP::AES::BLOCKSIZE, CryptoPP::AES::BLOCKSIZE);
+  std::string ivStr(data.cbegin() + data.size() - CryptoPP::AES::BLOCKSIZE, data.cend());
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  iv = { reinterpret_cast<const unsigned char*>(&ivStr[0]), ivStr.size() };
+  iv = { reinterpret_cast<const unsigned char*>(ivStr.data()), ivStr.size() };
   data.erase(data.size() - CryptoPP::AES::BLOCKSIZE, CryptoPP::AES::BLOCKSIZE);
   static thread_local std::string decrypted;
   decrypted.clear();

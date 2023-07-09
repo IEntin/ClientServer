@@ -16,7 +16,7 @@ TcpSession::TcpSession(const ServerOptions& options,
   RunnableT(options._maxTcpSessions, _name),
   _options(options),
   _clientId(clientId),
-   _details(details),
+  _details(details),
   _ioContext(details->_ioContext),
   _socket(std::move(details->_socket)),
   _timeoutTimer(_ioContext) {
