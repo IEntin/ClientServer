@@ -116,7 +116,8 @@ Lockless. Processing batches of requests is lockless. Queues of tasks and sessio
 still using locks, but this type of locking is relatively rare for large tasks and does not\
 affect overall performance.
 
-Memory Pooling. Business code and compression/decompression are not allocating after startup.
+Memory reuse. Business code, compression, and encryption are not allocating after short\
+adjustment period.
 
 Builtin optional LZ4 compression.
 
