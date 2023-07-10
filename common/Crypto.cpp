@@ -29,17 +29,15 @@ bool CryptoKey::generate() {
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(_key, _key.size());
   std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
-  if (!utility::writeFile(CRYPTO_KEY_FILE_NAME, keyStr))
-    return false;
+  utility::writeFile(CRYPTO_KEY_FILE_NAME, keyStr);
   return _valid;
 }
 
 bool CryptoKey::recover() {
   std::string keyStrRecovered = utility::readFile(CRYPTO_KEY_FILE_NAME);
-  if (keyStrRecovered.empty()) {
-    return false;
-  }
   _key = { reinterpret_cast<const unsigned char*>(keyStrRecovered.data()), keyStrRecovered.size() };
+  if (_key.empty())
+    throw std::runtime_error("empty key");
   _valid = true;
   return _valid;
 }
@@ -58,8 +56,6 @@ void Crypto::encrypt(std::string& data) {
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
   std::string ivStr(reinterpret_cast<const char*>(iv.data()), iv.size());
-  if (key._key.empty())
-    throw std::runtime_error("empty key");
   CryptoPP::AES::Encryption aesEncryption(key._key.data(), key._key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;
@@ -76,11 +72,9 @@ void Crypto::decrypt(std::string& data) {
   std::string ivStr(data.cbegin() + data.size() - CryptoPP::AES::BLOCKSIZE, data.cend());
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   iv = { reinterpret_cast<const unsigned char*>(ivStr.data()), ivStr.size() };
-  data.erase(data.size() - CryptoPP::AES::BLOCKSIZE, CryptoPP::AES::BLOCKSIZE);
+  data.resize(data.size() - CryptoPP::AES::BLOCKSIZE);
   static thread_local std::string decrypted;
   decrypted.clear();
-  if (key._key.empty())
-    throw std::runtime_error("empty key");
   try {
     CryptoPP::AES::Decryption aesDecryption(key._key.data(), key._key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
@@ -91,7 +85,7 @@ void Crypto::decrypt(std::string& data) {
   }
   catch (const std::exception& e) {
     std::string error(e.what());
-    error.append("\n\n\tMake sure crypto files on client site are current!\n");
+    error.append("\n\n\tMake sure crypto file on client site are current!\n");
     throw std::runtime_error(error);
   }
 }
