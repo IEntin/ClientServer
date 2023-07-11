@@ -17,6 +17,10 @@ Test scripts refresh keys internally. Note that crypto initialization vector iv\
 is generated anew for every message being encrypted and sent for further processing\
 inside the message.
 
+It is important to realize that tools provided here for saving, copying, and viewing\
+crypto key are intended for testing purposes only. Secure procedure for key exchange\
+must be used in a production system.
+
 Prerequisites:
 
 Header only boost libraries, currently boost 1_82.
