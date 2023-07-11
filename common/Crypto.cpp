@@ -84,7 +84,7 @@ void Crypto::decrypt(std::string& data) {
   }
   catch (const std::exception& e) {
     std::string error(e.what());
-    error.append("\n\n\tMake sure crypto file on client site are current!\n");
+    error.append("\n\n\tMake sure crypto file on client site is current!\n");
     throw std::runtime_error(error);
   }
 }
