@@ -18,7 +18,7 @@ is generated anew for every message being encrypted and sent for further process
 inside the message.
 
 It is important to realize that tools provided here for saving, copying, and viewing\
-crypto key are intended for testing purposes only. Secure procedure for key exchange\
+crypto parameters are intended for testing purposes. Secure procedure for key exchange\
 must be used in a production system.
 
 Prerequisites:

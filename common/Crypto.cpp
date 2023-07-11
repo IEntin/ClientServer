@@ -42,10 +42,10 @@ bool CryptoKey::recover() {
   return _valid;
 }
 
-void CryptoKey::showKey() {
+void CryptoKey::showKey() const {
   std::clog << "KEY SIZE: " << _key.size() << std::endl;
-  CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::clog));
   std::clog << "KEY: ";
+  CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::clog));
   CryptoPP::StringSource(_key, _key.size(), true, new CryptoPP::Redirector(encoder));
   std::clog << std::endl;
 }
@@ -87,4 +87,11 @@ void Crypto::decrypt(std::string& data) {
     error.append("\n\n\tMake sure crypto file on client site is current!\n");
     throw std::runtime_error(error);
   }
+}
+
+void Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
+  std::clog << "IV : ";
+  CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::clog));
+  CryptoPP::StringSource(iv, iv.size(), true, new CryptoPP::Redirector(encoder));
+  std::clog << std::endl;
 }

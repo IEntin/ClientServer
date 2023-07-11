@@ -13,7 +13,7 @@ struct CryptoKey {
   CryptoKey(const ServerOptions& options);
   CryptoKey();
   ~CryptoKey() = default;
-  void showKey();
+  void showKey() const;
   CryptoPP::SecByteBlock _key;
   bool _valid = false;
 private:
@@ -26,4 +26,6 @@ class Crypto {
   static void encrypt(std::string& data);
 
   static void decrypt(std::string& cipher);
+
+  static void showIv(const CryptoPP::SecByteBlock& iv);
 };
