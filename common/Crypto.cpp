@@ -55,7 +55,6 @@ void Crypto::encrypt(std::string& data) {
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
-  std::string ivStr(reinterpret_cast<const char*>(iv.data()), iv.size());
   CryptoPP::AES::Encryption aesEncryption(key._key.data(), key._key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;
@@ -64,15 +63,15 @@ void Crypto::encrypt(std::string& data) {
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   data.swap(cipher);
-  data.append(ivStr);
+  data.append(reinterpret_cast<const char*>(iv.data()), iv.size());
 }
 
 void Crypto::decrypt(std::string& data) {
   static CryptoKey key;
-  std::string ivStr(data.cbegin() + data.size() - CryptoPP::AES::BLOCKSIZE, data.cend());
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  iv = { reinterpret_cast<const unsigned char*>(ivStr.data()), ivStr.size() };
-  data.resize(data.size() - CryptoPP::AES::BLOCKSIZE);
+  auto beg = reinterpret_cast<const unsigned char*>(data.data()) + data.size() - iv.size();
+  std::copy(beg, beg + iv.size(), iv.data());
+  data.resize(data.size() - iv.size());
   static thread_local std::string decrypted;
   decrypted.clear();
   try {
