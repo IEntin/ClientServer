@@ -12,6 +12,7 @@
 
 #define CODELOCATION __FILE__ << ':' << __LINE__ << ' ' << __func__
 
+#define Log Logger(LOG_LEVEL::UNCONDITIONAL, std::clog) << CODELOCATION << ':'
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr) << CODELOCATION << ':'
 #define Warn Logger(LOG_LEVEL::WARN, std::clog) << CODELOCATION << ':'
 #define Info Logger(LOG_LEVEL::INFO, std::clog) << CODELOCATION << ':'
@@ -23,7 +24,8 @@ enum class LOG_LEVEL : char {
   DEBUG,
   INFO,
   WARN,
-  ERROR
+  ERROR,
+  UNCONDITIONAL
 };
 
 inline constexpr std::string_view levelNames[] {
@@ -31,18 +33,19 @@ inline constexpr std::string_view levelNames[] {
   "DEBUG",
   "INFO",
   "WARN",
-  "ERROR"
+  "ERROR",
+  "UNCONDITIONAL"
 };
 
 struct Logger {
-  Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayLevel = true) :
+  explicit Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayLevel = true) :
     _level(level),
     _stream(_level >= _threshold ? stream : _nullStream),
     _displayLevel(displayLevel) {
     printLevel();
   }
-  Logger(bool displayLevel = true) :
-    _level(LOG_LEVEL::ERROR),
+  explicit Logger(bool displayLevel = true) :
+    _level(LOG_LEVEL::UNCONDITIONAL),
     _stream(std::cerr),
     _displayLevel(displayLevel) {
     printLevel();
@@ -58,8 +61,9 @@ struct Logger {
   auto& operator <<(std::string_view value) {
     return _stream << value;
   }
-  static LOG_LEVEL _threshold;
-  static std::ofstream _nullStream;
+  std::osyncstream& getStream() { return _stream; }
+  static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
+  static inline std::ofstream _nullStream = std::ofstream("/dev/null", std::ios::binary);
 };
 
 inline LOG_LEVEL translateLogThreshold(std::string_view configName) {

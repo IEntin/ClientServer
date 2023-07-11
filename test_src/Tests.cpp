@@ -16,7 +16,6 @@ struct CompressionTest : testing::Test {
       compression::compress(data);
       size_t compressedSize = data.size();
       compression::uncompress(data, input.size());
-      // ERROR level to make this log visible in gtest
       static auto& printOnce [[maybe_unused]] =
 	Logger(false) << "\n   input.size()=" << input.size()
 		      << " compressedSize=" << compressedSize << " restored to original:"
