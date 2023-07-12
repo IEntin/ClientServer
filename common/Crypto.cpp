@@ -43,9 +43,8 @@ bool CryptoKey::recover() {
 }
 
 void CryptoKey::showKey() const {
-  Logger logger(false);
-  logger.getStream() << "KEY SIZE: " << _key.size() << std::endl;
-  logger.getStream() << "KEY: ";
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  logger.getStream() << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
   CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(logger.getStream()));
   CryptoPP::StringSource(_key, _key.size(), true, new CryptoPP::Redirector(encoder));
   logger.getStream() << std::endl;
@@ -91,7 +90,7 @@ void Crypto::decrypt(std::string& data) {
 }
 
 void Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
-  Logger logger(false);
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
   logger.getStream() << "IV : ";
   CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(logger.getStream()));
   CryptoPP::StringSource(iv, iv.size(), true, new CryptoPP::Redirector(encoder));

@@ -132,7 +132,7 @@ void TcpClientHeartbeat::read() {
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0)
 	LogError << "timeout" << std::endl;
-      Logger(LOG_LEVEL::INFO, std::clog, false) << "*" << std::flush;
+      Logger(LOG_LEVEL::INFO, std::clog, false) << '*' << std::flush;
       // close socket early
       boost::system::error_code err;
       _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, err);

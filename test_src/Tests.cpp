@@ -17,9 +17,10 @@ struct CompressionTest : testing::Test {
       size_t compressedSize = data.size();
       compression::uncompress(data, input.size());
       static auto& printOnce [[maybe_unused]] =
-	Logger(false) << "\n   input.size()=" << input.size()
-		      << " compressedSize=" << compressedSize << " restored to original:"
-		      << std::boolalpha << (input == data) << '\n' << std::endl;
+	Logger(LOG_LEVEL::ALWAYS, std::clog, false)
+	<< "\n\tinput.size()=" << input.size()
+	<< " compressedSize=" << compressedSize << " restored to original:"
+	<< std::boolalpha << (input == data) << '\n' << std::endl;
       ASSERT_EQ(input, data);
     }
     catch (const std::exception& e) {

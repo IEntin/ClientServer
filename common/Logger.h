@@ -19,21 +19,21 @@
 #define Trace Logger(LOG_LEVEL::TRACE, std::clog) << CODELOCATION << ':'
 
 enum class LOG_LEVEL : char {
-  ALL,
   TRACE,
   DEBUG,
   INFO,
   WARN,
-  ERROR
+  ERROR,
+  ALWAYS = ERROR
 };
 
 inline constexpr std::string_view levelNames[] {
-  "ALL",
   "TRACE",
   "DEBUG",
   "INFO",
   "WARN",
-  "ERROR"
+  "ERROR",
+  "ALWAYS"
 };
 
 struct Logger {
@@ -43,17 +43,13 @@ struct Logger {
     _displayLevel(displayLevel) {
     printLevel();
   }
-  explicit Logger(bool displayLevel = true) :
-    _level(LOG_LEVEL::ERROR),
-    _stream(std::cerr),
-    _displayLevel(displayLevel) {
-    printLevel();
-  }
+  ~Logger() {}
+
   void printLevel() {
     if (_displayLevel)
       _stream << '[' << levelNames[static_cast<int>(_level)] << ']';
   }
-  ~Logger() {}
+
   const LOG_LEVEL _level;
   std::osyncstream _stream;
   const bool _displayLevel;
