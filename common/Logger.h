@@ -12,7 +12,6 @@
 
 #define CODELOCATION __FILE__ << ':' << __LINE__ << ' ' << __func__
 
-#define Log Logger(LOG_LEVEL::UNCONDITIONAL, std::clog) << CODELOCATION << ':'
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr) << CODELOCATION << ':'
 #define Warn Logger(LOG_LEVEL::WARN, std::clog) << CODELOCATION << ':'
 #define Info Logger(LOG_LEVEL::INFO, std::clog) << CODELOCATION << ':'
@@ -20,21 +19,21 @@
 #define Trace Logger(LOG_LEVEL::TRACE, std::clog) << CODELOCATION << ':'
 
 enum class LOG_LEVEL : char {
+  ALL,
   TRACE,
   DEBUG,
   INFO,
   WARN,
-  ERROR,
-  UNCONDITIONAL
+  ERROR
 };
 
 inline constexpr std::string_view levelNames[] {
+  "ALL",
   "TRACE",
   "DEBUG",
   "INFO",
   "WARN",
-  "ERROR",
-  "UNCONDITIONAL"
+  "ERROR"
 };
 
 struct Logger {
@@ -45,7 +44,7 @@ struct Logger {
     printLevel();
   }
   explicit Logger(bool displayLevel = true) :
-    _level(LOG_LEVEL::UNCONDITIONAL),
+    _level(LOG_LEVEL::ERROR),
     _stream(std::cerr),
     _displayLevel(displayLevel) {
     printLevel();
@@ -63,7 +62,7 @@ struct Logger {
   }
   std::osyncstream& getStream() { return _stream; }
   static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
-  static inline std::ofstream _nullStream = std::ofstream("/dev/null", std::ios::binary);
+  static inline std::ofstream _nullStream = std::ofstream("");
 };
 
 inline LOG_LEVEL translateLogThreshold(std::string_view configName) {
