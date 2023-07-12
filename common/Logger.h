@@ -57,7 +57,8 @@ struct Logger {
   const LOG_LEVEL _level;
   std::osyncstream _stream;
   const bool _displayLevel;
-  auto& operator <<(std::string_view value) {
+  template <typename V>
+  auto& operator <<(const V& value) {
     return _stream << value;
   }
   std::osyncstream& getStream() { return _stream; }
