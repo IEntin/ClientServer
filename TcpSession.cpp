@@ -80,8 +80,11 @@ void TcpSession::readHeader() {
 	break;
       }
       if (ec) {
-	LOG_LEVEL level = ec == boost::asio::error::eof ? LOG_LEVEL::WARN : LOG_LEVEL::ERROR;
-	Logger(level) << CODELOCATION << ':' << ec.what() << std::endl;
+	bool berror = ec == boost::asio::error::eof ? false : true;
+	if (berror)
+	  LogError << ec.what() << std::endl;
+	else
+	  Warn << ec.what() << std::endl;
 	_ioContext.stop();
 	return;
       }

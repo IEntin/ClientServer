@@ -101,8 +101,10 @@ void TcpAcceptor::accept() {
 	return;
       if (ec) {
 	bool berror = ec != boost::asio::error::operation_aborted;
-	Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
-	logger << CODELOCATION << ':' << ec.what() << std::endl;
+	if (berror)
+	  LogError << ec.what() << std::endl;
+	else
+	  Debug << ec.what() << std::endl;
       }
       else {
 	auto [type, clientId, success] = receiveRequest(details->_socket);

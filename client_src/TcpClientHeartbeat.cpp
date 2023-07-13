@@ -117,10 +117,12 @@ void TcpClientHeartbeat::read() {
 	  berror = true;
 	  break;
 	}
-	Logger logger(berror ? LOG_LEVEL::ERROR : LOG_LEVEL::DEBUG, berror ? std::cerr : std::clog);
-	logger << CODELOCATION << ':' << ec.what() << std::endl;
-	if (berror)
+	if (berror) {
+	  LogError << ec.what() << std::endl;
 	  _status = STATUS::HEARTBEAT_PROBLEM;
+	}
+	else
+	  Debug << ec.what() << std::endl;
 	_ioContext.stop();
 	return;
       }

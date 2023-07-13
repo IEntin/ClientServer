@@ -10,13 +10,13 @@
 #include <string_view>
 #include <syncstream>
 
-#define CODELOCATION __FILE__ << ':' << __LINE__ << ' ' << __func__
+#define CODELOCATION __FILE__, __LINE__, __func__
 
-#define LogError Logger(LOG_LEVEL::ERROR, std::cerr) << CODELOCATION << ':'
-#define Warn Logger(LOG_LEVEL::WARN, std::clog) << CODELOCATION << ':'
-#define Info Logger(LOG_LEVEL::INFO, std::clog) << CODELOCATION << ':'
-#define Debug Logger(LOG_LEVEL::DEBUG, std::clog) << CODELOCATION << ':'
-#define Trace Logger(LOG_LEVEL::TRACE, std::clog) << CODELOCATION << ':'
+#define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix(CODELOCATION)
+#define Warn Logger(LOG_LEVEL::WARN, std::clog).printPrefix(CODELOCATION)
+#define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix(CODELOCATION)
+#define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix(CODELOCATION)
+#define Trace Logger(LOG_LEVEL::TRACE, std::clog).printPrefix(CODELOCATION)
 
 enum class LOG_LEVEL : char {
   TRACE,
@@ -37,29 +37,43 @@ inline constexpr std::string_view levelNames[] {
 };
 
 struct Logger {
-  explicit Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayLevel = true) :
+  explicit Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayPrefix = true) :
     _level(level),
-    _stream(_level >= _threshold ? stream : _nullStream),
-    _displayLevel(displayLevel) {
-    printLevel();
+    _stream(stream),
+    _displayPrefix(displayPrefix) {
   }
   ~Logger() {}
 
-  void printLevel() {
-    if (_displayLevel)
-      _stream << '[' << levelNames[static_cast<int>(_level)] << ']';
+  std::ostream& printPrefix(const char* file, int line, const char* func) {
+    try {
+      if (_displayPrefix && _level >= _threshold)
+	_stream << '[' << levelNames[static_cast<int>(_level)] << ']'
+		<< file << ':' << line << ' ' << func << ':';
+      else
+	_stream.setstate(std::ios_base::failbit);
+    }
+    catch (const std::exception& e) {
+      std::cerr << e.what() << std::endl;
+    }
+    return _stream;
   }
 
   const LOG_LEVEL _level;
   std::osyncstream _stream;
-  const bool _displayLevel;
+  const bool _displayPrefix;
   template <typename V>
-  auto& operator <<(const V& value) {
-    return _stream << value;
+  std::ostream& operator <<(const V& value) {
+    try {
+      if (_level >= _threshold)
+	return _stream << value;
+    }
+    catch (const std::exception& e) {
+      std::cerr << e.what() << std::endl;
+    }
+    return _stream;
   }
   std::osyncstream& getStream() { return _stream; }
   static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
-  static inline std::ofstream _nullStream = std::ofstream("");
 };
 
 inline LOG_LEVEL translateLogThreshold(std::string_view configName) {
