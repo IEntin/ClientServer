@@ -46,11 +46,14 @@ struct Logger {
 
   std::ostream& printPrefix(const char* file, int line, const char* func) {
     try {
-      if (_displayPrefix && _level >= _threshold)
-	_stream << '[' << levelNames[static_cast<int>(_level)] << ']'
-		<< file << ':' << line << ' ' << func << ':';
-      else
-	_stream.setstate(std::ios_base::failbit);
+      if (_level < _threshold) {
+ 	_stream.setstate(std::ios_base::failbit);
+	return _stream;
+      }
+      if (!_displayPrefix)
+	return _stream;
+      return _stream << '[' << levelNames[static_cast<int>(_level)] << ']'
+		     << file << ':' << line << ' ' << func << ':';
     }
     catch (const std::exception& e) {
       std::cerr << e.what() << std::endl;
@@ -73,6 +76,7 @@ struct Logger {
     return _stream;
   }
   std::osyncstream& getStream() { return _stream; }
+
   static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
 };
 
