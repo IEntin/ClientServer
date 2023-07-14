@@ -35,15 +35,15 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
       os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
     os << "summary:";
     if (transaction._noMatch)
-      os << Transaction::EMPTY_REPLY << "*****" << std::endl;
+      os << Transaction::EMPTY_REPLY << "*****" << '\n';
     else if (transaction._invalid)
-      os << Transaction::INVALID_REQUEST << "*****" << std::endl;
+      os << Transaction::INVALID_REQUEST << "*****" << '\n';
     else {
       auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << winningBid->_keyword
 	 << ", " << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
-	 << "\n*****" << std::endl;
+	 << "\n*****" << '\n';
     }
   }
   else {
@@ -54,7 +54,7 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else {
       const Ad* winningAdPtr = winningBid->_ad;
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << std::endl;
+	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
     }
   }
   return os;
@@ -66,7 +66,7 @@ thread_local std::vector<std::string_view> Transaction::_keywords;
 Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
   if (sizeKey.empty()) {
     _invalid = true;
-    LogError << "invalid request, sizeKey is empty, input:" << input << std::endl;
+    LogError << "invalid request, sizeKey is empty, input:" << input << '\n';
     return;
   }
   size_t pos = input.find(']');
@@ -87,12 +87,12 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   std::string id("[unknown]");
   Transaction transaction(key, request);
   if (request.empty()) {
-    LogError << "request is empty" << std::endl;
+    LogError << "request is empty" << '\n';
     transaction._invalid = true;
     return id.append(INVALID_REQUEST);
   }
   if (key.empty()) {
-    LogError << "key is empty" << std::endl;
+    LogError << "key is empty" << '\n';
     transaction._invalid = true;
     return id.append(INVALID_REQUEST);
   }
@@ -106,7 +106,7 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
   }
   if (adVector.get().empty() || transaction._keywords.empty()) {
     transaction._invalid = true;
-    LogError << "invalid request:" << transaction._request << " id:" << id << std::endl;
+    LogError << "invalid request:" << transaction._request << " id:" << id << '\n';
     return id.append(INVALID_REQUEST);
   }
   transaction.matchAds(adVector);

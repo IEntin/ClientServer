@@ -26,7 +26,7 @@ bool Fifo::readMsgNonBlock(std::string_view name,
 	continue;
       }
       else {
-	LogError << std::strerror(errno) << std::endl;
+	LogError << std::strerror(errno) << '\n';
 	throw std::runtime_error(std::strerror(errno));
       }
     }
@@ -42,12 +42,12 @@ bool Fifo::readMsgNonBlock(std::string_view name,
   }
   if (readSoFar != HEADER_SIZE) {
     LogError << "HEADER_SIZE=" << HEADER_SIZE
-	     << " readSoFar=" << readSoFar << std::endl;
+	     << " readSoFar=" << readSoFar << '\n';
     throw std::runtime_error(std::strerror(errno));
   }
   header = decodeHeader(buffer);
   if (!isOk(header)) {
-    LogError << "header is invalid." << std::endl;
+    LogError << "header is invalid." << '\n';
     return false;
   }
   size_t payloadSize = extractPayloadSize(header);
@@ -63,19 +63,19 @@ bool Fifo::readString(int fd, char* received, size_t size) {
       if (errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
       else {
-	LogError << std::strerror(errno) << std::endl;
+	LogError << std::strerror(errno) << '\n';
 	return false;
       }
     }
     else if (result == 0) {
-      Info << (errno ? std::strerror(errno) : "EOF") << std::endl;
+      Info << (errno ? std::strerror(errno) : "EOF") << '\n';
       return false;
     }
     else
       readSoFar += static_cast<size_t>(result);
   }
   if (readSoFar != size) {
-    LogError << "size=" << size << " readSoFar=" << readSoFar << std::endl;
+    LogError << "size=" << size << " readSoFar=" << readSoFar << '\n';
     return false;
   }
   return true;
@@ -90,7 +90,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
 	continue;
       else {
 	LogError << strerror(errno) << ", written=" << written
-		 << " str.size()=" << str.size() << std::endl;
+		 << " str.size()=" << str.size() << '\n';
 	return false;
       }
     }
@@ -99,7 +99,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
   }
   if (str.size() != written) {
     LogError << "str.size()=" << str.size()
-	     << "!=written=" << written << std::endl;
+	     << "!=written=" << written << '\n';
     return false;
   }
   return true;
@@ -126,19 +126,19 @@ short Fifo::pollFd(int fd, short expected) {
   pfd.revents = 0;
   int result = poll(&pfd, 1, -1);
   if (result <= 0) {
-    LogError << strerror(errno) << std::endl;
+    LogError << strerror(errno) << '\n';
     return result;
   }
   else if (pfd.revents & POLLERR) {
-    Info << "errno=" << errno << ' ' << std::strerror(errno) << std::endl;
+    Info << "errno=" << errno << ' ' << std::strerror(errno) << '\n';
     return -1;
   }
   else if (pfd.revents & POLLHUP) {
-    Debug << std::strerror(errno) << std::endl;
+    Debug << std::strerror(errno) << '\n';
     return POLLHUP;
   }
   else if (pfd.revents & POLLNVAL) {
-    Debug << std::strerror(errno) << std::endl;
+    Debug << std::strerror(errno) << '\n';
     return POLLNVAL;
   }
   else if (pfd.revents & expected)
@@ -150,7 +150,7 @@ short Fifo::pollFd(int fd, short expected) {
 bool Fifo::setPipeSize(int fd, long requested) {
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1) {
-    LogError << std::strerror(errno) << std::endl;
+    LogError << std::strerror(errno) << '\n';
     return false;
   }
   if (requested > currentSz) {
@@ -158,12 +158,12 @@ bool Fifo::setPipeSize(int fd, long requested) {
     if (ret < 0) {
       static thread_local auto& printOnce[[maybe_unused]] =
 	Info << std::strerror(errno) << ":\n"
-	     << "su privileges required, ignore." << std::endl;
+	     << "su privileges required, ignore." << '\n';
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
-      Info << std::strerror(errno) << std::endl;
+      Info << std::strerror(errno) << '\n';
       return false;
     }
     return newSz >= requested || requested < currentSz;
@@ -205,7 +205,7 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
     return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1)
-    Info << std::strerror(errno) << ' ' << fifoName << std::endl;
+    Info << std::strerror(errno) << ' ' << fifoName << '\n';
   return fd;
 }
 

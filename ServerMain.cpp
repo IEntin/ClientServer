@@ -31,9 +31,9 @@ int main() {
     sigset_t set;
     sigemptyset(&set);
     if (sigaddset(&set, SIGINT) == -1)
-      LogError << strerror(errno) << std::endl;
+      LogError << strerror(errno) << '\n';
     if (sigaddset(&set, SIGTERM) == -1)
-      LogError << strerror(errno) << std::endl;
+      LogError << strerror(errno) << '\n';
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
@@ -42,7 +42,7 @@ int main() {
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
-      LogError << strerror(errno) << std::endl;
+      LogError << strerror(errno) << '\n';
     if (options._invalidateKey) {
       std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
     }
@@ -54,11 +54,11 @@ int main() {
     return 0;
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
     return 5;
   }
   catch (...) {
-    LogError << strerror(errno) << std::endl;
+    LogError << strerror(errno) << '\n';
     return 6;
   }
 }

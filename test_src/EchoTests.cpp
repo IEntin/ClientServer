@@ -35,7 +35,7 @@ struct EchoTest : testing::Test {
       server.stop();
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }
@@ -58,7 +58,7 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }
@@ -104,7 +104,7 @@ struct FifoNonblockingTest : testing::Test {
   inline static const std::string _smallPayload = "0123456789876543210";
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
-      LogError << strerror(errno) << std::endl;
+      LogError << strerror(errno) << '\n';
  }
   ~FifoNonblockingTest() {
     std::filesystem::remove(_testFifo);
@@ -133,7 +133,7 @@ struct FifoNonblockingTest : testing::Test {
       ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }
@@ -152,7 +152,7 @@ struct FifoNonblockingTest : testing::Test {
       ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }

@@ -16,7 +16,7 @@ TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
   _timeoutTimer(_ioContext) {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 bool TcpClientHeartbeat::start() {
@@ -29,7 +29,7 @@ void TcpClientHeartbeat::run() {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
 }
 
@@ -42,7 +42,7 @@ void TcpClientHeartbeat::stop() {
     });
   }
   catch (const boost::system::system_error& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
 }
 
@@ -50,7 +50,7 @@ void TcpClientHeartbeat::heartbeatWait() {
   boost::system::error_code ec;
   _periodTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
   auto weak = weak_from_this();
@@ -62,7 +62,7 @@ void TcpClientHeartbeat::heartbeatWait() {
       return;
     if (ec) {
       if (ec != boost::asio::error::operation_aborted)
-	LogError << ec.what() << std::endl;
+	LogError << ec.what() << '\n';
       return;
     }
     write();
@@ -74,7 +74,7 @@ void TcpClientHeartbeat::timeoutWait() {
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatTimeout), ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
   _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
@@ -83,9 +83,9 @@ void TcpClientHeartbeat::timeoutWait() {
       return;
     if (ec != boost::asio::error::operation_aborted) {
       if (ec)
-	LogError << ec.what() << std::endl;
+	LogError << ec.what() << '\n';
       else {
-	LogError << "timeout" << std::endl;
+	LogError << "timeout" << '\n';
 	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
     }
@@ -97,7 +97,7 @@ void TcpClientHeartbeat::read() {
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
   auto weakPtr = weak_from_this();
@@ -118,32 +118,32 @@ void TcpClientHeartbeat::read() {
 	  break;
 	}
 	if (berror) {
-	  LogError << ec.what() << std::endl;
+	  LogError << ec.what() << '\n';
 	  _status = STATUS::HEARTBEAT_PROBLEM;
 	}
 	else
-	  Debug << ec.what() << std::endl;
+	  Debug << ec.what() << '\n';
 	_ioContext.stop();
 	return;
       }
       HEADER header = decodeHeader(_heartbeatBuffer);
       if (!isOk(header)) {
-	LogError << "header is invalid." << std::endl;
+	LogError << "header is invalid." << '\n';
 	return;
       }
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0)
-	LogError << "timeout" << std::endl;
-      Logger(LOG_LEVEL::INFO, std::clog, false) << '*' << std::flush;
+	LogError << "timeout" << '\n';
+      Logger(LOG_LEVEL::INFO, std::clog, false) << '*';
       // close socket early
       boost::system::error_code err;
       _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, err);
       if (err)
-	LogError << err.what() << std::endl;
+	LogError << err.what() << '\n';
       err.clear();
       _socket.close(err);
       if (err)
-	LogError << err.what() << std::endl;
+	LogError << err.what() << '\n';
       heartbeatWait();
     });
 }
@@ -155,14 +155,14 @@ void TcpClientHeartbeat::write() {
   auto [endpoint, error] =
     Tcp::setSocket(_ioContext, _socket, _options);
   if (error) {
-    LogError << error.what() << std::endl;
+    LogError << error.what() << '\n';
     return;
   }
   // receives interrupt and unblocks read on CtrlC in wait mode
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false);
@@ -174,7 +174,7 @@ void TcpClientHeartbeat::write() {
       if (!self)
 	return;
       if (ec) {
-	LogError << ec.what() << std::endl;
+	LogError << ec.what() << '\n';
 	_status = STATUS::HEARTBEAT_PROBLEM;
 	return;
       }

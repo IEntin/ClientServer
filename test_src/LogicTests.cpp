@@ -42,7 +42,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }
@@ -78,7 +78,7 @@ struct LogicTest : testing::Test {
       server.stop();
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }
@@ -181,7 +181,7 @@ struct LogicTestAltFormat : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }
@@ -215,7 +215,7 @@ struct LogicTestSortInput : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }

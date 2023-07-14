@@ -16,7 +16,7 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    LogError << std::strerror(errno) << std::endl;
+    LogError << std::strerror(errno) << '\n';
   _fd = -1;
 }
 
@@ -43,46 +43,46 @@ bool displayStatus(STATUS status) {
   case STATUS::NONE:
     return false;
   case STATUS::BAD_HEADER:
-    LogError << "STATUS::BAD_HEADER" << std::endl;
+    LogError << "STATUS::BAD_HEADER" << '\n';
     return true;
   case STATUS::COMPRESSION_PROBLEM:
-    LogError << "STATUS::COMPRESSION_PROBLEM" << std::endl;
+    LogError << "STATUS::COMPRESSION_PROBLEM" << '\n';
     return true;
   case STATUS::DECOMPRESSION_PROBLEM:
-    LogError << "STATUS::DECOMPRESSION_PROBLEM" << std::endl;
+    LogError << "STATUS::DECOMPRESSION_PROBLEM" << '\n';
     return true;
   case STATUS::FIFO_PROBLEM:
-    LogError << "STATUS::FIFO_PROBLEM" << std::endl;
+    LogError << "STATUS::FIFO_PROBLEM" << '\n';
     return true;
   case STATUS::TCP_PROBLEM:
-    LogError << "STATUS::TCP_PROBLEM" << std::endl;
+    LogError << "STATUS::TCP_PROBLEM" << '\n';
     return true;
   case STATUS::TCP_TIMEOUT:
-    LogError << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << std::endl;
+    LogError << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << '\n';
     return true;
  case STATUS::HEARTBEAT_PROBLEM:
-    LogError << "STATUS::HEARTBEAT_PROBLEM" << std::endl;
+    LogError << "STATUS::HEARTBEAT_PROBLEM" << '\n';
     return true;
  case STATUS::HEARTBEAT_TIMEOUT:
-    LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << std::endl;
+    LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << '\n';
     return true;
   case STATUS::MAX_TOTAL_OBJECTS:
-    Warn << "Exceeded max total number clients" << std::endl;
+    Warn << "Exceeded max total number clients" << '\n';
     return false;
   case STATUS::MAX_OBJECTS_OF_TYPE:
-    Warn << "Exceeded max number clients of type" << std::endl;
+    Warn << "Exceeded max number clients of type" << '\n';
     return false;
   case STATUS::ENCRYPTION_PROBLEM:
-    Warn << "Encryption problem" << std::endl;
+    Warn << "Encryption problem" << '\n';
     return false;
   case STATUS::DECRYPTION_PROBLEM:
-    Warn << "Decryption problem" << std::endl;
+    Warn << "Decryption problem" << '\n';
     return false;
   case STATUS::ERROR:
-    Warn << "Internal error" << std::endl;
+    Warn << "Internal error" << '\n';
     return false;
   default:
-    LogError << "unexpected problem" << std::endl;
+    LogError << "unexpected problem" << '\n';
     return true;
   }
 }
@@ -95,7 +95,7 @@ void displayMaxTotalSessionsWarn() {
        << "\tYou can also close this client and try again later,\n"
        << "\tbut spot in the queue will be lost.\n"
        << "\tSee \"MaxTotalSessions\" in ServerOptions.json.\n"
-       << "\t!!!!!!!!!" << std::endl;
+       << "\t!!!!!!!!!" << '\n';
 }
 
 void displayMaxSessionsOfTypeWarn(std::string_view type) {
@@ -108,7 +108,7 @@ void displayMaxSessionsOfTypeWarn(std::string_view type) {
        << "\tbut spot in the queue will be lost.\n"
        << "\tSee \"Max" << (type == "fifo" ? "Fifo" : "Tcp") << "Sessions\""
        << " in ServerOptions.json.\n"
-       << "\t!!!!!!!!!" << std::endl;
+       << "\t!!!!!!!!!" << '\n';
 }
 
 } // end of namespace utility

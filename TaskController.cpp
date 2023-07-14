@@ -17,7 +17,7 @@ TaskController::TaskController(const ServerOptions& options) :
 }
 
 TaskController::~TaskController() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 TaskControllerWeakPtr TaskController::weakInstance() {

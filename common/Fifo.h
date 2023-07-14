@@ -32,7 +32,7 @@ class Fifo {
     int fd = open(name.data(), O_RDONLY);
     utility::CloseFileDescriptor cfdr(fd);
     if (fd == -1) {
-      LogError << name << '-' << std::strerror(errno) << std::endl;
+      LogError << name << '-' << std::strerror(errno) << '\n';
       return false;
     }
     size_t readSoFar = 0;
@@ -44,12 +44,12 @@ class Fifo {
 	  continue;
 	}
 	else {
-	  LogError << std::strerror(errno) << std::endl;
+	  LogError << std::strerror(errno) << '\n';
 	  throw std::runtime_error(std::strerror(errno));
 	}
       }
       else if (result == 0) {
-	Debug << (errno ? std::strerror(errno) : "EOF") << std::endl;
+	Debug << (errno ? std::strerror(errno) : "EOF") << '\n';
 	return false;
       }
       else
@@ -57,12 +57,12 @@ class Fifo {
     }
     if (readSoFar != HEADER_SIZE) {
       LogError << "HEADER_SIZE=" << HEADER_SIZE
-	       << " readSoFar=" << readSoFar << std::endl;
+	       << " readSoFar=" << readSoFar << '\n';
       throw std::runtime_error(std::strerror(errno));
     }
     header = decodeHeader(buffer);
     if (!isOk(header)) {
-      LogError << "header is invalid." << std::endl;
+      LogError << "header is invalid." << '\n';
       return false;
     }
     size_t payloadSize = extractPayloadSize(header);

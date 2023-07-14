@@ -27,7 +27,7 @@ TEST(CryptoTest, 1) {
     ASSERT_EQ(TestEnvironment::_source, data);
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
   std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
 }
@@ -51,7 +51,7 @@ struct CommonUtilsTest : testing::Test {
       ASSERT_EQ(data, TestEnvironment::_source);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
       ASSERT_TRUE(false);
     }
   }

@@ -11,7 +11,7 @@ ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
   stop();
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 void ThreadPoolBase::stop() {
@@ -27,7 +27,7 @@ void ThreadPoolBase::stop() {
 	// Should not happen.
 	if (thread.get_id() == std::this_thread::get_id()) {
 	  thread.detach();
-	  Warn << "thread detached." << std::endl;
+	  Warn << "thread detached." << '\n';
 	}
 	else
 	  thread.join();
@@ -36,10 +36,10 @@ void ThreadPoolBase::stop() {
     }
   }
   catch (const std::system_error& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
     return;
   }
-  Trace << "... _threads joined ..." << std::endl;
+  Trace << "... _threads joined ..." << '\n';
 }
 
 void  ThreadPoolBase::createThread() {
@@ -67,11 +67,11 @@ void  ThreadPoolBase::createThread() {
 	}
 	catch (const std::exception& e) {
 	  runnable->stop();
-	  LogError << e.what() << std::endl;
+	  LogError << e.what() << '\n';
 	}
 	catch (...) {
 	  runnable->stop();
-	  LogError << "exception caught." << std::endl;
+	  LogError << "exception caught." << '\n';
 	}
       }
     }
@@ -83,7 +83,7 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
   increment();
   if (_totalNumberObjects > size()) {
     createThread();
-    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
+    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
   }
   _queue.emplace_back(runnable);
   _queueCondition.notify_all();

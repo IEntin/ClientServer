@@ -14,7 +14,7 @@ creating redundant threads.
 ThreadPoolSameObj::ThreadPoolSameObj(int maxSize) : ThreadPoolBase(maxSize) {}
 
 ThreadPoolSameObj::~ThreadPoolSameObj() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 void ThreadPoolSameObj::push(RunnablePtr runnable) {
@@ -24,7 +24,7 @@ void ThreadPoolSameObj::push(RunnablePtr runnable) {
   bool condition2 = size() < _maxSize;
   if (condition1 && condition2) {
     createThread();
-    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
+    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
   }
   else if (!condition2)
     runnable->_status = STATUS::MAX_OBJECTS_OF_TYPE;

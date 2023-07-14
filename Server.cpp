@@ -26,7 +26,7 @@ Server::Server(const ServerOptions& options) :
 
 Server::~Server() {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 bool Server::start() {

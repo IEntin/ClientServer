@@ -15,11 +15,11 @@ bool AppOptions::initialize() {
   catch (const std::exception& e) {
     static thread_local auto& printOnce[[maybe_unused]] =
       LogError << e.what() << ",\n"
-	    << "default values will be returned, by design in tests." << std::endl;
+	       << "default values will be returned, by design in tests." << '\n';
     return false;
   }
   catch (...) {
-    LogError << "unknown exception." << std::endl;
+    LogError << "unknown exception." << '\n';
     return false;
   }
   return true;

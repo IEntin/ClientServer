@@ -15,12 +15,12 @@ FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId
   _options(options),
   _clientId(clientId),
   _fifoName(_options._fifoDirectoryName + '/' + _clientId) {
-  Debug << "_fifoName:" << _fifoName << std::endl;
+  Debug << "_fifoName:" << _fifoName << '\n';
 }
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 void FifoSession::run() {

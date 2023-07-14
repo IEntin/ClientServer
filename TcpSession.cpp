@@ -23,14 +23,14 @@ TcpSession::TcpSession(const ServerOptions& options,
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
   boost::asio::post(_ioContext, [this] { readHeader(); });
 }
 
 TcpSession::~TcpSession() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 bool TcpSession::sendStatusToClient() {
@@ -45,7 +45,7 @@ void TcpSession::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
 }
 
@@ -82,15 +82,15 @@ void TcpSession::readHeader() {
       if (ec) {
 	bool berror = ec == boost::asio::error::eof ? false : true;
 	if (berror)
-	  LogError << ec.what() << std::endl;
+	  LogError << ec.what() << '\n';
 	else
-	  Warn << ec.what() << std::endl;
+	  Warn << ec.what() << '\n';
 	_ioContext.stop();
 	return;
       }
       _header = decodeHeader(_headerBuffer);
       if (!isOk(_header)) {
-	LogError << "header is invalid." << std::endl;
+	LogError << "header is invalid." << '\n';
 	return;
       }
       _request.clear();
@@ -108,7 +108,7 @@ void TcpSession::readRequest() {
       if (!self)
 	return;
       if (ec) {
-	LogError << ec.what() << std::endl;
+	LogError << ec.what() << '\n';
 	boost::asio::post(_ioContext, [this] {
 	  _timeoutTimer.cancel();
 	});
@@ -135,7 +135,7 @@ void TcpSession::write(std::string_view body) {
       if (!self)
 	return;
       if (ec) {
-	LogError << ec.what() << std::endl;
+	LogError << ec.what() << '\n';
 	boost::asio::post(_ioContext, [this] {
 	  _timeoutTimer.cancel();
 	});
@@ -150,7 +150,7 @@ void TcpSession::asyncWait() {
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
   _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
@@ -159,12 +159,12 @@ void TcpSession::asyncWait() {
       return;
     if (ec != boost::asio::error::operation_aborted) {
       if (ec) {
-	LogError << ec.what() << std::endl;
+	LogError << ec.what() << '\n';
 	_status = STATUS::TCP_PROBLEM;
 	throw std::runtime_error(ec.what());
       }
       else {
-	LogError << "timeout" << std::endl;
+	LogError << "timeout" << '\n';
 	_status = STATUS::TCP_TIMEOUT;
  	throw std::runtime_error("timeout!");
      }

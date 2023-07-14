@@ -55,7 +55,7 @@ public:
     boost::system::error_code ec;
     size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {
-      LogError << ec.what() << std::endl;
+      LogError << ec.what() << '\n';
       return { false, ec };
     }
     return { true, ec };

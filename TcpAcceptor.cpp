@@ -19,7 +19,7 @@ TcpAcceptor::TcpAcceptor(Server& server) :
   _acceptor(_ioContext) {}
 
 TcpAcceptor::~TcpAcceptor() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 bool TcpAcceptor::start() {
@@ -36,7 +36,7 @@ bool TcpAcceptor::start() {
     boost::asio::post(_ioContext, [this] { accept(); });
   }
   if (ec) {
-    LogError << ec.what() << " tcpPort=" << _options._tcpPort << std::endl;
+    LogError << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
     return false;
   }
   return true;
@@ -56,7 +56,7 @@ void TcpAcceptor::run() {
     _ioContext.run();
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
 }
 
@@ -65,7 +65,7 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
   auto [success, ec] = Tcp::readMsg(socket, _header, clientId);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return { HEADERTYPE::ERROR, clientId, false };
   }
   HEADERTYPE type = extractHeaderType(_header);
@@ -83,10 +83,10 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
   static const std::vector<char> empty;
   auto [success, ec] = Tcp::sendMsg(socket, _header, empty);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return;
   }
-  Logger(LOG_LEVEL::INFO, std::clog, false) << "*" << std::flush;
+  Logger(LOG_LEVEL::INFO, std::clog, false) << "*";
 }
 
 void TcpAcceptor::accept() {
@@ -102,9 +102,9 @@ void TcpAcceptor::accept() {
       if (ec) {
 	bool berror = ec != boost::asio::error::operation_aborted;
 	if (berror)
-	  LogError << ec.what() << std::endl;
+	  LogError << ec.what() << '\n';
 	else
-	  Debug << ec.what() << std::endl;
+	  Debug << ec.what() << '\n';
       }
       else {
 	auto [type, clientId, success] = receiveRequest(details->_socket);

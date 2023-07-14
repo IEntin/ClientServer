@@ -42,38 +42,39 @@ struct Logger {
     _stream(stream),
     _displayPrefix(displayPrefix) {
   }
-  ~Logger() {}
+  ~Logger() {
+    _stream.flush();
+  }
 
-  std::ostream& printPrefix(const char* file, int line, const char* func) {
+  Logger& printPrefix(const char* file, int line, const char* func) {
     try {
-      if (_level < _threshold) {
- 	_stream.setstate(std::ios_base::failbit);
-	return _stream;
-      }
-      if (!_displayPrefix)
-	return _stream;
-      return _stream << '[' << levelNames[static_cast<int>(_level)] << ']'
-		     << file << ':' << line << ' ' << func << ':';
+      if (_level < _threshold || !_displayPrefix)
+	return *this;
+      _stream << '[' << levelNames[static_cast<int>(_level)] << ']'
+	      << file << ':' << line << ' ' << func << ':';
+      return *this;
     }
     catch (const std::exception& e) {
       std::cerr << e.what() << std::endl;
     }
-    return _stream;
+    return *this;
   }
 
   const LOG_LEVEL _level;
   std::osyncstream _stream;
   const bool _displayPrefix;
   template <typename V>
-  std::ostream& operator <<(const V& value) {
+  Logger& operator <<(const V& value) {
     try {
-      if (_level >= _threshold)
-	return _stream << value;
+      if (_level >= _threshold) {
+	_stream << value;
+	return *this;
+      }
     }
     catch (const std::exception& e) {
       std::cerr << e.what() << std::endl;
     }
-    return _stream;
+    return *this;
   }
   std::osyncstream& getStream() { return _stream; }
 

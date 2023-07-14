@@ -29,7 +29,7 @@ void TestEnvironment::SetUp() {
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
   }
   catch (const std::exception& e) {
-    LogError << e.what() <<std::endl;
+    LogError << e.what() <<'\n';
     std::exit(1);
   }
 }
@@ -42,7 +42,7 @@ void TestEnvironment::TearDown() {
     Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
 }
 

@@ -25,7 +25,7 @@ struct Chronometer {
     if (_enabled) {
       _localStart = std::chrono::steady_clock::now();
       Logger(LOG_LEVEL::INFO, _stream) << __func__ << '-' << file << ':'
-        << line << ' ' << function << std::endl;
+        << line << ' ' << function << '\n';
     }
   }
 
@@ -35,7 +35,7 @@ struct Chronometer {
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };
       Logger(LOG_LEVEL::INFO, _stream) << __func__ << '-' << file << ':' << line << ' '
         << _function << std::fixed << std::setprecision(3) << " elapsed="
-	<< elapsed_seconds.count() << 's' << std::endl;
+	<< elapsed_seconds.count() << 's' << '\n';
     }
   }
 
@@ -45,7 +45,7 @@ struct Chronometer {
       std::chrono::duration<double> elapsed_seconds{ end - _globalStart };
       Logger(LOG_LEVEL::INFO, _stream) << __func__ << ':' << _file << ':' << _line << ' '
         << _function << ' ' << std::fixed << std::setprecision(3) << "elapsed="
-	<< elapsed_seconds.count() << 's' << std::endl;
+	<< elapsed_seconds.count() << 's' << '\n';
     }
   }
  private:
@@ -55,7 +55,7 @@ struct Chronometer {
   const std::string _file;
   const int _line;
   const std::string _function;
-  std::ostream& _stream;
+  std::osyncstream _stream;
   std::chrono::time_point<std::chrono::steady_clock> _globalStart;
   std::chrono::time_point<std::chrono::steady_clock> _localStart;
 };

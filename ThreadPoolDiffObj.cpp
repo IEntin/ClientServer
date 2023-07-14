@@ -18,7 +18,7 @@ ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr
   _func(func) {}
 
 ThreadPoolDiffObj::~ThreadPoolDiffObj() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 void ThreadPoolDiffObj::push(RunnablePtr runnable) {
@@ -30,7 +30,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   bool condition2 = runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType;
   if (condition1 && condition2 && size() < _maxSize) {
     createThread();
-    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << std::endl;
+    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
   }
   else if (!condition2)
     runnable->_status = STATUS::MAX_OBJECTS_OF_TYPE;

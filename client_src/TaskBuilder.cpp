@@ -17,7 +17,7 @@ TaskBuilder::TaskBuilder(const ClientOptions& options) :
 }
 
 TaskBuilder::~TaskBuilder() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 void TaskBuilder::run() {

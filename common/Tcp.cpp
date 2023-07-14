@@ -18,7 +18,7 @@ Tcp::setSocket(boost::asio::io_context& ioContext,
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
   return { endpoint, ec };
 }
 
@@ -28,7 +28,7 @@ Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   boost::system::error_code ec;
   socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return { false, ec };
   }
   char buffer[HEADER_SIZE] = {};

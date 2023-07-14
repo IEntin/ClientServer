@@ -15,7 +15,7 @@ Strategy& StrategySelector::get() {
   else if (_options._processType == "Echo")
     return _echoStrategy;
   else {
-    LogError << "Strategy is not specified. Setting Transaction strategy." << std::endl; 
+    LogError << "Strategy is not specified. Setting Transaction strategy." << '\n'; 
     return _transactionStrategy;
   }
 }

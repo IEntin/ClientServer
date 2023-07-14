@@ -29,7 +29,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
 TcpClient::~TcpClient() {
   if (auto ptr = _signalWatcher.lock(); ptr)
     ptr->stop();
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 bool TcpClient::run() {
@@ -40,7 +40,7 @@ bool TcpClient::run() {
 bool TcpClient::send(const Subtask& subtask) {
   auto [success, ec] = Tcp::sendMsg(_socket, subtask._header, subtask._body);
   if (ec)
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
   return success;
 }
 
@@ -49,7 +49,7 @@ bool TcpClient::receive() {
   thread_local static std::string buffer;
   auto [success, ec] = Tcp::readMsg(_socket, header, buffer);
   if (ec) {
-    LogError << ec.what() << std::endl;
+    LogError << ec.what() << '\n';
     return false;
   }
   _status = STATUS::NONE;
@@ -86,7 +86,7 @@ void TcpClient::createSignalWatcher() {
     boost::system::error_code ec;
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     if (ec) {
-      LogError << ec.what() << std::endl;
+      LogError << ec.what() << '\n';
     }
   };
   auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);

@@ -9,7 +9,7 @@ SignalWatcher::SignalWatcher(std::atomic<ACTIONS>& flag, std::function<void()> f
   _flag(flag), _func(func) {}
 
 SignalWatcher::~SignalWatcher() {
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 void SignalWatcher::stop() {

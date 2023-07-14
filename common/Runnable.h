@@ -69,15 +69,15 @@ class RunnableT : public Runnable {
     Info << "Number " << _name << " sessions=" << _numberObjects
 	 << ", Number running " << _name << " sessions=" << _numberRunningByType
 	 << ", max number " << _name << " running=" << _maxNumberRunningByType
-	 << std::endl;
+	 << '\n';
   switch (_status.load()) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     Warn << "\nThe number of " << _name << " sessions=" << _numberObjects
-	 << " exceeds thread pool capacity." << std::endl;
+	 << " exceeds thread pool capacity." << '\n';
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
     Warn << "\nTotal sessions=" << totalNumberObjects
-	 << " exceeds system capacity." << std::endl;
+	 << " exceeds system capacity." << '\n';
     break;
   default:
     break;

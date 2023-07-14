@@ -45,7 +45,7 @@ bool Task::processNext() {
     std::string_view key = row._key;
     std::string_view request = row._value;
     if (!_processRequest) {
-      LogError << "_processRequest is nullptr, Strategy must be set!" << std::endl;
+      LogError << "_processRequest is nullptr, Strategy must be set!" << '\n';
       return false;
     }
     _response[row._index] = _processRequest(key, request);
@@ -60,7 +60,7 @@ void Task::finish() {
     _promise.set_value();
   }
   catch (const std::future_error& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
   }
 }
 

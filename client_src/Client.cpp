@@ -16,7 +16,7 @@ Client::Client(const ClientOptions& options) :
 
 Client::~Client() {
   stop();
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 // Allows to read and process the source in parts with sizes
@@ -31,7 +31,7 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
     STATUS state = taskBuilder->getSubtask(task);
     switch (state) {
     case STATUS::ERROR:
-      LogError << "TaskBuilder failed." << std::endl;
+      LogError << "TaskBuilder failed." << '\n';
       return false;
     case STATUS::SUBTASK_DONE:
     case STATUS::TASK_DONE:

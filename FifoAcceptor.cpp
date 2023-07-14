@@ -18,7 +18,7 @@ FifoAcceptor::FifoAcceptor(Server& server) :
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
@@ -51,7 +51,7 @@ void FifoAcceptor::createSession() {
   std::string clientId = utility::getUniqueId();
   std::string fifoName(_options._fifoDirectoryName + '/' + clientId);
   if (mkfifo(fifoName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << fifoName << std::endl;
+    LogError << std::strerror(errno) << '-' << fifoName << '\n';
     return;
   }
   auto session = std::make_shared<FifoSession>(_options, clientId);
@@ -62,7 +62,7 @@ bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
   if (mkfifo(_options._acceptorName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << _options._acceptorName << std::endl;
+    LogError << std::strerror(errno) << '-' << _options._acceptorName << '\n';
     return false;
   }
   return true;

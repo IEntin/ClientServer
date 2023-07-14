@@ -26,7 +26,7 @@ FifoClient::~FifoClient() {
   if (auto ptr = _signalWatcher.lock(); ptr)
     ptr->stop();
   Fifo::onExit(_fifoName, _options);
-  Trace << std::endl;
+  Trace << '\n';
 }
 
 bool FifoClient::run() {

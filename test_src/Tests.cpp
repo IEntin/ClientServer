@@ -20,11 +20,11 @@ struct CompressionTest : testing::Test {
 	Logger(LOG_LEVEL::ALWAYS, std::clog, false)
 	<< "\n\tinput.size()=" << input.size()
 	<< " compressedSize=" << compressedSize << " restored to original:"
-	<< std::boolalpha << (input == data) << '\n' << std::endl;
+	<< std::boolalpha << (input == data) << '\n' << '\n';
       ASSERT_EQ(input, data);
     }
     catch (const std::exception& e) {
-      LogError << e.what() << std::endl;
+      LogError << e.what() << '\n';
     }
   }
 };
@@ -130,7 +130,7 @@ TEST(HeaderTest, 1) {
     ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
   }
   catch (const std::exception& e) {
-    LogError << e.what() << std::endl;
+    LogError << e.what() << '\n';
     ASSERT_TRUE(false);
   }
 }
