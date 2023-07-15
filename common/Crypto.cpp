@@ -8,9 +8,9 @@
 #include "Utility.h"
 #include <cryptopp/files.h>
 #include <cryptopp/filters.h>
-#include <cryptopp/hex.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
+#include <boost/algorithm/hex.hpp>
 #include <filesystem>
 
 CryptoKey::CryptoKey(const ServerOptions& options) :
@@ -29,7 +29,16 @@ bool CryptoKey::generate() {
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(_key, _key.size());
   std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
-  utility::writeFile(CRYPTO_KEY_FILE_NAME, keyStr);
+  std::ofstream ofs(CRYPTO_KEY_FILE_NAME, std::ios::binary);
+  std::filesystem::permissions(
+    CRYPTO_KEY_FILE_NAME,
+    std::filesystem::perms::owner_all | std::filesystem::perms::group_read,
+    std::filesystem::perm_options::replace);
+  if (ofs) {
+    ofs << keyStr;
+    _valid = true;
+    return true;
+  }
   return _valid;
 }
 
@@ -45,8 +54,7 @@ bool CryptoKey::recover() {
 void CryptoKey::showKey() const {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
   logger.getStream() << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
-  CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(logger.getStream()));
-  CryptoPP::StringSource(_key, _key.size(), true, new CryptoPP::Redirector(encoder));
+  boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream(), "" });
   logger.getStream() << std::endl;
 }
 
@@ -84,7 +92,7 @@ void Crypto::decrypt(std::string& data) {
   }
   catch (const std::exception& e) {
     std::string error(e.what());
-    error.append("\n\n\tMake sure crypto file on client site is current!\n");
+    error.append("\n\n\tMake sure crypto key file on client site is current!\n");
     throw std::runtime_error(error);
   }
 }
@@ -92,7 +100,6 @@ void Crypto::decrypt(std::string& data) {
 void Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
   logger.getStream() << "IV : ";
-  CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(logger.getStream()));
-  CryptoPP::StringSource(iv, iv.size(), true, new CryptoPP::Redirector(encoder));
+  boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
   logger.getStream() << std::endl;
 }

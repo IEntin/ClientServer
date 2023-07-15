@@ -123,7 +123,7 @@ rm -f .cryptoKey.sec
 
 for (( c=1; c<=$1; c++ ))
 do
-    ( cd ../Client$c; rm -f .cryptoKey.sec ../Client$c )
+    ( cd ../Client$c; rm -f .cryptoKey.sec )
 done
 
 sync
