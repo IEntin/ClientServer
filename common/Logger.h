@@ -42,9 +42,14 @@ struct Logger {
     _stream(stream),
     _displayPrefix(displayPrefix) {
   }
+
+  Logger(Logger&) = delete;
+  
   ~Logger() {
     _stream.flush();
   }
+
+  Logger& operator=(Logger&) = delete;
 
   Logger& printPrefix(const char* file, int line, const char* func) {
     try {

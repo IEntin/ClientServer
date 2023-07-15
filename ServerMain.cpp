@@ -3,7 +3,6 @@
  */
 
 #include "Chronometer.h"
-#include "Logger.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"

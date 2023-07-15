@@ -4,7 +4,6 @@
 
 #include "Chronometer.h"
 #include "ClientOptions.h"
-#include "Logger.h"
 #include "Metrics.h"
 #include "FifoClient.h"
 #include "TcpClient.h"

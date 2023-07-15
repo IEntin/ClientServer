@@ -6,8 +6,6 @@
 
 #include "ThreadPoolBase.h"
 
-enum class STATUS : char;
-
 class ThreadPoolSameObj : public ThreadPoolBase {
 protected:
   ThreadPoolSameObj(const ThreadPoolSameObj& other) = delete;

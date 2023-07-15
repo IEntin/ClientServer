@@ -6,7 +6,6 @@
 
 #include "ThreadPoolDiffObj.h"
 #include <map>
-#include <mutex>
 
 struct ServerOptions;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
