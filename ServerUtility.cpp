@@ -9,7 +9,7 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Options&options,
+std::string_view buildReply(const Options& options,
 			    const Response& response,
 			    HEADER& header,
 			    STATUS status) {

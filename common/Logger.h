@@ -68,6 +68,7 @@ struct Logger {
   const LOG_LEVEL _level;
   std::osyncstream _stream;
   const bool _displayPrefix;
+
   template <typename V>
   Logger& operator <<(const V& value) {
     try {

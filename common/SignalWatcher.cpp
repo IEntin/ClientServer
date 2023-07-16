@@ -21,7 +21,6 @@ void SignalWatcher::stop() {
 
 void SignalWatcher::run() {
   _flag.wait(ACTIONS::NONE);
-  if (_flag == ACTIONS::ACTION) {
+  if (_flag == ACTIONS::ACTION)
     _func();
-  }
 }
