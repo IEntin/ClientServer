@@ -53,9 +53,9 @@ bool CryptoKey::recover() {
 
 void CryptoKey::showKey() const {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger.getStream() << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
+  logger << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
   boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream(), "" });
-  logger.getStream() << std::endl;
+  logger << '\n';
 }
 
 void Crypto::encrypt(std::string& data) {
@@ -99,7 +99,7 @@ void Crypto::decrypt(std::string& data) {
 
 void Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger.getStream() << "IV : ";
+  logger << "IV : ";
   boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
-  logger.getStream() << std::endl;
+  logger << '\n';
 }
