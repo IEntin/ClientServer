@@ -24,6 +24,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
+  Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
 }
 
 TcpClient::~TcpClient() {

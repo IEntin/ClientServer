@@ -15,7 +15,7 @@ Options::Options(const std::string& jsonName) {
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _controlFileName = _fifoDirectoryName + '/' + FILE_SERVER_RUNNING;
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _tcpPort = appOptions.get("TcpPort", 49153);
+  _tcpPort = appOptions.get("TcpPort", 49151);
   _portString = std::to_string(_tcpPort);
   _tcpService = _portString;
   // next 2 parameters may be decreased for better responsiveness

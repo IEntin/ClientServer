@@ -20,7 +20,7 @@
   "HeartbeatPeriod" : 15000,
   "HeartbeatTimeout" : 2000,
   "ServerAddress" : "127.0.0.1",
-  "TcpPort" : 49152,
+  "TcpPort" : 49150,
   "NumberRepeatENXIO" : 25,
   "ENXIOwait" : 10,
   "SetPipeSize" : true,

@@ -19,7 +19,7 @@
   "MaxTcpSessions" : 27,
   "MaxFifoSessions" : 19,
   "MaxTotalSessions" : 33,
-  "TcpPort" : 49152,
+  "TcpPort" : 49150,
   "_comment": "in milliseconds",
   "TcpTimeout" : 2000,
   "NumberRepeatENXIO" : 25,

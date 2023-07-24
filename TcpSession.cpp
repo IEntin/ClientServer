@@ -26,6 +26,7 @@ TcpSession::TcpSession(const ServerOptions& options,
     LogError << ec.what() << '\n';
     return;
   }
+  Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
   boost::asio::post(_ioContext, [this] { readHeader(); });
 }
 
