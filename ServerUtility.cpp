@@ -3,7 +3,7 @@
  */
 
 #include "ServerUtility.h"
-#include "CommonUtils.h"
+#include "PayloadTransform.h"
 #include "Options.h"
 #include "TaskController.h"
 
@@ -26,7 +26,7 @@ std::string_view buildReply(const Options& options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  commonutils::compressEncrypt(options, data,  header, false, status);
+  payloadtransform::compressEncrypt(options, data,  header, false, status);
   return data;
 }
 
@@ -34,7 +34,7 @@ bool processRequest(const HEADER& header,
 		    std::string& received,
 		    Response& response) {
   std::string_view receivedView(received.data(), received.size());
-  commonutils::decryptDecompress(header, received);
+  payloadtransform::decryptDecompress(header, received);
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();
   if (taskController) {

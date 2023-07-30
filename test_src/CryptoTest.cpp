@@ -3,14 +3,14 @@
  */
 
 #include "CommonConstants.h"
-#include "CommonUtils.h"
+#include "PayloadTransform.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 #include "TestEnvironment.h"
 #include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
-// for i in {1..10}; do ./testbin --gtest_filter=CommonUtilsTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=PayloadTransformTest*; done
 
 TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
@@ -31,7 +31,7 @@ TEST(CryptoTest, 1) {
   std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
 }
 
-struct CommonUtilsTest : testing::Test {
+struct PayloadTransformTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
       std::string data = TestEnvironment::_source;
@@ -40,12 +40,12 @@ struct CommonUtilsTest : testing::Test {
       TestEnvironment::_serverOptions._compressor = compressor;
       HEADER header;
       bool diagnostics = false;
-      commonutils::compressEncrypt(TestEnvironment::_serverOptions,
-				   data,
-				   header,
-				   diagnostics,
-				   STATUS::NONE);
-      commonutils::decryptDecompress(header, data);
+      payloadtransform::compressEncrypt(TestEnvironment::_serverOptions,
+					data,
+					header,
+					diagnostics,
+					STATUS::NONE);
+      payloadtransform::decryptDecompress(header, data);
       ASSERT_EQ(data.size(), TestEnvironment::_source.size());
       ASSERT_EQ(data, TestEnvironment::_source);
     }
@@ -60,18 +60,18 @@ struct CommonUtilsTest : testing::Test {
   }
 };
 
-TEST_F(CommonUtilsTest, ENCRYPTED_LZ4) {
+TEST_F(PayloadTransformTest, ENCRYPTED_LZ4) {
   test(true, COMPRESSORS::LZ4);
 }
 
-TEST_F(CommonUtilsTest, ENCRYPTED_NONE) {
+TEST_F(PayloadTransformTest, ENCRYPTED_NONE) {
   test(true, COMPRESSORS::NONE);
 }
 
-TEST_F(CommonUtilsTest, NOTENCRYPTED_NONE) {
+TEST_F(PayloadTransformTest, NOTENCRYPTED_NONE) {
   test(false, COMPRESSORS::NONE);
 }
 
-TEST_F(CommonUtilsTest, NOTENCRYPTED_LZ4) {
+TEST_F(PayloadTransformTest, NOTENCRYPTED_LZ4) {
   test(false, COMPRESSORS::LZ4);
 }

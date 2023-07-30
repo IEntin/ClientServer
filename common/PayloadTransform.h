@@ -9,7 +9,7 @@
 #include "Header.h"
 #include "Options.h"
 
-namespace commonutils {
+namespace payloadtransform {
 
 template <typename B>
 void compressEncrypt(const Options& options,
@@ -33,4 +33,4 @@ void compressEncrypt(const Options& options,
 
 void decryptDecompress(const HEADER& header, std::string& received);
 
-} // end of namespace commonutils
+} // end of namespace payloadtransform

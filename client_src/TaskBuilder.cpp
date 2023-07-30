@@ -4,7 +4,7 @@
 
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
-#include "CommonUtils.h"
+#include "PayloadTransform.h"
 #include "Header.h"
 #include "Utility.h"
 
@@ -96,7 +96,7 @@ STATUS TaskBuilder::createSubtask() {
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
   HEADER header;
-  commonutils::compressEncrypt(_options, data, header, _options._diagnostics);
+  payloadtransform::compressEncrypt(_options, data, header, _options._diagnostics);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.swap(data);

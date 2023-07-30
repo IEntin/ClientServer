@@ -2,9 +2,9 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CommonUtils.h"
+#include "PayloadTransform.h"
 
-namespace commonutils {
+namespace payloadtransform {
 
 void decryptDecompress(const HEADER& header, std::string& data) {
   if (isEncrypted(header))
@@ -15,4 +15,4 @@ void decryptDecompress(const HEADER& header, std::string& data) {
   }
 }
 
-} // end of namespace commonutils
+} // end of namespace payloadtransform

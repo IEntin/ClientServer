@@ -5,7 +5,7 @@
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
-#include "CommonUtils.h"
+#include "PayloadTransform.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
@@ -83,7 +83,7 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
   }
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  commonutils::decryptDecompress(header, buffer);
+  payloadtransform::decryptDecompress(header, buffer);
   if (buffer.empty()) {
     utility::displayStatus(STATUS::ERROR);
     return false;
