@@ -4,7 +4,9 @@
 
 #include "Utility.h"
 #include "Header.h"
-#include "Logger.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <fcntl.h>
 #include <filesystem>
 #include <sys/resource.h>
@@ -18,6 +20,19 @@ CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
     LogError << std::strerror(errno) << '\n';
   _fd = -1;
+}
+
+std::string getUniqueId() {
+  try {
+    auto uuid = boost::uuids::random_generator()();
+    std::string str = boost::uuids::to_string(uuid);
+    auto it = std::remove(str.begin(), str.end(), '-');
+    return { str.begin(), it };
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return "";
+  }
 }
 
 std::string readFile(const std::string& name) {

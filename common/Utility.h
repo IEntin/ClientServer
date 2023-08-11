@@ -5,9 +5,6 @@
 #pragma once
 
 #include "Logger.h"
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <charconv>
 #include <cstring>
 #include <iostream>
@@ -126,24 +123,13 @@ template <Integral T>
       return std::string_view(buffer, ptr - buffer);
 }
 
-inline std::string getUniqueId() {
-  try {
-    auto uuid = boost::uuids::random_generator()();
-    std::string str = boost::uuids::to_string(uuid);
-    auto it = std::remove(str.begin(), str.end(), '-');
-    return { str.begin(), it };
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return "";
-  }
-}
-
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);
   ~CloseFileDescriptor();
   int& _fd;
 };
+
+std::string getUniqueId();
 
 std::string readFile(const std::string& name);
 
