@@ -9,6 +9,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <fcntl.h>
 #include <filesystem>
+#include <mutex>
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -24,7 +25,10 @@ CloseFileDescriptor::~CloseFileDescriptor() {
 
 std::string getUniqueId() {
   try {
-    auto uuid = boost::uuids::random_generator()();
+    static boost::uuids::random_generator generator;
+    static std::mutex mutex;
+    std::scoped_lock lock(mutex);
+    auto uuid = generator();
     std::string str = boost::uuids::to_string(uuid);
     auto it = std::remove(str.begin(), str.end(), '-');
     return { str.begin(), it };
