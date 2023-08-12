@@ -49,8 +49,6 @@ bool FifoClient::send(const Subtask& subtask) {
 }
 
 bool FifoClient::receive() {
-  if (!std::filesystem::exists(_options._controlFileName))
-    return false;
   _status = STATUS::NONE;
   thread_local static std::string buffer;
   HEADER header;

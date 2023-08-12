@@ -14,7 +14,6 @@ struct Options {
   ~Options() = default;
   size_t _bufferSize;
   std::string _fifoDirectoryName;
-  std::string _controlFileName;
   std::string _acceptorName;
   unsigned short _tcpPort;
   std::string_view _tcpService;

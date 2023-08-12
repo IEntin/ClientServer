@@ -45,7 +45,6 @@ int main() {
     if (options._invalidateKey) {
       std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
     }
-    std::filesystem::remove(options._controlFileName);
     Metrics::save();
     server.stop();
     int closed = fcloseall();

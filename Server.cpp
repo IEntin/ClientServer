@@ -12,8 +12,6 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
-#include <filesystem>
-#include <fstream>
 
 Server::Server(const ServerOptions& options) :
   _options(options),
@@ -43,8 +41,6 @@ bool Server::start() {
   if (!_fifoAcceptor->start())
     return false;
   _threadPoolAcceptor.push(_fifoAcceptor);
-  std::ofstream file(_options._controlFileName);
-  std::filesystem::permissions(_options._controlFileName, std::filesystem::perms::none);
   return true;
 }
 

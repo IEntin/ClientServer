@@ -13,7 +13,6 @@ Options::Options(const std::string& jsonName) {
   AppOptions appOptions(jsonName);
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
-  _controlFileName = _fifoDirectoryName + '/' + FILE_SERVER_RUNNING;
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _tcpPort = appOptions.get("TcpPort", 49151);
   _portString = std::to_string(_tcpPort);
