@@ -12,7 +12,6 @@ struct ClientOptions;
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
-using ConnectionDetailsPtr = std::shared_ptr<struct ConnectionDetails>;
 
 class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHeartbeat>,
   public RunnableT<TcpClientHeartbeat> {

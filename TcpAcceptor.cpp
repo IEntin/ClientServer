@@ -3,7 +3,6 @@
  */
 
 #include "TcpAcceptor.h"
-#include "ConnectionDetails.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "TcpSession.h"
@@ -72,10 +71,10 @@ TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& s
   return { type, clientId, true };
 }
 
-void TcpAcceptor::createSession(ConnectionDetailsPtr details) {
+void TcpAcceptor::createSession(ContextPtr contextPtr, SocketPtr socketPtr) {
   std::string clientId = utility::getUniqueId();
   RunnablePtr session =
-    std::make_shared<TcpSession>(_options, details, clientId);
+    std::make_shared<TcpSession>(_options, contextPtr,  *socketPtr, clientId);
   _server.startSession(clientId, session);
 }
 
@@ -90,10 +89,11 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::accept() {
-  auto details = std::make_shared<ConnectionDetails>();
+  auto contextPtr = std::make_shared<boost::asio::io_context>(1);
+  auto socketPtr = std::make_shared<boost::asio::ip::tcp::socket>(*contextPtr);
   auto weak = weak_from_this();
-  _acceptor.async_accept(details->_socket,
-    [details, this, weak](boost::system::error_code ec) {
+  _acceptor.async_accept(*socketPtr,
+    [contextPtr, socketPtr, this, weak](boost::system::error_code ec) mutable {
       if (_stopped)
 	return;
       auto self = weak.lock();
@@ -107,16 +107,16 @@ void TcpAcceptor::accept() {
 	  Debug << ec.what() << '\n';
       }
       else {
-	auto [type, clientId, success] = receiveRequest(details->_socket);
+	auto [type, clientId, success] = receiveRequest(*socketPtr);
 	if (!success)
 	  return;
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  createSession(details);
+	  createSession(contextPtr, socketPtr);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  if (!_stopped)
-	    replyHeartbeat(details->_socket);
+	    replyHeartbeat(*socketPtr);
 	  break;
 	default:
 	  break;

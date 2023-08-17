@@ -3,7 +3,6 @@
  */
 
 #include "TcpSession.h"
-#include "ConnectionDetails.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "Tcp.h"
@@ -11,14 +10,15 @@
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options,
-		       ConnectionDetailsPtr details,
+		       ContextPtr contextPtr,
+		       boost::asio::ip::tcp::socket& socket,
 		       std::string_view clientId) :
   RunnableT(options._maxTcpSessions, _name),
   _options(options),
   _clientId(clientId),
-  _details(details),
-  _ioContext(details->_ioContext),
-  _socket(std::move(details->_socket)),
+  _contextPtr(contextPtr),
+  _ioContext(*contextPtr),
+  _socket(std::move(socket)),
   _timeoutTimer(_ioContext) {
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
