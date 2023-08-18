@@ -33,7 +33,7 @@ private:
 
   void accept();
   Request receiveRequest(boost::asio::ip::tcp::socket& socket);
-  void createSession(ContextPtr contextPtr, SocketPtr socketPtr);
+  void createSession(ContextPtr contextPtr, boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   Server& _server;
