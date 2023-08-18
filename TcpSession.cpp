@@ -6,32 +6,32 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "Tcp.h"
+#include "Utility.h"
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options,
-		       ContextPtr contextPtr,
-		       boost::asio::ip::tcp::socket& socket,
-		       std::string_view clientId) :
+TcpSession::TcpSession(const ServerOptions& options) :
   RunnableT(options._maxTcpSessions, _name),
   _options(options),
-  _clientId(clientId),
-  _contextPtr(contextPtr),
-  _ioContext(*contextPtr),
-  _socket(std::move(socket)),
-  _timeoutTimer(_ioContext) {
+  _ioContext(1),
+  _socket(_ioContext),
+  _timeoutTimer(_ioContext) {}
+
+TcpSession::~TcpSession() {
+  Trace << '\n';
+}
+
+bool TcpSession::start() {
+  _clientId = utility::getUniqueId();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
     LogError << ec.what() << '\n';
-    return;
+    return false;
   }
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
   boost::asio::post(_ioContext, [this] { readHeader(); });
-}
-
-TcpSession::~TcpSession() {
-  Trace << '\n';
+  return true;
 }
 
 bool TcpSession::sendStatusToClient() {

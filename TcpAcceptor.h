@@ -12,9 +12,6 @@ struct ServerOptions;
 
 namespace tcp {
 
-using ContextPtr = std::shared_ptr<boost::asio::io_context>;
-using SocketPtr = std::shared_ptr<boost::asio::ip::tcp::socket>;
-
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public RunnableT<TcpAcceptor> {
  public:
@@ -23,7 +20,6 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
 private:
   struct Request {
     HEADERTYPE _type;
-    std::string _clientId;
     bool _success;
   };
 
@@ -33,7 +29,6 @@ private:
 
   void accept();
   Request receiveRequest(boost::asio::ip::tcp::socket& socket);
-  void createSession(ContextPtr contextPtr, boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   Server& _server;

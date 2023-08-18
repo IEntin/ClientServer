@@ -7,7 +7,6 @@
 #include "ServerOptions.h"
 #include "TcpSession.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 
@@ -60,22 +59,15 @@ void TcpAcceptor::run() {
 }
 
 TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& socket) {
-  std::string clientId;
-  auto [success, ec] = Tcp::readMsg(socket, _header, clientId);
+  std::string dummy;
+  auto [success, ec] = Tcp::readMsg(socket, _header, dummy);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
     LogError << ec.what() << '\n';
-    return { HEADERTYPE::ERROR, clientId, false };
+    return { HEADERTYPE::ERROR, false };
   }
   HEADERTYPE type = extractHeaderType(_header);
-  return { type, clientId, true };
-}
-
-void TcpAcceptor::createSession(ContextPtr contextPtr, boost::asio::ip::tcp::socket& socket) {
-  std::string clientId = utility::getUniqueId();
-  RunnablePtr session =
-    std::make_shared<TcpSession>(_options, contextPtr,  socket, clientId);
-  _server.startSession(clientId, session);
+  return { type, true };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -89,12 +81,10 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::accept() {
-  auto contextPtr = std::make_shared<boost::asio::io_context>(1);
-  auto socketPtr = std::make_shared<boost::asio::ip::tcp::socket>(*contextPtr);
-  boost::asio::ip::tcp::socket& socket = *socketPtr;
+  auto session = std::make_shared<TcpSession>(_options);
   auto weak = weak_from_this();
-  _acceptor.async_accept(socket,
-    [contextPtr, socketPtr, &socket, this, weak](boost::system::error_code ec) {
+  _acceptor.async_accept(session->socket(),
+    [session, this, weak](boost::system::error_code ec) {
       if (_stopped)
 	return;
       auto self = weak.lock();
@@ -108,16 +98,17 @@ void TcpAcceptor::accept() {
 	  Debug << ec.what() << '\n';
       }
       else {
-	auto [type, clientId, success] = receiveRequest(socket);
+	auto [type, success] = receiveRequest(session->socket());
 	if (!success)
 	  return;
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  createSession(contextPtr, socket);
+	  session->start();
+	  _server.startSession(session->clientId(), session);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  if (!_stopped)
-	    replyHeartbeat(socket);
+	    replyHeartbeat(session->socket());
 	  break;
 	default:
 	  break;
