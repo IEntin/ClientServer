@@ -46,7 +46,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
 RunnablePtr ThreadPoolDiffObj::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });
-  for (auto it = _queue.begin(); it < _queue.end(); ++it) {
+  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
     RunnablePtr runnable = *it;
     if (runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType) {
       _queue.erase(it);

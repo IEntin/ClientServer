@@ -13,7 +13,6 @@ namespace tcp {
 TcpSession::TcpSession(const ServerOptions& options) :
   RunnableT(options._maxTcpSessions, _name),
   _options(options),
-  _ioContext(1),
   _socket(_ioContext),
   _timeoutTimer(_ioContext) {}
 

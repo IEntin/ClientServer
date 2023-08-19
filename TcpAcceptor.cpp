@@ -13,7 +13,6 @@ namespace tcp {
 TcpAcceptor::TcpAcceptor(Server& server) :
   _server(server),
   _options(_server.getOptions()),
-  _ioContext(1),
   _acceptor(_ioContext) {}
 
 TcpAcceptor::~TcpAcceptor() {
