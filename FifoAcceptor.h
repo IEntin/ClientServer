@@ -15,8 +15,7 @@ class FifoAcceptor : public RunnableT<FifoAcceptor> {
   void run() override;
   bool start() override;
   void stop() override;
-  std::pair<HEADERTYPE, std::string> unblockAcceptor();
-  void createSession();
+  HEADERTYPE unblockAcceptor();
   void removeFifoFiles();
   Server& _server;
   const ServerOptions& _options;

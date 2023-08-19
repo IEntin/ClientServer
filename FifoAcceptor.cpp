@@ -21,41 +21,30 @@ FifoAcceptor::~FifoAcceptor() {
   Trace << '\n';
 }
 
-std::pair<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
+HEADERTYPE FifoAcceptor::unblockAcceptor() {
   static std::string emptyString;
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, emptyString };
+    return HEADERTYPE::ERROR;
   HEADER header;
   std::vector<char> body;
   if (!Fifo::readMsgBlock(_options._acceptorName, header, body))
-    return { HEADERTYPE::ERROR, emptyString };
-  std::string key(body.cbegin(), body.cend());
-  return { extractHeaderType(header), std::move(key) };
+    return HEADERTYPE::ERROR;
+  return extractHeaderType(header);
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, key] = unblockAcceptor();
+    auto session = std::make_shared<FifoSession>(_options);
+    auto type = unblockAcceptor();
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      createSession();
+      _server.startSession(session);
       break;
     default:
       break;
     }
   }
-}
-
-void FifoAcceptor::createSession() {
-  std::string clientId = utility::getUniqueId();
-  std::string fifoName(_options._fifoDirectoryName + '/' + clientId);
-  if (mkfifo(fifoName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << fifoName << '\n';
-    return;
-  }
-  auto session = std::make_shared<FifoSession>(_options, clientId);
-  _server.startSession(clientId, session);
 }
 
 bool FifoAcceptor::start() {

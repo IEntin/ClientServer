@@ -25,11 +25,12 @@ class Runnable {
   virtual bool start() = 0;
   virtual void run() = 0;
   virtual void stop() = 0;
+  virtual std::string_view getId() { return std::string_view(); }
   virtual bool killThread() const { return false; }
   virtual int getNumberObjects() const = 0;
   virtual int getNumberRunningByType() const = 0;
   virtual void displayCapacityCheck([[maybe_unused]] std::atomic<int>& totalNumberObjects) const = 0;
-   virtual std::string_view getType() const = 0;
+  virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }
   std::atomic<STATUS>& getStatus() { return _status; }
   void checkCapacity() {
@@ -49,11 +50,11 @@ template <class T>
 class RunnableT : public Runnable {
  protected:
   explicit RunnableT(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT,
-		     std::string_view name = std::string_view()) :
-    Runnable(maxNumberThreads) {_numberObjects++; _name = name; }
+		     std::string_view displayType = std::string_view()) :
+    Runnable(maxNumberThreads) {_numberObjects++; _displayType = displayType; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
-  static inline std::string_view _name;
+  static inline std::string_view _displayType;
   static inline std::atomic<int> _numberObjects = 0;
   static inline std::atomic<int> _numberRunningByType = 0;
   static inline const std::string _type = typeid(T).name();
@@ -68,13 +69,13 @@ class RunnableT : public Runnable {
   int getNumberRunningByType() const override { return _numberRunningByType; }
 
   void displayCapacityCheck(std::atomic<int>& totalNumberObjects) const override {
-    Info << "Number " << _name << " sessions=" << _numberObjects
-	 << ", Number running " << _name << " sessions=" << _numberRunningByType
-	 << ", max number " << _name << " running=" << _maxNumberRunningByType
+    Info << "Number " << _displayType << " sessions=" << _numberObjects
+	 << ", Number running " << _displayType << " sessions=" << _numberRunningByType
+	 << ", max number " << _displayType << " running=" << _maxNumberRunningByType
 	 << '\n';
   switch (_status.load()) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
-    Warn << "\nThe number of " << _name << " sessions=" << _numberObjects
+    Warn << "\nThe number of " << _displayType << " sessions=" << _numberObjects
 	 << " exceeds thread pool capacity." << '\n';
     break;
   case STATUS::MAX_TOTAL_OBJECTS:

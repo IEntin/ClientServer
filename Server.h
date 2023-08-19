@@ -17,7 +17,7 @@ public:
   bool start();
   void stop();
   const ServerOptions& getOptions() const { return _options; }
-  bool startSession(std::string_view clientId, RunnablePtr session);
+  bool startSession(RunnablePtr session);
   void stopSessions();
 private:
   const ServerOptions& _options;

@@ -54,7 +54,9 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-bool Server::startSession(std::string_view clientId, RunnablePtr session) {
+bool Server::startSession(RunnablePtr session) {
+  session->start();
+  std::string_view clientId = session->getId();
   std::scoped_lock lock(_mutex);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)

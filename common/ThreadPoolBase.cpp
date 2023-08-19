@@ -51,7 +51,7 @@ void  ThreadPoolBase::createThread() {
 	  _threadPool->_totalNumberObjects--;
 	}
 	ThreadPoolBase* _threadPool = nullptr;
-      } decremet(this);
+      } decrement(this);
       // additional scope for fast recycling
       // of the finished runnable
       {

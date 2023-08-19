@@ -57,21 +57,21 @@ void TcpAcceptor::run() {
   }
 }
 
-TcpAcceptor::Request TcpAcceptor::receiveRequest(boost::asio::ip::tcp::socket& socket) {
+HEADERTYPE TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::string dummy;
-  auto [success, ec] = Tcp::readMsg(socket, _header, dummy);
+  auto ec = Tcp::readMsg(socket, _header, dummy);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
     LogError << ec.what() << '\n';
-    return { HEADERTYPE::ERROR, false };
+    return HEADERTYPE::ERROR;
   }
   HEADERTYPE type = extractHeaderType(_header);
-  return { type, true };
+  return type;
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
   static const std::vector<char> empty;
-  auto [success, ec] = Tcp::sendMsg(socket, _header, empty);
+  auto ec = Tcp::sendMsg(socket, _header, empty);
   if (ec) {
     LogError << ec.what() << '\n';
     return;
@@ -80,10 +80,10 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::accept() {
-  auto session = std::make_shared<TcpSession>(_options);
+  auto connection = std::make_shared<TcpSession>(_options);
   auto weak = weak_from_this();
-  _acceptor.async_accept(session->socket(),
-    [session, this, weak](boost::system::error_code ec) {
+  _acceptor.async_accept(connection->socket(),
+    [connection, this, weak](boost::system::error_code ec) {
       if (_stopped)
 	return;
       auto self = weak.lock();
@@ -97,17 +97,13 @@ void TcpAcceptor::accept() {
 	  Debug << ec.what() << '\n';
       }
       else {
-	auto [type, success] = receiveRequest(session->socket());
-	if (!success)
-	  return;
+	HEADERTYPE type = connectionType(connection->socket());
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  session->start();
-	  _server.startSession(session->clientId(), session);
+	  _server.startSession(connection);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
-	  if (!_stopped)
-	    replyHeartbeat(session->socket());
+	  replyHeartbeat(connection->socket());
 	  break;
 	default:
 	  break;

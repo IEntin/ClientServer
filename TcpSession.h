@@ -19,13 +19,13 @@ public:
   TcpSession(const ServerOptions& options);
   ~TcpSession() override;
 
-  bool start() override;
-  std::string_view clientId() { return _clientId; }
   boost::asio::ip::tcp::socket& socket() { return _socket; }
 private:
+  bool start() override;
   void run() noexcept override;
   void stop() override;
   bool sendStatusToClient() override;
+  std::string_view getId() override { return _clientId; }
   void readHeader();
   void readRequest();
   void write(std::string_view msg);
@@ -33,7 +33,7 @@ private:
   bool sendReply(const Response& response);
   const ServerOptions& _options;
   std::string _clientId;
-  static inline std::string_view _name = "tcp";
+  static inline std::string_view _displayType = "tcp";
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;

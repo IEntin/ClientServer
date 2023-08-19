@@ -7,20 +7,27 @@
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include <filesystem>
+#include <sys/stat.h>
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options, std::string_view clientId) :
-  RunnableT(options._maxFifoSessions, _name),
-  _options(options),
-  _clientId(clientId),
-  _fifoName(_options._fifoDirectoryName + '/' + _clientId) {
-  Debug << "_fifoName:" << _fifoName << '\n';
-}
+FifoSession::FifoSession(const ServerOptions& options) :
+  RunnableT(options._maxFifoSessions, _displayType),
+  _options(options) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
   Trace << '\n';
+}
+
+bool FifoSession::start() {
+  _clientId = utility::getUniqueId();
+  _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+  if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << _fifoName << '\n';
+    return false;
+  }
+  return true;
 }
 
 void FifoSession::run() {

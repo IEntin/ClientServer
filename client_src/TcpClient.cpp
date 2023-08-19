@@ -19,8 +19,8 @@ TcpClient::TcpClient(const ClientOptions& options) :
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
-  auto [success, ec] = Tcp::sendMsg(_socket, header, std::string());
-  if (!success)
+  auto ec = Tcp::sendMsg(_socket, header, std::string());
+  if (ec)
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
@@ -39,16 +39,16 @@ bool TcpClient::run() {
 }
 
 bool TcpClient::send(const Subtask& subtask) {
-  auto [success, ec] = Tcp::sendMsg(_socket, subtask._header, subtask._body);
+  auto ec = Tcp::sendMsg(_socket, subtask._header, subtask._body);
   if (ec)
     LogError << ec.what() << '\n';
-  return success;
+  return !ec;
 }
 
 bool TcpClient::receive() {
   HEADER header;
   thread_local static std::string buffer;
-  auto [success, ec] = Tcp::readMsg(_socket, header, buffer);
+  auto ec = Tcp::readMsg(_socket, header, buffer);
   if (ec) {
     LogError << ec.what() << '\n';
     return false;
@@ -59,7 +59,7 @@ bool TcpClient::receive() {
 
 bool TcpClient::receiveStatus() {
   HEADER header;
-  auto [success, ec] = Tcp::readMsg(_socket, header, _clientId);
+  auto ec = Tcp::readMsg(_socket, header, _clientId);
   assert(!isCompressed(header) && "expected uncompressed");
   if (ec) {
     throw(std::runtime_error(ec.what()));

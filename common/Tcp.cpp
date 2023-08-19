@@ -22,23 +22,22 @@ Tcp::setSocket(boost::asio::io_context& ioContext,
   return { endpoint, ec };
 }
 
-std::pair<bool, boost::system::error_code>
+boost::system::error_code
 Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   // catch signal and unblock read in wait mode
   boost::system::error_code ec;
   socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
   if (ec) {
     LogError << ec.what() << '\n';
-    return { false, ec };
+    return ec;
   }
   char buffer[HEADER_SIZE] = {};
-  ec.clear();
   size_t transferred[[maybe_unused]] =
     boost::asio::read(socket, boost::asio::buffer(buffer), ec);
   if (ec)
-    return { false, ec };
+    return ec;
   header = decodeHeader(buffer);
-  return { true, ec };
+  return ec;
 }
 
 } // end of namespace tcp

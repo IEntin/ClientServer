@@ -11,7 +11,7 @@
 namespace tcp {
 
 TcpSession::TcpSession(const ServerOptions& options) :
-  RunnableT(options._maxTcpSessions, _name),
+  RunnableT(options._maxTcpSessions, _displayType),
   _options(options),
   _socket(_ioContext),
   _timeoutTimer(_ioContext) {}
@@ -36,7 +36,8 @@ bool TcpSession::start() {
 bool TcpSession::sendStatusToClient() {
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Tcp::sendMsg(_socket, header, _clientId).first;
+  auto ec = Tcp::sendMsg(_socket, header, _clientId);
+  return !ec;
 }
 
 void TcpSession::run() noexcept {
