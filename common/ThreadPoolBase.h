@@ -29,6 +29,7 @@ public:
   void stop();
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
+  void push(std::shared_ptr<KillThread> runnable);
   int size() const { return _threads.size(); }
   int maxSize() const { return _maxSize; }
   // used in tests

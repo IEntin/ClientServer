@@ -89,6 +89,14 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
   _queueCondition.notify_all();
 }
 
+void ThreadPoolBase::push(std::shared_ptr<KillThread> runnable) {
+  std::lock_guard lock(_queueMutex);
+  increment();
+  Debug << "numberOfThreads " << size() << '\n';
+  _queue.emplace_back(runnable);
+  _queueCondition.notify_all();
+}
+
 RunnablePtr ThreadPoolBase::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty(); });

@@ -20,7 +20,7 @@ ThreadPoolSameObj::~ThreadPoolSameObj() {
 void ThreadPoolSameObj::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   increment();
-  bool condition1 = runnable->getNumberObjects() > size();
+  bool condition1 = _totalNumberObjects > size();
   bool condition2 = size() < _maxSize;
   if (condition1 && condition2) {
     createThread();
