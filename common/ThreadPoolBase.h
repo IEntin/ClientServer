@@ -32,6 +32,4 @@ public:
   void push(std::shared_ptr<KillThread> runnable);
   int size() const { return _threads.size(); }
   int maxSize() const { return _maxSize; }
-  // used in tests
-  std::vector<std::thread>& getThreads() { return _threads; }
 };

@@ -4,11 +4,10 @@
 
 #include "ThreadPoolDiffObj.h"
 #include "ThreadPoolSameObj.h"
-#include "Logger.h"
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
 
-// for i in {1..100}; do ./testbin --gtest_filter=ThreadPoolTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=ThreadPoolTest*; done
 
 using TestRunnablePtr = std::shared_ptr<class TestRunnable>;
 
@@ -50,11 +49,7 @@ TEST(ThreadPoolTest, Same) {
   for (auto runnable : runnables)
     runnable->stop();
   pool.stop();
-  bool allJoined = true;
-  for (auto& thread : pool.getThreads())
-    allJoined = allJoined && !thread.joinable();
-  ASSERT_TRUE(allJoined);
-  ASSERT_TRUE(pool.getThreads().size() == 0);
+  ASSERT_TRUE(pool.size() == 0);
 }
 
 TEST(ThreadPoolTest, Diff) {
@@ -78,9 +73,5 @@ TEST(ThreadPoolTest, Diff) {
   for (auto runnable : runnables)
     runnable->stop();
   pool.stop();
-  bool allJoined = true;
-  for (auto& thread : pool.getThreads())
-    allJoined = allJoined && !thread.joinable();
-  ASSERT_TRUE(allJoined);
-  ASSERT_TRUE(pool.getThreads().size() == 0);
+  ASSERT_TRUE(pool.size() == 0);
 }
