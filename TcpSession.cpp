@@ -65,11 +65,11 @@ bool TcpSession::sendReply(const Response& response) {
 
 void TcpSession::readHeader() {
   asyncWait();
-  auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket,
   boost::asio::buffer(_headerBuffer),
-    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = weakPtr.lock();
+    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto weak = weak_from_this();
+      auto self = weak.lock();
       if (!self)
 	return;
       switch (_status) {
@@ -101,11 +101,11 @@ void TcpSession::readHeader() {
 }
 
 void TcpSession::readRequest() {
-  auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
-    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = weakPtr.lock();
+    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto weak = weak_from_this();
+      auto self = weak.lock();
       if (!self)
 	return;
       if (ec) {
@@ -123,7 +123,6 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::write(std::string_view body) {
-  auto weakPtr = weak_from_this();
   static thread_local std::vector<boost::asio::const_buffer> buffers;
   buffers.clear();
   encodeHeader(_headerBuffer, _header);
@@ -131,8 +130,9 @@ void TcpSession::write(std::string_view body) {
   buffers.emplace_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,
     buffers,
-    [this, weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = weakPtr.lock();
+    [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto weak = weak_from_this();
+      auto self = weak.lock();
       if (!self)
 	return;
       if (ec) {
@@ -147,15 +147,15 @@ void TcpSession::write(std::string_view body) {
 }
 
 void TcpSession::asyncWait() {
-  auto weakPtr = weak_from_this();
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
   if (ec) {
     LogError << ec.what() << '\n';
     return;
   }
-  _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
-    auto self = weakPtr.lock();
+  _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
+    auto weak = weak_from_this();
+    auto self = weak.lock();
     if (!self)
       return;
     if (ec != boost::asio::error::operation_aborted) {

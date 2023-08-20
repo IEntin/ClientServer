@@ -52,8 +52,8 @@ void TcpClientHeartbeat::heartbeatWait() {
     LogError << ec.what() << '\n';
     return;
   }
-  auto weak = weak_from_this();
-  _periodTimer.async_wait([this, weak](const boost::system::error_code& ec) {
+  _periodTimer.async_wait([this](const boost::system::error_code& ec) {
+    auto weak = weak_from_this();
     auto self = weak.lock();
     if (!self)
       return;
@@ -69,15 +69,15 @@ void TcpClientHeartbeat::heartbeatWait() {
 }
 
 void TcpClientHeartbeat::timeoutWait() {
-  auto weakPtr = weak_from_this();
   boost::system::error_code ec;
   _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatTimeout), ec);
   if (ec) {
     LogError << ec.what() << '\n';
     return;
   }
-  _timeoutTimer.async_wait([this, weakPtr](const boost::system::error_code& ec) {
-    auto self = weakPtr.lock();
+  _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
+    auto weak = weak_from_this();
+    auto self = weak.lock();
     if (!self)
       return;
     if (ec != boost::asio::error::operation_aborted) {
@@ -99,10 +99,10 @@ void TcpClientHeartbeat::read() {
     LogError << ec.what() << '\n';
     return;
   }
-  auto weakPtr = weak_from_this();
   boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
-    [this, weakPtr] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = weakPtr.lock();
+    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto weak = weak_from_this();
+      auto self = weak.lock();
       if (!self)
 	return;
       if (ec) {
@@ -134,23 +134,12 @@ void TcpClientHeartbeat::read() {
       if (numberCanceled == 0)
 	LogError << "timeout" << '\n';
       Logger(LOG_LEVEL::INFO, std::clog, false) << '*';
-      // close socket early
-      boost::system::error_code err;
-      _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, err);
-      if (err)
-	LogError << err.what() << '\n';
-      err.clear();
-      _socket.close(err);
-      if (err)
-	LogError << err.what() << '\n';
       heartbeatWait();
     });
 }
 
 void TcpClientHeartbeat::write() {
   timeoutWait();
-  boost::asio::ip::tcp::socket socket(_ioContext);
-  _socket = std::move(socket);
   auto [endpoint, error] =
     Tcp::setSocket(_ioContext, _socket, _options);
   if (error) {
@@ -165,11 +154,11 @@ void TcpClientHeartbeat::write() {
     return;
   }
   encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false);
-  auto weakPtr = weak_from_this();
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),
-    [this, weakPtr](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto self = weakPtr.lock();
+    [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      auto weak = weak_from_this();
+      auto self = weak.lock();
       if (!self)
 	return;
       if (ec) {
