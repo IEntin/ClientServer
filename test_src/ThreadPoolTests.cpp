@@ -28,6 +28,12 @@ public:
   void stop() override {
     _stopped = true;
   }
+  bool _running = false;
+protected:
+  bool sendStatusToClient() override {
+    _running = _status == STATUS::NONE;
+    return true;
+  }
 };
 
 TEST(ThreadPoolTest, Same) {
@@ -46,7 +52,7 @@ TEST(ThreadPoolTest, Same) {
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
   std::this_thread::sleep_for(std::chrono::milliseconds(20));
-  for (auto runnable : runnables)
+  for (RunnablePtr runnable : runnables)
     runnable->stop();
   pool.stop();
   ASSERT_TRUE(pool.size() == 0);
@@ -54,9 +60,9 @@ TEST(ThreadPoolTest, Same) {
 
 TEST(ThreadPoolTest, Diff) {
   std::vector<TestRunnablePtr> runnables;
-  ThreadPoolDiffObj pool(100);
-  const int numberObjects = 20;
-  for (int i = 0; i < numberObjects; ++i) {
+  const int maxNumberThreads = 20;
+  ThreadPoolDiffObj pool(maxNumberThreads, &Runnable::sendStatusToClient);
+  for (int i = 0; i < maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>();
     runnables.emplace_back(runnable);
     runnable->start();
@@ -68,9 +74,11 @@ TEST(ThreadPoolTest, Diff) {
     ASSERT_TRUE(pool.size() == i + 1);
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }
-  ASSERT_TRUE(pool.size() == numberObjects);
-  std::this_thread::sleep_for(std::chrono::milliseconds(20));
   for (auto runnable : runnables)
+    ASSERT_TRUE(runnable->_running);
+  ASSERT_TRUE(pool.size() == maxNumberThreads);
+  std::this_thread::sleep_for(std::chrono::milliseconds(20));
+  for (RunnablePtr runnable : runnables)
     runnable->stop();
   pool.stop();
   ASSERT_TRUE(pool.size() == 0);
