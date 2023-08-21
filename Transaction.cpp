@@ -26,7 +26,8 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
   const AdBidMatched* winningBid = transaction._winningBid;
   os << transaction._id << ' ';
   if (TaskController::isDiagnosticsEnabled()) {
-    os <<"Transaction size=" << transaction._sizeKey << " #matches=" << utility::Print(transaction._bids.size())
+    os <<"Transaction size=" << transaction._sizeKey << " #matches="
+       << utility::Print(transaction._bids.size())
        << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
@@ -41,8 +42,8 @@ std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
     else {
       auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << winningBid->_keyword
-	 << ", " << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
+      os << winningAdPtr->getId() << ", " << winningBid->_keyword << ", "
+	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
 	 << "\n*****" << '\n';
     }
   }

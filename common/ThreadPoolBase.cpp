@@ -5,8 +5,6 @@
 #include "ThreadPoolBase.h"
 #include "Logger.h"
 
-std::shared_ptr<KillThread> ThreadPoolBase::_killThread = std::make_shared<KillThread>();
-
 ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
@@ -18,8 +16,11 @@ void ThreadPoolBase::stop() {
   // It is safe and cheap to call this more than once.
   // Wake up and join threads
   try {
-    for (int i = 0; i < size(); ++i)
-      push(_killThread);
+    {
+      std::unique_lock lock(_queueMutex);
+      _stopped = true;
+      _queueCondition.notify_all();
+    }
     for (auto it = _threads.begin(); it != _threads.end(); ) {
       auto& thread = *it;
       if (thread.joinable()) {
@@ -57,11 +58,10 @@ void  ThreadPoolBase::createThread() {
       {
 	// this blocks waiting for a new runnable
 	RunnablePtr runnable = get();
+	if (_stopped)
+	  return;
 	if (!runnable)
 	  continue;
-	// this kills the thread
-	if (runnable->killThread())
-	  break;
 	try {
 	  runnable->run();
 	}
@@ -89,17 +89,11 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
   _queueCondition.notify_all();
 }
 
-void ThreadPoolBase::push(std::shared_ptr<KillThread> runnable) {
-  std::lock_guard lock(_queueMutex);
-  increment();
-  Debug << "numberOfThreads " << size() << '\n';
-  _queue.emplace_back(runnable);
-  _queueCondition.notify_all();
-}
-
 RunnablePtr ThreadPoolBase::get() {
   std::unique_lock lock(_queueMutex);
-  _queueCondition.wait(lock, [this] { return !_queue.empty(); });
+  _queueCondition.wait(lock, [this] { return !_queue.empty() || _stopped; });
+  if (_stopped)
+    return RunnablePtr();
   RunnablePtr runnable = _queue.front();
   _queue.pop_front();
   return runnable;

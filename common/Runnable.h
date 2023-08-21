@@ -26,7 +26,6 @@ class Runnable {
   virtual void run() = 0;
   virtual void stop() = 0;
   virtual std::string_view getId() { return std::string_view(); }
-  virtual bool killThread() const { return false; }
   virtual int getNumberObjects() const = 0;
   virtual int getNumberRunningByType() const = 0;
   virtual void displayCapacityCheck(std::atomic<int>&) const = 0;
@@ -86,15 +85,4 @@ class RunnableT : public Runnable {
     break;
   }
 }
-};
-
-class KillThread : public RunnableT<KillThread> {
-  void run() override {}
-  bool start() override { return true; }
-  void stop() override {}
-  void displayCapacityCheck(std::atomic<int>&) const override {}
- public:
-  KillThread() = default;
-  ~KillThread() override {}
-  bool killThread() const override { return true; }
 };

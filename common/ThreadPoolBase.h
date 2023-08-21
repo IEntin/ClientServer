@@ -20,16 +20,15 @@ protected:
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::deque<RunnablePtr> _queue;
+  std::atomic<bool> _stopped = false;
   std::atomic<int> _totalNumberObjects = 0;
   const int _maxSize;
-  static std::shared_ptr<class KillThread> _killThread;
 public:
   ThreadPoolBase(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
   virtual ~ThreadPoolBase();
   void stop();
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
-  void push(std::shared_ptr<KillThread> runnable);
   int size() const { return _threads.size(); }
   int maxSize() const { return _maxSize; }
 };
