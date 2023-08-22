@@ -112,17 +112,6 @@ template <Integral T>
     }
 }
 
-template <Integral T>
-  std::string_view toStringView(T value, char* buffer, size_t size) {
-    if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-	ec != std::errc()) {
-      LogError << "problem converting to string:" << value << '\n';
-      throw std::runtime_error("problem converting to string");
-    }
-    else
-      return std::string_view(buffer, ptr - buffer);
-}
-
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);
   ~CloseFileDescriptor();
