@@ -63,7 +63,7 @@ bool TaskController::start() {
 void TaskController::push(TaskPtr task) {
   std::lock_guard lock(_queueMutex);
   _queue.push(task);
-  _queueCondition.notify_all();
+  _queueCondition.notify_one();
 }
 
 void TaskController::processTask(const HEADER& header, std::string_view input, Response& response) {
@@ -96,8 +96,11 @@ bool TaskController::create(const ServerOptions& options) {
 
 void  TaskController::stop() {
   // stop threads
-  _stopped = true;
-  _queueCondition.notify_one();
+  {
+    std::unique_lock lock(_queueMutex);
+    _stopped.store(true);
+    _queueCondition.notify_one();
+  }
   _threadPool.stop();
 }
 
