@@ -36,7 +36,6 @@ class TaskController {
   void stop();
   void push(TaskPtr task);
   void setNextTask();
-  void wakeupThreads();
   static void onTaskCompletion() noexcept;
   void onCompletion();
   const ServerOptions& _options;

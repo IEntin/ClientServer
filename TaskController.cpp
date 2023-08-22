@@ -76,7 +76,9 @@ void TaskController::processTask(const HEADER& header, std::string_view input, R
 
 void TaskController::setNextTask() {
   std::unique_lock lock(_queueMutex);
-  _queueCondition.wait(lock, [this] { return !_queue.empty(); });
+  _queueCondition.wait(lock, [this] { return !_queue.empty() || _stopped; });
+  if (_stopped)
+    return;
   _task = _queue.front();
   _queue.pop();
 }
@@ -95,7 +97,7 @@ bool TaskController::create(const ServerOptions& options) {
 void  TaskController::stop() {
   // stop threads
   _stopped = true;
-  wakeupThreads();
+  _queueCondition.notify_one();
   _threadPool.stop();
 }
 
@@ -104,10 +106,6 @@ void TaskController::destroy() {
     _single->stop();
   // destroy controller
   TaskControllerPtr().swap(_single);
-}
-
-void TaskController::wakeupThreads() {
-  push(std::make_shared<Task>());
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :

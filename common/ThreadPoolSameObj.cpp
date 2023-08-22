@@ -30,5 +30,5 @@ void ThreadPoolSameObj::push(RunnablePtr runnable) {
     runnable->_status = STATUS::MAX_OBJECTS_OF_TYPE;
   runnable->checkCapacity();
   _queue.emplace_back(runnable);
-  _queueCondition.notify_all();
+  _queueCondition.notify_one();
 }

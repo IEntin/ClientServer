@@ -86,7 +86,7 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
     Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
   }
   _queue.emplace_back(runnable);
-  _queueCondition.notify_all();
+  _queueCondition.notify_one();
 }
 
 RunnablePtr ThreadPoolBase::get() {

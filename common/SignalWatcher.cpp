@@ -15,7 +15,7 @@ SignalWatcher::~SignalWatcher() {
 void SignalWatcher::stop() {
   if (_flag == ACTIONS::NONE) {
     _flag.store(ACTIONS::STOP);
-    _flag.notify_all();
+    _flag.notify_one();
   }
 }
 

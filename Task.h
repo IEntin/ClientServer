@@ -11,9 +11,7 @@
 
 using Response = std::vector<std::string>;
 
-class Task;
-
-using TaskPtr = std::shared_ptr<Task>;
+using TaskPtr = std::shared_ptr<class Task>;
 
 using ExtractKey = void (*)(std::string&, std::string_view);
 
