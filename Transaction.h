@@ -5,9 +5,6 @@
 #pragma once
 
 #include "AdBid.h"
-#include <vector>
-
-class Ad;
 
 class Transaction {
 public:
