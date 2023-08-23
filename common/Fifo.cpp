@@ -3,7 +3,6 @@
  */
 
 #include "Fifo.h"
-#include "Logger.h"
 #include "Options.h"
 #include <chrono>
 #include <filesystem>

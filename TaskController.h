@@ -56,5 +56,4 @@ class TaskController {
   static bool create(const ServerOptions& options);
   static void destroy();
   static TaskControllerWeakPtr weakInstance();
-  static bool isDiagnosticsEnabled();
 };

@@ -38,7 +38,7 @@ void TaskController::onCompletion() {
   case PREPROCESSTASK:
     if (_sortInput)
       _task->sortIndices();
-    _task->resetPointer();
+    _task->resetIndex();
     _phase = PROCESSTASK;
     break;
   case PROCESSTASK:
@@ -83,12 +83,6 @@ void TaskController::setNextTask() {
   _queue.pop();
 }
 
-bool TaskController::isDiagnosticsEnabled() {
-  if (_single->_task)
-    return _single->_task->diagnosticsEnabled();
-  return false;
-}
-
 bool TaskController::create(const ServerOptions& options) {
   _single = std::make_shared<TaskController>(options);
   return _single->start();
@@ -125,7 +119,7 @@ void TaskController::Worker::run() noexcept {
   auto& task = taskController->_task;
   auto& barrier = taskController->_barrier;
   while (!stopped) {
-    while (task->extractKeyNext());
+    while (task->preprocessNext());
     barrier.arrive_and_wait();
     while (task->processNext());
     barrier.arrive_and_wait();

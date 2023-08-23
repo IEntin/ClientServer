@@ -3,7 +3,6 @@
  */
 
 #include "SignalWatcher.h"
-#include "Logger.h"
 
 SignalWatcher::SignalWatcher(std::atomic<ACTIONS>& flag, std::function<void()> func) :
   _flag(flag), _func(func) {}

@@ -10,10 +10,11 @@
 class Ad;
 
 class Transaction {
-  friend std::ostream& operator <<(std::ostream& os, const Transaction& obj);
 public:
-  static std::string processRequest(std::string_view key, std::string_view request) noexcept;
-  static void normalizeSizeKey(std::string& sizeKey, std::string_view request);
+  static std::string processRequest(std::string_view key,
+				    std::string_view request,
+				    bool diagnostics) noexcept;
+  static std::string  normalizeSizeKey(std::string_view request);
 private:
   Transaction(std::string_view sizeKey, std::string_view input);
   Transaction(const Transaction& other) = delete;
@@ -22,6 +23,9 @@ private:
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<Ad>& adVector);
+  static std::ostream& print(std::ostream& os,
+			     const Transaction& transaction,
+			     bool diagnostics);
   std::string_view _id;
   std::string_view _request;
   // Made static to keep the capacity growing as needed.

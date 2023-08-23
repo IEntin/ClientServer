@@ -4,9 +4,9 @@
 
 #include "Transaction.h"
 #include "Ad.h"
-#include "TaskController.h"
 #include "Utility.h"
 #include <cassert>
+#include <functional>
 #include <iomanip>
 
 namespace {
@@ -21,45 +21,6 @@ constexpr std::string_view AD_HEIGHT("ad_height=");
 constexpr char SIZE_END('&');
 
 } // end of anonimous namespace
-
-std::ostream& operator <<(std::ostream& os, const Transaction& transaction) {
-  const AdBidMatched* winningBid = transaction._winningBid;
-  os << transaction._id << ' ';
-  if (TaskController::isDiagnosticsEnabled()) {
-    os <<"Transaction size=" << transaction._sizeKey << " #matches="
-       << utility::Print(transaction._bids.size())
-       << '\n' << transaction._request << "\nrequest keywords:\n";
-    for (std::string_view keyword : transaction._keywords)
-      os << ' ' << keyword << '\n';
-    os << "matching ads:\n";
-    for (const auto& [kw, money, adPtr] : transaction._bids)
-      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
-    os << "summary:";
-    if (transaction._noMatch)
-      os << Transaction::EMPTY_REPLY << "*****" << '\n';
-    else if (transaction._invalid)
-      os << Transaction::INVALID_REQUEST << "*****" << '\n';
-    else {
-      auto winningAdPtr = winningBid->_ad;
-      assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << winningBid->_keyword << ", "
-	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
-	 << "\n*****" << '\n';
-    }
-  }
-  else {
-    if (transaction._noMatch)
-      os << Transaction::EMPTY_REPLY;
-    else if (transaction._invalid)
-      os << Transaction::INVALID_REQUEST;
-    else {
-      const Ad* winningAdPtr = winningBid->_ad;
-      os << winningAdPtr->getId() << ", "
-	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
-    }
-  }
-  return os;
-}
 
 thread_local std::vector<AdBidMatched> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
@@ -84,7 +45,9 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-std::string Transaction::processRequest(std::string_view key, std::string_view request) noexcept {
+std::string Transaction::processRequest(std::string_view key,
+					std::string_view request,
+					bool diagnostics) noexcept {
   std::string id("[unknown]");
   Transaction transaction(key, request);
   if (request.empty()) {
@@ -111,15 +74,15 @@ std::string Transaction::processRequest(std::string_view key, std::string_view r
     return id.append(INVALID_REQUEST);
   }
   transaction.matchAds(adVector);
-  if (transaction._noMatch && !TaskController::isDiagnosticsEnabled())
+  if (transaction._noMatch && !diagnostics)
     return id.append(1, ' ').append(EMPTY_REPLY);
   std::ostringstream os;
-  os << transaction;
+  print(os, transaction, diagnostics);
   return os.str();
   return id.append(PROCESSING_ERROR);
 }
 
-void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view request) {
+std::string Transaction::normalizeSizeKey(std::string_view request) {
   // size format: 728x90
   size_t beg = request.find(SIZE_START);
   if (beg != std::string::npos) {
@@ -127,7 +90,7 @@ void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view reques
     size_t end = request.find(SIZE_END, beg + 1);
     if (end == std::string::npos)
       end = request.size();
-    sizeKey.assign(request.data() + beg, end - beg);
+    return { request.data() + beg, end - beg };
   }
   else {
     // alternative size format: ad_width=300&ad_height=250
@@ -137,7 +100,8 @@ void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view reques
       size_t separator = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
       if (separator != std::string::npos) {
 	size_t offset = beg + AD_WIDTH.size();
-	sizeKey.append(request.data() + offset, separator - offset).append(1, 'x');
+	std::string key;
+	key.append(request.data() + offset, separator - offset).append(1, 'x');
 	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
 	if (begHeight != std::string::npos) {
 	  offset = begHeight + AD_HEIGHT.size();
@@ -147,11 +111,12 @@ void Transaction::normalizeSizeKey(std::string& sizeKey, std::string_view reques
 	    heightSize = end - offset;
 	  else
 	    heightSize = request.size() - offset;
-	  sizeKey.append(request.data() + offset, heightSize);
+	  return key.append(request.data() + offset, heightSize);
 	}
       }
     }
   }
+  return "";
 }
 
 inline const AdBidMatched* findWinningBid(const std::vector<AdBidMatched>& bids) {
@@ -210,4 +175,45 @@ bool Transaction::parseKeywords(std::string_view start) {
   std::string_view kwStr(_request.data() + beg, end - beg);
   breakKeywords(kwStr);
   return true;
+}
+
+std::ostream& Transaction::print(std::ostream& os,
+				 const Transaction& transaction,
+				 bool diagnostics) {
+  const AdBidMatched* winningBid = transaction._winningBid;
+  os << transaction._id << ' ';
+  if (diagnostics) {
+    os <<"Transaction size=" << transaction._sizeKey << " #matches="
+       << utility::Print(transaction._bids.size())
+       << '\n' << transaction._request << "\nrequest keywords:\n";
+    for (std::string_view keyword : transaction._keywords)
+      os << ' ' << keyword << '\n';
+    os << "matching ads:\n";
+    for (const auto& [kw, money, adPtr] : transaction._bids)
+      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
+    os << "summary:";
+    if (transaction._noMatch)
+      os << Transaction::EMPTY_REPLY << "*****" << '\n';
+    else if (transaction._invalid)
+      os << Transaction::INVALID_REQUEST << "*****" << '\n';
+    else {
+      auto winningAdPtr = winningBid->_ad;
+      assert(winningAdPtr);
+      os << winningAdPtr->getId() << ", " << winningBid->_keyword << ", "
+	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
+	 << "\n*****" << '\n';
+    }
+  }
+  else {
+    if (transaction._noMatch)
+      os << Transaction::EMPTY_REPLY;
+    else if (transaction._invalid)
+      os << Transaction::INVALID_REQUEST;
+    else {
+      const Ad* winningAdPtr = winningBid->_ad;
+      os << winningAdPtr->getId() << ", "
+	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
+    }
+  }
+  return os;
 }

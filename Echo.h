@@ -9,5 +9,7 @@
 struct Echo {
   Echo() = delete;
   ~Echo() = delete;
-  static std::string processRequest(std::string_view, std::string_view) noexcept;
+  static std::string processRequest(std::string_view,
+				    std::string_view,
+				    bool) noexcept;
 };

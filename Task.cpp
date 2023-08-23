@@ -5,33 +5,32 @@
 #include "Task.h"
 #include "Utility.h"
 
-ExtractKey Task::_extractKey = nullptr;
-ProcessRequest Task::_processRequest = nullptr;
+Task::Task() : _diagnostics(false) {}
 
-Task::Task(const HEADER& header, std::string_view input) : _header(header) {
+Task::Task(const HEADER& header, std::string_view input) :
+  _header(header), _diagnostics(isDiagnosticsEnabled(_header)) {
   utility::split(input, _rows);
   _indices.resize(_rows.size());
   for (int i = 0; i < static_cast<int>(_indices.size()); ++i) {
     _indices[i] = i;
-    _rows[i]._index = i;
+    _rows[i]._orgIndex = i;
   }
   _response.resize(_rows.size());
 }
 
 void Task::sortIndices() {
-  std::sort(_indices.begin(), _indices.end(), [this] (int index1, int index2) {
-	      return _rows[index1]._key < _rows[index2]._key;
+  std::sort(_indices.begin(), _indices.end(), [this] (int idx1, int idx2) {
+	      return _rows[idx1]._key < _rows[idx2]._key;
 	    });
 }
 
-bool Task::extractKeyNext() {
-  if (!_extractKey)
+bool Task::preprocessNext() {
+  if (!_preprocessRequest)
     return false;
-  size_t pointer = _pointer.fetch_add(1);
-  if (pointer < _rows.size()) {
-    RequestRow& row = _rows[pointer];
-    std::string_view request = row._value;
-    _extractKey(row._key, request);
+  size_t index = _index.fetch_add(1);
+  if (index < _rows.size()) {
+    RequestRow& row = _rows[index];
+    row._key = _preprocessRequest(row._value);
     return true;
   }
   else
@@ -39,16 +38,14 @@ bool Task::extractKeyNext() {
 }
 
 bool Task::processNext() {
-  size_t pointer = _pointer.fetch_add(1);
-  if (pointer < _rows.size()) {
-    RequestRow& row = _rows[_indices[pointer]];
-    std::string_view key = row._key;
-    std::string_view request = row._value;
-    if (!_processRequest) {
-      LogError << "_processRequest is nullptr, Strategy must be set!" << '\n';
-      return false;
-    }
-    _response[row._index] = _processRequest(key, request);
+  if (!_processRequest) {
+    LogError << "_processRequest is nullptr, Strategy must be set!" << '\n';
+    return false;
+  }
+  size_t index = _index.fetch_add(1);
+  if (index < _rows.size()) {
+    RequestRow& row = _rows[_indices[index]];
+    _response[row._orgIndex] = _processRequest(row._key, row._value, _diagnostics);
     return true;
   }
   else

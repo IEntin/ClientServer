@@ -13,14 +13,14 @@ using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
 
-using ExtractKey = void (*)(std::string&, std::string_view);
+using PreprocessRequest = std::string (*)(std::string_view);
 
-using ProcessRequest = std::string (*)(std::string_view, std::string_view);
+using ProcessRequest = std::string (*)(std::string_view, std::string_view, bool diagnostics);
 
 struct RequestRow {
   RequestRow(const char* beg, const char* end) : _value(beg, end) {}
 
-  RequestRow(RequestRow&& other) : _value(other._value), _index(other._index) {
+  RequestRow(RequestRow&& other) : _value(other._value), _orgIndex(other._orgIndex) {
     _key.swap(other._key);
   }
 
@@ -29,39 +29,35 @@ struct RequestRow {
 
   std::string _key;
   std::string_view _value;
-  int _index{};
+  int _orgIndex = 0;
 };
 
 class Task {
   Task(const Task& other) = delete;
   Task& operator =(const Task& other) = delete;
 
-  size_t size() const { return _rows.size(); }
-  bool empty() const { return _rows.empty(); }
-
   std::vector<RequestRow> _rows;
   std::vector<int> _indices;
   HEADER _header;
-  std::atomic<size_t> _pointer = 0;
+  std::atomic<size_t> _index = 0;
   std::promise<void> _promise;
+  const bool _diagnostics;
   Response _response;
-  static ExtractKey _extractKey;
-  static ProcessRequest _processRequest;
+  static inline PreprocessRequest _preprocessRequest = nullptr;
+  static inline ProcessRequest _processRequest = nullptr;
 
  public:
-  Task() {}
+  Task();
 
   Task(const HEADER& header, std::string_view input);
 
   void sortIndices();
 
-  void resetPointer() { _pointer = 0; }
-
-  bool diagnosticsEnabled() const { return isDiagnosticsEnabled(_header); }
+  void resetIndex() { _index = 0; }
 
   std::promise<void>& getPromise() { return _promise; }
 
-  bool extractKeyNext();
+  bool preprocessNext();
 
   bool processNext();
 
@@ -69,11 +65,11 @@ class Task {
 
   void getResponse(Response& response);
 
-  static void setProcessMethod(ProcessRequest processMethod) {
-    _processRequest = processMethod;
+  static void setProcessMethod(ProcessRequest method) {
+    _processRequest = method;
   }
 
-  static void setPreprocessMethod(ExtractKey preprocessMethod) {
-    _extractKey = preprocessMethod;
+  static void setPreprocessMethod(PreprocessRequest method) {
+    _preprocessRequest = method;
   }
 };
