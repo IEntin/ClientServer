@@ -27,5 +27,5 @@ Options::Options(const std::string& jsonName) {
   _timing = appOptions.get("Timing", false);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
-  _logThreshold = translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
+  _logThreshold = Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string_view>
@@ -84,10 +83,7 @@ struct Logger {
   }
   std::osyncstream& getStream() { return _stream; }
 
-  static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
-};
-
-inline LOG_LEVEL translateLogThreshold(std::string_view configName) {
+  static LOG_LEVEL translateLogThreshold(std::string_view configName) {
   for (unsigned index = 0; index < sizeof(levelNames)/sizeof(std::string_view); ++index) {
     if (configName == levelNames[index]) {
       Logger::_threshold = static_cast<LOG_LEVEL>(index);
@@ -96,3 +92,5 @@ inline LOG_LEVEL translateLogThreshold(std::string_view configName) {
   }
   return LOG_LEVEL::TRACE;
 }
+  static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
+};

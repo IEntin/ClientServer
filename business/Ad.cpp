@@ -3,7 +3,6 @@
  */
 
 #include "Ad.h"
-#include "Logger.h"
 #include "Utility.h"
 #include <cmath>
 #include <fstream>
@@ -29,10 +28,6 @@ const AdRow& AdRow::operator =(AdRow&& other) {
   _value = other._value;
   return *this;
 }
-
-std::vector<AdRow> Ad::_rows;
-SizeMap Ad::_mapBySize;
-bool Ad::_loaded = false;
 
 Ad::Ad(AdRow& row) :
 _input(row._value), _sizeKey(row._key) {
@@ -120,7 +115,7 @@ bool Ad::readAndSortAds(const std::string& filename) {
 }
 
 bool Ad::load(const std::string& filename) {
-  if (_loaded)
+  if (!_mapBySize.empty())
     return true;
   if (!readAndSortAds(filename))
     return false;
@@ -138,6 +133,5 @@ bool Ad::load(const std::string& filename) {
       continue;
     }
   }
-  _loaded = true;
   return true;
 }
