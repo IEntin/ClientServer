@@ -46,9 +46,6 @@ do
     rm -f ../Client$c/*
 done
 
-# create data directory links in every client directory
-# copy scripts and ClientOptions.json
-
 # create FIFO directory and client directories at the project root level
 
 mkdir -p ../Fifos

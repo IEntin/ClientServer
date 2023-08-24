@@ -14,6 +14,6 @@ fi
 
 set -e
 
-scripts/checkcompile.sh
-scripts/runtests.sh 50
-scripts/checkmulticlients.sh 20 thread
+./checkcompile.sh
+./runtests.sh 50
+./checkmulticlients.sh 20 thread
