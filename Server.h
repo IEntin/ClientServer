@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Strategy.h"
 #include "ThreadPoolDiffObj.h"
 #include <map>
 
@@ -12,7 +13,7 @@ using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 class Server {
 public:
-  Server(const ServerOptions& options);
+  Server(const ServerOptions& options, StrategyPtr strategy);
   ~Server();
   bool start();
   void stop();
@@ -21,6 +22,7 @@ public:
   void stopSessions();
 private:
   const ServerOptions& _options;
+  StrategyPtr _strategy;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   ThreadPoolBase _threadPoolAcceptor;

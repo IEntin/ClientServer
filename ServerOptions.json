@@ -1,5 +1,4 @@
 {
-  "ProcessType" : "Transaction",
   "SortInput" : false,
   "AdsFileName" : "data/ads.txt",
   "_comment": "0 for hardware_concurrency",

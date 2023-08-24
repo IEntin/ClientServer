@@ -7,19 +7,15 @@
 #include "FifoAcceptor.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "Strategy.h"
-#include "StrategySelector.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 
-Server::Server(const ServerOptions& options) :
+Server::Server(const ServerOptions& options, StrategyPtr strategy) :
   _options(options),
+  _strategy(strategy),
   _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
-  StrategySelector strategySelector(options);
-  Strategy& strategy = strategySelector.get();
-  strategy.set(options);
 }
 
 Server::~Server() {
@@ -28,6 +24,7 @@ Server::~Server() {
 }
 
 bool Server::start() {
+  _strategy->set(_options);
   CryptoKey key(_options);
   if (_options._showKey)
     key.showKey();

@@ -20,16 +20,16 @@ echo $SERVER_DIR
 COMMUNICATION_TYPE=$(grep "ClientType" $SERVER_DIR/../Client2/ClientOptions.json)
 if [[ "$COMMUNICATION_TYPE" == *"TCP"* ]]
 then
-    FIRST_CLIENT_PROFILE=profile_client_tcp.txt
+    FIRST_CLIENT_PROFILE=$SERVER_DIR/profiles/profile_client_tcp.txt
 else
-    FIRST_CLIENT_PROFILE=profile_client_fifo.txt
+    FIRST_CLIENT_PROFILE=$SERVER_DIR/profiles/profile_client_fifo.txt
 fi
 COMMUNICATION_TYPE=$(grep "ClientType" $SERVER_DIR/../Client3/ClientOptions.json)
 if [[ "$COMMUNICATION_TYPE" == *"TCP"* ]]
 then
-    SECOND_CLIENT_PROFILE=profile_client_tcp.txt
+    SECOND_CLIENT_PROFILE=$SERVER_DIR/profiles/profile_client_tcp.txt
 else
-    SECOND_CLIENT_PROFILE=profile_client_fifo.txt
+    SECOND_CLIENT_PROFILE=$SERVER_DIR/profiles/profile_client_fifo.txt
 fi
 
 if [ "$FIRST_CLIENT_PROFILE" = "$SECOND_CLIENT_PROFILE" ]
@@ -70,13 +70,13 @@ sleep 60
 kill -SIGINT $SERVER_PID
 
 cd $SERVER_DIR
-gprof -b server gmon.out > profile_server.txt
+gprof -b server gmon.out > profiles/profile_server.txt
 
 cd $SERVER_DIR/../Client2
-gprof -b client gmon.out > $SERVER_DIR/$FIRST_CLIENT_PROFILE
+gprof -b client gmon.out > $FIRST_CLIENT_PROFILE
 
 cd $SERVER_DIR/../Client3
-gprof -b client gmon.out > $SERVER_DIR/$SECOND_CLIENT_PROFILE
+gprof -b client gmon.out > $SECOND_CLIENT_PROFILE
 
 # These directories are not under git and gmon.out must be removed 'manually'
 # in order not to distort the results of the next run.

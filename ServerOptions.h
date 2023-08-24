@@ -9,7 +9,6 @@
 struct ServerOptions : Options {
   explicit ServerOptions(const std::string& jsonName = "");
   ~ServerOptions() = default;
-  std::string _processType;
   std::string _adsFileName;
   int _numberWorkThreads;
   int _maxTcpSessions;

@@ -10,7 +10,6 @@
 ServerOptions::ServerOptions(const std::string& jsonName) :
   Options(jsonName) {
   AppOptions appOptions(jsonName);
-  _processType = appOptions.get("ProcessType", std::string("Transaction"));
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);
   _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();

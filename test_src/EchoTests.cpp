@@ -5,6 +5,7 @@
 #include "Echo.h"
 #include "Fifo.h"
 #include "ClientOptions.h"
+#include "EchoStrategy.h"
 #include "FifoClient.h"
 #include "Logger.h"
 #include "ServerOptions.h"
@@ -20,9 +21,9 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
-      TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      Server server(TestEnvironment::_serverOptions);
+      StrategyPtr strategy = std::make_shared<EchoStrategy>();
+      Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -43,9 +44,9 @@ struct EchoTest : testing::Test {
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
-      TestEnvironment::_serverOptions._processType = "Echo";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
-      Server server(TestEnvironment::_serverOptions);
+      StrategyPtr strategy = std::make_shared<EchoStrategy>();
+      Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;

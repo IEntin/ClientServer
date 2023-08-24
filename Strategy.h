@@ -4,7 +4,11 @@
 
 #pragma once
 
+#include <memory>
+
 struct ServerOptions;
+
+using StrategyPtr = std::shared_ptr<class Strategy>;
 
 class Strategy {
 

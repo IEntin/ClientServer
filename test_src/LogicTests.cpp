@@ -10,6 +10,7 @@
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 #include "Transaction.h"
+#include "TransactionStrategy.h"
 
 struct LogicTest : testing::Test {
   void testLogicTcp(COMPRESSORS serverCompressor,
@@ -21,11 +22,11 @@ struct LogicTest : testing::Test {
 		    bool diagnostics = true) {
     try {
       // start server
-      TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._encrypted = serverEncrypt;
       TestEnvironment::_serverOptions._bufferSize = serverBufferSize;
-      Server server(TestEnvironment::_serverOptions);
+      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
+      Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -56,11 +57,11 @@ struct LogicTest : testing::Test {
 		     bool diagnostics = true) {
     try {
       // start server
-      TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._encrypted = serverEncrypt;
       TestEnvironment::_serverOptions._bufferSize = serverBufferSize;
-      Server server(TestEnvironment::_serverOptions);
+      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
+      Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._compressor = clientCompressor;
@@ -165,8 +166,8 @@ struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     try {
       // start server
-      TestEnvironment::_serverOptions._processType = "Transaction";
-      Server server(TestEnvironment::_serverOptions);
+      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
+      Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
@@ -199,9 +200,9 @@ struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
     try {
       // start server
-      TestEnvironment::_serverOptions._processType = "Transaction";
       TestEnvironment::_serverOptions._sortInput = sort;
-      Server server(TestEnvironment::_serverOptions);
+      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
+      Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
       // start client
       TestEnvironment::_clientOptions._diagnostics = true;

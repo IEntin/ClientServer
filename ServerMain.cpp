@@ -6,6 +6,7 @@
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
+#include "TransactionStrategy.h"
 #include <cassert>
 #include <csignal>
 #include <cstring>
@@ -36,7 +37,8 @@ int main() {
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(options._timing, __FILE__, __LINE__);
-    Server server(options);
+    StrategyPtr strategy = std::make_shared<TransactionStrategy>();
+    Server server(options, strategy);
     if (!server.start())
       return 3;
     int sig = 0;
