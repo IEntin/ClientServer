@@ -8,7 +8,7 @@
 Task::Task() : _diagnostics(false) {}
 
 Task::Task(const HEADER& header, std::string_view input) :
-  _header(header), _diagnostics(isDiagnosticsEnabled(_header)) {
+  _diagnostics(isDiagnosticsEnabled(header)) {
   utility::split(input, _rows);
   _indices.resize(_rows.size());
   for (int i = 0; i < static_cast<int>(_indices.size()); ++i) {

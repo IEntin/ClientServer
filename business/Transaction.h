@@ -4,7 +4,11 @@
 
 #pragma once
 
-#include "AdBid.h"
+#include <string>
+#include <vector>
+
+class Ad;
+struct AdBidMatched;
 
 class Transaction {
 public:

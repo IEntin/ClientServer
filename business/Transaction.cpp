@@ -4,6 +4,7 @@
 
 #include "Transaction.h"
 #include "Ad.h"
+#include "AdBid.h"
 #include "Utility.h"
 #include <cassert>
 #include <functional>

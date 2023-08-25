@@ -4,9 +4,12 @@
 
 #pragma once
 
-#include "AdBid.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
+
+class Ad;
+struct AdBid;
 
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 

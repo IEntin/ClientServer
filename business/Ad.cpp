@@ -3,6 +3,7 @@
  */
 
 #include "Ad.h"
+#include "AdBid.h"
 #include "Utility.h"
 #include <cmath>
 #include <fstream>

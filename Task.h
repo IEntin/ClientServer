@@ -38,7 +38,6 @@ class Task {
 
   std::vector<RequestRow> _rows;
   std::vector<int> _indices;
-  HEADER _header;
   std::atomic<size_t> _index = 0;
   std::promise<void> _promise;
   const bool _diagnostics;
