@@ -10,7 +10,6 @@ TaskControllerPtr TaskController::_single;
 
 TaskController::TaskController(const ServerOptions& options) :
   _options(options),
-  _sortInput(options._sortInput),
   _barrier(options._numberWorkThreads, onTaskCompletion) {
   // start with empty task
   _task = std::make_shared<Task>();
@@ -28,7 +27,7 @@ TaskControllerWeakPtr TaskController::weakInstance() {
 // when the current barrier phase completes.
 
 void TaskController::onTaskCompletion() noexcept {
-  TaskControllerPtr ptr = _single;
+  auto ptr = _single;
   if (ptr)
     ptr->onCompletion();
 }
@@ -36,7 +35,7 @@ void TaskController::onTaskCompletion() noexcept {
 void TaskController::onCompletion() {
   switch (_phase) {
   case PREPROCESSTASK:
-    if (_sortInput)
+    if (_options._sortInput)
       _task->sortIndices();
     _task->resetIndex();
     _phase = PROCESSTASK;

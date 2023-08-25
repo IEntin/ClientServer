@@ -39,7 +39,6 @@ class TaskController {
   static void onTaskCompletion() noexcept;
   void onCompletion();
   const ServerOptions& _options;
-  const bool _sortInput;
   std::atomic<bool> _stopped = false;
   std::barrier<CompletionFunction> _barrier;
   ThreadPoolSameObj _threadPool;

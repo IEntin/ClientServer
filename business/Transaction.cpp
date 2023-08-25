@@ -73,6 +73,7 @@ std::string Transaction::processRequest(std::string_view key,
     LogError << "invalid request:" << transaction._request << " id:" << id << '\n';
     return id.append(INVALID_REQUEST);
   }
+  //Trace << key << ' ' << adVector.get().size() << '\n';
   transaction.matchAds(adVector);
   if (transaction._noMatch && !diagnostics)
     return id.append(1, ' ').append(EMPTY_REPLY);
