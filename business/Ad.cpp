@@ -97,16 +97,10 @@ std::string Ad::extractSize(std::string_view line) {
 
 // make SizeMap cache friendly
 bool Ad::readAndSortAds(const std::string& filename) {
-  try {
-    static std::string buffer;
-    buffer = utility::readFile(filename);
-    utility::split(buffer, _rows);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
-  for (AdRow& row : _rows)
+  static std::string buffer;
+  buffer = utility::readFile(filename);
+  utility::split(buffer, _rows);
+  for (auto& row : _rows)
     row._key = extractSize(row._value);
   std::stable_sort(_rows.begin(), _rows.end(), [] (const AdRow& row1, const AdRow& row2) {
 		     return row1._key < row2._key;
@@ -120,7 +114,7 @@ bool Ad::load(const std::string& filename) {
   if (!readAndSortAds(filename))
     return false;
   static std::vector<Ad> empty;
-  for (AdRow& row : _rows) {
+  for (auto& row : _rows) {
     auto [it, inserted] = _mapBySize.emplace(row._key, empty);
     try {
       it->second.emplace_back(row);
@@ -128,8 +122,6 @@ bool Ad::load(const std::string& filename) {
     catch (const std::exception& e) {
       Warn << e.what() << ":key-value=" << '\"' << it->first
 	   << "\":\"" << row._value << "\",skipping." << '\n';
-      if (it->second.empty())
-	_mapBySize.erase(it);
       continue;
     }
   }

@@ -8,7 +8,6 @@
 #include <string>
 #include <unordered_map>
 
-class Ad;
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
 struct AdRow {

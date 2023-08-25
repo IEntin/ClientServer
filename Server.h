@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "Strategy.h"
 #include "ThreadPoolDiffObj.h"
 #include <map>
 
 struct ServerOptions;
+using StrategyPtr = std::shared_ptr<class Strategy>;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 class Server {

@@ -7,6 +7,7 @@
 #include "FifoAcceptor.h"
 #include "Logger.h"
 #include "ServerOptions.h"
+#include "Strategy.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
