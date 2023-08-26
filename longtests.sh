@@ -6,6 +6,8 @@
 
 trap EXIT SIGHUP SIGINT SIGTERM
 
+SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "Usage: ./longtests.sh 2>&1 | tee longtests.txt"
@@ -14,6 +16,6 @@ fi
 
 set -e
 
-./checkcompile.sh
-./runtests.sh 50
-./checkmulticlients.sh 20 thread
+$SCRIPT_DIR/checkcompile.sh
+$SCRIPT_DIR/runtests.sh 50
+$SCRIPT_DIR/checkmulticlients.sh 20 thread

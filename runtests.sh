@@ -10,7 +10,10 @@ then
     exit 0
 fi 
 
+SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+echo "SCRIPT_DIR:" $SCRIPT_DIR
+
 trap SIGHUP SIGINT SIGTERM
 
 make -j4 testbin
-./testbin --gtest_repeat=$1 --gtest_break_on_failure
+$SCRIPT_DIR/testbin --gtest_repeat=$1 --gtest_break_on_failure

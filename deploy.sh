@@ -4,6 +4,12 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+echo "SCRIPT_DIR:" $SCRIPT_DIR
+
+UP_DIR=$(dirname $SCRIPT_DIR)
+echo "UP_DIR:" $UP_DIR
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "cd to the project root and run this script"
@@ -12,12 +18,6 @@ then
     echo "and each client in client terminals './client'"
     exit 0
 fi
-
-export cwd
-
-cwd=$(pwd)
-
-echo $cwd
 
 #assuming we are in gnome terminal
 #kill all instances of xterm created in previous runs
@@ -28,22 +28,22 @@ set -e
 
 # clean Client* and Fifos directories
 
-rm -f ../Fifos/*
+rm -f $UP_DIR/Fifos/*
 
 export c
 
 for (( c=1; c<=20; c++ ))
 do
-rm -f ../Client$c/*
+rm -f $UP_DIR/Client$c/*
 done
 
 # create FIFO directory and client directories at the project root level
 
-mkdir -p ../Fifos
+mkdir -p $UP_DIR/Fifos
 
 for (( c=1; c<=5; c++ ))
 do
-mkdir -p ../Client$c
+mkdir -p $UP_DIR/Client$c
 done
 
 # create data directory links in every client directory
@@ -51,7 +51,7 @@ done
 
 for (( c=1; c<=5; c++ ))
 do
-(cd ../Client$c; ln -sf $cwd/data .; cp $cwd/runShortSessions.sh .; cp /$cwd/ClientOptions.json .)
+(cd $UP_DIR/Client$c; ln -sf $SCRIPT_DIR/data .; cp $SCRIPT_DIR/runShortSessions.sh .; cp /$SCRIPT_DIR/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
@@ -59,7 +59,7 @@ done
 
 for c in 2 4
 do
-  (cd ../Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
+  (cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
 done
 
 # build binaries and copy client binary to Client* directories
@@ -70,5 +70,5 @@ done
 
 for d in 1 2 3 4 5
 do
-    (cd ../Client$d; xterm&)
+    (cd $UP_DIR/Client$d; xterm&)
 done

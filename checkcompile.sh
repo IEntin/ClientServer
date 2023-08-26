@@ -4,6 +4,12 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+echo "SCRIPT_DIR:" $SCRIPT_DIR
+
+UP_DIR=$(dirname $SCRIPT_DIR)
+echo "UP_DIR:" $UP_DIR
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "Usage: ./checkstuff.sh 2>&1 | tee checklog.txt"
@@ -17,11 +23,11 @@ trap EXIT SIGHUP SIGINT SIGTERM
 sleep 2
 
 function copyClient {
-/bin/cp -f client ../Client1
-/bin/cp -f client ../Client2
-/bin/cp -f client ../Client3
-/bin/cp -f client ../Client4
-/bin/cp -f client ../Client5
+/bin/cp -f client $UP_DIR/Client1
+/bin/cp -f client $UP_DIR/Client2
+/bin/cp -f client $UP_DIR/Client3
+/bin/cp -f client $UP_DIR/Client4
+/bin/cp -f client $UP_DIR/Client5
 }
 
 echo
