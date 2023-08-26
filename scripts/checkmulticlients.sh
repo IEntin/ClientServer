@@ -7,12 +7,15 @@
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 echo "SCRIPT_DIR:" $SCRIPT_DIR
 
-UP_DIR=$(dirname $SCRIPT_DIR)
+PRJ_DIR=$(dirname $SCRIPT_DIR)
+echo "PRJ_DIR:" $PRJ_DIR
+
+UP_DIR=$(dirname $PRJ_DIR)
 echo "UP_DIR:" $UP_DIR
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
-    echo "Usage: ./checkmulticlients.sh <number of clients> [sanitizer] 2>&1 | tee checkmclog.txt"
+    echo "Usage: scripts/checkmulticlients.sh <number of clients> [sanitizer] 2>&1 | tee checkmclog.txt"
     exit 0
 fi
 
@@ -60,7 +63,7 @@ done
 
 for (( c=1; c<=$1; c++ ))
 do
-    (cd $UP_DIR/Client$c; ln -sf $SCRIPT_DIR/data .; cp $SCRIPT_DIR/runShortSessions.sh .; cp $SCRIPT_DIR/ClientOptions.json .)
+    (cd $UP_DIR/Client$c; ln -sf $PRJ_DIR/data .; cp $PRJ_DIR/scripts/runShortSessions.sh .; cp $PRJ_DIR/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
@@ -89,7 +92,7 @@ done
 
 # Start the server
 
-./server&
+$PRJ_DIR/server&
 SERVER_PID=$!
 
 echo "server pid="$SERVER_PID
@@ -100,7 +103,7 @@ sleep 1
 
 for (( c=1; c<=$1; c++ ))
 do
-    cp .cryptoKey.sec $UP_DIR/Client$c
+    cp $PRJ_DIR/.cryptoKey.sec $UP_DIR/Client$c
     ( cd $UP_DIR/Client$c; ./client > /dev/null& )
 done
 
@@ -116,7 +119,7 @@ kill $SERVER_PID
 
 sleep 5
 
-rm -f .cryptoKey.sec
+rm -f $PRJ_DIR/.cryptoKey.sec
 
 for (( c=1; c<=$1; c++ ))
 do

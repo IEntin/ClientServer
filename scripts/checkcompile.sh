@@ -7,7 +7,10 @@
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 echo "SCRIPT_DIR:" $SCRIPT_DIR
 
-UP_DIR=$(dirname $SCRIPT_DIR)
+PRJ_DIR=$(dirname $SCRIPT_DIR)
+echo "PRJ_DIR:" $PRJ_DIR
+
+UP_DIR=$(dirname $PRJ_DIR)
 echo "UP_DIR:" $UP_DIR
 
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
@@ -23,11 +26,11 @@ trap EXIT SIGHUP SIGINT SIGTERM
 sleep 2
 
 function copyClient {
-/bin/cp -f client $UP_DIR/Client1
-/bin/cp -f client $UP_DIR/Client2
-/bin/cp -f client $UP_DIR/Client3
-/bin/cp -f client $UP_DIR/Client4
-/bin/cp -f client $UP_DIR/Client5
+for (( c=1; c<=5; c++ ))
+do
+    mkdir -p $UP_DIR/Client$c
+    /bin/cp -f client $UP_DIR/Client1
+done
 }
 
 echo
