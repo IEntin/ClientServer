@@ -15,7 +15,7 @@ echo "UP_DIR:" $UP_DIR
 
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
-    echo "Usage: ./checkstuff.sh 2>&1 | tee checklog.txt"
+    echo "Usage: [path]/checkcompile.sh 2>&1 | tee checklog.txt"
     exit 0
 fi 
 

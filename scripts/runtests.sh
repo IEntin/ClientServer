@@ -12,7 +12,7 @@ echo "UP_DIR:" $UP_DIR
 
 if [[ $@ == "--help" || $@ == "-h" || $# -ne 1 ]]
 then 
-    echo "Usage: scripts/runtests.sh 2>&1 50 | tee testslog.txt"
+    echo "Usage: [path]/runtests.sh 2>&1 <number to repeat> | tee testslog.txt"
     exit 0
 fi 
 

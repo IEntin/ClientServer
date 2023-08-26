@@ -15,7 +15,7 @@ echo "UP_DIR:" $UP_DIR
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
-    echo "Usage: scripts/checkmulticlients.sh <number of clients> [sanitizer] 2>&1 | tee checkmclog.txt"
+    echo "Usage: [path]/checkmulticlients.sh <number of clients> [sanitizer] 2>&1 | tee checkmclog.txt"
     exit 0
 fi
 
