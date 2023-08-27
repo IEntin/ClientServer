@@ -30,7 +30,7 @@ private:
   void readRequest();
   void write(std::string_view msg);
   void asyncWait();
-  bool sendReply(const Response& response);
+  bool sendReply();
   const ServerOptions& _options;
   std::string _clientId;
   static inline std::string_view _displayType = "tcp";
@@ -40,6 +40,8 @@ private:
   char _headerBuffer[HEADER_SIZE] = {};
   HEADER _header;
   std::string _request;
+  Response _response;
+  std::vector<boost::asio::const_buffer> _asioBuffers;
 };
 
 } // end of namespace tcp

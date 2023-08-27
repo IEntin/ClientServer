@@ -46,14 +46,14 @@ bool TcpClient::send(const Subtask& subtask) {
 
 bool TcpClient::receive() {
   HEADER header;
-  thread_local static std::string buffer;
-  auto ec = Tcp::readMsg(_socket, header, buffer);
+  _response.clear();
+  auto ec = Tcp::readMsg(_socket, header, _response);
   if (ec) {
     LogError << ec.what() << '\n';
     return false;
   }
   _status = STATUS::NONE;
-  return printReply(header, buffer);
+  return printReply(header, _response);
 }
 
 bool TcpClient::receiveStatus() {

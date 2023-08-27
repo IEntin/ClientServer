@@ -54,8 +54,8 @@ void TcpSession::stop() {
   _ioContext.stop();
 }
 
-bool TcpSession::sendReply(const Response& response) {
-  std::string_view body = serverutility::buildReply(_options, response, _header, _status);
+bool TcpSession::sendReply() {
+  std::string_view body = serverutility::buildReply(_options, _response, _header, _status);
   if (body.empty())
     return false;
   asyncWait();
@@ -115,21 +115,19 @@ void TcpSession::readRequest() {
 	});
 	return;
       }
-      static thread_local Response response;
-      response.clear();
-      if (serverutility::processRequest(_header, _request, response))
-	sendReply(response);
+      _response.clear();
+      if (serverutility::processRequest(_header, _request, _response))
+	sendReply();
     });
 }
 
 void TcpSession::write(std::string_view body) {
-  static thread_local std::vector<boost::asio::const_buffer> buffers;
-  buffers.clear();
+  _asioBuffers.clear();
   encodeHeader(_headerBuffer, _header);
-  buffers.emplace_back(boost::asio::buffer(_headerBuffer));
-  buffers.emplace_back(boost::asio::buffer(body));
+  _asioBuffers.emplace_back(boost::asio::buffer(_headerBuffer));
+  _asioBuffers.emplace_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,
-    buffers,
+    _asioBuffers,
     [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto weak = weak_from_this();
       auto self = weak.lock();

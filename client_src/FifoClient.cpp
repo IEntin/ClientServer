@@ -50,11 +50,11 @@ bool FifoClient::send(const Subtask& subtask) {
 
 bool FifoClient::receive() {
   _status = STATUS::NONE;
-  thread_local static std::string buffer;
+  _response.clear();
   HEADER header;
-  if (!Fifo::readMsgBlock(_options, _fifoName, header, buffer))
+  if (!Fifo::readMsgBlock(_options, _fifoName, header, _response))
     return false;
-  return printReply(header, buffer);
+  return printReply(header, _response);
 }
 
 bool FifoClient::wakeupAcceptor() {

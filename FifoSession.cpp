@@ -59,23 +59,21 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  static thread_local std::string request;
-  request.clear();
-  if (!Fifo::readMsgBlock(_options, _fifoName, header, request))
+  _request.clear();
+  if (!Fifo::readMsgBlock(_options, _fifoName, header, _request))
     return false;
-  static thread_local Response response;
-  response.clear();
-  if (serverutility::processRequest(header, request, response))
-    return sendResponse(response);
+  _response.clear();
+  if (serverutility::processRequest(header, _request, _response))
+    return sendResponse();
   return false;
 }
 
-bool FifoSession::sendResponse(const Response& response) {
+bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
   HEADER header;
   std::string_view body =
-    serverutility::buildReply(_options, response, header, _status);
+    serverutility::buildReply(_options, _response, header, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, _options, body);

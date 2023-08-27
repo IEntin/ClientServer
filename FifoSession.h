@@ -16,9 +16,11 @@ class FifoSession final : public RunnableT<FifoSession> {
   const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
+  std::string _request;
+  Response _response;
   static inline std::string_view _displayType = "fifo";
   bool receiveRequest(HEADER& header);
-  bool sendResponse(const Response& response);
+  bool sendResponse();
   bool start() override;
   void run() override;
   void stop() override;

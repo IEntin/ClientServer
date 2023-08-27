@@ -19,6 +19,7 @@ class TcpClient : public Client {
   boost::asio::ip::tcp::socket _socket;
   std::string _clientId;
   RunnableWeakPtr _signalWatcher;
+  std::string _response;
  public:
   TcpClient(const ClientOptions& options);
   ~TcpClient() override;

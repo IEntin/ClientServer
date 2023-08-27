@@ -155,7 +155,7 @@ bool Fifo::setPipeSize(int fd, long requested) {
   if (requested > currentSz) {
     int ret = fcntl(fd, F_SETPIPE_SZ, requested);
     if (ret < 0) {
-      static thread_local auto& printOnce[[maybe_unused]] =
+      static auto& printOnce[[maybe_unused]] =
 	Info << std::strerror(errno) << ":\n"
 	     << "su privileges required, ignore." << '\n';
       return false;
