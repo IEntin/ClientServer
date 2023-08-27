@@ -7,7 +7,6 @@
 #include "Logger.h"
 #include <charconv>
 #include <cstring>
-#include <vector>
 
 enum class STATUS : char;
 
@@ -35,11 +34,6 @@ template <typename INPUT, typename CONTAINER>
 	rows.emplace_back(input.data() + start, input.data() + next + keepDelim);
       start = next + 1;
     }
-}
-
-template <typename CONTAINER>
-  void split(const std::vector<char>& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-    split(std::string_view(input.data(), input.size()), rows, delim, keepDelim);
 }
 
 template <typename INPUT, typename CONTAINER>
@@ -120,11 +114,5 @@ std::string getUniqueId();
 std::string readFile(const std::string& name);
 
 bool writeFile(const std::string& name, const std::string& contents);
-
-bool displayStatus(STATUS status);
-
-void displayMaxTotalSessionsWarn();
-
-void displayMaxSessionsOfTypeWarn(std::string_view type);
 
 } // end of namespace utility

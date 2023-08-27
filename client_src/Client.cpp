@@ -9,7 +9,6 @@
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
-#include "Utility.h"
 
 Client::Client(const ClientOptions& options) :
   _options(options) {}
@@ -78,14 +77,14 @@ void Client::stop() {
 bool Client::printReply(const HEADER& header, std::string& buffer) {
   if (auto ptr = _heartbeat.lock(); ptr) {
     STATUS status = ptr->getStatus();
-    if (utility::displayStatus(status))
+    if (displayStatus(status))
       return false;
   }
   std::ostream* pstream = _options._dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   payloadtransform::decryptDecompress(header, buffer);
   if (buffer.empty()) {
-    utility::displayStatus(STATUS::ERROR);
+    displayStatus(STATUS::ERROR);
     return false;
   }
   stream << buffer << std::flush;
@@ -109,4 +108,77 @@ void Client::start() {
 void Client::onSignal() {
   _signalFlag.store(ACTIONS::ACTION);
   _signalFlag.notify_one();
+}
+
+void Client::displayMaxTotalSessionsWarn() {
+  Warn << "\n\t!!!!!!!!!\n"
+       << "\tThe total number of sessions exceeds system capacity.\n"
+       << "\tThis client will wait in the queue until load subsides.\n"
+       << "\tIt will start running if some other clients are closed.\n"
+       << "\tYou can also close this client and try again later,\n"
+       << "\tbut spot in the queue will be lost.\n"
+       << "\tSee \"MaxTotalSessions\" in ServerOptions.json.\n"
+       << "\t!!!!!!!!!" << '\n';
+}
+
+void Client::displayMaxSessionsOfTypeWarn(std::string_view type) {
+  Warn << "\n\t!!!!!!!!!\n"
+       << "\tThe number of " << type << " sessions exceeds pool capacity.\n"
+       << "\tThis client is waiting in the queue for available thread.\n"
+       << "\tIt will start running if some other " << type << " clients\n"
+       << "\tare closed.\n"
+       << "\tYou can also close this client and try again later,\n"
+       << "\tbut spot in the queue will be lost.\n"
+       << "\tSee \"Max" << (type == "fifo" ? "Fifo" : "Tcp") << "Sessions\""
+       << " in ServerOptions.json.\n"
+       << "\t!!!!!!!!!" << '\n';
+}
+
+bool Client::displayStatus(STATUS status) {
+  switch (status) {
+  case STATUS::NONE:
+    return false;
+  case STATUS::BAD_HEADER:
+    LogError << "STATUS::BAD_HEADER" << '\n';
+    return true;
+  case STATUS::COMPRESSION_PROBLEM:
+    LogError << "STATUS::COMPRESSION_PROBLEM" << '\n';
+    return true;
+  case STATUS::DECOMPRESSION_PROBLEM:
+    LogError << "STATUS::DECOMPRESSION_PROBLEM" << '\n';
+    return true;
+  case STATUS::FIFO_PROBLEM:
+    LogError << "STATUS::FIFO_PROBLEM" << '\n';
+    return true;
+  case STATUS::TCP_PROBLEM:
+    LogError << "STATUS::TCP_PROBLEM" << '\n';
+    return true;
+  case STATUS::TCP_TIMEOUT:
+    LogError << "\tserver timeout! Increase \"TcpTimeout\" in ServerOptions.json" << '\n';
+    return true;
+ case STATUS::HEARTBEAT_PROBLEM:
+    LogError << "STATUS::HEARTBEAT_PROBLEM" << '\n';
+    return true;
+ case STATUS::HEARTBEAT_TIMEOUT:
+    LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << '\n';
+    return true;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    Warn << "Exceeded max total number clients" << '\n';
+    return false;
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    Warn << "Exceeded max number clients of type" << '\n';
+    return false;
+  case STATUS::ENCRYPTION_PROBLEM:
+    LogError << "Encryption problem" << '\n';
+    return false;
+  case STATUS::DECRYPTION_PROBLEM:
+    LogError << "Decryption problem" << '\n';
+    return false;
+  case STATUS::ERROR:
+    LogError << "Internal error" << '\n';
+    return false;
+  default:
+    LogError << "unexpected problem" << '\n';
+    return true;
+  }
 }

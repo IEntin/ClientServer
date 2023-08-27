@@ -7,7 +7,6 @@
 #include "SignalWatcher.h"
 #include "Subtask.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 
@@ -68,11 +67,11 @@ bool TcpClient::receiveStatus() {
   _status = extractStatus(header);
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
-    utility::displayMaxSessionsOfTypeWarn("tcp");
+    displayMaxSessionsOfTypeWarn("tcp");
     createSignalWatcher();
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
-    utility::displayMaxTotalSessionsWarn();
+    displayMaxTotalSessionsWarn();
     createSignalWatcher();
     break;
   default:

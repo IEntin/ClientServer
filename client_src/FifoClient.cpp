@@ -74,10 +74,10 @@ bool FifoClient::receiveStatus() {
   createSignalWatcher();
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
-    utility::displayMaxSessionsOfTypeWarn("fifo");
+    displayMaxSessionsOfTypeWarn("fifo");
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
-    utility::displayMaxTotalSessionsWarn();
+    displayMaxTotalSessionsWarn();
     break;
   default:
     break;

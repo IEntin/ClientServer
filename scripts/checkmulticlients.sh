@@ -63,7 +63,7 @@ done
 
 for (( c=1; c<=$1; c++ ))
 do
-    (cd $UP_DIR/Client$c; ln -sf $PRJ_DIR/data .; cp $PRJ_DIR/scripts/runShortSessions.sh .; cp $PRJ_DIR/ClientOptions.json .)
+    (cd $UP_DIR/Client$c; ln -sf $PRJ_DIR/data .; cp $PRJ_DIR/scripts/runShortSessions.sh .; cp $PRJ_DIR/client_src/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client

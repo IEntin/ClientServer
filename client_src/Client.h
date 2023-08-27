@@ -19,6 +19,10 @@ class Client {
   bool printReply(const HEADER& header, std::string& buffer);
   void start();
 
+  void displayMaxTotalSessionsWarn();
+  void displayMaxSessionsOfTypeWarn(std::string_view type);
+  bool displayStatus(STATUS status);
+
   const ClientOptions& _options;
 
   ThreadPoolBase _threadPoolClient;
