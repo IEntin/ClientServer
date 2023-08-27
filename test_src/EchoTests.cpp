@@ -117,7 +117,7 @@ struct FifoNonblockingTest : testing::Test {
   }
   bool receive(std::vector<char>& received) {
     HEADER header;
-    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
+    return fifo::Fifo::readMsgNonBlock(TestEnvironment::_serverOptions, _testFifo, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {

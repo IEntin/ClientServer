@@ -52,7 +52,7 @@ bool FifoClient::receive() {
   _status = STATUS::NONE;
   thread_local static std::string buffer;
   HEADER header;
-  if (!Fifo::readMsgBlock(_fifoName, header, buffer))
+  if (!Fifo::readMsgBlock(_options, _fifoName, header, buffer))
     return false;
   return printReply(header, buffer);
 }
@@ -66,7 +66,7 @@ bool FifoClient::wakeupAcceptor() {
 bool FifoClient::receiveStatus() {
   HEADER header;
   std::vector<char> buffer;
-  if (!Fifo::readMsgBlock(_options._acceptorName, header, buffer))
+  if (!Fifo::readMsgBlock(_options, _options._acceptorName, header, buffer))
     return false;
   _clientId.assign(buffer.begin(), buffer.end());
   _status = extractStatus(header);

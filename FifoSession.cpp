@@ -61,7 +61,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   }
   static thread_local std::string request;
   request.clear();
-  if (!Fifo::readMsgBlock(_fifoName, header, request))
+  if (!Fifo::readMsgBlock(_options, _fifoName, header, request))
     return false;
   static thread_local Response response;
   response.clear();

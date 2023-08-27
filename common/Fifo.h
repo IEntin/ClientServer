@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include "Options.h"
 #include "Utility.h"
 #include <fcntl.h>
 #include <string_view>
@@ -22,12 +23,14 @@ class Fifo {
   static short pollFd(int fd, short expected);
   static bool readString(int fd, char* received, size_t size);
  public:
-  static bool readMsgNonBlock(std::string_view name,
+  static bool readMsgNonBlock(const Options& options,
+			      std::string_view name,
 			      HEADER& header,
 			      std::vector<char>& body);
 
   template <typename B>
-  static bool readMsgBlock(std::string_view name,
+  static bool readMsgBlock(const Options& options,
+			   std::string_view name,
 			   HEADER& header,
 			   B& body) {
     int fd = open(name.data(), O_RDONLY);
@@ -36,6 +39,8 @@ class Fifo {
       LogError << name << '-' << std::strerror(errno) << '\n';
       return false;
     }
+    if (options._setPipeSize)
+      setPipeSize(fd, options._pipeSize);
     size_t readSoFar = 0;
     char buffer[HEADER_SIZE] = {};
     while (readSoFar < HEADER_SIZE) {
@@ -79,7 +84,7 @@ class Fifo {
   static bool setPipeSize(int fd, long requested);
   static void onExit(std::string_view fifoName, const Options& options);
   static int openWriteNonBlock(std::string_view fifoName, const Options& options);
-  static int openReadNonBlock(std::string_view fifoName);
+  static int openReadNonBlock(const Options& options, std::string_view fifoName);
 };
 
 } // end of namespace fifo

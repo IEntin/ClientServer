@@ -3,7 +3,6 @@
  */
 
 #include "Fifo.h"
-#include "Options.h"
 #include <chrono>
 #include <filesystem>
 #include <poll.h>
@@ -11,10 +10,11 @@
 
 namespace fifo {
 
-bool Fifo::readMsgNonBlock(std::string_view name,
+bool Fifo::readMsgNonBlock(const Options& options,
+			   std::string_view name,
 			   HEADER& header,
 			   std::vector<char>& body) {
-  int fdRead = openReadNonBlock(name);
+  int fdRead = openReadNonBlock(options, name);
   utility::CloseFileDescriptor cfdr(fdRead);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
@@ -31,7 +31,7 @@ bool Fifo::readMsgNonBlock(std::string_view name,
     }
     else if (result == 0) {
       int fdOld = fdRead;
-      fdRead = openReadNonBlock(name);
+      fdRead = openReadNonBlock(options, name);
       if (fdOld != -1)
 	close(fdOld);
       continue;
@@ -112,12 +112,12 @@ bool Fifo::sendMsg(std::string_view name,
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
-  else {
-    char buffer[HEADER_SIZE] = {};
-    encodeHeader(buffer, header);
-    return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
-      writeString(fdWrite, std::string_view(body.data(), body.size()));
-  }
+  if (options._setPipeSize)
+    setPipeSize(fdWrite, options._pipeSize);
+  char buffer[HEADER_SIZE] = {};
+  encodeHeader(buffer, header);
+  return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
+    writeString(fdWrite, std::string_view(body.data(), body.size()));
 }
 
 short Fifo::pollFd(int fd, short expected) {
@@ -199,12 +199,14 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const Options& options) {
   return fd;
 }
 
-int Fifo::openReadNonBlock(std::string_view fifoName) {
+int Fifo::openReadNonBlock(const Options& options, std::string_view fifoName) {
   if (!std::filesystem::exists(fifoName))
     return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1)
     Info << std::strerror(errno) << ' ' << fifoName << '\n';
+  if (options._setPipeSize)
+    setPipeSize(fd, options._pipeSize);
   return fd;
 }
 
