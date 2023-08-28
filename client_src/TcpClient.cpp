@@ -81,10 +81,9 @@ bool TcpClient::receiveStatus() {
 }
 
 void TcpClient::createSignalWatcher() {
-  boost::asio::ip::tcp::socket& socket(_socket);
-  std::function<void()> func = [&socket]() {
+  std::function<void()> func = [this]() {
     boost::system::error_code ec;
-    socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     if (ec) {
       LogError << ec.what() << '\n';
     }

@@ -74,7 +74,7 @@ bool Ad::parseArray() {
       money = _defaultBid;
     _bids.emplace_back(vect[i], money);
   }
-  std::sort(_bids.begin(), _bids.end(), [] (const AdBid& bid1, const AdBid& bid2) {
+  std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
 	      return bid1._keyword < bid2._keyword; });
   return true;
 }
@@ -103,7 +103,7 @@ bool Ad::readAndSortAds(std::string_view filename) {
   utility::split(buffer, _rows);
   for (auto& row : _rows)
     row._key = extractSize(row._value);
-  std::stable_sort(_rows.begin(), _rows.end(), [] (const AdRow& row1, const AdRow& row2) {
+  std::stable_sort(_rows.begin(), _rows.end(), [&] (const AdRow& row1, const AdRow& row2) {
 		     return row1._key < row2._key;
 		   });
   return true;
