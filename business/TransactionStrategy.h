@@ -8,7 +8,7 @@
 
 class TransactionStrategy : public Strategy {
  public:
-  TransactionStrategy();
+  TransactionStrategy() = default;
   
   ~TransactionStrategy() override {}
 

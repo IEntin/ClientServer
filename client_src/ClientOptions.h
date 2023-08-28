@@ -8,7 +8,7 @@
 #include <fstream>
 
 struct ClientOptions : Options {
-  explicit ClientOptions(const std::string& jsonName = "", std::ostream* externalDataStream = nullptr);
+  explicit ClientOptions(std::string_view jsonName = "", std::ostream* externalDataStream = nullptr);
   ~ClientOptions() = default;
   std::string _clientType;
   bool _fifoClient;

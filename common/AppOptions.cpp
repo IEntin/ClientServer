@@ -5,7 +5,7 @@
 #include "AppOptions.h"
 #include "Logger.h"
 
-AppOptions::AppOptions(const std::string& fileName) :
+AppOptions::AppOptions(std::string_view fileName) :
   _fileName(fileName), _initialized(initialize()) {}
 
 bool AppOptions::initialize() {

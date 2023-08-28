@@ -9,7 +9,7 @@
 
 struct CompressionTest : testing::Test {
 
-  void testCompressionDecompression1(std::string& input) {
+  void testCompressionDecompression(std::string& input) {
     try{
       std::string data = input;
       compression::compress(data);
@@ -29,11 +29,11 @@ struct CompressionTest : testing::Test {
 };
 
 TEST_F(CompressionTest, 1_SOURCE) {
-  testCompressionDecompression1(TestEnvironment::_source);
+  testCompressionDecompression(TestEnvironment::_source);
 }
 
 TEST_F(CompressionTest, 1_OUTPUTD) {
-  testCompressionDecompression1(TestEnvironment::_outputD);
+  testCompressionDecompression(TestEnvironment::_outputD);
 }
 
 TEST(SplitTest, NoKeepDelim) {

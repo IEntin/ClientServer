@@ -7,7 +7,7 @@
 #include <iostream>
 #include <thread>
 
-ServerOptions::ServerOptions(const std::string& jsonName) :
+ServerOptions::ServerOptions(std::string_view jsonName) :
   Options(jsonName) {
   AppOptions appOptions(jsonName);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));

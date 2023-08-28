@@ -87,7 +87,7 @@ bool FifoClient::receiveStatus() {
 
 void FifoClient::createSignalWatcher() {
   const ClientOptions& options(_options);
-  std::string& name(_fifoName);
+  std::string_view name(_fifoName);
   std::function<void()> func = [&options, name]() {
     Fifo::onExit(name, options);
     std::filesystem::remove(name);

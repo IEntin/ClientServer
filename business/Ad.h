@@ -42,14 +42,14 @@ class Ad {
   explicit Ad(AdRow& row);
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
-  static bool load(const std::string& filename);
+  static bool load(std::string_view filename);
   static const std::vector<Ad>& getAdsBySize(std::string_view key);
   static const long _scaler = 100;
  private:
   bool parseIntro();
   bool parseArray();
   static std::string extractSize(std::string_view line);
-  static bool readAndSortAds(const std::string& filename);
+  static bool readAndSortAds(std::string_view filename);
   std::string_view _input;
   std::string_view _sizeKey;
   std::vector<AdBid> _bids;

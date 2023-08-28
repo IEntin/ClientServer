@@ -10,7 +10,7 @@
 
 class AppOptions {
  public:
-  AppOptions(const std::string& fileName);
+  AppOptions(std::string_view fileName);
   ~AppOptions() = default;
 
   template<typename T>

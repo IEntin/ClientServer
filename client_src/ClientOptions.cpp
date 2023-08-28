@@ -6,7 +6,7 @@
 #include "AppOptions.h"
 #include <iostream>
 
-ClientOptions::ClientOptions(const std::string& jsonName, std::ostream* externalDataStream) :
+ClientOptions::ClientOptions(std::string_view jsonName, std::ostream* externalDataStream) :
   Options(jsonName) {
   AppOptions appOptions(jsonName);
   _clientType = appOptions.get("ClientType", std::string(""));

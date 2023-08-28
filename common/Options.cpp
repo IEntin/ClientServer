@@ -9,7 +9,7 @@
 #include "Logger.h"
 #include <filesystem>
 
-Options::Options(const std::string& jsonName) {
+Options::Options(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());

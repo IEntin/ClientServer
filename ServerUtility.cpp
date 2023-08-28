@@ -33,7 +33,6 @@ std::string_view buildReply(const Options& options,
 bool processRequest(const HEADER& header,
 		    std::string& received,
 		    Response& response) {
-  std::string_view receivedView(received.data(), received.size());
   payloadtransform::decryptDecompress(header, received);
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();

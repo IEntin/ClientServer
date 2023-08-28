@@ -111,8 +111,8 @@ struct CloseFileDescriptor {
 
 std::string getUniqueId();
 
-std::string readFile(const std::string& name);
+std::string readFile(std::string_view name);
 
-bool writeFile(const std::string& name, const std::string& contents);
+bool writeFile(std::string_view name, std::string_view contents);
 
 } // end of namespace utility

@@ -7,7 +7,7 @@
 #include "Options.h"
 
 struct ServerOptions : Options {
-  explicit ServerOptions(const std::string& jsonName = "");
+  explicit ServerOptions(std::string_view jsonName = "");
   ~ServerOptions() = default;
   std::string _adsFileName;
   int _numberWorkThreads;

@@ -10,7 +10,7 @@ enum class COMPRESSORS : char;
 enum class LOG_LEVEL : char;
 
 struct Options {
-  explicit Options(const std::string& jsonName);
+  explicit Options(std::string_view jsonName);
   ~Options() = default;
   size_t _bufferSize;
   std::string _fifoDirectoryName;
