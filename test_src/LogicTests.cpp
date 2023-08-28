@@ -9,7 +9,6 @@
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
-#include "Transaction.h"
 #include "TransactionStrategy.h"
 
 struct LogicTest : testing::Test {

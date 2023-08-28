@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Echo.h"
 #include "Fifo.h"
 #include "ClientOptions.h"
 #include "EchoStrategy.h"
