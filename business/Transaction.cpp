@@ -81,7 +81,6 @@ std::string Transaction::processRequest(std::string_view key,
   std::ostringstream os;
   print(os, transaction, diagnostics);
   return os.str();
-  return id.append(PROCESSING_ERROR);
 }
 
 std::string Transaction::normalizeSizeKey(std::string_view request) {
