@@ -9,6 +9,8 @@
 #include "Logger.h"
 #include <filesystem>
 
+int Options::_cryptoKeySize = 32;
+
 Options::Options(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
@@ -22,6 +24,7 @@ Options::Options(std::string_view jsonName) {
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
   _ENXIOwait = appOptions.get("ENXIOwai", 10);
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
+  _cryptoKeySize = appOptions.get("EncryptionKeySize", 32);
   _encrypted = appOptions.get("Encrypted", false);
   _showKey = appOptions.get("ShowKey", false);
   _timing = appOptions.get("Timing", false);

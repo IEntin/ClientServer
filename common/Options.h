@@ -26,6 +26,7 @@ struct Options {
   bool _setPipeSize;
   size_t _pipeSize;
   LOG_LEVEL _logThreshold;
+  static int _cryptoKeySize;
 private:
   std::string _portString;
 };

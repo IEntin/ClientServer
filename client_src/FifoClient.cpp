@@ -86,9 +86,13 @@ bool FifoClient::receiveStatus() {
 }
 
 void FifoClient::createSignalWatcher() {
-  std::function<void()> func = [this]() {
-    Fifo::onExit(_fifoName, _options);
-    std::filesystem::remove(_fifoName);
+  std::string name = _fifoName;
+  std::function<void()> func = [this, name]() {
+    Fifo::onExit(name, _options);
+    std::error_code ec;
+    std::filesystem::remove(name, ec);
+    if (ec)
+      LogError << ec.message() << '\n';
   };
   auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);
   _signalWatcher = ptr;

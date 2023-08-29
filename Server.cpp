@@ -26,9 +26,9 @@ Server::~Server() {
 
 bool Server::start() {
   _strategy->set(_options);
-  CryptoKey key(_options);
+  CryptoKey::initialize(_options);
   if (_options._showKey)
-    key.showKey();
+    CryptoKey::showKey();
   if (!TaskController::create(_options))
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);

@@ -9,15 +9,13 @@
 struct ServerOptions;
 
 struct CryptoKey {
-  CryptoKey(const ServerOptions& options);
-  CryptoKey();
-  ~CryptoKey() = default;
-  void showKey() const;
-  CryptoPP::SecByteBlock _key;
-  bool _valid = false;
-private:
-  bool generate();
-  bool recover();
+  CryptoKey() = delete;
+  ~CryptoKey() = delete;
+  static void showKey();
+  static bool initialize(const ServerOptions& options);
+  static bool recover();
+  static CryptoPP::SecByteBlock _key;
+  static bool _valid;
 };
 
 class Crypto {
@@ -26,5 +24,5 @@ class Crypto {
 
   static void decrypt(std::string& cipher);
 
-  static void showIv(const CryptoPP::SecByteBlock& iv);
+  static bool showIv(const CryptoPP::SecByteBlock& iv);
 };

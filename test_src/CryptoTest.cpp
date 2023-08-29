@@ -17,7 +17,8 @@ TEST(CryptoTest, 1) {
   // exchanged between two parties before communication begins.
   std::string data = TestEnvironment::_source;
   try {
-    CryptoKey cryptoKey(TestEnvironment::_serverOptions);
+    CryptoKey::initialize(TestEnvironment::_serverOptions);
+    
     Crypto::encrypt(data);
 
     Crypto::decrypt(data);
@@ -35,7 +36,7 @@ struct PayloadTransformTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     try {
       std::string data = TestEnvironment::_source;
-      CryptoKey cryptoKey(TestEnvironment::_serverOptions);
+      CryptoKey::initialize(TestEnvironment::_serverOptions);
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
       HEADER header;

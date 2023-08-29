@@ -13,33 +13,14 @@
 #include <boost/algorithm/hex.hpp>
 #include <filesystem>
 
-CryptoKey::CryptoKey(const ServerOptions& options) :
-  _key(options._cryptoKeySize) {
-  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || options._invalidateKey)
-    _valid = generate();
-  else
-    _valid = recover();
-}
+CryptoPP::SecByteBlock CryptoKey::_key(ServerOptions::_cryptoKeySize);
+bool CryptoKey::_valid = false;
 
-CryptoKey::CryptoKey() {
-  _valid = recover();
-}
-
-bool CryptoKey::generate() {
-  CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(_key, _key.size());
-  std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
-  std::ofstream ofs(CRYPTO_KEY_FILE_NAME, std::ios::binary);
-  std::filesystem::permissions(
-    CRYPTO_KEY_FILE_NAME,
-    std::filesystem::perms::owner_all | std::filesystem::perms::group_read,
-    std::filesystem::perm_options::replace);
-  if (ofs) {
-    ofs << keyStr;
-    _valid = true;
-    return true;
-  }
-  return _valid;
+void CryptoKey::showKey() {
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  logger << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
+  boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream(), "" });
+  logger << '\n';
 }
 
 bool CryptoKey::recover() {
@@ -51,19 +32,36 @@ bool CryptoKey::recover() {
   return _valid;
 }
 
-void CryptoKey::showKey() const {
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
-  boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream(), "" });
-  logger << '\n';
+bool CryptoKey::initialize(const ServerOptions& options) {
+  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || options._invalidateKey) {
+    CryptoPP::AutoSeededRandomPool prng;
+    prng.GenerateBlock(_key, _key.size());
+    std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
+    std::ofstream ofs(CRYPTO_KEY_FILE_NAME, std::ios::binary);
+    std::filesystem::permissions(
+      CRYPTO_KEY_FILE_NAME,
+      std::filesystem::perms::owner_all | std::filesystem::perms::group_read,
+      std::filesystem::perm_options::replace);
+    if (ofs) {
+      ofs << keyStr;
+      _valid = true;
+    }
+  }
+  else
+    _valid = recover();
+  return _valid;
 }
 
+
+// class Crypto
+
 void Crypto::encrypt(std::string& data) {
-  static CryptoKey key;
+  const auto& key = CryptoKey::_key;
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
-  CryptoPP::AES::Encryption aesEncryption(key._key.data(), key._key.size());
+  static bool showOnce [[maybe_unused]] = showIv(iv);
+  CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;
   cipher.clear();
@@ -75,7 +73,7 @@ void Crypto::encrypt(std::string& data) {
 }
 
 void Crypto::decrypt(std::string& data) {
-  static CryptoKey key;
+  const auto& key = CryptoKey::_key;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   auto beg = reinterpret_cast<const unsigned char*>(data.data()) + data.size() - iv.size();
   std::copy(beg, beg + iv.size(), iv.data());
@@ -83,7 +81,7 @@ void Crypto::decrypt(std::string& data) {
   static thread_local std::string decrypted;
   decrypted.clear();
   try {
-    CryptoPP::AES::Decryption aesDecryption(key._key.data(), key._key.size());
+    CryptoPP::AES::Decryption aesDecryption(key.data(), key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
     stfDecryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
@@ -97,9 +95,10 @@ void Crypto::decrypt(std::string& data) {
   }
 }
 
-void Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
+bool Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
   logger << "IV : ";
   boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
   logger << '\n';
+  return true;
 }

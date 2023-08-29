@@ -15,7 +15,6 @@ struct ServerOptions : Options {
   int _maxFifoSessions;
   int _maxTotalSessions;
   int _tcpTimeout;
-  int _cryptoKeySize;
   bool _invalidateKey;
   bool _sortInput;
 };

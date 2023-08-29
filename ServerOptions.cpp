@@ -18,6 +18,5 @@ ServerOptions::ServerOptions(std::string_view jsonName) :
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
   _tcpTimeout = appOptions.get("TcpTimeout", 1000);
   _invalidateKey = appOptions.get("InvalidateKey", true);
-  _cryptoKeySize = appOptions.get("EncryptionKeySize", 32);
   _sortInput = appOptions.get("SortInput", true);
 }
