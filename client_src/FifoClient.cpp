@@ -70,7 +70,7 @@ bool FifoClient::receiveStatus() {
     return false;
   _clientId.assign(buffer.begin(), buffer.end());
   _status = extractStatus(header);
-  _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+  _fifoName = ClientOptions::_fifoDirectoryName + '/' + _clientId;
   createSignalWatcher();
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:

@@ -17,8 +17,6 @@ std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
-const ServerOptions TestEnvironment::_serverOptionsOrg;
-const ClientOptions TestEnvironment::_clientOptionsOrg("", &_oss);
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
@@ -46,9 +44,9 @@ void TestEnvironment::TearDown() {
 }
 
 void TestEnvironment::reset() {
-  _serverOptions = _serverOptionsOrg;
   _oss.str("");
-  _clientOptions = _clientOptionsOrg;
+  _serverOptions = ServerOptions("");
+  _clientOptions = ClientOptions("", &_oss);
 }
 
 int main(int argc, char** argv) {

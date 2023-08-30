@@ -63,7 +63,7 @@ void FifoAcceptor::stop() {
 }
 
 void FifoAcceptor::removeFifoFiles() {
-  for(auto const& entry : std::filesystem::directory_iterator(_options._fifoDirectoryName))
+  for(auto const& entry : std::filesystem::directory_iterator(ServerOptions::_fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
 }

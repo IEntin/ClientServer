@@ -16,7 +16,7 @@ struct Options {
   explicit Options(std::string_view jsonName);
   virtual ~Options() {}
   size_t _bufferSize;
-  std::string _fifoDirectoryName;
+  inline static std::string _fifoDirectoryName;
   inline static std::string _acceptorName;
   inline static unsigned short _tcpPort;
   inline static std::string_view _tcpService;

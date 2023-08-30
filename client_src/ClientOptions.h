@@ -14,7 +14,7 @@ struct ClientOptions : Options {
   inline static bool _fifoClient;
   inline static bool _tcpClient;
   inline static std::string _serverAddress;
-  std::string _sourceName;
+  inline static std::string _sourceName;
   inline static std::ostream* _dataStream;
   inline static std::ostream* _instrStream;
   // max number iterations when _runLoop is true,

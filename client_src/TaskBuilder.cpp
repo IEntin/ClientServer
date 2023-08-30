@@ -11,7 +11,7 @@
 TaskBuilder::TaskBuilder(const ClientOptions& options) :
   _options(options),
   _subtasks(1) {
-  _input.open(_options._sourceName, std::ios::binary);
+  _input.open(ClientOptions::_sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
 }

@@ -30,7 +30,4 @@ public:
   static std::string _outputD;
   static std::string _outputND;
   static std::string _outputAltFormatD;
- private:
-  static const ServerOptions _serverOptionsOrg;
-  static const ClientOptions _clientOptionsOrg;
 };

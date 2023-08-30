@@ -22,7 +22,7 @@ FifoSession::~FifoSession() {
 
 bool FifoSession::start() {
   _clientId = utility::getUniqueId();
-  _fifoName = _options._fifoDirectoryName + '/' + _clientId;
+  _fifoName = ServerOptions::_fifoDirectoryName + '/' + _clientId;
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     LogError << std::strerror(errno) << '-' << _fifoName << '\n';
     return false;
