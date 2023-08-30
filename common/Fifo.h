@@ -12,8 +12,6 @@
 #include <unistd.h>
 #include <vector>
 
-struct Options;
-
 namespace fifo {
 
 class Fifo {
@@ -23,24 +21,18 @@ class Fifo {
   static short pollFd(int fd, short expected);
   static bool readString(int fd, char* received, size_t size);
  public:
-  static bool readMsgNonBlock(const Options& options,
-			      std::string_view name,
-			      HEADER& header,
-			      std::vector<char>& body);
+  static bool readMsgNonBlock(std::string_view name, HEADER& header, std::vector<char>& body);
 
   template <typename B>
-  static bool readMsgBlock(const Options& options,
-			   std::string_view name,
-			   HEADER& header,
-			   B& body) {
+  static bool readMsgBlock(std::string_view name, HEADER& header, B& body) {
     int fd = open(name.data(), O_RDONLY);
     utility::CloseFileDescriptor cfdr(fd);
     if (fd == -1) {
       LogError << name << '-' << std::strerror(errno) << '\n';
       return false;
     }
-    if (options._setPipeSize)
-      setPipeSize(fd, options._pipeSize);
+    if (Options::_setPipeSize)
+      setPipeSize(fd, Options::_pipeSize);
     size_t readSoFar = 0;
     char buffer[HEADER_SIZE] = {};
     while (readSoFar < HEADER_SIZE) {
@@ -79,12 +71,11 @@ class Fifo {
   static bool writeString(int fd, std::string_view str);
   static bool sendMsg(std::string_view name,
 		      const HEADER& header,
-		      const Options& options,
 		      std::string_view body = std::string_view());
   static bool setPipeSize(int fd, long requested);
-  static void onExit(std::string_view fifoName, const Options& options);
-  static int openWriteNonBlock(std::string_view fifoName, const Options& options);
-  static int openReadNonBlock(const Options& options, std::string_view fifoName);
+  static void onExit(std::string_view fifoName);
+  static int openWriteNonBlock(std::string_view fifoName);
+  static int openReadNonBlock(std::string_view fifoName);
 };
 
 } // end of namespace fifo

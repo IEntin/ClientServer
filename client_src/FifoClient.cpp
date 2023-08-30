@@ -25,7 +25,7 @@ FifoClient::FifoClient(const ClientOptions& options) :
 FifoClient::~FifoClient() {
   if (auto ptr = _signalWatcher.lock(); ptr)
     ptr->stop();
-  Fifo::onExit(_fifoName, _options);
+  Fifo::onExit(_fifoName);
   Trace << '\n';
 }
 
@@ -37,7 +37,7 @@ bool FifoClient::run() {
 bool FifoClient::send(const Subtask& subtask) {
   std::string_view body(subtask._body.data(), subtask._body.size());
   while (true) {
-    if (Fifo::sendMsg(_fifoName, subtask._header, _options, body))
+    if (Fifo::sendMsg(_fifoName, subtask._header, body))
       return true;
     // waiting client
     // server stopped
@@ -52,7 +52,7 @@ bool FifoClient::receive() {
   _status = STATUS::NONE;
   _response.clear();
   HEADER header;
-  if (!Fifo::readMsgBlock(_options, _fifoName, header, _response))
+  if (!Fifo::readMsgBlock(_fifoName, header, _response))
     return false;
   return printReply(header, _response);
 }
@@ -60,13 +60,13 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(_options._acceptorName, header, _options);
+  return Fifo::sendMsg(_options._acceptorName, header);
 }
 
 bool FifoClient::receiveStatus() {
   HEADER header;
   std::vector<char> buffer;
-  if (!Fifo::readMsgBlock(_options, _options._acceptorName, header, buffer))
+  if (!Fifo::readMsgBlock(_options._acceptorName, header, buffer))
     return false;
   _clientId.assign(buffer.begin(), buffer.end());
   _status = extractStatus(header);
@@ -87,8 +87,8 @@ bool FifoClient::receiveStatus() {
 
 void FifoClient::createSignalWatcher() {
   std::string name = _fifoName;
-  std::function<void()> func = [this, name]() {
-    Fifo::onExit(name, _options);
+  std::function<void()> func = [name]() {
+    Fifo::onExit(name);
     std::error_code ec;
     std::filesystem::remove(name, ec);
     if (ec)

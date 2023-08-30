@@ -16,17 +16,17 @@ struct Options {
   std::string _fifoDirectoryName;
   std::string _acceptorName;
   unsigned short _tcpPort;
-  std::string_view _tcpService;
-  int _numberRepeatENXIO;
-  int _ENXIOwait;
+  inline static std::string_view _tcpService;
+  inline static int _numberRepeatENXIO;
+  inline static int _ENXIOwait;
   COMPRESSORS _compressor;
   bool _encrypted;
-  bool _showKey;
+  inline static bool _showKey;
   bool _timing;
-  bool _setPipeSize;
-  size_t _pipeSize;
+  inline static bool _setPipeSize;
+  inline static size_t _pipeSize;
   LOG_LEVEL _logThreshold;
   static int _cryptoKeySize;
 private:
-  std::string _portString;
+  inline static std::string _portString;
 };

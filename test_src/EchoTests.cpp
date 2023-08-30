@@ -112,11 +112,11 @@ struct FifoNonblockingTest : testing::Test {
   bool send(std::string_view payload) {
     size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE };
-    return fifo::Fifo::sendMsg(_testFifo, header, TestEnvironment::_serverOptions, payload);
+    return fifo::Fifo::sendMsg(_testFifo, header, payload);
   }
   bool receive(std::vector<char>& received) {
     HEADER header;
-    return fifo::Fifo::readMsgNonBlock(TestEnvironment::_serverOptions, _testFifo, header, received);
+    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {

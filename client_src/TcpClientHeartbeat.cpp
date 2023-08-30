@@ -8,8 +8,7 @@
 
 namespace tcp {
 
-TcpClientHeartbeat::TcpClientHeartbeat(const ClientOptions& options) :
-  _options(options),
+TcpClientHeartbeat::TcpClientHeartbeat() :
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext) {}
@@ -47,7 +46,7 @@ void TcpClientHeartbeat::stop() {
 
 void TcpClientHeartbeat::heartbeatWait() {
   boost::system::error_code ec;
-  _periodTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatPeriod), ec);
+  _periodTimer.expires_from_now(std::chrono::milliseconds(ClientOptions::_heartbeatPeriod), ec);
   if (ec) {
     LogError << ec.what() << '\n';
     return;
@@ -70,7 +69,7 @@ void TcpClientHeartbeat::heartbeatWait() {
 
 void TcpClientHeartbeat::timeoutWait() {
   boost::system::error_code ec;
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._heartbeatTimeout), ec);
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(ClientOptions::_heartbeatTimeout), ec);
   if (ec) {
     LogError << ec.what() << '\n';
     return;
@@ -141,7 +140,7 @@ void TcpClientHeartbeat::read() {
 void TcpClientHeartbeat::write() {
   timeoutWait();
   auto [endpoint, error] =
-    Tcp::setSocket(_ioContext, _socket, _options);
+    Tcp::setSocket(_ioContext, _socket);
   if (error) {
     LogError << error.what() << '\n';
     return;

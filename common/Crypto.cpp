@@ -14,7 +14,6 @@
 #include <filesystem>
 
 CryptoPP::SecByteBlock CryptoKey::_key(ServerOptions::_cryptoKeySize);
-bool CryptoKey::_valid = false;
 
 void CryptoKey::showKey() {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
@@ -32,8 +31,8 @@ bool CryptoKey::recover() {
   return _valid;
 }
 
-bool CryptoKey::initialize(const ServerOptions& options) {
-  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || options._invalidateKey) {
+bool CryptoKey::initialize() {
+  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || ServerOptions::_invalidateKey) {
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(_key, _key.size());
     std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
@@ -60,7 +59,8 @@ void Crypto::encrypt(std::string& data) {
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
-  static bool showOnce [[maybe_unused]] = showIv(iv);
+  if (Options::_showKey)
+    static bool showOnce [[maybe_unused]] = showIv(iv);
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;

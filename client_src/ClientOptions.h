@@ -13,16 +13,16 @@ struct ClientOptions : Options {
   std::string _clientType;
   bool _fifoClient;
   bool _tcpClient;
-  std::string _serverAddress;
+  inline static std::string _serverAddress;
   std::string _sourceName;
   std::ostream* _dataStream;
   std::ostream* _instrStream;
   // max number iterations when _runLoop is true,
   // unlimited if it is 0.
   int _maxNumberTasks;
-  int _heartbeatPeriod;
-  int _heartbeatTimeout;
-  bool _heartbeatEnabled;
+  inline static int _heartbeatPeriod;
+  inline static int _heartbeatTimeout;
+  inline static bool _heartbeatEnabled;
   bool _diagnostics;
   bool _runLoop;
 };

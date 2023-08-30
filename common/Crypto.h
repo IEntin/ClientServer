@@ -6,16 +6,14 @@
 
 #include <cryptopp/secblock.h>
 
-struct ServerOptions;
-
 struct CryptoKey {
   CryptoKey() = delete;
   ~CryptoKey() = delete;
   static void showKey();
-  static bool initialize(const ServerOptions& options);
+  static bool initialize();
   static bool recover();
   static CryptoPP::SecByteBlock _key;
-  static bool _valid;
+  inline static bool _valid;
 };
 
 class Crypto {

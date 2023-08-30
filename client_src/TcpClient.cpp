@@ -14,7 +14,7 @@ TcpClient::TcpClient(const ClientOptions& options) :
   Client(options),
   _socket(_ioContext) {
   auto [endpoint, error] =
-    Tcp::setSocket(_ioContext, _socket, _options);
+    Tcp::setSocket(_ioContext, _socket);
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };

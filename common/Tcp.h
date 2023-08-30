@@ -8,8 +8,6 @@
 #include "Logger.h"
 #include <boost/asio.hpp>
 
-struct ClientOptions;
-
 namespace tcp {
 
 class Tcp {
@@ -21,8 +19,7 @@ class Tcp {
 public:
   std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
   static setSocket(boost::asio::io_context& ioContext,
-		   boost::asio::ip::tcp::socket& socket,
-		   const ClientOptions& options);
+		   boost::asio::ip::tcp::socket& socket);
 
   template <typename P>
   static boost::system::error_code

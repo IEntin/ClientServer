@@ -7,8 +7,6 @@
 #include "Runnable.h"
 #include <boost/asio.hpp>
 
-struct ClientOptions;
-
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
@@ -16,7 +14,7 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHeartbeat>,
   public RunnableT<TcpClientHeartbeat> {
  public:
-  TcpClientHeartbeat(const ClientOptions& options);
+  TcpClientHeartbeat();
   ~TcpClientHeartbeat() override;
  private:
   void run() override;
@@ -27,7 +25,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   void write();
   void read();
 
-  const ClientOptions& _options;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _periodTimer;

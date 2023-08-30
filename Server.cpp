@@ -26,7 +26,7 @@ Server::~Server() {
 
 bool Server::start() {
   _strategy->set(_options);
-  CryptoKey::initialize(_options);
+  CryptoKey::initialize();
   if (_options._showKey)
     CryptoKey::showKey();
   if (!TaskController::create(_options))
