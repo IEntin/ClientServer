@@ -15,7 +15,7 @@
 Server::Server(const ServerOptions& options, StrategyPtr strategy) :
   _options(options),
   _strategy(strategy),
-  _threadPoolSession(_options._maxTotalSessions, &Runnable::sendStatusToClient) {
+  _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
 }
 
@@ -29,7 +29,7 @@ bool Server::start() {
   CryptoKey::initialize();
   if (Options::_showKey)
     CryptoKey::showKey();
-  if (!TaskController::create(_options))
+  if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
   if (!_tcpAcceptor->start())

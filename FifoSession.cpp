@@ -12,7 +12,7 @@
 namespace fifo {
 
 FifoSession::FifoSession(const ServerOptions& options) :
-  RunnableT(options._maxFifoSessions, _displayType),
+  RunnableT(ServerOptions::_maxFifoSessions, _displayType),
   _options(options) {}
 
 FifoSession::~FifoSession() {

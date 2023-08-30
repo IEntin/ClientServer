@@ -52,18 +52,18 @@ bool Client::run() {
   auto taskBuilder = std::make_shared<TaskBuilder>(_options);
   _threadPoolClient.push(taskBuilder);
   do {
-    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, _options._instrStream);
+    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
     auto savedBuild = std::move(taskBuilder);
-    if (_options._runLoop) {
+    if (ClientOptions::_runLoop) {
       // start construction of the next task in the background
       taskBuilder = std::make_shared<TaskBuilder>(_options);
       _threadPoolClient.push(taskBuilder);
     }
     if (!processTask(savedBuild))
       return false;
-    if (_options._maxNumberTasks > 0 && ++numberTasks == _options._maxNumberTasks)
+    if (ClientOptions::_maxNumberTasks > 0 && ++numberTasks == ClientOptions::_maxNumberTasks)
       break;
-  } while (_options._runLoop);
+  } while (ClientOptions::_runLoop);
   return true;
 }
 
@@ -80,7 +80,7 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
     if (displayStatus(status))
       return false;
   }
-  std::ostream* pstream = _options._dataStream;
+  std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   payloadtransform::decryptDecompress(header, buffer);
   if (buffer.empty()) {

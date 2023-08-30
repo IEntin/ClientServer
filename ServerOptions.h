@@ -10,11 +10,11 @@ struct ServerOptions : Options {
   explicit ServerOptions(std::string_view jsonName = "");
   ~ServerOptions() override {}
   inline static std::string _adsFileName;
-  int _numberWorkThreads;
-  int _maxTcpSessions;
-  int _maxFifoSessions;
-  int _maxTotalSessions;
+  inline static int _numberWorkThreads;
+  inline static int _maxTcpSessions;
+  inline static int _maxFifoSessions;
+  inline static int _maxTotalSessions;
   inline static int _tcpTimeout;
   inline static bool _invalidateKey;
-  bool _sortInput;
+  inline static bool _sortInput;
 };

@@ -96,7 +96,7 @@ STATUS TaskBuilder::createSubtask() {
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
   HEADER header;
-  payloadtransform::compressEncrypt(_options, data, header, _options._diagnostics);
+  payloadtransform::compressEncrypt(_options, data, header, ClientOptions::_diagnostics);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.swap(data);

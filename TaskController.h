@@ -14,7 +14,6 @@ using Response = std::vector<std::string>;
 using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
-struct ServerOptions;
 
 class TaskController {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
@@ -38,7 +37,6 @@ class TaskController {
   void setNextTask();
   static void onTaskCompletion() noexcept;
   void onCompletion();
-  const ServerOptions& _options;
   std::atomic<bool> _stopped = false;
   std::barrier<CompletionFunction> _barrier;
   ThreadPoolSameObj _threadPool;
@@ -49,10 +47,10 @@ class TaskController {
   std::mutex _queueMutex;
   static TaskControllerPtr _single;
  public:
-  TaskController(const ServerOptions& options);
+  TaskController();
   ~TaskController();
   void processTask(const HEADER& header, std::string_view input, Response& response);
-  static bool create(const ServerOptions& options);
+  static bool create();
   static void destroy();
   static TaskControllerWeakPtr weakInstance();
 };

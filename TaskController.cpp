@@ -8,9 +8,8 @@
 
 TaskControllerPtr TaskController::_single;
 
-TaskController::TaskController(const ServerOptions& options) :
-  _options(options),
-  _barrier(options._numberWorkThreads, onTaskCompletion) {
+TaskController::TaskController() :
+  _barrier(ServerOptions::_numberWorkThreads, onTaskCompletion) {
   // start with empty task
   _task = std::make_shared<Task>();
 }
@@ -35,7 +34,7 @@ void TaskController::onTaskCompletion() noexcept {
 void TaskController::onCompletion() {
   switch (_phase) {
   case PREPROCESSTASK:
-    if (_options._sortInput)
+    if (ServerOptions::_sortInput)
       _task->sortIndices();
     _task->resetIndex();
     _phase = PROCESSTASK;
@@ -52,7 +51,7 @@ void TaskController::onCompletion() {
 }
 
 bool TaskController::start() {
-  for (int i = 0; i < _options._numberWorkThreads; ++i) {
+  for (int i = 0; i < ServerOptions::_numberWorkThreads; ++i) {
     auto worker = std::make_shared<Worker>(_single);
     _threadPool.push(worker);
   }
@@ -82,8 +81,8 @@ void TaskController::setNextTask() {
   _queue.pop();
 }
 
-bool TaskController::create(const ServerOptions& options) {
-  _single = std::make_shared<TaskController>(options);
+bool TaskController::create() {
+  _single = std::make_shared<TaskController>();
   return _single->start();
 }
 

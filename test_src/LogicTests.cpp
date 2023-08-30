@@ -199,7 +199,7 @@ struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
     try {
       // start server
-      TestEnvironment::_serverOptions._sortInput = sort;
+      ServerOptions::_sortInput = sort;
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
       Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
