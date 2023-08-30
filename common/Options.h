@@ -19,7 +19,7 @@ struct Options {
   inline static std::string _fifoDirectoryName;
   inline static std::string _acceptorName;
   inline static unsigned short _tcpPort;
-  inline static std::string_view _tcpService;
+  inline static std::string _tcpService;
   inline static int _numberRepeatENXIO;
   inline static int _ENXIOwait;
   COMPRESSORS _compressor;
@@ -29,6 +29,4 @@ struct Options {
   inline static bool _setPipeSize;
   inline static size_t _pipeSize;
   inline static int _cryptoKeySize = 32;
-private:
-  inline static std::string _portString;
 };

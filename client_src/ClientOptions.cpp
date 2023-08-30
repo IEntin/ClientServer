@@ -9,9 +9,9 @@
 ClientOptions::ClientOptions(std::string_view jsonName, std::ostream* externalDataStream) :
   Options(jsonName) {
   AppOptions appOptions(jsonName);
-  _clientType = appOptions.get("ClientType", std::string(""));
-  _fifoClient = _clientType == "FIFO";
-  _tcpClient = _clientType == "TCP";
+  std::string clientType = appOptions.get("ClientType", std::string(""));
+  _fifoClient = clientType == "FIFO";
+  _tcpClient = clientType == "TCP";
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)

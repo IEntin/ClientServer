@@ -15,8 +15,7 @@ Options::Options(std::string_view jsonName) {
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _tcpPort = appOptions.get("TcpPort", 49151);
-  _portString = std::to_string(_tcpPort);
-  _tcpService = _portString;
+  _tcpService = std::to_string(_tcpPort);
   // next 2 parameters may be decreased for better responsiveness
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
