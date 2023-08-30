@@ -9,8 +9,6 @@
 #include "Logger.h"
 #include <filesystem>
 
-int Options::_cryptoKeySize = 32;
-
 Options::Options(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
@@ -30,5 +28,5 @@ Options::Options(std::string_view jsonName) {
   _timing = appOptions.get("Timing", false);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
-  _logThreshold = Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
+  Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

@@ -6,8 +6,6 @@
 
 #include <memory>
 
-struct ServerOptions;
-
 using StrategyPtr = std::shared_ptr<class Strategy>;
 
 class Strategy {
@@ -18,6 +16,6 @@ class Strategy {
 
   virtual ~Strategy() {};
 
-  virtual void set(const ServerOptions& options) = 0;
+  virtual void set() = 0;
 
 };

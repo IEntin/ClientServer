@@ -8,13 +8,13 @@
 
 struct ServerOptions : Options {
   explicit ServerOptions(std::string_view jsonName = "");
-  ~ServerOptions() = default;
-  std::string _adsFileName;
+  ~ServerOptions() override {}
+  inline static std::string _adsFileName;
   int _numberWorkThreads;
   int _maxTcpSessions;
   int _maxFifoSessions;
   int _maxTotalSessions;
-  int _tcpTimeout;
+  inline static int _tcpTimeout;
   inline static bool _invalidateKey;
   bool _sortInput;
 };

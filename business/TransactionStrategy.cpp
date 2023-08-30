@@ -9,8 +9,8 @@
 #include "Task.h"
 #include "Transaction.h"
 
-void TransactionStrategy::set(const ServerOptions& options) {
-  if (!Ad::load(options._adsFileName))
+void TransactionStrategy::set() {
+  if (!Ad::load(ServerOptions::_adsFileName))
     return;
   Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   Task::setProcessMethod(Transaction::processRequest);

@@ -28,7 +28,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
     return HEADERTYPE::ERROR;
   HEADER header;
   std::vector<char> body;
-  if (!Fifo::readMsgBlock(_options._acceptorName, header, body))
+  if (!Fifo::readMsgBlock(Options::_acceptorName, header, body))
     return HEADERTYPE::ERROR;
   return extractHeaderType(header);
 }
@@ -50,8 +50,8 @@ void FifoAcceptor::run() {
 bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
-  if (mkfifo(_options._acceptorName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << _options._acceptorName << '\n';
+  if (mkfifo(Options::_acceptorName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << Options::_acceptorName << '\n';
     return false;
   }
   return true;
@@ -59,7 +59,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  Fifo::onExit(_options._acceptorName);
+  Fifo::onExit(Options::_acceptorName);
 }
 
 void FifoAcceptor::removeFifoFiles() {

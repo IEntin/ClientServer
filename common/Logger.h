@@ -84,14 +84,12 @@ struct Logger {
 
   std::osyncstream& getStream() { return _stream; }
 
-  static LOG_LEVEL translateLogThreshold(std::string_view configName) {
+  static void translateLogThreshold(std::string_view configName) {
     for (unsigned index = 0; index < sizeof(levelNames)/sizeof(std::string_view); ++index) {
       if (configName == levelNames[index]) {
-	Logger::_threshold = static_cast<LOG_LEVEL>(index);
-	return Logger::_threshold;
+	_threshold = static_cast<LOG_LEVEL>(index);
       }
     }
-    return LOG_LEVEL::TRACE;
   }
 
   static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;

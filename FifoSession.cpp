@@ -82,7 +82,7 @@ bool FifoSession::sendResponse() {
 bool FifoSession::sendStatusToClient() {
   size_t size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(_options._acceptorName, header, _clientId);
+  return Fifo::sendMsg(Options::_acceptorName, header, _clientId);
 }
 
 } // end of namespace fifo

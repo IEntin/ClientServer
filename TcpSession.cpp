@@ -146,7 +146,7 @@ void TcpSession::write(std::string_view body) {
 
 void TcpSession::asyncWait() {
   boost::system::error_code ec;
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(_options._tcpTimeout), ec);
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(ServerOptions::_tcpTimeout), ec);
   if (ec) {
     LogError << ec.what() << '\n';
     return;

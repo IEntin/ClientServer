@@ -93,7 +93,7 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
 
 void Client::start() {
   CryptoKey::recover();
-  if (ClientOptions::_showKey)
+  if (Options::_showKey)
     CryptoKey::showKey();
   if (!CryptoKey::_valid)
     throw std::runtime_error("invalid or absent crypto files.");

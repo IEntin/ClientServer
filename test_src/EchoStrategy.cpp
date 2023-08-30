@@ -6,6 +6,6 @@
 #include "Echo.h"
 #include "Task.h"
 
-void EchoStrategy::set(const ServerOptions&) {
+void EchoStrategy::set() {
   Task::setProcessMethod(Echo::processRequest);
 }

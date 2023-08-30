@@ -60,13 +60,13 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(_options._acceptorName, header);
+  return Fifo::sendMsg(Options::_acceptorName, header);
 }
 
 bool FifoClient::receiveStatus() {
   HEADER header;
   std::vector<char> buffer;
-  if (!Fifo::readMsgBlock(_options._acceptorName, header, buffer))
+  if (!Fifo::readMsgBlock(Options::_acceptorName, header, buffer))
     return false;
   _clientId.assign(buffer.begin(), buffer.end());
   _status = extractStatus(header);

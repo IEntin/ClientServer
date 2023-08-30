@@ -20,7 +20,7 @@ TcpAcceptor::~TcpAcceptor() {
 }
 
 bool TcpAcceptor::start() {
-  boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), _options._tcpPort);
+  boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), Options::_tcpPort);
   boost::system::error_code ec;
   _acceptor.open(boost::asio::ip::tcp::v4(), ec);
   if (!ec)
@@ -33,7 +33,7 @@ bool TcpAcceptor::start() {
     boost::asio::post(_ioContext, [this] { accept(); });
   }
   if (ec) {
-    LogError << ec.what() << " tcpPort=" << _options._tcpPort << '\n';
+    LogError << ec.what() << " tcpPort=" << Options::_tcpPort << '\n';
     return false;
   }
   return true;

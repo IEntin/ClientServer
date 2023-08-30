@@ -14,5 +14,5 @@ class TransactionStrategy : public Strategy {
 
  protected:
 
-   void set(const ServerOptions& options) override;
+   void set() override;
 };

@@ -9,13 +9,16 @@
 enum class COMPRESSORS : char;
 enum class LOG_LEVEL : char;
 
+// static variables will have the same value for server
+// and client in tests running in the same process.
+
 struct Options {
   explicit Options(std::string_view jsonName);
-  ~Options() = default;
+  virtual ~Options() {}
   size_t _bufferSize;
   std::string _fifoDirectoryName;
-  std::string _acceptorName;
-  unsigned short _tcpPort;
+  inline static std::string _acceptorName;
+  inline static unsigned short _tcpPort;
   inline static std::string_view _tcpService;
   inline static int _numberRepeatENXIO;
   inline static int _ENXIOwait;
@@ -25,8 +28,7 @@ struct Options {
   bool _timing;
   inline static bool _setPipeSize;
   inline static size_t _pipeSize;
-  LOG_LEVEL _logThreshold;
-  static int _cryptoKeySize;
+  inline static int _cryptoKeySize = 32;
 private:
   inline static std::string _portString;
 };
