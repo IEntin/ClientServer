@@ -55,11 +55,12 @@ void TcpSession::stop() {
 }
 
 bool TcpSession::sendReply() {
-  std::string_view body = serverutility::buildReply(_options, _response, _header, _status);
+  HEADER header{ HEADERTYPE::SESSION, 0, 0, _options._compressor, _options._encrypted, false, _status };
+  std::string_view body = serverutility::buildReply(_response, header);
   if (body.empty())
     return false;
   asyncWait();
-  write(body);
+  write(header, body);
   return true;
 }
 
@@ -89,21 +90,21 @@ void TcpSession::readHeader() {
 	_ioContext.stop();
 	return;
       }
-      _header = decodeHeader(_headerBuffer);
-      if (!isOk(_header)) {
+      HEADER header = decodeHeader(_headerBuffer);
+      if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
 	return;
       }
       _request.clear();
-      _request.resize(extractPayloadSize(_header));
-      readRequest();
+      _request.resize(extractPayloadSize(header));
+      readRequest(header);
     });
 }
 
-void TcpSession::readRequest() {
+void TcpSession::readRequest(const HEADER& header) {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
-    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+      [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto weak = weak_from_this();
       auto self = weak.lock();
       if (!self)
@@ -116,14 +117,14 @@ void TcpSession::readRequest() {
 	return;
       }
       _response.clear();
-      if (serverutility::processRequest(_header, _request, _response))
+      if (serverutility::processRequest(header, _request, _response))
 	sendReply();
     });
 }
 
-void TcpSession::write(std::string_view body) {
+void TcpSession::write(const HEADER& header, std::string_view body) {
   _asioBuffers.clear();
-  encodeHeader(_headerBuffer, _header);
+  encodeHeader(_headerBuffer, header);
   _asioBuffers.emplace_back(boost::asio::buffer(_headerBuffer));
   _asioBuffers.emplace_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,

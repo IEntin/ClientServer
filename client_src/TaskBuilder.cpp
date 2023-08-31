@@ -95,8 +95,8 @@ STATUS TaskBuilder::createSubtask() {
 // Generate header for every aggregated group of requests.
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
-  HEADER header;
-  payloadtransform::compressEncrypt(_options, data, header, ClientOptions::_diagnostics);
+  HEADER header{ HEADERTYPE::SESSION, 0, 0, _options._compressor, _options._encrypted, _options._diagnostics, _status };
+  payloadtransform::compressEncrypt(data, header);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);
   subtask._body.swap(data);

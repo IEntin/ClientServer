@@ -7,26 +7,22 @@
 #include "Compression.h"
 #include "Crypto.h"
 #include "Header.h"
-#include "Options.h"
 
 namespace payloadtransform {
 
 template <typename B>
-void compressEncrypt(const Options& options,
-		     B& data,
-		     HEADER& header,
-		     bool diagnostics,
-		     STATUS status = STATUS::NONE) {
-  size_t uncomprSize = data.size();
-  if (options._compressor == COMPRESSORS::LZ4)
+void compressEncrypt(B& data, HEADER& header) {
+  auto [type, comprSize, uncomprSize, compressor, encrypted, diagnostics, status] = header;
+  uncomprSize = data.size();
+  if (compressor == COMPRESSORS::LZ4)
     compression::compress(data);
-  if (options._encrypted)
+  if (encrypted)
     Crypto::encrypt(data);
-  header = { HEADERTYPE::SESSION,
+  header = { type,
     data.size(),
     uncomprSize,
-    options._compressor,
-    options._encrypted,
+    compressor,
+    encrypted,
     diagnostics,
     status };
 }

@@ -4,15 +4,11 @@
 
 #include "ServerUtility.h"
 #include "PayloadTransform.h"
-#include "Options.h"
 #include "TaskController.h"
 
 namespace serverutility {
 
-std::string_view buildReply(const Options& options,
-			    const Response& response,
-			    HEADER& header,
-			    STATUS status) {
+std::string_view buildReply(const Response& response, HEADER& header) {
   if (response.empty())
     return {};
   size_t dataSize = 0;
@@ -26,13 +22,11 @@ std::string_view buildReply(const Options& options,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  payloadtransform::compressEncrypt(options, data,  header, false, status);
+  payloadtransform::compressEncrypt(data, header);
   return data;
 }
 
-bool processRequest(const HEADER& header,
-		    std::string& received,
-		    Response& response) {
+bool processRequest(const HEADER& header, std::string& received, Response& response) {
   payloadtransform::decryptDecompress(header, received);
   auto weakPtr = TaskController::weakInstance();
   auto taskController = weakPtr.lock();

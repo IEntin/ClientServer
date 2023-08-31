@@ -39,13 +39,8 @@ struct PayloadTransformTest : testing::Test {
       CryptoKey::initialize();
       TestEnvironment::_serverOptions._encrypted = encrypted;
       TestEnvironment::_serverOptions._compressor = compressor;
-      HEADER header;
-      bool diagnostics = false;
-      payloadtransform::compressEncrypt(TestEnvironment::_serverOptions,
-					data,
-					header,
-					diagnostics,
-					STATUS::NONE);
+      HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE};
+      payloadtransform::compressEncrypt(data, header);
       payloadtransform::decryptDecompress(header, data);
       ASSERT_EQ(data.size(), TestEnvironment::_source.size());
       ASSERT_EQ(data, TestEnvironment::_source);

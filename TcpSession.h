@@ -27,8 +27,8 @@ private:
   bool sendStatusToClient() override;
   std::string_view getId() override { return _clientId; }
   void readHeader();
-  void readRequest();
-  void write(std::string_view msg);
+  void readRequest(const HEADER& header);
+  void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
   const ServerOptions& _options;
@@ -38,7 +38,6 @@ private:
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
-  HEADER _header;
   std::string _request;
   Response _response;
   std::vector<boost::asio::const_buffer> _asioBuffers;
