@@ -4,8 +4,8 @@
 
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
-#include "PayloadTransform.h"
 #include "Header.h"
+#include "PayloadTransform.h"
 #include "Utility.h"
 
 TaskBuilder::TaskBuilder(const ClientOptions& options) :

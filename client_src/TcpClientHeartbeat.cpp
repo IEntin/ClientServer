@@ -152,7 +152,8 @@ void TcpClientHeartbeat::write() {
     LogError << ec.what() << '\n';
     return;
   }
-  encodeHeader(_heartbeatBuffer, HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false);
+  HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false, _status };
+  encodeHeader(_heartbeatBuffer, header);
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),
     [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {

@@ -5,14 +5,8 @@
 #include "Header.h"
 #include "Utility.h"
 
-void encodeHeader(char* buffer,
-		  HEADERTYPE headerType,
-		  size_t payloadSz,
-		  size_t uncomprSz,
-		  COMPRESSORS compressor,
-		  bool encrypted,
-		  bool diagnostics,
-		  STATUS status) {
+void encodeHeader(char* buffer, const HEADER& header) {
+  const auto& [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status] = header;
   std::memset(buffer, 0, HEADER_SIZE);
   size_t offset = 0;
   buffer[offset] = std::underlying_type_t<HEADERTYPE>(headerType);
@@ -28,11 +22,6 @@ void encodeHeader(char* buffer,
   buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::underlying_type_t<STATUS>(status);
-}
-
-void encodeHeader(char* buffer, const HEADER& header) {
-  auto [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status] = header;
-  encodeHeader(buffer, headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status);
 }
 
 HEADER decodeHeader(const char* buffer) {

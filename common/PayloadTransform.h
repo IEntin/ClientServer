@@ -12,19 +12,13 @@ namespace payloadtransform {
 
 template <typename B>
 void compressEncrypt(B& data, HEADER& header) {
-  auto [type, comprSize, uncomprSize, compressor, encrypted, diagnostics, status] = header;
-  uncomprSize = data.size();
+  auto& [type, payloadSize, orgSize, compressor, encrypted, diagnostics, status] = header;
+  orgSize = data.size();
   if (compressor == COMPRESSORS::LZ4)
     compression::compress(data);
   if (encrypted)
     Crypto::encrypt(data);
-  header = { type,
-    data.size(),
-    uncomprSize,
-    compressor,
-    encrypted,
-    diagnostics,
-    status };
+  payloadSize = data.size();
 }
 
 void decryptDecompress(const HEADER& header, std::string& received);

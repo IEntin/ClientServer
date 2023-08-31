@@ -117,15 +117,6 @@ inline bool isOk(const HEADER& header) {
   }
 }
 
-void encodeHeader(char* buffer,
-		  HEADERTYPE headerType,
-		  size_t payloadSz,
-		  size_t uncomprSz,
-		  COMPRESSORS,
-		  bool encrypted,
-		  bool diagnostics,
-		  STATUS status = STATUS::NONE);
-
 void encodeHeader(char* buffer, const HEADER& header);
 
 HEADER decodeHeader(const char* buffer);
