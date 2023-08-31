@@ -36,6 +36,15 @@ struct LogicTest : testing::Test {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();
       }
+      ASSERT_EQ(TestEnvironment::_clientOptions._compressor, clientCompressor);
+      ASSERT_EQ(TestEnvironment::_clientOptions._encrypted, clientEncrypt);
+      ASSERT_EQ(TestEnvironment::_clientOptions._bufferSize, clientBufferSize);
+      ASSERT_EQ(TestEnvironment::_clientOptions._diagnostics, diagnostics);
+
+      ASSERT_EQ(TestEnvironment::_serverOptions._compressor, serverCompressor);
+      ASSERT_EQ(TestEnvironment::_serverOptions._encrypted, serverEncrypt);
+      ASSERT_EQ(TestEnvironment::_serverOptions._bufferSize, serverBufferSize);
+
       server.stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());

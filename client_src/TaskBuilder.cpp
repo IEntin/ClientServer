@@ -65,7 +65,7 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // aggregate depends on the configured buffer size.
 
 STATUS TaskBuilder::createSubtask() {
-  thread_local static std::string aggregate;
+  std::string aggregate;
   size_t aggregateSize = 0;
   // rough estimate for subtask size to minimize reallocation.
   size_t maxSubtaskSize = _options._bufferSize * 0.9;
