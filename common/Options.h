@@ -24,7 +24,7 @@ struct Options {
   COMPRESSORS _compressor;
   bool _encrypted;
   inline static bool _showKey;
-  bool _timing;
+  inline static bool _timing;
   inline static bool _setPipeSize;
   inline static size_t _pipeSize;
   inline static int _cryptoKeySize = 32;

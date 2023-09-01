@@ -52,7 +52,7 @@ bool Client::run() {
   auto taskBuilder = std::make_shared<TaskBuilder>(_options);
   _threadPoolClient.push(taskBuilder);
   do {
-    Chronometer chronometer(_options._timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
+    Chronometer chronometer(Options::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
     auto savedBuild = std::move(taskBuilder);
     if (ClientOptions::_runLoop) {
       // start construction of the next task in the background

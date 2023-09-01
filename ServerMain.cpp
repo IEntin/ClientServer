@@ -36,7 +36,7 @@ int main() {
       LogError << strerror(errno) << '\n';
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
-    Chronometer chronometer(options._timing, __FILE__, __LINE__);
+    Chronometer chronometer(Options::_timing, __FILE__, __LINE__);
     StrategyPtr strategy = std::make_shared<TransactionStrategy>();
     Server server(options, strategy);
     if (!server.start())
