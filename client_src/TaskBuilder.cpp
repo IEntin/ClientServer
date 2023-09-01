@@ -8,8 +8,7 @@
 #include "PayloadTransform.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(const ClientOptions& options) :
-  _options(options),
+TaskBuilder::TaskBuilder() :
   _subtasks(1) {
   _input.open(ClientOptions::_sourceName, std::ios::binary);
   if(!_input)
@@ -95,7 +94,7 @@ STATUS TaskBuilder::createSubtask() {
 // Generate header for every aggregated group of requests.
 
 STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
-  HEADER header{ HEADERTYPE::SESSION, 0, 0, _options._compressor, _options._encrypted, _options._diagnostics, _status };
+  HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
   payloadtransform::compressEncrypt(data, header);
   std::scoped_lock lock(_mutex);
   subtask._header.swap(header);

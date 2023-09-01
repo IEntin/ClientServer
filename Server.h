@@ -13,15 +13,13 @@ using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 class Server {
 public:
-  Server(const ServerOptions& options, StrategyPtr strategy);
+  Server(StrategyPtr strategy);
   ~Server();
   bool start();
   void stop();
-  const ServerOptions& getOptions() const { return _options; }
   bool startSession(RunnablePtr session);
   void stopSessions();
 private:
-  const ServerOptions& _options;
   StrategyPtr _strategy;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;

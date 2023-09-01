@@ -13,8 +13,7 @@
 namespace fifo {
 
 FifoAcceptor::FifoAcceptor(Server& server) :
-  _server(server),
-  _options(_server.getOptions()) {}
+  _server(server) {}
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
@@ -35,7 +34,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto session = std::make_shared<FifoSession>(_options);
+    auto session = std::make_shared<FifoSession>();
     auto type = unblockAcceptor();
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:

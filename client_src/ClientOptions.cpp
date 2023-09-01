@@ -4,6 +4,7 @@
 
 #include "ClientOptions.h"
 #include "AppOptions.h"
+#include "Compression.h"
 #include <iostream>
 
 ClientOptions::ClientOptions(std::string_view jsonName, std::ostream* externalDataStream) :
@@ -12,6 +13,8 @@ ClientOptions::ClientOptions(std::string_view jsonName, std::ostream* externalDa
   std::string clientType = appOptions.get("ClientType", std::string(""));
   _fifoClient = clientType == "FIFO";
   _tcpClient = clientType == "TCP";
+  _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
+  _encrypted = appOptions.get("Encrypted", false);
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)

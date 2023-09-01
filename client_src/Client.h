@@ -23,8 +23,6 @@ class Client {
   void displayMaxSessionsOfTypeWarn(std::string_view type);
   bool displayStatus(STATUS status);
 
-  const ClientOptions& _options;
-
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;

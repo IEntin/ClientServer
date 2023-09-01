@@ -8,7 +8,6 @@
 #include <boost/asio.hpp>
 
 class Server;
-struct ServerOptions;
 
 namespace tcp {
 
@@ -27,7 +26,6 @@ private:
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   Server& _server;
-  const ServerOptions& _options;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;

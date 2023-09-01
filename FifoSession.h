@@ -8,12 +8,10 @@
 #include <vector>
 
 using Response = std::vector<std::string>;
-struct ServerOptions;
 
 namespace fifo {
 
 class FifoSession final : public RunnableT<FifoSession> {
-  const ServerOptions& _options;
   std::string _clientId;
   std::string _fifoName;
   std::string _request;
@@ -27,7 +25,7 @@ class FifoSession final : public RunnableT<FifoSession> {
   bool sendStatusToClient() override;
   std::string_view getId() override { return _clientId; }
  public:
-  FifoSession(const ServerOptions& options);
+  FifoSession();
   ~FifoSession() override;
 };
 

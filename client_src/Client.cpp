@@ -10,8 +10,7 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
-Client::Client(const ClientOptions& options) :
-  _options(options) {}
+Client::Client(const ClientOptions&) {}
 
 Client::~Client() {
   stop();
@@ -49,14 +48,14 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 
 bool Client::run() {
   int numberTasks = 0;
-  auto taskBuilder = std::make_shared<TaskBuilder>(_options);
+  auto taskBuilder = std::make_shared<TaskBuilder>();
   _threadPoolClient.push(taskBuilder);
   do {
-    Chronometer chronometer(Options::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
+    Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
     auto savedBuild = std::move(taskBuilder);
     if (ClientOptions::_runLoop) {
       // start construction of the next task in the background
-      taskBuilder = std::make_shared<TaskBuilder>(_options);
+      taskBuilder = std::make_shared<TaskBuilder>();
       _threadPoolClient.push(taskBuilder);
     }
     if (!processTask(savedBuild))
@@ -93,7 +92,7 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
 
 void Client::start() {
   CryptoKey::recover();
-  if (Options::_showKey)
+  if (ClientOptions::_showKey)
     CryptoKey::showKey();
   if (!CryptoKey::_valid)
     throw std::runtime_error("invalid or absent crypto files.");

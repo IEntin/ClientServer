@@ -5,7 +5,6 @@
 #include "Options.h"
 #include "AppOptions.h"
 #include "CommonConstants.h"
-#include "Compression.h"
 #include "Logger.h"
 #include <filesystem>
 
@@ -19,9 +18,7 @@ Options::Options(std::string_view jsonName) {
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
   _ENXIOwait = appOptions.get("ENXIOwai", 10);
-  _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
   _cryptoKeySize = appOptions.get("EncryptionKeySize", 32);
-  _encrypted = appOptions.get("Encrypted", false);
   _showKey = appOptions.get("ShowKey", false);
   _timing = appOptions.get("Timing", false);
   _setPipeSize = appOptions.get("SetPipeSize", true);

@@ -8,7 +8,6 @@
 #include <boost/asio.hpp>
 
 using Response = std::vector<std::string>;
-struct ServerOptions;
 
 namespace tcp {
 
@@ -16,7 +15,7 @@ using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
 public:
-  TcpSession(const ServerOptions& options);
+  TcpSession();
   ~TcpSession() override;
 
   boost::asio::ip::tcp::socket& socket() { return _socket; }
@@ -31,7 +30,6 @@ private:
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
-  const ServerOptions& _options;
   std::string _clientId;
   static inline std::string_view _displayType = "tcp";
   boost::asio::io_context _ioContext;

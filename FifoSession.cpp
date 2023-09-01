@@ -11,9 +11,8 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(const ServerOptions& options) :
-  RunnableT(ServerOptions::_maxFifoSessions, _displayType),
-  _options(options) {}
+FifoSession::FifoSession() :
+  RunnableT(ServerOptions::_maxFifoSessions, _displayType) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
@@ -71,7 +70,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
 bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
-  HEADER header{ HEADERTYPE::SESSION, 0, 0, _options._compressor, _options._encrypted, false, _status };
+  HEADER header{ HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, _status };
   std::string_view body = serverutility::buildReply(_response, header);
   if (body.empty())
     return false;

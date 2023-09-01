@@ -20,12 +20,12 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
-      TestEnvironment::_serverOptions._compressor = serverCompressor;
+      ServerOptions::_compressor = serverCompressor;
       StrategyPtr strategy = std::make_shared<EchoStrategy>();
-      Server server(TestEnvironment::_serverOptions, strategy);
+      Server server(strategy);
       ASSERT_TRUE(server.start());
       // start client
-      TestEnvironment::_clientOptions._compressor = clientCompressor;
+      ClientOptions::_compressor = clientCompressor;
       {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();
@@ -43,12 +43,12 @@ struct EchoTest : testing::Test {
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     try {
       // start server
-      TestEnvironment::_serverOptions._compressor = serverCompressor;
+      ServerOptions::_compressor = serverCompressor;
       StrategyPtr strategy = std::make_shared<EchoStrategy>();
-      Server server(TestEnvironment::_serverOptions, strategy);
+      Server server(strategy);
       ASSERT_TRUE(server.start());
       // start client
-      TestEnvironment::_clientOptions._compressor = clientCompressor;
+      ClientOptions::_compressor = clientCompressor;
       {
 	fifo::FifoClient client(TestEnvironment::_clientOptions);
 	client.run();

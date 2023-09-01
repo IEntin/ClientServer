@@ -12,6 +12,8 @@ struct ClientOptions : Options {
   ~ClientOptions() override {}
   inline static bool _fifoClient;
   inline static bool _tcpClient;
+  inline static COMPRESSORS _compressor;
+  inline static bool _encrypted;
   inline static std::string _serverAddress;
   inline static std::string _sourceName;
   inline static std::ostream* _dataStream;

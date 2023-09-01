@@ -7,7 +7,6 @@
 #include "Runnable.h"
 
 class Server;
-struct ServerOptions;
 
 namespace fifo {
 
@@ -18,7 +17,6 @@ class FifoAcceptor : public RunnableT<FifoAcceptor> {
   HEADERTYPE unblockAcceptor();
   void removeFifoFiles();
   Server& _server;
-  const ServerOptions& _options;
  public:
   FifoAcceptor(Server& server);
   ~FifoAcceptor() override;

@@ -10,9 +10,8 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(const ServerOptions& options) :
+TcpSession::TcpSession() :
   RunnableT(ServerOptions::_maxTcpSessions, _displayType),
-  _options(options),
   _socket(_ioContext),
   _timeoutTimer(_ioContext) {}
 
@@ -55,7 +54,7 @@ void TcpSession::stop() {
 }
 
 bool TcpSession::sendReply() {
-  HEADER header{ HEADERTYPE::SESSION, 0, 0, _options._compressor, _options._encrypted, false, _status };
+  HEADER header{ HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, _status };
   std::string_view body = serverutility::buildReply(_response, header);
   if (body.empty())
     return false;

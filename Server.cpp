@@ -12,8 +12,7 @@
 #include "TcpAcceptor.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 
-Server::Server(const ServerOptions& options, StrategyPtr strategy) :
-  _options(options),
+Server::Server(StrategyPtr strategy) :
   _strategy(strategy),
   _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);

@@ -36,15 +36,15 @@ int main() {
       LogError << strerror(errno) << '\n';
     ServerOptions options("ServerOptions.json");
     // optionally record elapsed times
-    Chronometer chronometer(Options::_timing, __FILE__, __LINE__);
+    Chronometer chronometer(ServerOptions::_timing, __FILE__, __LINE__);
     StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-    Server server(options, strategy);
+    Server server(strategy);
     if (!server.start())
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << '\n';
-    if (options._invalidateKey) {
+    if (ServerOptions::_invalidateKey) {
       std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
     }
     Metrics::save();

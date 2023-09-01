@@ -4,6 +4,7 @@
 
 #include "ServerOptions.h"
 #include "AppOptions.h"
+#include "Compression.h"
 #include <iostream>
 #include <thread>
 
@@ -11,6 +12,8 @@ ServerOptions::ServerOptions(std::string_view jsonName) :
   Options(jsonName) {
   AppOptions appOptions(jsonName);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
+  _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
+  _encrypted = appOptions.get("Encrypted", false);
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);
   _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();
   _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);

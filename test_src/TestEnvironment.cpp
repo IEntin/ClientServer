@@ -21,7 +21,7 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    _source = utility::readFile(_clientOptions._sourceName);
+    _source = utility::readFile(ClientOptions::_sourceName);
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
     _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");

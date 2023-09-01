@@ -37,8 +37,8 @@ struct PayloadTransformTest : testing::Test {
     try {
       std::string data = TestEnvironment::_source;
       CryptoKey::initialize();
-      TestEnvironment::_serverOptions._encrypted = encrypted;
-      TestEnvironment::_serverOptions._compressor = compressor;
+      ServerOptions::_encrypted = encrypted;
+      ServerOptions::_compressor = compressor;
       HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE};
       payloadtransform::compressEncrypt(data, header);
       payloadtransform::decryptDecompress(header, data);

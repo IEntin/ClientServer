@@ -16,29 +16,24 @@ struct LogicTest : testing::Test {
 		    COMPRESSORS clientCompressor,
 		    bool serverEncrypt,
 		    bool clientEncrypt,
-		    size_t clientBufferSize,
+		    size_t bufferSize,
 		    bool diagnostics) {
     try {
       // start server
-      TestEnvironment::_serverOptions._compressor = serverCompressor;
-      TestEnvironment::_serverOptions._encrypted = serverEncrypt;
+      ServerOptions::_compressor = serverCompressor;
+      ServerOptions::_encrypted = serverEncrypt;
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(TestEnvironment::_serverOptions, strategy);
+      Server server(strategy);
       ASSERT_TRUE(server.start());
       // start client
-      TestEnvironment::_clientOptions._compressor = clientCompressor;
-      TestEnvironment::_clientOptions._encrypted = clientEncrypt;
-      TestEnvironment::_clientOptions._bufferSize = clientBufferSize;
-      TestEnvironment::_clientOptions._diagnostics = diagnostics;
+      ClientOptions::_compressor = clientCompressor;
+      ClientOptions::_encrypted = clientEncrypt;
+      ClientOptions::_bufferSize = bufferSize;
+      ClientOptions::_diagnostics = diagnostics;
       {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();
       }
-      ASSERT_EQ(TestEnvironment::_clientOptions._compressor, clientCompressor);
-      ASSERT_EQ(TestEnvironment::_clientOptions._encrypted, clientEncrypt);
-      ASSERT_EQ(TestEnvironment::_clientOptions._diagnostics, diagnostics);
-      ASSERT_EQ(TestEnvironment::_serverOptions._compressor, serverCompressor);
-      ASSERT_EQ(TestEnvironment::_serverOptions._encrypted, serverEncrypt);
 
       server.stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
@@ -55,20 +50,20 @@ struct LogicTest : testing::Test {
 		     COMPRESSORS clientCompressor,
 		     bool serverEncrypt,
 		     bool clientEncrypt,
-		     size_t clientBufferSize,
+		     size_t bufferSize,
 		     bool diagnostics) {
     try {
       // start server
-      TestEnvironment::_serverOptions._compressor = serverCompressor;
-      TestEnvironment::_serverOptions._encrypted = serverEncrypt;
+      ServerOptions::_compressor = serverCompressor;
+      ServerOptions::_encrypted = serverEncrypt;
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(TestEnvironment::_serverOptions, strategy);
+      Server server(strategy);
       ASSERT_TRUE(server.start());
       // start client
-      TestEnvironment::_clientOptions._compressor = clientCompressor;
-      TestEnvironment::_clientOptions._encrypted = clientEncrypt;
-      TestEnvironment::_clientOptions._bufferSize = clientBufferSize;
-      TestEnvironment::_clientOptions._diagnostics = diagnostics;
+      ClientOptions::_compressor = clientCompressor;
+      ClientOptions::_encrypted = clientEncrypt;
+      ClientOptions::_bufferSize = bufferSize;
+      ClientOptions::_diagnostics = diagnostics;
       std::string_view calibratedOutput = diagnostics ?
 	TestEnvironment::_outputD : TestEnvironment::_outputND;
       {
@@ -127,7 +122,7 @@ TEST_F(LogicTest, TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_D) {
 }
 
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_100000_NOTENCRYPT_NOTENCRYPT_D) {
+TEST_F(LogicTest, FIFO_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 3600000, true);
 }
 
@@ -135,7 +130,7 @@ TEST_F(LogicTest, FIFO_NONE_NONE_100000_ENCRYPT_ENCRYPT_D) {
   testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::NONE, true, true, 100000, true);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_NONE_100000_ENCRYPT_NOTENCRYPT_D) {
+TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_D) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 3600000, true);
 }
 
@@ -168,11 +163,11 @@ struct LogicTestAltFormat : testing::Test {
     try {
       // start server
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(TestEnvironment::_serverOptions, strategy);
+      Server server(strategy);
       ASSERT_TRUE(server.start());
       // start client
-      TestEnvironment::_clientOptions._sourceName = "data/requestsDiffFormat.log";
-      TestEnvironment::_clientOptions._diagnostics = true;
+      ClientOptions::_sourceName = "data/requestsDiffFormat.log";
+      ClientOptions::_diagnostics = true;
       {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();
@@ -203,10 +198,10 @@ struct LogicTestSortInput : testing::Test {
       // start server
       ServerOptions::_sortInput = sort;
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(TestEnvironment::_serverOptions, strategy);
+      Server server(strategy);
       ASSERT_TRUE(server.start());
       // start client
-      TestEnvironment::_clientOptions._diagnostics = true;
+      ClientOptions::_diagnostics = true;
       {
 	tcp::TcpClient client(TestEnvironment::_clientOptions);
 	client.run();

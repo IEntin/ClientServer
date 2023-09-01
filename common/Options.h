@@ -21,8 +21,6 @@ struct Options {
   inline static std::string _tcpService;
   inline static int _numberRepeatENXIO;
   inline static int _ENXIOwait;
-  COMPRESSORS _compressor;
-  bool _encrypted;
   inline static bool _showKey;
   inline static bool _timing;
   inline static bool _setPipeSize;

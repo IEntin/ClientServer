@@ -12,7 +12,6 @@ namespace tcp {
 
 TcpAcceptor::TcpAcceptor(Server& server) :
   _server(server),
-  _options(_server.getOptions()),
   _acceptor(_ioContext) {}
 
 TcpAcceptor::~TcpAcceptor() {
@@ -80,7 +79,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::accept() {
-  auto connection = std::make_shared<TcpSession>(_options);
+  auto connection = std::make_shared<TcpSession>();
   _acceptor.async_accept(connection->socket(),
     [connection, this](boost::system::error_code ec) {
       if (_stopped)
