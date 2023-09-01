@@ -16,14 +16,12 @@ struct LogicTest : testing::Test {
 		    COMPRESSORS clientCompressor,
 		    bool serverEncrypt,
 		    bool clientEncrypt,
-		    size_t serverBufferSize,
 		    size_t clientBufferSize,
-		    bool diagnostics = true) {
+		    bool diagnostics) {
     try {
       // start server
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._encrypted = serverEncrypt;
-      TestEnvironment::_serverOptions._bufferSize = serverBufferSize;
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
       Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
@@ -38,12 +36,9 @@ struct LogicTest : testing::Test {
       }
       ASSERT_EQ(TestEnvironment::_clientOptions._compressor, clientCompressor);
       ASSERT_EQ(TestEnvironment::_clientOptions._encrypted, clientEncrypt);
-      ASSERT_EQ(TestEnvironment::_clientOptions._bufferSize, clientBufferSize);
       ASSERT_EQ(TestEnvironment::_clientOptions._diagnostics, diagnostics);
-
       ASSERT_EQ(TestEnvironment::_serverOptions._compressor, serverCompressor);
       ASSERT_EQ(TestEnvironment::_serverOptions._encrypted, serverEncrypt);
-      ASSERT_EQ(TestEnvironment::_serverOptions._bufferSize, serverBufferSize);
 
       server.stop();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
@@ -60,14 +55,12 @@ struct LogicTest : testing::Test {
 		     COMPRESSORS clientCompressor,
 		     bool serverEncrypt,
 		     bool clientEncrypt,
-		     size_t serverBufferSize,
 		     size_t clientBufferSize,
-		     bool diagnostics = true) {
+		     bool diagnostics) {
     try {
       // start server
       TestEnvironment::_serverOptions._compressor = serverCompressor;
       TestEnvironment::_serverOptions._encrypted = serverEncrypt;
-      TestEnvironment::_serverOptions._bufferSize = serverBufferSize;
       StrategyPtr strategy = std::make_shared<TransactionStrategy>();
       Server server(TestEnvironment::_serverOptions, strategy);
       ASSERT_TRUE(server.start());
@@ -97,77 +90,77 @@ struct LogicTest : testing::Test {
   }
 };
 
-TEST_F(LogicTest, TCP_LZ4_LZ4_100000_3600000_ENCRYPT_ENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true, 100000, 3600000);
+TEST_F(LogicTest, TCP_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true, 3600000, true);
 }
 
-TEST_F(LogicTest, TCP_NONE_NONE_100000_3600000_NOTENCRYPT_ENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::NONE, COMPRESSORS::NONE, false, true, 100000, 3600000);
+TEST_F(LogicTest, TCP_NONE_NONE_3600000_NOTENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::NONE, COMPRESSORS::NONE, false, true, 3600000, true);
 }
 
-TEST_F(LogicTest, TCP_NONE_LZ4_100000_3600000_NOTENCRYPT_NOTENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::NONE, COMPRESSORS::LZ4, false, false, 100000, 3600000);
+TEST_F(LogicTest, TCP_NONE_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::NONE, COMPRESSORS::LZ4, false, false, 3600000, true);
 }
 
-TEST_F(LogicTest, TCP_LZ4_NONE_100000_3600000_ENCRYPT_NOTENCRYPT_ND) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 100000, 3600000, false);
+TEST_F(LogicTest, TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_ND) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 3600000, false);
 }
 
-TEST_F(LogicTest, TCP_LZ4_LZ4_3600000_3600000_ENCRYPT_ENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true, 3600000, 3600000);
+TEST_F(LogicTest, TCP_LZ4_LZ4_3000000_ENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true, 3000000, true);
 }
 
-TEST_F(LogicTest, TCP_LZ4_LZ4_3600000_10000_NOTENCRYPT__ENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, true, 3600000, 10000);
+TEST_F(LogicTest, TCP_LZ4_LZ4_20000_NOTENCRYPT__ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, true, 20000, true);
 }
 
-TEST_F(LogicTest, TCP_LZ4_LZ4_25000_55000_NOTENCRYPT_NOTENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 25000, 55000);
+TEST_F(LogicTest, TCP_LZ4_LZ4_55000_NOTENCRYPT_NOTENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 55000, true);
 }
 
-TEST_F(LogicTest, TCP_LZ4_LZ4_100000_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 100000, 3600000, false);
+TEST_F(LogicTest, TCP_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 3600000, false);
 }
 
-TEST_F(LogicTest, TCP_LZ4_NONE_100000_3600000_ENCRYPT_NOTENCRYPT_D) {
-  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 100000, 3600000);
+TEST_F(LogicTest, TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 3600000, true);
 }
 
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_100000_3600000_NOTENCRYPT_NOTENCRYPT_D) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 100000, 3600000);
+TEST_F(LogicTest, FIFO_LZ4_LZ4_100000_NOTENCRYPT_NOTENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 3600000, true);
 }
 
-TEST_F(LogicTest, FIFO_NONE_NONE_100000_3600000_ENCRYPT_ENCRYPT_D) {
-  testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::NONE, true, true, 100000, 3600000);
+TEST_F(LogicTest, FIFO_NONE_NONE_100000_ENCRYPT_ENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::NONE, true, true, 100000, true);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_NONE_100000_3600000_ENCRYPT_NOTENCRYPT_D) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 100000, 3600000);
+TEST_F(LogicTest, FIFO_LZ4_NONE_100000_ENCRYPT_NOTENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, false, 3600000, true);
 }
 
-TEST_F(LogicTest, FIFO_NONE_LZ4_100000_3600000_NOTENCRYPT_ENCRYPT_ND) {
-  testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, false, true, 100000, 3600000, false);
+TEST_F(LogicTest, FIFO_NONE_LZ4_100000_NOTENCRYPT_ENCRYPT_ND) {
+  testLogicFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, false, true, 100000, false);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_12345_543_NOTENCRYPT_NOTENCRYPT_D) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 12345, 543);
+TEST_F(LogicTest, FIFO_LZ4_LZ4_543_NOTENCRYPT_NOTENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, false, 543, true);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_500_10000_ENCRYPT_ENCRYPT_ND) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true,  500, 10000, false);
+TEST_F(LogicTest, FIFO_LZ4_LZ4_10000_ENCRYPT_ENCRYPT_ND) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true,  10000, false);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_10000000_10000000_ENCRYPT_NOTENCRYPT_D) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, false, 10000000, 10000000);
+TEST_F(LogicTest, FIFO_LZ4_LZ4_10000000_ENCRYPT_NOTENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, false, 10000000, true);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_LZ4_100000_3600000_NOTENCRYPT_ENCRYPT_ND) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, true, 100000, 3600000, false);
+TEST_F(LogicTest, FIFO_LZ4_LZ4_3600000_NOTENCRYPT_ENCRYPT_ND) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, false, true, 3600000, false);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_NONE_100000_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
-  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, false, false, 100000, 3600000, false);
+TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, false, false, 3600000, false);
 }
 
 struct LogicTestAltFormat : testing::Test {

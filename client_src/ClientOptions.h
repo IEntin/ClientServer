@@ -24,4 +24,5 @@ struct ClientOptions : Options {
   inline static bool _heartbeatEnabled;
   inline static bool _diagnostics;
   inline static bool _runLoop;
+  inline static size_t _bufferSize;
 };

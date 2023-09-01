@@ -68,7 +68,7 @@ STATUS TaskBuilder::createSubtask() {
   std::string aggregate;
   size_t aggregateSize = 0;
   // rough estimate for subtask size to minimize reallocation.
-  size_t maxSubtaskSize = _options._bufferSize * 0.9;
+  size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
   auto& subtask = _subtasks.back();
   {

@@ -37,4 +37,5 @@ ClientOptions::ClientOptions(std::string_view jsonName, std::ostream* externalDa
   _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);
+  _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
 }

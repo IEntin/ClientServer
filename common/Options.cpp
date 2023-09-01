@@ -11,7 +11,6 @@
 
 Options::Options(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
-  _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _tcpPort = appOptions.get("TcpPort", 49151);

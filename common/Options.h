@@ -15,7 +15,6 @@ enum class LOG_LEVEL : char;
 struct Options {
   explicit Options(std::string_view jsonName);
   virtual ~Options() {}
-  size_t _bufferSize;
   inline static std::string _fifoDirectoryName;
   inline static std::string _acceptorName;
   inline static unsigned short _tcpPort;
