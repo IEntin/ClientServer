@@ -7,13 +7,12 @@
 #include "ThreadPoolBase.h"
 
 struct Subtask;
-struct ClientOptions;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 
 class Client {
 
  protected:
-  Client(const ClientOptions& options);
+  Client();
 
   bool processTask(TaskBuilderPtr taskBuilder);
   bool printReply(const HEADER& header, std::string& buffer);

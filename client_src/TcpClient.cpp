@@ -10,8 +10,7 @@
 
 namespace tcp {
 
-TcpClient::TcpClient(const ClientOptions& options) :
-  Client(options),
+TcpClient::TcpClient() :
   _socket(_ioContext) {
   auto [endpoint, error] =
     Tcp::setSocket(_ioContext, _socket);

@@ -30,12 +30,12 @@ int main() {
   std::cout.tie(nullptr);
   try {
     if (ClientOptions::_fifoClient) {
-      fifo::FifoClient client(options);
+      fifo::FifoClient client;
       if (!client.run())
 	return 1;
     }
     if (ClientOptions::_tcpClient) {
-      tcp::TcpClient client(options);
+      tcp::TcpClient client;
       if (!client.run())
 	return 2;
     }

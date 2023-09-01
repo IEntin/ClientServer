@@ -21,7 +21,7 @@ class TcpClient : public Client {
   RunnableWeakPtr _signalWatcher;
   std::string _response;
  public:
-  TcpClient(const ClientOptions& options);
+  TcpClient();
   ~TcpClient() override;
 
   bool run() override;

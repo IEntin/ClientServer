@@ -10,7 +10,7 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
-Client::Client(const ClientOptions&) {}
+Client::Client() {}
 
 Client::~Client() {
   stop();

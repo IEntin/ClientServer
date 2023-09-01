@@ -13,7 +13,7 @@ echo "UP_DIR:" $UP_DIR
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "cd to the project root and run this script"
-    echo "'./deploy.sh 2>&1 | tee deploy.txt'"
+    echo "'./deploy.sh'"
     echo "Start the server in the project root terminal './server'"
     echo "and each client in client terminals './client'"
     exit 0

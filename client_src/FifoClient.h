@@ -21,7 +21,7 @@ class FifoClient : public Client {
   std::string _response;
 
  public:
-  FifoClient(const ClientOptions& options);
+  FifoClient();
   ~FifoClient() override;
 
   bool run() override;

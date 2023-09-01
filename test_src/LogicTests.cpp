@@ -31,7 +31,7 @@ struct LogicTest : testing::Test {
       ClientOptions::_bufferSize = bufferSize;
       ClientOptions::_diagnostics = diagnostics;
       {
-	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	tcp::TcpClient client;
 	client.run();
       }
 
@@ -67,7 +67,7 @@ struct LogicTest : testing::Test {
       std::string_view calibratedOutput = diagnostics ?
 	TestEnvironment::_outputD : TestEnvironment::_outputND;
       {
-	fifo::FifoClient client(TestEnvironment::_clientOptions);
+	fifo::FifoClient client;
 	client.run();
 	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
 	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
@@ -169,7 +169,7 @@ struct LogicTestAltFormat : testing::Test {
       ClientOptions::_sourceName = "data/requestsDiffFormat.log";
       ClientOptions::_diagnostics = true;
       {
-	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	tcp::TcpClient client;
 	client.run();
       }
       server.stop();
@@ -203,7 +203,7 @@ struct LogicTestSortInput : testing::Test {
       // start client
       ClientOptions::_diagnostics = true;
       {
-	tcp::TcpClient client(TestEnvironment::_clientOptions);
+	tcp::TcpClient client;
 	client.run();
       }
       server.stop();
