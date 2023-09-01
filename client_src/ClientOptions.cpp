@@ -7,9 +7,9 @@
 #include "Compression.h"
 #include <iostream>
 
-ClientOptions::ClientOptions(std::string_view jsonName, std::ostream* externalDataStream) :
-  Options(jsonName) {
+void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   AppOptions appOptions(jsonName);
+  Options::parse(appOptions);
   std::string clientType = appOptions.get("ClientType", std::string(""));
   _fifoClient = clientType == "FIFO";
   _tcpClient = clientType == "TCP";

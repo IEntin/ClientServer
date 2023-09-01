@@ -7,9 +7,6 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-struct ServerOptions;
-struct ClientOptions;
-
 class TestEnvironment : public ::testing::Environment {
 public:
 
@@ -23,9 +20,7 @@ public:
 
   static void reset();
 
-  static ServerOptions _serverOptions;
   static std::ostringstream _oss;
-  static ClientOptions _clientOptions;
   static std::string _source;
   static std::string _outputD;
   static std::string _outputND;

@@ -10,9 +10,7 @@
 #include "Utility.h"
 #include <filesystem>
 
-ServerOptions TestEnvironment::_serverOptions;
 std::ostringstream TestEnvironment::_oss;
-ClientOptions TestEnvironment::_clientOptions("", &_oss);
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
@@ -21,6 +19,8 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
+    ServerOptions::parse("");
+    ClientOptions::parse("", &_oss);
     _source = utility::readFile(ClientOptions::_sourceName);
     _outputD = utility::readFile("data/outputD.txt");
     _outputND = utility::readFile("data/outputND.txt");
@@ -45,8 +45,8 @@ void TestEnvironment::TearDown() {
 
 void TestEnvironment::reset() {
   _oss.str("");
-  _serverOptions = ServerOptions("");
-  _clientOptions = ClientOptions("", &_oss);
+  ServerOptions::parse("");
+  ClientOptions::parse("", &_oss);
 }
 
 int main(int argc, char** argv) {

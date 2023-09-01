@@ -34,7 +34,7 @@ int main() {
       LogError << strerror(errno) << '\n';
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
-    ServerOptions options("ServerOptions.json");
+    ServerOptions::parse("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(ServerOptions::_timing, __FILE__, __LINE__);
     StrategyPtr strategy = std::make_shared<TransactionStrategy>();

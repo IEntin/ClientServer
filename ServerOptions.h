@@ -7,8 +7,9 @@
 #include "Options.h"
 
 struct ServerOptions : Options {
-  explicit ServerOptions(std::string_view jsonName = "");
-  ~ServerOptions() override {}
+  ServerOptions() = delete;
+  ~ServerOptions() = delete;
+  static void parse(std::string_view jsonName);
   inline static std::string _adsFileName;
   inline static COMPRESSORS _compressor;
   inline static bool _encrypted;

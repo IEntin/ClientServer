@@ -8,8 +8,7 @@
 #include "Logger.h"
 #include <filesystem>
 
-Options::Options(std::string_view jsonName) {
-  AppOptions appOptions(jsonName);
+void Options::parse(AppOptions& appOptions) {
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _tcpPort = appOptions.get("TcpPort", 49151);

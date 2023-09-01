@@ -23,7 +23,7 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
-  ClientOptions options("ClientOptions.json");
+  ClientOptions::parse("ClientOptions.json");
   Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__);
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);

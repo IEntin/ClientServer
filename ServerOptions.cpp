@@ -8,9 +8,9 @@
 #include <iostream>
 #include <thread>
 
-ServerOptions::ServerOptions(std::string_view jsonName) :
-  Options(jsonName) {
+void ServerOptions::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
+  Options::parse(appOptions);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", false);

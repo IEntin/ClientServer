@@ -8,8 +8,9 @@
 #include <fstream>
 
 struct ClientOptions : Options {
-  explicit ClientOptions(std::string_view jsonName = "", std::ostream* externalDataStream = nullptr);
-  ~ClientOptions() override {}
+  ClientOptions() = delete;
+  ~ClientOptions() = delete;
+  static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   inline static bool _fifoClient;
   inline static bool _tcpClient;
   inline static COMPRESSORS _compressor;

@@ -13,8 +13,9 @@ enum class LOG_LEVEL : char;
 // and client in tests running in the same process.
 
 struct Options {
-  explicit Options(std::string_view jsonName);
-  virtual ~Options() {}
+  Options() = delete;
+  ~Options() = delete;
+  static void parse(class AppOptions& appOptions);
   inline static std::string _fifoDirectoryName;
   inline static std::string _acceptorName;
   inline static unsigned short _tcpPort;
