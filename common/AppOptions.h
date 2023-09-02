@@ -20,10 +20,9 @@ class AppOptions {
     return _ptree.get(name, def);
   }
 
-  bool initialize();
+  bool initialize(std::string_view fileName);
  private:
   AppOptions(const AppOptions& other) = delete;
-  std::string _fileName;
   boost::property_tree::ptree _ptree;
-  bool _initialized;
+  const bool _initialized;
 };

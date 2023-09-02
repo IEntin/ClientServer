@@ -6,11 +6,11 @@
 #include "Logger.h"
 
 AppOptions::AppOptions(std::string_view fileName) :
-  _fileName(fileName), _initialized(initialize()) {}
+  _initialized(initialize(fileName)) {}
 
-bool AppOptions::initialize() {
+bool AppOptions::initialize(std::string_view fileName) {
   try {
-    boost::property_tree::read_json(_fileName, _ptree);
+    boost::property_tree::read_json(fileName.data(), _ptree);
   }
   catch (const std::exception& e) {
     static auto& printOnce[[maybe_unused]] =
