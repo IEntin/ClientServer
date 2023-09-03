@@ -110,10 +110,8 @@ inline bool isOk(const HEADER& header) {
   case STATUS::MAX_TOTAL_OBJECTS:
   case STATUS::MAX_OBJECTS_OF_TYPE:
     return true;
-    break;
   default:
     return false;
-    break;
   }
 }
 

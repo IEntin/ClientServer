@@ -4,16 +4,20 @@
 
 #include "ServerUtility.h"
 #include "PayloadTransform.h"
+#include "ServerOptions.h"
 #include "TaskController.h"
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response, HEADER& header) {
+std::string_view buildReply(const Response& response,
+			    HEADER& header,
+			    std::atomic<STATUS>& status) {
   if (response.empty())
     return {};
   size_t dataSize = 0;
   for (const auto& entry : response)
     dataSize += entry.size();
+  header = { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status };
   static thread_local std::string data;
   data.clear();
   data.resize(dataSize);
@@ -26,12 +30,11 @@ std::string_view buildReply(const Response& response, HEADER& header) {
   return data;
 }
 
-bool processRequest(const HEADER& header, std::string& received, Response& response) {
-  payloadtransform::decryptDecompress(header, received);
+bool processRequest(const HEADER& header, std::string& request, Response& response) {
   auto weakPtr = TaskController::weakInstance();
-  auto taskController = weakPtr.lock();
-  if (taskController) {
-    taskController->processTask(header, received, response);
+  if (auto taskController = weakPtr.lock(); taskController) {
+    payloadtransform::decryptDecompress(header, request);
+    taskController->processTask(header, request, response);
     return true;
   }
   return false;

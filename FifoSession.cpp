@@ -70,8 +70,8 @@ bool FifoSession::receiveRequest(HEADER& header) {
 bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
-  HEADER header{ HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, _status };
-  std::string_view body = serverutility::buildReply(_response, header);
+  HEADER header;
+  std::string_view body = serverutility::buildReply(_response, header, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, body);

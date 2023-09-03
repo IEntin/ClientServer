@@ -186,7 +186,6 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 	break;
       default:
 	return fd;
-	break;
       }
     }
   } while (fd == -1 && rep++ < Options::_numberRepeatENXIO);

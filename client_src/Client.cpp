@@ -40,7 +40,6 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
       break;
     default:
       return false;
-      break;
     }
   }
   return true;

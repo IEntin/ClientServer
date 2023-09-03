@@ -50,6 +50,7 @@ void  ThreadPoolBase::createThread() {
 	Decrement(ThreadPoolBase* threadPool) : _threadPool(threadPool) {}
 	~Decrement() {
 	  _threadPool->_totalNumberObjects--;
+	  _threadPool = nullptr;
 	}
 	ThreadPoolBase* _threadPool = nullptr;
       } decrement(this);
