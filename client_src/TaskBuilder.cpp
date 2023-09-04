@@ -8,8 +8,7 @@
 #include "PayloadTransform.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder() :
-  _subtasks(1) {
+TaskBuilder::TaskBuilder() {
   _input.open(ClientOptions::_sourceName, std::ios::binary);
   if(!_input)
     throw std::ios::failure("Error opening file");
@@ -24,10 +23,11 @@ void TaskBuilder::run() {
 }
 
 STATUS TaskBuilder::getSubtask(Subtask& task) {
-  STATUS state = STATUS::NONE;
+  std::unique_lock lock(_mutex);
+  _condition.wait(lock, [this] { return !_subtasks.empty(); });
   auto& subtask = _subtasks.front();
-  subtask._state.wait(STATUS::NONE);
-  state = subtask._state;
+  STATUS state = subtask._state;
+  task._state = state;
   switch (state) {
   case STATUS::SUBTASK_DONE:
   case STATUS::TASK_DONE:
@@ -37,9 +37,8 @@ STATUS TaskBuilder::getSubtask(Subtask& task) {
   default:
     break;
   }
-  std::scoped_lock lock(_mutex);
   _subtasks.pop_front();
-  return state;
+  return task._state;
 }
 
 int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
@@ -69,11 +68,6 @@ STATUS TaskBuilder::createSubtask() {
   // rough estimate for subtask size to minimize reallocation.
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
-  auto& subtask = _subtasks.back();
-  {
-    std::scoped_lock lock(_mutex);
-    _subtasks.emplace_back();
-  }
   while (std::getline(_input, line)) {
     aggregate.resize(aggregateSize + _nextIdSz + line.size() + 1);
     int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
@@ -82,7 +76,7 @@ STATUS TaskBuilder::createSubtask() {
     if (aggregateSize >= maxSubtaskSize || alldone) {
       // remove last eol
       aggregate.pop_back();
-      return encryptCompressSubtask(subtask, aggregate, alldone);
+      return compressEncryptSubtask(aggregate, alldone);
     }
     else
       continue;
@@ -93,13 +87,15 @@ STATUS TaskBuilder::createSubtask() {
 // Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-STATUS TaskBuilder::encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone) {
+STATUS TaskBuilder::compressEncryptSubtask(std::string& data, bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
   payloadtransform::compressEncrypt(data, header);
   std::scoped_lock lock(_mutex);
+  _subtasks.emplace_back();
+  Subtask& subtask = _subtasks.back();
   subtask._header.swap(header);
   subtask._body.swap(data);
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
-  subtask._state.notify_one();
+  _condition.notify_one();
   return subtask._state;
 }

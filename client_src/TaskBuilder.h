@@ -6,6 +6,7 @@
 
 #include "Runnable.h"
 #include "Subtask.h"
+#include <condition_variable>
 #include <deque>
 #include <mutex>
 #include <fstream>
@@ -14,7 +15,7 @@ enum class STATUS : char;
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
-  STATUS encryptCompressSubtask(Subtask& subtask, std::string& data, bool alldone);
+  STATUS compressEncryptSubtask(std::string& data, bool alldone);
   int copyRequestWithId(char* dst, std::string_view line);
 
   std::ifstream _input;
@@ -22,6 +23,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
   ssize_t _requestIndex = 0;
   int _nextIdSz = 4;
   std::mutex _mutex;
+  std::condition_variable _condition;
   void run() override;
   bool start() override { return true; }
  public:
