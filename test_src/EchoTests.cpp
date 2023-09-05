@@ -121,6 +121,7 @@ struct FifoNonblockingTest : testing::Test {
 
   void testNonblockingFifo(std::string_view payload) {
     static thread_local std::vector<char> received;
+    received.clear();
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
       auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
@@ -140,6 +141,7 @@ struct FifoNonblockingTest : testing::Test {
 
   void testNonblockingFifoReverse(std::string_view payload) {
     static thread_local std::vector<char> received;
+    received.clear();
     try {
       ASSERT_TRUE(std::filesystem::exists(_testFifo));
       auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));

@@ -17,8 +17,8 @@ inline COMPRESSORS translateName(std::string_view compressorStr) {
 }
 
 template <typename B>
-void compress(B& data) {
-  static thread_local B buffer;
+std::string_view compress(const B& data) {
+  static thread_local std::string buffer;
   buffer.clear();
   buffer.resize(LZ4_compressBound(data.size()));
   size_t compressedSize = LZ4_compress_default(data.data(),
@@ -28,12 +28,12 @@ void compress(B& data) {
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
   buffer.resize(compressedSize);
-  data.swap(buffer);
+  return buffer;
 }
 
 template <typename B>
-void uncompress(B& data, size_t uncomprSize) {
-  static thread_local B uncompressed;
+std::string_view uncompress(B& data, size_t uncomprSize) {
+  static thread_local std::string uncompressed;
   uncompressed.clear();
   uncompressed.resize(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),
@@ -42,7 +42,7 @@ void uncompress(B& data, size_t uncomprSize) {
 					    uncomprSize);
   if (decomprSize != static_cast<ssize_t>(uncomprSize))
     throw std::runtime_error("uncompress failed");
-  data.swap(uncompressed);
+  return uncompressed;
 }
 
 } // end of namespace compression

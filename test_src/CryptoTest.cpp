@@ -15,16 +15,16 @@
 TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
   // exchanged between two parties before communication begins.
-  std::string data = TestEnvironment::_source;
+  std::string_view data = TestEnvironment::_source;
   try {
     CryptoKey::initialize();
-    
-    Crypto::encrypt(data);
 
-    Crypto::decrypt(data);
+    std::string_view cipher = Crypto::encrypt(data);
 
-    ASSERT_EQ(TestEnvironment::_source.size(), data.size());
-    ASSERT_EQ(TestEnvironment::_source, data);
+    std::string_view decrypted = Crypto::decrypt(cipher);
+
+    ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
+    ASSERT_TRUE(std::memcmp(TestEnvironment::_source.data(), decrypted.data(), decrypted.size()) == 0);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
@@ -40,10 +40,10 @@ struct PayloadTransformTest : testing::Test {
       ServerOptions::_encrypted = encrypted;
       ServerOptions::_compressor = compressor;
       HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE};
-      payloadtransform::compressEncrypt(data, header);
-      payloadtransform::decryptDecompress(header, data);
-      ASSERT_EQ(data.size(), TestEnvironment::_source.size());
-      ASSERT_EQ(data, TestEnvironment::_source);
+      std::string_view transformed = payloadtransform::compressEncrypt(data, header);
+      std::string_view restored = payloadtransform::decryptDecompress(header, transformed);
+      ASSERT_EQ(restored.size(), TestEnvironment::_source.size());
+      ASSERT_EQ(restored, TestEnvironment::_source);
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';

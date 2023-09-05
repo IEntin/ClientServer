@@ -26,15 +26,14 @@ std::string_view buildReply(const Response& response,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  payloadtransform::compressEncrypt(data, header);
-  return data;
+  return payloadtransform::compressEncrypt(data, header);
 }
 
 bool processRequest(const HEADER& header, std::string& request, Response& response) {
   auto weakPtr = TaskController::weakInstance();
   if (auto taskController = weakPtr.lock(); taskController) {
-    payloadtransform::decryptDecompress(header, request);
-    taskController->processTask(header, request, response);
+    std::string_view restored = payloadtransform::decryptDecompress(header, request);
+    taskController->processTask(header, restored, response);
     return true;
   }
   return false;

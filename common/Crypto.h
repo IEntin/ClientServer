@@ -18,9 +18,9 @@ struct CryptoKey {
 
 class Crypto {
  public:
-  static void encrypt(std::string& data);
+  static std::string_view encrypt(std::string_view data);
 
-  static void decrypt(std::string& cipher);
+  static std::string_view decrypt(std::string_view data);
 
   static bool showIv(const CryptoPP::SecByteBlock& iv);
 };

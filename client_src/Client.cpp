@@ -80,12 +80,12 @@ bool Client::printReply(const HEADER& header, std::string& buffer) {
   }
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  payloadtransform::decryptDecompress(header, buffer);
-  if (buffer.empty()) {
+  std::string_view restored = payloadtransform::decryptDecompress(header, buffer);
+  if (restored.empty()) {
     displayStatus(STATUS::ERROR);
     return false;
   }
-  stream << buffer << std::flush;
+  stream << restored << std::flush;
   return true;
 }
 

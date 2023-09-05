@@ -12,15 +12,15 @@ struct CompressionTest : testing::Test {
   void testCompressionDecompression(std::string& input) {
     try{
       std::string data = input;
-      compression::compress(data);
-      size_t compressedSize = data.size();
-      compression::uncompress(data, input.size());
+      std::string_view compressed = compression::compress(input);
+      size_t compressedSize = compressed.size();
+      std::string_view uncompressed = compression::uncompress(compressed, input.size());
       static auto& printOnce [[maybe_unused]] =
 	Logger(LOG_LEVEL::ALWAYS, std::clog, false)
 	<< "\n\tinput.size()=" << input.size()
 	<< " compressedSize=" << compressedSize << " restored to original:"
-	<< std::boolalpha << (input == data) << '\n' << '\n';
-      ASSERT_EQ(input, data);
+	<< std::boolalpha << (input == uncompressed) << '\n' << '\n';
+      ASSERT_EQ(input, uncompressed);
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';

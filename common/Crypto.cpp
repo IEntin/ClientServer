@@ -54,7 +54,7 @@ bool CryptoKey::initialize() {
 
 // class Crypto
 
-void Crypto::encrypt(std::string& data) {
+std::string_view Crypto::encrypt(std::string_view data) {
   const auto& key = CryptoKey::_key;
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
@@ -68,31 +68,30 @@ void Crypto::encrypt(std::string& data) {
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  data.swap(cipher);
-  data.append(reinterpret_cast<const char*>(iv.data()), iv.size());
+  cipher.append(reinterpret_cast<const char*>(iv.data()), iv.size());
+  return cipher;
 }
 
-void Crypto::decrypt(std::string& data) {
+std::string_view Crypto::decrypt(std::string_view data) {
   const auto& key = CryptoKey::_key;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   auto beg = reinterpret_cast<const unsigned char*>(data.data()) + data.size() - iv.size();
   std::copy(beg, beg + iv.size(), iv.data());
-  data.resize(data.size() - iv.size());
   static thread_local std::string decrypted;
   decrypted.clear();
   try {
     CryptoPP::AES::Decryption aesDecryption(key.data(), key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
-    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
+    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size() - iv.size());
     stfDecryptor.MessageEnd();
-    data.swap(decrypted);
   }
   catch (const std::exception& e) {
     std::string error(e.what());
     error.append("\n\n\tMake sure crypto key file on client site is current!\n");
     throw std::runtime_error(error);
   }
+  return decrypted;
 }
 
 bool Crypto::showIv(const CryptoPP::SecByteBlock& iv) {

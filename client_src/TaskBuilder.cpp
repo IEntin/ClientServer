@@ -63,11 +63,13 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // aggregate depends on the configured buffer size.
 
 STATUS TaskBuilder::createSubtask() {
-  std::string aggregate;
+  static thread_local std::string aggregate;
+  aggregate.clear();
   size_t aggregateSize = 0;
   // rough estimate for subtask size to minimize reallocation.
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
+  line.clear();
   while (std::getline(_input, line)) {
     aggregate.resize(aggregateSize + _nextIdSz + line.size() + 1);
     int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
@@ -89,12 +91,13 @@ STATUS TaskBuilder::createSubtask() {
 
 STATUS TaskBuilder::compressEncryptSubtask(std::string& data, bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
-  payloadtransform::compressEncrypt(data, header);
+  std::string_view output = payloadtransform::compressEncrypt(data, header);
   std::scoped_lock lock(_mutex);
   _subtasks.emplace_back();
   Subtask& subtask = _subtasks.back();
-  subtask._header.swap(header);
-  subtask._body.swap(data);
+  subtask._header = std::move(header);
+  subtask._body = std::move(output);
+  //LogError << "\t### " << data.capacity() << '\n';
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

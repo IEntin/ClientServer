@@ -33,12 +33,11 @@ struct LogicTest : testing::Test {
       {
 	tcp::TcpClient client;
 	client.run();
+	std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
       }
-
       server.stop();
-      std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';
