@@ -20,13 +20,11 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
 
 AdRow::AdRow(const char* beg, const char* end) : _value(beg, end) {}
 
-AdRow::AdRow(AdRow&& other) : _value(other._value) {
-  _key.swap(other._key);
-}
+AdRow::AdRow(AdRow&& other) : _key(std::move(other._key)), _value(other._value) {}
 
 const AdRow& AdRow::operator =(AdRow&& other) {
-  _key.swap(other._key);
-  _value = other._value;
+  _key = std::move(other._key);
+  _value = std::move(other._value);
   return *this;
 }
 

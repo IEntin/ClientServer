@@ -97,7 +97,7 @@ STATUS TaskBuilder::compressEncryptSubtask(std::string& data, bool alldone) {
   Subtask& subtask = _subtasks.back();
   subtask._header = std::move(header);
   subtask._body = std::move(output);
-  //LogError << "\t### " << data.capacity() << '\n';
+  //LogAlways << "\t### " << data.capacity() << '\n';
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

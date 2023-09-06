@@ -11,6 +11,7 @@
 
 #define CODELOCATION __FILE__, __LINE__, __func__
 
+#define LogAlways Logger(LOG_LEVEL::ALWAYS, std::cerr).printPrefix(CODELOCATION)
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix(CODELOCATION)
 #define Warn Logger(LOG_LEVEL::WARN, std::clog).printPrefix(CODELOCATION)
 #define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix(CODELOCATION)
@@ -23,7 +24,7 @@ enum class LOG_LEVEL : char {
   INFO,
   WARN,
   ERROR,
-  ALWAYS = ERROR
+  ALWAYS
 };
 
 inline constexpr std::string_view levelNames[] {
@@ -92,5 +93,5 @@ struct Logger {
     }
   }
 
-  static inline LOG_LEVEL _threshold = LOG_LEVEL::ERROR;
+  static inline LOG_LEVEL _threshold = LOG_LEVEL::ALWAYS;
 };

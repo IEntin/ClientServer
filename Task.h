@@ -20,9 +20,9 @@ using ProcessRequest = std::string (*)(std::string_view, std::string_view, bool 
 struct RequestRow {
   RequestRow(const char* beg, const char* end) : _value(beg, end) {}
 
-  RequestRow(RequestRow&& other) : _value(other._value), _orgIndex(other._orgIndex) {
-    _key.swap(other._key);
-  }
+  RequestRow(RequestRow&& other) : _key(std::move(other._key)),
+				   _value(other._value),
+				   _orgIndex(other._orgIndex) {}
 
   RequestRow(const RequestRow& other) = delete;
   RequestRow& operator =(const RequestRow& other) = delete;
