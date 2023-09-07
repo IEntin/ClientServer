@@ -29,6 +29,6 @@ public:
   void stop();
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
-  size_t size() const { return _threads.size(); }
+  unsigned size() const { return _threads.size(); }
   unsigned maxSize() const { return _maxSize; }
 };

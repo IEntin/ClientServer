@@ -60,13 +60,13 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 // another device.
 // Aggregate requests for sending many in one shot to
 // reduce the number of system calls. The size of the
-// aggregate depends on the configured buffer size.
+// aggregate depends on the buffer size.
 
 STATUS TaskBuilder::createSubtask() {
   static thread_local std::string aggregate;
   aggregate.clear();
   size_t aggregateSize = 0;
-  // rough estimate for subtask size to minimize reallocation.
+  // rough estimate for subtask size
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
   line.clear();
@@ -76,12 +76,9 @@ STATUS TaskBuilder::createSubtask() {
     aggregateSize += copied;
     bool alldone = _input.peek() == std::istream::traits_type::eof();
     if (aggregateSize >= maxSubtaskSize || alldone) {
-      // remove last eol
       aggregate.pop_back();
       return compressEncryptSubtask(aggregate, alldone);
     }
-    else
-      continue;
   }
   return STATUS::NONE;
 }

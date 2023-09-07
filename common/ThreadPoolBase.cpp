@@ -50,30 +50,25 @@ void  ThreadPoolBase::createThread() {
 	Decrement(ThreadPoolBase* threadPool) : _threadPool(threadPool) {}
 	~Decrement() {
 	  _threadPool->_totalNumberObjects--;
-	  _threadPool = nullptr;
 	}
 	ThreadPoolBase* _threadPool = nullptr;
       } decrement(this);
-      // additional scope for fast recycling
-      // of the finished runnable
-      {
-	// this blocks waiting for a new runnable
-	RunnablePtr runnable = get();
-	if (_stopped)
-	  return;
-	if (!runnable)
-	  continue;
-	try {
-	  runnable->run();
-	}
-	catch (const std::exception& e) {
-	  runnable->stop();
-	  LogError << e.what() << '\n';
-	}
-	catch (...) {
-	  runnable->stop();
-	  LogError << "exception caught." << '\n';
-	}
+      // this blocks waiting for a new runnable
+      RunnablePtr runnable = get();
+      if (_stopped)
+	return;
+      if (!runnable)
+	continue;
+      try {
+	runnable->run();
+      }
+      catch (const std::exception& e) {
+	runnable->stop();
+	LogError << e.what() << '\n';
+      }
+      catch (...) {
+	runnable->stop();
+	LogError << "exception caught." << '\n';
       }
     }
   });
