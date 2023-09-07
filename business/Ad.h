@@ -44,7 +44,7 @@ class Ad {
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(std::string_view filename);
   static const std::vector<Ad>& getAdsBySize(std::string_view key);
-  static const long _scaler = 100;
+  static constexpr double _scaler = 100.;
  private:
   bool parseIntro();
   bool parseArray();

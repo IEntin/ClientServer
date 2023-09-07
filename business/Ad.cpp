@@ -63,7 +63,7 @@ bool Ad::parseArray() {
   std::string_view arrayStr(arrayStart + 1, arrayEnd);
   std::vector<std::string_view> vect;
   utility::split(arrayStr, vect, "\", ");
-  for (size_t i = 0; i < vect.size(); i += 2) {
+  for (unsigned i = 0; i < vect.size(); i += 2) {
     double dblMoney = 0;
     if (!utility::fromChars(vect[i + 1], dblMoney))
       continue;

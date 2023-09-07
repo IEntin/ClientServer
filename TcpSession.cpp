@@ -33,7 +33,7 @@ bool TcpSession::start() {
 }
 
 bool TcpSession::sendStatusToClient() {
-  size_t size = _clientId.size();
+  unsigned size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
   auto ec = Tcp::sendMsg(_socket, header, _clientId);
   return !ec;

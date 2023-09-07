@@ -21,14 +21,14 @@ protected:
   std::condition_variable _queueCondition;
   std::deque<RunnablePtr> _queue;
   std::atomic<bool> _stopped = false;
-  std::atomic<int> _totalNumberObjects = 0;
-  const int _maxSize;
+  std::atomic<unsigned> _totalNumberObjects = 0;
+  const unsigned _maxSize;
 public:
   ThreadPoolBase(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
   virtual ~ThreadPoolBase();
   void stop();
   virtual void push(RunnablePtr runnable);
   virtual RunnablePtr get();
-  int size() const { return _threads.size(); }
-  int maxSize() const { return _maxSize; }
+  size_t size() const { return _threads.size(); }
+  unsigned maxSize() const { return _maxSize; }
 };

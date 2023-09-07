@@ -11,7 +11,8 @@ protected:
   ThreadPoolSameObj(const ThreadPoolSameObj& other) = delete;
   ThreadPoolSameObj& operator =(const ThreadPoolSameObj& other) = delete;
 public:
-  explicit ThreadPoolSameObj(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
+  explicit ThreadPoolSameObj(int maxSize);
   ~ThreadPoolSameObj() override;
   void push(RunnablePtr runnable) override;
+  RunnablePtr get() override;
 };

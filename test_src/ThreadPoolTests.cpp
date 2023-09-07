@@ -13,7 +13,7 @@ using TestRunnablePtr = std::shared_ptr<class TestRunnable>;
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public RunnableT<TestRunnable> {
 public:
-  TestRunnable(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
+  TestRunnable(int maxNumberThreads) :
     RunnableT(maxNumberThreads) {}
 
   ~TestRunnable() override {}
@@ -60,10 +60,10 @@ TEST(ThreadPoolTest, Same) {
 
 TEST(ThreadPoolTest, Diff) {
   std::vector<TestRunnablePtr> runnables;
-  const int maxNumberThreads = 20;
+  const unsigned maxNumberThreads = 20;
   ThreadPoolDiffObj pool(maxNumberThreads, &Runnable::sendStatusToClient);
-  for (int i = 0; i < maxNumberThreads; ++i) {
-    auto runnable = std::make_shared<TestRunnable>();
+  for (unsigned i = 0; i < maxNumberThreads; ++i) {
+    auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnables.emplace_back(runnable);
     runnable->start();
     ASSERT_TRUE(runnable->_status == STATUS::NONE);

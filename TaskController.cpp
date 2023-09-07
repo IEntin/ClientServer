@@ -9,7 +9,8 @@
 TaskControllerPtr TaskController::_single;
 
 TaskController::TaskController() :
-  _barrier(ServerOptions::_numberWorkThreads, onTaskCompletion) {
+  _barrier(ServerOptions::_numberWorkThreads, onTaskCompletion),
+  _threadPool(ServerOptions::_numberWorkThreads) {
   // start with empty task
   _task = std::make_shared<Task>();
 }
@@ -104,6 +105,7 @@ void TaskController::destroy() {
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :
+  RunnableT(ServerOptions::_numberWorkThreads),
   _taskController(taskController) {}
 
 // Process the current task (batch of requests) by all threads. Arrive

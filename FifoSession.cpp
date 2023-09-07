@@ -78,7 +78,7 @@ bool FifoSession::sendResponse() {
 }
 
 bool FifoSession::sendStatusToClient() {
-  size_t size = _clientId.size();
+  unsigned size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
   return Fifo::sendMsg(Options::_acceptorName, header, _clientId);
 }

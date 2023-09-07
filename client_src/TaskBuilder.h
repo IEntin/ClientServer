@@ -20,7 +20,7 @@ class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   std::ifstream _input;
   std::deque<Subtask> _subtasks;
-  ssize_t _requestIndex = 0;
+  int _requestIndex = 0;
   int _nextIdSz = 4;
   std::mutex _mutex;
   std::condition_variable _condition;

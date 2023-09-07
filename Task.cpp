@@ -11,7 +11,7 @@ Task::Task(const HEADER& header, std::string_view input) :
   _diagnostics(isDiagnosticsEnabled(header)) {
   utility::split(input, _rows);
   _indices.resize(_rows.size());
-  for (int i = 0; i < static_cast<int>(_indices.size()); ++i) {
+  for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;
     _rows[i]._orgIndex = i;
   }
@@ -27,7 +27,7 @@ void Task::sortIndices() {
 bool Task::preprocessNext() {
   if (!_preprocessRequest)
     return false;
-  size_t index = _index.fetch_add(1);
+  unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[index];
     row._key = _preprocessRequest(row._value);
@@ -42,7 +42,7 @@ bool Task::processNext() {
     LogError << "_processRequest is nullptr, Strategy must be set!" << '\n';
     return false;
   }
-  size_t index = _index.fetch_add(1);
+  unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
     _response[row._orgIndex] = _processRequest(row._key, row._value, _diagnostics);

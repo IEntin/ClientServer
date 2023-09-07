@@ -26,20 +26,23 @@ class Runnable {
   virtual void run() = 0;
   virtual void stop() = 0;
   virtual std::string_view getId() { return std::string_view(); }
-  virtual int getNumberObjects() const = 0;
-  virtual int getNumberRunningByType() const = 0;
-  virtual void displayCapacityCheck(std::atomic<int>&) const = 0;
+  virtual unsigned getNumberObjects() const = 0;
+  virtual unsigned getNumberRunningByType() const = 0;
+  virtual void displayCapacityCheck(std::atomic<unsigned>&) const = 0;
   virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }
   std::atomic<STATUS>& getStatus() { return _status; }
-  void checkCapacity() {
-    if (getNumberObjects() > _maxNumberRunningByType)
+  bool checkCapacity() {
+    if (getNumberObjects() > _maxNumberRunningByType) {
       _status = STATUS::MAX_OBJECTS_OF_TYPE;
+      return false;
+    }
+    return true;
   }
-  const int _maxNumberRunningByType;
+  const unsigned _maxNumberRunningByType;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
-  static inline std::atomic<int> _numberRunningTotal = 0;
+  static inline std::atomic<unsigned> _numberRunningTotal = 0;
 };
 
 // The Curiously Recurring Template Pattern (CRTP)
@@ -54,20 +57,20 @@ class RunnableT : public Runnable {
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }
   static inline std::string_view _displayType;
-  static inline std::atomic<int> _numberObjects = 0;
-  static inline std::atomic<int> _numberRunningByType = 0;
+  static inline std::atomic<unsigned> _numberObjects = 0;
+  static inline std::atomic<unsigned> _numberRunningByType = 0;
   static inline const std::string _type = typeid(T).name();
  public:
   struct CountRunning {
     CountRunning() { _numberRunningByType++; _numberRunningTotal++; }
     ~CountRunning() { _numberRunningByType--; _numberRunningTotal--; }
   };
-  int getNumberObjects() const override {
+  unsigned getNumberObjects() const override {
     return _numberObjects;
   }
-  int getNumberRunningByType() const override { return _numberRunningByType; }
+  unsigned getNumberRunningByType() const override { return _numberRunningByType; }
 
-  void displayCapacityCheck(std::atomic<int>& totalNumberObjects) const override {
+  void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override {
     Info << "Number " << _displayType << " sessions=" << _numberObjects
 	 << ", Number running " << _displayType << " sessions=" << _numberRunningByType
 	 << ", max number " << _displayType << " running=" << _maxNumberRunningByType

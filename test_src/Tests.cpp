@@ -105,8 +105,8 @@ TEST(FromCharsTest, FloatingPoint) {
 TEST(HeaderTest, 1) {
   try {
     char buffer[HEADER_SIZE] = {};
-    size_t payloadSz = 123567;
-    size_t uncomprSz = 123456;
+    unsigned payloadSz = 123567;
+    unsigned uncomprSz = 123456;
     COMPRESSORS compressor = COMPRESSORS::LZ4;
     bool encrypted = false;
     bool diagnostics = true;

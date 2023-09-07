@@ -34,7 +34,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
       continue;
     }
     else
-      readSoFar += static_cast<size_t>(result);
+      readSoFar += result;
   }
   if (readSoFar != HEADER_SIZE) {
     LogError << "HEADER_SIZE=" << HEADER_SIZE
@@ -68,7 +68,7 @@ bool Fifo::readString(int fd, char* received, size_t size) {
       return false;
     }
     else
-      readSoFar += static_cast<size_t>(result);
+      readSoFar += result;
   }
   if (readSoFar != size) {
     LogError << "size=" << size << " readSoFar=" << readSoFar << '\n';
@@ -91,7 +91,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
       }
     }
     else
-      written += static_cast<size_t>(result);
+      written += result;
   }
   if (str.size() != written) {
     LogError << "str.size()=" << str.size()

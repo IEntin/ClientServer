@@ -124,7 +124,7 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
 inline const AdBidMatched* findWinningBid(const std::vector<AdBidMatched>& bids) {
   int index = 0;
   int max = bids[0]._money;
-  for (int i = 1; i < static_cast<int>(bids.size()); ++i) {
+  for (unsigned i = 1; i < bids.size(); ++i) {
     int money = bids[i]._money;
     if (money > max) {
       max = money;
@@ -202,7 +202,7 @@ std::ostream& Transaction::print(std::ostream& os,
       auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << winningBid->_keyword << ", "
-	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1)
+	 << utility::Print(winningBid->_money / Ad::_scaler, 1)
 	 << "\n*****" << '\n';
     }
   }
@@ -214,7 +214,7 @@ std::ostream& Transaction::print(std::ostream& os,
     else {
       const Ad* winningAdPtr = winningBid->_ad;
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(static_cast<double>(winningBid->_money) / Ad::_scaler, 1) << '\n';
+	 << utility::Print(winningBid->_money / Ad::_scaler, 1) << '\n';
     }
   }
   return os;
