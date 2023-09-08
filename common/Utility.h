@@ -71,15 +71,20 @@ template <typename N>
 template <typename N>
   concept FloatingPoint = std::is_floating_point_v<N>;
 
+template <Integral T>
+  void toChars(T value, char* buffer, size_t size = CONV_BUFFER_SIZE) {
+    if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
+	ec != std::errc()) {
+      LogError << "problem converting to string:" << value << '\n';
+      throw std::runtime_error("problem converting to string");
+    }
+}
+
 template <Integral N>
   std::ostream& operator<<(std::ostream& os, const Print<N>& value) {
     char arr[CONV_BUFFER_SIZE] = {};
-    if (auto [ptr, ec] = std::to_chars(arr, arr + CONV_BUFFER_SIZE, value._number);
-	ec == std::errc())
-      os.write(arr, ptr - arr);
-    else
-      LogError << "problem translating number:" << value._number << '\n';
-    return os;
+    toChars(value._number, arr);
+    return os << arr;
 }
 
 template <FloatingPoint N>
@@ -92,15 +97,6 @@ template <FloatingPoint N>
     else
       LogError << "problem translating number:" << value._number << '\n';
     return os;
-}
-
-template <Integral T>
-  void toChars(T value, char* buffer, size_t size) {
-    if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-	ec != std::errc()) {
-      LogError << "problem converting to string:" << value << '\n';
-      throw std::runtime_error("problem converting to string");
-    }
 }
 
 struct CloseFileDescriptor {

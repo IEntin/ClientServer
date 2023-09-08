@@ -44,9 +44,7 @@ STATUS TaskBuilder::getSubtask(Subtask& task) {
 void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view line) {
   aggregate.append(1, '[');
   char buffer[CONV_BUFFER_SIZE] = {};
-  auto [ptr, ec] = std::to_chars(buffer, buffer + CONV_BUFFER_SIZE, _requestIndex++);
-  if (ec != std::errc())
-    throw std::runtime_error(std::string("error translating number:") + std::to_string(_requestIndex));
+  utility::toChars(_requestIndex++, buffer);
   aggregate.append(buffer).append(1, ']').append(line).append(1, '\n');
 }
 

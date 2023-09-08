@@ -10,6 +10,8 @@
 #include <functional>
 #include <iomanip>
 
+using namespace utility;
+
 namespace {
 
 constexpr std::string_view START_KEYWORDS1("kw=");
@@ -160,7 +162,7 @@ void Transaction::matchAds(const std::vector<Ad>& adVector) {
 }
 
 void Transaction::breakKeywords(std::string_view kwStr) {
-  utility::split(kwStr, _keywords, KEYWORD_SEP);
+  split(kwStr, _keywords, KEYWORD_SEP);
   std::sort(_keywords.begin(), _keywords.end());
 }
 
@@ -186,13 +188,13 @@ std::ostream& Transaction::print(std::ostream& os,
   os << transaction._id << ' ';
   if (diagnostics) {
     os <<"Transaction size=" << transaction._sizeKey << " #matches="
-       << utility::Print(transaction._bids.size())
+       << Print(transaction._bids.size())
        << '\n' << transaction._request << "\nrequest keywords:\n";
     for (std::string_view keyword : transaction._keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
     for (const auto& [kw, money, adPtr] : transaction._bids)
-      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
+      os << *adPtr << " match:" << kw << ' ' << Print(money) << '\n';
     os << "summary:";
     if (transaction._noMatch)
       os << Transaction::EMPTY_REPLY << "*****" << '\n';
@@ -202,8 +204,7 @@ std::ostream& Transaction::print(std::ostream& os,
       auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
       os << winningAdPtr->getId() << ", " << winningBid->_keyword << ", "
-	 << utility::Print(winningBid->_money / Ad::_scaler, 1)
-	 << "\n*****" << '\n';
+	 << Print(winningBid->_money / Ad::_scaler, 1) << "\n*****" << '\n';
     }
   }
   else {
@@ -214,7 +215,7 @@ std::ostream& Transaction::print(std::ostream& os,
     else {
       const Ad* winningAdPtr = winningBid->_ad;
       os << winningAdPtr->getId() << ", "
-	 << utility::Print(winningBid->_money / Ad::_scaler, 1) << '\n';
+	 << Print(winningBid->_money / Ad::_scaler, 1) << '\n';
     }
   }
   return os;

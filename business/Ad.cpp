@@ -9,12 +9,14 @@
 #include <fstream>
 #include <iomanip>
 
+using namespace utility;
+
 std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << ad._id << " size=" << ad._sizeKey
-     << " defaultBid=" << utility::Print(ad._defaultBid)
+     << " defaultBid=" << Print(ad._defaultBid)
      << "\n " << ad._input << '\n';
   for (const auto& [key,  money] : ad._bids)
-    os << "  " << key << " " << utility::Print(money) << '\n';
+    os << "  " << key << " " << Print(money) << '\n';
   return os;
 }
 
@@ -40,10 +42,10 @@ bool Ad::parseIntro() {
     return false;
   std::string_view introStr(_input.cbegin(), introEnd);
   std::vector<std::string_view> vect;
-  utility::split(introStr, vect, ", ");
+  split(introStr, vect, ", ");
   _id = vect[ID];
   double dblMoney = 0;
-  if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
+  if (!fromChars(vect[DEFAULTBID], dblMoney))
     return false;
   _defaultBid = std::lround(dblMoney * _scaler);
   return true;
@@ -62,10 +64,10 @@ bool Ad::parseArray() {
   }
   std::string_view arrayStr(arrayStart + 1, arrayEnd);
   std::vector<std::string_view> vect;
-  utility::split(arrayStr, vect, "\", ");
+  split(arrayStr, vect, "\", ");
   for (unsigned i = 0; i < vect.size(); i += 2) {
     double dblMoney = 0;
-    if (!utility::fromChars(vect[i + 1], dblMoney))
+    if (!fromChars(vect[i + 1], dblMoney))
       continue;
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
@@ -88,7 +90,7 @@ const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
 
 std::string Ad::extractSize(std::string_view line) {
   std::vector<std::string> words;
-  utility::split(line, words, ", ");
+  split(line, words, ", ");
   if (words.size() < NONE)
     return "";
   return words[WIDTH] + 'x' + words[HEIGHT];
@@ -97,8 +99,8 @@ std::string Ad::extractSize(std::string_view line) {
 // make SizeMap cache friendly
 bool Ad::readAndSortAds(std::string_view filename) {
   static std::string buffer;
-  buffer = utility::readFile(filename);
-  utility::split(buffer, _rows);
+  buffer = readFile(filename);
+  split(buffer, _rows);
   for (auto& row : _rows)
     row._key = extractSize(row._value);
   std::stable_sort(_rows.begin(), _rows.end(), [&] (const AdRow& row1, const AdRow& row2) {
