@@ -41,18 +41,13 @@ STATUS TaskBuilder::getSubtask(Subtask& task) {
   return task._state;
 }
 
-int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
-  *dst = '[';
-  auto [ptr, ec] = std::to_chars(dst + 1, dst + CONV_BUFFER_SIZE + 1, _requestIndex++);
+void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view line) {
+  aggregate.append(1, '[');
+  char buffer[CONV_BUFFER_SIZE] = {};
+  auto [ptr, ec] = std::to_chars(buffer, buffer + CONV_BUFFER_SIZE, _requestIndex++);
   if (ec != std::errc())
     throw std::runtime_error(std::string("error translating number:") + std::to_string(_requestIndex));
-  *ptr = ']';
-  int offset = ptr - dst + 1;
-  _nextIdSz = offset + 1;
-  std::copy(line.cbegin(), line.cend(), dst + offset);
-  offset += line.size();
-  *(dst + offset) = '\n';
-  return ++offset;
+  aggregate.append(buffer).append(1, ']').append(line).append(1, '\n');
 }
 
 // Read requests from the source, generate id for each.
@@ -65,17 +60,13 @@ int TaskBuilder::copyRequestWithId(char* dst, std::string_view line) {
 STATUS TaskBuilder::createSubtask() {
   static thread_local std::string aggregate;
   aggregate.clear();
-  size_t aggregateSize = 0;
-  // rough estimate for subtask size
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
   line.clear();
   while (std::getline(_input, line)) {
-    aggregate.resize(aggregateSize + _nextIdSz + line.size() + 1);
-    int copied = copyRequestWithId(aggregate.data() + aggregateSize, line);
-    aggregateSize += copied;
+    copyRequestWithId(aggregate, line);
     bool alldone = _input.peek() == std::istream::traits_type::eof();
-    if (aggregateSize >= maxSubtaskSize || alldone) {
+    if (aggregate.size() >= maxSubtaskSize || alldone) {
       aggregate.pop_back();
       return compressEncryptSubtask(aggregate, alldone);
     }

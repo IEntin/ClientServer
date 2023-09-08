@@ -16,12 +16,11 @@ enum class STATUS : char;
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
   STATUS compressEncryptSubtask(std::string& data, bool alldone);
-  int copyRequestWithId(char* dst, std::string_view line);
+  void copyRequestWithId(std::string& aggregate, std::string_view line);
 
   std::ifstream _input;
   std::deque<Subtask> _subtasks;
   int _requestIndex = 0;
-  int _nextIdSz = 4;
   std::mutex _mutex;
   std::condition_variable _condition;
   void run() override;
