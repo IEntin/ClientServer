@@ -29,7 +29,7 @@ std::string_view buildReply(const Response& response,
   return payloadtransform::compressEncrypt(data, header);
 }
 
-bool processRequest(const HEADER& header, std::string& request, Response& response) {
+bool processRequest(const HEADER& header, std::string_view request, Response& response) {
   auto weakPtr = TaskController::weakInstance();
   if (auto taskController = weakPtr.lock(); taskController) {
     std::string_view restored = payloadtransform::decryptDecompress(header, request);

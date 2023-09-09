@@ -15,7 +15,7 @@ enum class STATUS : char;
 
 class TaskBuilder final : public RunnableT<TaskBuilder> {
 
-  STATUS compressEncryptSubtask(std::string& data, bool alldone);
+  STATUS compressEncryptSubtask(std::string_view data, bool alldone);
   void copyRequestWithId(std::string& aggregate, std::string_view line);
 
   std::ifstream _input;

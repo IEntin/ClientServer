@@ -15,7 +15,7 @@ class Client {
   Client();
 
   bool processTask(TaskBuilderPtr taskBuilder);
-  bool printReply(const HEADER& header, std::string& buffer);
+  bool printReply(const HEADER& header, std::string_view buffer);
   void start();
 
   void displayMaxTotalSessionsWarn();

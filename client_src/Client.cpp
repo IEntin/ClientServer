@@ -72,7 +72,7 @@ void Client::stop() {
   _threadPoolClient.stop();
 }
 
-bool Client::printReply(const HEADER& header, std::string& buffer) {
+bool Client::printReply(const HEADER& header, std::string_view buffer) {
   if (auto ptr = _heartbeat.lock(); ptr) {
     STATUS status = ptr->getStatus();
     if (displayStatus(status))

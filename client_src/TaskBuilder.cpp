@@ -58,6 +58,7 @@ void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view lin
 STATUS TaskBuilder::createSubtask() {
   static thread_local std::string aggregate;
   aggregate.clear();
+  //LogAlways << "\t### " << aggregate.capacity() << '\n';
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
   line.clear();
@@ -75,7 +76,7 @@ STATUS TaskBuilder::createSubtask() {
 // Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-STATUS TaskBuilder::compressEncryptSubtask(std::string& data, bool alldone) {
+STATUS TaskBuilder::compressEncryptSubtask(std::string_view data, bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
   std::string_view output = payloadtransform::compressEncrypt(data, header);
   std::scoped_lock lock(_mutex);
@@ -83,7 +84,6 @@ STATUS TaskBuilder::compressEncryptSubtask(std::string& data, bool alldone) {
   Subtask& subtask = _subtasks.back();
   subtask._header = std::move(header);
   subtask._body = std::move(output);
-  //LogAlways << "\t### " << data.capacity() << '\n';
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

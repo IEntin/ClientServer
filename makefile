@@ -6,12 +6,16 @@
 #LD_PRELOAD=$LD_PRELOAD:/usr/local/jemalloc-dev/lib/libjemalloc.so ./client
 #use clang++ (CMPLR=clang++) for sanitized build if use jemalloc
 #gprof -b ./server gmon.out > profile.txt
-#to use valgrind rebuild with -gdwarf-4
-#valgrind --leak-check=yes ./server
-#valgrind --tool=callgrind ./server
-#kcachegrind callgrind.out.*
-#valgrind --tool=massif ./server
-#ms_print massif.out.*
+
+#	valgrind
+# to use valgrind rebuild with -gdwarf-4
+# make -j4 GDWARFV=4
+# valgrind --tool=massif ./server
+# ms_print massif.out.*
+# valgrind --leak-check=yes ./server
+# valgrind --tool=callgrind ./server
+# kcachegrind callgrind.out.*
+
 #ps huH p <pid> | wc -l
 # cores in
 # /var/lib/systemd/coredump
@@ -29,6 +33,12 @@ ifeq ($(CMPLR),)
   CXX := clang++
 else
   CXX := $(CMPLR)
+endif
+
+ifeq ($(GDWARFV),)
+  GDWARF =
+else ifeq ($(GDWARFV),4)
+  GDWARF = -gdwarf-4
 endif
 
 RM := rm -f
@@ -89,20 +99,21 @@ else ifeq ($(SANITIZE), thread)
 endif
 
 ifeq ($(PROFILE), 1)
-  PROFBLD := -pg -gdwarf-4
+  PROFBLD := -pg
+  GDWARF := -gdwarf-4
 endif
 
 WARNINGS := -Wall -Wextra -pedantic-errors
 
 MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) \
--DENABLEPCH=$(ENABLEPCH)
+-DENABLEPCH=$(ENABLEPCH) -DGDWARF=$(GDWARF)
 
 BOOST_INCLUDES := /usr/local/boost_1_83_0
 
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
 -I$(TESTSRCDIR) -I$(LZ4DIR)
 
-CPPFLAGS := -g $(INCLUDE_PRECOMPILED) -std=c++2a -pipe -MMD -MP $(WARNINGS) \
+CPPFLAGS := -g $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2a -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
 BUILDDIR := build

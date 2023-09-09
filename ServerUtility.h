@@ -17,6 +17,6 @@ std::string_view buildReply(const Response& response,
 			    HEADER& header,
 			    std::atomic<STATUS>& status);
 
-bool processRequest(const HEADER& header, std::string& request, Response& response);
+bool processRequest(const HEADER& header, std::string_view request, Response& response);
 
 } // end of namespace serverutility
