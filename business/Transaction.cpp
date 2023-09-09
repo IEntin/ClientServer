@@ -79,8 +79,10 @@ std::string Transaction::processRequest(std::string_view key,
   }
   //Trace << key << ' ' << adVector.get().size() << '\n';
   transaction.matchAds(adVector);
-  if (transaction._noMatch && !diagnostics)
-    return id.append(1, ' ').append(EMPTY_REPLY);
+  if (transaction._noMatch && !diagnostics) {
+    id.push_back(' ');
+    return id.append(EMPTY_REPLY);
+  }
   std::ostringstream os;
   print(os, transaction, diagnostics);
   return os.str();
@@ -105,7 +107,9 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
       if (separator != std::string::npos) {
 	size_t offset = beg + AD_WIDTH.size();
 	std::string key;
-	key.append(request.data() + offset, separator - offset).append(1, 'x');
+	std::string_view keyData(request.data() + offset, separator - offset);
+	key.insert(key.cend(), keyData.cbegin(), keyData.cend());
+	key.push_back('x');
 	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
 	if (begHeight != std::string::npos) {
 	  offset = begHeight + AD_HEIGHT.size();

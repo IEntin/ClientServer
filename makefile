@@ -9,7 +9,7 @@
 
 #	valgrind
 # to use valgrind rebuild with -gdwarf-4
-# make -j4 GDWARFV=4
+# make -j4 GDWARF=-gdwarf-4
 # valgrind --tool=massif ./server
 # ms_print massif.out.*
 # valgrind --leak-check=yes ./server
@@ -31,14 +31,6 @@ all: server client testbin runtests
 
 ifeq ($(CMPLR),)
   CXX := clang++
-else
-  CXX := $(CMPLR)
-endif
-
-ifeq ($(GDWARFV),)
-  GDWARF =
-else ifeq ($(GDWARFV),4)
-  GDWARF = -gdwarf-4
 endif
 
 RM := rm -f
@@ -62,34 +54,26 @@ TESTBIN := testbin
 
 # precompiled headers
 
-ENABLEPCH =
-ifeq ($(ENABLEPCH),)
-  PCHENABLED = 1
-else ifeq ($(ENABLEPCH),0)
-  PCHENABLED = 0
-else ifeq ($(ENABLEPCH),1)
-  PCHENABLED = 1
+PCHENABLED = 1
+ALLH := $(COMMONDIR)/all.h
+PCH := $(ALLH).pch
+ifeq ($(CXX),g++)
+  PCH := $(ALLH).gch
 endif
 
-ifeq ($(PCHENABLED),1)
-  ALLH := $(COMMONDIR)/all.h
+INCLUDE_PRECOMPILED := -include $(ALLH)
 
-  ifeq ($(CXX),clang++)
-    PCH := $(ALLH).pch
-  else ifeq ($(CXX),g++)
-    PCH := $(ALLH).gch
-  endif
-
-  INCLUDE_PRECOMPILED := -include $(ALLH)
+ifeq ($(ENABLEPCH),0)
+  PCHENABLED = 0
+  ALLH :=
+  PCH :=
+  INCLUDE_PRECOMPILED :=
 endif
 
 # e.g. make -j4 OPTIMIZE=-O0
 # for no optimization, useful for debugging
-OPTIMIZE =
 ifeq ($(OPTIMIZE),)
   OPTIMIZATION := -O3
-else
-  OPTIMIZATION := $(OPTIMIZE)
 endif
 
 ifeq ($(SANITIZE), aul)

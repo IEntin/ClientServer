@@ -65,11 +65,12 @@ std::string_view Crypto::encrypt(std::string_view data) {
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;
   cipher.clear();
+  //LogAlways << "\t### " << cipher.capacity() << '\n';
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  cipher.append(reinterpret_cast<const char*>(iv.data()), iv.size());
-  return cipher;
+  cipher.insert(cipher.cend(), iv.begin(), iv.end());
+  return { cipher.data(), cipher.size() };
 }
 
 std::string_view Crypto::decrypt(std::string_view data) {
@@ -79,6 +80,7 @@ std::string_view Crypto::decrypt(std::string_view data) {
   std::copy(beg, beg + iv.size(), iv.data());
   static thread_local std::string decrypted;
   decrypted.clear();
+  //LogAlways << "\t### " << decrypted.capacity() << '\n';
   try {
     CryptoPP::AES::Decryption aesDecryption(key.data(), key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
@@ -91,7 +93,7 @@ std::string_view Crypto::decrypt(std::string_view data) {
     error.append("\n\n\tMake sure crypto key file on client site is current!\n");
     throw std::runtime_error(error);
   }
-  return decrypted;
+  return { decrypted.data(), decrypted.size() };
 }
 
 bool Crypto::showIv(const CryptoPP::SecByteBlock& iv) {

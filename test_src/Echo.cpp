@@ -13,5 +13,7 @@ std::string Echo::processRequest(std::string_view,
   size_t pos = response.find(']');
   if (pos != std::string::npos && response[0] == '[')
     response.remove_prefix(pos + 1);
-  return std::string(response).append(1, '\n');
+  std::string result(response);
+  result.push_back('\n');
+  return { result.data(), result.size() };
 }

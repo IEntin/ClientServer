@@ -42,10 +42,13 @@ STATUS TaskBuilder::getSubtask(Subtask& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view line) {
-  aggregate.append(1, '[');
+  aggregate.push_back('[');
   char buffer[CONV_BUFFER_SIZE] = {};
   utility::toChars(_requestIndex++, buffer);
-  aggregate.append(buffer).append(1, ']').append(line).append(1, '\n');
+  aggregate.insert(aggregate.cend(), buffer, buffer + strlen(buffer));
+  aggregate.push_back(']');
+  aggregate.insert(aggregate.cend(), line.cbegin(), line.cend());
+  aggregate.push_back('\n');
 }
 
 // Read requests from the source, generate id for each.

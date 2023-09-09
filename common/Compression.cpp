@@ -4,6 +4,7 @@
 
 #include "Compression.h"
 #include "Header.h"
+#include "Logger.h"
 #include "lz4.h"
 #include <stdexcept>
 
@@ -17,28 +18,28 @@ COMPRESSORS translateName(std::string_view compressorStr) {
 std::string_view compress(std::string_view data) {
   static thread_local std::string buffer;
   buffer.clear();
-  buffer.resize(LZ4_compressBound(data.size()));
+  //LogAlways << "\t### " << buffer.capacity() << '\n';
+  buffer.reserve(LZ4_compressBound(data.size()));
   size_t compressedSize = LZ4_compress_default(data.data(),
 					       buffer.data(),
 					       data.size(),
 					       buffer.capacity());
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
-  buffer.resize(compressedSize);
-  return buffer;
+  return { buffer.data(), compressedSize };
 }
 
 std::string_view uncompress(std::string_view data, size_t uncomprSize) {
   static thread_local std::string uncompressed;
-  uncompressed.clear();
-  uncompressed.resize(uncomprSize);
+  //LogAlways << "\t### " << uncompressed.capacity() << '\n';
+  uncompressed.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),
-					    uncompressed.data(),
-					    data.size(),
-					    uncomprSize);
-  if (decomprSize != static_cast<ssize_t>(uncomprSize))
+					   uncompressed.data(),
+					   data.size(),
+					   uncomprSize);
+  if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  return uncompressed;
+  return { uncompressed.data(), static_cast<size_t>(decomprSize) };
 }
 
 } // end of namespace compression

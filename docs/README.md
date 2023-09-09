@@ -120,10 +120,10 @@ Lockless. Processing batches of requests is lockless. Queues of tasks and sessio
 still using locks, but this type of locking is relatively rare for large tasks and does not\
 affect overall performance.
 
-Memory reuse. Business code, compression, and encryption are not allocating after short\
-adjustment period.
+Tuning the memory buffer size allows to reduce memory footprint of the software,\
+especially of the client, which can in turn reduce hardware requirements.
 
-Builtin optional LZ4 compression.
+Builtin LZ4 compression.
 
 Server allows multi phase request processing. The preprocessor phase in the current code\
 is generation of the specific key and sorting requests by this key.
@@ -266,10 +266,8 @@ Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
 Business logic, tasks multithreading, and communication layer are decoupled.
 
-Memory reuse. Most of processing in stable regime after startup is not allocating.\
-Tuning the memory buffer size allows to drastically reduce memory footprint of the software,\
-especially of the client, with moderate speed decrease, which can in turn reduce hardware\
-requirements.
+Tuning the memory buffer size allows to reduce memory footprint of the software,\
+especially of the client, which can in turn reduce hardware requirements.
 
 Business logic is an example of financial calculations. It can be replaced with any other\
 batch processing from a different field, not necessarily financial.
