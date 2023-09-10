@@ -63,7 +63,8 @@ std::string Transaction::processRequest(std::string_view key,
     transaction._invalid = true;
     return id.append(INVALID_REQUEST);
   }
-  id.assign(transaction._id);
+  id.clear();
+  id.insert(id.cbegin(), transaction._id.cbegin(), transaction._id.cend());
   static std::vector<Ad> empty;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
   static thread_local std::string prevKey;

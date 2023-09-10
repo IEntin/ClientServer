@@ -67,7 +67,7 @@ bool FifoClient::receiveStatus() {
   std::vector<char> buffer;
   if (!Fifo::readMsgBlock(ClientOptions::_acceptorName, header, buffer))
     return false;
-  _clientId.assign(buffer.begin(), buffer.end());
+  _clientId.insert(_clientId.cend(), buffer.begin(), buffer.end());
   _status = extractStatus(header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/' + _clientId;
   createSignalWatcher();

@@ -5,6 +5,7 @@
 #include "Client.h"
 #include "Chronometer.h"
 #include "ClientOptions.h"
+#include "Crypto.h"
 #include "PayloadTransform.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
