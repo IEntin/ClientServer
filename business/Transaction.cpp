@@ -202,9 +202,9 @@ std::ostream& Transaction::print(std::ostream& os,
       os << *adPtr << " match:" << kw << ' ' << Print(money) << '\n';
     os << "summary:";
     if (transaction._noMatch)
-      os << Transaction::EMPTY_REPLY << "*****" << '\n';
+      os << EMPTY_REPLY << "*****" << '\n';
     else if (transaction._invalid)
-      os << Transaction::INVALID_REQUEST << "*****" << '\n';
+      os << INVALID_REQUEST << "*****" << '\n';
     else {
       auto winningAdPtr = winningBid->_ad;
       assert(winningAdPtr);
@@ -214,9 +214,9 @@ std::ostream& Transaction::print(std::ostream& os,
   }
   else {
     if (transaction._noMatch)
-      os << Transaction::EMPTY_REPLY;
+      os << EMPTY_REPLY;
     else if (transaction._invalid)
-      os << Transaction::INVALID_REQUEST;
+      os << INVALID_REQUEST;
     else {
       const Ad* winningAdPtr = winningBid->_ad;
       os << winningAdPtr->getId() << ", "
