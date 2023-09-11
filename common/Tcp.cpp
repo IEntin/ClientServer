@@ -39,4 +39,36 @@ Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   return ec;
 }
 
+boost::system::error_code
+Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload) {
+  auto ec = readHeader(socket, header);
+  if (ec)
+    return ec;
+  size_t size = extractPayloadSize(header);
+  if (size > 0) {
+    payload.resize(size);
+    boost::system::error_code ec;
+    size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload), ec);
+  }
+  return ec;
+}
+
+boost::system::error_code
+Tcp::sendMsg(boost::asio::ip::tcp::socket& socket,
+	     const HEADER& header,
+	     std::string_view body) {
+    char buffer[HEADER_SIZE] = {};
+    encodeHeader(buffer, header);
+    static thread_local std::vector<boost::asio::const_buffer> buffers;
+    buffers.clear();
+    buffers.emplace_back(boost::asio::buffer(buffer));
+    if (!body.empty())
+      buffers.emplace_back(boost::asio::buffer(body));
+    boost::system::error_code ec;
+    size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+    if (ec)
+      LogError << ec.what() << '\n';
+    return ec;
+  }
+
 } // end of namespace tcp

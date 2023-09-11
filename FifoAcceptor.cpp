@@ -26,7 +26,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
   if (_stopped)
     return HEADERTYPE::ERROR;
   HEADER header;
-  std::vector<char> body;
+  std::string body;
   if (!Fifo::readMsgBlock(Options::_acceptorName, header, body))
     return HEADERTYPE::ERROR;
   return extractHeaderType(header);

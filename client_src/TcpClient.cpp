@@ -17,7 +17,7 @@ TcpClient::TcpClient() :
   if (error)
     throw(std::runtime_error(error.what()));
   HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
-  auto ec = Tcp::sendMsg(_socket, header, std::string());
+  auto ec = Tcp::sendMsg(_socket, header);
   if (ec)
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())

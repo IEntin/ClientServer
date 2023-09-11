@@ -64,7 +64,7 @@ bool FifoClient::wakeupAcceptor() {
 
 bool FifoClient::receiveStatus() {
   HEADER header;
-  std::vector<char> buffer;
+  std::string buffer;
   if (!Fifo::readMsgBlock(ClientOptions::_acceptorName, header, buffer))
     return false;
   _clientId.insert(_clientId.cend(), buffer.begin(), buffer.end());

@@ -25,7 +25,7 @@ class Runnable {
   virtual bool start() = 0;
   virtual void run() = 0;
   virtual void stop() = 0;
-  virtual std::string_view getId() { return std::string_view(); }
+  virtual std::string_view getId() { return {}; }
   virtual unsigned getNumberObjects() const = 0;
   virtual unsigned getNumberRunningByType() const = 0;
   virtual void displayCapacityCheck(std::atomic<unsigned>&) const = 0;
@@ -52,7 +52,7 @@ template <class T>
 class RunnableT : public Runnable {
  protected:
   explicit RunnableT(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT,
-		     std::string_view displayType = std::string_view()) :
+		     std::string_view displayType = {}) :
     Runnable(maxNumberThreads) { _numberObjects++; _displayType = displayType; }
   ~RunnableT() override { _numberObjects--; }
   std::string_view getType() const override { return _type; }

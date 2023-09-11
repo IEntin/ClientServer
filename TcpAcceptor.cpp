@@ -69,8 +69,7 @@ HEADERTYPE TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  static const std::vector<char> empty;
-  auto ec = Tcp::sendMsg(socket, _header, empty);
+  auto ec = Tcp::sendMsg(socket, _header);
   if (ec) {
     LogError << ec.what() << '\n';
     return;

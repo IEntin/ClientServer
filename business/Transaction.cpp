@@ -36,8 +36,8 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
   }
   size_t pos = input.find(']');
   if (pos != std::string::npos && input[0] == '[') {
-    _id =input.substr(0, pos + 1);
-    _request = input.substr(pos + 1);
+    _id = { input.data(), pos + 1 };
+    _request = { input.data() + pos + 1, input.size() - pos - 1 };
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }

@@ -51,6 +51,50 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
   return readString(fdRead, body.data(), payloadSize);
 }
 
+bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
+  int fd = open(name.data(), O_RDONLY);
+  utility::CloseFileDescriptor cfdr(fd);
+  if (fd == -1) {
+    LogError << name << '-' << std::strerror(errno) << '\n';
+    return false;
+  }
+  if (Options::_setPipeSize)
+    setPipeSize(fd, Options::_pipeSize);
+  size_t readSoFar = 0;
+  char buffer[HEADER_SIZE] = {};
+  while (readSoFar < HEADER_SIZE) {
+    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
+    if (result == -1) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+	continue;
+      }
+      else {
+	LogError << std::strerror(errno) << '\n';
+	throw std::runtime_error(std::strerror(errno));
+      }
+    }
+    else if (result == 0) {
+      Debug << (errno ? std::strerror(errno) : "EOF") << '\n';
+      return false;
+    }
+    else
+      readSoFar += static_cast<size_t>(result);
+  }
+  if (readSoFar != HEADER_SIZE) {
+    LogError << "HEADER_SIZE=" << HEADER_SIZE
+	     << " readSoFar=" << readSoFar << '\n';
+    throw std::runtime_error(std::strerror(errno));
+  }
+  header = decodeHeader(buffer);
+  if (!isOk(header)) {
+    LogError << "header is invalid." << '\n';
+    return false;
+  }
+  size_t payloadSize = extractPayloadSize(header);
+  body.resize(payloadSize);
+  return readString(fd, body.data(), payloadSize);
+}
+
 bool Fifo::readString(int fd, char* received, size_t size) {
   size_t readSoFar = 0;
   while (readSoFar < size) {
