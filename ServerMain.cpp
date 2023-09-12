@@ -25,9 +25,6 @@ int main() {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
     sigset_t set;
     sigemptyset(&set);
     if (sigaddset(&set, SIGINT) == -1)

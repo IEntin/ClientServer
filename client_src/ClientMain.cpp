@@ -25,9 +25,6 @@ int main() {
   signal(SIGPIPE, SIG_IGN);
   ClientOptions::parse("ClientOptions.json");
   Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__);
-  std::ios::sync_with_stdio(false);
-  std::cin.tie(nullptr);
-  std::cout.tie(nullptr);
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;

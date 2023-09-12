@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include "lz4.h"
 #include <stdexcept>
+#include <vector>
 
 namespace compression {
 
@@ -16,7 +17,7 @@ COMPRESSORS translateName(std::string_view compressorStr) {
 }
 
 std::string_view compress(std::string_view data) {
-  static thread_local std::string buffer;
+  static thread_local std::vector<char> buffer;
   buffer.clear();
   //LogAlways << "\t### " << buffer.capacity() << '\n';
   buffer.reserve(LZ4_compressBound(data.size()));
@@ -30,7 +31,7 @@ std::string_view compress(std::string_view data) {
 }
 
 std::string_view uncompress(std::string_view data, size_t uncomprSize) {
-  static thread_local std::string uncompressed;
+  static thread_local std::vector<char> uncompressed;
   //LogAlways << "\t### " << uncompressed.capacity() << '\n';
   uncompressed.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),

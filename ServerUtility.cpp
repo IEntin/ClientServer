@@ -18,7 +18,7 @@ std::string_view buildReply(const Response& response,
   for (const auto& entry : response)
     dataSize += entry.size();
   header = { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status };
-  static thread_local std::string data;
+  static thread_local std::vector<char> data;
   data.clear();
   data.resize(dataSize);
   ssize_t pos = 0;
@@ -26,7 +26,7 @@ std::string_view buildReply(const Response& response,
     std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
     pos += entry.size();
   }
-  return payloadtransform::compressEncrypt(data, header);
+  return payloadtransform::compressEncrypt({ data.data(), data.size() }, header);
 }
 
 bool processRequest(const HEADER& header, std::string_view request, Response& response) {

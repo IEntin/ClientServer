@@ -27,6 +27,7 @@ private:
   static std::ostream& print(std::ostream& os,
 			     const Transaction& transaction,
 			     bool diagnostics);
+  const AdBidMatched* findWinningBid() const;
   std::string_view _id;
   std::string_view _request;
   // Made static to keep the capacity growing as needed.

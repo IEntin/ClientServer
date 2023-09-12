@@ -48,7 +48,7 @@ if ["$1" eq ""]
 then
     ./server&
 else
-    valgrind ./server&
+    valgrind --leak-check=full --show-leak-kinds=all ./server&
 fi
 
 SERVER_PID=$!
@@ -61,7 +61,7 @@ cp -f $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR
 ( cd $CLIENT_DIR
 if ["$1" eq ""]
 then
-    valgrind ./client > /dev/null
+    valgrind --leak-check=full --show-leak-kinds=all ./client > /dev/null
 else
     ./client > /dev/null
 fi )

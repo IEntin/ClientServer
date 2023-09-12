@@ -51,20 +51,21 @@ Transaction::~Transaction() {
 std::string Transaction::processRequest(std::string_view key,
 					std::string_view request,
 					bool diagnostics) noexcept {
-  std::string id("[unknown]");
+  std::ostringstream os;
   Transaction transaction(key, request);
+  os << transaction._id << ' ';
   if (request.empty()) {
     LogError << "request is empty" << '\n';
     transaction._invalid = true;
-    return id.append(INVALID_REQUEST);
+    os << INVALID_REQUEST;
+    return os.str();
   }
   if (key.empty()) {
     LogError << "key is empty" << '\n';
     transaction._invalid = true;
-    return id.append(INVALID_REQUEST);
+    os << INVALID_REQUEST;
+    return os.str();
   }
-  id.clear();
-  id.insert(id.cbegin(), transaction._id.cbegin(), transaction._id.cend());
   static std::vector<Ad> empty;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
   static thread_local std::string prevKey;
@@ -75,16 +76,16 @@ std::string Transaction::processRequest(std::string_view key,
   }
   if (adVector.get().empty() || transaction._keywords.empty()) {
     transaction._invalid = true;
-    LogError << "invalid request:" << transaction._request << " id:" << id << '\n';
-    return id.append(INVALID_REQUEST);
+    LogError << "invalid request:" << transaction._request << " _id:" << transaction._id << '\n';
+    os << INVALID_REQUEST;
+    return os.str();
   }
   //Trace << key << ' ' << adVector.get().size() << '\n';
   transaction.matchAds(adVector);
   if (transaction._noMatch && !diagnostics) {
-    id.push_back(' ');
-    return id.append(EMPTY_REPLY);
+    os << EMPTY_REPLY;
+    return os.str();
   }
-  std::ostringstream os;
   print(os, transaction, diagnostics);
   return os.str();
 }
@@ -128,17 +129,17 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
   return "";
 }
 
-inline const AdBidMatched* findWinningBid(const std::vector<AdBidMatched>& bids) {
+const AdBidMatched* Transaction::findWinningBid() const {
   int index = 0;
-  int max = bids[0]._money;
-  for (unsigned i = 1; i < bids.size(); ++i) {
-    int money = bids[i]._money;
+  int max = _bids[0]._money;
+  for (unsigned i = 1; i < _bids.size(); ++i) {
+    int money = _bids[i]._money;
     if (money > max) {
       max = money;
       index = i;
     }
   }
-  return &bids[index];
+  return &_bids[index];
 }
 
 struct Comparator {
@@ -162,7 +163,7 @@ void Transaction::matchAds(const std::vector<Ad>& adVector) {
     _noMatch = true;
   else {
     // replaced std::max_element()
-    _winningBid = findWinningBid(_bids);
+    _winningBid = findWinningBid();
   }
 }
 
@@ -190,7 +191,6 @@ std::ostream& Transaction::print(std::ostream& os,
 				 const Transaction& transaction,
 				 bool diagnostics) {
   const AdBidMatched* winningBid = transaction._winningBid;
-  os << transaction._id << ' ';
   if (diagnostics) {
     os <<"Transaction size=" << transaction._sizeKey << " #matches="
        << Print(transaction._bids.size())
@@ -213,15 +213,9 @@ std::ostream& Transaction::print(std::ostream& os,
     }
   }
   else {
-    if (transaction._noMatch)
-      os << EMPTY_REPLY;
-    else if (transaction._invalid)
-      os << INVALID_REQUEST;
-    else {
-      const Ad* winningAdPtr = winningBid->_ad;
-      os << winningAdPtr->getId() << ", "
-	 << Print(winningBid->_money / Ad::_scaler, 1) << '\n';
-    }
+    const Ad* winningAdPtr = winningBid->_ad;
+    os << winningAdPtr->getId() << ", "
+       << Print(winningBid->_money / Ad::_scaler, 1) << '\n';
   }
   return os;
 }
