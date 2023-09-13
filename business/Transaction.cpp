@@ -83,10 +83,16 @@ std::string Transaction::processRequest(std::string_view key,
   //Trace << key << ' ' << adVector.get().size() << '\n';
   transaction.matchAds(adVector);
   if (transaction._noMatch && !diagnostics) {
+    /*
     os << EMPTY_REPLY;
     return os.str();
+    */
+    std::string output(transaction._id) ;
+    output.push_back(' ');
+    output.insert(output.end(), EMPTY_REPLY.cbegin(), EMPTY_REPLY.cend());
+    return output;
   }
-  print(os, transaction, diagnostics);
+  transaction.print(os, diagnostics);
   return os.str();
 }
 
@@ -187,35 +193,32 @@ bool Transaction::parseKeywords(std::string_view start) {
   return true;
 }
 
-std::ostream& Transaction::print(std::ostream& os,
-				 const Transaction& transaction,
-				 bool diagnostics) {
-  const AdBidMatched* winningBid = transaction._winningBid;
+std::ostream& Transaction::print(std::ostringstream& os, bool diagnostics) {
   if (diagnostics) {
-    os <<"Transaction size=" << transaction._sizeKey << " #matches="
-       << Print(transaction._bids.size())
-       << '\n' << transaction._request << "\nrequest keywords:\n";
-    for (std::string_view keyword : transaction._keywords)
+    os <<"Transaction size=" << _sizeKey << " #matches="
+       << Print(_bids.size())
+       << '\n' << _request << "\nrequest keywords:\n";
+    for (std::string_view keyword : _keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, money, adPtr] : transaction._bids)
+    for (const auto& [kw, money, adPtr] : _bids)
       os << *adPtr << " match:" << kw << ' ' << Print(money) << '\n';
     os << "summary:";
-    if (transaction._noMatch)
+    if (_noMatch)
       os << EMPTY_REPLY << "*****" << '\n';
-    else if (transaction._invalid)
+    else if (_invalid)
       os << INVALID_REQUEST << "*****" << '\n';
     else {
-      auto winningAdPtr = winningBid->_ad;
+      auto winningAdPtr = _winningBid->_ad;
       assert(winningAdPtr);
-      os << winningAdPtr->getId() << ", " << winningBid->_keyword << ", "
-	 << Print(winningBid->_money / Ad::_scaler, 1) << "\n*****" << '\n';
+      os << winningAdPtr->getId() << ", " << _winningBid->_keyword << ", "
+	 << Print(_winningBid->_money / Ad::_scaler, 1) << "\n*****" << '\n';
     }
   }
   else {
-    const Ad* winningAdPtr = winningBid->_ad;
+    const Ad* winningAdPtr = _winningBid->_ad;
     os << winningAdPtr->getId() << ", "
-       << Print(winningBid->_money / Ad::_scaler, 1) << '\n';
+       << Print(_winningBid->_money / Ad::_scaler, 1) << '\n';
   }
   return os;
 }
