@@ -43,9 +43,7 @@ STATUS TaskBuilder::getSubtask(Subtask& task) {
 
 void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view line) {
   aggregate.push_back('[');
-  char buffer[CONV_BUFFER_SIZE] = {};
-  utility::toChars(_requestIndex++, buffer);
-  aggregate.insert(aggregate.cend(), buffer, buffer + strlen(buffer));
+  utility::toChars(_requestIndex++, aggregate);
   aggregate.push_back(']');
   aggregate.insert(aggregate.cend(), line.cbegin(), line.cend());
   aggregate.push_back('\n');

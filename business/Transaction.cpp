@@ -83,17 +83,12 @@ std::string Transaction::processRequest(std::string_view key,
   //Trace << key << ' ' << adVector.get().size() << '\n';
   transaction.matchAds(adVector);
   if (transaction._noMatch && !diagnostics) {
-    /*
-    os << EMPTY_REPLY;
-    return os.str();
-    */
     std::string output(transaction._id) ;
     output.push_back(' ');
     output.insert(output.end(), EMPTY_REPLY.cbegin(), EMPTY_REPLY.cend());
     return output;
   }
-  transaction.print(os, diagnostics);
-  return os.str();
+  return transaction.print(os, diagnostics);
 }
 
 std::string Transaction::normalizeSizeKey(std::string_view request) {
@@ -193,7 +188,7 @@ bool Transaction::parseKeywords(std::string_view start) {
   return true;
 }
 
-std::ostream& Transaction::print(std::ostringstream& os, bool diagnostics) {
+std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
   if (diagnostics) {
     os <<"Transaction size=" << _sizeKey << " #matches="
        << Print(_bids.size())
@@ -214,11 +209,26 @@ std::ostream& Transaction::print(std::ostringstream& os, bool diagnostics) {
       os << winningAdPtr->getId() << ", " << _winningBid->_keyword << ", "
 	 << Print(_winningBid->_money / Ad::_scaler, 1) << "\n*****" << '\n';
     }
+    return os.str();
   }
   else {
-    const Ad* winningAdPtr = _winningBid->_ad;
-    os << winningAdPtr->getId() << ", "
-       << Print(_winningBid->_money / Ad::_scaler, 1) << '\n';
+    std::string output;
+    printResult(output);
+    return output;
   }
-  return os;
+  return "";
+}
+
+void Transaction::printResult(std::string& output) {
+  const Ad* winningAdPtr = _winningBid->_ad;
+  assert(winningAdPtr && "match is expected");
+  output.insert(output.end(), _id.cbegin(), _id.cend());
+  output.push_back(' ');
+  std::string_view adId = winningAdPtr->getId();
+  output.insert(output.end(), adId.cbegin(), adId.cend());
+  output.push_back(',');
+  output.push_back(' ');
+  double money = _winningBid->_money / Ad::_scaler;
+  utility::toChars(money, output, 1);
+  output.push_back('\n');
 }

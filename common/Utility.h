@@ -15,9 +15,9 @@ inline constexpr int CONV_BUFFER_SIZE = 10;
 namespace utility {
 
 // INPUT can be a string or string_view.
-// CONTAINER can be a vector | deque | list of
-// string, string_view, vector<char> or objects of any class
-// with constructor arguments (const char*, const char*)
+// CONTAINER can be a vector or a deque or a list of string,
+// string_view, vector<char> or vector of objects of any
+// class with constructor arguments (const char*, const char*)
 
 template <typename INPUT, typename CONTAINER>
   void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
@@ -78,6 +78,33 @@ template <Integral T>
       LogError << "problem converting to string:" << value << '\n';
       throw std::runtime_error("problem converting to string");
     }
+}
+
+template <Integral N>
+void toChars(N value, std::string& target, size_t size = CONV_BUFFER_SIZE) {
+  size_t origSize = target.size();
+  target.resize(target.size() + size);
+  size_t sizeIncr = 0;
+  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value);
+  sizeIncr = ptr - target.data() - origSize;
+  if (ec == std::errc())
+    target.resize(origSize + sizeIncr);
+  else
+    LogError << "problem translating number:" << value << '\n';
+}
+
+template <FloatingPoint N>
+void toChars(N value, std::string& target, int precision, size_t size = CONV_BUFFER_SIZE) {
+  size_t origSize = target.size();
+  target.resize(target.size() + size);
+  size_t sizeIncr = 0;
+  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value,
+				 std::chars_format::fixed, precision);
+  sizeIncr = ptr - target.data() - origSize;
+  if (ec == std::errc())
+    target.resize(origSize + sizeIncr);
+  else
+    LogError << "problem translating number:" << value << '\n';
 }
 
 template <Integral N>
