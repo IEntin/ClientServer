@@ -94,7 +94,7 @@ void TcpSession::readHeader() {
 	LogError << "header is invalid." << '\n';
 	return;
       }
-      _request.clear();
+      //_request.clear();
       _request.resize(extractPayloadSize(header));
       readRequest(header);
     });
@@ -115,7 +115,7 @@ void TcpSession::readRequest(const HEADER& header) {
 	});
 	return;
       }
-      _response.clear();
+      //_response.clear();
       if (serverutility::processRequest(header, _request, _response))
 	sendReply();
     });

@@ -170,11 +170,11 @@ struct LogicTestAltFormat : testing::Test {
       {
 	tcp::TcpClient client;
 	client.run();
+	std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
       }
       server.stop();
-      std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';
@@ -204,11 +204,11 @@ struct LogicTestSortInput : testing::Test {
       {
 	tcp::TcpClient client;
 	client.run();
+	std::string_view calibratedOutput = TestEnvironment::_outputD;
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
       }
       server.stop();
-      std::string_view calibratedOutput = TestEnvironment::_outputD;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';

@@ -58,10 +58,10 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  _request.clear();
+  //_request.clear();
   if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
-  _response.clear();
+  //_response.clear();
   if (serverutility::processRequest(header, _request, _response))
     return sendResponse();
   return false;

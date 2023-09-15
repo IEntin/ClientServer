@@ -213,13 +213,13 @@ std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
   }
   else {
     std::string output;
-    printResult(output);
+    printSummary(output);
     return output;
   }
   return "";
 }
 
-void Transaction::printResult(std::string& output) {
+void Transaction::printSummary(std::string& output) {
   const Ad* winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
   output.insert(output.end(), _id.cbegin(), _id.cend());

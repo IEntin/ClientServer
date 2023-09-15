@@ -66,11 +66,10 @@ void TaskController::push(TaskPtr task) {
 }
 
 void TaskController::processTask(const HEADER& header, std::string_view input, Response& response) {
-  TaskPtr task = std::make_shared<Task>(header, input);
+  TaskPtr task = std::make_shared<Task>(header, input, response);
   auto future = task->getPromise().get_future();
   push(task);
   future.get();
-  task->getResponse(response);
 }
 
 void TaskController::setNextTask() {

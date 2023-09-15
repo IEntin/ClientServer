@@ -52,10 +52,10 @@ struct EchoTest : testing::Test {
       {
 	fifo::FifoClient client;
 	client.run();
+	ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
+	ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
       }
       server.stop();
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
-      ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';

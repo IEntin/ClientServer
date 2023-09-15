@@ -24,7 +24,7 @@ private:
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<Ad>& adVector);
-  void printResult(std::string& output);
+  void printSummary(std::string& output);
   std::string print(std::ostringstream& os, bool diagnostics);
   const AdBidMatched* findWinningBid() const;
   std::string_view _id;

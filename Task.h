@@ -41,14 +41,14 @@ class Task {
   std::atomic<int> _index = 0;
   std::promise<void> _promise;
   const bool _diagnostics;
-  Response _response;
+  Response& _response;
   static inline PreprocessRequest _preprocessRequest = nullptr;
   static inline ProcessRequest _processRequest = nullptr;
 
  public:
   Task();
 
-  Task(const HEADER& header, std::string_view input);
+  Task(const HEADER& header, std::string_view input, Response& response);
 
   void sortIndices();
 
@@ -61,8 +61,6 @@ class Task {
   bool processNext();
 
   void finish();
-
-  void getResponse(Response& response);
 
   static void setProcessMethod(ProcessRequest method) {
     _processRequest = method;

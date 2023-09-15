@@ -5,10 +5,13 @@
 #include "Task.h"
 #include "Utility.h"
 
-Task::Task() : _diagnostics(false) {}
+Response emptyResponse;
 
-Task::Task(const HEADER& header, std::string_view input) :
-  _diagnostics(isDiagnosticsEnabled(header)) {
+Task::Task() : _diagnostics(false), _response(emptyResponse) {}
+
+Task::Task(const HEADER& header, std::string_view input, Response& response) :
+  _diagnostics(isDiagnosticsEnabled(header)),
+  _response(response) {
   utility::split(input, _rows);
   _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
@@ -59,8 +62,4 @@ void Task::finish() {
   catch (const std::future_error& e) {
     LogError << e.what() << '\n';
   }
-}
-
-void Task::getResponse(Response& response) {
-  response.swap(_response);
 }
