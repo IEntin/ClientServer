@@ -11,6 +11,8 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
+std::atomic<ACTIONS> Client::_signalFlag = ACTIONS::NONE;
+
 Client::Client() {}
 
 Client::~Client() {

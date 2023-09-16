@@ -5,20 +5,22 @@
 #include "Task.h"
 #include "Utility.h"
 
-Response emptyResponse;
+PreprocessRequest Task::_preprocessRequest = nullptr;
+ProcessRequest Task::_processRequest = nullptr;
+Response Task::_emptyResponse;
 
-Task::Task() : _diagnostics(false), _response(emptyResponse) {}
+Task::Task(Response& response) : _response(response) {}
 
-Task::Task(const HEADER& header, std::string_view input, Response& response) :
-  _diagnostics(isDiagnosticsEnabled(header)),
-  _response(response) {
+void Task::set(const HEADER& header, std::string_view input, Response& response) {
+  _response = response;
+  _diagnostics = isDiagnosticsEnabled(header);
   utility::split(input, _rows);
   _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;
     _rows[i]._orgIndex = i;
   }
-  _response.resize(_rows.size());
+  _response.get().resize(_rows.size());
 }
 
 void Task::sortIndices() {
@@ -48,7 +50,7 @@ bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
-    _response[row._orgIndex] = _processRequest(row._key, row._value, _diagnostics);
+    _response.get()[row._orgIndex] = _processRequest(row._key, row._value, _diagnostics);
     return true;
   }
   else

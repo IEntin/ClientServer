@@ -8,6 +8,17 @@
 #include <iostream>
 #include <thread>
 
+std::string ServerOptions::_adsFileName;
+COMPRESSORS ServerOptions::_compressor;
+bool ServerOptions::_encrypted;
+int ServerOptions::_numberWorkThreads;
+int ServerOptions::_maxTcpSessions;
+int ServerOptions::_maxFifoSessions;
+int ServerOptions::_maxTotalSessions;
+int ServerOptions::_tcpTimeout;
+bool ServerOptions::_invalidateKey = false;
+bool ServerOptions::_sortInput;
+
 void ServerOptions::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
   Options::parse(appOptions);

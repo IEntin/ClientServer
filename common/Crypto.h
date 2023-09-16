@@ -13,7 +13,7 @@ struct CryptoKey {
   static bool initialize();
   static bool recover();
   static CryptoPP::SecByteBlock _key;
-  inline static bool _valid;
+  static bool _valid;
 };
 
 class Crypto {

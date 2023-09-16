@@ -43,9 +43,9 @@ class TaskController {
   TaskPtr _task;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
-  Phase _phase = PREPROCESSTASK;
   std::mutex _queueMutex;
   static TaskControllerPtr _single;
+  static Phase _phase;
  public:
   TaskController();
   ~TaskController();

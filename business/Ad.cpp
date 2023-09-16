@@ -30,6 +30,9 @@ const AdRow& AdRow::operator =(AdRow&& other) {
   return *this;
 }
 
+std::vector<AdRow> Ad::_rows;
+SizeMap Ad::_mapBySize;
+
 Ad::Ad(AdRow& row) :
 _input(row._value), _sizeKey(row._key) {
     if (!(parseIntro() && parseArray()))

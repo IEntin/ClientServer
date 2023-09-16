@@ -9,6 +9,7 @@
 #include "Utility.h"
 
 namespace tcp {
+std::string_view TcpSession::_displayType = "tcp";
 
 TcpSession::TcpSession() :
   RunnableT(ServerOptions::_maxTcpSessions, _displayType),

@@ -7,6 +7,22 @@
 #include "Compression.h"
 #include <iostream>
 
+bool ClientOptions::_fifoClient;
+bool ClientOptions::_tcpClient;
+COMPRESSORS ClientOptions::_compressor;
+bool ClientOptions::_encrypted;
+std::string ClientOptions::_serverAddress;
+std::string ClientOptions:: _sourceName;
+std::ostream* ClientOptions::_dataStream;
+std::ostream* ClientOptions::_instrStream;
+int ClientOptions::_maxNumberTasks;
+int ClientOptions::_heartbeatPeriod;
+int ClientOptions::_heartbeatTimeout;
+bool ClientOptions::_heartbeatEnabled;
+bool ClientOptions::_diagnostics;
+bool ClientOptions::_runLoop;
+size_t ClientOptions::_bufferSize;
+
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   AppOptions appOptions(jsonName);
   Options::parse(appOptions);

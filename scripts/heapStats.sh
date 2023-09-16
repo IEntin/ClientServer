@@ -44,7 +44,7 @@ sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 100/' $CLIENT_DIR/ClientOption
 # Start the server.
 
 cd $PRJ_DIR
-if ["$1" eq ""]
+if [ -z $1 ]
 then
     ./server&
 else
@@ -59,7 +59,7 @@ sleep 5
 cp -f $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR
 
 ( cd $CLIENT_DIR
-if ["$1" eq ""]
+if [ -z $1 ]
 then
     valgrind --leak-check=full --show-leak-kinds=all ./client > /dev/null
 else

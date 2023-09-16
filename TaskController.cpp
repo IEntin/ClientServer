@@ -7,6 +7,7 @@
 #include "Task.h"
 
 TaskControllerPtr TaskController::_single;
+TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 
 TaskController::TaskController() :
   _barrier(ServerOptions::_numberWorkThreads, onTaskCompletion),
@@ -44,6 +45,7 @@ void TaskController::onCompletion() {
     _task->finish();
     // Blocks until the new task is available.
     setNextTask();
+    _task->resetIndex();
     _phase = PREPROCESSTASK;
     break;
   default:
@@ -66,7 +68,8 @@ void TaskController::push(TaskPtr task) {
 }
 
 void TaskController::processTask(const HEADER& header, std::string_view input, Response& response) {
-  TaskPtr task = std::make_shared<Task>(header, input, response);
+  TaskPtr task = std::make_shared<Task>(response);
+  task->set(header, input, response);
   auto future = task->getPromise().get_future();
   push(task);
   future.get();
@@ -118,9 +121,13 @@ void TaskController::Worker::run() noexcept {
   auto& task = taskController->_task;
   auto& barrier = taskController->_barrier;
   while (!stopped) {
-    while (task->preprocessNext());
-    barrier.arrive_and_wait();
-    while (task->processNext());
-    barrier.arrive_and_wait();
+    if (_phase == PREPROCESSTASK) {
+      while (task->preprocessNext());
+      barrier.arrive_and_wait();
+    }
+    else if (_phase == PROCESSTASK) {
+      while (task->processNext());
+      barrier.arrive_and_wait();
+    }
   }
 }

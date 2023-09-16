@@ -55,6 +55,6 @@ class Ad {
   std::vector<AdBid> _bids;
   std::string_view _id;
   long _defaultBid{ 0 };
-  inline static std::vector<AdRow> _rows;
-  inline static SizeMap _mapBySize;
+  static std::vector<AdRow> _rows;
+  static SizeMap _mapBySize;
 };

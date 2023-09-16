@@ -40,15 +40,16 @@ class Task {
   std::vector<int> _indices;
   std::atomic<int> _index = 0;
   std::promise<void> _promise;
-  const bool _diagnostics;
-  Response& _response;
-  static inline PreprocessRequest _preprocessRequest = nullptr;
-  static inline ProcessRequest _processRequest = nullptr;
+  bool _diagnostics;
+  std::reference_wrapper<Response> _response;
+  static PreprocessRequest _preprocessRequest;
+  static ProcessRequest _processRequest;
+  static Response _emptyResponse;
 
  public:
-  Task();
+  Task(Response& response = _emptyResponse);
 
-  Task(const HEADER& header, std::string_view input, Response& response);
+  void set(const HEADER& header, std::string_view input, Response& response);
 
   void sortIndices();
 

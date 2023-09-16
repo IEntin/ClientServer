@@ -7,6 +7,18 @@
 #include "Logger.h"
 #include <filesystem>
 
+std::string Options::_fifoDirectoryName;
+std::string Options::_acceptorName;
+unsigned short Options::_tcpPort;
+std::string Options::_tcpService;
+int Options::_numberRepeatENXIO;
+int Options::_ENXIOwait;
+bool Options::_showKey;
+bool Options::_timing;
+bool Options::_setPipeSize;
+size_t Options::_pipeSize;
+int Options::_cryptoKeySize = 32;
+
 void Options::parse(AppOptions& appOptions) {
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));

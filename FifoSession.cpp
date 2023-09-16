@@ -11,6 +11,10 @@
 
 namespace fifo {
 
+std::string_view _displayType = "tcp";
+
+std::string_view FifoSession::_displayType = "fifo";
+
 FifoSession::FifoSession() :
   RunnableT(ServerOptions::_maxFifoSessions, _displayType) {}
 

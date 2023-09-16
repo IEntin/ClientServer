@@ -14,6 +14,7 @@
 #include <filesystem>
 
 CryptoPP::SecByteBlock CryptoKey::_key(ServerOptions::_cryptoKeySize);
+bool CryptoKey::_valid;
 
 void CryptoKey::showKey() {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
