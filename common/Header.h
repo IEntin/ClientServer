@@ -7,20 +7,20 @@
 #include <sys/types.h>
 #include <tuple>
 
-inline constexpr int HEADERTYPE_SIZE = 1;
-inline constexpr int NUM_FIELD_SIZE = 10;
-inline constexpr int COMPRESSOR_TYPE_SIZE = 1;
-inline constexpr int CRYPTO_TYPE_SIZE = 1;
-inline constexpr int DIAGNOSTICS_SIZE = 1;
-inline constexpr int STATUS_SIZE = 1;
-inline constexpr int HEADER_SIZE =
+constexpr int HEADERTYPE_SIZE = 1;
+constexpr int NUM_FIELD_SIZE = 10;
+constexpr int COMPRESSOR_TYPE_SIZE = 1;
+constexpr int CRYPTO_TYPE_SIZE = 1;
+constexpr int DIAGNOSTICS_SIZE = 1;
+constexpr int STATUS_SIZE = 1;
+constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + CRYPTO_TYPE_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE;
 
-inline constexpr char CRYPTO_CHAR = 'C';
-inline constexpr char NCRYPTO_CHAR = 'N';
+constexpr char CRYPTO_CHAR = 'C';
+constexpr char NCRYPTO_CHAR = 'N';
 
-inline constexpr char DIAGNOSTICS_CHAR = 'D';
-inline constexpr char NDIAGNOSTICS_CHAR = 'N';
+constexpr char DIAGNOSTICS_CHAR = 'D';
+constexpr char NDIAGNOSTICS_CHAR = 'N';
 
 enum class HEADERTYPE : char {
   CREATE_SESSION,
@@ -71,49 +71,23 @@ enum class HEADER_INDEX : char {
 
 using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, bool, STATUS>;
 
-inline HEADERTYPE extractHeaderType(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
-}
+HEADERTYPE extractHeaderType(const HEADER& header);
 
-inline ssize_t extractPayloadSize(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::PAYLOADSIZE)>(header);
-}
+ssize_t extractPayloadSize(const HEADER& header);
 
-inline ssize_t extractUncompressedSize(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED)>(header);
-}
+ssize_t extractUncompressedSize(const HEADER& header);
 
-inline COMPRESSORS extractCompressor(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::COMPRESSOR)>(header);
-}
+COMPRESSORS extractCompressor(const HEADER& header);
 
-inline bool isCompressed(const HEADER& header) {
-  return extractCompressor(header) != COMPRESSORS::NONE;
-}
+bool isCompressed(const HEADER& header);
 
-inline bool isEncrypted(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::CRYPTO)>(header);
-}
+bool isEncrypted(const HEADER& header);
 
-inline bool isDiagnosticsEnabled(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::DIAGNOSTICS)>(header);
-}
+bool isDiagnosticsEnabled(const HEADER& header);
 
-inline STATUS extractStatus(const HEADER& header) {
-  return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header);
-}
+STATUS extractStatus(const HEADER& header);
 
-inline bool isOk(const HEADER& header) {
-  STATUS status = extractStatus(header);
-  switch(status) {
-  case STATUS::NONE:
-  case STATUS::MAX_TOTAL_OBJECTS:
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    return true;
-  default:
-    return false;
-  }
-}
+bool isOk(const HEADER& header);
 
 void encodeHeader(char* buffer, const HEADER& header);
 

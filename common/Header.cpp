@@ -5,6 +5,50 @@
 #include "Header.h"
 #include "Utility.h"
 
+HEADERTYPE extractHeaderType(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
+}
+
+ssize_t extractPayloadSize(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::PAYLOADSIZE)>(header);
+}
+
+ssize_t extractUncompressedSize(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED)>(header);
+}
+
+COMPRESSORS extractCompressor(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::COMPRESSOR)>(header);
+}
+
+bool isCompressed(const HEADER& header) {
+  return extractCompressor(header) != COMPRESSORS::NONE;
+}
+
+bool isEncrypted(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::CRYPTO)>(header);
+}
+
+bool isDiagnosticsEnabled(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::DIAGNOSTICS)>(header);
+}
+
+STATUS extractStatus(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header);
+}
+
+bool isOk(const HEADER& header) {
+  STATUS status = extractStatus(header);
+  switch(status) {
+  case STATUS::NONE:
+  case STATUS::MAX_TOTAL_OBJECTS:
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    return true;
+  default:
+    return false;
+  }
+}
+
 void encodeHeader(char* buffer, const HEADER& header) {
   const auto& [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status] = header;
   std::memset(buffer, 0, HEADER_SIZE);

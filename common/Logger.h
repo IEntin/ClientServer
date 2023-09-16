@@ -27,7 +27,7 @@ enum class LOG_LEVEL : char {
   ALWAYS
 };
 
-inline constexpr std::string_view levelNames[] {
+constexpr std::string_view levelNames[] {
   "TRACE",
   "DEBUG",
   "INFO",

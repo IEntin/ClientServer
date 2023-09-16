@@ -10,7 +10,7 @@
 
 enum class STATUS : char;
 
-inline constexpr int CONV_BUFFER_SIZE = 10;
+constexpr int CONV_BUFFER_SIZE = 10;
 
 namespace utility {
 
@@ -48,7 +48,7 @@ template <typename INPUT, typename CONTAINER>
     }
 }
 
-inline constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
+constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
     LogError << "problem converting str:" << str << '\n';
@@ -83,7 +83,7 @@ template <Integral T>
 template <Integral N>
 void toChars(N value, std::string& target, size_t size = CONV_BUFFER_SIZE) {
   size_t origSize = target.size();
-  target.resize(target.size() + size);
+  target.resize(origSize + size);
   size_t sizeIncr = 0;
   auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value);
   sizeIncr = ptr - target.data() - origSize;
@@ -96,7 +96,7 @@ void toChars(N value, std::string& target, size_t size = CONV_BUFFER_SIZE) {
 template <FloatingPoint N>
 void toChars(N value, std::string& target, int precision, size_t size = CONV_BUFFER_SIZE) {
   size_t origSize = target.size();
-  target.resize(target.size() + size);
+  target.resize(origSize + size);
   size_t sizeIncr = 0;
   auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value,
 				 std::chars_format::fixed, precision);
