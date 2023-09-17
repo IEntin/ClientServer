@@ -11,6 +11,8 @@
 #include "TestEnvironment.h"
 #include "TransactionStrategy.h"
 
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_ND;done
+
 struct LogicTest : testing::Test {
   void testLogicTcp(COMPRESSORS serverCompressor,
 		    COMPRESSORS clientCompressor,

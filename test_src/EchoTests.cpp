@@ -14,6 +14,7 @@
 #include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
 
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
@@ -100,8 +101,8 @@ TEST_F(EchoTest, FIFO_NONE_LZ4) {
 }
 
 struct FifoNonblockingTest : testing::Test {
-  inline static const std::string _testFifo = "TestFifo";
-  inline static const std::string _smallPayload = "0123456789876543210";
+  static constexpr std::string_view _testFifo = "TestFifo";
+  static constexpr std::string_view _smallPayload = "0123456789876543210";
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';

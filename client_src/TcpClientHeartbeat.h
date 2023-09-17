@@ -12,7 +12,7 @@ namespace tcp {
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
 class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHeartbeat>,
-  public RunnableT<TcpClientHeartbeat> {
+  public Runnable {
  public:
   TcpClientHeartbeat();
   ~TcpClientHeartbeat() override;
@@ -20,6 +20,9 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   void run() override;
   bool start() override;
   void stop() override;
+  unsigned getNumberObjects() const override { return 1; }
+  unsigned getNumberRunningByType() const override { return 1; }
+  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
   void heartbeatWait();
   void timeoutWait();
   void write();

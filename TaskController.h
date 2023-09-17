@@ -17,12 +17,15 @@ using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
 class TaskController {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
-  class Worker : public RunnableT<Worker> {
+  class Worker : public Runnable {
     Worker(const Worker& other) = delete;
     Worker& operator =(const Worker& other) = delete;
     bool start() override { return true; }
     void stop() override {}
     void run() noexcept override;
+    unsigned getNumberObjects() const override { return 1; }
+    unsigned getNumberRunningByType() const override { return 1; }
+    void displayCapacityCheck(std::atomic<unsigned>&) const override {}
     TaskControllerWeakPtr _taskController;
   public:
     explicit Worker(TaskControllerWeakPtr taskController);

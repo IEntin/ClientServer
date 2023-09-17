@@ -12,7 +12,7 @@ class Server;
 namespace tcp {
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
-  public RunnableT<TcpAcceptor> {
+  public Runnable {
  public:
   TcpAcceptor(Server& server);
   ~TcpAcceptor() override;
@@ -20,6 +20,9 @@ private:
   void run() override;
   bool start() override;
   void stop() override;
+  unsigned getNumberObjects() const override { return 1; }
+  unsigned getNumberRunningByType() const override { return 1; }
+  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
 
   void accept();
   HEADERTYPE connectionType(boost::asio::ip::tcp::socket& socket);

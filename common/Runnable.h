@@ -29,8 +29,8 @@ class Runnable {
   virtual unsigned getNumberObjects() const = 0;
   virtual unsigned getNumberRunningByType() const = 0;
   virtual void displayCapacityCheck(std::atomic<unsigned>&) const = 0;
-  virtual std::string_view getType() const = 0;
   virtual bool sendStatusToClient() { return true; }
+  std::string_view getType() const { return typeid(*this).name(); }
   std::atomic<STATUS>& getStatus() { return _status; }
   bool checkCapacity() {
     if (getNumberObjects() > _maxNumberRunningByType) {
@@ -42,7 +42,7 @@ class Runnable {
   const unsigned _maxNumberRunningByType;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
-  static inline std::atomic<unsigned> _numberRunningTotal = 0;
+  static std::atomic<unsigned> _numberRunningTotal;
 };
 
 // The Curiously Recurring Template Pattern (CRTP)
@@ -55,11 +55,9 @@ class RunnableT : public Runnable {
 		     std::string_view displayType = {}) :
     Runnable(maxNumberThreads) { _numberObjects++; _displayType = displayType; }
   ~RunnableT() override { _numberObjects--; }
-  std::string_view getType() const override { return _type; }
   static inline std::string_view _displayType;
   static inline std::atomic<unsigned> _numberObjects = 0;
   static inline std::atomic<unsigned> _numberRunningByType = 0;
-  static inline const std::string _type = typeid(T).name();
  public:
   struct CountRunning {
     CountRunning() { _numberRunningByType++; _numberRunningTotal++; }

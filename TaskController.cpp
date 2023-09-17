@@ -107,7 +107,7 @@ void TaskController::destroy() {
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :
-  RunnableT(ServerOptions::_numberWorkThreads),
+  Runnable(ServerOptions::_numberWorkThreads),
   _taskController(taskController) {}
 
 // Process the current task (batch of requests) by all threads. Arrive
