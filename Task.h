@@ -18,6 +18,8 @@ using PreprocessRequest = std::string (*)(std::string_view);
 using ProcessRequest = std::string (*)(std::string_view, std::string_view, bool diagnostics);
 
 struct RequestRow {
+  RequestRow() {}
+
   RequestRow(const char* beg, const char* end) : _value(beg, end) {}
 
   RequestRow(RequestRow&& other) : _key(std::move(other._key)),
@@ -42,6 +44,7 @@ class Task {
   std::promise<void> _promise;
   bool _diagnostics;
   std::reference_wrapper<Response> _response;
+  static std::atomic<size_t> _maxSize;
   static PreprocessRequest _preprocessRequest;
   static ProcessRequest _processRequest;
   static Response _emptyResponse;

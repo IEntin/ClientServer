@@ -45,7 +45,7 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
 
 Transaction::~Transaction() {
   _bids.clear();
-  _keywords.clear();
+  _keywords.resize(0);
 }
 
 std::string Transaction::processRequest(std::string_view key,
@@ -69,7 +69,7 @@ std::string Transaction::processRequest(std::string_view key,
   static std::vector<Ad> empty;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
   static thread_local std::string prevKey;
-  prevKey.clear();
+  prevKey.resize(0);
   if (key != prevKey) {
     prevKey = key;
     adVector = Ad::getAdsBySize(key);

@@ -94,7 +94,6 @@ void TcpSession::readHeader() {
 	LogError << "header is invalid." << '\n';
 	return;
       }
-      //_request.clear();
       _request.resize(extractPayloadSize(header));
       readRequest(header);
     });
@@ -115,14 +114,13 @@ void TcpSession::readRequest(const HEADER& header) {
 	});
 	return;
       }
-      //_response.clear();
       if (serverutility::processRequest(header, _request, _response))
 	sendReply();
     });
 }
 
 void TcpSession::write(const HEADER& header, std::string_view body) {
-  _asioBuffers.clear();
+  _asioBuffers.resize(0);
   encodeHeader(_headerBuffer, header);
   _asioBuffers.emplace_back(boost::asio::buffer(_headerBuffer));
   _asioBuffers.emplace_back(boost::asio::buffer(body));

@@ -5,6 +5,7 @@
 #include "Task.h"
 #include "Utility.h"
 
+std::atomic<size_t> Task::_maxSize = 0;
 PreprocessRequest Task::_preprocessRequest = nullptr;
 ProcessRequest Task::_processRequest = nullptr;
 Response Task::_emptyResponse;
@@ -14,7 +15,11 @@ Task::Task(Response& response) : _response(response) {}
 void Task::set(const HEADER& header, std::string_view input, Response& response) {
   _response = response;
   _diagnostics = isDiagnosticsEnabled(header);
+  _rows.reserve(_maxSize);
+  _indices.reserve(_maxSize);
   utility::split(input, _rows);
+  if (_rows.size() > _maxSize)
+    _maxSize = _rows.size();
   _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;

@@ -44,6 +44,14 @@ std::string readFile(std::string_view name) {
   return buffer.str();
 }
 
+void readFile(std::string_view name, std::string& buffer) {
+  std::ifstream ifs(name.data(), std::ios::binary);
+  ifs.seekg(0, std::ios::end);
+  buffer.resize(ifs.tellg());
+  ifs.seekg(0);
+  ifs.read(buffer.data(), buffer.size());
+}
+
 bool writeFile(std::string_view name, std::string_view contents) {
   std::ofstream ofs(name.data(), std::ios::binary);
   if (ofs) {

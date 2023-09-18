@@ -60,7 +60,7 @@ Tcp::sendMsg(boost::asio::ip::tcp::socket& socket,
     char buffer[HEADER_SIZE] = {};
     encodeHeader(buffer, header);
     static thread_local std::vector<boost::asio::const_buffer> buffers;
-    buffers.clear();
+    buffers.resize(0);
     buffers.emplace_back(boost::asio::buffer(buffer));
     if (!body.empty())
       buffers.emplace_back(boost::asio::buffer(body));

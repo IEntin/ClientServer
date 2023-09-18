@@ -58,11 +58,11 @@ void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view lin
 
 STATUS TaskBuilder::createSubtask() {
   static thread_local std::string aggregate;
-  aggregate.clear();
+  aggregate.resize(0);
   //LogAlways << "\t### " << aggregate.capacity() << '\n';
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
-  line.clear();
+  line.resize(0);
   while (std::getline(_input, line)) {
     copyRequestWithId(aggregate, line);
     bool alldone = _input.peek() == std::istream::traits_type::eof();
