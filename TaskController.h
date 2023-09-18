@@ -25,7 +25,6 @@ class TaskController {
     void run() noexcept override;
     unsigned getNumberObjects() const override { return 1; }
     unsigned getNumberRunningByType() const override { return 1; }
-    void displayCapacityCheck(std::atomic<unsigned>&) const override {}
     TaskControllerWeakPtr _taskController;
   public:
     explicit Worker(TaskControllerWeakPtr taskController);

@@ -28,7 +28,6 @@ class TaskBuilder final : public Runnable {
   void stop() override {}
   unsigned getNumberObjects() const override { return 1; }
   unsigned getNumberRunningByType() const override { return 1; }
-  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
  public:
   TaskBuilder();
   ~TaskBuilder() override;

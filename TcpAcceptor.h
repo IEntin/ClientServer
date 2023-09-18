@@ -22,7 +22,6 @@ private:
   void stop() override;
   unsigned getNumberObjects() const override { return 1; }
   unsigned getNumberRunningByType() const override { return 1; }
-  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
 
   void accept();
   HEADERTYPE connectionType(boost::asio::ip::tcp::socket& socket);

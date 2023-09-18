@@ -13,7 +13,6 @@ class SignalWatcher : public Runnable {
   void stop() override;
   unsigned getNumberObjects() const override { return 1; }
   unsigned getNumberRunningByType() const override { return 1; }
-  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
   std::atomic<ACTIONS>& _flag;
   std::function<void()> _func;
 public:

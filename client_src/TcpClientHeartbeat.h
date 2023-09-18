@@ -22,7 +22,6 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   void stop() override;
   unsigned getNumberObjects() const override { return 1; }
   unsigned getNumberRunningByType() const override { return 1; }
-  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
   void heartbeatWait();
   void timeoutWait();
   void write();

@@ -16,7 +16,6 @@ class FifoAcceptor : public Runnable {
   void stop() override;
   unsigned getNumberObjects() const override { return 1; }
   unsigned getNumberRunningByType() const override { return 1; }
-  void displayCapacityCheck(std::atomic<unsigned>&) const override {}
   HEADERTYPE unblockAcceptor();
   void removeFifoFiles();
   Server& _server;

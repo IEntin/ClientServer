@@ -25,6 +25,7 @@ private:
   void stop() override;
   bool sendStatusToClient() override;
   std::string_view getId() override { return _clientId; }
+  std::string_view getDisplayName() const override{ return "tcp"; }
   void readHeader();
   void readRequest(const HEADER& header);
   void write(const HEADER& header, std::string_view msg);
