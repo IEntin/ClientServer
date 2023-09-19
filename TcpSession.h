@@ -32,7 +32,6 @@ private:
   void asyncWait();
   bool sendReply();
   std::string _clientId;
-  static std::string_view _displayType;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;

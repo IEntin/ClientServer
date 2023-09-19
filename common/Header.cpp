@@ -60,9 +60,9 @@ void encodeHeader(char* buffer, const HEADER& header) {
   utility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
   buffer[offset] = std::underlying_type_t<COMPRESSORS>(compressor);
-  offset += COMPRESSOR_TYPE_SIZE;
+  offset += COMPRESSOR_SIZE;
   buffer[offset] = (encrypted ? CRYPTO_CHAR : NCRYPTO_CHAR);
-  offset += CRYPTO_TYPE_SIZE;
+  offset += CRYPTO_SIZE;
   buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::underlying_type_t<STATUS>(status);
@@ -81,9 +81,9 @@ HEADER decodeHeader(const char* buffer) {
   utility::fromChars(stru, uncomprSize);
   offset += NUM_FIELD_SIZE;
   COMPRESSORS compressor = static_cast<COMPRESSORS>(buffer[offset]);
-  offset += COMPRESSOR_TYPE_SIZE;
+  offset += COMPRESSOR_SIZE;
   bool encrypted = buffer[offset] == CRYPTO_CHAR;
-  offset += CRYPTO_TYPE_SIZE;
+  offset += CRYPTO_SIZE;
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
   STATUS status = static_cast<STATUS>(buffer[offset]);

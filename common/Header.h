@@ -9,12 +9,12 @@
 
 constexpr int HEADERTYPE_SIZE = 1;
 constexpr int NUM_FIELD_SIZE = 10;
-constexpr int COMPRESSOR_TYPE_SIZE = 1;
-constexpr int CRYPTO_TYPE_SIZE = 1;
+constexpr int COMPRESSOR_SIZE = 1;
+constexpr int CRYPTO_SIZE = 1;
 constexpr int DIAGNOSTICS_SIZE = 1;
 constexpr int STATUS_SIZE = 1;
 constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_TYPE_SIZE + CRYPTO_TYPE_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE;
+  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE;
 
 constexpr char CRYPTO_CHAR = 'C';
 constexpr char NCRYPTO_CHAR = 'N';
