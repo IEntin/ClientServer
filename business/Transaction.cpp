@@ -212,7 +212,8 @@ std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
     return os.str();
   }
   else {
-    std::string output;
+    static thread_local std::string output;
+    output.resize(0);
     printSummary(output);
     return output;
   }

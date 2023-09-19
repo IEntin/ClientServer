@@ -20,7 +20,7 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   return os;
 }
 
-AdRow::AdRow(const char* beg, const char* end) : _value(beg, end) {}
+AdRow::AdRow(SCIterator beg, SCIterator end) : _value(beg, end) {}
 
 AdRow::AdRow(AdRow&& other) : _key(std::move(other._key)), _value(other._value) {}
 

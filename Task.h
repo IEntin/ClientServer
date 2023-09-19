@@ -17,10 +17,12 @@ using PreprocessRequest = std::string (*)(std::string_view);
 
 using ProcessRequest = std::string (*)(std::string_view, std::string_view, bool diagnostics);
 
+using SVCIterator = std::string_view::const_iterator;
+
 struct RequestRow {
   RequestRow() {}
 
-  RequestRow(const char* beg, const char* end) : _value(beg, end) {}
+  RequestRow(SVCIterator beg, SVCIterator end) : _value(beg, end) {}
 
   RequestRow(RequestRow&& other) : _key(std::move(other._key)),
 				   _value(other._value),

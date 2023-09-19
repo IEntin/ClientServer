@@ -17,7 +17,7 @@ namespace utility {
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,
 // string_view, vector<char> or vector of objects of any
-// class with constructor arguments (const char*, const char*)
+// class with constructor over the range [first, last)
 
 template <typename INPUT, typename CONTAINER>
   void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
@@ -27,11 +27,11 @@ template <typename INPUT, typename CONTAINER>
       next = input.find(delim, start);
       if (next == std::string::npos) {
 	if (input.size() > start)
-	  rows.emplace_back(input.data() + start, input.data() + input.size());
+	  rows.emplace_back(input.cbegin() + start, input.cend());
 	break;
       }
       else if (next > start)
-	rows.emplace_back(input.data() + start, input.data() + next + keepDelim);
+	rows.emplace_back(input.cbegin() + start, input.cbegin() + next + keepDelim);
       start = next + 1;
     }
 }

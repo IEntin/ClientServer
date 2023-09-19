@@ -13,8 +13,10 @@ struct AdBid;
 
 using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
+using SCIterator = std::string::const_iterator;
+
 struct AdRow {
-  AdRow(const char* beg, const char* end);
+  AdRow(SCIterator beg, SCIterator end);
 
   AdRow(AdRow& other) = delete;
 
