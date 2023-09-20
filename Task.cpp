@@ -16,7 +16,6 @@ void Task::set(const HEADER& header, std::string_view input, Response& response)
   _response = response;
   _diagnostics = isDiagnosticsEnabled(header);
   _rows.reserve(_maxSize);
-  _indices.reserve(_maxSize);
   utility::split(input, _rows);
   if (_rows.size() > _maxSize)
     _maxSize = _rows.size();
