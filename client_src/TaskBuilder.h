@@ -26,8 +26,6 @@ class TaskBuilder final : public Runnable {
   void run() override;
   bool start() override { return true; }
   void stop() override {}
-  unsigned getNumberObjects() const override { return 1; }
-  unsigned getNumberRunningByType() const override { return 1; }
  public:
   TaskBuilder();
   ~TaskBuilder() override;

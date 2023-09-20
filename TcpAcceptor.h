@@ -20,8 +20,6 @@ private:
   void run() override;
   bool start() override;
   void stop() override;
-  unsigned getNumberObjects() const override { return 1; }
-  unsigned getNumberRunningByType() const override { return 1; }
 
   void accept();
   HEADERTYPE connectionType(boost::asio::ip::tcp::socket& socket);

@@ -23,8 +23,6 @@ class TaskController {
     bool start() override { return true; }
     void stop() override {}
     void run() noexcept override;
-    unsigned getNumberObjects() const override { return 1; }
-    unsigned getNumberRunningByType() const override { return 1; }
     TaskControllerWeakPtr _taskController;
   public:
     explicit Worker(TaskControllerWeakPtr taskController);

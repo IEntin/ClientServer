@@ -25,8 +25,8 @@ class Runnable {
   virtual void run() = 0;
   virtual void stop() = 0;
   virtual std::string_view getId() { return {}; }
-  virtual unsigned getNumberObjects() const = 0;
-  virtual unsigned getNumberRunningByType() const = 0;
+  virtual unsigned getNumberObjects() const { return 0; }
+  virtual unsigned getNumberRunningByType() const { return 0; }
   virtual bool sendStatusToClient() { return true; }
   virtual std::string_view getDisplayName() const { return _emptyView; }
   std::string_view getType() const;

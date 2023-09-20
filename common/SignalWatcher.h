@@ -11,8 +11,6 @@ class SignalWatcher : public Runnable {
   bool start() override { return true; }
   void run() override;
   void stop() override;
-  unsigned getNumberObjects() const override { return 1; }
-  unsigned getNumberRunningByType() const override { return 1; }
   std::atomic<ACTIONS>& _flag;
   std::function<void()> _func;
 public:
