@@ -18,7 +18,6 @@ COMPRESSORS translateName(std::string_view compressorStr) {
 
 std::string_view compress(std::string_view data) {
   static thread_local std::vector<char> buffer;
-  buffer.resize(0);
   //LogAlways << "\t### " << buffer.capacity() << '\n';
   buffer.reserve(LZ4_compressBound(data.size()));
   size_t compressedSize = LZ4_compress_default(data.data(),
