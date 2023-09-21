@@ -19,7 +19,6 @@ std::string_view buildReply(const Response& response,
     dataSize += entry.size();
   header = { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status };
   static thread_local std::vector<char> data;
-  data.resize(0);
   data.resize(dataSize);
   ssize_t pos = 0;
   for (const auto& entry : response) {

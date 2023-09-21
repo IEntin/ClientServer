@@ -62,7 +62,6 @@ STATUS TaskBuilder::createSubtask() {
   //LogAlways << "\t### " << aggregate.capacity() << '\n';
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   thread_local static std::string line;
-  line.resize(0);
   while (std::getline(_input, line)) {
     copyRequestWithId(aggregate, line);
     bool alldone = _input.peek() == std::istream::traits_type::eof();

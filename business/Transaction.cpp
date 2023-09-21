@@ -69,7 +69,6 @@ std::string Transaction::processRequest(std::string_view key,
   static std::vector<Ad> empty;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
   static thread_local std::string prevKey;
-  prevKey.resize(0);
   if (key != prevKey) {
     prevKey = key;
     adVector = Ad::getAdsBySize(key);
