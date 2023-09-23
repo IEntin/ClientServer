@@ -34,9 +34,9 @@ std::string_view uncompress(std::string_view data, size_t uncomprSize) {
   //LogAlways << "\t### " << uncompressed.capacity() << '\n';
   uncompressed.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),
-					   uncompressed.data(),
-					   data.size(),
-					   uncomprSize);
+					    uncompressed.data(),
+					    data.size(),
+					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
   return { uncompressed.data(), static_cast<size_t>(decomprSize) };

@@ -202,7 +202,7 @@ std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
       os << INVALID_REQUEST << "*****" << '\n';
     else {
       auto winningAdPtr = _winningBid->_ad;
-      assert(winningAdPtr);
+      assert(winningAdPtr && "match is expected");
       os << winningAdPtr->getId() << ", " << _winningBid->_keyword << ", "
 	 << utility::Print(_winningBid->_money / Ad::_scaler, 1) << "\n*****" << '\n';
     }

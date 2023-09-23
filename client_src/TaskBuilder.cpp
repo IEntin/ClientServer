@@ -58,9 +58,11 @@ void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view lin
 
 STATUS TaskBuilder::createSubtask() {
   static thread_local std::string aggregate;
+  aggregate.reserve(ClientOptions::_bufferSize);
   aggregate.resize(0);
-  //LogAlways << "\t### " << aggregate.capacity() << '\n';
+  // estimate of max size considering additional id
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
+  // LogAlways << "\t### aggregate.capacity()=" << aggregate.capacity() << '\n';
   thread_local static std::string line;
   while (std::getline(_input, line)) {
     copyRequestWithId(aggregate, line);
