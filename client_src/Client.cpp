@@ -38,8 +38,10 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
     case STATUS::TASK_DONE:
       if (!(send(task) && receive()))
 	return false;
-      if (state == STATUS::TASK_DONE)
+      if (state == STATUS::TASK_DONE) {
+	taskBuilder->resume();
 	return true;
+      }
       break;
     default:
       return false;
@@ -50,19 +52,13 @@ bool Client::processTask(TaskBuilderPtr taskBuilder) {
 
 bool Client::run() {
   int numberTasks = 0;
-  auto taskBuilder = std::make_shared<TaskBuilder>();
-  _threadPoolClient.push(taskBuilder);
   do {
     Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
-    auto savedBuild = std::move(taskBuilder);
-    if (ClientOptions::_runLoop) {
-      // start construction of the next task in the background
-      taskBuilder = std::make_shared<TaskBuilder>();
-      _threadPoolClient.push(taskBuilder);
-    }
-    if (!processTask(savedBuild))
+    TaskBuilderPtr current = numberTasks % 2 == 1 ? _taskBuilder1 : _taskBuilder2;
+    if (!processTask(current))
       return false;
-    if (ClientOptions::_maxNumberTasks > 0 && ++numberTasks == ClientOptions::_maxNumberTasks)
+    ++numberTasks;
+    if (ClientOptions::_maxNumberTasks > 0 && numberTasks == ClientOptions::_maxNumberTasks)
       break;
   } while (ClientOptions::_runLoop);
   return true;
@@ -72,6 +68,10 @@ void Client::stop() {
   Metrics::save();
   if (auto ptr= _heartbeat.lock(); ptr)
     ptr->stop();
+  if (_taskBuilder1)
+    _taskBuilder1->stop();
+  if (_taskBuilder2)
+    _taskBuilder2->stop();
   _threadPoolClient.stop();
 }
 
@@ -104,6 +104,10 @@ void Client::start() {
     _threadPoolClient.push(ptr);
     _heartbeat = ptr;
   }
+  _taskBuilder1 = std::make_shared<TaskBuilder>();
+  _threadPoolClient.push(_taskBuilder1);
+  _taskBuilder2 = std::make_shared<TaskBuilder>();
+  _threadPoolClient.push(_taskBuilder2);
 }
 
 void Client::onSignal() {

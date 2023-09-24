@@ -9,9 +9,14 @@
 #include "Utility.h"
 
 TaskBuilder::TaskBuilder() {
-  _input.open(ClientOptions::_sourceName, std::ios::binary);
-  if(!_input)
-    throw std::ios::failure("Error opening file");
+  _aggregate.reserve(ClientOptions::_bufferSize);
+  try {
+    _input.open(ClientOptions::_sourceName, std::ios::binary);
+    _input.exceptions(std::ifstream::failbit); // may throw
+  }
+  catch (const std::ios_base::failure& fail) {
+    std::cout << fail.what() << '\n';
+  }
 }
 
 TaskBuilder::~TaskBuilder() {
@@ -19,12 +24,17 @@ TaskBuilder::~TaskBuilder() {
 }
 
 void TaskBuilder::run() {
-  while (createSubtask() == STATUS::SUBTASK_DONE) {}
+  while (!_stopped) {
+    _resume = false;
+    while (createSubtask() == STATUS::SUBTASK_DONE) {}
+    std::unique_lock lock(_mutex);
+   _conditionResume.wait(lock, [this] { return _resume || _stopped; });
+  }
 }
 
 STATUS TaskBuilder::getSubtask(Subtask& task) {
   std::unique_lock lock(_mutex);
-  _condition.wait(lock, [this] { return !_subtasks.empty(); });
+  _conditionDone.wait(lock, [this] { return !_subtasks.empty() || _stopped; });
   auto& subtask = _subtasks.front();
   STATUS state = subtask._state;
   task._state = state;
@@ -41,12 +51,12 @@ STATUS TaskBuilder::getSubtask(Subtask& task) {
   return task._state;
 }
 
-void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view line) {
-  aggregate.push_back('[');
-  utility::toChars(_requestIndex++, aggregate);
-  aggregate.push_back(']');
-  aggregate.insert(aggregate.cend(), line.cbegin(), line.cend());
-  aggregate.push_back('\n');
+void TaskBuilder::copyRequestWithId(std::string_view line) {
+  _aggregate.push_back('[');
+  utility::toChars(_requestIndex++, _aggregate);
+  _aggregate.push_back(']');
+  _aggregate.insert(_aggregate.cend(), line.cbegin(), line.cend());
+  _aggregate.push_back('\n');
 }
 
 // Read requests from the source, generate id for each.
@@ -57,19 +67,16 @@ void TaskBuilder::copyRequestWithId(std::string& aggregate, std::string_view lin
 // aggregate depends on the buffer size.
 
 STATUS TaskBuilder::createSubtask() {
-  static thread_local std::string aggregate;
-  aggregate.reserve(ClientOptions::_bufferSize);
-  aggregate.resize(0);
+  // LogAlways << "\t### _aggregate.capacity()=" << _aggregate.capacity() << '\n';
+  _aggregate.resize(0);
   // estimate of max size considering additional id
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
-  // LogAlways << "\t### aggregate.capacity()=" << aggregate.capacity() << '\n';
-  thread_local static std::string line;
-  while (std::getline(_input, line)) {
-    copyRequestWithId(aggregate, line);
+  while (std::getline(_input, _line)) {
+    copyRequestWithId(_line);
     bool alldone = _input.peek() == std::istream::traits_type::eof();
-    if (aggregate.size() >= maxSubtaskSize || alldone) {
-      aggregate.pop_back();
-      return compressEncryptSubtask(aggregate, alldone);
+    if (_aggregate.size() >= maxSubtaskSize || alldone) {
+      _aggregate.pop_back();
+      return compressEncryptSubtask(alldone);
     }
   }
   return STATUS::NONE;
@@ -78,15 +85,31 @@ STATUS TaskBuilder::createSubtask() {
 // Encrypt and compress requests if options require.
 // Generate header for every aggregated group of requests.
 
-STATUS TaskBuilder::compressEncryptSubtask(std::string_view data, bool alldone) {
+STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
-  std::string_view output = payloadtransform::compressEncrypt(data, header);
+  std::string_view output = payloadtransform::compressEncrypt(_aggregate, header);
   std::scoped_lock lock(_mutex);
   _subtasks.emplace_back();
   Subtask& subtask = _subtasks.back();
   subtask._header = std::move(header);
-  subtask._body = std::move(output);
+  subtask._body.assign(output.data(), output.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
-  _condition.notify_one();
+  _conditionDone.notify_one();
   return subtask._state;
+}
+
+void TaskBuilder::stop() {
+  std::scoped_lock lock(_mutex);
+  _stopped = true;
+  _conditionResume.notify_one();
+}
+
+void TaskBuilder::resume() {
+  std::scoped_lock lock(_mutex);
+  _input.clear();
+  _input.seekg(0);
+  _subtasks.clear();
+  _requestIndex = 0;
+  _resume = true;
+  _conditionResume.notify_one();
 }

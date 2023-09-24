@@ -15,20 +15,25 @@ enum class STATUS : char;
 
 class TaskBuilder final : public Runnable {
 
-  STATUS compressEncryptSubtask(std::string_view data, bool alldone);
-  void copyRequestWithId(std::string& aggregate, std::string_view line);
+  STATUS compressEncryptSubtask(bool alldone);
+  void copyRequestWithId(std::string_view line);
 
   std::ifstream _input;
   std::deque<Subtask> _subtasks;
-  int _requestIndex = 0;
+  std::atomic<int> _requestIndex = 0;
+  std::string _aggregate;
+  std::string _line;
   std::mutex _mutex;
-  std::condition_variable _condition;
+  std::condition_variable _conditionDone;
+  std::condition_variable _conditionResume;
+  bool _resume = false;
   void run() override;
   bool start() override { return true; }
-  void stop() override {}
  public:
   TaskBuilder();
   ~TaskBuilder() override;
   STATUS getSubtask(Subtask& task);
   STATUS createSubtask();
+  void stop() override;
+  void resume();
 };
