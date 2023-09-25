@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <boost/core/noncopyable.hpp>
 #include <iomanip>
 #include <iostream>
 #include <string_view>
@@ -36,20 +37,16 @@ constexpr std::string_view levelNames[] {
   "ALWAYS"
 };
 
-struct Logger {
+struct Logger : private boost::noncopyable {
   explicit Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayPrefix = true) :
     _level(level),
     _stream(stream),
     _displayPrefix(displayPrefix) {
   }
-
-  Logger(Logger&) = delete;
   
   ~Logger() {
     _stream.flush();
   }
-
-  Logger& operator=(Logger&) = delete;
 
   Logger& printPrefix(const char* file, int line, const char* func) {
     try {

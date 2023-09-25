@@ -4,13 +4,14 @@
 
 #pragma once
 
+#include <boost/core/noncopyable.hpp>
 #include <string>
 #include <vector>
 
 class Ad;
 struct AdBidMatched;
 
-class Transaction {
+class Transaction : private boost::noncopyable {
 public:
   static std::string processRequest(std::string_view key,
 				    std::string_view request,
@@ -18,9 +19,7 @@ public:
   static std::string  normalizeSizeKey(std::string_view request);
 private:
   Transaction(std::string_view sizeKey, std::string_view input);
-  Transaction(const Transaction& other) = delete;
   ~Transaction();
-  Transaction& operator =(const Transaction& other) = delete;
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<Ad>& adVector);

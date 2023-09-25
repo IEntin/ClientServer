@@ -5,6 +5,7 @@
 #pragma once
 
 #include "ThreadPoolSameObj.h"
+#include <boost/core/noncopyable.hpp>
 #include <barrier>
 #include <map>
 #include <queue>
@@ -15,11 +16,9 @@ using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
-class TaskController {
+class TaskController : private boost:: noncopyable {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   class Worker : public Runnable {
-    Worker(const Worker& other) = delete;
-    Worker& operator =(const Worker& other) = delete;
     bool start() override { return true; }
     void stop() override {}
     void run() noexcept override;
@@ -29,8 +28,6 @@ class TaskController {
     ~Worker() override {}
   };
   using CompletionFunction = void (*) () noexcept;
-  TaskController(const TaskController& other) = delete;
-  TaskController& operator =(const TaskController& other) = delete;
   bool start();
   void stop();
   void push(TaskPtr task);

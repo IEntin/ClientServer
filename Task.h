@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Header.h"
+#include <boost/core/noncopyable.hpp>
 #include <atomic>
 #include <future>
 #include <vector>
@@ -19,7 +20,7 @@ using ProcessRequest = std::string (*)(std::string_view, std::string_view, bool 
 
 using SVCIterator = std::string_view::const_iterator;
 
-struct RequestRow {
+struct RequestRow : private boost::noncopyable {
   RequestRow() {}
 
   RequestRow(SVCIterator beg, SVCIterator end) : _value(beg, end) {}
@@ -28,18 +29,12 @@ struct RequestRow {
 				   _value(other._value),
 				   _orgIndex(other._orgIndex) {}
 
-  RequestRow(const RequestRow& other) = delete;
-  RequestRow& operator =(const RequestRow& other) = delete;
-
   std::string _key;
   std::string_view _value;
   int _orgIndex = 0;
 };
 
-class Task {
-  Task(const Task& other) = delete;
-  Task& operator =(const Task& other) = delete;
-
+class Task : private boost::noncopyable {
   std::vector<RequestRow> _rows;
   std::vector<int> _indices;
   std::atomic<int> _index = 0;

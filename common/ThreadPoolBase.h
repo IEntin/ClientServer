@@ -10,11 +10,9 @@
 #include <thread>
 #include <vector>
 
-class ThreadPoolBase {
+class ThreadPoolBase : private boost::noncopyable {
 protected:
   void createThread();
-  ThreadPoolBase(const ThreadPoolBase& other) = delete;
-  ThreadPoolBase& operator =(const ThreadPoolBase& other) = delete;
   void increment() { _totalNumberObjects++; }
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;

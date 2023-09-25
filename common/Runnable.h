@@ -6,6 +6,7 @@
 
 #include "CommonConstants.h"
 #include "Header.h"
+#include <boost/core/noncopyable.hpp>
 #include <atomic>
 #include <memory>
 #include <string_view>
@@ -14,13 +15,11 @@ using RunnablePtr = std::shared_ptr<class Runnable>;
 
 using RunnableWeakPtr = std::weak_ptr<class Runnable>;
 
-class Runnable {
+class Runnable : private boost::noncopyable {
  public:
   explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberRunningByType(maxNumberRunningByType) {}
-  Runnable(Runnable&) = delete;
   virtual ~Runnable() {}
-  Runnable& operator=(Runnable&) = delete;
   virtual bool start() = 0;
   virtual void run() = 0;
   virtual void stop() = 0;

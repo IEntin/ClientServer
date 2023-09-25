@@ -5,10 +5,11 @@
 #pragma once
 
 #define BOOST_SPIRIT_THREADSAFE
+#include <boost/core/noncopyable.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-class AppOptions {
+class AppOptions : private boost::noncopyable {
  public:
   AppOptions(std::string_view fileName);
   ~AppOptions() = default;
@@ -22,7 +23,6 @@ class AppOptions {
 
   bool initialize(std::string_view fileName);
  private:
-  AppOptions(const AppOptions& other) = delete;
   boost::property_tree::ptree _ptree;
   const bool _initialized;
 };

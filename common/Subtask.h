@@ -5,13 +5,12 @@
 #pragma once
 
 #include "Header.h"
+#include <boost/core/noncopyable.hpp>
 #include <atomic>
 
-struct Subtask {
+struct Subtask : private boost::noncopyable {
   Subtask() = default;
-  Subtask(const Subtask&) = delete;
   ~Subtask() = default;
-  Subtask& operator=(Subtask& other) = delete;
   HEADER _header;
   std::string _body;
   std::atomic<STATUS> _state = STATUS::NONE;

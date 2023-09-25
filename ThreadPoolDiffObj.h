@@ -8,8 +8,6 @@
 #include <functional>
 
 class ThreadPoolDiffObj : public ThreadPoolBase {
-  ThreadPoolDiffObj(const ThreadPoolDiffObj& other) = delete;
-  ThreadPoolDiffObj& operator =(const ThreadPoolDiffObj& other) = delete;
   std::function<bool(RunnablePtr)> _func = nullptr;
 public:
   explicit ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func = nullptr);

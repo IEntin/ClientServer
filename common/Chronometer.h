@@ -7,7 +7,7 @@
 #include "Logger.h"
 #include <chrono>
 
-struct Chronometer {
+struct Chronometer : private boost::noncopyable {
   explicit Chronometer(bool enable = true,
 		       std::string_view file = __FILE__,
 		       int line = __LINE__,
@@ -49,8 +49,6 @@ struct Chronometer {
     }
   }
  private:
-  Chronometer(const Chronometer&) = delete;
-  Chronometer& operator=(const Chronometer&) = delete;
   const bool _enabled;
   const std::string _file;
   const int _line;

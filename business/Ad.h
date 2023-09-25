@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <boost/core/noncopyable.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -15,14 +16,10 @@ using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
 
 using SCIterator = std::string::const_iterator;
 
-struct AdRow {
+struct AdRow : private boost::noncopyable {
   AdRow(SCIterator beg, SCIterator end);
 
-  AdRow(AdRow& other) = delete;
-
   AdRow(AdRow&& other);
-
-  const AdRow& operator =(AdRow& other) = delete;
 
   const AdRow& operator =(AdRow&& other);
 
