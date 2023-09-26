@@ -5,7 +5,6 @@
 #pragma once
 
 #include "ThreadPoolSameObj.h"
-#include <boost/core/noncopyable.hpp>
 #include <barrier>
 #include <map>
 #include <queue>

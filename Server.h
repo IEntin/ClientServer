@@ -10,7 +10,7 @@
 using StrategyPtr = std::shared_ptr<class Strategy>;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
-class Server {
+class Server : private boost::noncopyable {
 public:
   Server(StrategyPtr strategy);
   ~Server();
