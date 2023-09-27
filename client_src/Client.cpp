@@ -26,17 +26,16 @@ Client::~Client() {
 // content in one shot.
 
 bool Client::processTask(TaskBuilderPtr taskBuilder) {
-  // static here is safe and saves on memory allocations
-  static Subtask task;
   while (true) {
-    STATUS state = taskBuilder->getSubtask(task);
+    Subtask& subtask = taskBuilder->getSubtask();
+    STATUS state = subtask._state;
     switch (state) {
     case STATUS::ERROR:
       LogError << "TaskBuilder failed." << '\n';
       return false;
     case STATUS::SUBTASK_DONE:
     case STATUS::TASK_DONE:
-      if (!(send(task) && receive()))
+      if (!(send(subtask) && receive()))
 	return false;
       if (state == STATUS::TASK_DONE) {
 	taskBuilder->resume();

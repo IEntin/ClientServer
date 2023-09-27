@@ -7,9 +7,9 @@
 #include "Runnable.h"
 #include "Subtask.h"
 #include <condition_variable>
+#include <fstream>
 #include <deque>
 #include <mutex>
-#include <fstream>
 
 enum class STATUS : char;
 
@@ -23,6 +23,7 @@ class TaskBuilder final : public Runnable {
   std::atomic<unsigned> _requestIndex = 0;
   std::string _aggregate;
   std::string _line;
+  std::atomic<unsigned> _subtaskIndex = 0;
   std::mutex _mutex;
   std::condition_variable _condition;
   bool _resume = false;
@@ -31,7 +32,7 @@ class TaskBuilder final : public Runnable {
  public:
   TaskBuilder();
   ~TaskBuilder() override;
-  STATUS getSubtask(Subtask& task);
+  Subtask& getSubtask();
   STATUS createSubtask();
   void stop() override;
   void resume();

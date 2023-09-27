@@ -32,23 +32,16 @@ void TaskBuilder::run() {
   }
 }
 
-STATUS TaskBuilder::getSubtask(Subtask& task) {
+Subtask& TaskBuilder::getSubtask() {
   std::unique_lock lock(_mutex);
-  _condition.wait(lock, [this] { return !_subtasks.empty() || _stopped; });
-  auto& subtask = _subtasks.front();
-  STATUS state = subtask._state;
-  task._state = state;
-  switch (state) {
-  case STATUS::SUBTASK_DONE:
-  case STATUS::TASK_DONE:
-    subtask._header.swap(task._header);
-    subtask._body.swap(task._body);
-    break;
-  default:
-    break;
-  }
-  _subtasks.pop_front();
-  return task._state;
+  _condition.wait(lock, [this] {
+    return _subtaskIndex < _subtasks.size() || _stopped;
+  });
+  static Subtask emptySubtask;
+  if (_stopped)
+    return emptySubtask;
+  auto& subtask = _subtasks[_subtaskIndex++];
+  return subtask;
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line) {
@@ -110,6 +103,7 @@ void TaskBuilder::resume() {
   _input.seekg(0);
   _subtasks.clear();
   _requestIndex = 0;
-  _resume = true;
+  _subtaskIndex = 0;
+ _resume = true;
   _condition.notify_one();
 }
