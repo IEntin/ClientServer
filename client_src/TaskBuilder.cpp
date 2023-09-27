@@ -35,18 +35,20 @@ void TaskBuilder::run() {
 Subtask& TaskBuilder::getSubtask() {
   std::unique_lock lock(_mutex);
   _condition.wait(lock, [this] {
-    return _subtaskIndex < _subtasks.size() || _stopped;
+    return _subtaskIndexOut < _subtasks.size() || _stopped;
   });
   static Subtask emptySubtask;
   if (_stopped)
     return emptySubtask;
-  auto& subtask = _subtasks[_subtaskIndex++];
+  auto& subtask = _subtasks[_subtaskIndexOut];
+  _subtaskIndexOut.fetch_add(1);
   return subtask;
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line) {
   _aggregate.push_back('[');
-  utility::toChars(_requestIndex++, _aggregate);
+  unsigned index = _requestIndex.fetch_add(1);
+  utility::toChars(index, _aggregate);
   _aggregate.push_back(']');
   _aggregate.insert(_aggregate.cend(), line.cbegin(), line.cend());
   _aggregate.push_back('\n');
@@ -103,7 +105,7 @@ void TaskBuilder::resume() {
   _input.seekg(0);
   _subtasks.clear();
   _requestIndex = 0;
-  _subtaskIndex = 0;
+  _subtaskIndexOut = 0;
  _resume = true;
   _condition.notify_one();
 }
