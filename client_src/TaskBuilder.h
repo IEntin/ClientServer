@@ -7,8 +7,8 @@
 #include "Runnable.h"
 #include "Subtask.h"
 #include <condition_variable>
-#include <fstream>
 #include <deque>
+#include <fstream>
 #include <mutex>
 
 enum class STATUS : char;
@@ -20,6 +20,7 @@ class TaskBuilder final : public Runnable {
 
   std::ifstream _input;
   std::deque<Subtask> _subtasks;
+  static Subtask _emptySubtask;
   std::atomic<unsigned> _requestIndex = 0;
   std::string _aggregate;
   std::string _line;

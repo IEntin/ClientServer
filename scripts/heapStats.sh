@@ -16,6 +16,12 @@ echo "UP_DIR:" $UP_DIR
 CLIENT_DIR=$UP_DIR/$2
 echo "CLIENT_DIR:" $CLIENT_DIR
 
+pids=$(pidof $PRJ_DIR/server)
+if [ ! -z "$pids" ];
+then
+   kill -9 $pids
+fi
+
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 2 || $# -gt 2 ]]
 then
     echo "Usage: [path]/serverAllocations.sh <server or nothing> <Client1 or Client2>"

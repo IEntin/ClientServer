@@ -7,6 +7,9 @@
 #include "Header.h"
 #include "PayloadTransform.h"
 #include "Utility.h"
+#include <cassert>
+
+Subtask TaskBuilder::_emptySubtask;
 
 TaskBuilder::TaskBuilder() {
   _aggregate.reserve(ClientOptions::_bufferSize);
@@ -37,9 +40,9 @@ Subtask& TaskBuilder::getSubtask() {
   _condition.wait(lock, [this] {
     return _subtaskIndexOut < _subtasks.size() || _stopped;
   });
-  static Subtask emptySubtask;
   if (_stopped)
-    return emptySubtask;
+    return _emptySubtask;
+  assert(_subtaskIndexOut < _subtasks.size());
   auto& subtask = _subtasks[_subtaskIndexOut];
   _subtaskIndexOut.fetch_add(1);
   return subtask;
@@ -84,10 +87,11 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
   std::string_view output = payloadtransform::compressEncrypt(_aggregate, header);
   std::scoped_lock lock(_mutex);
-  _subtasks.emplace_back();
-  Subtask& subtask = _subtasks.back();
+  if (_stopped)
+    return STATUS::NONE;
+  Subtask& subtask = _subtasks.emplace_back();
   subtask._header = std::move(header);
-  subtask._body.assign(output.data(), output.size());
+  subtask._body.assign(output.cbegin(), output.cend());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;
@@ -103,7 +107,7 @@ void TaskBuilder::resume() {
   std::scoped_lock lock(_mutex);
   _input.clear();
   _input.seekg(0);
-  _subtasks.clear();
+  _subtasks.resize(0);
   _requestIndex = 0;
   _subtaskIndexOut = 0;
  _resume = true;
