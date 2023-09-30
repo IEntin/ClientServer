@@ -12,9 +12,11 @@ Response Task::_emptyResponse;
 
 Task::Task(Response& response) : _response(response) {}
 
-void Task::set(const HEADER& header, std::string_view input, Response& response) {
-  _response = response;
+void Task::set(const HEADER& header, std::string_view input) {
+  _promise = std::promise<void>();
+  _response.get().resize(0);
   _diagnostics = isDiagnosticsEnabled(header);
+  _rows.resize(0);
   _rows.reserve(_maxSize);
   utility::split(input, _rows);
   if (_rows.size() > _maxSize)

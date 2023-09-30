@@ -5,6 +5,7 @@
 #include "TcpSession.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
+#include "Task.h"
 #include "Tcp.h"
 #include "Utility.h"
 
@@ -13,7 +14,8 @@ namespace tcp {
 TcpSession::TcpSession() :
   RunnableT(ServerOptions::_maxTcpSessions),
   _socket(_ioContext),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext),
+  _task(std::make_shared<Task>(_response)) {}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
@@ -114,7 +116,7 @@ void TcpSession::readRequest(const HEADER& header) {
 	});
 	return;
       }
-      if (serverutility::processRequest(header, _request, _response))
+      if (serverutility::processTask(header, _request, _task))
 	sendReply();
     });
 }

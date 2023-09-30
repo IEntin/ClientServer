@@ -8,6 +8,7 @@
 #include <vector>
 
 using Response = std::vector<std::string>;
+using TaskPtr = std::shared_ptr<class Task>;
 
 namespace fifo {
 
@@ -16,6 +17,7 @@ class FifoSession final : public RunnableT<FifoSession> {
   std::string _fifoName;
   std::string _request;
   Response _response;
+  TaskPtr _task;
   bool receiveRequest(HEADER& header);
   bool sendResponse();
   bool start() override;

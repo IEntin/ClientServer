@@ -6,13 +6,15 @@
 #include "Fifo.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
+#include "Task.h"
 #include <filesystem>
 #include <sys/stat.h>
 
 namespace fifo {
 
 FifoSession::FifoSession() :
-  RunnableT(ServerOptions::_maxFifoSessions) {}
+  RunnableT(ServerOptions::_maxFifoSessions),
+  _task(std::make_shared<Task>(_response)) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
@@ -60,7 +62,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   }
   if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
-  if (serverutility::processRequest(header, _request, _response))
+  if (serverutility::processTask(header, _request, _task))
     return sendResponse();
   return false;
 }

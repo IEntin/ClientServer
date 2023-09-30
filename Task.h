@@ -49,7 +49,7 @@ class Task : private boost::noncopyable {
  public:
   Task(Response& response = _emptyResponse);
 
-  void set(const HEADER& header, std::string_view input, Response& response);
+  void set(const HEADER& header, std::string_view input);
 
   void sortIndices();
 

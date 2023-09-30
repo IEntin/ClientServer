@@ -5,6 +5,7 @@
 #include "ServerUtility.h"
 #include "PayloadTransform.h"
 #include "ServerOptions.h"
+#include "Task.h"
 #include "TaskController.h"
 
 namespace serverutility {
@@ -28,11 +29,12 @@ std::string_view buildReply(const Response& response,
   return payloadtransform::compressEncrypt({ data.data(), data.size() }, header);
 }
 
-bool processRequest(const HEADER& header, std::string_view request, Response& response) {
+bool processTask(const HEADER& header, std::string_view input, TaskPtr task) {
   auto weakPtr = TaskController::weakInstance();
   if (auto taskController = weakPtr.lock(); taskController) {
-    std::string_view restored = payloadtransform::decryptDecompress(header, request);
-    taskController->processTask(header, restored, response);
+    std::string_view restored = payloadtransform::decryptDecompress(header, input);
+    task->set(header, restored);
+    taskController->processTask(task);
     return true;
   }
   return false;

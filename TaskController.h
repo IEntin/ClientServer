@@ -10,7 +10,6 @@
 #include <queue>
 #include <vector>
 
-using Response = std::vector<std::string>;
 using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
@@ -45,7 +44,7 @@ class TaskController : private boost:: noncopyable {
  public:
   TaskController();
   ~TaskController();
-  void processTask(const HEADER& header, std::string_view input, Response& response);
+  void processTask(TaskPtr task);
   static bool create();
   static void destroy();
   static TaskControllerWeakPtr weakInstance();

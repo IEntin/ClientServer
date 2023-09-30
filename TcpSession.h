@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 
 using Response = std::vector<std::string>;
+using TaskPtr = std::shared_ptr<class Task>;
 
 namespace tcp {
 
@@ -38,6 +39,7 @@ private:
   char _headerBuffer[HEADER_SIZE] = {};
   std::string _request;
   Response _response;
+  TaskPtr _task;
   std::vector<boost::asio::const_buffer> _asioBuffers;
 };
 
