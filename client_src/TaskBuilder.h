@@ -25,6 +25,7 @@ class TaskBuilder final : public Runnable {
   std::string _aggregate;
   std::string _line;
   std::atomic<unsigned> _subtaskIndexOut = 0;
+  std::atomic<unsigned> _subtaskIndexIn = 0;
   std::mutex _mutex;
   std::condition_variable _condition;
   bool _resume = false;

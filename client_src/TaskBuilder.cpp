@@ -38,11 +38,16 @@ void TaskBuilder::run() {
 Subtask& TaskBuilder::getSubtask() {
   std::unique_lock lock(_mutex);
   _condition.wait(lock, [this] {
-    return _subtaskIndexOut < _subtasks.size() || _stopped;
+    if (_subtaskIndexOut < _subtasks.size()) {
+      Subtask& subtask = _subtasks[_subtaskIndexOut];
+      STATUS state = subtask._state;
+      if (state == STATUS::SUBTASK_DONE || state == STATUS::TASK_DONE)
+	return true;	
+    }
+    return false;
   });
   if (_stopped)
     return _emptySubtask;
-  assert(_subtaskIndexOut < _subtasks.size());
   auto& subtask = _subtasks[_subtaskIndexOut];
   _subtaskIndexOut.fetch_add(1);
   return subtask;
@@ -89,9 +94,16 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   std::scoped_lock lock(_mutex);
   if (_stopped)
     return STATUS::NONE;
-  Subtask& subtask = _subtasks.emplace_back();
+  std::reference_wrapper<Subtask> subtaskRef = _emptySubtask;
+  unsigned index = _subtaskIndexIn.fetch_add(1);
+  if (index >= _subtasks.size())
+    subtaskRef = _subtasks.emplace_back();
+  else
+    subtaskRef = _subtasks[index];
+  Subtask& subtask = subtaskRef.get();
   subtask._header = std::move(header);
   subtask._body.assign(output.cbegin(), output.cend());
+  assert(static_cast<size_t>(extractPayloadSize(subtask._header)) == output.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;
@@ -107,9 +119,11 @@ void TaskBuilder::resume() {
   std::scoped_lock lock(_mutex);
   _input.clear();
   _input.seekg(0);
-  _subtasks.resize(0);
+  for (auto& subtask : _subtasks)
+    subtask._state = STATUS::NONE;
   _requestIndex = 0;
   _subtaskIndexOut = 0;
- _resume = true;
+  _subtaskIndexIn = 0;
+  _resume = true;
   _condition.notify_one();
 }
