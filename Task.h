@@ -40,8 +40,7 @@ class Task : private boost::noncopyable {
   std::atomic<int> _index = 0;
   std::promise<void> _promise;
   bool _diagnostics;
-  std::reference_wrapper<Response> _response;
-  static std::atomic<size_t> _maxSize;
+  Response& _response;
   static PreprocessRequest _preprocessRequest;
   static ProcessRequest _processRequest;
   static Response _emptyResponse;
