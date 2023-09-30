@@ -37,10 +37,11 @@ void TaskBuilder::run() {
 
 Subtask& TaskBuilder::getSubtask() {
   std::unique_lock lock(_mutex);
-  _condition.wait(lock, [this] {
-    if (_subtaskIndexOut < _subtasks.size()) {
-      Subtask& subtask = _subtasks[_subtaskIndexOut];
-      STATUS state = subtask._state;
+  std::reference_wrapper subtaskRef = _emptySubtask;
+  _condition.wait(lock, [&] () mutable {
+    if (_subtaskIndexConsumed < _subtasks.size()) {
+      subtaskRef = _subtasks[_subtaskIndexConsumed];
+      STATUS state = subtaskRef.get()._state;
       if (state == STATUS::SUBTASK_DONE || state == STATUS::TASK_DONE)
 	return true;	
     }
@@ -48,9 +49,8 @@ Subtask& TaskBuilder::getSubtask() {
   });
   if (_stopped)
     return _emptySubtask;
-  auto& subtask = _subtasks[_subtaskIndexOut];
-  _subtaskIndexOut.fetch_add(1);
-  return subtask;
+  _subtaskIndexConsumed.fetch_add(1);
+  return subtaskRef.get();
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line) {
@@ -95,7 +95,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::NONE;
   std::reference_wrapper<Subtask> subtaskRef = _emptySubtask;
-  unsigned index = _subtaskIndexIn.fetch_add(1);
+  unsigned index = _subtaskIndexProduced.fetch_add(1);
   if (index >= _subtasks.size())
     subtaskRef = _subtasks.emplace_back();
   else
@@ -117,13 +117,20 @@ void TaskBuilder::stop() {
 
 void TaskBuilder::resume() {
   std::scoped_lock lock(_mutex);
-  _input.clear();
-  _input.seekg(0);
+  // in real cases each time another source is used
+  try {
+    _input.close();
+    _input.open(ClientOptions::_sourceName, std::ios::binary);
+    _input.exceptions(std::ifstream::failbit); // may throw
+  }
+  catch (const std::ios_base::failure& fail) {
+    std::cout << fail.what() << '\n';
+  }
   for (auto& subtask : _subtasks)
     subtask._state = STATUS::NONE;
   _requestIndex = 0;
-  _subtaskIndexOut = 0;
-  _subtaskIndexIn = 0;
+  _subtaskIndexConsumed = 0;
+  _subtaskIndexProduced = 0;
   _resume = true;
   _condition.notify_one();
 }

@@ -20,15 +20,15 @@ class TaskBuilder final : public Runnable {
 
   std::ifstream _input;
   std::deque<Subtask> _subtasks;
-  static Subtask _emptySubtask;
   std::atomic<unsigned> _requestIndex = 0;
   std::string _aggregate;
   std::string _line;
-  std::atomic<unsigned> _subtaskIndexOut = 0;
-  std::atomic<unsigned> _subtaskIndexIn = 0;
+  std::atomic<unsigned> _subtaskIndexConsumed = 0;
+  std::atomic<unsigned> _subtaskIndexProduced = 0;
   std::mutex _mutex;
   std::condition_variable _condition;
   bool _resume = false;
+  static Subtask _emptySubtask;
   void run() override;
   bool start() override { return true; }
  public:
