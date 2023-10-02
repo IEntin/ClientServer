@@ -20,14 +20,12 @@ using ProcessRequest = std::string (*)(std::string_view, std::string_view, bool 
 
 using SVCIterator = std::string_view::const_iterator;
 
-struct RequestRow : private boost::noncopyable {
+struct RequestRow {
   RequestRow() {}
 
   RequestRow(SVCIterator beg, SVCIterator end) : _value(beg, end) {}
 
-  RequestRow(RequestRow&& other) : _key(std::move(other._key)),
-				   _value(other._value),
-				   _orgIndex(other._orgIndex) {}
+  ~RequestRow() = default;
 
   std::string _key;
   std::string_view _value;
@@ -37,16 +35,18 @@ struct RequestRow : private boost::noncopyable {
 class Task : private boost::noncopyable {
   std::vector<RequestRow> _rows;
   std::vector<int> _indices;
-  std::atomic<int> _index = 0;
-  std::promise<void> _promise;
-  bool _diagnostics;
   Response& _response;
+  std::promise<void> _promise;
+  std::atomic<int> _index = 0;
+  bool _diagnostics;
   static PreprocessRequest _preprocessRequest;
   static ProcessRequest _processRequest;
   static Response _emptyResponse;
 
  public:
   Task(Response& response = _emptyResponse);
+
+  ~Task() = default;
 
   void set(const HEADER& header, std::string_view input);
 

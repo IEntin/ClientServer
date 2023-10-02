@@ -13,8 +13,8 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 
 Server::Server(StrategyPtr strategy) :
-  _strategy(strategy),
-  _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient) {
+  _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient),
+  _strategy(strategy) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
 }
 
@@ -54,7 +54,7 @@ void Server::stop() {
 bool Server::startSession(RunnablePtr session) {
   session->start();
   std::string_view clientId = session->getId();
-  std::scoped_lock lock(_mutex);
+  std::lock_guard lock(_mutex);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)
     return false;
@@ -63,7 +63,7 @@ bool Server::startSession(RunnablePtr session) {
 }
 
 void Server::stopSessions() {
-  std::scoped_lock lock(_mutex);
+  std::lock_guard lock(_mutex);
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->stop();

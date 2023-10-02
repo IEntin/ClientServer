@@ -32,12 +32,12 @@ private:
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
+  std::string _request;
   std::string _clientId;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
-  std::string _request;
   Response _response;
   TaskPtr _task;
   std::vector<boost::asio::const_buffer> _asioBuffers;

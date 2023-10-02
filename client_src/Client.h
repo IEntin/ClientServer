@@ -9,7 +9,7 @@
 struct Subtask;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 
-class Client : private boost::noncopyable {
+class Client {
 
  protected:
   Client();

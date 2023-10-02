@@ -19,10 +19,10 @@ class TaskBuilder final : public Runnable {
   void copyRequestWithId(std::string_view line);
 
   std::ifstream _input;
-  std::deque<Subtask> _subtasks;
-  std::atomic<unsigned> _requestIndex = 0;
   std::string _aggregate;
   std::string _line;
+  std::atomic<unsigned> _requestIndex = 0;
+  std::deque<Subtask> _subtasks;
   std::atomic<unsigned> _subtaskIndexConsumed = 0;
   std::atomic<unsigned> _subtaskIndexProduced = 0;
   std::mutex _mutex;

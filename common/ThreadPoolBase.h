@@ -10,7 +10,7 @@
 #include <thread>
 #include <vector>
 
-class ThreadPoolBase : private boost::noncopyable {
+class ThreadPoolBase {
 protected:
   void createThread();
   void increment() { _totalNumberObjects++; }

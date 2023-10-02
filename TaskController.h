@@ -14,7 +14,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
-class TaskController : private boost:: noncopyable {
+class TaskController {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   class Worker : public Runnable {
     bool start() override { return true; }
@@ -35,10 +35,10 @@ class TaskController : private boost:: noncopyable {
   std::atomic<bool> _stopped = false;
   std::barrier<CompletionFunction> _barrier;
   ThreadPoolSameObj _threadPool;
-  TaskPtr _task;
+  std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
-  std::mutex _queueMutex;
+  TaskPtr _task;
   static TaskControllerPtr _single;
   static Phase _phase;
  public:

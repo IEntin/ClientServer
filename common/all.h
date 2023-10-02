@@ -21,6 +21,7 @@
 #include <cryptopp/secblock.h>
 #include <gtest/gtest.h>
 #include <algorithm>
+#include <any>
 #include <atomic>
 #include <barrier>
 #include <cassert>
@@ -44,6 +45,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <poll.h>
 #include <queue>
 #include <signal.h>
@@ -64,4 +66,5 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>

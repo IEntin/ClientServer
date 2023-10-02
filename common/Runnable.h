@@ -6,7 +6,6 @@
 
 #include "CommonConstants.h"
 #include "Header.h"
-#include <boost/core/noncopyable.hpp>
 #include <atomic>
 #include <memory>
 #include <string_view>
@@ -15,7 +14,7 @@ using RunnablePtr = std::shared_ptr<class Runnable>;
 
 using RunnableWeakPtr = std::weak_ptr<class Runnable>;
 
-class Runnable : private boost::noncopyable {
+class Runnable {
  public:
   explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberRunningByType(maxNumberRunningByType) {}
@@ -32,9 +31,9 @@ class Runnable : private boost::noncopyable {
   void displayCapacityCheck(std::atomic<unsigned>&) const;
   std::atomic<STATUS>& getStatus() { return _status; }
   bool checkCapacity();
-  const unsigned _maxNumberRunningByType;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
+  const unsigned _maxNumberRunningByType;
   static constexpr std::string_view _emptyView{};
   static std::atomic<unsigned> _numberRunningTotal;
 };

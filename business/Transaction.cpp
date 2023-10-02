@@ -214,7 +214,8 @@ std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
     printSummary(output);
     return output;
   }
-  return "";
+  static std::string emptyString;
+  return emptyString;
 }
 
 void Transaction::printSummary(std::string& output) {

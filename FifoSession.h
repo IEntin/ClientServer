@@ -13,10 +13,10 @@ using TaskPtr = std::shared_ptr<class Task>;
 namespace fifo {
 
 class FifoSession final : public RunnableT<FifoSession> {
+  Response _response;
+  std::string _request;
   std::string _clientId;
   std::string _fifoName;
-  std::string _request;
-  Response _response;
   TaskPtr _task;
   bool receiveRequest(HEADER& header);
   bool sendResponse();

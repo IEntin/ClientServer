@@ -23,7 +23,7 @@ std::string getUniqueId() {
   try {
     static boost::uuids::random_generator generator;
     static std::mutex mutex;
-    std::scoped_lock lock(mutex);
+    std::lock_guard lock(mutex);
     auto uuid = generator();
     std::string str = boost::uuids::to_string(uuid);
     auto it = std::remove(str.begin(), str.end(), '-');

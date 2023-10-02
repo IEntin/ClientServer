@@ -91,7 +91,7 @@ STATUS TaskBuilder::createSubtask() {
 STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
   std::string_view output = payloadtransform::compressEncrypt(_aggregate, header);
-  std::scoped_lock lock(_mutex);
+  std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::NONE;
   std::reference_wrapper<Subtask> subtaskRef = _emptySubtask;
@@ -110,13 +110,13 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
 }
 
 void TaskBuilder::stop() {
-  std::scoped_lock lock(_mutex);
+  std::lock_guard lock(_mutex);
   _stopped = true;
   _condition.notify_one();
 }
 
 void TaskBuilder::resume() {
-  std::scoped_lock lock(_mutex);
+  std::lock_guard lock(_mutex);
   // in real cases each time another source is used
   try {
     _input.close();

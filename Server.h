@@ -10,7 +10,7 @@
 using StrategyPtr = std::shared_ptr<class Strategy>;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
-class Server : private boost::noncopyable {
+class Server {
 public:
   Server(StrategyPtr strategy);
   ~Server();
@@ -19,11 +19,11 @@ public:
   bool startSession(RunnablePtr session);
   void stopSessions();
 private:
+  SessionMap _sessions;
+  ThreadPoolBase _threadPoolAcceptor;
+  ThreadPoolDiffObj _threadPoolSession;
   StrategyPtr _strategy;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
-  ThreadPoolBase _threadPoolAcceptor;
-  ThreadPoolDiffObj _threadPoolSession;
-  SessionMap _sessions;
   std::mutex _mutex;
 };
