@@ -33,8 +33,8 @@ SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
 _input(row._value), _sizeKey(row._key) {
-    if (!(parseIntro() && parseArray()))
-      throw std::runtime_error("parsing failed");
+  if (!parseIntro())
+    throw std::runtime_error("parsing failed");
 }
 
 bool Ad::parseIntro() {
@@ -120,6 +120,8 @@ bool Ad::load(std::string_view filename) {
     auto [it, inserted] = _mapBySize.emplace(row._key, empty);
     try {
       it->second.emplace_back(row);
+      if (!it->second.back().parseArray())
+	throw std::runtime_error("parsing failed");
     }
     catch (const std::exception& e) {
       Warn << e.what() << ":key-value=" << '\"' << it->first
