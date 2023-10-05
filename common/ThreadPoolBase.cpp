@@ -35,6 +35,7 @@ void ThreadPoolBase::stop() {
       }
       it = _threads.erase(it);
     }
+    std::deque<RunnablePtr>().swap(_queue);
   }
   catch (const std::system_error& e) {
     LogError << e.what() << '\n';

@@ -24,8 +24,7 @@ struct LogicTest : testing::Test {
       // start server
       ServerOptions::_compressor = serverCompressor;
       ServerOptions::_encrypted = serverEncrypt;
-      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(strategy);
+      Server server(std::make_unique<TransactionStrategy>());
       ASSERT_TRUE(server.start());
       // start client
       ClientOptions::_compressor = clientCompressor;
@@ -57,8 +56,7 @@ struct LogicTest : testing::Test {
       // start server
       ServerOptions::_compressor = serverCompressor;
       ServerOptions::_encrypted = serverEncrypt;
-      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(strategy);
+      Server server(std::make_unique<TransactionStrategy>());
       ASSERT_TRUE(server.start());
       // start client
       ClientOptions::_compressor = clientCompressor;
@@ -163,8 +161,7 @@ struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     try {
       // start server
-      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(strategy);
+      Server server(std::make_unique<TransactionStrategy>());
       ASSERT_TRUE(server.start());
       // start client
       ClientOptions::_sourceName = "data/requestsDiffFormat.log";
@@ -198,8 +195,7 @@ struct LogicTestSortInput : testing::Test {
     try {
       // start server
       ServerOptions::_sortInput = sort;
-      StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-      Server server(strategy);
+      Server server(std::make_unique<TransactionStrategy>());
       ASSERT_TRUE(server.start());
       // start client
       ClientOptions::_diagnostics = true;

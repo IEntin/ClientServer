@@ -7,7 +7,7 @@
 #include "ThreadPoolDiffObj.h"
 #include <map>
 
-using StrategyPtr = std::shared_ptr<class Strategy>;
+using StrategyPtr = std::unique_ptr<class Strategy>;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;
 
 class Server {

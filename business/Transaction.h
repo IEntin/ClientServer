@@ -5,11 +5,13 @@
 #pragma once
 
 #include <boost/core/noncopyable.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
 class Ad;
-struct AdBidMatched;
+using AdPtr = std::unique_ptr<Ad>;
+struct AdBid;
 
 class Transaction : private boost::noncopyable {
 public:
@@ -22,10 +24,10 @@ private:
   ~Transaction();
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
-  void matchAds(const std::vector<Ad>& adVector);
+  void matchAds(const std::vector<AdPtr>& adVector);
   void printSummary(std::string& output);
   std::string print(std::ostringstream& os, bool diagnostics);
-  const AdBidMatched* findWinningBid() const;
+  const AdBid* findWinningBid() const;
   std::string_view _id;
   std::string_view _request;
   // Made static to keep the capacity growing as needed.
@@ -34,11 +36,11 @@ private:
   // vector which keeps its capacity for further usage. Number
   // of matched bids is not exceeding 10, so additional memory
   // is negligible. callgrind shows improvement.
-  static thread_local std::vector<AdBidMatched> _bids;
+  static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
   std::string_view _sizeKey;
-  const AdBidMatched* _winningBid = nullptr;
+  const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };
   static constexpr std::string_view EMPTY_REPLY{ "0, 0.0\n" };

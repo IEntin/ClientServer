@@ -15,3 +15,7 @@ void TransactionStrategy::set() {
   Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   Task::setProcessMethod(Transaction::processRequest);
 }
+
+TransactionStrategy::~TransactionStrategy() {
+  Ad::clear();
+}

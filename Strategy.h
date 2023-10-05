@@ -6,7 +6,7 @@
 
 #include <memory>
 
-using StrategyPtr = std::shared_ptr<class Strategy>;
+using StrategyPtr = std::unique_ptr<class Strategy>;
 
 class Strategy {
 

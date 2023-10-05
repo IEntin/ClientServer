@@ -13,8 +13,8 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
   os << "Ad" << ad._id << " size=" << ad._sizeKey
      << " defaultBid=" << utility::Print(ad._defaultBid)
      << "\n " << ad._input << '\n';
-  for (const auto& [key,  money] : ad._bids)
-    os << "  " << key << " " << utility::Print(money) << '\n';
+  for (const auto& adBid : ad._bids)
+    os << "  " << adBid._keyword << " " << utility::Print(adBid._money) << '\n';
   return os;
 }
 
@@ -37,6 +37,11 @@ _input(row._value), _sizeKey(row._key) {
     throw std::runtime_error("parsing failed");
 }
 
+void Ad::clear() {
+  _mapBySize.clear();
+  _rows.clear();
+}
+
 bool Ad::parseIntro() {
   auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
   if (introEnd == _input.end())
@@ -52,7 +57,7 @@ bool Ad::parseIntro() {
   return true;
 }
 
-bool Ad::parseArray() {
+bool Ad::parseArray(Ad* ad) {
   auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
   if (arrayStart == _input.cend()) {
     LogError << "unexpected format:\"" << _input << '\"' << '\n';
@@ -73,15 +78,15 @@ bool Ad::parseArray() {
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
-    _bids.emplace_back(vect[i], money);
+    _bids.emplace_back(vect[i], money, ad);
   }
   std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
 	      return bid1._keyword < bid2._keyword; });
   return true;
 }
 
-const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
-  static const std::vector<Ad> empty;
+const std::vector<AdPtr>& Ad::getAdsBySize(std::string_view key) {
+  static const std::vector<AdPtr> empty;
   const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
     return empty;
@@ -111,16 +116,17 @@ bool Ad::readAndSortAds(std::string_view filename) {
 }
 
 bool Ad::load(std::string_view filename) {
-  if (!_mapBySize.empty())
-    return true;
+  _mapBySize.clear();
+  _rows.clear();
   if (!readAndSortAds(filename))
     return false;
-  static std::vector<Ad> empty;
+  std::vector<AdPtr> empty;
   for (auto& row : _rows) {
-    auto [it, inserted] = _mapBySize.emplace(row._key, empty);
+    auto [it, inserted] = _mapBySize.emplace(row._key, std::move(empty));
     try {
-      it->second.emplace_back(row);
-      if (!it->second.back().parseArray())
+      it->second.emplace_back(std::make_unique<Ad>(row));
+      AdPtr& ad = it->second.back();
+      if (!ad->parseArray(ad.get()))
 	throw std::runtime_error("parsing failed");
     }
     catch (const std::exception& e) {

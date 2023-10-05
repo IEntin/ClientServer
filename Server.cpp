@@ -14,7 +14,7 @@
 
 Server::Server(StrategyPtr strategy) :
   _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient),
-  _strategy(strategy) {
+  _strategy(std::move(strategy)) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
 }
 

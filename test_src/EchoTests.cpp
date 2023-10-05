@@ -22,8 +22,7 @@ struct EchoTest : testing::Test {
     try {
       // start server
       ServerOptions::_compressor = serverCompressor;
-      StrategyPtr strategy = std::make_shared<EchoStrategy>();
-      Server server(strategy);
+      Server server(std::make_unique<EchoStrategy>());
       ASSERT_TRUE(server.start());
       // start client
       ClientOptions::_compressor = clientCompressor;
@@ -45,8 +44,7 @@ struct EchoTest : testing::Test {
     try {
       // start server
       ServerOptions::_compressor = serverCompressor;
-      StrategyPtr strategy = std::make_shared<EchoStrategy>();
-      Server server(strategy);
+      Server server(std::make_unique<EchoStrategy>());
       ASSERT_TRUE(server.start());
       // start client
       ClientOptions::_compressor = clientCompressor;

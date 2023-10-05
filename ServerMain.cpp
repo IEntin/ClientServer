@@ -34,18 +34,19 @@ int main() {
     ServerOptions::parse("ServerOptions.json");
     // optionally record elapsed times
     Chronometer chronometer(ServerOptions::_timing, __FILE__, __LINE__);
-    StrategyPtr strategy = std::make_shared<TransactionStrategy>();
-    Server server(strategy);
-    if (!server.start())
-      return 3;
-    int sig = 0;
-    if (sigwait(&set, &sig))
-      LogError << strerror(errno) << '\n';
-    if (ServerOptions::_invalidateKey) {
-      std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+    {
+      Server server(std::make_unique<TransactionStrategy>());
+      if (!server.start())
+	return 3;
+      int sig = 0;
+      if (sigwait(&set, &sig))
+	LogError << strerror(errno) << '\n';
+      if (ServerOptions::_invalidateKey) {
+	std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+      }
+      Metrics::save();
+      server.stop();
     }
-    Metrics::save();
-    server.stop();
     int closed = fcloseall();
     assert(closed == 0);
     return 0;

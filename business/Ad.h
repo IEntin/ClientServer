@@ -5,14 +5,15 @@
 #pragma once
 
 #include <boost/core/noncopyable.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-class Ad;
+using AdPtr = std::unique_ptr<class Ad>;
 struct AdBid;
 
-using SizeMap = std::unordered_map<std::string_view, std::vector<Ad>>;
+using SizeMap = std::unordered_map<std::string_view, std::vector<AdPtr>>;
 
 using SCIterator = std::string::const_iterator;
 
@@ -42,11 +43,12 @@ class Ad {
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(std::string_view filename);
-  static const std::vector<Ad>& getAdsBySize(std::string_view key);
+  static void clear();
+  static const std::vector<AdPtr>& getAdsBySize(std::string_view key);
   static constexpr double _scaler = 100.;
  private:
   bool parseIntro();
-  bool parseArray();
+  bool parseArray(Ad* ad);
   static std::string extractSize(std::string_view line);
   static bool readAndSortAds(std::string_view filename);
   std::string_view _input;

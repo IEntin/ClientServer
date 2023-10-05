@@ -10,7 +10,7 @@ class TransactionStrategy : public Strategy {
  public:
   TransactionStrategy() = default;
   
-  ~TransactionStrategy() override {}
+  ~TransactionStrategy() override;
 
  protected:
 

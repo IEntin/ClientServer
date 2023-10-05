@@ -23,7 +23,7 @@ constexpr char SIZE_END('&');
 
 } // end of anonimous namespace
 
-thread_local std::vector<AdBidMatched> Transaction::_bids;
+thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
 Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
@@ -64,8 +64,8 @@ std::string Transaction::processRequest(std::string_view key,
     os << INVALID_REQUEST;
     return os.str();
   }
-  static std::vector<Ad> empty;
-  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
+  static std::vector<AdPtr> empty;
+  static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = empty;
   static thread_local std::string prevKey;
   if (key != prevKey) {
     prevKey = key;
@@ -127,7 +127,7 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
   return "";
 }
 
-const AdBidMatched* Transaction::findWinningBid() const {
+const AdBid* Transaction::findWinningBid() const {
   int index = 0;
   int max = _bids[0]._money;
   for (unsigned i = 1; i < _bids.size(); ++i) {
@@ -150,11 +150,11 @@ struct Comparator {
   }
 };
 
-void Transaction::matchAds(const std::vector<Ad>& adVector) {
-  for (const Ad& ad : adVector) {
-    std::set_intersection(ad.getBids().cbegin(), ad.getBids().cend(),
+void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
+  for (const AdPtr& ad : adVector) {
+    std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
 			  _keywords.cbegin(), _keywords.cend(),
-			  AdBidBackEmplacer(_bids, &ad),
+			  std::back_inserter(_bids),
 			  Comparator());
   }
   if (_bids.empty())
@@ -193,8 +193,8 @@ std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
     for (std::string_view keyword : _keywords)
       os << ' ' << keyword << '\n';
     os << "matching ads:\n";
-    for (const auto& [kw, money, adPtr] : _bids)
-      os << *adPtr << " match:" << kw << ' ' << utility::Print(money) << '\n';
+    for (const AdBid& adBid : _bids)
+      os << *adBid._ad << " match:" << adBid._keyword << ' ' << utility::Print(adBid._money) << '\n';
     os << "summary:";
     if (_noMatch)
       os << EMPTY_REPLY << "*****" << '\n';
@@ -219,7 +219,7 @@ std::string Transaction::print(std::ostringstream& os, bool diagnostics) {
 }
 
 void Transaction::printSummary(std::string& output) {
-  const Ad* winningAdPtr = _winningBid->_ad;
+  const Ad* const winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
   output.insert(output.end(), _id.cbegin(), _id.cend());
   output.push_back(' ');
