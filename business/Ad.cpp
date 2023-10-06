@@ -20,11 +20,11 @@ std::ostream& operator <<(std::ostream& os, const Ad& ad) {
 
 AdRow::AdRow(SCIterator beg, SCIterator end) : _value(beg, end) {}
 
-AdRow::AdRow(AdRow&& other) : _key(std::move(other._key)), _value(other._value) {}
+AdRow::AdRow(AdRow&& other) : _sizeKey(std::move(other._sizeKey)), _value(other._value) {}
 
 const AdRow& AdRow::operator =(AdRow&& other) {
-  _key = std::move(other._key);
-  _value = std::move(other._value);
+  _sizeKey = std::move(other._sizeKey);
+  _value = other._value;
   return *this;
 }
 
@@ -32,7 +32,7 @@ std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
-_input(row._value), _sizeKey(row._key) {
+_input(row._value), _sizeKey(row._sizeKey) {
   if (!parseIntro())
     throw std::runtime_error("parsing failed");
 }
@@ -103,26 +103,23 @@ std::string Ad::extractSize(std::string_view line) {
 }
 
 // make SizeMap cache friendly
-bool Ad::readAndSortAds(std::string_view filename) {
+bool Ad::readAds(std::string_view filename) {
   static std::string buffer;
   buffer = utility::readFile(filename);
   utility::split(buffer, _rows);
   for (auto& row : _rows)
-    row._key = extractSize(row._value);
-  std::stable_sort(_rows.begin(), _rows.end(), [&] (const AdRow& row1, const AdRow& row2) {
-		     return row1._key < row2._key;
-		   });
+    row._sizeKey = extractSize(row._value);
   return true;
 }
 
 bool Ad::load(std::string_view filename) {
   _mapBySize.clear();
   _rows.clear();
-  if (!readAndSortAds(filename))
+  if (!readAds(filename))
     return false;
   std::vector<AdPtr> empty;
   for (auto& row : _rows) {
-    auto [it, inserted] = _mapBySize.emplace(row._key, std::move(empty));
+    auto [it, inserted] = _mapBySize.emplace(row._sizeKey, std::move(empty));
     try {
       it->second.emplace_back(std::make_unique<Ad>(row));
       AdPtr& ad = it->second.back();

@@ -5,15 +5,15 @@
 #pragma once
 
 #include <boost/core/noncopyable.hpp>
+#include <map>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 using AdPtr = std::unique_ptr<class Ad>;
 struct AdBid;
 
-using SizeMap = std::unordered_map<std::string_view, std::vector<AdPtr>>;
+using SizeMap = std::map<std::string_view, std::vector<AdPtr>>;
 
 using SCIterator = std::string::const_iterator;
 
@@ -24,7 +24,7 @@ struct AdRow : private boost::noncopyable {
 
   const AdRow& operator =(AdRow&& other);
 
-  std::string _key;
+  std::string _sizeKey;
   std::string_view _value;
 };
 
@@ -50,7 +50,7 @@ class Ad {
   bool parseIntro();
   bool parseArray(Ad* ad);
   static std::string extractSize(std::string_view line);
-  static bool readAndSortAds(std::string_view filename);
+  static bool readAds(std::string_view filename);
   std::string_view _input;
   std::string_view _sizeKey;
   std::vector<AdBid> _bids;

@@ -80,7 +80,7 @@ std::string Transaction::processRequest(std::string_view key,
   //Trace << key << ' ' << adVector.get().size() << '\n';
   transaction.matchAds(adVector);
   if (transaction._noMatch && !diagnostics) {
-    std::string output(transaction._id) ;
+    std::string output(transaction._id);
     output.push_back(' ');
     output.insert(output.end(), EMPTY_REPLY.cbegin(), EMPTY_REPLY.cend());
     return output;
