@@ -57,7 +57,7 @@ bool Ad::parseIntro() {
   return true;
 }
 
-bool Ad::parseArray(Ad* ad) {
+bool Ad::parseArray() {
   auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
   if (arrayStart == _input.cend()) {
     LogError << "unexpected format:\"" << _input << '\"' << '\n';
@@ -78,15 +78,15 @@ bool Ad::parseArray(Ad* ad) {
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
-    _bids.emplace_back(vect[i], money, ad);
+    _bids.emplace_back(vect[i], money);
   }
   std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
 	      return bid1._keyword < bid2._keyword; });
   return true;
 }
 
-const std::vector<AdPtr>& Ad::getAdsBySize(std::string_view key) {
-  static const std::vector<AdPtr> empty;
+const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
+  static const std::vector<Ad> empty;
   const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
     return empty;
@@ -117,19 +117,27 @@ bool Ad::load(std::string_view filename) {
   _rows.clear();
   if (!readAds(filename))
     return false;
-  std::vector<AdPtr> empty;
+  std::vector<Ad> empty;
   for (auto& row : _rows) {
     auto [it, inserted] = _mapBySize.emplace(row._sizeKey, std::move(empty));
     try {
-      it->second.emplace_back(std::make_unique<Ad>(row));
-      AdPtr& ad = it->second.back();
-      if (!ad->parseArray(ad.get()))
+      it->second.emplace_back(row);
+      Ad& ad = it->second.back();
+      if (!ad.parseArray())
 	throw std::runtime_error("parsing failed");
     }
     catch (const std::exception& e) {
       Warn << e.what() << ":key-value=" << '\"' << it->first
 	   << "\":\"" << row._value << "\",skipping." << '\n';
       continue;
+    }
+  }
+  for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
+    auto& adVector = itm->second;
+    for (unsigned i = 0; i < adVector.size(); ++i) {
+      Ad* ad = adVector.data() + i;
+      for (auto itb = ad->_bids.begin(); itb != ad->_bids.end(); ++itb)
+	itb->_ad = ad;
     }
   }
   return true;

@@ -6,14 +6,14 @@
 
 #include <boost/core/noncopyable.hpp>
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
-using AdPtr = std::unique_ptr<class Ad>;
+class Ad;
+
 struct AdBid;
 
-using SizeMap = std::map<std::string_view, std::vector<AdPtr>>;
+using SizeMap = std::map<std::string_view, std::vector<Ad>>;
 
 using SCIterator = std::string::const_iterator;
 
@@ -44,11 +44,11 @@ class Ad {
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(std::string_view filename);
   static void clear();
-  static const std::vector<AdPtr>& getAdsBySize(std::string_view key);
+  static const std::vector<Ad>& getAdsBySize(std::string_view key);
   static constexpr double _scaler = 100.;
  private:
   bool parseIntro();
-  bool parseArray(Ad* ad);
+  bool parseArray();
   static std::string extractSize(std::string_view line);
   static bool readAds(std::string_view filename);
   std::string_view _input;

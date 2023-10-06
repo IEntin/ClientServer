@@ -5,12 +5,10 @@
 #pragma once
 
 #include <boost/core/noncopyable.hpp>
-#include <memory>
 #include <string>
 #include <vector>
 
 class Ad;
-using AdPtr = std::unique_ptr<Ad>;
 struct AdBid;
 
 class Transaction : private boost::noncopyable {
@@ -24,7 +22,7 @@ private:
   ~Transaction();
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
-  void matchAds(const std::vector<AdPtr>& adVector);
+  void matchAds(const std::vector<Ad>& adVector);
   void printSummary(std::string& output);
   std::string print(std::ostringstream& os, bool diagnostics);
   const AdBid* findWinningBid() const;

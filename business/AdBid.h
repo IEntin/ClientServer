@@ -8,11 +8,9 @@
 #include <memory>
 #include <vector>
 
-using AdPtr = std::unique_ptr<class Ad>;
-
 struct AdBid {
-  AdBid(std::string_view keyword, long money, Ad* ad);
+  AdBid(std::string_view keyword, long money);
   std::string_view _keyword;
   long _money = 0;
-  const Ad* _ad;
+  const class Ad* _ad;
 };

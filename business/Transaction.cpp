@@ -64,8 +64,8 @@ std::string Transaction::processRequest(std::string_view key,
     os << INVALID_REQUEST;
     return os.str();
   }
-  static std::vector<AdPtr> empty;
-  static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = empty;
+  static std::vector<Ad> empty;
+  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
   static thread_local std::string prevKey;
   if (key != prevKey) {
     prevKey = key;
@@ -150,9 +150,9 @@ struct Comparator {
   }
 };
 
-void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
-  for (const AdPtr& ad : adVector) {
-    std::set_intersection(ad->getBids().cbegin(), ad->getBids().cend(),
+void Transaction::matchAds(const std::vector<Ad>& adVector) {
+  for (const Ad& ad : adVector) {
+    std::set_intersection(ad.getBids().cbegin(), ad.getBids().cend(),
 			  _keywords.cbegin(), _keywords.cend(),
 			  std::back_inserter(_bids),
 			  Comparator());
