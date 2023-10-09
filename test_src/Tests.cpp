@@ -2,6 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include "TestEnvironment.h"
@@ -46,10 +47,13 @@ TEST(SplitTest, NoKeepDelim) {
 
 TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
-  utility::split(TestEnvironment::_source, lines, '\n', 1);
+  std::string contents;
+  utility::readFile(ClientOptions::_sourceName, contents);
+  utility::split(contents, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10000);
-  for (const auto& line : lines)
-    ASSERT_TRUE(line.ends_with('\n'));
+  ASSERT_TRUE(contents.starts_with(lines[0]));
+  ASSERT_TRUE(contents.ends_with(lines[9999]));
+  ASSERT_FALSE(contents.find(lines[5432]) == std::string::npos);
 }
 
 TEST(SplitTest, Chars) {

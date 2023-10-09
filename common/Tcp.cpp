@@ -4,6 +4,7 @@
 
 #include "Tcp.h"
 #include "ClientOptions.h"
+#include <boost/container/small_vector.hpp>
 
 namespace tcp {
 
@@ -59,7 +60,7 @@ Tcp::sendMsg(boost::asio::ip::tcp::socket& socket,
 	     std::string_view body) {
     char buffer[HEADER_SIZE] = {};
     encodeHeader(buffer, header);
-    static thread_local std::vector<boost::asio::const_buffer> buffers;
+    static thread_local boost::container::small_vector<boost::asio::const_buffer, 2> buffers;
     buffers.resize(0);
     buffers.emplace_back(boost::asio::buffer(buffer));
     if (!body.empty())
