@@ -97,7 +97,7 @@ const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
 std::string Ad::extractSize(std::string_view line) {
   std::vector<std::string> words;
   utility::split(line, words, ", ");
-  if (words.size() < NONE)
+  if (words.size() < LIMIT)
     return "";
   return words[WIDTH] + 'x' + words[HEIGHT];
 }
@@ -105,7 +105,8 @@ std::string Ad::extractSize(std::string_view line) {
 // make SizeMap cache friendly
 bool Ad::readAds(std::string_view filename) {
   static std::string buffer;
-  buffer = utility::readFile(filename);
+  buffer.resize(0);
+  utility::readFile(filename, buffer);
   utility::split(buffer, _rows);
   for (auto& row : _rows)
     row._sizeKey = extractSize(row._value);

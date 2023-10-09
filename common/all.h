@@ -6,6 +6,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/container/small_vector.hpp>
+#include <boost/container/static_vector.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>

@@ -36,7 +36,7 @@ class Ad {
     HEIGHT,
     DEFAULTBID,
     ARRAY,
-    NONE
+    LIMIT
   };
  public:
   explicit Ad(AdRow& row);

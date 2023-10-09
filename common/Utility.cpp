@@ -35,28 +35,22 @@ std::string getUniqueId() {
   }
 }
 
-std::string readFile(std::string_view name) {
-  std::ostringstream buffer;
-  std::ifstream ifs(name.data(), std::ios::binary);
-  if (ifs) {
-    buffer << ifs.rdbuf();
-  }
-  return buffer.str();
-}
-
 void readFile(std::string_view name, std::string& buffer) {
   std::ifstream ifs(name.data(), std::ios::binary);
-  ifs.seekg(0, std::ios::end);
-  buffer.resize(ifs.tellg());
-  ifs.seekg(0);
-  ifs.read(buffer.data(), buffer.size());
+  if (ifs) {
+    ifs.seekg(0, std::ios::end);
+    buffer.resize(ifs.tellg());
+    ifs.seekg(0);
+    ifs.read(buffer.data(), buffer.size());
+  }
 }
 
 bool writeFile(std::string_view name, std::string_view contents) {
   std::ofstream ofs(name.data(), std::ios::binary);
   if (ofs) {
-    ofs << contents;
-    return true;
+    ofs.write(contents.data(), contents.size());
+    if (ofs)
+      return true;
   }
   return false;
 }

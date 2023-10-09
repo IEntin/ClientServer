@@ -24,7 +24,8 @@ void CryptoKey::showKey() {
 }
 
 bool CryptoKey::recover() {
-  std::string keyStrRecovered = utility::readFile(CRYPTO_KEY_FILE_NAME);
+  std::string keyStrRecovered;
+  utility::readFile(CRYPTO_KEY_FILE_NAME, keyStrRecovered);
   _key = { reinterpret_cast<const unsigned char*>(keyStrRecovered.data()), keyStrRecovered.size() };
   if (_key.empty())
     throw std::runtime_error("empty key");

@@ -134,8 +134,6 @@ struct CloseFileDescriptor {
 
 std::string getUniqueId();
 
-std::string readFile(std::string_view name);
-
 void readFile(std::string_view name, std::string& buffer);
 
 bool writeFile(std::string_view name, std::string_view contents);

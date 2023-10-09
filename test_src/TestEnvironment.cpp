@@ -21,10 +21,10 @@ void TestEnvironment::SetUp() {
   try {
     ServerOptions::parse("");
     ClientOptions::parse("", &_oss);
-    _source = utility::readFile(ClientOptions::_sourceName);
-    _outputD = utility::readFile("data/outputD.txt");
-    _outputND = utility::readFile("data/outputND.txt");
-    _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
+    utility::readFile(ClientOptions::_sourceName, _source);
+    utility::readFile("data/outputD.txt", _outputD);
+    utility::readFile("data/outputND.txt", _outputND);
+    utility::readFile("data/outputAltFormatD.txt", _outputAltFormatD);
   }
   catch (const std::exception& e) {
     LogError << e.what() <<'\n';

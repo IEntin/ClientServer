@@ -6,9 +6,7 @@
 
 #include "ThreadPoolSameObj.h"
 #include <barrier>
-#include <map>
 #include <queue>
-#include <vector>
 
 using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
