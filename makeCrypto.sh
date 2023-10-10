@@ -7,7 +7,7 @@
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
     echo "Usage: ./makeCrypto.sh <required cryptopp release>"
-    echo "current is cryptopp880.zip"
+    echo "current is cryptopp890.zip"
     exit 0
 fi
 
