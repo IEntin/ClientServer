@@ -264,7 +264,7 @@ Warnings are considered failures.
 
 Using both bidirectional named pipes and tcp.\
 Lockless: except infrequent queue operations.\
-Memory reuse: server and clients almost do not allocate after short warmup period.
+Memory reuse: server and clients almost do not allocate after short warmup period.\
 Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
 Business logic, tasks multithreading, and communication layer are decoupled.
