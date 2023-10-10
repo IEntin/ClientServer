@@ -29,7 +29,6 @@ struct AdRow : private boost::noncopyable {
 };
 
 class Ad {
-  friend std::ostream& operator <<(std::ostream& os, const Ad& obj);
   enum Fields {
     ID,
     WIDTH,
@@ -40,6 +39,8 @@ class Ad {
   };
  public:
   explicit Ad(AdRow& row);
+  ~Ad() = default;
+  void print(std::string& output) const;
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(std::string_view filename);

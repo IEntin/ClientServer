@@ -13,9 +13,9 @@ struct AdBid;
 
 class Transaction : private boost::noncopyable {
 public:
-  static std::string processRequest(std::string_view key,
-				    std::string_view request,
-				    bool diagnostics) noexcept;
+  static std::string_view processRequest(std::string_view key,
+					 std::string_view request,
+					 bool diagnostics) noexcept;
   static std::string  normalizeSizeKey(std::string_view request);
 private:
   Transaction(std::string_view sizeKey, std::string_view input);
@@ -24,7 +24,7 @@ private:
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<Ad>& adVector);
   void printSummary(std::string& output);
-  std::string print(std::ostringstream& os, bool diagnostics);
+  void printDiagnostics(std::string& output);
   const AdBid* findWinningBid() const;
   std::string_view _id;
   std::string_view _request;

@@ -58,14 +58,6 @@ constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
 };
 
 template <typename N>
-  struct Print {
-    explicit Print(N number, int precision = 0) :
-      _number(number), _precision(precision) {}
-    N _number;
-    int _precision;
-};
-
-template <typename N>
   concept Integral = std::is_integral_v<N>;
 
 template <typename N>
@@ -105,25 +97,6 @@ void toChars(N value, std::string& target, int precision, size_t size = CONV_BUF
     target.resize(origSize + sizeIncr);
   else
     LogError << "problem translating number:" << value << '\n';
-}
-
-template <Integral N>
-  std::ostream& operator<<(std::ostream& os, const Print<N>& value) {
-    char arr[CONV_BUFFER_SIZE] = {};
-    toChars(value._number, arr);
-    return os << arr;
-}
-
-template <FloatingPoint N>
-  std::ostream& operator<<(std::ostream& os, const Print<N>& value) {
-    char arr[CONV_BUFFER_SIZE] = {};
-    if (auto [ptr, ec] = std::to_chars(arr, arr + CONV_BUFFER_SIZE, value._number,
-				       std::chars_format::fixed, value._precision);
- 	ec == std::errc())
-      os.write(arr, ptr - arr);
-    else
-      LogError << "problem translating number:" << value._number << '\n';
-    return os;
 }
 
 struct CloseFileDescriptor {

@@ -6,17 +6,7 @@
 #include "AdBid.h"
 #include "Utility.h"
 #include <cmath>
-#include <fstream>
 #include <iomanip>
-
-std::ostream& operator <<(std::ostream& os, const Ad& ad) {
-  os << "Ad" << ad._id << " size=" << ad._sizeKey
-     << " defaultBid=" << utility::Print(ad._defaultBid)
-     << "\n " << ad._input << '\n';
-  for (const auto& adBid : ad._bids)
-    os << "  " << adBid._keyword << " " << utility::Print(adBid._money) << '\n';
-  return os;
-}
 
 AdRow::AdRow(SCIterator beg, SCIterator end) : _value(beg, end) {}
 
@@ -35,6 +25,30 @@ Ad::Ad(AdRow& row) :
 _input(row._value), _sizeKey(row._sizeKey) {
   if (!parseIntro())
     throw std::runtime_error("parsing failed");
+}
+
+void Ad::print(std::string& output) const {
+  static constexpr std::string_view AD("Ad");
+  output.insert(output.end(), AD.cbegin(), AD.cend());
+  output.insert(output.end(), _id.cbegin(), _id.cend());
+  static constexpr std::string_view SIZE(" size=");
+  output.insert(output.end(), SIZE.cbegin(), SIZE.cend());
+  output.insert(output.end(), _sizeKey.cbegin(), _sizeKey.cend());
+  static constexpr std::string_view DEFAULTBID(" defaultBid=");
+  output.insert(output.end(), DEFAULTBID.cbegin(), DEFAULTBID.cend());
+  utility::toChars(_defaultBid, output);
+  static constexpr std::string_view DELIMITER1("\n ");
+  output.insert(output.end(), DELIMITER1.cbegin(), DELIMITER1.cend());
+  output.insert(output.end(), _input.cbegin(), _input.cend());
+  output.push_back('\n');
+  for (const AdBid& adBid : _bids) {
+    static constexpr std::string_view DELIMITER2("  ");
+    output.insert(output.end(), DELIMITER2.cbegin(), DELIMITER2.cend());
+    output.insert(output.end(), adBid._keyword.cbegin(), adBid._keyword.cend());
+    output.push_back(' ');
+    utility::toChars(adBid._money, output);
+    output.push_back('\n');
+  }
 }
 
 void Ad::clear() {
