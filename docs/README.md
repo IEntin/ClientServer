@@ -120,6 +120,8 @@ Lockless. Processing batches of requests is lockless. Queues of tasks and sessio
 still using locks, but this type of locking is relatively rare for large tasks and does not\
 affect overall performance.
 
+Memory reuse: server and clients almost do not allocate after short warmup period.
+
 Tuning the memory buffer size allows to reduce memory footprint of the software,\
 especially of the client, which can in turn reduce hardware requirements.
 
@@ -262,6 +264,7 @@ Warnings are considered failures.
 
 Using both bidirectional named pipes and tcp.\
 Lockless: except infrequent queue operations.\
+Memory reuse: server and clients almost do not allocate after short warmup period.
 Processing batches of requests  without locking.\
 Optimized for cache friendliness.\
 Business logic, tasks multithreading, and communication layer are decoupled.
