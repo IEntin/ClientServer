@@ -27,6 +27,10 @@ _input(row._value), _sizeKey(row._sizeKey) {
     throw std::runtime_error("parsing failed");
 }
 
+// This code deliberately avoids ostream usage to prevent
+// unreasonable number of memory allocations and negative
+// performance impact
+
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD("Ad");
   output.insert(output.end(), AD.cbegin(), AD.cend());
@@ -37,18 +41,11 @@ void Ad::print(std::string& output) const {
   static constexpr std::string_view DEFAULTBID(" defaultBid=");
   output.insert(output.end(), DEFAULTBID.cbegin(), DEFAULTBID.cend());
   utility::toChars(_defaultBid, output);
-  static constexpr std::string_view DELIMITER1("\n ");
-  output.insert(output.end(), DELIMITER1.cbegin(), DELIMITER1.cend());
+  static constexpr std::string_view DELIMITER("\n ");
+  output.insert(output.end(), DELIMITER.cbegin(), DELIMITER.cend());
   output.insert(output.end(), _input.cbegin(), _input.cend());
   output.push_back('\n');
-  for (const AdBid& adBid : _bids) {
-    static constexpr std::string_view DELIMITER2("  ");
-    output.insert(output.end(), DELIMITER2.cbegin(), DELIMITER2.cend());
-    output.insert(output.end(), adBid._keyword.cbegin(), adBid._keyword.cend());
-    output.push_back(' ');
-    utility::toChars(adBid._money, output);
-    output.push_back('\n');
-  }
+  printBids(output);
 }
 
 void Ad::clear() {
@@ -156,4 +153,15 @@ bool Ad::load(std::string_view filename) {
     }
   }
   return true;
+}
+
+void Ad::printBids(std::string& output) const {
+  for (const AdBid& adBid : _bids) {
+    static constexpr std::string_view DELIMITER("  ");
+    output.insert(output.end(), DELIMITER.cbegin(), DELIMITER.cend());
+    output.insert(output.end(), adBid._keyword.cbegin(), adBid._keyword.cend());
+    output.push_back(' ');
+    utility::toChars(adBid._money, output);
+    output.push_back('\n');
+  }
 }

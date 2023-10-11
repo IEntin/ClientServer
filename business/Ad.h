@@ -50,6 +50,7 @@ class Ad {
  private:
   bool parseIntro();
   bool parseArray();
+  void printBids(std::string& output) const;
   static std::string extractSize(std::string_view line);
   static bool readAds(std::string_view filename);
   std::string_view _input;
