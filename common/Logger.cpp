@@ -22,14 +22,16 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     static thread_local std::string output;
     output.resize(0);
     output.push_back('[');
-    utility::toChars(static_cast<int>(_level), output);
+    std::string_view leveName(levelNames[static_cast<int>(_level)]);
+    output.insert(output.end(), leveName.cbegin(), leveName.cend());
     output.push_back(']');
+    output.push_back(' ');
     output.insert(output.size(), file);
     output.push_back(':');
     utility::toChars(line, output);
     output.push_back(' ');
     output.insert(output.size(), func);
-    output.push_back(':');
+    output.push_back(' ');
     _stream.write(output.data(), output.size());
     return *this;
   }
