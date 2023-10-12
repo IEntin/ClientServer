@@ -48,19 +48,7 @@ struct Logger : private boost::noncopyable {
     _stream.flush();
   }
 
-  Logger& printPrefix(const char* file, int line, const char* func) {
-    try {
-      if (_level < _threshold || !_displayPrefix)
-	return *this;
-      _stream << '[' << levelNames[static_cast<int>(_level)] << ']'
-	      << file << ':' << line << ' ' << func << ':';
-      return *this;
-    }
-    catch (const std::exception& e) {
-      std::cerr << e.what() << std::endl;
-    }
-    return *this;
-  }
+  Logger& printPrefix(const char* file, int line, const char* func);
 
   const LOG_LEVEL _level;
   std::osyncstream _stream;
@@ -68,15 +56,9 @@ struct Logger : private boost::noncopyable {
 
   std::osyncstream& getStream() { return _stream; }
 
-  static void translateLogThreshold(std::string_view configName) {
-    for (unsigned index = 0; index < sizeof(levelNames)/sizeof(std::string_view); ++index) {
-      if (configName == levelNames[index]) {
-	_threshold = static_cast<LOG_LEVEL>(index);
-      }
-    }
-  }
+  static void translateLogThreshold(std::string_view configName);
 
-  static inline LOG_LEVEL _threshold = LOG_LEVEL::ALWAYS;
+  static LOG_LEVEL _threshold;
 };
 
 template <typename V>

@@ -3,8 +3,8 @@
  */
 
 #include "TcpAcceptor.h"
+#include "Options.h"
 #include "Server.h"
-#include "ServerOptions.h"
 #include "TcpSession.h"
 #include "Tcp.h"
 
@@ -75,7 +75,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
     return;
   }
   Logger logger(LOG_LEVEL::INFO, std::clog, false);
-  logger << "*";
+  logger << '*';
 }
 
 void TcpAcceptor::accept() {

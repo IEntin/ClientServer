@@ -87,7 +87,7 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) {
     displayStatus(STATUS::ERROR);
     return false;
   }
-  stream << restored << std::flush;
+  stream.write(restored.data(), restored.size());
   return true;
 }
 
@@ -122,7 +122,7 @@ void Client::displayMaxTotalSessionsWarn() {
        << "\tYou can also close this client and try again later,\n"
        << "\tbut spot in the queue will be lost.\n"
        << "\tSee \"MaxTotalSessions\" in ServerOptions.json.\n"
-       << "\t!!!!!!!!!" << '\n';
+       << "\t!!!!!!!!!\n";
 }
 
 void Client::displayMaxSessionsOfTypeWarn(std::string_view type) {
@@ -135,7 +135,7 @@ void Client::displayMaxSessionsOfTypeWarn(std::string_view type) {
        << "\tbut spot in the queue will be lost.\n"
        << "\tSee \"Max" << (type == "fifo" ? "Fifo" : "Tcp") << "Sessions\""
        << " in ServerOptions.json.\n"
-       << "\t!!!!!!!!!" << '\n';
+       << "\t!!!!!!!!!\n";
 }
 
 bool Client::displayStatus(STATUS status) {

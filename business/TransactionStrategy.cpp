@@ -4,7 +4,6 @@
 
 #include "TransactionStrategy.h"
 #include "Ad.h"
-#include "AdBid.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "Transaction.h"

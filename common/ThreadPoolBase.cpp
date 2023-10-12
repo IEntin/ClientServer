@@ -17,7 +17,7 @@ void ThreadPoolBase::stop() {
   // Wake up and join threads
   try {
     {
-      std::unique_lock lock(_queueMutex);
+      std::lock_guard lock(_queueMutex);
       _stopped = true;
       _queueCondition.notify_all();
     }

@@ -91,7 +91,7 @@ bool TaskController::create() {
 void  TaskController::stop() {
   // stop threads
   {
-    std::unique_lock lock(_queueMutex);
+    std::lock_guard lock(_queueMutex);
     _stopped.store(true);
     _queueCondition.notify_one();
   }

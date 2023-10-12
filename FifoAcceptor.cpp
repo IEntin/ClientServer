@@ -5,8 +5,8 @@
 #include "FifoAcceptor.h"
 #include "Fifo.h"
 #include "FifoSession.h"
+#include "Options.h"
 #include "Server.h"
-#include "ServerOptions.h"
 #include <filesystem>
 #include <sys/stat.h>
 
@@ -62,7 +62,7 @@ void FifoAcceptor::stop() {
 }
 
 void FifoAcceptor::removeFifoFiles() {
-  for(auto const& entry : std::filesystem::directory_iterator(ServerOptions::_fifoDirectoryName))
+  for(auto const& entry : std::filesystem::directory_iterator(Options::_fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
 }

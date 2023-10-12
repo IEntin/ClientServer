@@ -2,6 +2,10 @@ Copyright (C) 2021 Ilya Entin.
 
 ### Fast Linux Lockless Client-Server with FIFO and TCP clients, compression and encryption
 
+CryptoPP released 8.9 of Oct 1, 2023. Observed very significant performance improvement.\
+Rebuild CryptoPP library using scripts/makeCrypto.sh to see about 40% drop of\
+client latency. Will see if it holds...
+
 To test this software clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
 This script will download requested source and build the library in /usr/local directory,\
 one has to be a superuser to do that,current source is cryptopp880.zip.\
