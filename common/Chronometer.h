@@ -24,7 +24,8 @@ struct Chronometer : private boost::noncopyable {
   void start(const char* file, const char* function, int line) {
     if (_enabled) {
       _localStart = std::chrono::steady_clock::now();
-      Logger(LOG_LEVEL::INFO, _stream) << __func__ << '-' << file << ':'
+      Logger logger(LOG_LEVEL::INFO, _stream);
+      logger << __func__ << '-' << file << ':'
         << line << ' ' << function << '\n';
     }
   }
@@ -33,7 +34,8 @@ struct Chronometer : private boost::noncopyable {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };
-      Logger(LOG_LEVEL::INFO, _stream) << __func__ << '-' << file << ':' << line << ' '
+      Logger logger(LOG_LEVEL::INFO, _stream);
+      logger << __func__ << '-' << file << ':' << line << ' '
         << _function << std::fixed << std::setprecision(3) << " elapsed="
 	<< elapsed_seconds.count() << 's' << '\n';
     }
@@ -43,8 +45,9 @@ struct Chronometer : private boost::noncopyable {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _globalStart };
-      Logger(LOG_LEVEL::INFO, _stream) << __func__ << ':' << _file << ':' << _line << ' '
-        << _function << ' ' << std::fixed << std::setprecision(3) << "elapsed="
+      Logger logger(LOG_LEVEL::INFO, _stream);
+      logger << __func__ << ':' << _file << ':' << _line << ' '
+	<< _function << ' ' << std::fixed << std::setprecision(3) << "elapsed="
 	<< elapsed_seconds.count() << 's' << '\n';
     }
   }

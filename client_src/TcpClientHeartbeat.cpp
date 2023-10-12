@@ -132,7 +132,8 @@ void TcpClientHeartbeat::read() {
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0)
 	LogError << "timeout" << '\n';
-      Logger(LOG_LEVEL::INFO, std::clog, false) << '*';
+      Logger logger(LOG_LEVEL::INFO, std::clog, false);
+      logger << '*';
       heartbeatWait();
     });
 }

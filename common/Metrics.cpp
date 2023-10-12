@@ -38,7 +38,8 @@ void Metrics::save() {
 void Metrics::print(LOG_LEVEL level,
 		    std::ostream& stream,
 		    bool displayLevel) {
-  Logger(level, stream, displayLevel) << "\tmaxRss=" << _maxRss << '\n'
+  Logger logger(level, stream, displayLevel);
+  logger << "\tmaxRss=" << _maxRss << '\n'
     << "\tnumberThreads=" << _numberThreads << '\n'
     << "\t\'lsof\'=" << _numberOpenFDs << '\n';
 }

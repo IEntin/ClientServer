@@ -66,20 +66,6 @@ struct Logger : private boost::noncopyable {
   std::osyncstream _stream;
   const bool _displayPrefix;
 
-  template <typename V>
-  Logger& operator <<(const V& value) {
-    try {
-      if (_level >= _threshold) {
-	_stream << value;
-	return *this;
-      }
-    }
-    catch (const std::exception& e) {
-      std::cerr << e.what() << std::endl;
-    }
-    return *this;
-  }
-
   std::osyncstream& getStream() { return _stream; }
 
   static void translateLogThreshold(std::string_view configName) {
@@ -92,3 +78,17 @@ struct Logger : private boost::noncopyable {
 
   static inline LOG_LEVEL _threshold = LOG_LEVEL::ALWAYS;
 };
+
+template <typename V>
+Logger& operator <<(Logger& logger, const V& value) {
+  try {
+    if (logger._level >= Logger::_threshold) {
+      logger._stream << value;
+      return logger;
+    }
+  }
+  catch (const std::ios_base::failure& fail) {
+    std::cerr << fail.what() << std::endl;
+  }
+  return logger;
+}

@@ -74,7 +74,8 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
     LogError << ec.what() << '\n';
     return;
   }
-  Logger(LOG_LEVEL::INFO, std::clog, false) << "*";
+  Logger logger(LOG_LEVEL::INFO, std::clog, false);
+  logger << "*";
 }
 
 void TcpAcceptor::accept() {

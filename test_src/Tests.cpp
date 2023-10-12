@@ -16,8 +16,8 @@ struct CompressionTest : testing::Test {
       std::string_view compressed = compression::compress(input);
       size_t compressedSize = compressed.size();
       std::string_view uncompressed = compression::uncompress(compressed, input.size());
-      static auto& printOnce [[maybe_unused]] =
-	Logger(LOG_LEVEL::ALWAYS, std::clog, false)
+      Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+      static auto& printOnce [[maybe_unused]] = logger
 	<< "\n\tinput.size()=" << input.size()
 	<< " compressedSize=" << compressedSize << " restored to original:"
 	<< std::boolalpha << (input == uncompressed) << '\n' << '\n';
