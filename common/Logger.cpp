@@ -8,9 +8,11 @@
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::ALWAYS;
 
 void Logger::translateLogThreshold(std::string_view configName) {
-  for (unsigned index = 0; index < sizeof(levelNames)/sizeof(std::string_view); ++index) {
+  constexpr int size = static_cast<int>(LOG_LEVEL::NUMBEROF);
+  for (int index = 0; index < size; ++index) {
     if (configName == levelNames[index]) {
       _threshold = static_cast<LOG_LEVEL>(index);
+      break;
     }
   }
 }
@@ -22,7 +24,7 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     static thread_local std::string output;
     output.resize(0);
     output.push_back('[');
-    std::string_view leveName(levelNames[static_cast<int>(_level)]);
+    std::string_view leveName(levelNames[std::underlying_type_t<LOG_LEVEL>(_level)]);
     output.insert(output.end(), leveName.cbegin(), leveName.cend());
     output.push_back(']');
     output.push_back(' ');

@@ -5,6 +5,7 @@
 #include "FifoClient.h"
 #include "ClientOptions.h"
 #include "Fifo.h"
+#include "Logger.h"
 #include "SignalWatcher.h"
 #include "Subtask.h"
 #include <boost/interprocess/sync/named_mutex.hpp>

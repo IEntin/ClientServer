@@ -3,7 +3,10 @@
  */
 
 #include "Fifo.h"
+#include "Options.h"
+#include "Utility.h"
 #include <chrono>
+#include <fcntl.h>
 #include <filesystem>
 #include <poll.h>
 #include <thread>

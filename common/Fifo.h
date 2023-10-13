@@ -5,11 +5,7 @@
 #pragma once
 
 #include "Header.h"
-#include "Options.h"
-#include "Utility.h"
-#include <fcntl.h>
 #include <string_view>
-#include <unistd.h>
 #include <vector>
 
 namespace fifo {

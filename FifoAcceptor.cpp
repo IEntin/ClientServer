@@ -5,8 +5,10 @@
 #include "FifoAcceptor.h"
 #include "Fifo.h"
 #include "FifoSession.h"
+#include "Logger.h"
 #include "Options.h"
 #include "Server.h"
+#include <cstring>
 #include <filesystem>
 #include <sys/stat.h>
 

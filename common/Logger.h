@@ -19,13 +19,14 @@
 #define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix(CODELOCATION)
 #define Trace Logger(LOG_LEVEL::TRACE, std::clog).printPrefix(CODELOCATION)
 
-enum class LOG_LEVEL : char {
+enum class LOG_LEVEL : int {
   TRACE,
   DEBUG,
   INFO,
   WARN,
   ERROR,
-  ALWAYS
+  ALWAYS,
+  NUMBEROF
 };
 
 constexpr std::string_view levelNames[] {

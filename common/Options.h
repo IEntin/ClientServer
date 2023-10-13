@@ -7,7 +7,7 @@
 #include <string>
 
 enum class COMPRESSORS : char;
-enum class LOG_LEVEL : char;
+enum class LOG_LEVEL : int;
 
 // static variables will have the same value for server
 // and client in tests running in the same process.
