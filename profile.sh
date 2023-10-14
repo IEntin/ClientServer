@@ -68,22 +68,24 @@ cp -f $PRJ_DIR/client $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR2
 
 cp -f $PRJ_DIR/client $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR3
 
+date
+
 # Start tcp or fifo client.
 # The directory Client2 must exist and have a copy of ClientOptions.json, and the link to SCRIPT_DIR/data directory.
 
 ( cd $CLIENT_DIR2
-sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 200/' $CLIENT_DIR2/ClientOptions.json
+sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 1000/' $CLIENT_DIR2/ClientOptions.json
 ./client > /dev/null )
 
 # Start another fifo or tcp client to have a mix in server profile
 # The directory Client3 must exist and have a copy of ClientOptions.json, and the link to SCRIPT_DIR/data directory.
 
 ( cd $UP_DIR/Client3
-sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 200/' $CLIENT_DIR3/ClientOptions.json
+sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 1000/' $CLIENT_DIR3/ClientOptions.json
 ./client > /dev/null )
 
-sed -i 's/"MaxNumberTasks" : 200/"MaxNumberTasks" : 0/' $CLIENT_DIR2/ClientOptions.json
-sed -i 's/"MaxNumberTasks" : 200/"MaxNumberTasks" : 0/' $CLIENT_DIR3/ClientOptions.json
+sed -i 's/"MaxNumberTasks" : 1000/"MaxNumberTasks" : 0/' $CLIENT_DIR2/ClientOptions.json
+sed -i 's/"MaxNumberTasks" : 1000/"MaxNumberTasks" : 0/' $CLIENT_DIR3/ClientOptions.json
 
 date
 

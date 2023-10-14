@@ -14,14 +14,14 @@ namespace tcp {
 TcpSession::TcpSession() :
   RunnableT(ServerOptions::_maxTcpSessions),
   _socket(_ioContext),
-  _timeoutTimer(_ioContext),
-  _task(std::make_shared<Task>(_response)) {}
+  _timeoutTimer(_ioContext) {}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
 }
 
 bool TcpSession::start() {
+  _task = std::make_shared<Task>(_response);
   _clientId = utility::getUniqueId();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);

@@ -46,7 +46,7 @@ class Task : private boost::noncopyable {
  public:
   Task(Response& response = _emptyResponse);
 
-  ~Task() = default;
+  ~Task();
 
   void set(const HEADER& header, std::string_view input);
 

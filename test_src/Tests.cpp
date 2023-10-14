@@ -78,8 +78,8 @@ TEST(ToCharsTest, Integral) {
   int shift = 2;
   constexpr int size = 7;
   char array[size] = {};
-  utility::toChars(value, array + shift, sizeof(array));
-  ASSERT_TRUE(*(array + shift) == '0' + value);
+  utility::toChars(value, array + shift);
+  ASSERT_TRUE(array[shift] == '0' + value);
 }
 
 TEST(FromCharsTest, Integral0) {

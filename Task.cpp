@@ -11,6 +11,10 @@ Response Task::_emptyResponse;
 
 Task::Task(Response& response) : _response(response) {}
 
+Task::~Task() {
+  Trace << '\n';
+}
+
 void Task::set(const HEADER& header, std::string_view input) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);

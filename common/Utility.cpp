@@ -6,6 +6,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <filesystem>
 #include <fstream>
 #include <mutex>
 
@@ -38,9 +39,8 @@ std::string getUniqueId() {
 void readFile(std::string_view name, std::string& buffer) {
   std::ifstream ifs(name.data(), std::ios::binary);
   if (ifs) {
-    ifs.seekg(0, std::ios::end);
-    buffer.resize(ifs.tellg());
-    ifs.seekg(0);
+    std::uintmax_t size = std::filesystem::file_size(name);
+    buffer.resize(size);
     ifs.read(buffer.data(), buffer.size());
   }
 }
