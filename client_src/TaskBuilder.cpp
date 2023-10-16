@@ -58,7 +58,7 @@ void TaskBuilder::copyRequestWithId(std::string_view line) {
   unsigned index = _requestIndex.fetch_add(1);
   utility::toChars(index, _aggregate);
   _aggregate.push_back(']');
-  _aggregate.insert(_aggregate.cend(), line.cbegin(), line.cend());
+  _aggregate.append(line);
   _aggregate.push_back('\n');
 }
 
@@ -101,8 +101,8 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   else
     subtaskRef = _subtasks[index];
   Subtask& subtask = subtaskRef.get();
-  subtask._header = std::move(header);
-  subtask._body.assign(output.cbegin(), output.cend());
+  subtask._header = header;
+  subtask._body.assign(output.data(), output.size());
   assert(static_cast<size_t>(extractPayloadSize(subtask._header)) == output.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();

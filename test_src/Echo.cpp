@@ -14,8 +14,7 @@ std::string_view Echo::processRequest(std::string_view,
   if (pos != std::string::npos && response[0] == '[')
     response.remove_prefix(pos + 1);
   static thread_local std::string result;
-  result.resize(0);
-  result.insert(result.end(), response.cbegin(), response.cend());
+  result.assign(response.data(), response.size());
   result.push_back('\n');
   return { result.data(), result.size() };
 }

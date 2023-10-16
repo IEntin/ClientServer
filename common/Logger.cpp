@@ -22,17 +22,16 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     if (_level < _threshold || !_displayPrefix)
       return *this;
     static thread_local std::string output;
-    output.resize(0);
-    output.push_back('[');
+    output.assign(1, '[');
     std::string_view leveName(levelNames[std::underlying_type_t<LOG_LEVEL>(_level)]);
-    output.insert(output.end(), leveName.cbegin(), leveName.cend());
+    output.append(leveName);
     output.push_back(']');
     output.push_back(' ');
-    output.insert(output.size(), file);
+    output.append(file);
     output.push_back(':');
     utility::toChars(line, output);
     output.push_back(' ');
-    output.insert(output.size(), func);
+    output.append(func);
     output.push_back(' ');
     _stream.write(output.data(), output.size());
     return *this;

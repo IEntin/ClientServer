@@ -33,17 +33,17 @@ _input(row._value), _sizeKey(row._sizeKey) {
 
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD("Ad");
-  output.insert(output.end(), AD.cbegin(), AD.cend());
-  output.insert(output.end(), _id.cbegin(), _id.cend());
+  output.append(AD);
+  output.append(_id);
   static constexpr std::string_view SIZE(" size=");
-  output.insert(output.end(), SIZE.cbegin(), SIZE.cend());
-  output.insert(output.end(), _sizeKey.cbegin(), _sizeKey.cend());
+  output.append(SIZE);
+  output.append(_sizeKey);
   static constexpr std::string_view DEFAULTBID(" defaultBid=");
-  output.insert(output.end(), DEFAULTBID.cbegin(), DEFAULTBID.cend());
+  output.append(DEFAULTBID);
   utility::toChars(_defaultBid, output);
   static constexpr std::string_view DELIMITER("\n ");
-  output.insert(output.end(), DELIMITER.cbegin(), DELIMITER.cend());
-  output.insert(output.end(), _input.cbegin(), _input.cend());
+  output.append(DELIMITER);
+  output.append(_input);
   output.push_back('\n');
   printBids(output);
 }
@@ -116,7 +116,6 @@ std::string Ad::extractSize(std::string_view line) {
 // make SizeMap cache friendly
 bool Ad::readAds(std::string_view filename) {
   static std::string buffer;
-  buffer.resize(0);
   utility::readFile(filename, buffer);
   utility::split(buffer, _rows);
   for (auto& row : _rows)
@@ -158,8 +157,8 @@ bool Ad::load(std::string_view filename) {
 void Ad::printBids(std::string& output) const {
   for (const AdBid& adBid : _bids) {
     static constexpr std::string_view DELIMITER("  ");
-    output.insert(output.end(), DELIMITER.cbegin(), DELIMITER.cend());
-    output.insert(output.end(), adBid._keyword.cbegin(), adBid._keyword.cend());
+    output.append(DELIMITER);
+    output.append(adBid._keyword);
     output.push_back(' ');
     utility::toChars(adBid._money, output);
     output.push_back('\n');

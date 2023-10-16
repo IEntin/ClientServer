@@ -43,7 +43,7 @@ Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _si
 
 Transaction::~Transaction() {
   _bids.clear();
-  _keywords.resize(0);
+  _keywords.clear();
 }
 
 std::string_view Transaction::processRequest(std::string_view key,
@@ -55,8 +55,8 @@ std::string_view Transaction::processRequest(std::string_view key,
   if (request.empty() || key.empty()) {
     LogError << "request is empty" << '\n';
     transaction._invalid = true;
-    output.insert(output.end(), transaction._id.cbegin(), transaction._id.cend());
-    output.insert(output.end(), INVALID_REQUEST.cbegin(), INVALID_REQUEST.cend());
+    output.assign(transaction._id);
+    output.append(INVALID_REQUEST);
     return output;
   }
   static std::vector<Ad> empty;
@@ -69,16 +69,16 @@ std::string_view Transaction::processRequest(std::string_view key,
   if (adVector.get().empty() || transaction._keywords.empty()) {
     transaction._invalid = true;
     LogError << "invalid request:" << transaction._request << " _id:" << transaction._id << '\n';
-    output.insert(output.end(), transaction._id.cbegin(), transaction._id.cend());
-    output.insert(output.end(), INVALID_REQUEST.cbegin(), INVALID_REQUEST.cend());
+    output.assign(transaction._id);
+    output.append(INVALID_REQUEST);
     return output;
   }
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
-      output.insert(output.end(), transaction._id.cbegin(), transaction._id.cend());
+      output.assign(transaction._id);
       output.push_back(' ');
-      output.insert(output.end(), EMPTY_REPLY.cbegin(), EMPTY_REPLY.cend());
+      output.append(EMPTY_REPLY);
     }
     else
       transaction.printSummary(output);
@@ -108,7 +108,7 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
 	size_t offset = beg + AD_WIDTH.size();
 	std::string key;
 	std::string_view keyData(request.data() + offset, separator - offset);
-	key.insert(key.cend(), keyData.cbegin(), keyData.cend());
+	key.assign(keyData);
 	key.push_back('x');
 	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
 	if (begHeight != std::string::npos) {
@@ -193,16 +193,16 @@ void Transaction::printDiagnostics(std::string& output) const {
   printRequestData(output);
   printMatchingAds(output);
   static constexpr std::string_view SUMMARY("summary:");
-  output.insert(output.end(), SUMMARY.cbegin(), SUMMARY.cend());
+  output.append(SUMMARY);
   static constexpr std::string_view STARS("*****");
   if (_noMatch) {
-    output.insert(output.end(), EMPTY_REPLY.cbegin(), EMPTY_REPLY.cend());
-    output.insert(output.end(), STARS.cbegin(), STARS.cend());
+    output.append(EMPTY_REPLY);
+    output.append(STARS);
     output.push_back('\n');
   }
   else if (_invalid) {
-    output.insert(output.end(), INVALID_REQUEST.cbegin(), INVALID_REQUEST.cend());
-    output.insert(output.end(), STARS.cbegin(), STARS.cend());
+    output.append(INVALID_REQUEST);
+    output.append(STARS);
     output.push_back('\n');
   }
   else
@@ -212,10 +212,10 @@ void Transaction::printDiagnostics(std::string& output) const {
 void Transaction::printSummary(std::string& output) const {
   const Ad* const winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
-  output.insert(output.end(), _id.cbegin(), _id.cend());
+  output.append(_id);
   output.push_back(' ');
   std::string_view adId = winningAdPtr->getId();
-  output.insert(output.end(), adId.cbegin(), adId.cend());
+  output.append(adId);
   output.push_back(',');
   output.push_back(' ');
   double money = _winningBid->_money / Ad::_scaler;
@@ -225,12 +225,12 @@ void Transaction::printSummary(std::string& output) const {
 
 void Transaction::printMatchingAds(std::string& output) const {
   static constexpr std::string_view MATCHINGADS("matching ads:\n");
-  output.insert(output.end(), MATCHINGADS.cbegin(), MATCHINGADS.cend());
+  output.append(MATCHINGADS);
   for (const AdBid& adBid : _bids) {
     adBid._ad->print(output);
     static constexpr std::string_view MATCH(" match:");
-    output.insert(output.end(), MATCH.cbegin(), MATCH.cend());
-    output.insert(output.end(), adBid._keyword.cbegin(), adBid._keyword.cend());
+    output.append(MATCH);
+    output.append(adBid._keyword);
     output.push_back(' ');
     utility::toChars(adBid._money, output);
     output.push_back('\n');
@@ -241,34 +241,34 @@ void Transaction::printWinningAd(std::string& output) const {
   auto winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
   std::string_view adId = winningAdPtr->getId();
-  output.insert(output.end(), adId.cbegin(), adId.cend());
+  output.append(adId);
   static constexpr std::string_view DELIMITER(", ");
-  output.insert(output.end(), DELIMITER.cbegin(), DELIMITER.cend());
+  output.append(DELIMITER);
   std::string_view winningKeyword = _winningBid->_keyword;
-  output.insert(output.end(), winningKeyword.cbegin(), winningKeyword.cend());
-  output.insert(output.end(), DELIMITER.cbegin(), DELIMITER.cend());
+  output.append(winningKeyword);
+  output.append(DELIMITER);
   double money = _winningBid->_money / Ad::_scaler;
   utility::toChars(money, output, 1);
   static constexpr std::string_view ENDING("\n*****\n");
-  output.insert(output.end(), ENDING.cbegin(), ENDING.cend());
+  output.append(ENDING);
 }
  
 void Transaction::printRequestData(std::string& output) const {
-  output.insert(output.end(), _id.cbegin(), _id.cend());
+  output.append(_id);
   output.push_back(' ');
   static constexpr std::string_view TRANSACTIONSIZE("Transaction size=");
-  output.insert(output.end(), TRANSACTIONSIZE.cbegin(), TRANSACTIONSIZE.cend());
-  output.insert(output.end(), _sizeKey.cbegin(), _sizeKey.cend());
+  output.append(TRANSACTIONSIZE);
+  output.append(_sizeKey);
   static constexpr std::string_view MATCHES(" #matches=");
-  output.insert(output.end(), MATCHES.cbegin(), MATCHES.cend());
+  output.append(MATCHES);
   utility::toChars(_bids.size(), output);
   output.push_back('\n');
-  output.insert(output.end(), _request.cbegin(), _request.cend());
+  output.append(_request);
   static constexpr std::string_view REQUESTKEYWORDS("\nrequest keywords:\n");
-  output.insert(output.end(), REQUESTKEYWORDS.cbegin(), REQUESTKEYWORDS.cend());
+  output.append(REQUESTKEYWORDS);
   for (std::string_view keyword : _keywords) {
     output.push_back(' ');
-    output.insert(output.end(), keyword.cbegin(), keyword.cend());
+    output.append(keyword);
     output.push_back('\n');
   }
 }

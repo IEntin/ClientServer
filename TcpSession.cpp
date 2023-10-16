@@ -122,7 +122,7 @@ void TcpSession::readRequest(const HEADER& header) {
 }
 
 void TcpSession::write(const HEADER& header, std::string_view body) {
-  _asioBuffers.resize(0);
+  _asioBuffers.clear();
   encodeHeader(_headerBuffer, header);
   _asioBuffers.emplace_back(boost::asio::buffer(_headerBuffer));
   _asioBuffers.emplace_back(boost::asio::buffer(body));
