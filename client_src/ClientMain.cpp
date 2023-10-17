@@ -41,9 +41,5 @@ int main() {
     LogError << e.what() << '\n';
     return 3;
   }
-  catch (...) {
-    LogError << std::strerror(errno) << '\n';
-    return 4;
-  }
   return 0;
 }

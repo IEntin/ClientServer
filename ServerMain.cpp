@@ -55,8 +55,4 @@ int main() {
     LogError << e.what() << '\n';
     return 5;
   }
-  catch (...) {
-    LogError << strerror(errno) << '\n';
-    return 6;
-  }
 }

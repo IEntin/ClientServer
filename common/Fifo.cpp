@@ -231,6 +231,9 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
       case ENXIO:
 	std::this_thread::sleep_for(std::chrono::milliseconds(Options::_ENXIOwait));
 	break;
+      case ENOENT:
+	LogError << std::strerror(errno) << ' ' << fifoName << '\n';
+	return fd;
       default:
 	return fd;
       }
