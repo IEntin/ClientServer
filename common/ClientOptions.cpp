@@ -12,7 +12,7 @@ bool ClientOptions::_tcpClient;
 COMPRESSORS ClientOptions::_compressor;
 bool ClientOptions::_encrypted;
 std::string ClientOptions::_serverAddress;
-std::string ClientOptions:: _sourceName;
+std::string ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
 std::ostream* ClientOptions::_instrStream;
 int ClientOptions::_maxNumberTasks;

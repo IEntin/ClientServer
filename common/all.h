@@ -24,6 +24,7 @@
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <any>
+#include <array>
 #include <atomic>
 #include <barrier>
 #include <cassert>
@@ -33,6 +34,7 @@
 #include <condition_variable>
 #include <csignal>
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <deque>
