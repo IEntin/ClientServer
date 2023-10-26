@@ -11,15 +11,8 @@
 
 Subtask TaskBuilder::_emptySubtask;
 
-TaskBuilder::TaskBuilder() {
+TaskBuilder::TaskBuilder() : _lines(ClientOptions::_sourceName) {
   _aggregate.reserve(ClientOptions::_bufferSize);
-  try {
-    _input.open(ClientOptions::_sourceName, std::ios::binary);
-    _input.exceptions(std::ifstream::failbit); // may throw
-  }
-  catch (const std::ios_base::failure& fail) {
-    std::cout << fail.what() << '\n';
-  }
 }
 
 TaskBuilder::~TaskBuilder() {
@@ -55,11 +48,9 @@ Subtask& TaskBuilder::getSubtask() {
 
 void TaskBuilder::copyRequestWithId(std::string_view line) {
   _aggregate.push_back('[');
-  unsigned index = _requestIndex.fetch_add(1);
-  utility::toChars(index, _aggregate);
+  utility::toChars(_lines._index, _aggregate);
   _aggregate.push_back(']');
   _aggregate.append(line);
-  _aggregate.push_back('\n');
 }
 
 // Read requests from the source, generate id for each.
@@ -74,9 +65,10 @@ STATUS TaskBuilder::createSubtask() {
   _aggregate.resize(0);
   // estimate of max size considering additional id
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
-  while (std::getline(_input, _line)) {
-    copyRequestWithId(_line);
-    bool alldone = _input.peek() == std::istream::traits_type::eof();
+  std::string_view line;
+  while (_lines.getLine(line)) {
+    copyRequestWithId(line);
+    bool alldone = _lines._last;
     if (_aggregate.size() >= maxSubtaskSize || alldone) {
       _aggregate.pop_back();
       return compressEncryptSubtask(alldone);
@@ -118,17 +110,9 @@ void TaskBuilder::stop() {
 void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
   // in real cases each time another source is used
-  try {
-    _input.close();
-    _input.open(ClientOptions::_sourceName, std::ios::binary);
-    _input.exceptions(std::ifstream::failbit); // may throw
-  }
-  catch (const std::ios_base::failure& fail) {
-    std::cout << fail.what() << '\n';
-  }
+  _lines.reset(ClientOptions::_sourceName);
   for (auto& subtask : _subtasks)
     subtask._state = STATUS::NONE;
-  _requestIndex = 0;
   _subtaskIndexConsumed = 0;
   _subtaskIndexProduced = 0;
   _resume = true;

@@ -5,8 +5,12 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
+#include "Lines.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
+
+// ./testbin --gtest_filter=GetLineTest*
+// gdb --args testbin --gtest_filter=GetLineTest*
 
 struct CompressionTest : testing::Test {
 
@@ -137,5 +141,20 @@ TEST(HeaderTest, 1) {
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
     ASSERT_TRUE(false);
+  }
+}
+
+TEST(GetLineTest, 1) {
+  Lines lines(ClientOptions::_sourceName);
+  std::string_view line;
+  for (int i = 0; i < 3; ++i) {
+    while (lines.getLine(line)) {
+      if (lines._last) {
+	ASSERT_TRUE(line.starts_with("http"));
+	LogAlways << "lines._index=" << lines._index
+		  << ",\nline:" << line << '\n';
+      }
+    }
+    lines.reset(ClientOptions::_sourceName);
   }
 }

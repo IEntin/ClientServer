@@ -30,7 +30,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
-  _tcpTimeout = appOptions.get("TcpTimeout", 1000);
+  _tcpTimeout = appOptions.get("TcpTimeout", 3000);
   _invalidateKey = appOptions.get("InvalidateKey", true);
   _sortInput = appOptions.get("SortInput", true);
 }

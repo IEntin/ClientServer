@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Lines.h"
 #include "Runnable.h"
 #include "Subtask.h"
 #include <condition_variable>
@@ -18,10 +19,8 @@ class TaskBuilder final : public Runnable {
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line);
 
-  std::ifstream _input;
+  Lines _lines;
   std::string _aggregate;
-  std::string _line;
-  std::atomic<unsigned> _requestIndex = 0;
   std::deque<Subtask> _subtasks;
   std::atomic<unsigned> _subtaskIndexConsumed = 0;
   std::atomic<unsigned> _subtaskIndexProduced = 0;

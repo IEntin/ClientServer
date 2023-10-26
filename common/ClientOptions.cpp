@@ -52,7 +52,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     _instrStream = nullptr;
   _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 5000);
-  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 2000);
+  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 3000);
   _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);
