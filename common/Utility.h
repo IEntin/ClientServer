@@ -111,4 +111,6 @@ void readFile(std::string_view name, std::string& buffer);
 
 bool writeFile(std::string_view name, std::string_view contents);
 
+bool getLastLine(std::string_view fileName, std::string& lastLine);
+
 } // end of namespace utility

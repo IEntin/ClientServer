@@ -54,5 +54,21 @@ bool writeFile(std::string_view name, std::string_view contents) {
   }
   return false;
 }
+// used in tests
+bool getLastLine(std::string_view fileName, std::string& lastLine) {
+  char ch;
+  std::ifstream stream(fileName.data(), std::ios::binary);
+  if (stream) {
+    stream.seekg(-2, std::ios_base::end);
+    stream.get(ch);
+    while (ch != '\n') {
+      stream.seekg(-2, std::ios_base::cur);
+      stream.get(ch);
+    }
+    std::getline(stream, lastLine);
+    return true;
+  }
+  return false;
+}
 
 } // end of namespace utility
