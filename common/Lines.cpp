@@ -79,11 +79,8 @@ bool Lines::getLine(std::string_view& line) {
 void Lines::removeProcessedLines() {
   if (_processed == 0)
     return;
-  auto itMid = _buffer.begin() + _processed;
-  std::rotate(_buffer.begin(), itMid, _buffer.end());
-  assert(_processed <= _buffer.size() && "(_processed > _buffer.size()");
-  auto itErase = std::prev(_buffer.end(), _processed);
-  _buffer.erase(itErase, _buffer.end());
+  std::memcpy(_buffer.data(), _buffer.data() + _processed, _buffer.size() - _processed);
+  _buffer.resize(_buffer.size() - _processed);
   _processed = 0;
 }
 
