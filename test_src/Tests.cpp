@@ -148,9 +148,9 @@ TEST(GetLineTest, 1) {
   // get last line in the file using std getline
   std::string lastLine;
   ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
-  // must end with '\n'
-  lastLine.push_back('\n');
-  // get last line using class Lines and compare
+  if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
+    lastLine.push_back('\n');
+  // use Lines::getLine
   Lines lines(ClientOptions::_sourceName);
   std::string_view line;
   for (int i = 0; i < 3; ++i) {

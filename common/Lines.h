@@ -12,7 +12,7 @@
 // this version saves '\n' delimiter
 class Lines {
  public:
-  Lines(std::string_view fileName);
+  Lines(std::string_view fileName, char delimiter = '\n');
   ~Lines() = default;
   bool getLine(std::string_view& line);
   void reset(std::string_view fileName);
@@ -21,6 +21,7 @@ class Lines {
  private:
   bool refillBuffer();
   void removeProcessedLines();
+  char _delimiter;
   std::string_view _currentLine;
   size_t _currentPos = 0;
   size_t _processed = 0;

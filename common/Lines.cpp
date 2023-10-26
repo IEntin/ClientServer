@@ -6,7 +6,7 @@
 #include "Logger.h"
 #include <filesystem>
 
-Lines::Lines(std::string_view fileName) {
+Lines::Lines(std::string_view fileName, char delimiter) : _delimiter(delimiter) {
   try {
     _fileSize = std::filesystem::file_size(fileName);
     _stream.open(fileName.data(), std::ios::binary);
@@ -45,7 +45,7 @@ bool Lines::getLine(std::string_view& line) {
       refillBuffer();
     }
     auto itBeg = _buffer.begin() + _processed;
-    auto itEnd = std::find(itBeg, _buffer.end(), '\n');
+    auto itEnd = std::find(itBeg, _buffer.end(), _delimiter);
     bool endsWithDelimiter = itEnd != _buffer.end();
     if (endsWithDelimiter) {
       _totalParsed += std::distance(itBeg, itEnd + 1);
@@ -100,6 +100,6 @@ void Lines::reset(std::string_view fileName) {
     refillBuffer();
   }
   catch (const std::ios_base::failure& fail) {
-    std::cout << fail.what() << '\n';
+    LogError << fail.what() << '\n';
   }
 }

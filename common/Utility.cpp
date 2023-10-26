@@ -71,4 +71,14 @@ bool getLastLine(std::string_view fileName, std::string& lastLine) {
   return false;
 }
 
+bool fileEndsWithEOL(std::string_view fileName) {
+  char ch = 'x';
+  std::ifstream stream(fileName.data(), std::ios::binary);
+  if (stream) {
+    stream.seekg(-1, std::ios::end);
+    stream.get(ch);
+  }
+  return ch == '\n';
+}
+
 } // end of namespace utility

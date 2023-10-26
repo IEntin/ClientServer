@@ -113,4 +113,6 @@ bool writeFile(std::string_view name, std::string_view contents);
 
 bool getLastLine(std::string_view fileName, std::string& lastLine);
 
+bool fileEndsWithEOL(std::string_view fileName);
+
 } // end of namespace utility
