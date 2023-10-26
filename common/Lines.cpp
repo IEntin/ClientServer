@@ -26,11 +26,11 @@ bool Lines::refillBuffer() {
     size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.capacity() - _buffer.size());
     if (bytesToRead == 0)
       return false;
-    _currentPos += bytesToRead;
     size_t shift = _buffer.size();
     _buffer.resize(_buffer.size() + bytesToRead);
     assert(_buffer.size() <= STATIC_VECTOR_SIZE && "Size exceeds const capacity");
     _stream.read(_buffer.data() + shift, bytesToRead);
+    _currentPos += bytesToRead;
     return true;
   }
   return false;
@@ -47,24 +47,25 @@ bool Lines::getLine(std::string_view& line) {
     auto itBeg = _buffer.begin() + _processed;
     auto itEnd = std::find(itBeg, _buffer.end(), _delimiter);
     bool endsWithDelimiter = itEnd != _buffer.end();
+    auto dist = std::distance(itBeg, itEnd);
     if (endsWithDelimiter) {
-      _totalParsed += std::distance(itBeg, itEnd + 1);
+      _totalParsed += dist + 1;
       ++_index;
       // include delimiter
       _currentLine = { itBeg, itEnd + 1 };
       line = _currentLine;
-      _processed += _currentLine.size();
+      _processed += dist + 1;
       if (_totalParsed == _fileSize)
 	_last = true;
       return true;
     }
     else {
-      _totalParsed += std::distance(itBeg, itEnd);
+      _totalParsed += dist;
       if (_totalParsed == _fileSize) {
 	++_index;
 	_currentLine = { itBeg, itEnd };
 	line = _currentLine;
-	_processed += _currentLine.size();
+	_processed += dist;
 	_last = true;
       }
       return true;
@@ -79,7 +80,7 @@ bool Lines::getLine(std::string_view& line) {
 void Lines::removeProcessedLines() {
   if (_processed == 0)
     return;
-  std::memcpy(_buffer.data(), _buffer.data() + _processed, _buffer.size() - _processed);
+  std::memmove(_buffer.data(), _buffer.data() + _processed, _buffer.size() - _processed);
   _buffer.resize(_buffer.size() - _processed);
   _processed = 0;
 }
