@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Logger.h"
 #include <array>
 #include <fstream>
 #include <string_view>
@@ -14,7 +15,50 @@ class Lines {
  public:
   Lines(std::string_view fileName, char delimiter = '\n');
   ~Lines() = default;
-  bool getLine(std::string_view& line);
+  // The line can be a string_view or a string depending on
+  // the usage. If the line is used up by the app before the
+  // next line is created a string_view is the choice
+  // because it is backed up by the buffer.
+  // Otherwise it should be a string.
+  template <typename S>
+  bool getLine(S& line) {
+    if (_last)
+      return false;
+    try {
+      if (_totalParsed < _fileSize && _processed >= _bufferRefillThreshold) {
+	removeProcessedLines();
+	refillBuffer();
+      }
+      auto itBeg = _buffer.begin() + _processed;
+      auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
+      bool endsWithDelimiter = itEnd != _buffer.begin() + _sizeInUse;
+      auto dist = std::distance(itBeg, itEnd);
+      if (endsWithDelimiter) {
+	_totalParsed += dist + 1;
+	++_index;
+	// include delimiter
+	line = { itBeg, itEnd + 1 };
+	_processed += dist + 1;
+	if (_totalParsed == _fileSize)
+	  _last = true;
+	return true;
+      }
+      else {
+	_totalParsed += dist;
+	if (_totalParsed == _fileSize) {
+	  ++_index;
+	  line = { itBeg, itEnd };
+	  _processed += dist;
+	  _last = true;
+	}
+	return true;
+      }
+    }
+    catch (const std::exception& e) {
+      LogError << e.what() << '\n';
+    }
+    return false;
+  }
   void reset(std::string_view fileName);
   long _index = -1;
   bool _last = false;
@@ -22,7 +66,6 @@ class Lines {
   bool refillBuffer();
   void removeProcessedLines();
   const char _delimiter;
-  std::string_view _currentLine;
   size_t _currentPos = 0;
   size_t _processed = 0;
   size_t _sizeInUse = 0;

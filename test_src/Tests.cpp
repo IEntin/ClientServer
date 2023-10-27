@@ -152,13 +152,18 @@ TEST(GetLineTest, 1) {
     lastLine.push_back('\n');
   // use Lines::getLine
   Lines lines(ClientOptions::_sourceName);
-  std::string_view line;
-  for (int i = 0; i < 3; ++i) {
-    while (lines.getLine(line)) {
-      if (lines._last) {
-	ASSERT_EQ(line, lastLine);
-      }
+  std::string_view lineV;
+  while (lines.getLine(lineV)) {
+    if (lines._last) {
+      ASSERT_EQ(lineV, lastLine);
     }
-    lines.reset(ClientOptions::_sourceName);
   }
+  lines.reset(ClientOptions::_sourceName);
+  std::string lineS;
+  while (lines.getLine(lineS)) {
+    if (lines._last) {
+      ASSERT_EQ(lineS, lastLine);
+    }
+  }
+  lines.reset(ClientOptions::_sourceName);
 }
