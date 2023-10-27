@@ -39,7 +39,7 @@ std::string getUniqueId() {
 void readFile(std::string_view name, std::string& buffer) {
   try {
     std::ifstream stream(name.data(), std::ios::binary);
-    stream.exceptions(std::ofstream::failbit);
+    stream.exceptions(std::ifstream::failbit);
     std::uintmax_t size = std::filesystem::file_size(name);
     buffer.resize(size);
     stream.read(buffer.data(), buffer.size());
