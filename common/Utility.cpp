@@ -37,28 +37,37 @@ std::string getUniqueId() {
 }
 
 void readFile(std::string_view name, std::string& buffer) {
-  std::ifstream ifs(name.data(), std::ios::binary);
-  if (ifs) {
+  try {
+    std::ifstream stream(name.data(), std::ios::binary);
+    stream.exceptions(std::ofstream::failbit);
     std::uintmax_t size = std::filesystem::file_size(name);
     buffer.resize(size);
-    ifs.read(buffer.data(), buffer.size());
+    stream.read(buffer.data(), buffer.size());
+  }
+  catch (const std::ios_base::failure& fail) {
+    LogError << fail.what() << '\n';
   }
 }
 
 bool writeFile(std::string_view name, std::string_view contents) {
-  std::ofstream ofs(name.data(), std::ios::binary);
-  if (ofs) {
-    ofs.write(contents.data(), contents.size());
-    if (ofs)
-      return true;
+  try {
+    std::ofstream stream(name.data(), std::ios::binary);
+    stream.exceptions(std::ofstream::failbit);
+    stream.write(contents.data(), contents.size());
+    return true;
   }
-  return false;
+  catch (const std::ios_base::failure& fail) {
+    LogError << fail.what() << '\n';
+    return false;
+  }
 }
+
 // used in tests
 bool getLastLine(std::string_view fileName, std::string& lastLine) {
   char ch;
-  std::ifstream stream(fileName.data(), std::ios::binary);
-  if (stream) {
+  try {
+    std::ifstream stream(fileName.data(), std::ios::binary);
+    stream.exceptions(std::ifstream::failbit);
     stream.seekg(-2, std::ios_base::end);
     stream.get(ch);
     while (ch != '\n') {
@@ -68,17 +77,26 @@ bool getLastLine(std::string_view fileName, std::string& lastLine) {
     std::getline(stream, lastLine);
     return true;
   }
-  return false;
+  catch (const std::ios_base::failure& fail) {
+    LogError << fail.what() << '\n';
+    return false;
+  }
 }
 
+// used in tests
 bool fileEndsWithEOL(std::string_view fileName) {
   char ch = 'x';
-  std::ifstream stream(fileName.data(), std::ios::binary);
-  if (stream) {
+  try {
+    std::ifstream stream(fileName.data(), std::ios::binary);
+    stream.exceptions(std::ifstream::failbit);
     stream.seekg(-1, std::ios::end);
     stream.get(ch);
+    return ch == '\n';
   }
-  return ch == '\n';
+  catch (const std::ios_base::failure& fail) {
+    LogError << fail.what() << '\n';
+    return false;
+  }
 }
 
 } // end of namespace utility

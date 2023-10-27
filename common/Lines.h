@@ -9,7 +9,7 @@
 #include <string_view>
 
 // nonallocating analog of getline
-// this version saves '\n' delimiter
+// this version saves delimiter in the line
 class Lines {
  public:
   Lines(std::string_view fileName, char delimiter = '\n');
@@ -21,7 +21,7 @@ class Lines {
  private:
   bool refillBuffer();
   void removeProcessedLines();
-  char _delimiter;
+  const char _delimiter;
   std::string_view _currentLine;
   size_t _currentPos = 0;
   size_t _processed = 0;

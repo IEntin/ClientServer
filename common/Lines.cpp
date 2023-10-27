@@ -20,20 +20,25 @@ Lines::Lines(std::string_view fileName, char delimiter) : _delimiter(delimiter) 
 
 // reentrant, thread safe
 bool Lines::refillBuffer() {
-  if (_buffer.capacity() == _buffer.size())
-    return false;
-  if (_stream) {
-    size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.capacity() - _buffer.size());
-    if (bytesToRead == 0)
+  try {
+    if (_buffer.capacity() == _buffer.size())
       return false;
-    size_t shift = _buffer.size();
-    _buffer.resize(_buffer.size() + bytesToRead);
-    assert(_buffer.size() <= STATIC_VECTOR_SIZE && "Size exceeds const capacity");
-    _stream.read(_buffer.data() + shift, bytesToRead);
-    _currentPos += bytesToRead;
+    if (_stream) {
+      size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.capacity() - _buffer.size());
+      if (bytesToRead == 0)
+	return false;
+      size_t shift = _buffer.size();
+      _buffer.resize(_buffer.size() + bytesToRead);
+      assert(_buffer.size() <= STATIC_VECTOR_SIZE && "Size exceeds const capacity");
+      _stream.read(_buffer.data() + shift, bytesToRead);
+      _currentPos += bytesToRead;
+    }
     return true;
   }
-  return false;
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
 }
 
 bool Lines::getLine(std::string_view& line) {
