@@ -4,6 +4,8 @@
 
 #include "Lines.h"
 #include "Logger.h"
+#include <cassert>
+#include <cstring>
 #include <filesystem>
 
 Lines::Lines(std::string_view fileName, char delimiter) : _delimiter(delimiter) {
@@ -21,15 +23,15 @@ Lines::Lines(std::string_view fileName, char delimiter) : _delimiter(delimiter) 
 // reentrant, thread safe
 bool Lines::refillBuffer() {
   try {
-    if (_buffer.capacity() == _buffer.size())
+    if (_buffer.size() == _sizeInUse)
       return false;
     if (_stream) {
-      size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.capacity() - _buffer.size());
+      size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.size() - _sizeInUse);
       if (bytesToRead == 0)
 	return false;
-      size_t shift = _buffer.size();
-      _buffer.resize(_buffer.size() + bytesToRead);
-      assert(_buffer.size() <= STATIC_VECTOR_SIZE && "Size exceeds const capacity");
+      size_t shift = _sizeInUse;
+      _sizeInUse += bytesToRead;
+      assert(_sizeInUse <= _buffer.size() && "_sizeInUse exceeds ARRAY_SIZE");
       _stream.read(_buffer.data() + shift, bytesToRead);
       _currentPos += bytesToRead;
     }
@@ -50,8 +52,8 @@ bool Lines::getLine(std::string_view& line) {
       refillBuffer();
     }
     auto itBeg = _buffer.begin() + _processed;
-    auto itEnd = std::find(itBeg, _buffer.end(), _delimiter);
-    bool endsWithDelimiter = itEnd != _buffer.end();
+    auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
+    bool endsWithDelimiter = itEnd != _buffer.begin() + _sizeInUse;
     auto dist = std::distance(itBeg, itEnd);
     if (endsWithDelimiter) {
       _totalParsed += dist + 1;
@@ -85,14 +87,14 @@ bool Lines::getLine(std::string_view& line) {
 void Lines::removeProcessedLines() {
   if (_processed == 0)
     return;
-  std::memmove(_buffer.data(), _buffer.data() + _processed, _buffer.size() - _processed);
-  _buffer.resize(_buffer.size() - _processed);
+  std::memmove(_buffer.data(), _buffer.data() + _processed, _sizeInUse - _processed);
+  _sizeInUse -= _processed;
   _processed = 0;
 }
 
 // reuse for another (or the same) file
 void Lines::reset(std::string_view fileName) {
-  _buffer.erase(_buffer.begin(), _buffer.end());
+  _sizeInUse = 0;
   _currentPos = 0;
   _processed = 0;
   _totalParsed = 0;
