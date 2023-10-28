@@ -11,7 +11,8 @@
 
 Subtask TaskBuilder::_emptySubtask;
 
-TaskBuilder::TaskBuilder() : _lines(ClientOptions::_sourceName) {
+TaskBuilder::TaskBuilder() :
+  _lines(ClientOptions::_sourceName, '\n', true) {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 

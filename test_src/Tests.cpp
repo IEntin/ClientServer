@@ -145,25 +145,36 @@ TEST(HeaderTest, 1) {
 }
 
 TEST(GetLineTest, 1) {
-  // get last line in the file using std getline
+  // get last line in the file using std::getline
   std::string lastLine;
   ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
   if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
     lastLine.push_back('\n');
   // use Lines::getLine
-  Lines lines(ClientOptions::_sourceName);
-  std::string_view lineV;
-  while (lines.getLine(lineV)) {
+
+  Lines lines(ClientOptions::_sourceName, '\n', true);
+  std::string_view lineView;
+  while (lines.getLine(lineView)) {
     if (lines._last) {
-      ASSERT_EQ(lineV, lastLine);
+      ASSERT_EQ(lineView, lastLine);
     }
   }
   lines.reset(ClientOptions::_sourceName);
-  std::string lineS;
-  while (lines.getLine(lineS)) {
+
+  std::string lineStr;
+  while (lines.getLine(lineStr)) {
     if (lines._last) {
-      ASSERT_EQ(lineS, lastLine);
+      ASSERT_EQ(lineStr, lastLine);
     }
   }
-  lines.reset(ClientOptions::_sourceName);
+  // discard delimiter:
+  lastLine.pop_back();
+  // keepDelimiter == false by default
+  Lines linesND(ClientOptions::_sourceName);
+  while (linesND.getLine(lineView)) {
+    if (linesND._last) {
+      ASSERT_EQ(lineView, lastLine);
+    }
+  }
+  linesND.reset(ClientOptions::_sourceName);
 }

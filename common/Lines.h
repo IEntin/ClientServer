@@ -13,13 +13,14 @@
 // this version saves delimiter in the line
 class Lines {
  public:
-  Lines(std::string_view fileName, char delimiter = '\n');
+  Lines(std::string_view fileName, char delimiter = '\n', bool keepDelimiter = false);
   ~Lines() = default;
   // The line can be a string_view or a string depending on
   // the usage. If the line is used up by the app before the
   // next line is created a string_view is the choice
   // because it is backed up by the buffer.
   // Otherwise it should be a string.
+
   template <typename S>
   bool getLine(S& line) {
     if (_last)
@@ -36,8 +37,8 @@ class Lines {
       if (endsWithDelimiter) {
 	_totalParsed += dist + 1;
 	++_index;
-	// include delimiter
-	line = { itBeg, itEnd + 1 };
+	// include or don't include delimiter
+	line = { itBeg, itEnd + (_keepDelimiter ? 1 : 0) };
 	_processed += dist + 1;
 	if (_totalParsed == _fileSize)
 	  _last = true;
@@ -59,6 +60,7 @@ class Lines {
     }
     return false;
   }
+
   void reset(std::string_view fileName);
   long _index = -1;
   bool _last = false;
@@ -66,6 +68,7 @@ class Lines {
   bool refillBuffer();
   void removeProcessedLines();
   const char _delimiter;
+  const bool _keepDelimiter;
   size_t _currentPos = 0;
   size_t _processed = 0;
   size_t _sizeInUse = 0;

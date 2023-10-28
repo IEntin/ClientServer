@@ -7,7 +7,8 @@
 #include <cstring>
 #include <filesystem>
 
-Lines::Lines(std::string_view fileName, char delimiter) : _delimiter(delimiter) {
+Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
+  _delimiter(delimiter), _keepDelimiter(keepDelimiter) {
   try {
     _fileSize = std::filesystem::file_size(fileName);
     _stream.open(fileName.data(), std::ios::binary);
