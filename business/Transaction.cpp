@@ -50,7 +50,7 @@ std::string_view Transaction::processRequest(std::string_view key,
 					     std::string_view request,
 					     bool diagnostics) noexcept {
   static thread_local std::string output;
-  output.resize(0);
+  output.erase(output.begin(), output.end());
   Transaction transaction(key, request);
   if (request.empty() || key.empty()) {
     LogError << "request is empty" << '\n';

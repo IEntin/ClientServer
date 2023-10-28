@@ -20,6 +20,45 @@ Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
   }
 }
 
+bool Lines::getLineImpl(std::string_view& line) {
+  try {
+    if (_totalParsed < _fileSize && _processed >= _bufferRefillThreshold) {
+      removeProcessedLines();
+      refillBuffer();
+    }
+    auto itBeg = _buffer.begin() + _processed;
+    auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
+    bool endsWithDelimiter = itEnd != _buffer.begin() + _sizeInUse;
+    auto dist = std::distance(itBeg, itEnd);
+    if (dist == 0)
+      return false;
+    if (endsWithDelimiter) {
+      _totalParsed += dist + 1;
+      ++_index;
+      // optionally keep delimiter
+      line = { itBeg, itEnd + (_keepDelimiter ? 1 : 0) };
+      _processed += dist + 1;
+      if (_totalParsed == _fileSize)
+	_last = true;
+      return true;
+    }
+    else {
+      _totalParsed += dist;
+      if (_totalParsed == _fileSize) {
+	++_index;
+	line = { itBeg, itEnd };
+	_processed += dist;
+	_last = true;
+      }
+      return true;
+    }
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+  }
+  return false;
+}
+
 // reentrant, thread safe
 bool Lines::refillBuffer() {
   try {
