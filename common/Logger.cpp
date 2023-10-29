@@ -36,8 +36,8 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     _stream.write(output.data(), output.size());
     return *this;
   }
-  catch (const std::ios_base::failure& fail) {
-    std::cerr << fail.what() << std::endl;
+  catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
   }
   return *this;
 }

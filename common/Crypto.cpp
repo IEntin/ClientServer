@@ -37,15 +37,23 @@ bool CryptoKey::initialize() {
   if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || ServerOptions::_invalidateKey) {
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(_key, _key.size());
-    std::string keyStr(reinterpret_cast<const char*>(_key.data()), _key.size());
-    std::ofstream ofs(CRYPTO_KEY_FILE_NAME, std::ios::binary);
-    std::filesystem::permissions(
-      CRYPTO_KEY_FILE_NAME,
-      std::filesystem::perms::owner_all | std::filesystem::perms::group_read,
-      std::filesystem::perm_options::replace);
-    if (ofs) {
-      ofs << keyStr;
-      _valid = true;
+    try {
+      std::ofstream stream;
+      stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+      stream.open(CRYPTO_KEY_FILE_NAME, std::ios::binary);
+      std::filesystem::permissions(
+	CRYPTO_KEY_FILE_NAME,
+	std::filesystem::perms::owner_read |
+	std::filesystem::perms::owner_write |
+	std::filesystem::perms::group_read,
+	std::filesystem::perm_options::replace);
+      if (stream) {
+	stream.write(reinterpret_cast<const char*>(_key.data()), _key.size());
+	_valid = true;
+      }
+    }
+    catch (const std::exception& e) {
+      LogError << e.what() << '\n';
     }
   }
   else

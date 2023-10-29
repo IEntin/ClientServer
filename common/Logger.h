@@ -43,6 +43,7 @@ struct Logger : private boost::noncopyable {
     _level(level),
     _stream(stream),
     _displayPrefix(displayPrefix) {
+    _stream << std::boolalpha;
   }
   
   ~Logger() {
@@ -70,8 +71,8 @@ Logger& operator <<(Logger& logger, const V& value) {
       return logger;
     }
   }
-  catch (const std::ios_base::failure& fail) {
-    std::cerr << fail.what() << std::endl;
+  catch (const std::exception& e) {
+    std::cerr << e.what() << std::endl;
   }
   return logger;
 }

@@ -38,27 +38,15 @@ std::string getUniqueId() {
 
 void readFile(std::string_view name, std::string& buffer) {
   try {
-    std::ifstream stream(name.data(), std::ios::binary);
-    stream.exceptions(std::ifstream::failbit);
+    std::ifstream stream;
+    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    stream.open(name.data(), std::ios::binary);
     std::uintmax_t size = std::filesystem::file_size(name);
     buffer.resize(size);
     stream.read(buffer.data(), buffer.size());
   }
-  catch (const std::ios_base::failure& fail) {
-    LogError << fail.what() << '\n';
-  }
-}
-
-bool writeFile(std::string_view name, std::string_view contents) {
-  try {
-    std::ofstream stream(name.data(), std::ios::binary);
-    stream.exceptions(std::ofstream::failbit);
-    stream.write(contents.data(), contents.size());
-    return true;
-  }
-  catch (const std::ios_base::failure& fail) {
-    LogError << fail.what() << '\n';
-    return false;
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
   }
 }
 
@@ -66,8 +54,9 @@ bool writeFile(std::string_view name, std::string_view contents) {
 bool getLastLine(std::string_view fileName, std::string& lastLine) {
   char ch;
   try {
-    std::ifstream stream(fileName.data(), std::ios::binary);
-    stream.exceptions(std::ifstream::failbit);
+    std::ifstream stream;
+    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    stream.open(fileName.data(), std::ios::binary);
     stream.seekg(-2, std::ios_base::end);
     stream.get(ch);
     while (ch != '\n') {
@@ -77,8 +66,8 @@ bool getLastLine(std::string_view fileName, std::string& lastLine) {
     std::getline(stream, lastLine);
     return true;
   }
-  catch (const std::ios_base::failure& fail) {
-    LogError << fail.what() << '\n';
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
     return false;
   }
 }
@@ -87,14 +76,15 @@ bool getLastLine(std::string_view fileName, std::string& lastLine) {
 bool fileEndsWithEOL(std::string_view fileName) {
   char ch = 'x';
   try {
-    std::ifstream stream(fileName.data(), std::ios::binary);
-    stream.exceptions(std::ifstream::failbit);
+    std::ifstream stream;
+    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    stream.open(fileName.data(), std::ios::binary);
     stream.seekg(-1, std::ios::end);
     stream.get(ch);
     return ch == '\n';
   }
-  catch (const std::ios_base::failure& fail) {
-    LogError << fail.what() << '\n';
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
     return false;
   }
 }

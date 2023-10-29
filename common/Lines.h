@@ -17,7 +17,7 @@ class Lines {
   ~Lines() = default;
   // The line can be a string_view or a string depending on
   // the usage. If the line is used up by the app before the
-  // next line is created use a string_view because it is
+  // next line is created use a string_view, it is
   // backed up by the buffer. Otherwise use a string.
   template <typename S>
   bool getLine(S& line) {
