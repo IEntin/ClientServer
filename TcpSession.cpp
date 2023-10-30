@@ -116,6 +116,8 @@ void TcpSession::readRequest(const HEADER& header) {
 	});
 	return;
       }
+      if (_status != STATUS::NONE)
+	return;
       if (serverutility::processTask(header, _request, _task))
 	sendReply();
     });
@@ -140,7 +142,8 @@ void TcpSession::write(const HEADER& header, std::string_view body) {
 	});
 	return;
       }
-      readHeader();
+      if (_status == STATUS::NONE)
+	readHeader();
     });
 }
 
@@ -160,12 +163,10 @@ void TcpSession::asyncWait() {
       if (ec) {
 	LogError << ec.what() << '\n';
 	_status = STATUS::TCP_PROBLEM;
-	throw std::runtime_error(ec.what());
       }
       else {
 	LogError << "timeout" << '\n';
 	_status = STATUS::TCP_TIMEOUT;
- 	throw std::runtime_error("timeout!");
      }
     }
   });
