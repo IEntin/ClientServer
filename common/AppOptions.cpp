@@ -2,6 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+
 #include "AppOptions.h"
 #include "Logger.h"
 
@@ -16,10 +17,6 @@ bool AppOptions::initialize(std::string_view fileName) {
     static auto& printOnce[[maybe_unused]] =
       LogError << e.what() << ",\n"
 	       << "default values will be returned, by design in tests." << '\n';
-    return false;
-  }
-  catch (...) {
-    LogError << "unknown exception." << '\n';
     return false;
   }
   return true;

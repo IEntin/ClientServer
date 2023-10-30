@@ -20,30 +20,24 @@ struct LogicTest : testing::Test {
 		    bool clientEncrypt,
 		    size_t bufferSize,
 		    bool diagnostics) {
-    try {
-      // start server
-      ServerOptions::_compressor = serverCompressor;
-      ServerOptions::_encrypted = serverEncrypt;
-      Server server(std::make_unique<TransactionStrategy>());
-      ASSERT_TRUE(server.start());
-      // start client
-      ClientOptions::_compressor = clientCompressor;
-      ClientOptions::_encrypted = clientEncrypt;
-      ClientOptions::_bufferSize = bufferSize;
-      ClientOptions::_diagnostics = diagnostics;
-      {
-	tcp::TcpClient client;
-	client.run();
-	std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-      }
-      server.stop();
+    // start server
+    ServerOptions::_compressor = serverCompressor;
+    ServerOptions::_encrypted = serverEncrypt;
+    Server server(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server.start());
+    // start client
+    ClientOptions::_compressor = clientCompressor;
+    ClientOptions::_encrypted = clientEncrypt;
+    ClientOptions::_bufferSize = bufferSize;
+    ClientOptions::_diagnostics = diagnostics;
+    {
+      tcp::TcpClient client;
+      client.run();
+      std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    server.stop();
   }
 
   void testLogicFifo(COMPRESSORS serverCompressor,
@@ -52,31 +46,25 @@ struct LogicTest : testing::Test {
 		     bool clientEncrypt,
 		     size_t bufferSize,
 		     bool diagnostics) {
-    try {
-      // start server
-      ServerOptions::_compressor = serverCompressor;
-      ServerOptions::_encrypted = serverEncrypt;
-      Server server(std::make_unique<TransactionStrategy>());
-      ASSERT_TRUE(server.start());
-      // start client
-      ClientOptions::_compressor = clientCompressor;
-      ClientOptions::_encrypted = clientEncrypt;
-      ClientOptions::_bufferSize = bufferSize;
-      ClientOptions::_diagnostics = diagnostics;
-      std::string_view calibratedOutput = diagnostics ?
-	TestEnvironment::_outputD : TestEnvironment::_outputND;
-      {
-	fifo::FifoClient client;
-	client.run();
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-      }
-      server.stop();
+    // start server
+    ServerOptions::_compressor = serverCompressor;
+    ServerOptions::_encrypted = serverEncrypt;
+    Server server(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server.start());
+    // start client
+    ClientOptions::_compressor = clientCompressor;
+    ClientOptions::_encrypted = clientEncrypt;
+    ClientOptions::_bufferSize = bufferSize;
+    ClientOptions::_diagnostics = diagnostics;
+    std::string_view calibratedOutput = diagnostics ?
+      TestEnvironment::_outputD : TestEnvironment::_outputND;
+    {
+      fifo::FifoClient client;
+      client.run();
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    server.stop();
   }
 
   void TearDown() {
@@ -159,26 +147,20 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
-    try {
-      // start server
-      Server server(std::make_unique<TransactionStrategy>());
-      ASSERT_TRUE(server.start());
-      // start client
-      ClientOptions::_sourceName = "data/requestsDiffFormat.log";
-      ClientOptions::_diagnostics = true;
-      {
-	tcp::TcpClient client;
-	client.run();
-	std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-      }
-      server.stop();
+    // start server
+    Server server(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server.start());
+    // start client
+    ClientOptions::_sourceName = "data/requestsDiffFormat.log";
+    ClientOptions::_diagnostics = true;
+    {
+      tcp::TcpClient client;
+      client.run();
+      std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    server.stop();
   }
 
   void TearDown() {
@@ -192,26 +174,20 @@ TEST_F(LogicTestAltFormat, Diagnostics) {
 
 struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
-    try {
-      // start server
-      ServerOptions::_sortInput = sort;
-      Server server(std::make_unique<TransactionStrategy>());
-      ASSERT_TRUE(server.start());
-      // start client
-      ClientOptions::_diagnostics = true;
-      {
-	tcp::TcpClient client;
-	client.run();
-	std::string_view calibratedOutput = TestEnvironment::_outputD;
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-      }
-      server.stop();
+    // start server
+    ServerOptions::_sortInput = sort;
+    Server server(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server.start());
+    // start client
+    ClientOptions::_diagnostics = true;
+    {
+      tcp::TcpClient client;
+      client.run();
+      std::string_view calibratedOutput = TestEnvironment::_outputD;
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    server.stop();
   }
 
   void TearDown() {

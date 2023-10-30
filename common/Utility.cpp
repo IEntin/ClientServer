@@ -36,57 +36,40 @@ std::string getUniqueId() {
   }
 }
 
-void readFile(std::string_view name, std::string& buffer) {
-  try {
-    std::ifstream stream;
-    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    stream.open(name.data(), std::ios::binary);
-    std::uintmax_t size = std::filesystem::file_size(name);
-    buffer.resize(size);
-    stream.read(buffer.data(), buffer.size());
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
+void readFile(std::string_view fileName, std::string& buffer) {
+  std::ifstream stream;
+  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  stream.open(fileName.data(), std::ios::binary);
+  std::uintmax_t size = std::filesystem::file_size(fileName);
+  buffer.resize(size);
+  stream.read(buffer.data(), buffer.size());
 }
 
 // used in tests
 bool getLastLine(std::string_view fileName, std::string& lastLine) {
   char ch;
-  try {
-    std::ifstream stream;
-    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    stream.open(fileName.data(), std::ios::binary);
-    stream.seekg(-2, std::ios_base::end);
+  std::ifstream stream;
+  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  stream.open(fileName.data(), std::ios::binary);
+  stream.seekg(-2, std::ios_base::end);
+  stream.get(ch);
+  while (ch != '\n') {
+    stream.seekg(-2, std::ios_base::cur);
     stream.get(ch);
-    while (ch != '\n') {
-      stream.seekg(-2, std::ios_base::cur);
-      stream.get(ch);
-    }
-    std::getline(stream, lastLine);
-    return true;
   }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
+  std::getline(stream, lastLine);
+  return true;
 }
 
 // used in tests
 bool fileEndsWithEOL(std::string_view fileName) {
   char ch = 'x';
-  try {
-    std::ifstream stream;
-    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    stream.open(fileName.data(), std::ios::binary);
-    stream.seekg(-1, std::ios::end);
-    stream.get(ch);
-    return ch == '\n';
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
+  std::ifstream stream;
+  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  stream.open(fileName.data(), std::ios::binary);
+  stream.seekg(-1, std::ios::end);
+  stream.get(ch);
+  return ch == '\n';
 }
 
 } // end of namespace utility

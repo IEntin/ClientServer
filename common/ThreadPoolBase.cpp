@@ -66,12 +66,9 @@ void  ThreadPoolBase::createThread() {
       catch (const std::exception& e) {
 	runnable->stop();
 	LogError << e.what() << '\n';
+	std::exit(7);
       }
-      catch (...) {
-	runnable->stop();
-	LogError << "exception caught." << '\n';
-      }
-    }
+   }
   });
 }
 

@@ -19,47 +19,35 @@
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
-    try {
-      // start server
-      ServerOptions::_compressor = serverCompressor;
-      Server server(std::make_unique<EchoStrategy>());
-      ASSERT_TRUE(server.start());
-      // start client
-      ClientOptions::_compressor = clientCompressor;
-      {
-	tcp::TcpClient client;
-	client.run();
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
-      }
-      server.stop();
+    // start server
+    ServerOptions::_compressor = serverCompressor;
+    Server server(std::make_unique<EchoStrategy>());
+    ASSERT_TRUE(server.start());
+    // start client
+    ClientOptions::_compressor = clientCompressor;
+    {
+      tcp::TcpClient client;
+      client.run();
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    server.stop();
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
-    try {
-      // start server
-      ServerOptions::_compressor = serverCompressor;
-      Server server(std::make_unique<EchoStrategy>());
-      ASSERT_TRUE(server.start());
-      // start client
-      ClientOptions::_compressor = clientCompressor;
-      {
-	fifo::FifoClient client;
-	client.run();
-	ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
-	ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
-      }
-      server.stop();
+    // start server
+    ServerOptions::_compressor = serverCompressor;
+    Server server(std::make_unique<EchoStrategy>());
+    ASSERT_TRUE(server.start());
+    // start client
+    ClientOptions::_compressor = clientCompressor;
+    {
+      fifo::FifoClient client;
+      client.run();
+      ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
+      ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    server.stop();
   }
   void TearDown() {
     TestEnvironment::reset();
@@ -121,41 +109,29 @@ struct FifoNonblockingTest : testing::Test {
   void testNonblockingFifo(std::string_view payload) {
     static thread_local std::vector<char> received;
     received.clear();
-    try {
-      ASSERT_TRUE(std::filesystem::exists(_testFifo));
-      auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
-      // Optional interval between send and receive
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
-      fr.wait();
-      fs.wait();
-      ASSERT_EQ(received.size(), payload.size());
-      ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    ASSERT_TRUE(std::filesystem::exists(_testFifo));
+    auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
+    // Optional interval between send and receive
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
+    fr.wait();
+    fs.wait();
+    ASSERT_EQ(received.size(), payload.size());
+    ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
   }
 
   void testNonblockingFifoReverse(std::string_view payload) {
     static thread_local std::vector<char> received;
     received.clear();
-    try {
-      ASSERT_TRUE(std::filesystem::exists(_testFifo));
-      auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
-      // Optional interval between receive and send
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
-      fr.wait();
-      fs.wait();
-      ASSERT_EQ(received.size(), payload.size());
-      ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
-      ASSERT_TRUE(false);
-    }
+    ASSERT_TRUE(std::filesystem::exists(_testFifo));
+    auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
+    // Optional interval between receive and send
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
+    fr.wait();
+    fs.wait();
+    ASSERT_EQ(received.size(), payload.size());
+    ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
   }
 
   void SetUp() {}
