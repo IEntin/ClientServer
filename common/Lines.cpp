@@ -16,6 +16,7 @@ Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
+    exit(7);
   }
 }
 
@@ -23,7 +24,8 @@ bool Lines::getLineImpl(std::string_view& line) {
   if (_currentPos == 0 ||
       (_totalParsed < _fileSize && _processed >= _bufferRefillThreshold)) {
     removeProcessedLines();
-    refillBuffer();
+    if (!refillBuffer())
+      return false;
   }
   auto itBeg = _buffer.begin() + _processed;
   auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
@@ -57,18 +59,15 @@ bool Lines::getLineImpl(std::string_view& line) {
 bool Lines::refillBuffer() {
   if (_buffer.size() == _sizeInUse)
     return false;
-  if (_stream) {
-    size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.size() - _sizeInUse);
-    if (bytesToRead == 0)
-      return false;
-    size_t shift = _sizeInUse;
-    _sizeInUse += bytesToRead;
-    assert(_sizeInUse <= _buffer.size() && "_sizeInUse exceeds ARRAY_SIZE");
-    _stream.read(_buffer.data() + shift, bytesToRead);
-    _currentPos += bytesToRead;
-    if (_currentPos != static_cast<size_t>(_stream.tellg()))
-      throw std::runtime_error("Lines::refillBuffer(): _currentPos != _stream.tellg().");
-  }
+  size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.size() - _sizeInUse);
+  if (bytesToRead == 0)
+    return false;
+  size_t shift = _sizeInUse;
+  _sizeInUse += bytesToRead;
+  assert(_sizeInUse <= _buffer.size() && "_sizeInUse exceeds ARRAY_SIZE");
+  _stream.read(_buffer.data() + shift, bytesToRead);
+  _currentPos += bytesToRead;
+  assert(_currentPos == static_cast<size_t>(_stream.tellg()));
   return true;
 }
 
@@ -96,5 +95,6 @@ void Lines::reset(std::string_view fileName) {
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
+    exit(7);
   }
 }
