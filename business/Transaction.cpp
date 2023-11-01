@@ -66,13 +66,6 @@ std::string_view Transaction::processRequest(std::string_view key,
     prevKey = key;
     adVector = Ad::getAdsBySize(key);
   }
-  if (adVector.get().empty() || transaction._keywords.empty()) {
-    transaction._invalid = true;
-    LogError << "invalid request:" << transaction._request << " _id:" << transaction._id << '\n';
-    output.assign(transaction._id);
-    output.append(INVALID_REQUEST);
-    return output;
-  }
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
