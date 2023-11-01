@@ -45,16 +45,10 @@ void Metrics::print(LOG_LEVEL level,
 }
 
 size_t Metrics::getMaxRss() {
-  try {
-    struct rusage usage;
-    if (getrusage(RUSAGE_SELF, &usage)) {
-      LogError << strerror(errno) << '\n';
-      return 0;
-    }
-    return usage.ru_maxrss;
+  struct rusage usage;
+  if (getrusage(RUSAGE_SELF, &usage)) {
+    LogError << strerror(errno) << '\n';
+    return 0;
   }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
-  return 0;
+  return usage.ru_maxrss;
 }

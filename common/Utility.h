@@ -109,6 +109,8 @@ std::string getUniqueId();
 
 void readFile(std::string_view name, std::string& buffer);
 
+void writeFile(std::string_view fileName, std::string_view data);
+
 bool getLastLine(std::string_view fileName, std::string& lastLine);
 
 bool fileEndsWithEOL(std::string_view fileName);

@@ -34,8 +34,7 @@ class Ad {
     WIDTH,
     HEIGHT,
     DEFAULTBID,
-    ARRAY,
-    LIMIT
+    NUMBEROFFIELDS
   };
  public:
   explicit Ad(AdRow& row);

@@ -22,30 +22,9 @@ std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
-_input(row._value), _sizeKey(row._sizeKey) {
+  _input(row._value), _sizeKey(row._sizeKey) {
   if (!parseIntro())
     throw std::runtime_error("parsing failed");
-}
-
-// This code deliberately avoids ostream usage to prevent
-// unreasonable number of memory allocations and negative
-// performance impact
-
-void Ad::print(std::string& output) const {
-  static constexpr std::string_view AD("Ad");
-  output.append(AD);
-  output.append(_id);
-  static constexpr std::string_view SIZE(" size=");
-  output.append(SIZE);
-  output.append(_sizeKey);
-  static constexpr std::string_view DEFAULTBID(" defaultBid=");
-  output.append(DEFAULTBID);
-  utility::toChars(_defaultBid, output);
-  static constexpr std::string_view DELIMITER("\n ");
-  output.append(DELIMITER);
-  output.append(_input);
-  output.push_back('\n');
-  printBids(output);
 }
 
 void Ad::clear() {
@@ -92,7 +71,7 @@ bool Ad::parseArray() {
     _bids.emplace_back(vect[i], money);
   }
   std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
-	      return bid1._keyword < bid2._keyword; });
+    return bid1._keyword < bid2._keyword; });
   return true;
 }
 
@@ -108,12 +87,11 @@ const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
 std::string Ad::extractSize(std::string_view line) {
   std::vector<std::string> words;
   utility::split(line, words, ", ");
-  if (words.size() < LIMIT)
+  if (words.size() < NUMBEROFFIELDS)
     return "";
   return words[WIDTH] + 'x' + words[HEIGHT];
 }
 
-// make SizeMap cache friendly
 bool Ad::readAds(std::string_view filename) {
   static std::string buffer;
   utility::readFile(filename, buffer);
@@ -130,17 +108,16 @@ bool Ad::load(std::string_view filename) {
     return false;
   std::vector<Ad> empty;
   for (auto& row : _rows) {
-    auto [it, inserted] = _mapBySize.emplace(row._sizeKey, std::move(empty));
+    auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
     try {
       it->second.emplace_back(row);
       Ad& ad = it->second.back();
       if (!ad.parseArray())
-	throw std::runtime_error("parsing failed");
+	continue;
     }
     catch (const std::exception& e) {
       Warn << e.what() << ":key-value=" << '\"' << it->first
-	   << "\":\"" << row._value << "\",skipping." << '\n';
-      continue;
+      	   << "\":\"" << row._value << "\",skipping." << '\n';
     }
   }
   for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
@@ -152,6 +129,26 @@ bool Ad::load(std::string_view filename) {
     }
   }
   return true;
+}
+
+// This code deliberately avoids ostream usage to prevent
+// unreasonable number of memory allocations and negative
+// performance impact
+void Ad::print(std::string& output) const {
+  static constexpr std::string_view AD("Ad");
+  output.append(AD);
+  output.append(_id);
+  static constexpr std::string_view SIZE(" size=");
+  output.append(SIZE);
+  output.append(_sizeKey);
+  static constexpr std::string_view DEFAULTBID(" defaultBid=");
+  output.append(DEFAULTBID);
+  utility::toChars(_defaultBid, output);
+  static constexpr std::string_view DELIMITER("\n ");
+  output.append(DELIMITER);
+  output.append(_input);
+  output.push_back('\n');
+  printBids(output);
 }
 
 void Ad::printBids(std::string& output) const {

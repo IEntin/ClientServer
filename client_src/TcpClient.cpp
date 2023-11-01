@@ -59,10 +59,8 @@ bool TcpClient::receiveStatus() {
   HEADER header;
   auto ec = Tcp::readMsg(_socket, header, _clientId);
   assert(!isCompressed(header) && "expected uncompressed");
-  if (ec) {
+  if (ec)
     throw(std::runtime_error(ec.what()));
-    return false;
-  }
   _status = extractStatus(header);
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:

@@ -45,6 +45,18 @@ void readFile(std::string_view fileName, std::string& buffer) {
   stream.read(buffer.data(), buffer.size());
 }
 
+void writeFile(std::string_view fileName, std::string_view data) {
+  try {
+    std::ofstream stream;
+    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    stream.open(fileName.data(), std::ios::binary);
+    stream.write(data.data(), data.size());
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+  }
+}
+
 // used in tests
 bool getLastLine(std::string_view fileName, std::string& lastLine) {
   char ch;
