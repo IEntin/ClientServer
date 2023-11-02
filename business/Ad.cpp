@@ -6,45 +6,42 @@
 #include "AdBid.h"
 #include "Utility.h"
 #include <cmath>
-#include <iomanip>
 
 AdRow::AdRow(SCIterator beg, SCIterator end) : _value(beg, end) {}
 
-AdRow::AdRow(AdRow&& other) : _sizeKey(std::move(other._sizeKey)), _value(other._value) {}
+AdRow::AdRow(AdRow&& other) :
+  _sizeKey(std::move(other._sizeKey)), _value(other._value) {}
 
-const AdRow& AdRow::operator =(AdRow&& other) {
-  _sizeKey = std::move(other._sizeKey);
-  _value = other._value;
-  return *this;
+void AdRow::parse() {
+  auto introEnd = std::find(_value.cbegin(), _value.cend(), '[');
+  if (introEnd == _value.end())
+    return;
+  std::string_view introStr(_value.cbegin(), introEnd);
+  std::vector<std::string_view> vect;
+  utility::split(introStr, vect, ", ");
+  if (vect.size() != NUMBEROFFIELDS)
+    return;
+  _id = vect[ID];
+  _sizeKey.append(vect[WIDTH]).append(1, 'x').append(vect[HEIGHT]);
+  double dblMoney = 0;
+  if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
+    return;
+  _defaultBid = std::lround(dblMoney * Ad::_scaler);
+  _valid = true;
 }
 
 std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
-  _input(row._value), _sizeKey(row._sizeKey) {
-  if (!parseIntro())
-    throw std::runtime_error("parsing failed");
-}
+  _input(row._value),
+  _id(std::move(row._id)),
+  _sizeKey(std::move(row._sizeKey)),
+  _defaultBid(row._defaultBid) {}
 
 void Ad::clear() {
   _mapBySize.clear();
   _rows.clear();
-}
-
-bool Ad::parseIntro() {
-  auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
-  if (introEnd == _input.end())
-    return false;
-  std::string_view introStr(_input.cbegin(), introEnd);
-  std::vector<std::string_view> vect;
-  utility::split(introStr, vect, ", ");
-  _id = vect[ID];
-  double dblMoney = 0;
-  if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
-    return false;
-  _defaultBid = std::lround(dblMoney * _scaler);
-  return true;
 }
 
 bool Ad::parseArray() {
@@ -84,20 +81,12 @@ const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
     return it->second;
 }
 
-std::string Ad::extractSize(std::string_view line) {
-  std::vector<std::string> words;
-  utility::split(line, words, ", ");
-  if (words.size() < NUMBEROFFIELDS)
-    return "";
-  return words[WIDTH] + 'x' + words[HEIGHT];
-}
-
 bool Ad::readAds(std::string_view filename) {
   static std::string buffer;
   utility::readFile(filename, buffer);
   utility::split(buffer, _rows);
   for (auto& row : _rows)
-    row._sizeKey = extractSize(row._value);
+    row.parse();
   return true;
 }
 
@@ -108,6 +97,11 @@ bool Ad::load(std::string_view filename) {
     return false;
   std::vector<Ad> empty;
   for (auto& row : _rows) {
+    if (!row._valid) {
+      Warn << "unexpected entry format:\"" << row._value
+	   << "\", skipping.\n";
+      continue;
+    }
     auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
     try {
       it->second.emplace_back(row);
