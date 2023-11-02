@@ -13,7 +13,7 @@ class Ad;
 
 struct AdBid;
 
-using SizeMap = std::map<std::string_view, std::vector<Ad>>;
+using SizeMap = std::map<std::string, std::vector<Ad>>;
 
 using SCIterator = std::string::const_iterator;
 
@@ -44,7 +44,7 @@ class Ad {
   const std::vector<AdBid>& getBids() const { return _bids; }
   static bool load(std::string_view filename);
   static void clear();
-  static const std::vector<Ad>& getAdsBySize(std::string_view key);
+  static const std::vector<Ad>& getAdsBySize(const std::string& key);
   static constexpr double _scaler = 100.;
  private:
   bool parseIntro();

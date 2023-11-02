@@ -13,7 +13,7 @@ struct AdBid;
 
 class Transaction : private boost::noncopyable {
 public:
-  static std::string_view processRequest(std::string_view key,
+  static std::string_view processRequest(const std::string& key,
 					 std::string_view request,
 					 bool diagnostics) noexcept;
   static std::string  normalizeSizeKey(std::string_view request);

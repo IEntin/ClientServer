@@ -16,7 +16,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 
 using PreprocessRequest = std::string (*)(std::string_view);
 
-using ProcessRequest = std::string_view (*)(std::string_view, std::string_view, bool diagnostics);
+using ProcessRequest = std::string_view (*)(const std::string&, std::string_view, bool diagnostics);
 
 using SVCIterator = std::string_view::const_iterator;
 

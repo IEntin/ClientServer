@@ -46,7 +46,7 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-std::string_view Transaction::processRequest(std::string_view key,
+std::string_view Transaction::processRequest(const std::string& key,
 					     std::string_view request,
 					     bool diagnostics) noexcept {
   static thread_local std::string output;

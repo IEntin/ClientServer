@@ -75,7 +75,7 @@ bool Ad::parseArray() {
   return true;
 }
 
-const std::vector<Ad>& Ad::getAdsBySize(std::string_view key) {
+const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
   static const std::vector<Ad> empty;
   const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
