@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -13,9 +12,7 @@ struct AdBid;
 
 using SizeMap = std::map<std::string, std::vector<class Ad>>;
 
-using SCIterator = std::string::const_iterator;
-
-struct AdRow : private boost::noncopyable {
+struct AdRow {
   enum Fields {
     ID,
     WIDTH,
@@ -23,16 +20,14 @@ struct AdRow : private boost::noncopyable {
     DEFAULTBID,
     NUMBEROFFIELDS
   };
-  AdRow(SCIterator beg, SCIterator end);
-
-  AdRow(AdRow&& other);
+  AdRow(std::string& line);
 
   void parse();
 
   std::string _id;
   std::string _sizeKey;
   long _defaultBid;
-  std::string _value;
+  std::string _input;
   bool _valid = false;
 };
 
@@ -51,11 +46,12 @@ class Ad {
   bool parseArray();
   void printBids(std::string& output) const;
   static bool readAds(std::string_view filename);
-  std::string_view _input;
   const std::string _id;
   const std::string _sizeKey;
   std::vector<AdBid> _bids;
   const long _defaultBid{ 0 };
+  std::string_view _input;
+  AdRow _row;
   static std::vector<AdRow> _rows;
   static SizeMap _mapBySize;
 };

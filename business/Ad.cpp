@@ -7,16 +7,13 @@
 #include "Utility.h"
 #include <cmath>
 
-AdRow::AdRow(SCIterator beg, SCIterator end) : _value(beg, end) {}
-
-AdRow::AdRow(AdRow&& other) :
-  _sizeKey(std::move(other._sizeKey)), _value(other._value) {}
+AdRow::AdRow(std::string& line) : _input(std::move(line)) {}
 
 void AdRow::parse() {
-  auto introEnd = std::find(_value.cbegin(), _value.cend(), '[');
-  if (introEnd == _value.end())
+  auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
+  if (introEnd == _input.end())
     return;
-  std::string_view introStr(_value.cbegin(), introEnd);
+  std::string_view introStr(_input.cbegin(), introEnd);
   std::vector<std::string_view> vect;
   utility::split(introStr, vect, ", ");
   if (vect.size() != NUMBEROFFIELDS)
@@ -34,10 +31,11 @@ std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
-  _input(row._value),
   _id(std::move(row._id)),
   _sizeKey(std::move(row._sizeKey)),
-  _defaultBid(row._defaultBid) {}
+  _defaultBid(row._defaultBid),
+  _input(row._input),
+  _row(row) {}
 
 void Ad::clear() {
   _mapBySize.clear();
@@ -45,7 +43,7 @@ void Ad::clear() {
 }
 
 bool Ad::parseArray() {
-  auto arrayStart = std::find(_input.cbegin(), _input.cend(), '[');
+  auto arrayStart = std::find(_input.begin(), _input.end(), '[');
   if (arrayStart == _input.cend()) {
     LogError << "unexpected format:\"" << _input << '\"' << '\n';
     return false;
@@ -84,24 +82,19 @@ const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
 bool Ad::readAds(std::string_view filename) {
   static std::string buffer;
   utility::readFile(filename, buffer);
-  utility::split(buffer, _rows);
-  for (auto& row : _rows)
-    row.parse();
-  return true;
-}
-
-bool Ad::load(std::string_view filename) {
-  _mapBySize.clear();
-  _rows.clear();
-  if (!readAds(filename))
-    return false;
-  std::vector<Ad> empty;
+  std::vector<std::string> lines;
+  utility::split(buffer, lines);
+  for (auto& line : lines) {
+    _rows.emplace_back(line);
+  }
   for (auto& row : _rows) {
+    row.parse();
     if (!row._valid) {
-      Warn << "unexpected entry format:\"" << row._value
+      Warn << "unexpected entry format:\"" << row._input
 	   << "\", skipping.\n";
       continue;
     }
+    std::vector<Ad> empty;
     auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
     try {
       it->second.emplace_back(row);
@@ -111,9 +104,15 @@ bool Ad::load(std::string_view filename) {
     }
     catch (const std::exception& e) {
       Warn << e.what() << ":key-value=" << '\"' << it->first
-      	   << "\":\"" << row._value << "\",skipping." << '\n';
+      	   << "\":\"" << row._input << "\",skipping." << '\n';
     }
   }
+  return true;
+}
+
+bool Ad::load(std::string_view filename) {
+  if (!readAds(filename))
+    return false;
   for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
     auto& adVector = itm->second;
     for (unsigned i = 0; i < adVector.size(); ++i) {
