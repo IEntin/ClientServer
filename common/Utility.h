@@ -54,7 +54,6 @@ constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
     LogError << "problem converting str:" << str << '\n';
     throw std::runtime_error("problem converting str");
   }
-  return true;
 };
 
 template <typename N>

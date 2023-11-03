@@ -9,8 +9,7 @@
 #include "Transaction.h"
 
 void TransactionStrategy::set() {
-  if (!Ad::load(ServerOptions::_adsFileName))
-    return;
+  Ad::load(ServerOptions::_adsFileName);
   Task::setPreprocessMethod(Transaction::normalizeSizeKey);
   Task::setProcessMethod(Transaction::processRequest);
 }

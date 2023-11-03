@@ -9,15 +9,9 @@
 
 Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
   _delimiter(delimiter), _keepDelimiter(keepDelimiter) {
-  try {
-    _fileSize = std::filesystem::file_size(fileName);
-    _stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    _stream.open(fileName.data(), std::ios::binary);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    exit(7);
-  }
+  _fileSize = std::filesystem::file_size(fileName);
+  _stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  _stream.open(fileName.data(), std::ios::binary);
 }
 
 bool Lines::getLineImpl(std::string_view& line) {
@@ -77,24 +71,4 @@ void Lines::removeProcessedLines() {
   std::memmove(_buffer.data(), _buffer.data() + _processed, _sizeInUse - _processed);
   _sizeInUse -= _processed;
   _processed = 0;
-}
-
-// reuse for another (or the same) file
-void Lines::reset(std::string_view fileName) {
-  _sizeInUse = 0;
-  _currentPos = 0;
-  _processed = 0;
-  _totalParsed = 0;
-  _index = -1;
-  _last = false;
-  try {
-    _stream.close();
-    _fileSize = std::filesystem::file_size(fileName);
-    _stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    _stream.open(fileName.data(), std::ios::binary);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    exit(7);
-  }
 }

@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <string_view>
-#include <memory>
-#include <vector>
+#include <string>
 
 struct AdBid {
   AdBid(std::string& keyword, long money);

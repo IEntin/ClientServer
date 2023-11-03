@@ -81,24 +81,21 @@ TEST(ToCharsTest, Integral) {
 TEST(FromCharsTest, Integral0) {
   std::string_view view = "0000";
   int value = 7;
-  bool ok = utility::fromChars(view, value);
-  ASSERT_TRUE(ok);
+  utility::fromChars(view, value);
   ASSERT_EQ(value, 0);
 }
 
 TEST(FromCharsTest, Integral) {
   std::string_view view = "123456789";
   int value = {};
-  bool ok = utility::fromChars(view, value);
-  ASSERT_TRUE(ok);
+  utility::fromChars(view, value);
   ASSERT_EQ(value, 123456789);
 }
 
 TEST(FromCharsTest, FloatingPoint) {
   std::string_view view = "1234567.89";
   double value = {};
-  bool ok = utility::fromChars(view, value);
-  ASSERT_TRUE(ok);
+  utility::fromChars(view, value);
   ASSERT_EQ(value, 1234567.89);
 }
 
@@ -136,31 +133,30 @@ TEST(GetLineTest, 1) {
   ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
   if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
     lastLine.push_back('\n');
-  // use Lines::getLine
 
-  Lines lines(ClientOptions::_sourceName, '\n', true);
+  // use Lines::getLine
   std::string_view lineView;
-  while (lines.getLine(lineView)) {
-    if (lines._last) {
+  Lines linesV(ClientOptions::_sourceName, '\n', true);
+  while (linesV.getLine(lineView)) {
+    if (linesV._last) {
       ASSERT_EQ(lineView, lastLine);
     }
   }
-  lines.reset(ClientOptions::_sourceName);
 
   std::string lineStr;
-  while (lines.getLine(lineStr)) {
-    if (lines._last) {
+  Lines linesS(ClientOptions::_sourceName, '\n', true);
+  while (linesS.getLine(lineStr)) {
+    if (linesS._last) {
       ASSERT_EQ(lineStr, lastLine);
     }
   }
   // discard delimiter:
-  lastLine.pop_back();
   // keepDelimiter == false by default
-  Lines linesND(ClientOptions::_sourceName);
-  while (linesND.getLine(lineView)) {
-    if (linesND._last) {
+  Lines linesDiscardDelimiter(ClientOptions::_sourceName);
+  lastLine.pop_back();
+  while (linesDiscardDelimiter.getLine(lineView)) {
+    if (linesDiscardDelimiter._last) {
       ASSERT_EQ(lineView, lastLine);
     }
   }
-  linesND.reset(ClientOptions::_sourceName);
 }

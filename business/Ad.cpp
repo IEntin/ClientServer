@@ -10,23 +10,24 @@
 
 AdRow::AdRow(std::string& line) : _input(std::move(line)) {}
 
-void AdRow::parse() {
+bool AdRow::parse() {
   auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
   if (introEnd == _input.end())
-    return;
+    return false;
   std::string_view introStr(_input.cbegin(), introEnd);
-  std::vector<std::string_view> vect;
+  static std::vector<std::string_view> vect;
+  vect.clear();
   utility::split(introStr, vect, ", ");
   if (vect.size() != NUMBEROFFIELDS)
-    return;
+    return false;
   _id = vect[ID];
   _sizeKey.append(vect[WIDTH]).append(1, 'x').append(vect[HEIGHT]);
   double dblMoney = 0;
-  if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
-    return;
+  utility::fromChars(vect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
   _array = { introEnd + 1, std::prev(_input.cend(), 1) };
   _valid = true;
+  return true;
 }
 
 SizeMap Ad::_mapBySize;
@@ -43,12 +44,12 @@ void Ad::clear() {
 }
 
 bool Ad::parseArray() {
-  std::vector<std::string> vect;
+  static std::vector<std::string> vect;
+  vect.clear();
   utility::split(_array, vect, "\", ");
   for (unsigned i = 0; i < vect.size(); i += 2) {
     double dblMoney = 0;
-    if (!utility::fromChars(vect[i + 1], dblMoney))
-      continue;
+    utility::fromChars(vect[i + 1], dblMoney);
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
@@ -68,36 +69,27 @@ const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
     return it->second;
 }
 
-bool Ad::readAds(std::string_view filename) {
+void Ad::readAds(std::string_view filename) {
   Lines lines(filename);
   std::string line;
   while (lines.getLine(line)) {
     AdRow row(line);
-    row.parse();
-    if (!row._valid) {
+    if (!row.parse()) {
       Warn << "unexpected entry format:\"" << row._input
 	   << "\", skipping.\n";
       continue;
     }
     std::vector<Ad> empty;
     auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
-    try {
       it->second.emplace_back(row);
       Ad& ad = it->second.back();
       if (!ad.parseArray())
 	continue;
-    }
-    catch (const std::exception& e) {
-      Warn << e.what() << ":key-value=" << '\"' << it->first
-      	   << "\":\"" << row._input << "\",skipping." << '\n';
-    }
   }
-  return true;
 }
 
-bool Ad::load(std::string_view filename) {
-  if (!readAds(filename))
-    return false;
+void Ad::load(std::string_view filename) {
+  readAds(filename);
   for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
     auto& adVector = itm->second;
     for (unsigned i = 0; i < adVector.size(); ++i) {
@@ -106,7 +98,6 @@ bool Ad::load(std::string_view filename) {
 	itb->_ad = ad;
     }
   }
-  return true;
 }
 
 // This code deliberately avoids ostream usage to prevent

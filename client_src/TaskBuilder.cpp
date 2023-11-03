@@ -5,14 +5,14 @@
 #include "TaskBuilder.h"
 #include "ClientOptions.h"
 #include "Header.h"
+#include "Lines.h"
 #include "PayloadTransform.h"
 #include "Utility.h"
 #include <cassert>
 
 Subtask TaskBuilder::_emptySubtask;
 
-TaskBuilder::TaskBuilder() :
-  _lines(ClientOptions::_sourceName, '\n', true) {
+TaskBuilder::TaskBuilder() {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 
@@ -23,9 +23,17 @@ TaskBuilder::~TaskBuilder() {
 void TaskBuilder::run() {
   while (!_stopped) {
     _resume = false;
-    while (createSubtask() == STATUS::SUBTASK_DONE) {}
-    std::unique_lock lock(_mutex);
-   _condition.wait(lock, [this] { return _resume || _stopped; });
+    try {
+      // can be a new file or same for tests.
+      Lines lines(ClientOptions::_sourceName, '\n', true);
+      while (createSubtask(lines) == STATUS::SUBTASK_DONE) {}
+      std::unique_lock lock(_mutex);
+      _condition.wait(lock, [this] { return _resume || _stopped; });
+    }
+    catch (const std::exception& e) {
+      LogError << e.what() << '\n';
+      std::exit(7);
+    }
   }
 }
 
@@ -47,9 +55,9 @@ Subtask& TaskBuilder::getSubtask() {
   return subtaskRef.get();
 }
 
-void TaskBuilder::copyRequestWithId(std::string_view line) {
+void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
   _aggregate.push_back('[');
-  utility::toChars(_lines._index, _aggregate);
+  utility::toChars(index, _aggregate);
   _aggregate.push_back(']');
   _aggregate.append(line);
 }
@@ -61,15 +69,15 @@ void TaskBuilder::copyRequestWithId(std::string_view line) {
 // reduce the number of system calls. The size of the
 // aggregate depends on the buffer size.
 
-STATUS TaskBuilder::createSubtask() {
+STATUS TaskBuilder::createSubtask(Lines& lines) {
   // LogAlways << "\t### _aggregate.capacity()=" << _aggregate.capacity() << '\n';
   _aggregate.erase(_aggregate.begin(), _aggregate.end());
   // estimate of max size considering additional id
   size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
   std::string_view line;
-  while (_lines.getLine(line)) {
-    copyRequestWithId(line);
-    bool alldone = _lines._last;
+  while (lines.getLine(line)) {
+    copyRequestWithId(line, lines._index);
+    bool alldone = lines._last;
     if (_aggregate.size() >= maxSubtaskSize || alldone)
       return compressEncryptSubtask(alldone);
   }
@@ -107,8 +115,6 @@ void TaskBuilder::stop() {
 
 void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
-  // in real cases each time another source is used
-  _lines.reset(ClientOptions::_sourceName);
   for (auto& subtask : _subtasks)
     subtask._state = STATUS::NONE;
   _subtaskIndexConsumed = 0;

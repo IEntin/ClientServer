@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Logger.h"
 #include <array>
 #include <fstream>
 #include <string_view>
@@ -28,7 +27,6 @@ class Lines {
     return true;
   }
   bool getLineImpl(std::string_view& line);
-  void reset(std::string_view fileName);
   long _index = -1;
   bool _last = false;
  private:

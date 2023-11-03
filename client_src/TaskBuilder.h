@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Lines.h"
 #include "Runnable.h"
 #include "Subtask.h"
 #include <condition_variable>
@@ -16,9 +15,8 @@ enum class STATUS : char;
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
-  void copyRequestWithId(std::string_view line);
+  void copyRequestWithId(std::string_view line, long index);
 
-  Lines _lines;
   std::string _aggregate;
   std::deque<Subtask> _subtasks;
   std::atomic<unsigned> _subtaskIndexConsumed = 0;
@@ -33,7 +31,7 @@ class TaskBuilder final : public Runnable {
   TaskBuilder();
   ~TaskBuilder() override;
   Subtask& getSubtask();
-  STATUS createSubtask();
+  STATUS createSubtask(class Lines& lines);
   void stop() override;
   void resume();
 };
