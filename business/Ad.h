@@ -28,6 +28,7 @@ struct AdRow {
   std::string _sizeKey;
   long _defaultBid;
   std::string _input;
+  std::string _array;
   bool _valid = false;
 };
 
@@ -50,8 +51,7 @@ class Ad {
   const std::string _sizeKey;
   std::vector<AdBid> _bids;
   const long _defaultBid{ 0 };
-  std::string_view _input;
-  AdRow _row;
-  static std::vector<AdRow> _rows;
+  std::string _input;
+  std::string _array;
   static SizeMap _mapBySize;
 };

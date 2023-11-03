@@ -24,38 +24,26 @@ void AdRow::parse() {
   if (!utility::fromChars(vect[DEFAULTBID], dblMoney))
     return;
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
+  _array = { introEnd + 1, std::prev(_input.cend(), 1) };
   _valid = true;
 }
 
-std::vector<AdRow> Ad::_rows;
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
   _id(std::move(row._id)),
   _sizeKey(std::move(row._sizeKey)),
   _defaultBid(row._defaultBid),
-  _input(row._input),
-  _row(row) {}
+  _input(std::move(row._input)),
+  _array(std::move(row._array)) {}
 
 void Ad::clear() {
   _mapBySize.clear();
-  _rows.clear();
 }
 
 bool Ad::parseArray() {
-  auto arrayStart = std::find(_input.begin(), _input.end(), '[');
-  if (arrayStart == _input.cend()) {
-    LogError << "unexpected format:\"" << _input << '\"' << '\n';
-    return false;
-  }
-  auto arrayEnd = std::find(arrayStart, _input.end(), ']');
-  if (arrayEnd == _input.end()) {
-    LogError << "unexpected format:\"" << _input << '\"' << '\n';
-    return false;
-  }
-  std::string_view arrayStr(arrayStart + 1, arrayEnd);
-  std::vector<std::string_view> vect;
-  utility::split(arrayStr, vect, "\", ");
+  std::vector<std::string> vect;
+  utility::split(_array, vect, "\", ");
   for (unsigned i = 0; i < vect.size(); i += 2) {
     double dblMoney = 0;
     if (!utility::fromChars(vect[i + 1], dblMoney))
@@ -85,9 +73,7 @@ bool Ad::readAds(std::string_view filename) {
   std::vector<std::string> lines;
   utility::split(buffer, lines);
   for (auto& line : lines) {
-    _rows.emplace_back(line);
-  }
-  for (auto& row : _rows) {
+    AdRow row(line);
     row.parse();
     if (!row._valid) {
       Warn << "unexpected entry format:\"" << row._input

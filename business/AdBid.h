@@ -9,8 +9,8 @@
 #include <vector>
 
 struct AdBid {
-  AdBid(std::string_view keyword, long money);
-  std::string_view _keyword;
+  AdBid(std::string& keyword, long money);
+  std::string _keyword;
   long _money = 0;
   const class Ad* _ad;
 };
