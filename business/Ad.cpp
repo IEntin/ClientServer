@@ -4,6 +4,7 @@
 
 #include "Ad.h"
 #include "AdBid.h"
+#include "Lines.h"
 #include "Utility.h"
 #include <cmath>
 
@@ -68,11 +69,9 @@ const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
 }
 
 bool Ad::readAds(std::string_view filename) {
-  static std::string buffer;
-  utility::readFile(filename, buffer);
-  std::vector<std::string> lines;
-  utility::split(buffer, lines);
-  for (auto& line : lines) {
+  Lines lines(filename);
+  std::string line;
+  while (lines.getLine(line)) {
     AdRow row(line);
     row.parse();
     if (!row._valid) {
