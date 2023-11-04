@@ -27,7 +27,7 @@ class Client {
   RunnableWeakPtr _heartbeat;
   TaskBuilderPtr _taskBuilder1;
   TaskBuilderPtr _taskBuilder2;
-  static std::atomic<ACTIONS> _signalFlag;
+  std::atomic<bool> _signalFlag = false;
  public:
   virtual ~Client();
 
@@ -37,5 +37,6 @@ class Client {
   virtual bool run() = 0;
 
   void stop();
-  static void onSignal();
+  static void onSignal(std::atomic<Client*>& clientPtr);
+  virtual void close() = 0;
 };

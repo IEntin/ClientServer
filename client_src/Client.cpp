@@ -11,12 +11,11 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
-std::atomic<ACTIONS> Client::_signalFlag = ACTIONS::NONE;
-
 Client::Client() {}
 
 Client::~Client() {
   stop();
+  _signalFlag.store(false);
   Trace << '\n';
 }
 
@@ -109,9 +108,11 @@ void Client::start() {
   _threadPoolClient.push(_taskBuilder2);
 }
 
-void Client::onSignal() {
-  _signalFlag.store(ACTIONS::ACTION);
-  _signalFlag.notify_one();
+void Client::onSignal(std::atomic<Client*>& clientPtr) {
+  auto errnoSaved = errno;
+  if (clientPtr)
+    clientPtr.load()->close();
+  errno = errnoSaved;
 }
 
 void Client::displayMaxTotalSessionsWarn() {

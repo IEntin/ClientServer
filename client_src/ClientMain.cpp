@@ -9,8 +9,12 @@
 #include "TcpClient.h"
 #include <csignal>
 
+namespace {
+  std::atomic<Client*> clientPtr = 0;
+}// end of anonimous namespace
+
 void signalHandler(int) {
-  Client::onSignal();
+  Client::onSignal(clientPtr);
 }
 
 int main() {
@@ -28,11 +32,13 @@ int main() {
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;
+      clientPtr.store(&client);
       if (!client.run())
 	return 1;
     }
     if (ClientOptions::_tcpClient) {
       tcp::TcpClient client;
+      clientPtr.store(&client);
       if (!client.run())
 	return 2;
     }

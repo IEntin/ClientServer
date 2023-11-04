@@ -6,7 +6,6 @@
 #include "ClientOptions.h"
 #include "Fifo.h"
 #include "Logger.h"
-#include "SignalWatcher.h"
 #include "Subtask.h"
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -23,8 +22,6 @@ FifoClient::FifoClient() {
 }
 
 FifoClient::~FifoClient() {
-  if (auto ptr = _signalWatcher.lock(); ptr)
-    ptr->stop();
   Fifo::onExit(_fifoName);
   Trace << '\n';
 }
@@ -37,6 +34,13 @@ bool FifoClient::run() {
 bool FifoClient::send(const Subtask& subtask) {
   std::string_view body(subtask._body.data(), subtask._body.size());
   while (true) {
+    if (_signalFlag) {
+      Fifo::onExit(_fifoName);
+      std::error_code ec;
+      std::filesystem::remove(_fifoName, ec);
+      if (ec)
+	LogError << ec.message() << '\n';
+    }
     if (Fifo::sendMsg(_fifoName, subtask._header, body))
       return true;
     // waiting client
@@ -71,7 +75,6 @@ bool FifoClient::receiveStatus() {
   _clientId.assign(buffer);
   _status = extractStatus(header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/' + _clientId;
-  createSignalWatcher();
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     displayMaxSessionsOfTypeWarn("fifo");
@@ -85,18 +88,8 @@ bool FifoClient::receiveStatus() {
   return true;
 }
 
-void FifoClient::createSignalWatcher() {
-  std::string name = _fifoName;
-  std::function<void()> func = [name]() {
-    Fifo::onExit(name);
-    std::error_code ec;
-    std::filesystem::remove(name, ec);
-    if (ec)
-      LogError << ec.message() << '\n';
-  };
-  auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);
-  _signalWatcher = ptr;
-  _threadPoolClient.push(ptr);
+void FifoClient::close() {
+  _signalFlag.store(true);
 }
 
 } // end of namespace fifo

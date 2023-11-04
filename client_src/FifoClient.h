@@ -13,11 +13,10 @@ class FifoClient : public Client {
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
+  void close() override;
   bool wakeupAcceptor();
-  void createSignalWatcher();
   std::string _clientId;
   std::string _fifoName;
-  RunnableWeakPtr _signalWatcher;
   std::string _response;
 
  public:

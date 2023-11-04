@@ -4,7 +4,6 @@
 
 #include "TcpClient.h"
 #include "ClientOptions.h"
-#include "SignalWatcher.h"
 #include "Subtask.h"
 #include "Tcp.h"
 
@@ -26,8 +25,6 @@ TcpClient::TcpClient() :
 }
 
 TcpClient::~TcpClient() {
-  if (auto ptr = _signalWatcher.lock(); ptr)
-    ptr->stop();
   Trace << '\n';
 }
 
@@ -65,11 +62,9 @@ bool TcpClient::receiveStatus() {
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     displayMaxSessionsOfTypeWarn("tcp");
-    createSignalWatcher();
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
     displayMaxTotalSessionsWarn();
-    createSignalWatcher();
     break;
   default:
     break;
@@ -77,17 +72,12 @@ bool TcpClient::receiveStatus() {
   return true;
 }
 
-void TcpClient::createSignalWatcher() {
-  std::function<void()> func = [this]() {
-    boost::system::error_code ec;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-    if (ec) {
-      LogError << ec.what() << '\n';
-    }
-  };
-  auto ptr = std::make_shared<SignalWatcher>(_signalFlag, func);
-  _signalWatcher = ptr;
-  _threadPoolClient.push(ptr);
+void TcpClient::close() {
+  boost::system::error_code ec;
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+  if (ec) {
+    LogError << ec.what() << '\n';
+  }
 }
 
 } // end of namespace tcp
