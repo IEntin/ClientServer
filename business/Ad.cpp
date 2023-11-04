@@ -36,17 +36,16 @@ Ad::Ad(AdRow& row) :
   _id(std::move(row._id)),
   _sizeKey(std::move(row._sizeKey)),
   _defaultBid(row._defaultBid),
-  _input(std::move(row._input)),
-  _array(std::move(row._array)) {}
+  _input(std::move(row._input)) {}
 
 void Ad::clear() {
   _mapBySize.clear();
 }
 
-bool Ad::parseArray() {
+bool Ad::parseArray(std::string_view array) {
   static std::vector<std::string> vect;
   vect.clear();
-  utility::split(_array, vect, "\", ");
+  utility::split(array, vect, "\", ");
   for (unsigned i = 0; i < vect.size(); i += 2) {
     double dblMoney = 0;
     utility::fromChars(vect[i + 1], dblMoney);
@@ -81,9 +80,9 @@ void Ad::readAds(std::string_view filename) {
     }
     std::vector<Ad> empty;
     auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
-      it->second.emplace_back(row);
+    it->second.emplace_back(row);
       Ad& ad = it->second.back();
-      if (!ad.parseArray())
+      if (!ad.parseArray(row._array))
 	continue;
   }
 }

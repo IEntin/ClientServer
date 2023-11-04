@@ -45,7 +45,7 @@ class Ad {
   static const std::vector<Ad>& getAdsBySize(const std::string& key);
   static constexpr double _scaler = 100.;
  private:
-  bool parseArray();
+  bool parseArray(std::string_view array);
   void printBids(std::string& output) const;
   static void readAds(std::string_view filename);
   const std::string _id;
@@ -53,6 +53,5 @@ class Ad {
   std::vector<AdBid> _bids;
   const long _defaultBid{ 0 };
   std::string _input;
-  std::string _array;
   static SizeMap _mapBySize;
 };
