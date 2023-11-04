@@ -8,7 +8,7 @@
 #include "Utility.h"
 #include <cmath>
 
-AdRow::AdRow(std::string& line) : _input(std::move(line)) {}
+AdRow::AdRow(std::string_view line) : _input(line) {}
 
 bool AdRow::parse() {
   auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
@@ -25,7 +25,7 @@ bool AdRow::parse() {
   double dblMoney = 0;
   utility::fromChars(vect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
-  _array = { introEnd + 1, std::prev(_input.cend(), 1) };
+  _array = { std::next(introEnd, 1), std::prev(_input.cend(), 1) };
   _valid = true;
   return true;
 }
@@ -33,10 +33,10 @@ bool AdRow::parse() {
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
-  _id(std::move(row._id)),
+  _id(row._id.cbegin(), row._id.cend()),
   _sizeKey(std::move(row._sizeKey)),
   _defaultBid(row._defaultBid),
-  _input(std::move(row._input)) {}
+  _input(row._input.cbegin(), row._input.cend()) {}
 
 void Ad::clear() {
   _mapBySize.clear();
@@ -70,7 +70,7 @@ const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
 
 void Ad::readAds(std::string_view filename) {
   Lines lines(filename);
-  std::string line;
+  std::string_view line;
   while (lines.getLine(line)) {
     AdRow row(line);
     if (!row.parse()) {
@@ -99,9 +99,9 @@ void Ad::load(std::string_view filename) {
   }
 }
 
-// This code deliberately avoids ostream usage to prevent
+// Deliberately avoiding ostream operators to prevent
 // unreasonable number of memory allocations and negative
-// performance impact
+// performance impact.
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD("Ad");
   output.append(AD);

@@ -21,15 +21,15 @@ struct AdRow : private boost::noncopyable {
     DEFAULTBID,
     NUMBEROFFIELDS
   };
-  AdRow(std::string& line);
+  AdRow(std::string_view line);
 
   bool parse();
 
-  std::string _id;
+  std::string_view _id;
   std::string _sizeKey;
   long _defaultBid;
-  std::string _input;
-  std::string _array;
+  std::string_view _input;
+  std::string_view _array;
   bool _valid = false;
 };
 
