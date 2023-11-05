@@ -32,7 +32,9 @@ void TaskBuilder::run() {
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';
-      std::exit(7);
+      _status.store(STATUS::ERROR);
+      _condition.notify_one();
+      break;
     }
   }
 }
@@ -41,7 +43,9 @@ Subtask& TaskBuilder::getSubtask() {
   std::unique_lock lock(_mutex);
   std::reference_wrapper subtaskRef = _emptySubtask;
   _condition.wait(lock, [&] () mutable {
-    if (_subtaskIndexConsumed < _subtasks.size()) {
+    if (_status == STATUS::ERROR ||_subtaskIndexConsumed < _subtasks.size()) {
+      if (_status == STATUS::ERROR)
+	return true;
       subtaskRef = _subtasks[_subtaskIndexConsumed];
       STATUS state = subtaskRef.get()._state;
       if (state == STATUS::SUBTASK_DONE || state == STATUS::TASK_DONE)
