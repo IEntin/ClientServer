@@ -24,35 +24,38 @@ Client::~Client() {
 // For maximum speed the buffer should be large to read the
 // content in one shot.
 
-bool Client::processTask(TaskBuilderPtr taskBuilder) {
-  while (true) {
-    Subtask& subtask = taskBuilder->getSubtask();
-    STATUS state = subtask._state;
-    switch (state) {
-    case STATUS::ERROR:
-      LogError << "TaskBuilder failed." << '\n';
-      return false;
-    case STATUS::SUBTASK_DONE:
-    case STATUS::TASK_DONE:
-      if (!(send(subtask) && receive()))
+bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
+  if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
+    while (true) {
+      Subtask& subtask = taskBuilder->getSubtask();
+      STATUS state = subtask._state;
+      switch (state) {
+      case STATUS::ERROR:
+	LogError << "TaskBuilder failed." << '\n';
 	return false;
-      if (state == STATUS::TASK_DONE) {
-	taskBuilder->resume();
-	return true;
+      case STATUS::SUBTASK_DONE:
+      case STATUS::TASK_DONE:
+	if (!(send(subtask) && receive()))
+	  return false;
+	if (state == STATUS::TASK_DONE) {
+	  taskBuilder->resume();
+	  return true;
+	}
+	break;
+      default:
+	return false;
       }
-      break;
-    default:
-      return false;
     }
+    return true;
   }
-  return true;
+  return false;
 }
 
 bool Client::run() {
   int numberTasks = 0;
   do {
     Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
-    TaskBuilderPtr current = numberTasks % 2 == 1 ? _taskBuilder1 : _taskBuilder2;
+    auto current = numberTasks % 2 == 1 ? _taskBuilder1 : _taskBuilder2;
     if (!processTask(current))
       return false;
     ++numberTasks;
@@ -64,12 +67,12 @@ bool Client::run() {
 
 void Client::stop() {
   Metrics::save();
-  if (auto ptr= _heartbeat.lock(); ptr)
-    ptr->stop();
-  if (_taskBuilder1)
-    _taskBuilder1->stop();
-  if (_taskBuilder2)
-    _taskBuilder2->stop();
+  if (auto heartbeat = _heartbeat.lock(); heartbeat)
+    heartbeat->stop();
+  if (auto taskBuilder = _taskBuilder1.lock(); taskBuilder)
+    taskBuilder->stop();
+  if (auto taskBuilder = _taskBuilder2.lock(); taskBuilder)
+    taskBuilder->stop();
   _threadPoolClient.stop();
 }
 
@@ -102,10 +105,12 @@ void Client::start() {
     _threadPoolClient.push(ptr);
     _heartbeat = ptr;
   }
-  _taskBuilder1 = std::make_shared<TaskBuilder>();
-  _threadPoolClient.push(_taskBuilder1);
-  _taskBuilder2 = std::make_shared<TaskBuilder>();
-  _threadPoolClient.push(_taskBuilder2);
+  auto taskBuilder1 = std::make_shared<TaskBuilder>();
+  _threadPoolClient.push(taskBuilder1);
+  _taskBuilder1 = taskBuilder1;
+  auto taskBuilder2 = std::make_shared<TaskBuilder>();
+  _threadPoolClient.push(taskBuilder2);
+  _taskBuilder2 = taskBuilder2;
 }
 
 void Client::onSignal(std::atomic<Client*>& clientPtr) {

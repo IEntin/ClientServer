@@ -8,13 +8,14 @@
 
 struct Subtask;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
+using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
 class Client {
 
  protected:
   Client();
 
-  bool processTask(TaskBuilderPtr taskBuilder);
+  bool processTask(TaskBuilderWeakPtr weakPtr);
   bool printReply(const HEADER& header, std::string_view buffer);
   void start();
 
@@ -25,8 +26,8 @@ class Client {
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;
-  TaskBuilderPtr _taskBuilder1;
-  TaskBuilderPtr _taskBuilder2;
+  TaskBuilderWeakPtr _taskBuilder1;
+  TaskBuilderWeakPtr _taskBuilder2;
   std::atomic<bool> _signalFlag = false;
  public:
   virtual ~Client();
