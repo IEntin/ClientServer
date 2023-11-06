@@ -8,8 +8,6 @@
 #include <charconv>
 #include <cstring>
 
-enum class STATUS : char;
-
 constexpr int CONV_BUFFER_SIZE = 10;
 
 namespace utility {

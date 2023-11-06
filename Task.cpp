@@ -9,6 +9,11 @@ PreprocessRequest Task::_preprocessRequest = nullptr;
 ProcessRequest Task::_processRequest = nullptr;
 Response Task::_emptyResponse;
 
+RequestRow::RequestRow(std::string_view::const_iterator beg,
+		       std::string_view::const_iterator end) :
+  _value(beg, end) {}
+
+
 Task::Task(Response& response) : _response(response) {}
 
 Task::~Task() {
@@ -35,31 +40,23 @@ void Task::sortIndices() {
 }
 
 bool Task::preprocessNext() {
-  if (!_preprocessRequest)
-    return false;
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[index];
-    row._key = _preprocessRequest(row._value);
+    _preprocessRequest(row._value).swap(row._key);
     return true;
   }
-  else
-    return false;
+  return false;
 }
 
 bool Task::processNext() {
-  if (!_processRequest) {
-    LogError << "_processRequest is nullptr, Strategy must be set!" << '\n';
-    return false;
-  }
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
     _response[row._orgIndex] = _processRequest(row._key, row._value, _diagnostics);
     return true;
   }
-  else
-    return false;
+  return false;
 }
 
 void Task::finish() {

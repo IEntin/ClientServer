@@ -18,12 +18,10 @@ using PreprocessRequest = std::string (*)(std::string_view);
 
 using ProcessRequest = std::string_view (*)(const std::string&, std::string_view, bool diagnostics);
 
-using SVCIterator = std::string_view::const_iterator;
-
 struct RequestRow {
-  RequestRow() {}
+  RequestRow() = default;
 
-  RequestRow(SVCIterator beg, SVCIterator end) : _value(beg, end) {}
+  RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
 
   ~RequestRow() = default;
 
@@ -39,7 +37,6 @@ class Task : private boost::noncopyable {
   std::promise<void> _promise;
   std::atomic<int> _index = 0;
   bool _diagnostics;
-  static PreprocessRequest _preprocessRequest;
   static ProcessRequest _processRequest;
   static Response _emptyResponse;
 
@@ -69,4 +66,5 @@ class Task : private boost::noncopyable {
   static void setPreprocessMethod(PreprocessRequest method) {
     _preprocessRequest = method;
   }
+  static PreprocessRequest _preprocessRequest;
 };

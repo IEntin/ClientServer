@@ -55,7 +55,7 @@ std::string_view Transaction::processRequest(const std::string& key,
   if (request.empty() || key.empty()) {
     LogError << "request is empty" << '\n';
     transaction._invalid = true;
-    output.assign(transaction._id);
+    output.append(transaction._id);
     output.append(INVALID_REQUEST);
     return output;
   }
@@ -69,7 +69,7 @@ std::string_view Transaction::processRequest(const std::string& key,
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
-      output.assign(transaction._id);
+      output.append(transaction._id);
       output.push_back(' ');
       output.append(EMPTY_REPLY);
     }
@@ -100,8 +100,7 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
       if (separator != std::string::npos) {
 	size_t offset = beg + AD_WIDTH.size();
 	std::string key;
-	std::string_view keyData(request.data() + offset, separator - offset);
-	key.assign(keyData);
+	key.append(request.data() + offset, separator - offset);
 	key.push_back('x');
 	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
 	if (begHeight != std::string::npos) {

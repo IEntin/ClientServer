@@ -121,7 +121,8 @@ void TaskController::Worker::run() noexcept {
   auto& barrier = taskController->_barrier;
   while (!stopped) {
     if (_phase == PREPROCESSTASK) {
-      while (task->preprocessNext());
+      if (Task::_preprocessRequest)
+	while (task->preprocessNext());
       barrier.arrive_and_wait();
     }
     else if (_phase == PROCESSTASK) {
