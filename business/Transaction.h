@@ -6,20 +6,22 @@
 
 #include <boost/core/noncopyable.hpp>
 #include <string>
+#include <tuple>
 #include <vector>
 
 class Ad;
 struct AdBid;
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
 
 class Transaction : private boost::noncopyable {
 public:
-  static std::string_view processRequest(const std::string& key,
+  static std::string_view processRequest(const SIZETUPLE& sizeKey,
 					 std::string_view request,
 					 bool diagnostics) noexcept;
-  static std::string  normalizeSizeKey(std::string_view request);
-private:
-  Transaction(std::string_view sizeKey, std::string_view input);
   ~Transaction();
+  static SIZETUPLE createSizeKey(std::string_view request);
+private:
+  Transaction(const SIZETUPLE& sizeKey, std::string_view input);
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<Ad>& adVector);
@@ -40,7 +42,7 @@ private:
   static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
-  std::string_view _sizeKey;
+  const SIZETUPLE _sizeKey;
   const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };

@@ -26,8 +26,9 @@ constexpr char SIZE_END('&');
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
-Transaction::Transaction(std::string_view sizeKey, std::string_view input) : _sizeKey(sizeKey) {
-  if (sizeKey.empty()) {
+Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) :
+  _sizeKey(sizeKey)  {
+  if (_sizeKey == SIZETUPLE()) {
     _invalid = true;
     LogError << "invalid request, sizeKey is empty, input:" << input << '\n';
     return;
@@ -46,13 +47,13 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-std::string_view Transaction::processRequest(const std::string& key,
+std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
 					     std::string_view request,
 					     bool diagnostics) noexcept {
   static thread_local std::string output;
   output.erase(output.begin(), output.end());
-  Transaction transaction(key, request);
-  if (request.empty() || key.empty()) {
+  Transaction transaction(sizeKey, request);
+  if (request.empty() || sizeKey == SIZETUPLE()) {
     LogError << "request is empty" << '\n';
     transaction._invalid = true;
     output.append(transaction._id);
@@ -61,10 +62,10 @@ std::string_view Transaction::processRequest(const std::string& key,
   }
   static std::vector<Ad> empty;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
-  static thread_local std::string prevKey;
-  if (key != prevKey) {
-    prevKey = key;
-    adVector = Ad::getAdsBySize(key);
+  static thread_local SIZETUPLE prevKey;
+  if (sizeKey != prevKey) {
+    prevKey = sizeKey;
+    adVector = Ad::getAdsBySize(sizeKey);
   }
   transaction.matchAds(adVector);
   if (!diagnostics) {
@@ -81,7 +82,7 @@ std::string_view Transaction::processRequest(const std::string& key,
   return output;
 }
 
-std::string Transaction::normalizeSizeKey(std::string_view request) {
+SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   // size format: 728x90
   size_t beg = request.find(SIZE_START);
   if (beg != std::string::npos) {
@@ -89,7 +90,15 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
     size_t end = request.find(SIZE_END, beg + 1);
     if (end == std::string::npos)
       end = request.size();
-    return { request.data() + beg, end - beg };
+    std::string_view keyData{ request.data() + beg, end - beg };
+    size_t posx = keyData.find('x');
+    std::string_view widthView(keyData.cbegin(), std::next(keyData.cbegin(), posx));
+   unsigned width = 0;
+    utility::fromChars(widthView, width);
+    std::string_view heightView(std::next(keyData.cbegin(), + posx + 1), keyData.cend());
+    unsigned height = 0;
+    utility::fromChars(heightView, height);
+    return { width, height };
   }
   else {
     // alternative size format: ad_width=300&ad_height=250
@@ -99,9 +108,9 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
       size_t separator = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
       if (separator != std::string::npos) {
 	size_t offset = beg + AD_WIDTH.size();
-	std::string key;
-	key.append(request.data() + offset, separator - offset);
-	key.push_back('x');
+	std::string_view widthView(request.data() + offset, separator - offset);
+	unsigned width = 0;
+	utility::fromChars(widthView, width);
 	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
 	if (begHeight != std::string::npos) {
 	  offset = begHeight + AD_HEIGHT.size();
@@ -111,12 +120,15 @@ std::string Transaction::normalizeSizeKey(std::string_view request) {
 	    heightSize = end - offset;
 	  else
 	    heightSize = request.size() - offset;
-	  return key.append(request.data() + offset, heightSize);
+	  std::string_view heightView(request.data() + offset, heightSize);
+	  unsigned height = 0;
+	  utility::fromChars(heightView, height);
+	  return { width, height };
 	}
       }
     }
   }
-  return "";
+  return {};
 }
 
 const AdBid* Transaction::findWinningBid() const {
@@ -228,7 +240,7 @@ void Transaction::printMatchingAds(std::string& output) const {
     output.push_back('\n');
   }
 }
- 
+
 void Transaction::printWinningAd(std::string& output) const {
   auto winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
@@ -244,13 +256,13 @@ void Transaction::printWinningAd(std::string& output) const {
   static constexpr std::string_view ENDING("\n*****\n");
   output.append(ENDING);
 }
- 
+
 void Transaction::printRequestData(std::string& output) const {
   output.append(_id);
   output.push_back(' ');
   static constexpr std::string_view TRANSACTIONSIZE("Transaction size=");
   output.append(TRANSACTIONSIZE);
-  output.append(_sizeKey);
+  utility::printSizeKey(_sizeKey, output);
   static constexpr std::string_view MATCHES(" #matches=");
   output.append(MATCHES);
   utility::toChars(_bids.size(), output);

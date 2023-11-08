@@ -5,7 +5,7 @@
 #include "Echo.h"
 
 // test transport layer, multithreading, and compression
-std::string_view Echo::processRequest(const std::string&,
+std::string_view Echo::processRequest(const SIZETUPLE&,
 				      std::string_view request,
 				      bool) noexcept {
   std::string_view response(request);

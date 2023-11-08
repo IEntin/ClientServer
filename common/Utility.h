@@ -7,8 +7,11 @@
 #include "Logger.h"
 #include <charconv>
 #include <cstring>
+#include <tuple>
 
 constexpr int CONV_BUFFER_SIZE = 10;
+
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
 
 namespace utility {
 
@@ -95,6 +98,8 @@ void toChars(N value, std::string& target, int precision, size_t size = CONV_BUF
   else
     LogError << "problem translating number:" << value << '\n';
 }
+
+  void printSizeKey(const SIZETUPLE& sizeKey, std::string& target);
 
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);

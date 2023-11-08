@@ -14,9 +14,11 @@ using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
 
-using PreprocessRequest = std::string (*)(std::string_view);
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
 
-using ProcessRequest = std::string_view (*)(const std::string&, std::string_view, bool diagnostics);
+using PreprocessRequest = SIZETUPLE (*)(std::string_view);
+
+using ProcessRequest = std::string_view (*)(const SIZETUPLE&, std::string_view, bool diagnostics);
 
 struct RequestRow {
   RequestRow() = default;
@@ -25,7 +27,7 @@ struct RequestRow {
 
   ~RequestRow() = default;
 
-  std::string _key;
+  SIZETUPLE _sizeKey;
   std::string_view _value;
   int _orgIndex = 0;
 };

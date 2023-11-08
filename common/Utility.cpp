@@ -84,4 +84,12 @@ bool fileEndsWithEOL(std::string_view fileName) {
   return ch == '\n';
 }
 
+void printSizeKey(const SIZETUPLE& sizeKey, std::string& target) {
+  unsigned width = std::get<0>(sizeKey);
+  toChars(width, target);
+  target.push_back('x');
+  unsigned height = std::get<1>(sizeKey);
+  toChars(height, target);
+}
+
 } // end of namespace utility

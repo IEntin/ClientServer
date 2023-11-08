@@ -21,7 +21,13 @@ bool AdRow::parse() {
   if (vect.size() != NUMBEROFFIELDS)
     return false;
   _id = vect[ID];
-  _sizeKey.append(vect[WIDTH]).append(1, 'x').append(vect[HEIGHT]);
+
+  unsigned widthKey = 0;
+  utility::fromChars(vect[WIDTH], widthKey);
+  unsigned heightKey = 0;
+  utility::fromChars(vect[HEIGHT], heightKey);
+  _sizeKey = { widthKey, heightKey };
+
   double dblMoney = 0;
   utility::fromChars(vect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
@@ -34,7 +40,7 @@ SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
   _id(row._id.cbegin(), row._id.cend()),
-  _sizeKey(std::move(row._sizeKey)),
+  _sizeKey(row._sizeKey),
   _defaultBid(row._defaultBid),
   _input(row._input.cbegin(), row._input.cend()) {}
 
@@ -59,7 +65,7 @@ bool Ad::parseArray(std::string_view array) {
   return true;
 }
 
-const std::vector<Ad>& Ad::getAdsBySize(const std::string& key) {
+const std::vector<Ad>& Ad::getAdsBySize(const SIZETUPLE& key) {
   static const std::vector<Ad> empty;
   const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
@@ -79,10 +85,10 @@ void Ad::readAds(std::string_view filename) {
       continue;
     }
     std::vector<Ad> empty;
-    auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
-    it->second.emplace_back(row);
-      Ad& ad = it->second.back();
-      if (!ad.parseArray(row._array))
+    auto [itTuple, insertedTuple] = _mapBySize.emplace(row._sizeKey, empty);
+    itTuple->second.emplace_back(row);
+      Ad& adTuple = itTuple->second.back();
+      if (!adTuple.parseArray(row._array))
 	continue;
   }
 }
@@ -102,13 +108,14 @@ void Ad::load(std::string_view filename) {
 // Deliberately avoiding ostream operators to prevent
 // unreasonable number of memory allocations and negative
 // performance impact.
+
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD("Ad");
   output.append(AD);
   output.append(_id);
   static constexpr std::string_view SIZE(" size=");
   output.append(SIZE);
-  output.append(_sizeKey);
+  utility::printSizeKey(_sizeKey, output);
   static constexpr std::string_view DEFAULTBID(" defaultBid=");
   output.append(DEFAULTBID);
   utility::toChars(_defaultBid, output);

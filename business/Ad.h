@@ -11,7 +11,9 @@
 
 struct AdBid;
 
-using SizeMap = std::map<std::string, std::vector<class Ad>>;
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
+
+using SizeMap = std::map<SIZETUPLE, std::vector<class Ad>>;
 
 struct AdRow : private boost::noncopyable {
   enum Fields {
@@ -26,7 +28,7 @@ struct AdRow : private boost::noncopyable {
   bool parse();
 
   std::string_view _id;
-  std::string _sizeKey;
+  SIZETUPLE _sizeKey;
   long _defaultBid;
   std::string_view _input;
   std::string_view _array;
@@ -42,14 +44,14 @@ class Ad {
   const std::vector<AdBid>& getBids() const { return _bids; }
   static void load(std::string_view filename);
   static void clear();
-  static const std::vector<Ad>& getAdsBySize(const std::string& key);
+  static const std::vector<Ad>& getAdsBySize(const SIZETUPLE& key);
   static constexpr double _scaler = 100.;
  private:
   bool parseArray(std::string_view array);
   void printBids(std::string& output) const;
   static void readAds(std::string_view filename);
   const std::string _id;
-  const std::string _sizeKey;
+  const SIZETUPLE _sizeKey;
   std::vector<AdBid> _bids;
   const long _defaultBid{ 0 };
   std::string _input;

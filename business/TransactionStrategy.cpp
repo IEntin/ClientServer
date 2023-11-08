@@ -8,9 +8,11 @@
 #include "Task.h"
 #include "Transaction.h"
 
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
+
 void TransactionStrategy::set() {
   Ad::load(ServerOptions::_adsFileName);
-  Task::setPreprocessMethod(Transaction::normalizeSizeKey);
+  Task::setPreprocessMethod(Transaction::createSizeKey);
   Task::setProcessMethod(Transaction::processRequest);
 }
 

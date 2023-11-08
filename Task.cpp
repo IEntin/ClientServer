@@ -35,7 +35,7 @@ void Task::set(const HEADER& header, std::string_view input) {
 
 void Task::sortIndices() {
   std::sort(_indices.begin(), _indices.end(), [this] (int idx1, int idx2) {
-	      return _rows[idx1]._key < _rows[idx2]._key;
+	      return _rows[idx1]._sizeKey < _rows[idx2]._sizeKey;
 	    });
 }
 
@@ -43,7 +43,7 @@ bool Task::preprocessNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[index];
-    _preprocessRequest(row._value).swap(row._key);
+    row._sizeKey = _preprocessRequest(row._value);
     return true;
   }
   return false;
@@ -53,7 +53,7 @@ bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
-    _response[row._orgIndex] = _processRequest(row._key, row._value, _diagnostics);
+    _response[row._orgIndex] = _processRequest(row._sizeKey, row._value, _diagnostics);
     return true;
   }
   return false;
