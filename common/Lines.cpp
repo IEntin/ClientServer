@@ -49,7 +49,6 @@ bool Lines::getLineImpl(std::string_view& line) {
   return false;
 }
 
-// reentrant, thread safe
 bool Lines::refillBuffer() {
   if (_buffer.size() == _sizeInUse)
     return false;

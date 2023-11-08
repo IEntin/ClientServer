@@ -42,7 +42,7 @@ class Lines {
   size_t _fileSize = 0;
   static constexpr unsigned ARRAY_SIZE = 32768;
   std::array<char, ARRAY_SIZE> _buffer;
-  // Must be less than ARRAY_SIZE. Othervise arbitrary value
-  // should not be too small or too big for optimal performance.
+  // Must be less than ARRAY_SIZE, othervise arbitrary.
+  // Should not be too small or too big for optimal performance.
   static const unsigned _bufferRefillThreshold = ARRAY_SIZE * .9;
 };

@@ -15,17 +15,11 @@ std::string_view buildReply(const Response& response,
 			    std::atomic<STATUS>& status) {
   if (response.empty())
     return {};
-  size_t dataSize = 0;
-  for (const auto& entry : response)
-    dataSize += entry.size();
   header = { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status };
   static thread_local std::vector<char> data;
-  data.resize(dataSize);
-  ssize_t pos = 0;
-  for (const auto& entry : response) {
-    std::copy(entry.cbegin(), entry.cend(), data.begin() + pos);
-    pos += entry.size();
-  }
+  data.resize(0);
+  for (const auto& entry : response)
+    data.insert(data.end(), entry.begin(), entry.end());
   return payloadtransform::compressEncrypt({ data.data(), data.size() }, header);
 }
 
