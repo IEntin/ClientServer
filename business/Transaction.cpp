@@ -12,14 +12,8 @@
 
 namespace {
 
-constexpr std::string_view START_KEYWORDS1("kw=");
-constexpr std::string_view START_KEYWORDS2("keywords=");
-constexpr char KEYWORD_SEP = '+';
-constexpr char KEYWORDS_END = '&';
-constexpr std::string_view SIZE_START("size=");
-constexpr std::string_view AD_WIDTH("ad_width=");
-constexpr std::string_view AD_HEIGHT("ad_height=");
-constexpr char SIZE_END('&');
+constexpr std::string_view INVALID_REQUEST(" Invalid request\n");
+constexpr std::string_view EMPTY_REPLY("0, 0.0\n");
 
 } // end of anonimous namespace
 
@@ -37,6 +31,8 @@ Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) :
   if (pos != std::string::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
     _request = { input.data() + pos + 1, input.size() - pos - 1 };
+    static constexpr std::string_view START_KEYWORDS1("kw=");
+    static constexpr std::string_view START_KEYWORDS2("keywords=");
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }
@@ -84,6 +80,8 @@ std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
 
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   // size format: 728x90
+  static constexpr std::string_view SIZE_START("size=");
+  static constexpr char SIZE_END('&');
   size_t beg = request.find(SIZE_START);
   if (beg != std::string::npos) {
     beg += SIZE_START.size();
@@ -103,6 +101,8 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   else {
     // alternative size format: ad_width=300&ad_height=250
     // converted to previous
+    static constexpr std::string_view AD_WIDTH("ad_width=");
+    static constexpr std::string_view AD_HEIGHT("ad_height=");
     beg = request.find(AD_WIDTH);
     if (beg != std::string::npos) {
       size_t separator = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
@@ -170,6 +170,7 @@ void Transaction::matchAds(const std::vector<Ad>& adVector) {
 }
 
 void Transaction::breakKeywords(std::string_view kwStr) {
+  static constexpr char KEYWORD_SEP = '+';
   utility::split(kwStr, _keywords, KEYWORD_SEP);
   std::sort(_keywords.begin(), _keywords.end());
 }
@@ -181,6 +182,7 @@ bool Transaction::parseKeywords(std::string_view start) {
   if (beg == std::string::npos)
     return false;
   beg += start.size();
+  static constexpr char KEYWORDS_END = '&';
   size_t end = _request.find(KEYWORDS_END, beg);
   if (end == std::string::npos)
     end = _request.size();

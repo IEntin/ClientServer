@@ -46,7 +46,4 @@ private:
   const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
   bool _invalid{ false };
-  static constexpr std::string_view EMPTY_REPLY{ "0, 0.0\n" };
-  static constexpr std::string_view INVALID_REQUEST{ " Invalid request\n" };
-  static constexpr std::string_view PROCESSING_ERROR{ " Processing error" };
 };

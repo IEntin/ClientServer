@@ -41,9 +41,10 @@ bool TcpAcceptor::start() {
 void TcpAcceptor::stop() {
   _stopped = true;
   boost::asio::post(_ioContext, [this] () {
-    auto self = shared_from_this();
-    _ioContext.stop();
-    _server.stopSessions();
+    if (auto self = shared_from_this(); self) {
+      _ioContext.stop();
+      _server.stopSessions();
+    }
   });
 }
 
