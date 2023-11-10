@@ -99,7 +99,10 @@ struct FifoNonblockingTest : testing::Test {
   bool send(std::string_view payload) {
     size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE };
-    return fifo::Fifo::sendMsg(_testFifo, header, payload);
+    return fifo::Fifo::sendMsg(_testFifo, header,
+			       ClientOptions::_ENXIOwait,
+			       ClientOptions::_numberRepeatENXIO,
+			       payload);
   }
   bool receive(std::vector<char>& received) {
     HEADER header;

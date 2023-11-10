@@ -48,7 +48,7 @@ void FifoSession::run() {
 
 void FifoSession::stop() {
   _stopped = true;
-  Fifo::onExit(_fifoName);
+  Fifo::onExit(_fifoName, ServerOptions::_ENXIOwait, ServerOptions::_numberRepeatENXIO);
 }
 
 bool FifoSession::receiveRequest(HEADER& header) {
@@ -76,13 +76,21 @@ bool FifoSession::sendResponse() {
   std::string_view body = serverutility::buildReply(_response, header, _status);
   if (body.empty())
     return false;
-  return Fifo::sendMsg(_fifoName, header, body);
+  return Fifo::sendMsg(_fifoName,
+		       header,
+		       ServerOptions::_ENXIOwait,
+		       ServerOptions::_numberRepeatENXIO,
+		       body);
 }
 
 bool FifoSession::sendStatusToClient() {
   unsigned size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(Options::_acceptorName, header, _clientId);
+  return Fifo::sendMsg(Options::_acceptorName,
+		       header,
+		       ServerOptions::_ENXIOwait,
+		       ServerOptions::_numberRepeatENXIO,
+		       _clientId);
 }
 
 } // end of namespace fifo

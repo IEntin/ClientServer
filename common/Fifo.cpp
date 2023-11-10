@@ -3,7 +3,6 @@
  */
 
 #include "Fifo.h"
-#include "Options.h"
 #include "Utility.h"
 #include <chrono>
 #include <fcntl.h>
@@ -61,8 +60,8 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
     LogError << name << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  if (Options::_setPipeSize)
-    setPipeSize(fd, Options::_pipeSize);
+  if (SET_PIPE_SIZE)
+    setPipeSize(fd, PIPE_SIZE);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -150,13 +149,15 @@ bool Fifo::writeString(int fd, std::string_view str) {
 
 bool Fifo::sendMsg(std::string_view name,
 		   const HEADER& header,
+		   int ENXIOwait,
+		   int numberRepeatENXIO,
 		   std::string_view body) {
-  int fdWrite = openWriteNonBlock(name);
+  int fdWrite = openWriteNonBlock(name, ENXIOwait, numberRepeatENXIO);
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
-  if (Options::_setPipeSize)
-    setPipeSize(fdWrite, Options::_pipeSize);
+  if (SET_PIPE_SIZE)
+    setPipeSize(fdWrite, PIPE_SIZE);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, header);
   return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
@@ -214,12 +215,12 @@ bool Fifo::setPipeSize(int fd, long requested) {
 }
 
 // unblock calls to blocking open read by opening opposite end.
-void Fifo::onExit(std::string_view fifoName) {
-  int fdWrite = openWriteNonBlock(fifoName);
+void Fifo::onExit(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO) {
+  int fdWrite = openWriteNonBlock(fifoName, ENXIOwait, numberRepeatENXIO);
   utility::CloseFileDescriptor cfdw(fdWrite);
 }
 
-int Fifo::openWriteNonBlock(std::string_view fifoName) {
+  int Fifo::openWriteNonBlock(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO) {
   int fd = -1;
   int rep = 0;
   do {
@@ -229,7 +230,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
     if (fd == -1) {
       switch (errno) {
       case ENXIO:
-	std::this_thread::sleep_for(std::chrono::milliseconds(Options::_ENXIOwait));
+	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
 	break;
       case ENOENT:
 	LogError << std::strerror(errno) << ' ' << fifoName << '\n';
@@ -238,9 +239,9 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 	return fd;
       }
     }
-  } while (fd == -1 && rep++ < Options::_numberRepeatENXIO);
-  if (fd != -1 && Options::_setPipeSize)
-    setPipeSize(fd, Options::_pipeSize);
+  } while (fd == -1 && rep++ < numberRepeatENXIO);
+  if (fd != -1 && SET_PIPE_SIZE)
+    setPipeSize(fd, PIPE_SIZE);
   return fd;
 }
 
@@ -250,8 +251,8 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1)
     Info << std::strerror(errno) << ' ' << fifoName << '\n';
-  if (Options::_setPipeSize)
-    setPipeSize(fd, Options::_pipeSize);
+  if (SET_PIPE_SIZE)
+    setPipeSize(fd, PIPE_SIZE);
   return fd;
 }
 

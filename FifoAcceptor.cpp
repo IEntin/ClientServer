@@ -6,8 +6,8 @@
 #include "Fifo.h"
 #include "FifoSession.h"
 #include "Logger.h"
-#include "Options.h"
 #include "Server.h"
+#include "ServerOptions.h"
 #include <cstring>
 #include <filesystem>
 #include <sys/stat.h>
@@ -60,7 +60,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  Fifo::onExit(Options::_acceptorName);
+  Fifo::onExit(Options::_acceptorName, ServerOptions::_ENXIOwait, ServerOptions::_numberRepeatENXIO);
 }
 
 void FifoAcceptor::removeFifoFiles() {

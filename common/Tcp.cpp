@@ -3,18 +3,19 @@
  */
 
 #include "Tcp.h"
-#include "ClientOptions.h"
 #include <boost/container/static_vector.hpp>
 
 namespace tcp {
 
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
 Tcp::setSocket(boost::asio::io_context& ioContext,
-	       boost::asio::ip::tcp::socket& socket) {
+	       boost::asio::ip::tcp::socket& socket,
+	       std::string_view serverAddress,
+	       std::string_view tcpService) {
   boost::asio::ip::tcp::resolver resolver(ioContext);
   boost::system::error_code ec;
   auto endpoint =
-    boost::asio::connect(socket, resolver.resolve(ClientOptions::_serverAddress, ClientOptions::_tcpService, ec));
+    boost::asio::connect(socket, resolver.resolve(serverAddress, tcpService, ec));
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)

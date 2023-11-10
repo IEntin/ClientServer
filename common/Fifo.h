@@ -23,10 +23,12 @@ class Fifo {
   static bool writeString(int fd, std::string_view str);
   static bool sendMsg(std::string_view name,
 		      const HEADER& header,
+		      int ENXIOwait,
+		      int numberRepeatENXIO,
 		      std::string_view body = {});
   static bool setPipeSize(int fd, long requested);
-  static void onExit(std::string_view fifoName);
-  static int openWriteNonBlock(std::string_view fifoName);
+  static void onExit(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO);
+  static int openWriteNonBlock(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO);
   static int openReadNonBlock(std::string_view fifoName);
 };
 

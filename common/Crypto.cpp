@@ -4,7 +4,6 @@
 
 #include "Crypto.h"
 #include "CommonConstants.h"
-#include "ServerOptions.h"
 #include "Utility.h"
 #include <cryptopp/files.h>
 #include <cryptopp/filters.h>
@@ -13,7 +12,7 @@
 #include <boost/algorithm/hex.hpp>
 #include <filesystem>
 
-CryptoPP::SecByteBlock CryptoKey::_key(ServerOptions::_cryptoKeySize);
+CryptoPP::SecByteBlock CryptoKey::_key(CRYPTO_KEY_SIZE);
 bool CryptoKey::_valid;
 
 void CryptoKey::showKey() {
@@ -33,8 +32,8 @@ bool CryptoKey::recover() {
   return _valid;
 }
 
-bool CryptoKey::initialize() {
-  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || ServerOptions::_invalidateKey) {
+bool CryptoKey::initialize(bool invalidateKey) {
+  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || invalidateKey) {
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(_key, _key.size());
     try {
@@ -64,12 +63,12 @@ bool CryptoKey::initialize() {
 
 // class Crypto
 
-std::string_view Crypto::encrypt(std::string_view data) {
+std::string_view Crypto::encrypt(std::string_view data, bool showKey) {
   const auto& key = CryptoKey::_key;
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
-  if (Options::_showKey)
+  if (showKey)
     static bool showOnce [[maybe_unused]] = showIv(iv);
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());

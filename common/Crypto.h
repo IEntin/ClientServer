@@ -10,7 +10,7 @@ struct CryptoKey {
   CryptoKey() = delete;
   ~CryptoKey() = delete;
   static void showKey();
-  static bool initialize();
+  static bool initialize(bool invalidateKey);
   static bool recover();
   static CryptoPP::SecByteBlock _key;
   static bool _valid;
@@ -18,7 +18,7 @@ struct CryptoKey {
 
 class Crypto {
  public:
-  static std::string_view encrypt(std::string_view data);
+  static std::string_view encrypt(std::string_view data, bool showKey);
 
   static std::string_view decrypt(std::string_view data);
 

@@ -5,13 +5,13 @@
 #include "ClientOptions.h"
 #include "AppOptions.h"
 #include "Compression.h"
-#include <iostream>
+#include "Logger.h"
 
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
 COMPRESSORS ClientOptions::_compressor;
 bool ClientOptions::_encrypted;
-std::string ClientOptions::_serverAddress;
+bool ClientOptions::_showKey;
 std::string ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
 std::ostream* ClientOptions::_instrStream;
@@ -22,6 +22,12 @@ bool ClientOptions::_heartbeatEnabled;
 bool ClientOptions::_diagnostics;
 bool ClientOptions::_runLoop;
 size_t ClientOptions::_bufferSize;
+bool ClientOptions::_timing;
+int ClientOptions::_numberRepeatENXIO;
+int ClientOptions::_ENXIOwait;
+std::string ClientOptions::_serverAddress;
+unsigned short ClientOptions::_tcpPort;
+std::string ClientOptions::_tcpService;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   AppOptions appOptions(jsonName);
@@ -31,7 +37,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _tcpClient = clientType == "TCP";
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", false);
-  _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
+  _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)
     _dataStream = externalDataStream;
@@ -57,4 +63,13 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);
   _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
+  _timing = appOptions.get("Timing", false);
+  // next 2 parameters may be decreased for better responsiveness
+  // or increased to prevent deadlocking on slow machines.
+  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
+  _ENXIOwait = appOptions.get("ENXIOwai", 10);
+  _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
+  _tcpPort = appOptions.get("TcpPort", 49151);
+  _tcpService = std::to_string(_tcpPort);
+  Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

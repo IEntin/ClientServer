@@ -5,7 +5,8 @@
 #pragma once
 
 #include "Options.h"
-#include <fstream>
+
+enum class COMPRESSORS : char;
 
 struct ClientOptions : Options {
   ClientOptions() = delete;
@@ -15,7 +16,7 @@ struct ClientOptions : Options {
   static bool _tcpClient;
   static COMPRESSORS _compressor;
   static bool _encrypted;
-  static std::string _serverAddress;
+  static bool _showKey;
   static std::string _sourceName;
   static std::ostream* _dataStream;
   static std::ostream* _instrStream;
@@ -28,4 +29,10 @@ struct ClientOptions : Options {
   static bool _diagnostics;
   static bool _runLoop;
   static size_t _bufferSize;
+  static bool _timing;
+  static int _numberRepeatENXIO;
+  static int _ENXIOwait;
+  static std::string _serverAddress;
+  static unsigned short _tcpPort;
+  static std::string _tcpService;
 };

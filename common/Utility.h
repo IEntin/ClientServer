@@ -4,12 +4,11 @@
 
 #pragma once
 
+#include "CommonConstants.h"
 #include "Logger.h"
 #include <charconv>
 #include <cstring>
 #include <tuple>
-
-constexpr int CONV_BUFFER_SIZE = 10;
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 

@@ -3,8 +3,8 @@
  */
 
 #include "TcpAcceptor.h"
-#include "Options.h"
 #include "Server.h"
+#include "ServerOptions.h"
 #include "TcpSession.h"
 #include "Tcp.h"
 
@@ -19,7 +19,7 @@ TcpAcceptor::~TcpAcceptor() {
 }
 
 bool TcpAcceptor::start() {
-  boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), Options::_tcpPort);
+  boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), ServerOptions::_tcpPort);
   boost::system::error_code ec;
   _acceptor.open(boost::asio::ip::tcp::v4(), ec);
   if (!ec)
@@ -32,7 +32,7 @@ bool TcpAcceptor::start() {
     boost::asio::post(_ioContext, [this] { accept(); });
   }
   if (ec) {
-    LogError << ec.what() << " tcpPort=" << Options::_tcpPort << '\n';
+    LogError << ec.what() << " tcpPort=" << ServerOptions::_tcpPort << '\n';
     return false;
   }
   return true;

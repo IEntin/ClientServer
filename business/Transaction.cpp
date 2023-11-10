@@ -10,29 +10,20 @@
 #include <functional>
 #include <iomanip>
 
-namespace {
-
-constexpr std::string_view INVALID_REQUEST(" Invalid request\n");
-constexpr std::string_view EMPTY_REPLY("0, 0.0\n");
-
-} // end of anonimous namespace
-
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
 Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) :
   _sizeKey(sizeKey)  {
-  if (_sizeKey == SIZETUPLE()) {
+  if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
-    LogError << "invalid request, sizeKey is empty, input:" << input << '\n';
+    LogError << "invalid request, sizeKey is default, input:" << input << '\n';
     return;
   }
   size_t pos = input.find(']');
-  if (pos != std::string::npos && input[0] == '[') {
+  if (pos != std::string_view::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
     _request = { input.data() + pos + 1, input.size() - pos - 1 };
-    static constexpr std::string_view START_KEYWORDS1("kw=");
-    static constexpr std::string_view START_KEYWORDS2("keywords=");
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }
@@ -49,10 +40,10 @@ std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
   static thread_local std::string output;
   output.erase(output.begin(), output.end());
   Transaction transaction(sizeKey, request);
-  if (request.empty() || sizeKey == SIZETUPLE()) {
-    LogError << "request is empty" << '\n';
+  if (request.empty()) {
+    LogError << "request is empty." << '\n';
     transaction._invalid = true;
-    output.append(transaction._id);
+    output.append("[unknown]");
     output.append(INVALID_REQUEST);
     return output;
   }
@@ -79,50 +70,45 @@ std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
 }
 
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
-  // size format: 728x90
-  static constexpr std::string_view SIZE_START("size=");
-  static constexpr char SIZE_END('&');
+  // size format as in "728x90"
   size_t beg = request.find(SIZE_START);
-  if (beg != std::string::npos) {
+  if (beg != std::string_view::npos) {
     beg += SIZE_START.size();
     size_t end = request.find(SIZE_END, beg + 1);
-    if (end == std::string::npos)
+    if (end == std::string_view::npos)
       end = request.size();
     std::string_view keyData{ request.data() + beg, end - beg };
-    size_t posx = keyData.find('x');
+    size_t posx = keyData.find(SIZE_SEPARATOR);
     std::string_view widthView(keyData.cbegin(), std::next(keyData.cbegin(), posx));
-   unsigned width = 0;
-    utility::fromChars(widthView, width);
+    unsigned width = 0;
+    utility::fromChars(widthView, width); // may throw
     std::string_view heightView(std::next(keyData.cbegin(), + posx + 1), keyData.cend());
     unsigned height = 0;
-    utility::fromChars(heightView, height);
+    utility::fromChars(heightView, height); // may throw
     return { width, height };
   }
   else {
-    // alternative size format: ad_width=300&ad_height=250
-    // converted to previous
-    static constexpr std::string_view AD_WIDTH("ad_width=");
-    static constexpr std::string_view AD_HEIGHT("ad_height=");
+    // alternative size format as in "ad_width=300&ad_height=250"
     beg = request.find(AD_WIDTH);
-    if (beg != std::string::npos) {
-      size_t separator = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
-      if (separator != std::string::npos) {
+    if (beg != std::string_view::npos) {
+      size_t separatorPos = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
+      if (separatorPos != std::string_view::npos) {
 	size_t offset = beg + AD_WIDTH.size();
-	std::string_view widthView(request.data() + offset, separator - offset);
+	std::string_view widthView(request.data() + offset, separatorPos - offset);
 	unsigned width = 0;
-	utility::fromChars(widthView, width);
-	size_t begHeight = request.find(AD_HEIGHT, separator + 1);
-	if (begHeight != std::string::npos) {
+	utility::fromChars(widthView, width); // may throw
+	size_t begHeight = request.find(AD_HEIGHT, separatorPos + 1);
+	if (begHeight != std::string_view::npos) {
 	  offset = begHeight + AD_HEIGHT.size();
-	  size_t heightSize = std::string::npos;
+	  size_t fieldLength = 0;
 	  size_t end = request.find(SIZE_END, offset + 1);
-	  if (end != std::string::npos)
-	    heightSize = end - offset;
+	  if (end != std::string_view::npos)
+	    fieldLength = end - offset;
 	  else
-	    heightSize = request.size() - offset;
-	  std::string_view heightView(request.data() + offset, heightSize);
+	    fieldLength = request.size() - offset;
+	  std::string_view heightView(request.data() + offset, fieldLength);
 	  unsigned height = 0;
-	  utility::fromChars(heightView, height);
+	  utility::fromChars(heightView, height); // may throw
 	  return { width, height };
 	}
       }
@@ -170,7 +156,6 @@ void Transaction::matchAds(const std::vector<Ad>& adVector) {
 }
 
 void Transaction::breakKeywords(std::string_view kwStr) {
-  static constexpr char KEYWORD_SEP = '+';
   utility::split(kwStr, _keywords, KEYWORD_SEP);
   std::sort(_keywords.begin(), _keywords.end());
 }
@@ -179,19 +164,18 @@ void Transaction::breakKeywords(std::string_view kwStr) {
 // format2 - keywords=cars+mazda, & - ending
 bool Transaction::parseKeywords(std::string_view start) {
   size_t beg = _request.find(start);
-  if (beg == std::string::npos)
+  if (beg == std::string_view::npos)
     return false;
   beg += start.size();
-  static constexpr char KEYWORDS_END = '&';
   size_t end = _request.find(KEYWORDS_END, beg);
-  if (end == std::string::npos)
+  if (end == std::string_view::npos)
     end = _request.size();
   std::string_view kwStr(_request.data() + beg, end - beg);
   breakKeywords(kwStr);
   return true;
 }
 
-// This code deliberately avoids ostream usage to prevent
+// This code is not using ostream operator<< to prevent
 // unreasonable number of memory allocations and negative
 // performance impact
 
