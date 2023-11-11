@@ -9,6 +9,8 @@
 #include <thread>
 
 std::string ServerOptions::_adsFileName;
+std::string ServerOptions::_fifoDirectoryName;
+std::string ServerOptions::_acceptorName;
 COMPRESSORS ServerOptions::_compressor;
 bool ServerOptions::_encrypted;
 bool ServerOptions::_invalidateKey;
@@ -26,8 +28,9 @@ int ServerOptions::_ENXIOwait;
 
 void ServerOptions::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
-  Options::parse(appOptions);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
+  _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
+  _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", false);
   _invalidateKey = appOptions.get("InvalidateKey", false);

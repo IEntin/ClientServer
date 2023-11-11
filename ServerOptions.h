@@ -4,15 +4,17 @@
 
 #pragma once
 
-#include "Options.h"
+#include <filesystem>
 
 enum class COMPRESSORS : char;
 
-struct ServerOptions : Options {
+struct ServerOptions {
   ServerOptions() = delete;
   ~ServerOptions() = delete;
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
+  static std::string _fifoDirectoryName;
+  static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
   static bool _invalidateKey;

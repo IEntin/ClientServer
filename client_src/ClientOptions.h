@@ -4,16 +4,18 @@
 
 #pragma once
 
-#include "Options.h"
+#include <filesystem>
 
 enum class COMPRESSORS : char;
 
-struct ClientOptions : Options {
+struct ClientOptions {
   ClientOptions() = delete;
   ~ClientOptions() = delete;
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;
+  static std::string _fifoDirectoryName;
+  static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
   static bool _showKey;

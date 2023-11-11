@@ -29,7 +29,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
     return HEADERTYPE::ERROR;
   HEADER header;
   std::string body;
-  if (!Fifo::readMsgBlock(Options::_acceptorName, header, body))
+  if (!Fifo::readMsgBlock(ServerOptions::_acceptorName, header, body))
     return HEADERTYPE::ERROR;
   return extractHeaderType(header);
 }
@@ -51,8 +51,8 @@ void FifoAcceptor::run() {
 bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
-  if (mkfifo(Options::_acceptorName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << Options::_acceptorName << '\n';
+  if (mkfifo(ServerOptions::_acceptorName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << ServerOptions::_acceptorName << '\n';
     return false;
   }
   return true;
@@ -60,11 +60,11 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  Fifo::onExit(Options::_acceptorName, ServerOptions::_ENXIOwait, ServerOptions::_numberRepeatENXIO);
+  Fifo::onExit(ServerOptions::_acceptorName, ServerOptions::_ENXIOwait, ServerOptions::_numberRepeatENXIO);
 }
 
 void FifoAcceptor::removeFifoFiles() {
-  for(auto const& entry : std::filesystem::directory_iterator(Options::_fifoDirectoryName))
+  for(auto const& entry : std::filesystem::directory_iterator(ServerOptions::_fifoDirectoryName))
     if (entry.is_fifo())
       std::filesystem::remove(entry);
 }

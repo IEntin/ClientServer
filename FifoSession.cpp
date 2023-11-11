@@ -25,7 +25,7 @@ FifoSession::~FifoSession() {
 
 bool FifoSession::start() {
   _clientId = utility::getUniqueId();
-  _fifoName = Options::_fifoDirectoryName + '/' + _clientId;
+  _fifoName = ServerOptions::_fifoDirectoryName + '/' + _clientId;
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     LogError << std::strerror(errno) << '-' << _fifoName << '\n';
     return false;
@@ -86,7 +86,7 @@ bool FifoSession::sendResponse() {
 bool FifoSession::sendStatusToClient() {
   unsigned size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(Options::_acceptorName,
+  return Fifo::sendMsg(ServerOptions::_acceptorName,
 		       header,
 		       ServerOptions::_ENXIOwait,
 		       ServerOptions::_numberRepeatENXIO,
