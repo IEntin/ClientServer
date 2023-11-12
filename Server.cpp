@@ -50,8 +50,7 @@ void Server::stop() {
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();
-  if (ServerOptions::_invalidateKey)
-    std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+  std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
 }
 
 bool Server::startSession(RunnablePtr session) {

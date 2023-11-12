@@ -12,6 +12,7 @@ struct CryptoKey {
   static void showKey();
   static bool initialize(const struct ServerOptions& options);
   static bool recover();
+  static int _cryptoKeySize;
   static CryptoPP::SecByteBlock _key;
   static bool _valid;
 };

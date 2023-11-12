@@ -12,7 +12,7 @@
 #include <boost/algorithm/hex.hpp>
 #include <filesystem>
 
-static int cryptoKeySize;
+int CryptoKey::_cryptoKeySize;
 CryptoPP::SecByteBlock CryptoKey::_key;
 bool CryptoKey::_valid;
 
@@ -36,35 +36,30 @@ bool CryptoKey::recover() {
 // ServerOptions for tests contains different values.
 // Cannot use ServerOptions directly, pass it as a parameter.
 bool CryptoKey::initialize(const ServerOptions& options) {
-  cryptoKeySize = options._cryptoKeySize;
-  _key.resize(cryptoKeySize);
-  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME) || options._invalidateKey) {
-    CryptoPP::AutoSeededRandomPool prng;
-    prng.GenerateBlock(_key, _key.size());
-    try {
-      std::ofstream stream;
-      stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-      stream.open(CRYPTO_KEY_FILE_NAME, std::ios::binary);
-      std::filesystem::permissions(
-	CRYPTO_KEY_FILE_NAME,
-	std::filesystem::perms::owner_read |
-	std::filesystem::perms::owner_write |
-	std::filesystem::perms::group_read,
-	std::filesystem::perm_options::replace);
-      if (stream) {
-	stream.write(reinterpret_cast<const char*>(_key.data()), _key.size());
-	_valid = true;
-      }
-    }
-    catch (const std::exception& e) {
-      LogError << e.what() << '\n';
+  _cryptoKeySize = options._cryptoKeySize;
+  _key.resize(_cryptoKeySize);
+  CryptoPP::AutoSeededRandomPool prng;
+  prng.GenerateBlock(_key, _key.size());
+  try {
+    std::ofstream stream;
+    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    stream.open(CRYPTO_KEY_FILE_NAME, std::ios::binary);
+    std::filesystem::permissions(
+      CRYPTO_KEY_FILE_NAME,
+      std::filesystem::perms::owner_read |
+      std::filesystem::perms::owner_write |
+      std::filesystem::perms::group_read,
+      std::filesystem::perm_options::replace);
+    if (stream) {
+      stream.write(reinterpret_cast<const char*>(_key.data()), _key.size());
+      _valid = true;
     }
   }
-  else
-    _valid = recover();
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+  }
   return _valid;
 }
-
 
 // class Crypto
 

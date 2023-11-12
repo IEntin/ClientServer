@@ -7,11 +7,8 @@ one has to be a superuser to do that,current source is cryptopp880.zip.\
 Then run deploy.sh script in the project root.\
 Run './makeCrypto.sh -h' and './deploy.sh -h' to see the details.\
 Crypto file .cryptoKey.sec is created by the server and must be distributed\
-securely to the clients after server startup but\
-before clients are started. Use copyCryptoKey.sh to distribute the key\
-to clients after server startup. Optionally key is generated every time the server\
-starts and clients need to use a new key every time. By default however, the key is\
-valid until erased (the setting "InvalidateKey" is false in ServerOptions.json).\
+securely to the clients after server startup but before clients started.\
+Use copyCryptoKey.sh to distribute the key to clients after server startup.\
 Test scripts refresh keys internally. Note that crypto initialization vector iv\
 is generated anew for every message being encrypted and sent for further processing\
 inside the message.
@@ -22,7 +19,7 @@ must be used in a production system.
 
 Prerequisites:
 
-Header only boost libraries, currently boost 1_82.
+Header only boost libraries, currently boost 1_83.
 
 google tests must be installed:\
 sudo apt-get install libgtest-dev\

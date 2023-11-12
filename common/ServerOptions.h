@@ -18,7 +18,6 @@ struct ServerOptions {
   static COMPRESSORS _compressor;
   static bool _encrypted;
   static int _cryptoKeySize;
-  static bool _invalidateKey;
   static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;
