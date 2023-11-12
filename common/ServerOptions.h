@@ -9,14 +9,15 @@
 enum class COMPRESSORS : char;
 
 struct ServerOptions {
-  ServerOptions() = delete;
-  ~ServerOptions() = delete;
+  ServerOptions() {}
+  ~ServerOptions() {}
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
+  static int _cryptoKeySize;
   static bool _invalidateKey;
   static bool _showKey;
   static int _numberWorkThreads;

@@ -27,7 +27,7 @@ class Runnable {
   virtual unsigned getNumberRunningByType() const { return 0; }
   virtual bool sendStatusToClient() { return true; }
   virtual std::string_view getDisplayName() const { return _emptyView; }
-  std::string_view getType() const;
+  std::string getType() const;
   void displayCapacityCheck(std::atomic<unsigned>&) const;
   std::atomic<STATUS>& getStatus() { return _status; }
   bool checkCapacity();

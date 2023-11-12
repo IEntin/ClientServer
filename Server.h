@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Chronometer.h"
 #include "ThreadPoolDiffObj.h"
 #include <map>
 
@@ -19,6 +20,7 @@ public:
   bool startSession(RunnablePtr session);
   void stopSessions();
 private:
+  Chronometer _chronometer;
   SessionMap _sessions;
   ThreadPoolBase _threadPoolAcceptor;
   ThreadPoolDiffObj _threadPoolSession;

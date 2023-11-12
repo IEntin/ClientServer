@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Chronometer.h"
 #include "ThreadPoolBase.h"
 
 struct Subtask;
@@ -22,7 +23,7 @@ class Client {
   void displayMaxTotalSessionsWarn();
   void displayMaxSessionsOfTypeWarn(std::string_view type);
   bool displayStatus(STATUS status);
-
+  Chronometer _chronometer;
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;

@@ -5,6 +5,8 @@
   "NumberWorkThreads" : 0,
   "Compression" : "LZ4",
   "Encrypted" : true,
+  "_comment" : "32 or 16",
+  "CyptoKeySize" : 32,
   "_comment": "if true regenerates crypto key and iv on restart.",
   "InvalidateKey" : false,
   "_comment": "if true logs crypto key and iv.",

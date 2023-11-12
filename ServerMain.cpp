@@ -32,21 +32,14 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions::parse("ServerOptions.json");
-    // optionally record elapsed times
-    Chronometer chronometer(ServerOptions::_timing, __FILE__, __LINE__);
-    {
-      Server server(std::make_unique<TransactionStrategy>());
-      if (!server.start())
-	return 3;
-      int sig = 0;
-      if (sigwait(&set, &sig))
-	LogError << strerror(errno) << '\n';
-      if (ServerOptions::_invalidateKey) {
-	std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
-      }
-      Metrics::save();
-      server.stop();
-    }
+    Server server(std::make_unique<TransactionStrategy>());
+    if (!server.start())
+      return 3;
+    int sig = 0;
+    if (sigwait(&set, &sig))
+      LogError << strerror(errno) << '\n';
+    Metrics::save();
+    server.stop();
     int closed = fcloseall();
     assert(closed == 0);
     return 0;

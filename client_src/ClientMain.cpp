@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Metrics.h"
 #include "FifoClient.h"
@@ -28,7 +27,6 @@ int main() {
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
   ClientOptions::parse("ClientOptions.json");
-  Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__);
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;

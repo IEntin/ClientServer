@@ -13,6 +13,7 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 
 Server::Server(StrategyPtr strategy) :
+  _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
   _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient),
   _strategy(std::move(strategy)) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
@@ -25,7 +26,7 @@ Server::~Server() {
 
 bool Server::start() {
   _strategy->set();
-  CryptoKey::initialize(ServerOptions::_invalidateKey);
+  CryptoKey::initialize(ServerOptions());
   if (ServerOptions::_showKey)
     CryptoKey::showKey();
   if (!TaskController::create())
@@ -49,6 +50,8 @@ void Server::stop() {
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();
+  if (ServerOptions::_invalidateKey)
+    std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
 }
 
 bool Server::startSession(RunnablePtr session) {

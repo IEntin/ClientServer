@@ -43,6 +43,4 @@ constexpr bool SET_PIPE_SIZE = true;
 
 constexpr size_t PIPE_SIZE = 1000000;
 
-constexpr int CRYPTO_KEY_SIZE = 32;
-
 const std::string CRYPTO_KEY_FILE_NAME = ".cryptoKey.sec";

@@ -1,7 +1,7 @@
 /*
  *  Copyright (C) 2021 Ilya Entin
  */
-
+#include <boost/core/demangle.hpp>
 #include "Runnable.h"
 #include "Logger.h"
 
@@ -15,8 +15,9 @@ bool Runnable::checkCapacity() {
   return true;
 }
 
-std::string_view Runnable::getType() const {
-  return typeid(*this).name();
+std::string Runnable::getType() const {
+  const auto& refObject = *this;
+  return boost::core::demangle(typeid(refObject).name());
 }
 
 void Runnable::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {

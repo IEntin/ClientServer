@@ -10,11 +10,13 @@ using StrategyPtr = std::unique_ptr<class Strategy>;
 
 class Strategy {
 
- public:
+protected:
 
   Strategy() = default;
 
-  virtual ~Strategy() {};
+public:
+
+  virtual ~Strategy() {}
 
   virtual void set() = 0;
 

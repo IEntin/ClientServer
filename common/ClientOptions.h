@@ -9,8 +9,8 @@
 enum class COMPRESSORS : char;
 
 struct ClientOptions {
-  ClientOptions() = delete;
-  ~ClientOptions() = delete;
+  ClientOptions() {}
+  ~ClientOptions() {}
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;

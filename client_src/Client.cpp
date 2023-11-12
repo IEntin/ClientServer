@@ -3,7 +3,6 @@
  */
 
 #include "Client.h"
-#include "Chronometer.h"
 #include "ClientOptions.h"
 #include "Crypto.h"
 #include "PayloadTransform.h"
@@ -11,7 +10,8 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
-Client::Client() {}
+Client::Client() :
+  _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {}
 
 Client::~Client() {
   stop();

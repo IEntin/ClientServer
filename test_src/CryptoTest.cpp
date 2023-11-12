@@ -17,7 +17,7 @@ TEST(CryptoTest, 1) {
   // AES encryption uses a secret key of a variable length. This key is secretly
   // exchanged between two parties before communication begins.
   std::string_view data = TestEnvironment::_source;
-  CryptoKey::initialize(ServerOptions::_invalidateKey);
+  CryptoKey::initialize(ServerOptions());
   std::string_view cipher = Crypto::encrypt(data, false);
   std::string_view decrypted = Crypto::decrypt(cipher);
   ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
@@ -28,7 +28,7 @@ TEST(CryptoTest, 1) {
 struct PayloadTransformTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
     std::string data = TestEnvironment::_source;
-    CryptoKey::initialize(ServerOptions::_invalidateKey);
+    CryptoKey::initialize(ServerOptions());
     ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
     HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE};
