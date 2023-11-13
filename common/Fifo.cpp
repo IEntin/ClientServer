@@ -3,6 +3,8 @@
  */
 
 #include "Fifo.h"
+#include "ClientOptions.h"
+#include "ServerOptions.h"
 #include "Utility.h"
 #include <chrono>
 #include <fcntl.h>
@@ -148,11 +150,10 @@ bool Fifo::writeString(int fd, std::string_view str) {
 }
 
 bool Fifo::sendMsg(std::string_view name,
+		   const std::any& options,
 		   const HEADER& header,
-		   int ENXIOwait,
-		   int numberRepeatENXIO,
 		   std::string_view body) {
-  int fdWrite = openWriteNonBlock(name, ENXIOwait, numberRepeatENXIO);
+  int fdWrite = openWriteNonBlock(name, options);
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
@@ -215,12 +216,30 @@ bool Fifo::setPipeSize(int fd, long requested) {
 }
 
 // unblock calls to blocking open read by opening opposite end.
-void Fifo::onExit(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO) {
-  int fdWrite = openWriteNonBlock(fifoName, ENXIOwait, numberRepeatENXIO);
+void Fifo::onExit(std::string_view fifoName, const std::any& options) {
+  int fdWrite = openWriteNonBlock(fifoName, options);
   utility::CloseFileDescriptor cfdw(fdWrite);
 }
 
-  int Fifo::openWriteNonBlock(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO) {
+int Fifo::openWriteNonBlock(std::string_view fifoName, const std::any& options) {
+  int numberRepeatENXIO = 0;
+  int ENXIOwait = 0;
+  try {
+    if (options.type() == typeid(ServerOptions)) {
+      const ServerOptions& serverOptions = std::any_cast<const ServerOptions&>(options);
+      numberRepeatENXIO = serverOptions._numberRepeatENXIO;
+      ENXIOwait = serverOptions._ENXIOwait;
+    }
+    else {
+      const ClientOptions& clientOptions = std::any_cast<const ClientOptions&>(options);
+      numberRepeatENXIO = clientOptions._numberRepeatENXIO;
+      ENXIOwait = clientOptions._ENXIOwait;
+    }
+  }
+  catch (const std::bad_any_cast& e) {
+    LogError << e.what() << '\n';
+    return -1;
+  }
   int fd = -1;
   int rep = 0;
   do {

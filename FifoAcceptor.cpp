@@ -60,7 +60,8 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  Fifo::onExit(ServerOptions::_acceptorName, ServerOptions::_ENXIOwait, ServerOptions::_numberRepeatENXIO);
+  const std::any& options = ServerOptions();
+  Fifo::onExit(ServerOptions::_acceptorName, options);
 }
 
 void FifoAcceptor::removeFifoFiles() {

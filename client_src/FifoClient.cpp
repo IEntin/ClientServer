@@ -22,7 +22,8 @@ FifoClient::FifoClient() {
 }
 
 FifoClient::~FifoClient() {
-  Fifo::onExit(_fifoName, ClientOptions::_ENXIOwait, ClientOptions::_numberRepeatENXIO);
+  const std::any& options = ClientOptions();
+  Fifo::onExit(_fifoName, options);
   Trace << '\n';
 }
 
@@ -35,16 +36,17 @@ bool FifoClient::send(const Subtask& subtask) {
   std::string_view body(subtask._body.data(), subtask._body.size());
   while (true) {
     if (_signalFlag) {
-      Fifo::onExit(_fifoName, ClientOptions::_ENXIOwait, ClientOptions::_numberRepeatENXIO);
+      const std::any& options = ClientOptions();
+      Fifo::onExit(_fifoName, options);
       std::error_code ec;
       std::filesystem::remove(_fifoName, ec);
       if (ec)
 	LogError << ec.message() << '\n';
     }
+    const std::any& options = ClientOptions();
     if (Fifo::sendMsg(_fifoName,
+		      options,
 		      subtask._header,
-		      ClientOptions::_ENXIOwait,
-		      ClientOptions::_numberRepeatENXIO,
 		      body))
       return true;
     // waiting client
@@ -68,10 +70,8 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(ClientOptions::_acceptorName,
-		       header,
-		       ClientOptions::_ENXIOwait,
-		       ClientOptions::_numberRepeatENXIO);
+  const std::any& options = ClientOptions();
+  return Fifo::sendMsg(ClientOptions::_acceptorName, options, header);
 }
 
 bool FifoClient::receiveStatus() {

@@ -6,6 +6,7 @@
 
 #include "Header.h"
 #include <string_view>
+#include <any>
 #include <vector>
 
 namespace fifo {
@@ -22,13 +23,12 @@ class Fifo {
   static bool readMsgBlock(std::string_view name, HEADER& header, std::string& body);
   static bool writeString(int fd, std::string_view str);
   static bool sendMsg(std::string_view name,
+		      const std::any& options,
 		      const HEADER& header,
-		      int ENXIOwait,
-		      int numberRepeatENXIO,
 		      std::string_view body = {});
   static bool setPipeSize(int fd, long requested);
-  static void onExit(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO);
-  static int openWriteNonBlock(std::string_view fifoName, int ENXIOwait, int numberRepeatENXIO);
+  static void onExit(std::string_view fifoName, const std::any& options);
+  static int openWriteNonBlock(std::string_view fifoName, const std::any& options);
   static int openReadNonBlock(std::string_view fifoName);
 };
 
