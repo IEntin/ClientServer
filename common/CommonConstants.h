@@ -39,8 +39,4 @@ constexpr char SIZE_END('&');
 
 constexpr char SIZE_SEPARATOR('x');
 
-constexpr bool SET_PIPE_SIZE = true;
-
-constexpr size_t PIPE_SIZE = 1000000;
-
 const std::string CRYPTO_KEY_FILE_NAME = ".cryptoKey.sec";

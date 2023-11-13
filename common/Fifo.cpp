@@ -14,8 +14,11 @@
 
 namespace fifo {
 
-bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<char>& body) {
-  int fdRead = openReadNonBlock(name);
+bool Fifo::readMsgNonBlock(std::string_view name,
+			   const std::any& options,
+			   HEADER& header,
+			   std::vector<char>& body) {
+  int fdRead = openReadNonBlock(name, options);
   utility::CloseFileDescriptor cfdr(fdRead);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
@@ -32,7 +35,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
     }
     else if (result == 0) {
       int fdOld = fdRead;
-      fdRead = openReadNonBlock(name);
+      fdRead = openReadNonBlock(name, options);
       if (fdOld != -1)
 	close(fdOld);
       continue;
@@ -55,15 +58,17 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
   return readString(fdRead, body.data(), payloadSize);
 }
 
-bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
+  bool Fifo::readMsgBlock(std::string_view name,
+			  const std::any& options,
+			  HEADER& header,
+			  std::string& body) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1) {
     LogError << name << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  if (SET_PIPE_SIZE)
-    setPipeSize(fd, PIPE_SIZE);
+  setPipeSize(fd, options);
   size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -157,8 +162,7 @@ bool Fifo::sendMsg(std::string_view name,
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
-  if (SET_PIPE_SIZE)
-    setPipeSize(fdWrite, PIPE_SIZE);
+  setPipeSize(fdWrite, options);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, header);
   return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
@@ -191,14 +195,34 @@ short Fifo::pollFd(int fd, short expected) {
     return -1;
 }
 
-bool Fifo::setPipeSize(int fd, long requested) {
+bool Fifo::setPipeSize(int fd, const std::any& options) {
+  bool setPipeBufferSize;
+  long pipeSize;
+  try {
+    if (options.type() == typeid(ServerOptions)) {
+      const ServerOptions& serverOptions = std::any_cast<const ServerOptions&>(options);
+      setPipeBufferSize = serverOptions._setPipeSize;
+      pipeSize = serverOptions._pipeSize;
+    }
+    else {
+      const ClientOptions& clientOptions = std::any_cast<const ClientOptions&>(options);
+      setPipeBufferSize = clientOptions._setPipeSize;
+      pipeSize = clientOptions._pipeSize;
+    }
+  }
+  catch (const std::bad_any_cast& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+  if (!setPipeBufferSize)
+    return false;
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1) {
     LogError << std::strerror(errno) << '\n';
     return false;
   }
-  if (requested > currentSz) {
-    int ret = fcntl(fd, F_SETPIPE_SZ, requested);
+  if (pipeSize > currentSz) {
+    int ret = fcntl(fd, F_SETPIPE_SZ, pipeSize);
     if (ret < 0) {
       static auto& printOnce[[maybe_unused]] =
 	Info << std::strerror(errno) << ":\n"
@@ -210,7 +234,7 @@ bool Fifo::setPipeSize(int fd, long requested) {
       Info << std::strerror(errno) << '\n';
       return false;
     }
-    return newSz >= requested || requested < currentSz;
+    return newSz >= pipeSize || pipeSize < currentSz;
   }
   return false;
 }
@@ -259,19 +283,18 @@ int Fifo::openWriteNonBlock(std::string_view fifoName, const std::any& options) 
       }
     }
   } while (fd == -1 && rep++ < numberRepeatENXIO);
-  if (fd != -1 && SET_PIPE_SIZE)
-    setPipeSize(fd, PIPE_SIZE);
+  if (fd != -1)
+    setPipeSize(fd, options);
   return fd;
 }
 
-int Fifo::openReadNonBlock(std::string_view fifoName) {
+int Fifo::openReadNonBlock(std::string_view fifoName, const std::any& options) {
   if (!std::filesystem::exists(fifoName))
     return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd == -1)
     Info << std::strerror(errno) << ' ' << fifoName << '\n';
-  if (SET_PIPE_SIZE)
-    setPipeSize(fd, PIPE_SIZE);
+  setPipeSize(fd, options);
   return fd;
 }
 

@@ -29,7 +29,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
     return HEADERTYPE::ERROR;
   HEADER header;
   std::string body;
-  if (!Fifo::readMsgBlock(ServerOptions::_acceptorName, header, body))
+  if (!Fifo::readMsgBlock(ServerOptions::_acceptorName, ServerOptions::_self, header, body))
     return HEADERTYPE::ERROR;
   return extractHeaderType(header);
 }
@@ -60,8 +60,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  const std::any& options = ServerOptions();
-  Fifo::onExit(ServerOptions::_acceptorName, options);
+  Fifo::onExit(ServerOptions::_acceptorName, ServerOptions::_self);
 }
 
 void FifoAcceptor::removeFifoFiles() {

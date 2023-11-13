@@ -4,13 +4,17 @@
 
 #pragma once
 
+#include <any>
 #include <filesystem>
 
 enum class COMPRESSORS : char;
 
 struct ServerOptions {
-  ServerOptions() {}
+  ServerOptions() {
+    _self = *this;
+  }
   ~ServerOptions() {}
+  static std::any _self;
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
   static std::string _fifoDirectoryName;
@@ -29,4 +33,6 @@ struct ServerOptions {
   static bool _timing;
   static int _numberRepeatENXIO;
   static int _ENXIOwait;
+  static bool _setPipeSize;
+  static size_t _pipeSize;
 };

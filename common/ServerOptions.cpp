@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include <thread>
 
+std::any ServerOptions::_self;
 std::string ServerOptions::_adsFileName;
 std::string ServerOptions::_fifoDirectoryName;
 std::string ServerOptions::_acceptorName;
@@ -25,6 +26,8 @@ bool ServerOptions::_sortInput;
 bool ServerOptions::_timing;
 int ServerOptions::_numberRepeatENXIO;
 int ServerOptions::_ENXIOwait;
+bool ServerOptions::_setPipeSize;
+size_t ServerOptions::_pipeSize;
 
 void ServerOptions::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
@@ -48,5 +51,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
   _ENXIOwait = appOptions.get("ENXIOwai", 10);
+  _setPipeSize = appOptions.get("SetPipeSize", true);
+  _pipeSize = appOptions.get("PipeSize", 1000000);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

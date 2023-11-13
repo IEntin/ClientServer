@@ -7,7 +7,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-
+std::any ClientOptions::_self;
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
 std::string  ClientOptions::_fifoDirectoryName;
@@ -28,6 +28,8 @@ size_t ClientOptions::_bufferSize;
 bool ClientOptions::_timing;
 int ClientOptions::_numberRepeatENXIO;
 int ClientOptions::_ENXIOwait;
+bool ClientOptions::_setPipeSize;
+size_t ClientOptions::_pipeSize;
 std::string ClientOptions::_serverAddress;
 unsigned short ClientOptions::_tcpPort;
 std::string ClientOptions::_tcpService;
@@ -72,6 +74,8 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
   _ENXIOwait = appOptions.get("ENXIOwai", 10);
+  _setPipeSize = appOptions.get("SetPipeSize", true);
+  _pipeSize = appOptions.get("PipeSize", 1000000);
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
   _tcpPort = appOptions.get("TcpPort", 49151);
   _tcpService = std::to_string(_tcpPort);

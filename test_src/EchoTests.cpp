@@ -92,19 +92,18 @@ struct FifoNonblockingTest : testing::Test {
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
- }
+  }
   ~FifoNonblockingTest() {
     std::filesystem::remove(_testFifo);
   }
   bool send(std::string_view payload) {
     size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE };
-    const std::any& options = ClientOptions();
-    return fifo::Fifo::sendMsg(_testFifo, options, header, payload);
+    return fifo::Fifo::sendMsg(_testFifo, ClientOptions::_self, header, payload);
   }
   bool receive(std::vector<char>& received) {
     HEADER header;
-    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
+    return fifo::Fifo::readMsgNonBlock(_testFifo, ClientOptions::_self, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
