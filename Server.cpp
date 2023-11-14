@@ -27,7 +27,7 @@ Server::~Server() {
 bool Server::start() {
   _strategy->set();
   try {
-    CryptoKey::initialize(std::any_cast<ServerOptions>(ServerOptions::_self));
+    CryptoKey::initialize(std::any_cast<const ServerOptions&>(ServerOptions::_self));
     if (ServerOptions::_showKey)
       CryptoKey::showKey();
     if (!TaskController::create())
