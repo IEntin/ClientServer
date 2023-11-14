@@ -26,15 +26,16 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
-  ClientOptions::parse("ClientOptions.json");
+  ClientOptions clientOptions;
+  clientOptions.parse("ClientOptions.json");
   try {
-    if (ClientOptions::_fifoClient) {
+    if (clientOptions._fifoClient) {
       fifo::FifoClient client;
       clientPtr.store(&client);
       if (!client.run())
 	return 1;
     }
-    if (ClientOptions::_tcpClient) {
+    if (clientOptions._tcpClient) {
       tcp::TcpClient client;
       clientPtr.store(&client);
       if (!client.run())

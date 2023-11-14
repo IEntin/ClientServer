@@ -21,6 +21,7 @@ public:
   static void reset();
 
   static std::ostringstream _oss;
+  static struct ServerOptions _serverOptions;
   static std::string _source;
   static std::string _outputD;
   static std::string _outputND;

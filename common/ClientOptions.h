@@ -13,7 +13,7 @@ struct ClientOptions {
   ClientOptions() {
     _self = *this;
   }
-  ~ClientOptions() {}
+  ~ClientOptions() = default;
   static std::any _self;
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;

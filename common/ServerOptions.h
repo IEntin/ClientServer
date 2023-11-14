@@ -13,7 +13,7 @@ struct ServerOptions {
   ServerOptions() {
     _self = *this;
   }
-  ~ServerOptions() {}
+  ~ServerOptions() = default;
   static std::any _self;
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;

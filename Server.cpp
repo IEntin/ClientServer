@@ -26,20 +26,26 @@ Server::~Server() {
 
 bool Server::start() {
   _strategy->set();
-  CryptoKey::initialize(ServerOptions());
-  if (ServerOptions::_showKey)
-    CryptoKey::showKey();
-  if (!TaskController::create())
+  try {
+    CryptoKey::initialize(std::any_cast<ServerOptions>(ServerOptions::_self));
+    if (ServerOptions::_showKey)
+      CryptoKey::showKey();
+    if (!TaskController::create())
+      return false;
+    _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
+    if (!_tcpAcceptor->start())
+      return false;
+    _threadPoolAcceptor.push(_tcpAcceptor);
+    _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
+    if (!_fifoAcceptor->start())
+      return false;
+    _threadPoolAcceptor.push(_fifoAcceptor);
+    return true;
+  }
+  catch (const std::bad_any_cast& e) {
+    LogError << e.what() << '\n';
     return false;
-  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
-  if (!_tcpAcceptor->start())
-    return false;
-  _threadPoolAcceptor.push(_tcpAcceptor);
-  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
-  if (!_fifoAcceptor->start())
-    return false;
-  _threadPoolAcceptor.push(_fifoAcceptor);
-  return true;
+  }
 }
 
 void Server::stop() {

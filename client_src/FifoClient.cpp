@@ -67,8 +67,7 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
-  const std::any& options = ClientOptions();
-  return Fifo::sendMsg(ClientOptions::_acceptorName, options, header);
+  return Fifo::sendMsg(ClientOptions::_acceptorName, ClientOptions::_self, header);
 }
 
 bool FifoClient::receiveStatus() {
