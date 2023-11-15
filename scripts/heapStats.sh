@@ -41,7 +41,7 @@ trap EXIT SIGHUP SIGINT SIGTERM
 date
 
 # Build binaries.
-( cd $PRJ_DIR; make cleanall; make -j4 CMPLR=clang++-17 GDWARF=-gdwarf-4 )
+( cd $PRJ_DIR; make cleanall; make -j4 GDWARF=-gdwarf-4 )
 
 cp -f $PRJ_DIR/client $CLIENT_DIR
 

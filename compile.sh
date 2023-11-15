@@ -25,9 +25,6 @@ then
     echo "  ./compile.sh GDWARF=-gdwarf-4"
     echo "  ./compile.sh '' SANITIZE=aul"
     echo "  ./compile.sh '' '' OPTIMIZE=-O0"
-    echo "  Compiler can be specified as well. Default compiler is clang++-17."
-    echo "  ./compile.sh CMPLR=clang++ GDWARF=-gdwarf-4 SANITIZE=aul OPTIMIZE=-O2"
-    echo "  ./compile.sh"
     echo "Start the server in the project root terminal: ./server"
     echo "and each client in its terminal: ./client"
     exit 0
@@ -37,7 +34,7 @@ set -e
 
 trap EXIT SIGHUP SIGINT SIGTERM
 
-make -j4 CMPLR=clang++-17 $1 $2 $3
+make -j4 $1 $2 $3
 
 for (( c=1; c<=5; c++ ))do
     mkdir -p $UP_DIR/Client$c

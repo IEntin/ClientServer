@@ -29,9 +29,7 @@
 all: server client testbin runtests
 
 ifeq ($(CMPLR),)
-  CXX := clang++-17
-else
-  CXX := $(CMPLR)
+  CXX := clang++
 endif
 
 RM := rm -f
