@@ -38,7 +38,7 @@ echo "***** g++ compiler *****"
 
 echo
 make cleanall
-make -j4 CMPLR=g++
+make -j4 CMPLR=g++-13
 copyClient
 
 sleep 2
@@ -47,7 +47,7 @@ echo
 echo "***** disable precompiled headers *****"
 echo
 make cleanall
-make -j4 CMPLR=g++ ENABLEPCH=0
+make -j4 CMPLR=g++-13 ENABLEPCH=0
 copyClient
 
 sleep 2
@@ -56,7 +56,7 @@ echo
 echo "***** address + ub + leak sanitizer *****"
 echo
 make cleanall
-make -j4 CMPLR=g++ SANITIZE=aul
+make -j4 CMPLR=g++-13 SANITIZE=aul
 copyClient
 
 sleep 2
@@ -65,7 +65,7 @@ echo
 echo "***** thread sanitizer *****"
 echo
 make cleanall
-make -j4 CMPLR=g++ SANITIZE=thread
+make -j4 CMPLR=g++-13 SANITIZE=thread
 copyClient
 
 echo
@@ -73,7 +73,7 @@ echo "***** clang++ compiler *****"
 
 echo
 make cleanall
-make -j4
+make -j4 CMPLR=clang++-17
 copyClient
 
 sleep 2
@@ -82,7 +82,7 @@ echo
 echo "***** disable precompiled headers *****"
 echo
 make cleanall
-make -j4 ENABLEPCH=0
+make -j4 ENABLEPCH=0 CMPLR=clang++-17
 copyClient
 
 sleep 2
@@ -91,7 +91,7 @@ echo
 echo "***** address + ub + leak sanitizer *****"
 echo
 make cleanall
-make -j4 SANITIZE=aul
+make -j4 SANITIZE=aul CMPLR=clang++-17
 copyClient
 
 sleep 2
@@ -100,7 +100,7 @@ echo
 echo "***** thread sanitizer *****"
 echo
 make cleanall
-make -j4 SANITIZE=thread
+make -j4 SANITIZE=thread CMPLR=clang++-17
 copyClient
 
 #make cleanall

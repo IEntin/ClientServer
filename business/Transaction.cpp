@@ -3,12 +3,14 @@
  */
 
 #include "Transaction.h"
-#include "Ad.h"
-#include "AdBid.h"
-#include "Utility.h"
+
 #include <cassert>
 #include <functional>
 #include <iomanip>
+
+#include "Ad.h"
+#include "AdBid.h"
+#include "Utility.h"
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;

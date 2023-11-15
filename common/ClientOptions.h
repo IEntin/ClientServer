@@ -18,14 +18,14 @@ struct ClientOptions {
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;
-  static std::string _fifoDirectoryName;
-  static std::string _acceptorName;
+  static constinit std::string _fifoDirectoryName;
+  static constinit std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
   static bool _showKey;
-  static std::string _sourceName;
-  static std::ostream* _dataStream;
-  static std::ostream* _instrStream;
+  static constinit std::string _sourceName;
+  static constinit std::ostream* _dataStream;
+  static constinit std::ostream* _instrStream;
   // max number iterations when _runLoop is true,
   // unlimited if it is 0.
   static int _maxNumberTasks;
@@ -40,7 +40,7 @@ struct ClientOptions {
   static int _ENXIOwait;
   static bool _setPipeSize;
   static size_t _pipeSize;
-  static std::string _serverAddress;
+  static constinit std::string _serverAddress;
   static unsigned short _tcpPort;
-  static std::string _tcpService;
+  static constinit std::string _tcpService;
 };

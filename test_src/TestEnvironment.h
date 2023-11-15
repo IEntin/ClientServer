@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
 #include <sstream>
+#include <gtest/gtest.h>
 
 class TestEnvironment : public ::testing::Environment {
 public:

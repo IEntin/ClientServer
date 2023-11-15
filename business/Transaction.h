@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include <boost/core/noncopyable.hpp>
 
 class Ad;
 struct AdBid;

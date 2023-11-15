@@ -55,7 +55,7 @@ echo "FIRST_CLIENT_PROFILE is $FIRST_CLIENT_PROFILE"
 echo "SECOND_CLIENT_PROFILE is $SECOND_CLIENT_PROFILE"
 
 # Build profile binaries.
-make -j4 PROFILE=1
+make -j4 PROFILE=1 CMPLR=clang++-17
 # Start the server.
 
 $PRJ_DIR/server&

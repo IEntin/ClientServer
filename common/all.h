@@ -2,29 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include <boost/algorithm/hex.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/asio.hpp>
-#include <boost/container/small_vector.hpp>
-#include <boost/container/static_vector.hpp>
-#include <boost/core/demangle.hpp>
-#include <boost/core/noncopyable.hpp>
-#include <boost/interprocess/sync/named_mutex.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <cryptopp/aes.h>
-#include <cryptopp/files.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/secblock.h>
-#include <gtest/gtest.h>
 #include <algorithm>
 #include <any>
 #include <array>
@@ -75,3 +52,29 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include <boost/algorithm/hex.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/asio.hpp>
+#include <boost/container/small_vector.hpp>
+#include <boost/container/static_vector.hpp>
+#include <boost/core/demangle.hpp>
+#include <boost/core/noncopyable.hpp>
+#include <boost/interprocess/sync/named_mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
+#include <cryptopp/aes.h>
+#include <cryptopp/files.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/secblock.h>
+
+#include <gtest/gtest.h>

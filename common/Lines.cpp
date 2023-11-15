@@ -3,6 +3,8 @@
  */
 
 #include "Lines.h"
+
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <filesystem>

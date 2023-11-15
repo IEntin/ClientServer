@@ -3,6 +3,9 @@
  */
 
 #include "Task.h"
+
+#include <algorithm>
+
 #include "Utility.h"
 
 PreprocessRequest Task::_preprocessRequest = nullptr;

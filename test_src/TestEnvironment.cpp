@@ -3,12 +3,14 @@
  */
 
 #include "TestEnvironment.h"
+
+#include <filesystem>
+
 #include "ClientOptions.h"
 #include "CommonConstants.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Utility.h"
-#include <filesystem>
 
 std::ostringstream TestEnvironment::_oss;
 ServerOptions TestEnvironment::_serverOptions;

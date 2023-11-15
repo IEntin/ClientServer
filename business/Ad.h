@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <map>
 #include <string>
 #include <vector>
+
+#include <boost/core/noncopyable.hpp>
 
 struct AdBid;
 

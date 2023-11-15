@@ -4,11 +4,13 @@
 
 #pragma once
 
-#include "Header.h"
-#include <boost/core/noncopyable.hpp>
 #include <atomic>
 #include <future>
 #include <vector>
+
+#include <boost/core/noncopyable.hpp>
+
+#include "Header.h"
 
 using Response = std::vector<std::string>;
 

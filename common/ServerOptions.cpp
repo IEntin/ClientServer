@@ -9,9 +9,9 @@
 #include <thread>
 
 std::any ServerOptions::_self;
-std::string ServerOptions::_adsFileName;
-std::string ServerOptions::_fifoDirectoryName;
-std::string ServerOptions::_acceptorName;
+constinit std::string ServerOptions::_adsFileName;
+constinit std::string ServerOptions::_fifoDirectoryName;
+constinit std::string ServerOptions::_acceptorName;
 COMPRESSORS ServerOptions::_compressor;
 bool ServerOptions::_encrypted;
 int ServerOptions::_cryptoKeySize;

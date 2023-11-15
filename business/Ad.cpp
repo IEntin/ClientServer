@@ -3,10 +3,13 @@
  */
 
 #include "Ad.h"
+
+#include <algorithm>
+#include <cmath>
+
 #include "AdBid.h"
 #include "Lines.h"
 #include "Utility.h"
-#include <cmath>
 
 AdRow::AdRow(std::string_view line) : _input(line) {}
 

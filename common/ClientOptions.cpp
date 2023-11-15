@@ -10,14 +10,14 @@
 std::any ClientOptions::_self;
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
-std::string  ClientOptions::_fifoDirectoryName;
-std::string  ClientOptions::_acceptorName;
+constinit std::string  ClientOptions::_fifoDirectoryName;
+constinit std::string  ClientOptions::_acceptorName;
 COMPRESSORS ClientOptions::_compressor;
 bool ClientOptions::_encrypted;
 bool ClientOptions::_showKey;
-std::string ClientOptions::_sourceName;
-std::ostream* ClientOptions::_dataStream;
-std::ostream* ClientOptions::_instrStream;
+constinit std::string ClientOptions::_sourceName;
+constinit std::ostream* ClientOptions::_dataStream;
+constinit std::ostream* ClientOptions::_instrStream;
 int ClientOptions::_maxNumberTasks;
 int ClientOptions::_heartbeatPeriod;
 int ClientOptions::_heartbeatTimeout;
@@ -30,9 +30,9 @@ int ClientOptions::_numberRepeatENXIO;
 int ClientOptions::_ENXIOwait;
 bool ClientOptions::_setPipeSize;
 size_t ClientOptions::_pipeSize;
-std::string ClientOptions::_serverAddress;
+constinit std::string ClientOptions::_serverAddress;
 unsigned short ClientOptions::_tcpPort;
-std::string ClientOptions::_tcpService;
+constinit std::string ClientOptions::_tcpService;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   AppOptions appOptions(jsonName);
