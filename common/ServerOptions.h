@@ -16,9 +16,9 @@ struct ServerOptions {
   ~ServerOptions() = default;
   static std::any _self;
   static void parse(std::string_view jsonName);
-  static constinit std::string _adsFileName;
-  static constinit std::string _fifoDirectoryName;
-  static constinit std::string _acceptorName;
+  static std::string _adsFileName;
+  static std::string _fifoDirectoryName;
+  static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
   static int _cryptoKeySize;
