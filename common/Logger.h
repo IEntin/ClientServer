@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
 #include <iomanip>
 #include <iostream>
 #include <string_view>
 #include <syncstream>
+
+#include <boost/core/noncopyable.hpp>
 
 #define CODELOCATION __FILE__, __LINE__, __func__
 

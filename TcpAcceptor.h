@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Runnable.h"
 #include <boost/asio.hpp>
+
+#include "Runnable.h"
 
 class Server;
 

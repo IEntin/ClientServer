@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "Header.h"
 #include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "Header.h"
 
 using Response = std::vector<std::string>;
 using TaskPtr = std::shared_ptr<class Task>;

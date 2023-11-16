@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Header.h"
 #include <atomic>
+
+#include "Header.h"
 
 struct Subtask {
   Subtask() = default;

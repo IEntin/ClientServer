@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "ThreadPoolBase.h"
 #include <functional>
+
+#include "ThreadPoolBase.h"
 
 class ThreadPoolDiffObj : public ThreadPoolBase {
   std::function<bool(RunnablePtr)> _func = nullptr;

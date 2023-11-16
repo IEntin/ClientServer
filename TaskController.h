@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "ThreadPoolSameObj.h"
 #include <barrier>
 #include <queue>
+
+#include "ThreadPoolSameObj.h"
 
 using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;

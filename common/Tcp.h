@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <boost/asio.hpp>
+
 #include "Header.h"
 #include "Logger.h"
-#include <boost/asio.hpp>
 
 namespace tcp {
 

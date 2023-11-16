@@ -10,9 +10,10 @@ struct CryptoKey {
   CryptoKey() = delete;
   ~CryptoKey() = delete;
   static void showKey();
-  static bool initialize(const struct ServerOptions& options);
+  static bool initialize();
+  static bool keepKey();
   static bool recover();
-  static int _cryptoKeySize;
+  static unsigned _cryptoKeySize;
   static CryptoPP::SecByteBlock _key;
   static bool _valid;
 };

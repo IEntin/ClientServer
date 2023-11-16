@@ -3,6 +3,9 @@
  */
 
 #include "Server.h"
+
+#include <boost/interprocess/sync/named_mutex.hpp>
+
 #include "Crypto.h"
 #include "FifoAcceptor.h"
 #include "Logger.h"
@@ -10,7 +13,6 @@
 #include "Strategy.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
 
 Server::Server(StrategyPtr strategy) :
   _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
@@ -26,26 +28,20 @@ Server::~Server() {
 
 bool Server::start() {
   _strategy->set();
-  try {
-    CryptoKey::initialize(std::any_cast<const ServerOptions&>(ServerOptions::_self));
-    if (ServerOptions::_showKey)
-      CryptoKey::showKey();
-    if (!TaskController::create())
-      return false;
-    _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
-    if (!_tcpAcceptor->start())
-      return false;
-    _threadPoolAcceptor.push(_tcpAcceptor);
-    _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
-    if (!_fifoAcceptor->start())
-      return false;
-    _threadPoolAcceptor.push(_fifoAcceptor);
-    return true;
-  }
-  catch (const std::bad_any_cast& e) {
-    LogError << e.what() << '\n';
+  CryptoKey::initialize();
+  if (ServerOptions::_showKey)
+    CryptoKey::showKey();
+  if (!TaskController::create())
     return false;
-  }
+  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
+  if (!_tcpAcceptor->start())
+    return false;
+  _threadPoolAcceptor.push(_tcpAcceptor);
+  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
+  if (!_fifoAcceptor->start())
+    return false;
+  _threadPoolAcceptor.push(_fifoAcceptor);
+  return true;
 }
 
 void Server::stop() {
@@ -56,7 +52,8 @@ void Server::stop() {
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();
-  std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
+  if (ServerOptions::_invalidateKey)
+    std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
 }
 
 bool Server::startSession(RunnablePtr session) {

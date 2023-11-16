@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <map>
+
 #include "Chronometer.h"
 #include "ThreadPoolDiffObj.h"
-#include <map>
 
 using StrategyPtr = std::unique_ptr<class Strategy>;
 using SessionMap = std::map<std::string, RunnableWeakPtr>;

@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <boost/container/static_vector.hpp>
+
 #include "Runnable.h"
 #include <boost/asio.hpp>
-#include <boost/container/static_vector.hpp>
 
 using Response = std::vector<std::string>;
 using TaskPtr = std::shared_ptr<class Task>;

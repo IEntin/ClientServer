@@ -3,14 +3,16 @@
  */
 
 #include "Fifo.h"
-#include "ClientOptions.h"
-#include "ServerOptions.h"
-#include "Utility.h"
+
 #include <chrono>
 #include <fcntl.h>
 #include <filesystem>
 #include <poll.h>
 #include <thread>
+
+#include "ClientOptions.h"
+#include "ServerOptions.h"
+#include "Utility.h"
 
 namespace fifo {
 

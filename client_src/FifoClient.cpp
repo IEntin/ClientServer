@@ -3,13 +3,16 @@
  */
 
 #include "FifoClient.h"
+
+#include <filesystem>
+
+#include <boost/interprocess/sync/named_mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+
 #include "ClientOptions.h"
 #include "Fifo.h"
 #include "Logger.h"
 #include "Subtask.h"
-#include <boost/interprocess/sync/named_mutex.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include <filesystem>
 
 namespace fifo {
 

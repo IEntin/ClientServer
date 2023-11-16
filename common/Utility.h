@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "CommonConstants.h"
-#include "Logger.h"
 #include <charconv>
 #include <cstring>
 #include <tuple>
+
+#include "CommonConstants.h"
+#include "Logger.h"
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 

@@ -1,8 +1,11 @@
 /*
  *  Copyright (C) 2021 Ilya Entin
  */
-#include <boost/core/demangle.hpp>
+
 #include "Runnable.h"
+
+#include <boost/core/demangle.hpp>
+
 #include "Logger.h"
 
 std::atomic<unsigned> Runnable::_numberRunningTotal = 0;

@@ -3,12 +3,14 @@
  */
 
 #include "TaskBuilder.h"
+
+#include <cassert>
+
 #include "ClientOptions.h"
 #include "Header.h"
 #include "Lines.h"
 #include "PayloadTransform.h"
 #include "Utility.h"
-#include <cassert>
 
 Subtask TaskBuilder::_emptySubtask;
 

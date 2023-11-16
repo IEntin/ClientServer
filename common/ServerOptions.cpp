@@ -3,10 +3,12 @@
  */
 
 #include "ServerOptions.h"
+
+#include <thread>
+
 #include "AppOptions.h"
 #include "Compression.h"
 #include "Logger.h"
-#include <thread>
 
 std::any ServerOptions::_self;
 std::string ServerOptions::_adsFileName;
@@ -14,7 +16,8 @@ std::string ServerOptions::_fifoDirectoryName;
 std::string ServerOptions::_acceptorName;
 COMPRESSORS ServerOptions::_compressor;
 bool ServerOptions::_encrypted;
-int ServerOptions::_cryptoKeySize;
+unsigned ServerOptions::_cryptoKeySize;
+bool  ServerOptions::_invalidateKey;
 bool ServerOptions::_showKey;
 int ServerOptions::_numberWorkThreads;
 int ServerOptions::_maxTcpSessions;
@@ -37,6 +40,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", false);
   _cryptoKeySize = appOptions.get("CryptoKeySize", 32);
+  _invalidateKey = appOptions.get("InvalidateKey", true);
   _showKey = appOptions.get("ShowKey", false);
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);
   _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();

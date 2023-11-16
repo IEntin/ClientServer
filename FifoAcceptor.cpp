@@ -3,14 +3,16 @@
  */
 
 #include "FifoAcceptor.h"
+
+#include <cstring>
+#include <filesystem>
+#include <sys/stat.h>
+
 #include "Fifo.h"
 #include "FifoSession.h"
 #include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
-#include <cstring>
-#include <filesystem>
-#include <sys/stat.h>
 
 namespace fifo {
 

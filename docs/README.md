@@ -3,19 +3,18 @@ Copyright (C) 2021 Ilya Entin.
 ### Fast Linux Lockless Client-Server with FIFO and TCP clients, compression and encryption
 To test this software clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
 This script will download requested source and build the library in /usr/local directory,\
-one has to be a superuser to do that,current source is cryptopp880.zip.\
+one has to be a superuser to do that,current source is cryptopp890.zip.\
 Then run deploy.sh script in the project root.\
 Run './makeCrypto.sh -h' and './deploy.sh -h' to see the details.\
 Crypto file .cryptoKey.sec is created by the server and must be distributed\
 securely to the clients after server startup but before clients started.\
-Use copyCryptoKey.sh to distribute the key to clients after server startup.\
-Test scripts refresh keys internally. Note that crypto initialization vector iv\
-is generated anew for every message being encrypted and sent for further processing\
-inside the message.
+Script copyCryptoKey.sh can be used to distribute the key to clients after server startup.\
+Key is created anew on every server restart unless InvalidateKey option set to false.\
+Test scripts refresh keys internally. Crypto initialization vector iv is generated anew\
+for every message being encrypted and sent for further processing inside the message.
 
-It is important to realize that tools provided here for saving, copying, and viewing\
-crypto parameters are intended for testing purposes. Secure procedure for key exchange\
-must be used in a production system.
+Tools provided here for saving, copying, and viewing crypto key are intended for\
+testing purposes. Secure procedure for key exchange must be used in a production system.
 
 Prerequisites:
 

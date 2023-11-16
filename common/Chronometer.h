@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Logger.h"
 #include <chrono>
+
+#include "Logger.h"
 
 struct Chronometer : private boost::noncopyable {
   explicit Chronometer(bool enable = true,

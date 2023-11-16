@@ -3,16 +3,18 @@
  */
 
 #include "Crypto.h"
-#include "ServerOptions.h"
-#include "Utility.h"
+#include <filesystem>
+
+#include <boost/algorithm/hex.hpp>
 #include <cryptopp/files.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
-#include <boost/algorithm/hex.hpp>
-#include <filesystem>
 
-int CryptoKey::_cryptoKeySize;
+#include "ServerOptions.h"
+#include "Utility.h"
+
+unsigned CryptoKey::_cryptoKeySize;
 CryptoPP::SecByteBlock CryptoKey::_key;
 bool CryptoKey::_valid;
 
@@ -33,32 +35,53 @@ bool CryptoKey::recover() {
   return _valid;
 }
 
-// ServerOptions for tests contains different values.
-// Cannot use ServerOptions directly, pass it as a parameter.
-bool CryptoKey::initialize(const ServerOptions& options) {
-  _cryptoKeySize = options._cryptoKeySize;
-  _key.resize(_cryptoKeySize);
-  CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(_key, _key.size());
+bool CryptoKey::initialize() {
   try {
-    std::ofstream stream;
-    stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    stream.open(CRYPTO_KEY_FILE_NAME, std::ios::binary);
-    std::filesystem::permissions(
-      CRYPTO_KEY_FILE_NAME,
-      std::filesystem::perms::owner_read |
-      std::filesystem::perms::owner_write |
-      std::filesystem::perms::group_read,
-      std::filesystem::perm_options::replace);
-    if (stream) {
-      stream.write(reinterpret_cast<const char*>(_key.data()), _key.size());
-      _valid = true;
+    _cryptoKeySize = ServerOptions::_cryptoKeySize;
+    _key.resize(_cryptoKeySize);
+    CryptoPP::AutoSeededRandomPool prng;
+    prng.GenerateBlock(_key, _key.size());
+    if (keepKey()) {
+      _valid = recover();
+      return _valid;
+    }
+    else {
+      std::ofstream stream;
+      stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+      stream.open(CRYPTO_KEY_FILE_NAME, std::ios::binary);
+      std::filesystem::permissions(
+	CRYPTO_KEY_FILE_NAME,
+	std::filesystem::perms::owner_read |
+	std::filesystem::perms::owner_write |
+	std::filesystem::perms::group_read,
+	std::filesystem::perm_options::replace);
+      if (stream) {
+	stream.write(reinterpret_cast<const char*>(_key.data()), _key.size());
+	_valid = true;
+      }
     }
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
+    return false;
   }
   return _valid;
+}
+
+bool CryptoKey::keepKey() {
+  try {
+    if (ServerOptions::_invalidateKey)
+      return false;
+    if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME))
+      return false;
+    if (std::filesystem::file_size(CRYPTO_KEY_FILE_NAME) == ServerOptions::_cryptoKeySize)
+      return true;
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+  return false;
 }
 
 // class Crypto

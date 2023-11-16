@@ -2,11 +2,12 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <csignal>
+
 #include "ClientOptions.h"
 #include "Metrics.h"
 #include "FifoClient.h"
 #include "TcpClient.h"
-#include <csignal>
 
 namespace {
   std::atomic<Client*> clientPtr = 0;

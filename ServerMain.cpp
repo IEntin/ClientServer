@@ -2,15 +2,16 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <cassert>
+#include <csignal>
+#include <cstring>
+#include <filesystem>
+
 #include "Chronometer.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
 #include "TransactionStrategy.h"
-#include <cassert>
-#include <csignal>
-#include <cstring>
-#include <filesystem>
 
 void signalHandler([[maybe_unused]] int signal) {}
 

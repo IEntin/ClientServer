@@ -21,7 +21,8 @@ struct ServerOptions {
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
-  static int _cryptoKeySize;
+  static unsigned _cryptoKeySize;
+  static bool _invalidateKey;
   static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;
