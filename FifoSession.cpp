@@ -50,7 +50,7 @@ void FifoSession::run() {
 
 void FifoSession::stop() {
   _stopped = true;
-  Fifo::onExit(_fifoName, ServerOptions::_self);
+  Fifo::onExit(_fifoName);
 }
 
 bool FifoSession::receiveRequest(HEADER& header) {
@@ -64,7 +64,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  if (!Fifo::readMsgBlock(_fifoName, ServerOptions::_self, header, _request))
+  if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
   if (serverutility::processTask(header, _request, _task))
     return sendResponse();
@@ -78,13 +78,13 @@ bool FifoSession::sendResponse() {
   std::string_view body = serverutility::buildReply(_response, header, _status);
   if (body.empty())
     return false;
-  return Fifo::sendMsg(_fifoName, ServerOptions::_self, header, body);
+  return Fifo::sendMsg(_fifoName, header, body);
 }
 
 bool FifoSession::sendStatusToClient() {
   unsigned size = _clientId.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(ServerOptions::_acceptorName, ServerOptions::_self, header, _clientId);
+  return Fifo::sendMsg(ServerOptions::_acceptorName, header, _clientId);
 }
 
 } // end of namespace fifo

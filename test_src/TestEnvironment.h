@@ -5,6 +5,7 @@
 #pragma once
 
 #include <sstream>
+
 #include <gtest/gtest.h>
 
 class TestEnvironment : public ::testing::Environment {

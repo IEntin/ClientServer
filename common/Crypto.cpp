@@ -3,6 +3,7 @@
  */
 
 #include "Crypto.h"
+
 #include <filesystem>
 
 #include <boost/algorithm/hex.hpp>
@@ -11,6 +12,7 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
 
+#include "ClientOptions.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
@@ -86,11 +88,27 @@ bool CryptoKey::keepKey() {
 
 // class Crypto
 
-std::string_view Crypto::encrypt(std::string_view data, bool showKey) {
+std::string_view Crypto::encrypt(std::string_view data) {
   const auto& key = CryptoKey::_key;
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
+  bool showKey = false;
+  try {
+    if (ServerOptions::_self.type() == typeid(ServerOptions)) {
+      const ServerOptions& serverOptions =
+	std::any_cast<const ServerOptions&>(ServerOptions::_self);
+      showKey = serverOptions._showKey;
+    }
+    else {
+      const ClientOptions& clientOptions =
+	std::any_cast<const ClientOptions&>(ClientOptions::_self);
+      showKey = clientOptions._showKey;
+    }
+  }
+  catch (const std::bad_any_cast& e) {
+    LogError << e.what() << '\n';
+  }
   if (showKey)
     static bool showOnce [[maybe_unused]] = showIv(iv);
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());

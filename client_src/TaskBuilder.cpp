@@ -94,7 +94,7 @@ STATUS TaskBuilder::createSubtask(Lines& lines) {
 // Generate header for every aggregated group of requests.
 STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };
-  std::string_view output = payloadtransform::compressEncrypt(_aggregate, header, ClientOptions::_showKey);
+  std::string_view output = payloadtransform::compressEncrypt(_aggregate, header);
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::NONE;

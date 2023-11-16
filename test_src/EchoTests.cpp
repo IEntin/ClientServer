@@ -2,6 +2,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <filesystem>
+
 #include "Fifo.h"
 #include "ClientOptions.h"
 #include "EchoStrategy.h"
@@ -11,7 +13,6 @@
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
-#include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
@@ -99,11 +100,11 @@ struct FifoNonblockingTest : testing::Test {
   bool send(std::string_view payload) {
     size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE };
-    return fifo::Fifo::sendMsg(_testFifo, ClientOptions::_self, header, payload);
+    return fifo::Fifo::sendMsg(_testFifo, header, payload);
   }
   bool receive(std::vector<char>& received) {
     HEADER header;
-    return fifo::Fifo::readMsgNonBlock(_testFifo, ClientOptions::_self, header, received);
+    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {

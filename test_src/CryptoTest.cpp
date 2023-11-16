@@ -2,13 +2,14 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <filesystem>
+
 #include "CommonConstants.h"
 #include "Crypto.h"
 #include "Logger.h"
 #include "PayloadTransform.h"
 #include "ServerOptions.h"
 #include "TestEnvironment.h"
-#include <filesystem>
 
 // for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=PayloadTransformTest*; done
@@ -18,7 +19,7 @@ TEST(CryptoTest, 1) {
   // exchanged between two parties before communication begins.
   std::string_view data = TestEnvironment::_source;
   CryptoKey::initialize();
-  std::string_view cipher = Crypto::encrypt(data, false);
+  std::string_view cipher = Crypto::encrypt(data);
   std::string_view decrypted = Crypto::decrypt(cipher);
   ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
   ASSERT_TRUE(std::memcmp(TestEnvironment::_source.data(), decrypted.data(), decrypted.size()) == 0);
@@ -32,7 +33,7 @@ struct PayloadTransformTest : testing::Test {
     ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
     HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE};
-    std::string_view transformed = payloadtransform::compressEncrypt(data, header, false);
+    std::string_view transformed = payloadtransform::compressEncrypt(data, header);
     std::string_view restored = payloadtransform::decryptDecompress(header, transformed);
     ASSERT_EQ(restored.size(), TestEnvironment::_source.size());
     ASSERT_EQ(restored, TestEnvironment::_source);

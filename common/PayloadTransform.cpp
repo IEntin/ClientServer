@@ -8,14 +8,14 @@
 
 namespace payloadtransform {
 
-std::string_view compressEncrypt(std::string_view data, HEADER& header, bool showKey) {
+std::string_view compressEncrypt(std::string_view data, HEADER& header) {
   auto& [type, payloadSize, orgSize, compressor, encrypted, diagnostics, status] = header;
   orgSize = data.size();
   std::string_view output = data;
   if (compressor == COMPRESSORS::LZ4)
     output = compression::compress(output);
   if (encrypted)
-    output = Crypto::encrypt(output, showKey);
+    output = Crypto::encrypt(output);
   payloadSize = output.size();
   return output;
 }

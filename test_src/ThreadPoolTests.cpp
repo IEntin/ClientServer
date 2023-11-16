@@ -4,8 +4,9 @@
 
 #include "ThreadPoolDiffObj.h"
 #include "ThreadPoolSameObj.h"
-#include <gtest/gtest.h>
+
 #include <boost/algorithm/string.hpp>
+#include <gtest/gtest.h>
 
 // for i in {1..10}; do ./testbin --gtest_filter=ThreadPoolTest*; done
 
