@@ -10,7 +10,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-std::any ServerOptions::_self;
+std::any ServerOptions::_this;
 std::string ServerOptions::_adsFileName;
 std::string ServerOptions::_fifoDirectoryName;
 std::string ServerOptions::_acceptorName;

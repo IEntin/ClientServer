@@ -95,15 +95,15 @@ std::string_view Crypto::encrypt(std::string_view data) {
   prng.GenerateBlock(iv, iv.size());
   bool showKey = false;
   try {
-    if (ServerOptions::_self.type() == typeid(ServerOptions)) {
-      const ServerOptions& serverOptions =
-	std::any_cast<const ServerOptions&>(ServerOptions::_self);
-      showKey = serverOptions._showKey;
+    if (ServerOptions::_this.has_value() && ServerOptions::_this.type() == typeid(ServerOptions*)) {
+      const ServerOptions* serverOptions =
+	std::any_cast<ServerOptions*>(ServerOptions::_this);
+      showKey = serverOptions->_showKey;
     }
-    else {
-      const ClientOptions& clientOptions =
-	std::any_cast<const ClientOptions&>(ClientOptions::_self);
-      showKey = clientOptions._showKey;
+    else if (ClientOptions::_this.has_value()) {
+      const ClientOptions* clientOptions =
+	std::any_cast<ClientOptions*>(ClientOptions::_this);
+      showKey = clientOptions->_showKey;
     }
   }
   catch (const std::bad_any_cast& e) {

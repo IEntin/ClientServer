@@ -190,20 +190,20 @@ short Fifo::pollFd(int fd, short expected) {
 }
 
 bool Fifo::setPipeSize(int fd) {
-  bool setPipeBufferSize;
-  long pipeSize;
+  bool setPipeBufferSize = false;
+  long pipeSize = 0;
   try {
-    if (ServerOptions::_self.type() == typeid(ServerOptions)) {
-      const ServerOptions& serverOptions =
-	std::any_cast<const ServerOptions&>(ServerOptions::_self);
-      setPipeBufferSize = serverOptions._setPipeSize;
-      pipeSize = serverOptions._pipeSize;
+    if (ServerOptions::_this.has_value() && ServerOptions::_this.type() == typeid(ServerOptions*)) {
+      const ServerOptions* serverOptions =
+	std::any_cast<ServerOptions*>(ServerOptions::_this);
+      setPipeBufferSize = serverOptions->_setPipeSize;
+      pipeSize = serverOptions->_pipeSize;
     }
-    else {
-      const ClientOptions& clientOptions =
-	std::any_cast<const ClientOptions&>(ClientOptions::_self);
-      setPipeBufferSize = clientOptions._setPipeSize;
-      pipeSize = clientOptions._pipeSize;
+    else if (ClientOptions::_this.has_value()) {
+      const ClientOptions* clientOptions =
+	std::any_cast<ClientOptions*>(ClientOptions::_this);
+      setPipeBufferSize = clientOptions->_setPipeSize;
+      pipeSize = clientOptions->_pipeSize;
     }
   }
   catch (const std::bad_any_cast& e) {
@@ -245,17 +245,17 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
   int numberRepeatENXIO = 0;
   int ENXIOwait = 0;
   try {
-    if (ServerOptions::_self.type() == typeid(ServerOptions)) {
-      const ServerOptions& serverOptions =
-	std::any_cast<const ServerOptions&>(ServerOptions::_self);
-      numberRepeatENXIO = serverOptions._numberRepeatENXIO;
-      ENXIOwait = serverOptions._ENXIOwait;
+    if (ServerOptions::_this.has_value() && ServerOptions::_this.type() == typeid(ServerOptions*)) {
+      const ServerOptions* serverOptions =
+	std::any_cast<ServerOptions*>(ServerOptions::_this);
+      numberRepeatENXIO = serverOptions->_numberRepeatENXIO;
+      ENXIOwait = serverOptions->_ENXIOwait;
     }
-    else {
-      const ClientOptions& clientOptions =
-	std::any_cast<const ClientOptions&>(ClientOptions::_self);
-      numberRepeatENXIO = clientOptions._numberRepeatENXIO;
-      ENXIOwait = clientOptions._ENXIOwait;
+    else if (ClientOptions::_this.has_value()) {
+      const ClientOptions* clientOptions =
+	std::any_cast<ClientOptions*>(ClientOptions::_this);
+      numberRepeatENXIO = clientOptions->_numberRepeatENXIO;
+      ENXIOwait = clientOptions->_ENXIOwait;
     }
   }
   catch (const std::bad_any_cast& e) {

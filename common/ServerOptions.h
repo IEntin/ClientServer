@@ -11,10 +11,10 @@ enum class COMPRESSORS : char;
 
 struct ServerOptions {
   ServerOptions() {
-    _self = *this;
+    _this = this;
   }
   ~ServerOptions() = default;
-  static std::any _self;
+  static std::any _this;
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
   static std::string _fifoDirectoryName;

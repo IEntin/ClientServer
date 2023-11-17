@@ -11,10 +11,10 @@ enum class COMPRESSORS : char;
 
 struct ClientOptions {
   ClientOptions() {
-    _self = *this;
+    _this = this;
   }
   ~ClientOptions() = default;
-  static std::any _self;
+  static std::any _this;
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;
