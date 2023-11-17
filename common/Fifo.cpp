@@ -80,7 +80,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
       }
     }
     else if (result == 0) {
-      Debug << (errno ? std::strerror(errno) : "EOF") << '\n';
+      Warn << (errno ? std::strerror(errno) : "EOF") << '-' << name << '\n';
       return false;
     }
     else
@@ -274,7 +274,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
 	break;
       case ENOENT:
-	LogError << std::strerror(errno) << ' ' << fifoName << '\n';
+	LogError << std::strerror(errno) << '-' << fifoName << '\n';
 	return fd;
       default:
 	return fd;
