@@ -52,11 +52,10 @@ void TcpClientHeartbeat::heartbeatWait() {
     return;
   }
   _periodTimer.async_wait([this](const boost::system::error_code& ec) {
-    auto weak = weak_from_this();
-    auto self = weak.lock();
-    if (!self)
-      return;
     if (_stopped)
+      return;
+    auto self = weak_from_this().lock();
+    if (!self)
       return;
     if (ec) {
       if (ec != boost::asio::error::operation_aborted)
@@ -75,8 +74,7 @@ void TcpClientHeartbeat::timeoutWait() {
     return;
   }
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
-    auto weak = weak_from_this();
-    auto self = weak.lock();
+    auto self = weak_from_this().lock();
     if (!self)
       return;
     if (ec != boost::asio::error::operation_aborted) {
@@ -100,27 +98,14 @@ void TcpClientHeartbeat::read() {
   }
   boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto weak = weak_from_this();
-      auto self = weak.lock();
+      if (_stopped)
+	return;
+      auto self = weak_from_this().lock();
       if (!self)
 	return;
       if (ec) {
-	bool berror = false;
-	switch (ec.value()) {
-	case boost::asio::error::eof:
-	case boost::asio::error::connection_reset:
-	  berror = !_stopped;
-	  break;
-	default:
-	  berror = true;
-	  break;
-	}
-	if (berror) {
-	  LogError << ec.what() << '\n';
-	  _status = STATUS::HEARTBEAT_PROBLEM;
-	}
-	else
-	  Debug << ec.what() << '\n';
+	LogError << ec.what() << '\n';
+	_status = STATUS::HEARTBEAT_PROBLEM;
 	_ioContext.stop();
 	return;
       }
@@ -158,8 +143,7 @@ void TcpClientHeartbeat::write() {
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),
     [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto weak = weak_from_this();
-      auto self = weak.lock();
+      auto self = weak_from_this().lock();
       if (!self)
 	return;
       if (ec) {

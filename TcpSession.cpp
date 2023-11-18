@@ -70,8 +70,7 @@ void TcpSession::readHeader() {
   boost::asio::async_read(_socket,
   boost::asio::buffer(_headerBuffer),
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto weak = weak_from_this();
-      auto self = weak.lock();
+      auto self = weak_from_this().lock();
       if (!self)
 	return;
       switch (_status) {
@@ -83,11 +82,7 @@ void TcpSession::readHeader() {
 	break;
       }
       if (ec) {
-	bool berror = ec == boost::asio::error::eof ? false : true;
-	if (berror)
-	  LogError << ec.what() << '\n';
-	else
-	  Warn << ec.what() << '\n';
+	(ec == boost::asio::error::eof ? Warn : LogError) << ec.what() << '\n';
 	_ioContext.stop();
 	return;
       }
@@ -105,8 +100,7 @@ void TcpSession::readRequest(const HEADER& header) {
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
       [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto weak = weak_from_this();
-      auto self = weak.lock();
+      auto self = weak_from_this().lock();
       if (!self)
 	return;
       if (ec) {
@@ -131,8 +125,7 @@ void TcpSession::write(const HEADER& header, std::string_view body) {
   boost::asio::async_write(_socket,
     _asioBuffers,
     [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
-      auto weak = weak_from_this();
-      auto self = weak.lock();
+      auto self = weak_from_this().lock();
       if (!self)
 	return;
       if (ec) {
@@ -155,8 +148,7 @@ void TcpSession::asyncWait() {
     return;
   }
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
-    auto weak = weak_from_this();
-    auto self = weak.lock();
+    auto self = weak_from_this().lock();
     if (!self)
       return;
     if (ec != boost::asio::error::operation_aborted) {

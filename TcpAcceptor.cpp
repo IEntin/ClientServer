@@ -85,17 +85,12 @@ void TcpAcceptor::accept() {
     [connection, this](boost::system::error_code ec) {
       if (_stopped)
 	return;
-      auto weak = weak_from_this();
-      auto self = weak.lock();
+      auto self = weak_from_this().lock();
       if (!self)
 	return;
-      if (ec) {
-	bool berror = ec != boost::asio::error::operation_aborted;
-	if (berror)
-	  LogError << ec.what() << '\n';
-	else
-	  Debug << ec.what() << '\n';
-      }
+      if (ec)
+	(ec == boost::asio::error::operation_aborted ? Debug : LogError) <<
+	  ec.what() << '\n';
       else {
 	HEADERTYPE type = connectionType(connection->socket());
 	switch (type) {
