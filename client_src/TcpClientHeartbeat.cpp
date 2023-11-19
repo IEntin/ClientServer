@@ -125,7 +125,7 @@ void TcpClientHeartbeat::read() {
 
 void TcpClientHeartbeat::write() {
   timeoutWait();
-  auto [endpoint, error] = Tcp::setSocket(_socket);
+  auto error = Tcp::setSocket(_socket);
   if (error) {
     LogError << error.what() << '\n';
     return;

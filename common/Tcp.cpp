@@ -10,10 +10,13 @@
 
 namespace tcp {
 
-std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
+boost::system::error_code
 Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
-  boost::system::error_code ignore;
-  socket.close(ignore);
+  boost::system::error_code ecc;
+  if (socket.is_open())
+    socket.close(ecc);
+  if (ecc)
+    Warn << ecc.what() << '\n';
   boost::system::error_code ec;
   static const auto ipAdress =
     boost::asio::ip::address::from_string(ClientOptions::_serverAddress);
@@ -23,7 +26,7 @@ Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)
     LogError << ec.what() << '\n';
-  return { endpoint, ec };
+  return ec;
 }
 
 boost::system::error_code

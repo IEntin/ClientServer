@@ -18,7 +18,7 @@ class Tcp {
   boost::system::error_code
   static readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header);
 public:
-  std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
+  boost::system::error_code
   static setSocket(boost::asio::ip::tcp::socket& socket);
 
   static boost::system::error_code
