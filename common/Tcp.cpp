@@ -11,12 +11,14 @@
 namespace tcp {
 
 std::tuple<boost::asio::ip::tcp::endpoint, boost::system::error_code>
-Tcp::setSocket(boost::asio::io_context& ioContext,
-	       boost::asio::ip::tcp::socket& socket) {
-  boost::asio::ip::tcp::resolver resolver(ioContext);
+Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
+  boost::system::error_code ignore;
+  socket.close(ignore);
   boost::system::error_code ec;
-  auto endpoint = boost::asio::connect(socket,
-    resolver.resolve(ClientOptions::_serverAddress, ClientOptions::_tcpService, ec));
+  static auto ipAdress =
+    boost::asio::ip::address::from_string(ClientOptions::_serverAddress);
+  boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
+  socket.connect(endpoint, ec);
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec)

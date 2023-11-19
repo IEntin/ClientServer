@@ -42,5 +42,4 @@ struct ClientOptions {
   static size_t _pipeSize;
   static std::string _serverAddress;
   static unsigned short _tcpPort;
-  static std::string _tcpService;
 };
