@@ -17,7 +17,7 @@ Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   boost::system::error_code ec;
   static const auto ipAdress =
     boost::asio::ip::address::from_string(ClientOptions::_serverAddress);
-  boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
+  static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
   socket.connect(endpoint, ec);
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
