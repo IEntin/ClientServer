@@ -29,14 +29,14 @@ constexpr std::string_view START_KEYWORDS2("keywords=");
 
 constexpr std::tuple<unsigned, unsigned> ZERO_SIZE;
 
-constexpr std::string_view AD_WIDTH("ad_width=");
-
-constexpr std::string_view AD_HEIGHT("ad_height=");
-
-constexpr std::string_view SIZE_START("size=");
-
-constexpr char SIZE_END('&');
-
-constexpr char SIZE_SEPARATOR('x');
-
 const std::string CRYPTO_KEY_FILE_NAME = ".cryptoKey.sec";
+
+constexpr std::string_view SIZE_START_REG("size=");
+
+constexpr std::string_view SEPARATOR_REG("x", 1);
+
+constexpr std::string_view SIZE_START_ALT("ad_width=");
+
+constexpr std::string_view SEPARATOR_ALT("&ad_height=");
+
+constexpr std::string_view SIZE_END("&", 1);

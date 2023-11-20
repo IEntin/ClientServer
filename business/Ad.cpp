@@ -108,7 +108,7 @@ void Ad::load(std::string_view filename) {
   }
 }
 
-// Deliberately avoiding ostream operators to prevent
+// This code is not using  ostream operators to prevent
 // unreasonable number of memory allocations and negative
 // performance impact.
 

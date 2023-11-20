@@ -72,51 +72,45 @@ std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
 }
 
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
+  std::string_view SIZE_START;
+  std::string_view SEPARATOR;
+  size_t begPos = 0;
+  begPos = request.find(SIZE_START_REG);
   // size format as in "728x90"
-  size_t beg = request.find(SIZE_START);
-  if (beg != std::string_view::npos) {
-    beg += SIZE_START.size();
-    size_t end = request.find(SIZE_END, beg + 1);
-    if (end == std::string_view::npos)
-      end = request.size();
-    std::string_view keyData{ request.data() + beg, end - beg };
-    size_t posx = keyData.find(SIZE_SEPARATOR);
-    std::string_view widthView(keyData.cbegin(), std::next(keyData.cbegin(), posx));
-    unsigned width = 0;
-    utility::fromChars(widthView, width); // may throw
-    std::string_view heightView(std::next(keyData.cbegin(), + posx + 1), keyData.cend());
-    unsigned height = 0;
-    utility::fromChars(heightView, height); // may throw
-    return { width, height };
+  if (begPos != std::string_view::npos) {
+    SIZE_START = SIZE_START_REG;
+    SEPARATOR = SEPARATOR_REG;
   }
   else {
     // alternative size format as in "ad_width=300&ad_height=250"
-    beg = request.find(AD_WIDTH);
-    if (beg != std::string_view::npos) {
-      size_t separatorPos = request.find(SIZE_END, beg + AD_WIDTH.size() + 1);
-      if (separatorPos != std::string_view::npos) {
-	size_t offset = beg + AD_WIDTH.size();
-	std::string_view widthView(request.data() + offset, separatorPos - offset);
-	unsigned width = 0;
-	utility::fromChars(widthView, width); // may throw
-	size_t begHeight = request.find(AD_HEIGHT, separatorPos + 1);
-	if (begHeight != std::string_view::npos) {
-	  offset = begHeight + AD_HEIGHT.size();
-	  size_t fieldLength = 0;
-	  size_t end = request.find(SIZE_END, offset + 1);
-	  if (end != std::string_view::npos)
-	    fieldLength = end - offset;
-	  else
-	    fieldLength = request.size() - offset;
-	  std::string_view heightView(request.data() + offset, fieldLength);
-	  unsigned height = 0;
-	  utility::fromChars(heightView, height); // may throw
-	  return { width, height };
-	}
-      }
+    begPos = request.find(SIZE_START_ALT);
+    if (begPos != std::string_view::npos) {
+      SIZE_START = SIZE_START_ALT;
+      SEPARATOR = SEPARATOR_ALT;
     }
+    else
+      return { 0, 0 };
   }
-  return {};
+  size_t sepPos = request.find(SEPARATOR, begPos + SIZE_START.size());
+  if (sepPos == std::string_view::npos)
+    return { 0, 0 };
+  std::string_view widthView =
+    { request.data() + begPos + SIZE_START.size(), sepPos - begPos - SIZE_START.size() };
+  size_t endPos = request.find(SIZE_END, sepPos + SEPARATOR.size());
+  if (endPos == std::string_view::npos)
+    endPos = request.size();
+  std::string_view heightView =
+    { request.data() + sepPos + SEPARATOR.size(), endPos - sepPos - SEPARATOR.size() };
+  unsigned width = 0;
+  unsigned height = 0;
+  try {
+    utility::fromChars(widthView, width);
+    utility::fromChars(heightView, height);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+  }
+  return { width, height };
 }
 
 const AdBid* Transaction::findWinningBid() const {
