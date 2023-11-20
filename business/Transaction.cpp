@@ -97,10 +97,9 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   std::string_view widthView =
     { request.data() + begPos + SIZE_START.size(), sepPos - begPos - SIZE_START.size() };
   size_t endPos = request.find(SIZE_END, sepPos + SEPARATOR.size());
-  if (endPos == std::string_view::npos)
-    endPos = request.size();
-  std::string_view heightView =
-    { request.data() + sepPos + SEPARATOR.size(), endPos - sepPos - SEPARATOR.size() };
+  size_t heightViewSize =
+    (endPos == std::string_view::npos ? request.size() : endPos) - sepPos - SEPARATOR.size();
+  std::string_view heightView = { request.data() + sepPos + SEPARATOR.size(), heightViewSize };
   unsigned width = 0;
   unsigned height = 0;
   try {
