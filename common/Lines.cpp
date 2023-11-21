@@ -62,7 +62,9 @@ bool Lines::refillBuffer() {
   assert(_sizeInUse <= _buffer.size() && "_sizeInUse exceeds ARRAY_SIZE");
   _stream.read(_buffer.data() + shift, bytesToRead);
   _currentPos += bytesToRead;
-  assert(_currentPos == static_cast<size_t>(_stream.tellg()));
+  static constexpr bool debug = false;
+  if (debug)
+    assert(_currentPos == static_cast<size_t>(_stream.tellg()));
   return true;
 }
 

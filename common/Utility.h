@@ -22,15 +22,14 @@ namespace utility {
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  size_t start = 0;
-  size_t next = 0;
-  while (start < input.size()) {
-    next = input.find(delim, start);
-    rows.emplace_back(std::next(input.cbegin(), start),
-      next == INPUT::npos ? input.cend() : std::next(input.cbegin(), next + keepDelim));
-    if (next == INPUT::npos)
+  auto start = input.cbegin();
+  while (start != input.cend()) {
+    auto next = std::find(std::next(start, 1), input.cend(), delim);
+    rows.emplace_back(start,
+      next == input.cend() ? input.cend() : std::next(next, keepDelim));
+    if (next == input.cend())
       break;
-    start = next + 1;
+    start = std::next(next, 1);
   }
 }
 
