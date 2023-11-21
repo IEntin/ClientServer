@@ -161,11 +161,11 @@ bool Transaction::parseKeywords(std::string_view start) {
   size_t beg = _request.find(start);
   if (beg == std::string_view::npos)
     return false;
-  beg += start.size();
+  auto keyWordsbeg = std::next(_request.cbegin(), beg + start.size());
   size_t end = _request.find(KEYWORDS_END, beg);
-  if (end == std::string_view::npos)
-    end = _request.size();
-  std::string_view kwStr(_request.data() + beg, end - beg);
+  auto keyWordsEnd = end == std::string_view::npos ?
+    _request.cend() : std::next(_request.cbegin(), end);
+  std::string_view kwStr(keyWordsbeg, keyWordsEnd);
   breakKeywords(kwStr);
   return true;
 }

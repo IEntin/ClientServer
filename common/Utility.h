@@ -21,32 +21,28 @@ namespace utility {
 // class with constructor over the range [first, last)
 
 template <typename INPUT, typename CONTAINER>
-  void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-    size_t start = 0;
-    size_t next = 0;
-    while (start < input.size()) {
-      next = input.find(delim, start);
-      if (next == std::string::npos) {
-	if (input.size() > start)
-	  rows.emplace_back(input.cbegin() + start, input.cend());
-	break;
-      }
-      else if (next > start)
-	rows.emplace_back(input.cbegin() + start, input.cbegin() + next + keepDelim);
-      start = next + 1;
-    }
+void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+  size_t start = 0;
+  size_t next = 0;
+  while (start < input.size()) {
+    next = input.find(delim, start);
+    rows.emplace_back(std::next(input.cbegin(), start),
+      next == INPUT::npos ? input.cend() : std::next(input.cbegin(), next + keepDelim));
+    if (next == INPUT::npos)
+      break;
+    start = next + 1;
+  }
 }
 
 template <typename INPUT, typename CONTAINER>
-  void split(const INPUT& input, CONTAINER& rows, const char* separators) {
-    size_t start = input.find_first_not_of(separators);
-    size_t end = 0;
-    while (start != INPUT::npos) {
-      size_t pos = input.find_first_of(separators, start + 1);
-      end = pos == INPUT::npos ? input.size() : pos;
-      rows.emplace_back(input.data() + start, input.data() + end);
-      start = input.find_first_not_of(separators, end + 1);
-    }
+void split(const INPUT& input, CONTAINER& rows, const char* separators) {
+  size_t start = input.find_first_not_of(separators);
+  while (start != INPUT::npos) {
+    size_t pos = input.find_first_of(separators, start + 1);
+    size_t end = pos == INPUT::npos ? input.size() : pos;
+    rows.emplace_back(input.data() + start, input.data() + end);
+    start = input.find_first_not_of(separators, end + 1);
+  }
 }
 
 constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
@@ -58,18 +54,18 @@ constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
 };
 
 template <typename N>
-  concept Integral = std::is_integral_v<N>;
+concept Integral = std::is_integral_v<N>;
 
 template <typename N>
-  concept FloatingPoint = std::is_floating_point_v<N>;
+concept FloatingPoint = std::is_floating_point_v<N>;
 
 template <Integral T>
-  void toChars(T value, char* buffer, size_t size = CONV_BUFFER_SIZE) {
-    if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-	ec != std::errc()) {
-      LogError << "problem converting to string:" << value << '\n';
-      throw std::runtime_error("problem converting to string");
-    }
+void toChars(T value, char* buffer, size_t size = CONV_BUFFER_SIZE) {
+  if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
+      ec != std::errc()) {
+    LogError << "problem converting to string:" << value << '\n';
+    throw std::runtime_error("problem converting to string");
+  }
 }
 
 template <Integral N>
