@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "CommonConstants.h"
-#include "Header.h"
 #include <atomic>
 #include <memory>
 #include <string_view>
+
+#include "CommonConstants.h"
+#include "Header.h"
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 

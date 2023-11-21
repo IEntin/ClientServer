@@ -22,25 +22,25 @@ namespace utility {
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  auto start = input.cbegin();
-  while (start != input.cend()) {
-    auto next = std::find(std::next(start, 1), input.cend(), delim);
-    rows.emplace_back(start,
-      next == input.cend() ? input.cend() : std::next(next, keepDelim));
-    if (next == input.cend())
+  auto beg = input.cbegin();
+  while (beg != input.cend()) {
+    auto end = std::find(std::next(beg, 1), input.cend(), delim);
+    bool endOfInput = end == input.cend();
+    rows.emplace_back(beg, endOfInput ? input.cend() : std::next(end, keepDelim));
+    if (endOfInput)
       break;
-    start = std::next(next, 1);
+    beg = std::next(end, 1);
   }
 }
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, const char* separators) {
-  size_t start = input.find_first_not_of(separators);
-  while (start != INPUT::npos) {
-    size_t pos = input.find_first_of(separators, start + 1);
+  size_t beg = input.find_first_not_of(separators);
+  while (beg != INPUT::npos) {
+    size_t pos = input.find_first_of(separators, beg + 1);
     size_t end = pos == INPUT::npos ? input.size() : pos;
-    rows.emplace_back(input.data() + start, input.data() + end);
-    start = input.find_first_not_of(separators, end + 1);
+    rows.emplace_back(input.data() + beg, input.data() + end);
+    beg = input.find_first_not_of(separators, end + 1);
   }
 }
 

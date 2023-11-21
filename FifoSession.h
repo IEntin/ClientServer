@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "Runnable.h"
 #include <vector>
+
+#include "Runnable.h"
 
 using Response = std::vector<std::string>;
 using TaskPtr = std::shared_ptr<class Task>;
