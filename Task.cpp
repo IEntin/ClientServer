@@ -27,7 +27,7 @@ void Task::set(const HEADER& header, std::string_view input) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
   _rows.clear();
-  utility::split(input, _rows);
+  utility::splitFast(input, _rows);
   _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;

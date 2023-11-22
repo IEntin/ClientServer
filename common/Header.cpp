@@ -61,9 +61,9 @@ void encodeHeader(char* buffer, const HEADER& header) {
   offset += NUM_FIELD_SIZE;
   buffer[offset] = std::underlying_type_t<COMPRESSORS>(compressor);
   offset += COMPRESSOR_SIZE;
-  buffer[offset] = (encrypted ? CRYPTO_CHAR : NCRYPTO_CHAR);
+  buffer[offset] = encrypted ? CRYPTO_CHAR : NCRYPTO_CHAR;
   offset += CRYPTO_SIZE;
-  buffer[offset] = (diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR);
+  buffer[offset] = diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::underlying_type_t<STATUS>(status);
 }

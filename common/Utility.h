@@ -11,14 +11,15 @@
 #include "CommonConstants.h"
 #include "Logger.h"
 
-using SIZETUPLE = std::tuple<unsigned, unsigned>;
-
 namespace utility {
 
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,
 // string_view, vector<char> or vector of objects of any
 // class with constructor over the range [first, last)
+
+// profiler:
+// 4.37%     19.28     1.16 14025138     0.00     0.00  void utility::split<std::basic_string_view<char, std::char_traits<char> >, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > >(std::basic_string_view<char, std::char_traits<char> > const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >&, char, int)
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
@@ -30,6 +31,24 @@ void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim
     if (endOfInput)
       break;
     beg = std::next(end, 1);
+  }
+}
+
+// less attractive but 3+ times faster version
+// profiler:
+// 1.33%     22.75     0.33 13928674     0.00     0.00  void utility::splitFast<std::basic_string_view<char, std::char_traits<char> >, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > >(std::basic_string_view<char, std::char_traits<char> > const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >&, char, int)
+
+template <typename INPUT, typename CONTAINER>
+void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+  size_t start = 0;
+  while (start < input.size()) {
+    size_t next = input.find(delim, start);
+    bool endOfInput = next == INPUT::npos;
+    rows.emplace_back(input.cbegin() + start,
+      endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
+    if (endOfInput)
+      break;
+    start = next + 1;
   }
 }
 
@@ -94,7 +113,9 @@ void toChars(N value, std::string& target, int precision, size_t size = CONV_BUF
     LogError << "problem translating number:" << value << '\n';
 }
 
-  void printSizeKey(const SIZETUPLE& sizeKey, std::string& target);
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
+
+void printSizeKey(const SIZETUPLE& sizeKey, std::string& target);
 
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);
