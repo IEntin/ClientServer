@@ -34,7 +34,7 @@ bool AdRow::parse() {
   double dblMoney = 0;
   utility::fromChars(vect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
-  _array = { std::next(introEnd, 1), std::prev(_input.cend(), 1) };
+  _array = { std::next(introEnd), std::prev(_input.cend()) };
   _valid = true;
   return true;
 }

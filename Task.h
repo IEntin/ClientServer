@@ -23,7 +23,6 @@ using PreprocessRequest = SIZETUPLE (*)(std::string_view);
 using ProcessRequest = std::string_view (*)(const SIZETUPLE&, std::string_view, bool diagnostics);
 
 struct RequestRow {
-  RequestRow() = default;
 
   RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
 

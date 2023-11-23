@@ -35,7 +35,7 @@ TEST_F(CompressionTest, 1_OUTPUTD) {
 
 TEST(SplitTest, NoKeepDelim) {
   std::vector<std::string_view> lines;
-  utility::split(TestEnvironment::_source, lines);
+  utility::splitFast(TestEnvironment::_source, lines);
   ASSERT_EQ(lines.size(), 10000);
   for (const auto& line : lines)
     ASSERT_FALSE(line.ends_with('\n'));
@@ -45,7 +45,7 @@ TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
   std::string contents;
   utility::readFile(ClientOptions::_sourceName, contents);
-  utility::split(contents, lines, '\n', 1);
+  utility::splitFast(contents, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10000);
   ASSERT_TRUE(contents.starts_with(lines[0]));
   ASSERT_TRUE(contents.ends_with(lines[9999]));
