@@ -113,16 +113,16 @@ void Ad::load(std::string_view filename) {
 // performance impact.
 
 void Ad::print(std::string& output) const {
-  static constexpr std::string_view AD("Ad");
+  static constexpr std::string_view AD{ "Ad" };
   output.append(AD);
   output.append(_id);
-  static constexpr std::string_view SIZE(" size=");
+  static constexpr std::string_view SIZE{ " size=" };
   output.append(SIZE);
   utility::printSizeKey(_sizeKey, output);
-  static constexpr std::string_view DEFAULTBID(" defaultBid=");
+  static constexpr std::string_view DEFAULTBID{ " defaultBid=" };
   output.append(DEFAULTBID);
   utility::toChars(_defaultBid, output);
-  static constexpr std::string_view DELIMITER("\n ");
+  static constexpr std::string_view DELIMITER{ "\n " };
   output.append(DELIMITER);
   output.append(_input);
   output.push_back('\n');
@@ -131,7 +131,7 @@ void Ad::print(std::string& output) const {
 
 void Ad::printBids(std::string& output) const {
   for (const AdBid& adBid : _bids) {
-    static constexpr std::string_view DELIMITER("  ");
+    static constexpr std::string_view DELIMITER{ "  " };
     output.append(DELIMITER);
     output.append(adBid._keyword);
     output.push_back(' ');

@@ -177,9 +177,9 @@ bool Transaction::parseKeywords(std::string_view start) {
 void Transaction::printDiagnostics(std::string& output) const {
   printRequestData(output);
   printMatchingAds(output);
-  static constexpr std::string_view SUMMARY("summary:");
+  static constexpr std::string_view SUMMARY{ "summary:" };
   output.append(SUMMARY);
-  static constexpr std::string_view STARS("*****");
+  static constexpr std::string_view STARS{ "*****" };
   if (_noMatch) {
     output.append(EMPTY_REPLY);
     output.append(STARS);
@@ -209,11 +209,11 @@ void Transaction::printSummary(std::string& output) const {
 }
 
 void Transaction::printMatchingAds(std::string& output) const {
-  static constexpr std::string_view MATCHINGADS("matching ads:\n");
+  static constexpr std::string_view MATCHINGADS{ "matching ads:\n" };
   output.append(MATCHINGADS);
   for (const AdBid& adBid : _bids) {
     adBid._ad->print(output);
-    static constexpr std::string_view MATCH(" match:");
+    static constexpr std::string_view MATCH{ " match:" };
     output.append(MATCH);
     output.append(adBid._keyword);
     output.push_back(' ');
@@ -234,22 +234,22 @@ void Transaction::printWinningAd(std::string& output) const {
   output.append(DELIMITER);
   double money = _winningBid->_money / Ad::_scaler;
   utility::toChars(money, output, 1);
-  static constexpr std::string_view ENDING("\n*****\n");
+  static constexpr std::string_view ENDING{ "\n*****\n" };
   output.append(ENDING);
 }
 
 void Transaction::printRequestData(std::string& output) const {
   output.append(_id);
   output.push_back(' ');
-  static constexpr std::string_view TRANSACTIONSIZE("Transaction size=");
+  static constexpr std::string_view TRANSACTIONSIZE{ "Transaction size=" };
   output.append(TRANSACTIONSIZE);
   utility::printSizeKey(_sizeKey, output);
-  static constexpr std::string_view MATCHES(" #matches=");
+  static constexpr std::string_view MATCHES{ " #matches=" };
   output.append(MATCHES);
   utility::toChars(_bids.size(), output);
   output.push_back('\n');
   output.append(_request);
-  static constexpr std::string_view REQUESTKEYWORDS("\nrequest keywords:\n");
+  static constexpr std::string_view REQUESTKEYWORDS{ "\nrequest keywords:\n" };
   output.append(REQUESTKEYWORDS);
   for (std::string_view keyword : _keywords) {
     output.push_back(' ');
