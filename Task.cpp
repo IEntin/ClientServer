@@ -9,7 +9,9 @@
 #include "Utility.h"
 
 PreprocessRequest Task::_preprocessRequest = nullptr;
-ProcessRequest Task::_processRequest = nullptr;
+
+ProcessRequest Task::_function;
+
 Response Task::_emptyResponse;
 
 RequestRow::RequestRow(std::string_view::const_iterator beg,
@@ -23,7 +25,11 @@ Task::~Task() {
   Trace << '\n';
 }
 
-void Task::set(const HEADER& header, std::string_view input) {
+void Task::setProcessFunction(ProcessRequest function) {
+  _function = function;
+}
+
+void Task::initialize(const HEADER& header, std::string_view input) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
   _rows.clear();
@@ -56,8 +62,28 @@ bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
-    _response[row._orgIndex] = _processRequest(row._sizeKey, row._value, _diagnostics);
-    return true;
+    try {
+      size_t typeIndex = _function.index();
+      switch (typeIndex) {
+      case SORTFUNCTION:
+	_response[row._orgIndex] = std::get<SORTFUNCTION>(_function)(row._sizeKey, row._value, _diagnostics);
+	break;
+      case NOSORTFUNCTION:
+	_response[row._orgIndex] = std::get<NOSORTFUNCTION>(_function)(row._value, _diagnostics);
+	break;
+      case ECHOFUNCTION:
+	_response[row._orgIndex] = std::get<ECHOFUNCTION>(_function)(row._value);
+	break;
+      default:
+	return false;
+	break;
+      }
+      return true;
+    }
+    catch (const std::bad_variant_access& e) {
+      LogError << e.what() << '\n';
+      return false;
+    }
   }
   return false;
 }

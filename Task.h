@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <future>
+#include <variant>
 #include <vector>
 
 #include <boost/core/noncopyable.hpp>
@@ -20,7 +21,13 @@ using SIZETUPLE = std::tuple<unsigned, unsigned>;
 
 using PreprocessRequest = SIZETUPLE (*)(std::string_view);
 
-using ProcessRequest = std::string_view (*)(const SIZETUPLE&, std::string_view, bool diagnostics);
+using ProcessRequestSort = std::string_view (*)(const SIZETUPLE&, std::string_view, bool diagnostics);
+
+using ProcessRequestNoSort = std::string_view (*)(std::string_view, bool diagnostics);
+
+using ProcessRequestEcho = std::string_view (*)(std::string_view);
+
+using ProcessRequest = std::variant<ProcessRequestSort, ProcessRequestNoSort, ProcessRequestEcho>;
 
 struct RequestRow {
 
@@ -34,13 +41,18 @@ struct RequestRow {
 };
 
 class Task : private boost::noncopyable {
+  enum Functions {
+    SORTFUNCTION,
+    NOSORTFUNCTION,
+    ECHOFUNCTION
+  };
   std::vector<RequestRow> _rows;
   std::vector<int> _indices;
   Response& _response;
   std::promise<void> _promise;
   std::atomic<int> _index = 0;
   bool _diagnostics;
-  static ProcessRequest _processRequest;
+  static ProcessRequest _function;
   static Response _emptyResponse;
 
  public:
@@ -48,7 +60,7 @@ class Task : private boost::noncopyable {
 
   ~Task();
 
-  void set(const HEADER& header, std::string_view input);
+  void initialize(const HEADER& header, std::string_view input);
 
   void sortIndices();
 
@@ -62,12 +74,11 @@ class Task : private boost::noncopyable {
 
   void finish();
 
-  static void setProcessMethod(ProcessRequest method) {
-    _processRequest = method;
+  static void setProcessFunction(ProcessRequest function);
+
+  static void setPreprocessFunction(PreprocessRequest function) {
+    _preprocessRequest = function;
   }
 
-  static void setPreprocessMethod(PreprocessRequest method) {
-    _preprocessRequest = method;
-  }
   static PreprocessRequest _preprocessRequest;
 };

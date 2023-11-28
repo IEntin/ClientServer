@@ -27,7 +27,7 @@ bool processTask(const HEADER& header, std::string_view input, TaskPtr task) {
   auto weakPtr = TaskController::weakInstance();
   if (auto taskController = weakPtr.lock(); taskController) {
     std::string_view restored = payloadtransform::decryptDecompress(header, input);
-    task->set(header, restored);
+    task->initialize(header, restored);
     taskController->processTask(task);
     return true;
   }

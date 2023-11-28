@@ -7,5 +7,7 @@
 #include "Task.h"
 
 void EchoStrategy::set() {
-  Task::setProcessMethod(Echo::processRequest);
+  ProcessRequest function = Echo::processRequest;
+  Task::setPreprocessFunction(nullptr);
+  Task::setProcessFunction(function);
 }

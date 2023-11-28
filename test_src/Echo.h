@@ -11,7 +11,5 @@ using SIZETUPLE = std::tuple<unsigned, unsigned>;
 struct Echo {
   Echo() = delete;
   ~Echo() = delete;
-  static std::string_view processRequest(const SIZETUPLE&,
-					 std::string_view,
-					 bool) noexcept;
+  static std::string_view processRequest(std::string_view) noexcept;
 };

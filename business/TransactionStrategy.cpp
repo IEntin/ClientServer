@@ -9,12 +9,19 @@
 #include "ServerOptions.h"
 #include "Transaction.h"
 
-using SIZETUPLE = std::tuple<unsigned, unsigned>;
-
 void TransactionStrategy::set() {
   Ad::load(ServerOptions::_adsFileName);
-  Task::setPreprocessMethod(Transaction::createSizeKey);
-  Task::setProcessMethod(Transaction::processRequest);
+  ProcessRequest function;
+  if (ServerOptions::_sortInput) {
+    Task::setPreprocessFunction(Transaction::createSizeKey);
+    function = Transaction::processRequestSort;
+    Task::setProcessFunction(function);
+  }
+  else {
+    Task::setPreprocessFunction(nullptr);
+    function = Transaction::processRequestNoSort;
+    Task::setProcessFunction(function);
+  }
 }
 
 TransactionStrategy::~TransactionStrategy() {

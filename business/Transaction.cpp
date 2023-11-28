@@ -15,6 +15,21 @@
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
+Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
+  if (_sizeKey == ZERO_SIZE) {
+    _invalid = true;
+    LogError << "invalid request, sizeKey is default, input:" << input << '\n';
+    return;
+  }
+  size_t pos = input.find(']');
+  if (pos != std::string_view::npos && input[0] == '[') {
+    _id = { input.data(), pos + 1 };
+    _request = { input.data() + pos + 1, input.size() - pos - 1 };
+    if (!parseKeywords(START_KEYWORDS1))
+      parseKeywords(START_KEYWORDS2);
+  }
+}
+
 Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) :
   _sizeKey(sizeKey)  {
   if (_sizeKey == ZERO_SIZE) {
@@ -36,9 +51,9 @@ Transaction::~Transaction() {
   _keywords.clear();
 }
 
-std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
-					     std::string_view request,
-					     bool diagnostics) noexcept {
+std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
+						 std::string_view request,
+						 bool diagnostics) noexcept {
   static thread_local std::string output;
   output.erase(output.begin(), output.end());
   Transaction transaction(sizeKey, request);
@@ -55,6 +70,40 @@ std::string_view Transaction::processRequest(const SIZETUPLE& sizeKey,
   if (sizeKey != prevKey) {
     prevKey = sizeKey;
     adVector = Ad::getAdsBySize(sizeKey);
+  }
+  transaction.matchAds(adVector);
+  if (!diagnostics) {
+    if (transaction._noMatch) {
+      output.append(transaction._id);
+      output.push_back(' ');
+      output.append(EMPTY_REPLY);
+    }
+    else
+      transaction.printSummary(output);
+    return output;
+  }
+  transaction.printDiagnostics(output);
+  return output;
+}
+
+std::string_view Transaction::processRequestNoSort(std::string_view request,
+						   bool diagnostics) noexcept {
+  static thread_local std::string output;
+  output.erase(output.begin(), output.end());
+  Transaction transaction(request);
+  if (request.empty()) {
+    LogError << "request is empty." << '\n';
+    transaction._invalid = true;
+    output.append("[unknown]");
+    output.append(INVALID_REQUEST);
+    return output;
+  }
+  static std::vector<Ad> empty;
+  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
+  static thread_local SIZETUPLE prevKey;
+  if (transaction._sizeKey != prevKey) {
+    prevKey = transaction._sizeKey;
+    adVector = Ad::getAdsBySize(transaction._sizeKey);
   }
   transaction.matchAds(adVector);
   if (!diagnostics) {
