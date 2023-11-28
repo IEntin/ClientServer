@@ -11,16 +11,13 @@
 
 void TransactionStrategy::set() {
   Ad::load(ServerOptions::_adsFileName);
-  ProcessRequest function;
   if (ServerOptions::_sortInput) {
     Task::setPreprocessFunction(Transaction::createSizeKey);
-    function = Transaction::processRequestSort;
-    Task::setProcessFunction(function);
+    Task::setProcessFunction(Transaction::processRequestSort);
   }
   else {
     Task::setPreprocessFunction(nullptr);
-    function = Transaction::processRequestNoSort;
-    Task::setProcessFunction(function);
+    Task::setProcessFunction(Transaction::processRequestNoSort);
   }
 }
 
