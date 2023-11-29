@@ -82,7 +82,6 @@ bool Task::processNext() {
     }
     catch (const std::bad_variant_access& e) {
       LogError << e.what() << '\n';
-      return false;
     }
   }
   return false;

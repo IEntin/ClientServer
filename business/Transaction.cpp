@@ -98,13 +98,7 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
     output.append(INVALID_REQUEST);
     return output;
   }
-  static std::vector<Ad> empty;
-  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = empty;
-  static thread_local SIZETUPLE prevKey;
-  if (transaction._sizeKey != prevKey) {
-    prevKey = transaction._sizeKey;
-    adVector = Ad::getAdsBySize(transaction._sizeKey);
-  }
+  const std::vector<Ad>& adVector = Ad::getAdsBySize(transaction._sizeKey);
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
