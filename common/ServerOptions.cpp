@@ -48,7 +48,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
   _tcpPort = appOptions.get("TcpPort", 49151);
-  _tcpTimeout = appOptions.get("TcpTimeout", 7000);
+  _tcpTimeout = appOptions.get("TcpTimeout", 2000);
   _sortInput = appOptions.get("SortInput", true);
   _timing = appOptions.get("Timing", false);
   // next 2 parameters may be decreased for better responsiveness

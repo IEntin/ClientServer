@@ -66,7 +66,6 @@ bool TcpSession::sendReply() {
 }
 
 void TcpSession::readHeader() {
-  asyncWait();
   boost::asio::async_read(_socket,
   boost::asio::buffer(_headerBuffer),
     [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
@@ -97,9 +96,10 @@ void TcpSession::readHeader() {
 }
 
 void TcpSession::readRequest(const HEADER& header) {
+  asyncWait();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
-      [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -114,6 +114,11 @@ void TcpSession::readRequest(const HEADER& header) {
 	return;
       if (serverutility::processTask(header, _request, _task))
 	sendReply();
+      else {
+	boost::asio::post(_ioContext, [this] {
+	  _timeoutTimer.cancel();
+	});
+      }
     });
 }
 
@@ -159,7 +164,7 @@ void TcpSession::asyncWait() {
       else {
 	LogError << "timeout" << '\n';
 	_status = STATUS::TCP_TIMEOUT;
-     }
+      }
     }
   });
 }

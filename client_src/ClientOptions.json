@@ -19,7 +19,7 @@
   "HeartbeatEnabled" : true,
   "_comment": "below in milliseconds.",
   "HeartbeatPeriod" : 15000,
-  "HeartbeatTimeout" : 7000,
+  "HeartbeatTimeout" : 2000,
   "ServerAddress" : "127.0.0.1",
   "_comment": "TcpPort must match server settings.",
   "TcpPort" : 49150,
