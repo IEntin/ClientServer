@@ -29,9 +29,9 @@ sudo make\
 sudo cp lib/*.a /usr/lib
 
 The compiler must support c++20\
-clang, currently 14.0.0\
+clang, currently 17.0.6\
 and/or\
-gcc, currenrly 11.3.0\
+gcc, currenrly 13.2.0\
 some previous versions will do as well.
 
 This server works with multiple mixed tcp and fifo clients.
