@@ -14,17 +14,19 @@ Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
   _fileSize = std::filesystem::file_size(fileName);
   _stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   _stream.open(fileName.data(), std::ios::binary);
+  refillBuffer();
 }
 
 bool Lines::getLineImpl(std::string_view& line) {
-  if (_currentPos == 0 ||
-      (_totalParsed < _fileSize && _processed >= _bufferRefillThreshold)) {
+  auto itBeg = _buffer.begin() + _processed;
+  auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
+  if (itEnd == _buffer.end() && _totalParsed < _fileSize) {
     removeProcessedLines();
     if (!refillBuffer())
       return false;
+    itBeg = _buffer.begin() + _processed;
+    itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
   }
-  auto itBeg = _buffer.begin() + _processed;
-  auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
   bool endsWithDelimiter = itEnd != _buffer.begin() + _sizeInUse;
   auto dist = std::distance(itBeg, itEnd);
   if (dist == 0)
@@ -54,17 +56,13 @@ bool Lines::getLineImpl(std::string_view& line) {
 bool Lines::refillBuffer() {
   if (_buffer.size() == _sizeInUse)
     return false;
-  size_t bytesToRead = std::min(_fileSize - _currentPos, _buffer.size() - _sizeInUse);
+  size_t bytesToRead = std::min(_fileSize - _stream.tellg(), _buffer.size() - _sizeInUse);
   if (bytesToRead == 0)
     return false;
   size_t shift = _sizeInUse;
   _sizeInUse += bytesToRead;
   assert(_sizeInUse <= _buffer.size() && "_sizeInUse exceeds ARRAY_SIZE");
   _stream.read(_buffer.data() + shift, bytesToRead);
-  _currentPos += bytesToRead;
-  static constexpr bool debug = false;
-  if (debug)
-    assert(_currentPos == static_cast<size_t>(_stream.tellg()));
   return true;
 }
 
