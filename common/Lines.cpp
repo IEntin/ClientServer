@@ -50,19 +50,15 @@ bool Lines::getLineImpl(std::string_view& line) {
     }
     return true;
   }
-  return false;
 }
 
 bool Lines::refillBuffer() {
-  if (_buffer.size() == _sizeInUse)
-    return false;
   size_t bytesToRead = std::min(_fileSize - _stream.tellg(), _buffer.size() - _sizeInUse);
   if (bytesToRead == 0)
     return false;
-  size_t shift = _sizeInUse;
-  _sizeInUse += bytesToRead;
-  assert(_sizeInUse <= _buffer.size() && "_sizeInUse exceeds ARRAY_SIZE");
-  _stream.read(_buffer.data() + shift, bytesToRead);
+  _stream.read(_buffer.data() + _sizeInUse, bytesToRead);
+  assert(bytesToRead == static_cast<size_t>(_stream.gcount()) && "Must be equal.");
+  _sizeInUse += _stream.gcount();
   return true;
 }
 
