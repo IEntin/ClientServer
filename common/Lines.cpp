@@ -5,7 +5,6 @@
 #include "Lines.h"
 
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <filesystem>
 
@@ -20,7 +19,7 @@ Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
 bool Lines::getLineImpl(std::string_view& line) {
   auto itBeg = _buffer.begin() + _processed;
   auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
-  if (itEnd == _buffer.end() && _totalParsed < _fileSize) {
+  if (itEnd == _buffer.end() && static_cast<size_t>(_stream.tellg()) < _fileSize) {
     removeProcessedLines();
     if (!refillBuffer())
       return false;
@@ -31,22 +30,18 @@ bool Lines::getLineImpl(std::string_view& line) {
   auto dist = std::distance(itBeg, itEnd);
   if (dist == 0)
     return false;
-  _totalParsed += dist + (endsWithDelimiter ? 1 : 0);
   ++_index;
   // optionally keep delimiter
-  line = { itBeg, itEnd + (_keepDelimiter ? 1 : 0) };
+  line = { itBeg, itEnd + (endsWithDelimiter && _keepDelimiter ? 1 : 0) };
   _processed += dist + 1;
-  if (_totalParsed == _fileSize)
+  if (_processed == _sizeInUse && static_cast<size_t>(_stream.tellg()) == _fileSize)
     _last = true;
   return true;
 }
 
 bool Lines::refillBuffer() {
   size_t bytesToRead = std::min(_fileSize - _stream.tellg(), _buffer.size() - _sizeInUse);
-  if (bytesToRead == 0)
-    return false;
   _stream.read(_buffer.data() + _sizeInUse, bytesToRead);
-  assert(bytesToRead == static_cast<size_t>(_stream.gcount()) && "Must be equal.");
   _sizeInUse += _stream.gcount();
   return true;
 }

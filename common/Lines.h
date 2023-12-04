@@ -36,7 +36,6 @@ class Lines {
   const bool _keepDelimiter;
   size_t _processed = 0;
   size_t _sizeInUse = 0;
-  size_t _totalParsed = 0;
   std::ifstream _stream;
   size_t _fileSize = 0;
   static constexpr unsigned ARRAY_SIZE = 32768;
