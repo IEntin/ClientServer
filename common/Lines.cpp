@@ -27,29 +27,18 @@ bool Lines::getLineImpl(std::string_view& line) {
     itBeg = _buffer.begin() + _processed;
     itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
   }
-  bool endsWithDelimiter = itEnd != _buffer.begin() + _sizeInUse;
+  bool endsWithDelimiter = itEnd != _buffer.end() && *itEnd == _delimiter;
   auto dist = std::distance(itBeg, itEnd);
   if (dist == 0)
     return false;
   _totalParsed += dist + (endsWithDelimiter ? 1 : 0);
-  if (endsWithDelimiter) {
-    ++_index;
-    // optionally keep delimiter
-    line = { itBeg, itEnd + (_keepDelimiter ? 1 : 0) };
-    _processed += dist + 1;
-    if (_totalParsed == _fileSize)
-      _last = true;
-    return true;
-  }
-  else {
-    if (_totalParsed == _fileSize) {
-      ++_index;
-      line = { itBeg, itEnd };
-      _processed += dist;
-      _last = true;
-    }
-    return true;
-  }
+  ++_index;
+  // optionally keep delimiter
+  line = { itBeg, itEnd + (_keepDelimiter ? 1 : 0) };
+  _processed += dist + 1;
+  if (_totalParsed == _fileSize)
+    _last = true;
+  return true;
 }
 
 bool Lines::refillBuffer() {
