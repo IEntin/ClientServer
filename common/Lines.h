@@ -23,7 +23,7 @@ class Lines {
     std::string_view view;
     if (!getLineImpl(view))
       return false;
-    line = { view.begin(), view.end() };
+    line = view;
     return true;
   }
   bool getLineImpl(std::string_view& line);

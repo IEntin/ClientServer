@@ -12,7 +12,7 @@ std::string_view Echo::processRequest(std::string_view request) noexcept {
   if (pos != std::string::npos && response[0] == '[')
     response.remove_prefix(pos + 1);
   static thread_local std::string result;
-  result.assign(response.data(), response.size());
+  result = response;
   result.push_back('\n');
-  return { result.data(), result.size() };
+  return result;
 }

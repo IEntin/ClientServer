@@ -120,7 +120,7 @@ std::string_view Crypto::encrypt(std::string_view data) {
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   cipher.insert(cipher.cend(), iv.begin(), iv.end());
-  return { cipher.data(), cipher.size() };
+  return cipher;
 }
 
 std::string_view Crypto::decrypt(std::string_view data) {
