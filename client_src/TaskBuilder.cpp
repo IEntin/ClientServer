@@ -78,8 +78,8 @@ void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
 STATUS TaskBuilder::createSubtask(Lines& lines) {
   // LogAlways << "\t### _aggregate.capacity()=" << _aggregate.capacity() << '\n';
   _aggregate.erase(_aggregate.begin(), _aggregate.end());
-  // estimate of max size considering additional id
-  size_t maxSubtaskSize = ClientOptions::_bufferSize * 0.9;
+  // lower bound estimate considering added id
+  size_t maxSubtaskSize = ClientOptions::_bufferSize - CONV_BUFFER_SIZE;
   std::string_view line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
@@ -90,7 +90,7 @@ STATUS TaskBuilder::createSubtask(Lines& lines) {
   return STATUS::NONE;
 }
 
-// Encrypt and compress requests if options require.
+// Compress and encypt requests if options require.
 // Generate header for every aggregated group of requests.
 STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   HEADER header{ HEADERTYPE::SESSION, 0, 0, ClientOptions::_compressor, ClientOptions::_encrypted, ClientOptions::_diagnostics, _status };

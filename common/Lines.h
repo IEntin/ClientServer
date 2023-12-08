@@ -38,6 +38,6 @@ class Lines {
   size_t _sizeInUse = 0;
   std::ifstream _stream;
   size_t _fileSize = 0;
-  static constexpr unsigned ARRAY_SIZE = 32768;
+  static constexpr unsigned ARRAY_SIZE = 65536;
   std::array<char, ARRAY_SIZE> _buffer;
 };
