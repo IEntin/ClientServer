@@ -47,7 +47,7 @@ Subtask& TaskBuilder::getSubtask() {
   _condition.wait(lock, [&] () mutable {
     if (_status == STATUS::ERROR ||_subtaskIndexConsumed < _subtasks.size()) {
       if (_status == STATUS::ERROR)
-	return true;
+	return false;
       subtaskRef = _subtasks[_subtaskIndexConsumed];
       STATUS state = subtaskRef.get()._state;
       if (state == STATUS::SUBTASK_DONE || state == STATUS::TASK_DONE)

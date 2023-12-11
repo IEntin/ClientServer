@@ -46,7 +46,6 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
 	return false;
       }
     }
-    return true;
   }
   return false;
 }
