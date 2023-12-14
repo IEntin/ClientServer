@@ -26,7 +26,7 @@ void TaskBuilder::run() {
   while (!_stopped) {
     _resume = false;
     try {
-      // can be a new file or same for tests.
+      // can be a new or the same source for tests.
       Lines lines(ClientOptions::_sourceName, '\n', true);
       while (createSubtask(lines) == STATUS::SUBTASK_DONE) {}
       std::unique_lock lock(_mutex);
@@ -100,7 +100,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     return STATUS::NONE;
   std::reference_wrapper<Subtask> subtaskRef = _subtasks[0];
   unsigned index = _subtaskIndexProduced.fetch_add(1);
-  if (index >= _subtasks.size())
+  if (index == _subtasks.size())
     subtaskRef = _subtasks.emplace_back();
   else
     subtaskRef = _subtasks[index];
