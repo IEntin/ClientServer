@@ -28,7 +28,14 @@ int main() {
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
   ClientOptions clientOptions;
-  clientOptions.parse("ClientOptions.json");
+  std::string fileName("ClientOptions.json");
+  // The folowing covers setup with the client starting from
+  // the project root rather than prepared client directory.
+  if (!std::filesystem::exists(fileName)) {
+    LogError << fileName << " not found,\n trying client_src/ClientOptions.json.\n";
+    fileName = "client_src/ClientOptions.json";
+  }
+  clientOptions.parse(fileName);
   try {
     if (clientOptions._fifoClient) {
       fifo::FifoClient client;
