@@ -150,7 +150,7 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 .PHONY: clean cleanall
 
 clean:
-	$(RM) *.o */*.o *.d */*.d $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
+	$(RM) build/* $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
 gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
 
 cleanall : clean
