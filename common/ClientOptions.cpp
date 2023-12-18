@@ -67,7 +67,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);
-  _bufferSize = appOptions.get("DYNAMIC_BUFFER_SIZE", 100000);
+  _bufferSize = appOptions.get("BufferSize", 100000);
   _timing = appOptions.get("Timing", false);
   // next 2 parameters may be decreased for better responsiveness
   // or increased to prevent deadlocking on slow machines.

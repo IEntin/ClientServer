@@ -18,7 +18,7 @@ testing purposes. Secure procedure for key exchange must be used in a production
 
 Prerequisites:
 
-Header only boost libraries, currently boost 1_83.
+Header only boost libraries, currently boost 1_84.
 
 google tests must be installed:\
 sudo apt-get install libgtest-dev\
@@ -220,9 +220,9 @@ If the value is empty or different the compression is disabled.
 "Timing" prints elapsed times between selected lines of the code. Currently it shows client latency\
 for the batch of 10000 requests and the total run time for the server. See Chronometer class in the code.
 
-"DYNAMIC_BUFFER_SIZE" is the size of the memory pool entries.\
+"BufferSize" is the maximum size of the aggregated client request.\
 This parameter controls the task size(the number of requests in the batch) and\
-memory footprint of the application. The latter is important for embedded systems.
+memory footprint of the server and client. This is important for embedded systems.
 
 "NumberTaskThreads" is the number of work threads. The default\
 value 0 means that the number of threads is std::hardware_concurrency

@@ -16,6 +16,7 @@
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4; done
 
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
@@ -35,13 +36,18 @@ struct EchoTest : testing::Test {
     server.stop();
   }
 
-  void testEchoFifo(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
+  void testEchoFifo(COMPRESSORS serverCompressor,
+		    COMPRESSORS clientCompressor,
+		    bool serverEncrypt,
+		    bool clientEncrypt) {
     // start server
     ServerOptions::_compressor = serverCompressor;
+    ServerOptions::_encrypted = serverEncrypt;
     Server server(std::make_unique<EchoStrategy>());
     ASSERT_TRUE(server.start());
     // start client
     ClientOptions::_compressor = clientCompressor;
+    ClientOptions::_encrypted = clientEncrypt;
     {
       fifo::FifoClient client;
       client.run();
@@ -71,20 +77,32 @@ TEST_F(EchoTest, TCP_NONE_LZ4) {
   testEchoTcp(COMPRESSORS::NONE, COMPRESSORS::LZ4);
 }
 
-TEST_F(EchoTest, FIFO_LZ4_LZ4) {
-  testEchoFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4);
+TEST_F(EchoTest, FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT) {
+  testEchoFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true);
 }
 
-TEST_F(EchoTest, FIFO_NONE_NONE) {
-  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::NONE);
+TEST_F(EchoTest, FIFO_NONE_NONE_ENCRYPT_ENCRYPT) {
+  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::NONE, true, true);
 }
 
-TEST_F(EchoTest, FIFO_LZ4_NONE) {
-  testEchoFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE);
+TEST_F(EchoTest, FIFO_LZ4_NONE_ENCRYPT_ENCRYPT) {
+  testEchoFifo(COMPRESSORS::LZ4, COMPRESSORS::NONE, true, true);
 }
 
-TEST_F(EchoTest, FIFO_NONE_LZ4) {
-  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4);
+TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_ENCRYPT) {
+  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, true, true);
+}
+
+TEST_F(EchoTest, FIFO_NONE_LZ4_NOTENCRYPT_ENCRYPT) {
+  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, false, true);
+}
+
+TEST_F(EchoTest, FIFO_NONE_LZ4_NOTENCRYPT_NOTENCRYPT) {
+  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, false, false);
+}
+
+TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
+  testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, true, false);
 }
 
 struct FifoNonblockingTest : testing::Test {

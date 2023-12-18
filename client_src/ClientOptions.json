@@ -11,7 +11,7 @@
   "Encrypted" : true,
   "_comment": "If true logs crypto key and iv.",
   "ShowKey" : false,
-  "DYNAMIC_BUFFER_SIZE" : 3000000,
+  "BufferSize" : 3000000,
   "Timing" : true,
   "RunLoop" : true,
   "_comment": "0 for unlimited",
