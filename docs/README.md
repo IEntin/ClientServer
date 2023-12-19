@@ -31,7 +31,7 @@ sudo cp lib/*.a /usr/lib
 The compiler must support c++20\
 clang, currently 17.0.6\
 and/or\
-gcc, currenrly 13.2.0\
+gcc, currenrtly 13.2.0\
 some previous versions will do as well.
 
 This server works with multiple mixed tcp and fifo clients.
@@ -129,7 +129,7 @@ Business logic, compression, task multithreading, and communication layers are d
 
 Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores and on Ubuntu 22.04. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GiB on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
 
 To test the code manually (not using deploy.sh):
 
@@ -169,7 +169,7 @@ fifo:\
   "AcceptorName" : "Acceptor", named pipe for fifo acceptor.
 
 tcp:
-  "TcpPort" : "49152",\
+  "TcpPort" : "49150",\
   "Timeout" : 5,
 
 client #1:\
@@ -182,7 +182,7 @@ fifo:\
 
 tcp:\
   "ServerHost" : "server hostname",\
-  "TcpPort" : "49152"
+  "TcpPort" : "49150"
 
 To start:\
 in the server terminal\
@@ -202,14 +202,13 @@ directory, copy ClientOptions.json, and run './client'.
 
 No special requirements for the hardware.\
 Using laptop with 4 cores and 4GB RAM to run the server and up to 5 fifo and tcp clients.\
-Running Linux Mint 20.2.\
 Multiple runtime options are in ServerOptions.json and ClientOptions.json files\
 in corresponding directories.
 
 Some of these:
 
 LogThreshold controls the amount of logging selecting one of 5 levels
-TRACE, DEBUG, INFO, WARN, and ERROR, e.g. with setting
+TRACE, DEBUG, INFO, WARN, ERROR, ALWAYS, e.g. with setting
 "LogThreshold" : "INFO"
 log statements with level INFO and higher will be printed.
 
@@ -224,7 +223,7 @@ for the batch of 10000 requests and the total run time for the server. See Chron
 This parameter controls the task size(the number of requests in the batch) and\
 memory footprint of the server and client. This is important for embedded systems.
 
-"NumberTaskThreads" is the number of work threads. The default\
+"NumberTaskThreads" is the number of worker threads. The default\
 value 0 means that the number of threads is std::hardware_concurrency
 
 Client can request diagnostics for a specific task to show details of all stages of business calculations.\
