@@ -129,7 +129,7 @@ Business logic, compression, task multithreading, and communication layers are d
 
 Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GiB on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GiB RAM on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
 
 To test the code manually (not using deploy.sh):
 
@@ -201,7 +201,7 @@ Similarly for the client: create a directory, copy binary client, make a soft li
 directory, copy ClientOptions.json, and run './client'.
 
 No special requirements for the hardware.\
-Using laptop with 4 cores and 4GB RAM to run the server and up to 5 fifo and tcp clients.\
+Tested on desktop with 4 cores and 8GiB RAM to run the server and up to 30 mixed fifo and tcp clients.\
 Multiple runtime options are in ServerOptions.json and ClientOptions.json files\
 in corresponding directories.
 
