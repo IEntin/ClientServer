@@ -4,11 +4,13 @@
 
 #include <filesystem>
 
+#include "ClientOptions.h"
 #include "Fifo.h"
 #include "EchoStrategy.h"
 #include "FifoClient.h"
 #include "Logger.h"
 #include "Server.h"
+#include "ServerOptions.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 

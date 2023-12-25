@@ -2,9 +2,11 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include "ClientOptions.h"
 #include "FifoClient.h"
 #include "Logger.h"
 #include "Server.h"
+#include "ServerOptions.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 #include "TransactionStrategy.h"

@@ -8,9 +8,6 @@
 
 #include <gtest/gtest.h>
 
-#include "ClientOptions.h"
-#include "ServerOptions.h"
-
 class TestEnvironment : public ::testing::Environment {
 public:
 
