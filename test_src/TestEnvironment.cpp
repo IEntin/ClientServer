@@ -13,6 +13,7 @@
 #include "Utility.h"
 
 std::ostringstream TestEnvironment::_oss;
+ClientOptions TestEnvironment::_clientOptions;
 ServerOptions TestEnvironment::_serverOptions;
 std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
@@ -22,9 +23,8 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    _serverOptions.parse("");
-    ClientOptions clientOptions;
-    clientOptions.parse("", &_oss);
+    ServerOptions::parse("");
+    ClientOptions::parse("", &_oss);
     utility::readFile(ClientOptions::_sourceName, _source);
     utility::readFile("data/outputD.txt", _outputD);
     utility::readFile("data/outputND.txt", _outputND);

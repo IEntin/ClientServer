@@ -76,7 +76,6 @@ bool Task::processNext() {
 	break;
       default:
 	return false;
-	break;
       }
       return true;
     }

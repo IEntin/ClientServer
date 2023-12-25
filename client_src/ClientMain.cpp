@@ -35,15 +35,15 @@ int main() {
     LogError << fileName << " not found,\n trying client_src/ClientOptions.json.\n";
     fileName = "client_src/ClientOptions.json";
   }
-  clientOptions.parse(fileName);
+  ClientOptions::parse(fileName);
   try {
-    if (clientOptions._fifoClient) {
+    if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;
       clientPtr.store(&client);
       if (!client.run())
 	return 1;
     }
-    if (clientOptions._tcpClient) {
+    if (ClientOptions::_tcpClient) {
       tcp::TcpClient client;
       clientPtr.store(&client);
       if (!client.run())

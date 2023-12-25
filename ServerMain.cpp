@@ -33,7 +33,7 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions serverOptions;
-    serverOptions.parse("ServerOptions.json");
+    ServerOptions::parse("ServerOptions.json");
     Server server(std::make_unique<TransactionStrategy>());
     if (!server.start())
       return 3;

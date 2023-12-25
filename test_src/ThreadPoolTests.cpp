@@ -2,11 +2,11 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ThreadPoolDiffObj.h"
-#include "ThreadPoolSameObj.h"
-
 #include <boost/algorithm/string.hpp>
 #include <gtest/gtest.h>
+
+#include "ThreadPoolDiffObj.h"
+#include "ThreadPoolSameObj.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=ThreadPoolTest*; done
 

@@ -8,6 +8,10 @@
 
 #include <gtest/gtest.h>
 
+#include "ClientOptions.h"
+
+#include "ServerOptions.h"
+
 class TestEnvironment : public ::testing::Environment {
 public:
 
@@ -22,6 +26,7 @@ public:
   static void reset();
 
   static std::ostringstream _oss;
+  static struct ClientOptions _clientOptions;
   static struct ServerOptions _serverOptions;
   static std::string _source;
   static std::string _outputD;

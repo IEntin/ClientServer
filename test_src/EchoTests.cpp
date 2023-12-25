@@ -5,11 +5,9 @@
 #include <filesystem>
 
 #include "Fifo.h"
-#include "ClientOptions.h"
 #include "EchoStrategy.h"
 #include "FifoClient.h"
 #include "Logger.h"
-#include "ServerOptions.h"
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
@@ -155,7 +153,9 @@ struct FifoNonblockingTest : testing::Test {
 
   void SetUp() {}
 
-  void TearDown() {}
+  void TearDown() {
+    TestEnvironment::reset();
+  }
 };
 
 TEST_F(FifoNonblockingTest, FifoNonblockingTestD) {

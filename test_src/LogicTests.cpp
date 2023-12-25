@@ -2,10 +2,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ClientOptions.h"
 #include "FifoClient.h"
 #include "Logger.h"
-#include "ServerOptions.h"
 #include "Server.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"

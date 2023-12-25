@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
 #include "Lines.h"
