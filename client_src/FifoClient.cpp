@@ -38,7 +38,7 @@ bool FifoClient::run() {
 bool FifoClient::send(const Subtask& subtask) {
   std::string_view body(subtask._body.data(), subtask._body.size());
   while (true) {
-    if (_signalFlag) {
+    if (_closeFlag) {
       Fifo::onExit(_fifoName);
       std::error_code ec;
       std::filesystem::remove(_fifoName, ec);
@@ -93,7 +93,7 @@ bool FifoClient::receiveStatus() {
 }
 
 void FifoClient::close() {
-  _signalFlag.store(true);
+  _closeFlag.store(true);
 }
 
 } // end of namespace fifo

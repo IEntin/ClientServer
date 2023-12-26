@@ -29,7 +29,7 @@ class Client {
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder1;
   TaskBuilderWeakPtr _taskBuilder2;
-  std::atomic<bool> _signalFlag = false;
+  std::atomic<bool> _closeFlag = false;
  public:
   virtual ~Client();
 

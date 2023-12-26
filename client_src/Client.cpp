@@ -15,7 +15,7 @@ Client::Client() :
 
 Client::~Client() {
   stop();
-  _signalFlag.store(false);
+  _closeFlag.store(false);
   Trace << '\n';
 }
 
