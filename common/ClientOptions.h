@@ -12,8 +12,7 @@ struct ClientOptions {
   ClientOptions() = delete;
   ~ClientOptions() = delete;
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
-  static void setActive() { _active = true; }
-  static bool _active;
+  static bool _isSet;
   static bool _fifoClient;
   static bool _tcpClient;
   static std::string _fifoDirectoryName;

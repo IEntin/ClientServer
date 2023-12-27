@@ -27,7 +27,6 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
-  ClientOptions::setActive();
   std::string fileName("ClientOptions.json");
   // The folowing covers setup with the client starting from
   // the project root rather than prepared client directory.

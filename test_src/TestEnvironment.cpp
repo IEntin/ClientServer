@@ -21,7 +21,7 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    ServerOptions::setActive();
+    // ServerOptions value is always selected in tests.
     ServerOptions::parse("");
     ClientOptions::parse("", &_oss);
     utility::readFile(ClientOptions::_sourceName, _source);

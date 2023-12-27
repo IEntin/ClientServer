@@ -10,7 +10,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-bool ServerOptions::_active = false;
+bool ServerOptions::_isSet = false;
 std::string ServerOptions::_adsFileName;
 std::string ServerOptions::_fifoDirectoryName;
 std::string ServerOptions::_acceptorName;
@@ -33,6 +33,7 @@ bool ServerOptions::_setPipeSize;
 size_t ServerOptions::_pipeSize;
 
 void ServerOptions::parse(std::string_view jsonName) {
+  _isSet = true;
   AppOptions appOptions(jsonName);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());

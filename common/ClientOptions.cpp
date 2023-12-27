@@ -7,7 +7,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-bool ClientOptions::_active = false;
+bool ClientOptions::_isSet = false;
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
 std::string  ClientOptions::_fifoDirectoryName;
@@ -34,6 +34,7 @@ std::string ClientOptions::_serverAddress;
 unsigned short ClientOptions::_tcpPort;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
+  _isSet = true;
   AppOptions appOptions(jsonName);
   std::string clientType = appOptions.get("ClientType", std::string(""));
   _fifoClient = clientType == "FIFO";

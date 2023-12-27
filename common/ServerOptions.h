@@ -11,9 +11,8 @@ enum class COMPRESSORS : char;
 struct ServerOptions {
   ServerOptions() = delete;
   ~ServerOptions() = delete;
-  static void setActive() { _active = true; }
   static void parse(std::string_view jsonName);
-  static bool _active;
+  static bool _isSet;
   static std::string _adsFileName;
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;

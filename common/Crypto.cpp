@@ -94,7 +94,7 @@ std::string_view Crypto::encrypt(std::string_view data) {
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
   bool showKey = false;
-  if (ServerOptions::_active)
+  if (ServerOptions::_isSet)
     showKey = ServerOptions::_showKey;
   else
     showKey = ClientOptions::_showKey;
