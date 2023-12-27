@@ -94,21 +94,10 @@ std::string_view Crypto::encrypt(std::string_view data) {
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
   bool showKey = false;
-  try {
-    if (ServerOptions::_this.has_value() && ServerOptions::_this.type() == typeid(ServerOptions*)) {
-      const ServerOptions* serverOptions =
-	std::any_cast<ServerOptions*>(ServerOptions::_this);
-      showKey = serverOptions->_showKey;
-    }
-    else if (ClientOptions::_this.has_value()) {
-      const ClientOptions* clientOptions =
-	std::any_cast<ClientOptions*>(ClientOptions::_this);
-      showKey = clientOptions->_showKey;
-    }
-  }
-  catch (const std::bad_any_cast& e) {
-    LogError << e.what() << '\n';
-  }
+  if (ServerOptions::_this.has_value())
+    showKey = ServerOptions::_showKey;
+  else
+    showKey = ClientOptions::_showKey;
   if (showKey)
     static bool showOnce [[maybe_unused]] = showIv(iv);
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());

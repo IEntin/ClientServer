@@ -4,7 +4,6 @@
 
 #include "Fifo.h"
 
-#include <any>
 #include <chrono>
 #include <fcntl.h>
 #include <filesystem>
@@ -192,23 +191,13 @@ short Fifo::pollFd(int fd, short expected) {
 bool Fifo::setPipeSize(int fd) {
   bool setPipeBufferSize = false;
   long pipeSize = 0;
-  try {
-    if (ServerOptions::_this.has_value() && ServerOptions::_this.type() == typeid(ServerOptions*)) {
-      const ServerOptions* serverOptions =
-	std::any_cast<ServerOptions*>(ServerOptions::_this);
-      setPipeBufferSize = serverOptions->_setPipeSize;
-      pipeSize = serverOptions->_pipeSize;
-    }
-    else if (ClientOptions::_this.has_value()) {
-      const ClientOptions* clientOptions =
-	std::any_cast<ClientOptions*>(ClientOptions::_this);
-      setPipeBufferSize = clientOptions->_setPipeSize;
-      pipeSize = clientOptions->_pipeSize;
-    }
+  if (ServerOptions::_this.has_value()) {
+    setPipeBufferSize = ServerOptions::_setPipeSize;
+    pipeSize = ServerOptions::_pipeSize;
   }
-  catch (const std::bad_any_cast& e) {
-    LogError << e.what() << '\n';
-    return false;
+  else {
+    setPipeBufferSize = ClientOptions::_setPipeSize;
+    pipeSize = ClientOptions::_pipeSize;
   }
   if (!setPipeBufferSize)
     return false;
@@ -244,23 +233,13 @@ void Fifo::onExit(std::string_view fifoName) {
 int Fifo::openWriteNonBlock(std::string_view fifoName) {
   int numberRepeatENXIO = 0;
   int ENXIOwait = 0;
-  try {
-    if (ServerOptions::_this.has_value() && ServerOptions::_this.type() == typeid(ServerOptions*)) {
-      const ServerOptions* serverOptions =
-	std::any_cast<ServerOptions*>(ServerOptions::_this);
-      numberRepeatENXIO = serverOptions->_numberRepeatENXIO;
-      ENXIOwait = serverOptions->_ENXIOwait;
-    }
-    else if (ClientOptions::_this.has_value()) {
-      const ClientOptions* clientOptions =
-	std::any_cast<ClientOptions*>(ClientOptions::_this);
-      numberRepeatENXIO = clientOptions->_numberRepeatENXIO;
-      ENXIOwait = clientOptions->_ENXIOwait;
-    }
+  if (ServerOptions::_this.has_value()) {
+    numberRepeatENXIO = ServerOptions::_numberRepeatENXIO;
+    ENXIOwait = ServerOptions::_ENXIOwait;
   }
-  catch (const std::bad_any_cast& e) {
-    LogError << e.what() << '\n';
-    return -1;
+  else {
+    numberRepeatENXIO = ClientOptions::_numberRepeatENXIO;
+    ENXIOwait = ClientOptions::_ENXIOwait;
   }
   int fd = -1;
   int rep = 0;
