@@ -21,9 +21,8 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    ServerOptions serverOptions;
+    ServerOptions::setActive();
     ServerOptions::parse("");
-    ClientOptions clientOptions;
     ClientOptions::parse("", &_oss);
     utility::readFile(ClientOptions::_sourceName, _source);
     utility::readFile("data/outputD.txt", _outputD);

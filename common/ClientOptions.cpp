@@ -7,7 +7,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-std::any ClientOptions::_this;
+bool ClientOptions::_active = false;
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
 std::string  ClientOptions::_fifoDirectoryName;

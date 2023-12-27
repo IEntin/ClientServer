@@ -4,18 +4,16 @@
 
 #pragma once
 
-#include <any>
 #include <filesystem>
 
 enum class COMPRESSORS : char;
 
 struct ServerOptions {
-  ServerOptions() {
-    _this = this;
-  }
-  ~ServerOptions() = default;
-  static std::any _this;
+  ServerOptions() = delete;
+  ~ServerOptions() = delete;
+  static void setActive() { _active = true; }
   static void parse(std::string_view jsonName);
+  static bool _active;
   static std::string _adsFileName;
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;

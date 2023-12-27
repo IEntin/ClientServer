@@ -191,7 +191,7 @@ short Fifo::pollFd(int fd, short expected) {
 bool Fifo::setPipeSize(int fd) {
   bool setPipeBufferSize = false;
   long pipeSize = 0;
-  if (ServerOptions::_this.has_value()) {
+  if (ServerOptions::_active) {
     setPipeBufferSize = ServerOptions::_setPipeSize;
     pipeSize = ServerOptions::_pipeSize;
   }
@@ -233,7 +233,7 @@ void Fifo::onExit(std::string_view fifoName) {
 int Fifo::openWriteNonBlock(std::string_view fifoName) {
   int numberRepeatENXIO = 0;
   int ENXIOwait = 0;
-  if (ServerOptions::_this.has_value()) {
+  if (ServerOptions::_active) {
     numberRepeatENXIO = ServerOptions::_numberRepeatENXIO;
     ENXIOwait = ServerOptions::_ENXIOwait;
   }
