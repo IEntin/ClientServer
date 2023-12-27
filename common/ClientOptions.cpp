@@ -3,6 +3,9 @@
  */
 
 #include "ClientOptions.h"
+
+#include <filesystem>
+
 #include "AppOptions.h"
 #include "Compression.h"
 #include "Logger.h"

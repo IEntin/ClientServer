@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <filesystem>
+#include <string>
 
 enum class COMPRESSORS : char;
 

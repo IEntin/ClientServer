@@ -4,6 +4,8 @@
 
 #include <csignal>
 
+#include <filesystem>
+
 #include "ClientOptions.h"
 #include "Metrics.h"
 #include "FifoClient.h"

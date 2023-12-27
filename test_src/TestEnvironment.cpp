@@ -21,7 +21,13 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    // ServerOptions value is always selected in tests.
+    // ServerOptions structure is always selected in
+    // tests unless ClientOptions explicitly specified.
+    // This does not change the results because
+    // default values extracted in tests which cannot
+    // be changed without rebuild. Currently default
+    // values for common items in ServerOptions and
+    // ClientOptions are the same.
     ServerOptions::parse("");
     ClientOptions::parse("", &_oss);
     utility::readFile(ClientOptions::_sourceName, _source);

@@ -4,6 +4,7 @@
 
 #include "ServerOptions.h"
 
+#include <filesystem>
 #include <thread>
 
 #include "AppOptions.h"
