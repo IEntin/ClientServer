@@ -21,13 +21,20 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    // ServerOptions structure is always selected in
-    // tests unless ClientOptions explicitly specified.
-    // This does not change the results because
-    // default values extracted in tests which cannot
-    // be changed without rebuild. Currently default
-    // values for common items in ServerOptions and
-    // ClientOptions are the same.
+    // Tests run in the same process and the logic
+    // always selects ServerOptions unless
+    // ClientOptions explicitly specified. Extracted
+    // default values are the same for the
+    // server and client, tests do not change these values
+    // although values in json files can be changed in real
+    // apps. The list of affected settings with default values:
+    //
+    // _showKey = false
+    // _setPipeBufferSize = true
+    // _pipeSize = 1000000
+    // _numberRepeatENXIO = 50
+    // _ENXIOwait = 10
+    //
     ServerOptions::parse("");
     ClientOptions::parse("", &_oss);
     utility::readFile(ClientOptions::_sourceName, _source);
