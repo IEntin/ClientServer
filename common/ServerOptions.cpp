@@ -11,7 +11,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-bool ServerOptions::_isSet = false;
+bool ServerOptions::_parsed = false;
 std::string ServerOptions::_adsFileName;
 std::string ServerOptions::_fifoDirectoryName;
 std::string ServerOptions::_acceptorName;
@@ -34,13 +34,13 @@ bool ServerOptions::_setPipeSize;
 size_t ServerOptions::_pipeSize;
 
 void ServerOptions::parse(std::string_view jsonName) {
-  _isSet = true;
+  _parsed = true;
   AppOptions appOptions(jsonName);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
-  _encrypted = appOptions.get("Encrypted", false);
+  _encrypted = appOptions.get("Encrypted", true);
   _cryptoKeySize = appOptions.get("CryptoKeySize", 32);
   _invalidateKey = appOptions.get("InvalidateKey", true);
   _showKey = appOptions.get("ShowKey", false);

@@ -10,7 +10,7 @@
 #include "Compression.h"
 #include "Logger.h"
 
-bool ClientOptions::_isSet = false;
+bool ClientOptions::_parsed = false;
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
 std::string  ClientOptions::_fifoDirectoryName;
@@ -37,7 +37,7 @@ std::string ClientOptions::_serverAddress;
 unsigned short ClientOptions::_tcpPort;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
-  _isSet = true;
+  _parsed = true;
   AppOptions appOptions(jsonName);
   std::string clientType = appOptions.get("ClientType", std::string(""));
   _fifoClient = clientType == "FIFO";
@@ -45,7 +45,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
-  _encrypted = appOptions.get("Encrypted", false);
+  _encrypted = appOptions.get("Encrypted", true);
   _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)

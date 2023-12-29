@@ -21,15 +21,15 @@ std::string TestEnvironment::_outputAltFormatD;
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   try {
-    // Tests run in the same process and the logic
-    // always selects ServerOptions unless
-    // ClientOptions explicitly specified. Extracted
-    // default values are the same for the
-    // server and client, tests do not change these values
-    // although values in json files can be changed in real
-    // apps. The list of affected settings with default values:
+    // Server and client in tests run in the same process
+    // and the logic for *common* options always selects
+    // values form ServerOptions unless ClientOptions
+    // is explicitly specified. Extracted default values 
+    // are the same for the server and client.
+    // Tests do not change these values although values 
+    // in json files can be different and arbitrarely changeable in
+    // real apps. The list of affected settings with default values:
     //
-    // _showKey = false
     // _setPipeBufferSize = true
     // _pipeSize = 1000000
     // _numberRepeatENXIO = 50

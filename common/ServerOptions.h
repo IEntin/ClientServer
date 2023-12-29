@@ -12,7 +12,7 @@ struct ServerOptions {
   ServerOptions() = delete;
   ~ServerOptions() = delete;
   static void parse(std::string_view jsonName);
-  static bool _isSet;
+  static bool _parsed;
   static std::string _adsFileName;
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;
