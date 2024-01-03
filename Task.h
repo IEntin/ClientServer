@@ -37,7 +37,7 @@ struct RequestRow {
 
   SIZETUPLE _sizeKey;
   std::string_view _value;
-  int _orgIndex = 0;
+  unsigned _orgIndex = 0;
 };
 
 class Task : private boost::noncopyable {
@@ -47,10 +47,10 @@ class Task : private boost::noncopyable {
     ECHOFUNCTION
   };
   std::vector<RequestRow> _rows;
-  std::vector<int> _indices;
+  std::vector<unsigned> _indices;
   Response& _response;
   std::promise<void> _promise;
-  std::atomic<int> _index = 0;
+  std::atomic<unsigned> _index = 0;
   bool _diagnostics;
   static ProcessRequest _function;
   static Response _emptyResponse;

@@ -1,7 +1,42 @@
 Copyright (C) 2021 Ilya Entin.
 
-### Fast Linux Lockless Client-Server with FIFO and TCP clients, compression and encryption
-To test this software clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
+# Fast Linux Lockless Client-Server with mixed FIFO and TCP clients, compression and encryption
+
+## Quick Start
+
+### Prerequisites:
+
+This code was build and tested on
+
+1. Ubuntu 23.10\
+gcc 13.2.0\
+clang 17.0.6\
+8GB RAM\
+4 cores
+
+and
+
+2. Mint 20.3\
+gcc 11.4.0\
+clang 12.0.0\
+4GB RAM\
+4 cores
+
+Any distribution and version supporting C++20 is expected to work as well.
+
+Header only boost libraries, currently boost 1_84.
+
+google tests must be installed:\
+sudo apt-get install libgtest-dev\
+sudo apt-get install cmake\
+cd /usr/src/gtest\
+sudo cmake CMakeLists.txt\
+sudo make\
+sudo cp lib/*.a /usr/lib
+
+### Building and Testing
+
+Clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
 This script will download requested source and build the library in /usr/local directory,\
 one has to be a superuser to do that,current source is cryptopp890.zip.\
 Then run deploy.sh script in the project root.\
@@ -14,27 +49,13 @@ Test scripts refresh keys internally. Crypto initialization vector iv is generat
 for every message being encrypted and sent for further processing inside the message.
 
 Tools provided here for saving, copying, and viewing crypto key are intended for\
-testing purposes. Secure procedure for key exchange must be used in a production system.
+testing. Secure procedure for key exchange must be used in a production system.
 
-Prerequisites:
+## Design
 
-Header only boost libraries, currently boost 1_84.
-
-google tests must be installed:\
-sudo apt-get install libgtest-dev\
-sudo apt-get install cmake\
-cd /usr/src/gtest\
-sudo cmake CMakeLists.txt\
-sudo make\
-sudo cp lib/*.a /usr/lib
-
-The compiler must support c++20\
-clang, currently 17.0.6\
-and/or\
-gcc, currenrtly 13.2.0\
-some previous versions will do as well.
-
-This server works with multiple mixed tcp and fifo clients.
+Business logic, tasks multithreading, and communication layer are decoupled.\
+Business logic is an example of financial calculations. It can be replaced with any\
+other batch processing from a different field, not necessarily financial.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\
@@ -129,7 +150,7 @@ Business logic, compression, task multithreading, and communication layers are d
 
 Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GiB RAM on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GB RAM on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
 
 To test the code manually (not using deploy.sh):
 
@@ -152,7 +173,7 @@ There are four targets:\
 server client testbin runtests.\
 runtests is a pseudo target which invokes running\
 tests if this target is older than test binary testbin.\
-By default all targets are built:\
+By default all targets are built and tests run:\
 'make -j4'\
 (4 is the number of cpu cores)\
 Any combination of targets can be specified, e.g.\
@@ -201,7 +222,7 @@ Similarly for the client: create a directory, copy binary client, make a soft li
 directory, copy ClientOptions.json, and run './client'.
 
 No special requirements for the hardware.\
-Tested on desktop with 4 cores and 8GiB RAM to run the server and up to 30 mixed fifo and tcp clients.\
+Tested on desktop with 4 cores and 8GB RAM to run the server and up to 30 mixed fifo and tcp clients.\
 Multiple runtime options are in ServerOptions.json and ClientOptions.json files\
 in corresponding directories.
 
@@ -242,19 +263,24 @@ testbin from the project_root, issue './testbin' command.\
 Note that testbin is not using program options. Instead, it is using\
 defaults.
 
+The simplest test with a single client runs client and server in\
+the same project root directory from two terminals. In this case\
+a special client directory is not required.
+
 Script profile.sh runs profiling of server and both client types.\
- The usage is\
+The usage is\
 './profile.sh' in the project root. Two directories for clients\
 should exist with necessary files and links.
 
-Script checkstuff.sh runs builds and tests application with both\
-g++ and clang++, with and without sanitizers. Run './checkstuff -h' to see usage.
+Scripts longtests.sh and checkstuff.sh run builds and tests with both\
+g++ and clang++, with and without sanitizers.\
+'./longtests.sh -h' and 'scripts/checkstuff -h' show details.
 
 We run memory and thread sanitizer and performance profiling for every commit.\
 Warnings are considered failures.
 
 =======
-### Fast Lockless Linux Client-Server with TCP and FIFO clients, compression and encryption
+# Fast Lockless Linux Client-Server with TCP and FIFO clients, compression and encryption
 
 Using both bidirectional named pipes and tcp.\
 Lockless: except infrequent queue operations.\

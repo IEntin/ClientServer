@@ -8,7 +8,7 @@
   "_comment" : "32 or 16",
   "CryptoKeySize" : 32,
   "_comment": "If true invalidates crypto key on every restart,",
-  "_comment": "else checks if a key can be reused - tests only",
+  "_comment": "else checks if a key can be reused.",
   "InvalidateKey" : false,
   "_comment": "if true logs crypto key and iv.",
   "ShowKey" : false,
@@ -25,6 +25,6 @@
   "ENXIOwait" : 10,
   "SetPipeSize" : true,
   "PipeSize" : 1000000,
-  "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",
+  "_comment": "any of TRACE, DEBUG, INFO, WARN, ERROR",
   "LogThreshold" : "INFO"
 }

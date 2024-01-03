@@ -14,7 +14,7 @@
   "BufferSize" : 3000000,
   "Timing" : true,
   "RunLoop" : true,
-  "_comment": "0 for unlimited",
+  "_comment": "0 for unlimited if RunLoop is true.",
   "MaxNumberTasks" : 0,
   "HeartbeatEnabled" : true,
   "_comment": "below in milliseconds.",
