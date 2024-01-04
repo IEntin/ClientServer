@@ -14,19 +14,21 @@ if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
     echo "This script calls make with different parameters."
     echo "If build succeeds the client binary is copied to"
-    echo "Client directories."
+    echo "all client directories."
+    echo "Runs tests at the end."
     echo "Usage: cd to the project root and run this script"
-    echo "./compile.sh GDWARF=<gdwarf-5 or gdwarf-4 or ''>"
-    echo "SANITIZE=<aul or thread> OPTIMIZE=<-Ox or empty>"
+    echo "with any combination of arguments or without arguments"
+    echo "compile.sh"
+    echo "CMPLR<g++ | clang++>"
+    echo "SANITIZE=<aul | thread>"
+    echo "OPTIMIZE=<-O0 | -O1 | -O2 | -O3>"
+    echo "GDWARF=<gdwarf-5 | gdwarf-4>"
     echo "examples:"
-    echo "  ./compile.sh GDWARF=-gdwarf-4 SANITIZE=aul OPTIMIZE=-O2"
-    echo "  ./compile.sh GDWARF=-gdwarf-4 '' OPTIMIZE=-O2"
-    echo "  Next is used for valgrind tests:"
-    echo "  ./compile.sh GDWARF=-gdwarf-4"
-    echo "  ./compile.sh '' SANITIZE=aul"
-    echo "  ./compile.sh '' '' OPTIMIZE=-O0"
-    echo "Start the server in the project root terminal: ./server"
-    echo "and each client in its terminal: ./client"
+    echo "'./compile.sh GDWARF=-gdwarf-4 OPTIMIZE=-O0 SANITIZE=aul CMPLR=g++'"
+    echo "'./compile.sh'"
+    echo "Run 'make cleanall' if arguments changed since the last build."
+    echo "Start the server in the project root terminal: './server'"
+    echo "and each client in its terminal: './client' or './client > /dev/null'"
     exit 0
 fi
 
@@ -34,7 +36,7 @@ set -e
 
 trap EXIT SIGHUP SIGINT SIGTERM
 
-make -j4 $1 $2 $3
+make -j4 $1 $2 $3 $4
 
 for (( c=1; c<=5; c++ ))do
     mkdir -p $UP_DIR/Client$c

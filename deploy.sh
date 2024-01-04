@@ -14,13 +14,17 @@ if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
     echo "cd to the project root and run this script"
     echo "'./deploy.sh'"
+    echo "If app was not built previously it will be built"
+    echo "here with default arguments."
+    echo "Script creates only 5 clients to fit into display size."
+    echo "Every next client will have different type, TCP or FIFO."
     echo "Start the server in the project root terminal './server'"
-    echo "and each client in client terminals './client'"
+    echo "and each client in its terminal"
+    echo "'./client' or './client > /dev/null'"
     exit 0
 fi
 
-#assuming we are in gnome terminal
-#kill all instances of xterm created in previous runs
+#Kill all instances of xterm created in previous runs
 
 pkill -f xterm
 
@@ -51,7 +55,9 @@ done
 
 for (( c=1; c<=5; c++ ))
 do
-(cd $UP_DIR/Client$c; ln -sf $SCRIPT_DIR/data .; cp $SCRIPT_DIR/scripts/runShortSessions.sh .; cp /$SCRIPT_DIR/client_src/ClientOptions.json .)
+    (cd $UP_DIR/Client$c; ln -sf $SCRIPT_DIR/data .;\
+     cp $SCRIPT_DIR/scripts/runShortSessions.sh .;\
+     cp /$SCRIPT_DIR/client_src/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
@@ -70,5 +76,5 @@ done
 
 for d in 1 2 3 4 5
 do
-    (cd $UP_DIR/Client$d; xterm&)
+    (cd $UP_DIR/Client$d; xterm -geometry 67x24&)
 done
