@@ -24,6 +24,9 @@ clang 12.0.0\
 
 Any distribution and version supporting C++20 is expected to work as well.
 
+LZ4 must be installed:\
+sudo apt-get install liblz4-dev
+
 Header only boost libraries, currently boost 1_84.
 
 google tests must be installed:\

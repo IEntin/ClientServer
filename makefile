@@ -37,14 +37,10 @@ RM := rm -f
 BUSINESSDIR := business
 CLIENTSRCDIR := client_src
 COMMONDIR := common
-LZ4DIR := lz4
 TESTSRCDIR := test_src
+LIBLZ4 := /usr/lib/x86_64-linux-gnu/liblz4.a
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
-ifeq ($(CMPLR),g++)
-  CRYPTOLIB := -lcryptoppgcc
-else
-  CRYPTOLIB := -lcryptoppclang
-endif
+CRYPTOLIB := -lcryptoppgcc
 DATADIR := data
 
 SERVERBIN := server
@@ -94,14 +90,14 @@ MACROS := -DSANITIZE=$(SANITIZE) -DPROFILE=$(PROFILE) -DOPTIMIZE=$(OPTIMIZE) \
 BOOST_INCLUDES := /usr/local/boost_1_84_0
 
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
--I$(TESTSRCDIR) -I$(LZ4DIR)
+-I$(TESTSRCDIR)
 
 CPPFLAGS := -g $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2a -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD) $(MACROS)
 
 BUILDDIR := build
 
-vpath %.cpp $(BUSINESSDIR) $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR) $(LZ4DIR)
+vpath %.cpp $(BUSINESSDIR) $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR)
 
 $(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
@@ -114,10 +110,8 @@ $(BUILDDIR)/%.o : %.cpp $(PCH)
 BUSINESSSRC := $(wildcard $(BUSINESSDIR)/*.cpp)
 BUSINESSOBJ := $(patsubst $(BUSINESSDIR)/%.cpp, $(BUILDDIR)/%.o, $(BUSINESSSRC))
 
-LZ4SRC := $(LZ4DIR)/lz4.cpp
 COMMONSRC := $(wildcard $(COMMONDIR)/*.cpp)
-COMMONOBJ := $(patsubst $(COMMONDIR)/%.cpp, $(BUILDDIR)/%.o, $(COMMONSRC)) $(patsubst \
-$(LZ4DIR)/%.cpp, $(BUILDDIR)/%.o, $(LZ4SRC))
+COMMONOBJ := $(patsubst $(COMMONDIR)/%.cpp, $(BUILDDIR)/%.o, $(COMMONSRC)) \
 
 SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
@@ -125,21 +119,21 @@ SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 server : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) \
-$(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB)
+$(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB) $(LIBLZ4)
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB)
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB) $(LIBLZ4)
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB)
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB) $(LIBLZ4)
 
 RUNTESTSPSEUDOTARGET := runtests
 

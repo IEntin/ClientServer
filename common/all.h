@@ -26,6 +26,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <lz4.h>
 #include <map>
 #include <memory>
 #include <mutex>

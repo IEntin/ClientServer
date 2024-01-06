@@ -4,12 +4,12 @@
 
 #include "Compression.h"
 
+#include <lz4.h>
 #include <stdexcept>
 #include <vector>
 
 #include "Header.h"
 #include "Logger.h"
-#include "lz4.h"
 
 namespace compression {
 
