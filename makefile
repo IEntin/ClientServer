@@ -118,6 +118,9 @@ SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
+# if libcryptopp.a not found
+# run 'sudo ./makeCrypto.sh <current release>'
+
 server : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) \
 $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
@@ -128,11 +131,6 @@ CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
-
-ifeq (,$(wildcard $(CRYPTOLIB)))
-	@echo "$(CRYPTOLIB) does not exist; run script makeCrypto.sh !!!"
-	exit 1
-endif
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
