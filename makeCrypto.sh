@@ -22,11 +22,8 @@ fi
     unzip -aoq $1 -d "$cryptoppBaseName"
     mkdir -p /usr/local/lib/cryptopp
     cd "$cryptoppBaseName"
-    CXX=clang++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
-    cp -f libcryptopp.a /usr/local/lib/cryptopp/libcryptoppclang.a
-    make clean
     CXX=g++ make CXXFLAGS="-O3 -fPIC -pipe" -j4
-    cp -f libcryptopp.a /usr/local/lib/cryptopp/libcryptoppgcc.a
+    cp -f libcryptopp.a /usr/local/lib/cryptopp
     make clean
     mkdir -p /usr/local/include/cryptopp
     cp /usr/local/"$cryptoppBaseName"/*.h /usr/local/include/cryptopp

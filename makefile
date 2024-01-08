@@ -40,7 +40,8 @@ COMMONDIR := common
 TESTSRCDIR := test_src
 LIBLZ4 := /snap/lz4/4/usr/local/lib/liblz4.a
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
-CRYPTOLIB := -lcryptoppgcc
+CRYPTOLIB := $(CRYPTOLIBDIR)/libcryptopp.a
+
 DATADIR := data
 
 SERVERBIN := server
@@ -119,21 +120,26 @@ SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 server : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) \
-$(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB) $(LIBLZ4)
+$(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB) $(LIBLZ4)
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
+
+ifeq (,$(wildcard $(CRYPTOLIB)))
+	@echo "$(CRYPTOLIB) does not exist; run script makeCrypto.sh !!!"
+	exit 1
+endif
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -L$(CRYPTOLIBDIR) $(CRYPTOLIB) $(LIBLZ4)
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
 
 RUNTESTSPSEUDOTARGET := runtests
 
