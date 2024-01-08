@@ -39,6 +39,11 @@ sudo cp lib/*.a /usr/lib
 
 ### Building and Testing
 
+#### Notice:
+
+if libcryptopp.a was not found
+rerun 'sudo ./makeCrypto.sh '
+
 Clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
 This script will download requested source and build the library in /usr/local directory,\
 one has to be a superuser to do that,current source is cryptopp890.zip.\
