@@ -6,7 +6,7 @@ Copyright (C) 2021 Ilya Entin.
 
 ### Prerequisites:
 
-This code was build and tested on
+This code was built and tested on
 
 1. Ubuntu 23.10\
 gcc 13.2.0\
@@ -22,12 +22,12 @@ clang 12.0.0\
 4GB RAM\
 4 cores
 
-Any distribution and version supporting C++20 is expected to work as well.
+Any distribution and/or version supporting C++20 is expected to work as well.
 
 LZ4 must be installed:\
-sudo apt-get install liblz4-dev
+'sudo apt-get install liblz4-dev'
 
-Header only boost libraries, currently boost 1_84.
+Header only boost libraries, currently boost 1_84 must be installed.
 
 google tests must be installed:\
 sudo apt-get install libgtest-dev\
@@ -41,14 +41,13 @@ sudo cp lib/*.a /usr/lib
 
 #### Notice:
 
-if libcryptopp.a was not found
-rerun 'sudo ./makeCrypto.sh '
+libcryptopp.a is now recreated by make if necessary.\
+No need to run makeCrypto.sh manually.
 
-Clone the project, run './makeCrypto.sh <Crypto++ zip file name>'.\
-This script will download requested source and build the library in /usr/local directory,\
-one has to be a superuser to do that,current source is cryptopp890.zip.\
-Then run deploy.sh script in the project root.\
-Run './makeCrypto.sh -h' and './deploy.sh -h' to see the details.\
+...
+
+Run './deploy.sh' in the project root, './deploy.sh -h' for details.
+
 Crypto file .cryptoKey.sec is created by the server and must be distributed\
 securely to the clients after server startup but before clients started.\
 Script copyCryptoKey.sh can be used to distribute the key to clients after server startup.\
@@ -56,7 +55,7 @@ Key is created anew on every server restart unless InvalidateKey option set to f
 Test scripts refresh keys internally. Crypto initialization vector iv is generated anew\
 for every message being encrypted and sent for further processing inside the message.
 
-Tools provided here for saving, copying, and viewing crypto key are intended for\
+Provided tools for saving, copying, and viewing crypto key are intended for\
 testing. Secure procedure for key exchange must be used in a production system.
 
 ## Design

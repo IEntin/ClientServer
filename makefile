@@ -39,6 +39,7 @@ CLIENTSRCDIR := client_src
 COMMONDIR := common
 TESTSRCDIR := test_src
 LIBLZ4 := /snap/lz4/4/usr/local/lib/liblz4.a
+CRYPTOPPRELEASE := cryptopp890.zip
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
 CRYPTOLIB := $(CRYPTOLIBDIR)/libcryptopp.a
 
@@ -100,12 +101,12 @@ BUILDDIR := build
 
 vpath %.cpp $(BUSINESSDIR) $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR)
 
-$(PCH) : $(ALLH)
+$(PCH) : $(ALLH) $(CRYPTOLIB)
 	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
 
 -include $(BUILDDIR)/*.d
 
-$(BUILDDIR)/%.o : %.cpp $(PCH)
+$(BUILDDIR)/%.o : %.cpp $(PCH) $(CRYPTOLIB)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
 BUSINESSSRC := $(wildcard $(BUSINESSDIR)/*.cpp)
@@ -118,10 +119,7 @@ SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
-# if libcryptopp.a not found
-# run 'sudo ./makeCrypto.sh <current release>'
-
-server : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ)
+server : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ) $(CRYPTOLIB)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) \
 $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
 
@@ -129,13 +127,13 @@ CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
-$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
+$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ) $(CRYPTOLIB)
 	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
-$(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
+$(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ) $(CRYPTOLIB)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) \
 $(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
 
@@ -144,6 +142,9 @@ RUNTESTSPSEUDOTARGET := runtests
 $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 	./$(TESTBIN)
 	@touch $(RUNTESTSPSEUDOTARGET)
+
+$(CRYPTOLIB) : makeCrypto.sh
+	sudo ./makeCrypto.sh $(CRYPTOPPRELEASE)
 
 .PHONY: clean cleanall
 
