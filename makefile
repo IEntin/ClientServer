@@ -143,8 +143,8 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 	./$(TESTBIN)
 	@touch $(RUNTESTSPSEUDOTARGET)
 
-$(CRYPTOLIB) : makeCrypto.sh
-	sudo ./makeCrypto.sh $(CRYPTOPPRELEASE)
+$(CRYPTOLIB) : scripts/makeCrypto.sh
+	sudo scripts/makeCrypto.sh $(CRYPTOPPRELEASE)
 
 .PHONY: clean cleanall
 

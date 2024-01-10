@@ -30,12 +30,7 @@ LZ4 must be installed:\
 Header only boost libraries, currently boost 1_84 must be installed.
 
 google tests must be installed:\
-sudo apt-get install libgtest-dev\
-sudo apt-get install cmake\
-cd /usr/src/gtest\
-sudo cmake CMakeLists.txt\
-sudo make\
-sudo cp lib/*.a /usr/lib
+'sudo scripts/installGtest.sh'
 
 ### Building and Testing
 
