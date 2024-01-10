@@ -19,6 +19,9 @@ then
     exit 0
 fi
 
+pkill server
+pkill client
+
 set -e
 
 trap SIGHUP SIGINT SIGTERM
@@ -93,9 +96,6 @@ done
 # Start the server
 
 $PRJ_DIR/server&
-SERVER_PID=$!
-
-echo "server pid="$SERVER_PID
 
 sleep 1
 
@@ -115,7 +115,7 @@ fifos=$(ls ../Fifos)
 
 echo -e "\nkilling server\n"
 
-kill $SERVER_PID
+pkill server
 
 sleep 5
 

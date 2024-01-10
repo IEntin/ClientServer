@@ -22,6 +22,8 @@ echo "CLIENT_DIR2:" $CLIENT_DIR2
 CLIENT_DIR3=$UP_DIR/Client3
 echo "CLIENT_DIR3:" $CLIENT_DIR3
 
+pkill server
+
 set -e
 
 trap EXIT SIGHUP SIGINT SIGTERM
@@ -59,8 +61,6 @@ make -j4 PROFILE=1
 # Start the server.
 
 $PRJ_DIR/server&
-SERVER_PID=$!
-echo $SERVER_PID
 
 sleep 2
 
@@ -89,7 +89,7 @@ sed -i 's/"MaxNumberTasks" : 1000/"MaxNumberTasks" : 0/' $CLIENT_DIR3/ClientOpti
 
 date
 
-kill -SIGINT $SERVER_PID
+pkill server
 
 cd $SCRIPT_DIR
 gprof -b server gmon.out > profiles/profile_server.txt
