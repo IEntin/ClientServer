@@ -3,7 +3,6 @@
  */
 
 #include "Logger.h"
-#include "Utility.h"
 
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::ERROR;
 
@@ -29,7 +28,7 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     output.push_back(' ');
     output.append(file);
     output.push_back(':');
-    utility::toChars(line, output);
+    ioutility::toChars(line, output);
     output.push_back(' ');
     output.append(func);
     output.push_back(' ');
@@ -40,4 +39,10 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     std::cerr << e.what() << std::endl;
   }
   return *this;
+}
+
+void integerWrite(Logger& logger, long value) {
+  char buffer[CONV_BUFFER_SIZE] = {};
+  auto length = ioutility::toChars(value, buffer);
+  logger._stream.write(buffer, length);
 }

@@ -3,6 +3,7 @@
  */
 
 #include "Header.h"
+#include "IoUtility.h"
 #include "Utility.h"
 
 HEADERTYPE extractHeaderType(const HEADER& header) {
@@ -55,9 +56,9 @@ void encodeHeader(char* buffer, const HEADER& header) {
   size_t offset = 0;
   buffer[offset] = std::underlying_type_t<HEADERTYPE>(headerType);
   offset += HEADERTYPE_SIZE;
-  utility::toChars(payloadSz, buffer + offset, NUM_FIELD_SIZE);
+  ioutility::toChars(payloadSz, buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  utility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
+  ioutility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
   buffer[offset] = std::underlying_type_t<COMPRESSORS>(compressor);
   offset += COMPRESSOR_SIZE;
@@ -74,11 +75,11 @@ HEADER decodeHeader(const char* buffer) {
   offset += HEADERTYPE_SIZE;
   size_t payloadSize = 0;
   std::string_view strt(buffer + offset, NUM_FIELD_SIZE);
-  utility::fromChars(strt, payloadSize);
+  ioutility::fromChars(strt, payloadSize);
   offset += NUM_FIELD_SIZE;
   size_t uncomprSize = 0;
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
-  utility::fromChars(stru, uncomprSize);
+  ioutility::fromChars(stru, uncomprSize);
   offset += NUM_FIELD_SIZE;
   COMPRESSORS compressor = static_cast<COMPRESSORS>(buffer[offset]);
   offset += COMPRESSOR_SIZE;

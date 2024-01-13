@@ -8,9 +8,10 @@
 
 #include "ClientOptions.h"
 #include "Header.h"
+#include "IoUtility.h"
 #include "Lines.h"
+#include "Logger.h"
 #include "PayloadTransform.h"
-#include "Utility.h"
 
 Subtask TaskBuilder::_emptySubtask;
 
@@ -63,7 +64,7 @@ Subtask& TaskBuilder::getSubtask() {
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
   _aggregate.push_back('[');
-  utility::toChars(index, _aggregate);
+  ioutility::toChars(index, _aggregate);
   _aggregate.push_back(']');
   _aggregate.append(line);
 }

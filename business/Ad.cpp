@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "AdBid.h"
+#include "IoUtility.h"
 #include "Lines.h"
 #include "Utility.h"
 
@@ -26,13 +27,13 @@ bool AdRow::parse() {
   _id = vect[ID];
 
   unsigned widthKey = 0;
-  utility::fromChars(vect[WIDTH], widthKey);
+  ioutility::fromChars(vect[WIDTH], widthKey);
   unsigned heightKey = 0;
-  utility::fromChars(vect[HEIGHT], heightKey);
+  ioutility::fromChars(vect[HEIGHT], heightKey);
   _sizeKey = { widthKey, heightKey };
 
   double dblMoney = 0;
-  utility::fromChars(vect[DEFAULTBID], dblMoney);
+  ioutility::fromChars(vect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
   _array = { std::next(introEnd), std::prev(_input.cend()) };
   _valid = true;
@@ -57,7 +58,7 @@ bool Ad::parseArray(std::string_view array) {
   utility::split(array, vect, "\", ");
   for (unsigned i = 0; i < vect.size(); i += 2) {
     double dblMoney = 0;
-    utility::fromChars(vect[i + 1], dblMoney);
+    ioutility::fromChars(vect[i + 1], dblMoney);
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
@@ -118,10 +119,10 @@ void Ad::print(std::string& output) const {
   output.append(_id);
   static constexpr std::string_view SIZE{ " size=" };
   output.append(SIZE);
-  utility::printSizeKey(_sizeKey, output);
+  ioutility::printSizeKey(_sizeKey, output);
   static constexpr std::string_view DEFAULTBID{ " defaultBid=" };
   output.append(DEFAULTBID);
-  utility::toChars(_defaultBid, output);
+  ioutility::toChars(_defaultBid, output);
   static constexpr std::string_view DELIMITER{ "\n " };
   output.append(DELIMITER);
   output.append(_input);
@@ -135,7 +136,7 @@ void Ad::printBids(std::string& output) const {
     output.append(DELIMITER);
     output.append(adBid._keyword);
     output.push_back(' ');
-    utility::toChars(adBid._money, output);
+    ioutility::toChars(adBid._money, output);
     output.push_back('\n');
   }
 }

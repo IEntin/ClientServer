@@ -11,11 +11,13 @@
 
 #include <boost/core/noncopyable.hpp>
 
+#include "IoUtility.h"
+
 #define CODELOCATION __FILE__, __LINE__, __func__
 
-#define LogAlways Logger(LOG_LEVEL::ALWAYS, std::cerr).printPrefix(CODELOCATION)
+#define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix(CODELOCATION)
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix(CODELOCATION)
-#define Warn Logger(LOG_LEVEL::WARN, std::clog).printPrefix(CODELOCATION)
+#define Warn Logger(LOG_LEVEL::WARN, std::cerr).printPrefix(CODELOCATION)
 #define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix(CODELOCATION)
 #define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix(CODELOCATION)
 #define Trace Logger(LOG_LEVEL::TRACE, std::clog).printPrefix(CODELOCATION)
@@ -63,6 +65,16 @@ struct Logger : private boost::noncopyable {
 
   static LOG_LEVEL _threshold;
 };
+
+void integerWrite(Logger& logger, long value);
+
+template<ioutility::Integer N>
+Logger& operator <<(Logger& logger, const N& value) {
+  if (logger._level >= Logger::_threshold) {
+    integerWrite(logger, value);
+  }
+  return logger;
+}
 
 template <typename V>
 Logger& operator <<(Logger& logger, const V& value) {

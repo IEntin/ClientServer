@@ -5,6 +5,7 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
+#include "IoUtility.h"
 #include "Lines.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
@@ -74,28 +75,28 @@ TEST(ToCharsTest, Integral) {
   int shift = 2;
   constexpr int size = 7;
   char array[size] = {};
-  utility::toChars(value, array + shift);
+  ioutility::toChars(value, array + shift);
   ASSERT_TRUE(array[shift] == '0' + value);
 }
 
 TEST(FromCharsTest, Integral0) {
   std::string_view view = "0000";
   int value = 7;
-  utility::fromChars(view, value);
+  ioutility::fromChars(view, value);
   ASSERT_EQ(value, 0);
 }
 
 TEST(FromCharsTest, Integral) {
   std::string_view view = "123456789";
   int value = {};
-  utility::fromChars(view, value);
+  ioutility::fromChars(view, value);
   ASSERT_EQ(value, 123456789);
 }
 
 TEST(FromCharsTest, FloatingPoint) {
   std::string_view view = "1234567.89";
   double value = {};
-  utility::fromChars(view, value);
+  ioutility::fromChars(view, value);
   ASSERT_EQ(value, 1234567.89);
 }
 

@@ -10,6 +10,7 @@
 
 #include "Ad.h"
 #include "AdBid.h"
+#include "IoUtility.h"
 #include "Utility.h"
 
 thread_local std::vector<AdBid> Transaction::_bids;
@@ -146,8 +147,8 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   unsigned width = 0;
   unsigned height = 0;
   try {
-    utility::fromChars(widthView, width);
-    utility::fromChars(heightView, height);
+    ioutility::fromChars(widthView, width);
+    ioutility::fromChars(heightView, height);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
@@ -247,7 +248,7 @@ void Transaction::printSummary(std::string& output) const {
   output.push_back(',');
   output.push_back(' ');
   double money = _winningBid->_money / Ad::_scaler;
-  utility::toChars(money, output, 1);
+  ioutility::toChars(money, output, 1);
   output.push_back('\n');
 }
 
@@ -260,7 +261,7 @@ void Transaction::printMatchingAds(std::string& output) const {
     output.append(MATCH);
     output.append(adBid._keyword);
     output.push_back(' ');
-    utility::toChars(adBid._money, output);
+    ioutility::toChars(adBid._money, output);
     output.push_back('\n');
   }
 }
@@ -276,7 +277,7 @@ void Transaction::printWinningAd(std::string& output) const {
   output.append(winningKeyword);
   output.append(DELIMITER);
   double money = _winningBid->_money / Ad::_scaler;
-  utility::toChars(money, output, 1);
+  ioutility::toChars(money, output, 1);
   static constexpr std::string_view ENDING{ "\n*****\n" };
   output.append(ENDING);
 }
@@ -286,10 +287,10 @@ void Transaction::printRequestData(std::string& output) const {
   output.push_back(' ');
   static constexpr std::string_view TRANSACTIONSIZE{ "Transaction size=" };
   output.append(TRANSACTIONSIZE);
-  utility::printSizeKey(_sizeKey, output);
+  ioutility::printSizeKey(_sizeKey, output);
   static constexpr std::string_view MATCHES{ " #matches=" };
   output.append(MATCHES);
-  utility::toChars(_bids.size(), output);
+  ioutility::toChars(_bids.size(), output);
   output.push_back('\n');
   output.append(_request);
   static constexpr std::string_view REQUESTKEYWORDS{ "\nrequest keywords:\n" };

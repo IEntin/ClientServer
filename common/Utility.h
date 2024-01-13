@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <charconv>
 #include <cstring>
 #include <tuple>
 
@@ -62,60 +61,6 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
     beg = input.find_first_not_of(separators, end + 1);
   }
 }
-
-constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
-  if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
-      ec != std::errc()) {
-    LogError << "problem converting str:" << str << '\n';
-    throw std::runtime_error("problem converting str");
-  }
-};
-
-template <typename N>
-concept Integral = std::is_integral_v<N>;
-
-template <typename N>
-concept FloatingPoint = std::is_floating_point_v<N>;
-
-template <Integral T>
-void toChars(T value, char* buffer, size_t size = CONV_BUFFER_SIZE) {
-  if (auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-      ec != std::errc()) {
-    LogError << "problem converting to string:" << value << '\n';
-    throw std::runtime_error("problem converting to string");
-  }
-}
-
-template <Integral N>
-void toChars(N value, std::string& target, size_t size = CONV_BUFFER_SIZE) {
-  size_t origSize = target.size();
-  target.resize(origSize + size);
-  size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value);
-  sizeIncr = ptr - target.data() - origSize;
-  if (ec == std::errc())
-    target.resize(origSize + sizeIncr);
-  else
-    LogError << "problem translating number:" << value << '\n';
-}
-
-template <FloatingPoint N>
-void toChars(N value, std::string& target, int precision, size_t size = CONV_BUFFER_SIZE) {
-  size_t origSize = target.size();
-  target.resize(origSize + size);
-  size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value,
-				 std::chars_format::fixed, precision);
-  sizeIncr = ptr - target.data() - origSize;
-  if (ec == std::errc())
-    target.resize(origSize + sizeIncr);
-  else
-    LogError << "problem translating number:" << value << '\n';
-}
-
-using SIZETUPLE = std::tuple<unsigned, unsigned>;
-
-void printSizeKey(const SIZETUPLE& sizeKey, std::string& target);
 
 struct CloseFileDescriptor {
   CloseFileDescriptor(int& fd);
