@@ -23,7 +23,7 @@ void ThreadPoolSameObj::push(RunnablePtr runnable) {
   bool condition = _totalNumberObjects > size();
   if (condition && runnable->checkCapacity()) {
     createThread();
-    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
+    Debug << "numberOfThreads=" << size() << ' ' << runnable->getType() << '\n';
   }
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();

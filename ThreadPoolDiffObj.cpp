@@ -30,7 +30,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
   bool condition2 = runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType;
   if (condition1 && condition2 && size() < _maxSize) {
     createThread();
-    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
+    Debug << "numberOfThreads=" << size() << ' ' << runnable->getType() << '\n';
   }
   else if (!condition2)
     runnable->_status = STATUS::MAX_OBJECTS_OF_TYPE;

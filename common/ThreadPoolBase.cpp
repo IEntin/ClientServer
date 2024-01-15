@@ -76,7 +76,7 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
   increment();
   if (_totalNumberObjects > size()) {
     createThread();
-    Debug << "numberOfThreads " << size() << ' ' << runnable->getType() << '\n';
+    Debug << "numberOfThreads=" << size() << ' ' << runnable->getType() << '\n';
   }
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();

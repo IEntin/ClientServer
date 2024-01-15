@@ -14,6 +14,7 @@
 #include <condition_variable>
 #include <csignal>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -46,6 +47,7 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <system_error>
 #include <thread>
 #include <tuple>
 #include <type_traits>

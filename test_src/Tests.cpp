@@ -5,7 +5,7 @@
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "Header.h"
-#include "IoUtility.h"
+#include "IOUtility.h"
 #include "Lines.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
