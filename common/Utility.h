@@ -7,7 +7,6 @@
 #include <cstring>
 #include <tuple>
 
-#include "CommonConstants.h"
 #include "Logger.h"
 
 namespace utility {

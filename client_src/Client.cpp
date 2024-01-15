@@ -77,8 +77,7 @@ void Client::stop() {
 
 bool Client::printReply(const HEADER& header, std::string_view buffer) {
   if (auto ptr = _heartbeat.lock(); ptr) {
-    STATUS status = ptr->getStatus();
-    if (displayStatus(status))
+    if (displayStatus(ptr->getStatus()))
       return false;
   }
   std::ostream* pstream = ClientOptions::_dataStream;
@@ -146,6 +145,8 @@ void Client::displayMaxSessionsOfTypeWarn(std::string_view type) {
 bool Client::displayStatus(STATUS status) {
   switch (status) {
   case STATUS::NONE:
+  case STATUS::MAX_TOTAL_OBJECTS:
+  case STATUS::MAX_OBJECTS_OF_TYPE:
     return false;
   case STATUS::BAD_HEADER:
     LogError << "STATUS::BAD_HEADER" << '\n';
@@ -171,21 +172,15 @@ bool Client::displayStatus(STATUS status) {
  case STATUS::HEARTBEAT_TIMEOUT:
     LogError << "\theartbeat timeout! Increase \"HeartbeatTimeout\" in ClientOptions.json" << '\n';
     return true;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    Warn << "Exceeded max total number clients" << '\n';
-    return false;
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    Warn << "Exceeded max number clients of type" << '\n';
-    return false;
   case STATUS::ENCRYPTION_PROBLEM:
     LogError << "Encryption problem" << '\n';
-    return false;
+    return true;
   case STATUS::DECRYPTION_PROBLEM:
     LogError << "Decryption problem" << '\n';
-    return false;
+    return true;
   case STATUS::ERROR:
     LogError << "Internal error" << '\n';
-    return false;
+    return true;
   default:
     LogError << "unexpected problem" << '\n';
     return true;

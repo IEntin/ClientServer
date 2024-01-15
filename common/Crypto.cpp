@@ -28,6 +28,11 @@ void CryptoKey::showKey() {
 }
 
 bool CryptoKey::recover() {
+  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME)) {
+    LogError << "\n\nfile " << '\'' << CRYPTO_KEY_FILE_NAME << '\'' << " not found\n"
+	     << "run './copyCryptoKey.sh <number clients>' << on server site\n\n";
+    return false;
+  }
   std::string keyStrRecovered;
   utility::readFile(CRYPTO_KEY_FILE_NAME, keyStrRecovered);
   _key = { reinterpret_cast<const unsigned char*>(keyStrRecovered.data()), keyStrRecovered.size() };
@@ -129,7 +134,8 @@ std::string_view Crypto::decrypt(std::string_view data) {
   }
   catch (const std::exception& e) {
     std::string error(e.what());
-    error.append("\n\n\tMake sure crypto key file on client site is current!\n");
+    error.append("\n\n\tMake sure crypto key file on client site is current!\n").
+      append("\trun 'copyCryptoKey.sh <number clients>' on server site.\n");
     throw std::runtime_error(error);
   }
   return decrypted;
