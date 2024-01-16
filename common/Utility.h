@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstring>
-#include <tuple>
+#include <string_view>
 
 namespace utility {
 
