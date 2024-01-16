@@ -13,6 +13,7 @@
 #include <cryptopp/osrng.h>
 
 #include "ClientOptions.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 

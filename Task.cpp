@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "Logger.h"
 #include "Utility.h"
 
 PreprocessRequest Task::_preprocessRequest = nullptr;

@@ -7,8 +7,6 @@
 #include <cstring>
 #include <tuple>
 
-#include "Logger.h"
-
 namespace utility {
 
 // INPUT can be a string or string_view.

@@ -11,6 +11,7 @@
 #include "Ad.h"
 #include "AdBid.h"
 #include "IOUtility.h"
+#include "Logger.h"
 #include "Utility.h"
 
 thread_local std::vector<AdBid> Transaction::_bids;

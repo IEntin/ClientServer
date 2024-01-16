@@ -7,6 +7,7 @@
 #include "Header.h"
 #include "IOUtility.h"
 #include "Lines.h"
+#include "Logger.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 
