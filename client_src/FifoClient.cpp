@@ -40,7 +40,7 @@ bool FifoClient::run() {
 }
 
 bool FifoClient::send(const Subtask& subtask) {
-  std::string_view body(subtask._body.data(), subtask._body.size());
+  std::string_view body = subtask._body;
   while (true) {
     if (_closeFlag) {
       Fifo::onExit(_fifoName);

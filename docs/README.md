@@ -32,6 +32,8 @@ Header only boost libraries, currently boost 1_84 must be installed.
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
 
+sudo apt-get install binutils
+
 ### Building and Testing
 
 #### Notice:
@@ -45,13 +47,11 @@ Run './deploy.sh' in the project root, './deploy.sh -h' for details.
 
 ## Design
 
-Encryption is using Diffie-Hellman key exchange algorithm.\
-AES encryption is used after the key is set for every session.\
-The key is specific for every session / client.
+Business logic, tasks multithreading, and communication layer are decoupled.
 
-Business logic, tasks multithreading, and communication layer are decoupled.\
-Business logic is an example of financial calculations. It can be replaced with any\
-other batch processing from a different field, not necessarily financial.
+Encryption: secure keys exchage implemented based on Diffie-Hellman algorithm.\
+AES-256 encryption is used after the keys are set for all sessions.\
+The key is specific for every session / client.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\
@@ -106,8 +106,9 @@ in ServerOptions.json.
 There are no software or hardware restrictions on the number of clients. Observed\
 latency is strictly proportional to the number of clients due to increasing load\
 on worker threads running processing logic. Only performance is a limiting factor.\
-This server was tested with 20 clients of mixed types. The server and all clients are\
-running on the same desktop. In real case tcp clients will run on different hosts.
+This server was tested with up to 40 clients of mixed types, 20 FIFO and 20 TCP.\
+The server and all clients are running on the same desktop. In real case tcp clients\
+will run on different hosts.
 
 ........
 
@@ -218,7 +219,7 @@ Similarly for the client: create a directory, copy binary client, make a soft li
 directory, copy ClientOptions.json, and run './client'.
 
 No special requirements for the hardware.\
-Tested on desktop with 4 cores and 8GB RAM to run the server and up to 30 mixed fifo and tcp clients.\
+Tested on desktop with 4 cores and 8GB RAM to run the server and up to 40 mixed fifo and tcp clients.\
 Multiple runtime options are in ServerOptions.json and ClientOptions.json files\
 in corresponding directories.
 
