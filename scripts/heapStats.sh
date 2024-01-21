@@ -62,8 +62,6 @@ echo "SERVER_PID:" $SERVER_PID
 
 sleep 5
 
-cp -f $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR
-
 ( cd $CLIENT_DIR
 if [ -z $1 ]
 then

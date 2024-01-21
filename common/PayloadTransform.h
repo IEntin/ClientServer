@@ -5,13 +5,17 @@
 #pragma once
 
 #include <string_view>
-
+#include <cryptopp/secblock.h>
 #include "Header.h"
 
 namespace payloadtransform {
 
-std::string_view compressEncrypt(std::string_view data, HEADER& header);
+std::string_view compressEncrypt(const CryptoPP::SecByteBlock& key,
+				 std::string_view data,
+				 HEADER& header);
 
-std::string_view decryptDecompress(const HEADER& header, std::string_view received);
+std::string_view decryptDecompress(const CryptoPP::SecByteBlock& key,
+				   const HEADER& header,
+				   std::string_view received);
 
 } // end of namespace payloadtransform

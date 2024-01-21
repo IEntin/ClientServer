@@ -5,6 +5,7 @@
 #pragma once
 
 #include <boost/container/static_vector.hpp>
+#include <cryptopp/integer.h>
 
 #include "Runnable.h"
 #include <boost/asio.hpp>
@@ -34,6 +35,11 @@ private:
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
+  bool receiveBString();
+  CryptoPP::Integer _priv;
+  CryptoPP::Integer _pub;
+  std::string _Astring;
+  CryptoPP::SecByteBlock _key;
   std::string _request;
   std::string _clientId;
   boost::asio::io_context _ioContext;

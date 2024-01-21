@@ -43,21 +43,15 @@ No need to run makeCrypto.sh manually.
 
 Run './deploy.sh' in the project root, './deploy.sh -h' for details.
 
-Crypto file .cryptoKey.sec is created by the server and must be distributed\
-securely to the clients after server startup but before clients started.\
-Script copyCryptoKey.sh can be used to distribute the key to clients after server startup.\
-Key is created anew on every server restart unless InvalidateKey option set to false.\
-Test scripts refresh keys internally. Crypto initialization vector iv is generated anew\
-for every message being encrypted and sent for further processing inside the message.
-
-Provided tools for saving, copying, and viewing crypto key are intended for\
-testing. Secure procedure for key exchange must be used in a production system.
-
 ## Design
 
 Business logic, tasks multithreading, and communication layer are decoupled.\
 Business logic is an example of financial calculations. It can be replaced with any\
 other batch processing from a different field, not necessarily financial.
+
+Encryption is using Diffie-Hellman key exchange algorithm.\
+AES encryption is used after the key is set for every session.\
+Crypto key is specific for every session / client.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\

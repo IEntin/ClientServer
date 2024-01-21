@@ -12,6 +12,7 @@ namespace tcp {
 
 class TcpClient : public Client {
 
+  bool sendBString();
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;

@@ -103,7 +103,6 @@ sleep 1
 
 for (( c=1; c<=$1; c++ ))
 do
-    cp $PRJ_DIR/.cryptoKey.sec $UP_DIR/Client$c
     ( cd $UP_DIR/Client$c; ./client > /dev/null& )
 done
 
@@ -118,12 +117,5 @@ echo -e "\nkilling server\n"
 pkill server
 
 sleep 5
-
-rm -f $PRJ_DIR/.cryptoKey.sec
-
-for (( c=1; c<=$1; c++ ))
-do
-    ( cd $UP_DIR/Client$c; rm -f .cryptoKey.sec )
-done
 
 sync

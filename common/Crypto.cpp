@@ -4,105 +4,28 @@
 
 #include "Crypto.h"
 
-#include <filesystem>
-
 #include <boost/algorithm/hex.hpp>
-#include <cryptopp/files.h>
-#include <cryptopp/filters.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
 
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "Utility.h"
 
-unsigned CryptoKey::_cryptoKeySize;
-CryptoPP::SecByteBlock CryptoKey::_key;
-bool CryptoKey::_valid;
-
-void CryptoKey::showKey() {
+void Crypto::showKey(const CryptoPP::SecByteBlock& key) {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger << "KEY SIZE: " << _key.size() << '\n' << "KEY: ";
-  boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream(), "" });
+  logger << "KEY SIZE: " << key.size() << '\n' << "KEY: ";
+  boost::algorithm::hex(key, std::ostream_iterator<char> { logger.getStream(), "" });
   logger << '\n';
 }
 
-bool CryptoKey::recover() {
-  if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME)) {
-    LogError << "\n\nfile " << '\'' << CRYPTO_KEY_FILE_NAME << '\'' << " not found\n"
-	     << "run './copyCryptoKey.sh <number clients>' << on server site\n\n";
-    return false;
-  }
-  std::string keyStrRecovered;
-  utility::readFile(CRYPTO_KEY_FILE_NAME, keyStrRecovered);
-  _key = { reinterpret_cast<const unsigned char*>(keyStrRecovered.data()), keyStrRecovered.size() };
-  if (_key.empty())
-    throw std::runtime_error("empty key");
-  _valid = true;
-  return _valid;
-}
-
-bool CryptoKey::initialize() {
-  try {
-    _cryptoKeySize = ServerOptions::_cryptoKeySize;
-    _key.resize(_cryptoKeySize);
-    CryptoPP::AutoSeededRandomPool prng;
-    prng.GenerateBlock(_key, _key.size());
-    if (keepKey()) {
-      _valid = recover();
-      return _valid;
-    }
-    else {
-      std::ofstream stream;
-      stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-      stream.open(CRYPTO_KEY_FILE_NAME, std::ios::binary);
-      std::filesystem::permissions(
-	CRYPTO_KEY_FILE_NAME,
-	std::filesystem::perms::owner_read |
-	std::filesystem::perms::owner_write |
-	std::filesystem::perms::group_read,
-	std::filesystem::perm_options::replace);
-      if (stream) {
-	stream.write(reinterpret_cast<const char*>(_key.data()), _key.size());
-	_valid = true;
-      }
-    }
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
-  return _valid;
-}
-
-bool CryptoKey::keepKey() {
-  try {
-    if (ServerOptions::_invalidateKey)
-      return false;
-    if (!std::filesystem::exists(CRYPTO_KEY_FILE_NAME))
-      return false;
-    if (std::filesystem::file_size(CRYPTO_KEY_FILE_NAME) == ServerOptions::_cryptoKeySize)
-      return true;
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
-  return false;
-}
-
-// class Crypto
-
-std::string_view Crypto::encrypt(std::string_view data) {
-  const auto& key = CryptoKey::_key;
+std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
+				 std::string_view data) {
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
   bool showKey = false;
-  if (ServerOptions::_parsed)
-    showKey = ServerOptions::_showKey;
-  else if (ClientOptions::_parsed)
+  if (ClientOptions::_parsed)
     showKey = ClientOptions::_showKey;
   if (showKey)
     static bool showOnce [[maybe_unused]] = showIv(iv);
@@ -118,8 +41,8 @@ std::string_view Crypto::encrypt(std::string_view data) {
   return cipher;
 }
 
-std::string_view Crypto::decrypt(std::string_view data) {
-  const auto& key = CryptoKey::_key;
+std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
+				 std::string_view data) {
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   auto beg = reinterpret_cast<const unsigned char*>(data.data()) + data.size() - iv.size();
   std::copy(beg, beg + iv.size(), iv.data());

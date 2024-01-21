@@ -3,6 +3,8 @@
  */
 
 #include "TcpSession.h"
+
+#include "DHKeyExchange.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "Task.h"
@@ -14,7 +16,9 @@ namespace tcp {
 TcpSession::TcpSession() :
   RunnableT(ServerOptions::_maxTcpSessions),
   _socket(_ioContext),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext) {
+  _Astring = DHKeyExchange::step1(_priv, _pub);
+}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
@@ -35,9 +39,28 @@ bool TcpSession::start() {
 }
 
 bool TcpSession::sendStatusToClient() {
-  unsigned size = _clientId.size();
+  std::string payload(_clientId);
+  payload.append(1, '\n').append(_Astring);
+  unsigned size = payload.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  auto ec = Tcp::sendMsg(_socket, header, _clientId);
+  auto ec = Tcp::sendMsg(_socket, header, payload);
+  if (!ec)
+    return receiveBString();
+  return !ec;
+}
+
+bool TcpSession::receiveBString() {
+  HEADER header;
+  std::string Bstring;
+  auto ec = Tcp::readMsg(_socket, header, Bstring);
+  if (ec) {
+    LogError << ec.what() << '\n';
+    return false;
+  }
+  HEADERTYPE type = extractHeaderType(header);
+  assert(type == HEADERTYPE::KEY_EXCHANGE);
+  CryptoPP::Integer crossPub(Bstring.c_str());
+  _key = DHKeyExchange::step2(_priv, crossPub);
   return !ec;
 }
 
@@ -57,7 +80,7 @@ void TcpSession::stop() {
 
 bool TcpSession::sendReply() {
   HEADER header;
-  std::string_view body = serverutility::buildReply(_response, header, _status);
+  std::string_view body = serverutility::buildReply(_key, _response, header, _status);
   if (body.empty())
     return false;
   asyncWait();
@@ -112,7 +135,7 @@ void TcpSession::readRequest(const HEADER& header) {
       }
       if (_status != STATUS::NONE)
 	return;
-      if (serverutility::processTask(header, _request, _task))
+      if (serverutility::processTask(_key, header, _request, _task))
 	sendReply();
       else {
 	boost::asio::post(_ioContext, [this] {

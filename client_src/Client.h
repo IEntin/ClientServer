@@ -24,6 +24,11 @@ class Client {
   void displayMaxSessionsOfTypeWarn(std::string_view type);
   bool displayStatus(STATUS status);
   Chronometer _chronometer;
+  CryptoPP::Integer _priv;
+  CryptoPP::Integer _pub;
+  std::string _Astring;
+  std::string _Bstring;
+  CryptoPP::SecByteBlock _key;
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;

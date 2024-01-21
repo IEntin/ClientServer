@@ -18,6 +18,7 @@ class TaskBuilder final : public Runnable {
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
 
+  const CryptoPP::SecByteBlock& _key;
   std::string _aggregate;
   std::deque<Subtask> _subtasks;
   std::atomic<unsigned> _subtaskIndexConsumed = 0;
@@ -29,7 +30,7 @@ class TaskBuilder final : public Runnable {
   void run() override;
   bool start() override { return true; }
  public:
-  TaskBuilder();
+  TaskBuilder(const CryptoPP::SecByteBlock& key);
   ~TaskBuilder() override;
   Subtask& getSubtask();
   STATUS createSubtask(class Lines& lines);

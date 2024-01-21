@@ -7,7 +7,6 @@
 #include <filesystem>
 #include <boost/interprocess/sync/named_mutex.hpp>
 
-#include "Crypto.h"
 #include "FifoAcceptor.h"
 #include "Logger.h"
 #include "ServerOptions.h"
@@ -29,9 +28,6 @@ Server::~Server() {
 
 bool Server::start() {
   _strategy->set();
-  CryptoKey::initialize();
-  if (ServerOptions::_showKey)
-    CryptoKey::showKey();
   if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
@@ -53,8 +49,6 @@ void Server::stop() {
   _threadPoolAcceptor.stop();
   _threadPoolSession.stop();
   TaskController::destroy();
-  if (ServerOptions::_invalidateKey)
-    std::filesystem::remove(CRYPTO_KEY_FILE_NAME);
 }
 
 bool Server::startSession(RunnablePtr session) {

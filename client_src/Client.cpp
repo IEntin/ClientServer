@@ -82,7 +82,7 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) {
   }
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view restored = payloadtransform::decryptDecompress(header, buffer);
+  std::string_view restored = payloadtransform::decryptDecompress(_key, header, buffer);
   if (restored.empty()) {
     displayStatus(STATUS::ERROR);
     return false;
@@ -92,21 +92,18 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) {
 }
 
 void Client::start() {
-  CryptoKey::recover();
   if (ClientOptions::_showKey)
-    CryptoKey::showKey();
-  if (!CryptoKey::_valid)
-    throw std::runtime_error("invalid or absent crypto files.");
+    Crypto::showKey(_key);
   if (ClientOptions::_heartbeatEnabled) {
     RunnablePtr ptr = std::make_shared<tcp::TcpClientHeartbeat>();
     ptr->start();
     _threadPoolClient.push(ptr);
     _heartbeat = ptr;
   }
-  auto taskBuilder1 = std::make_shared<TaskBuilder>();
+  auto taskBuilder1 = std::make_shared<TaskBuilder>(_key);
   _threadPoolClient.push(taskBuilder1);
   _taskBuilder1 = taskBuilder1;
-  auto taskBuilder2 = std::make_shared<TaskBuilder>();
+  auto taskBuilder2 = std::make_shared<TaskBuilder>(_key);
   _threadPoolClient.push(taskBuilder2);
   _taskBuilder2 = taskBuilder2;
 }

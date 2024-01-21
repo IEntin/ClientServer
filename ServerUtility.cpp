@@ -10,7 +10,8 @@
 
 namespace serverutility {
 
-std::string_view buildReply(const Response& response,
+std::string_view buildReply(const CryptoPP::SecByteBlock& key,
+			    const Response& response,
 			    HEADER& header,
 			    std::atomic<STATUS>& status) {
   if (response.empty())
@@ -20,13 +21,16 @@ std::string_view buildReply(const Response& response,
   data.resize(0);
   for (const auto& entry : response)
     data.insert(data.end(), entry.begin(), entry.end());
-  return payloadtransform::compressEncrypt(data, header);
+  return payloadtransform::compressEncrypt(key, data, header);
 }
 
-bool processTask(const HEADER& header, std::string_view input, TaskPtr task) {
+bool processTask(const CryptoPP::SecByteBlock& key,
+		 const HEADER& header,
+		 std::string_view input,
+		 TaskPtr task) {
   auto weakPtr = TaskController::weakInstance();
   if (auto taskController = weakPtr.lock(); taskController) {
-    std::string_view restored = payloadtransform::decryptDecompress(header, input);
+    std::string_view restored = payloadtransform::decryptDecompress(key, header, input);
     task->initialize(header, restored);
     taskController->processTask(task);
     return true;

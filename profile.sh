@@ -64,9 +64,9 @@ $PRJ_DIR/server&
 
 sleep 2
 
-cp -f $PRJ_DIR/client $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR2
+cp -f $PRJ_DIR/client $CLIENT_DIR2
 
-cp -f $PRJ_DIR/client $PRJ_DIR/.cryptoKey.sec $CLIENT_DIR3
+cp -f $PRJ_DIR/client $CLIENT_DIR3
 
 date
 
@@ -102,7 +102,7 @@ gprof -b server gmon.out > profiles/profile_server.txt
 # These directories are not under git and gmon.out must be removed 'manually'
 # in order not to distort the results of the next run.
 
-( cd $SCRIPT_DIR; rm -f gmon.out .cryptoKey.sec )
-( cd $CLIENT_DIR2; rm -f gmon.out .cryptoKey.sec )
-( cd $CLIENT_DIR3; rm -f gmon.out .cryptoKey.sec )
+( cd $SCRIPT_DIR; rm -f gmon.out )
+( cd $CLIENT_DIR2; rm -f gmon.out )
+( cd $CLIENT_DIR3; rm -f gmon.out )
 date

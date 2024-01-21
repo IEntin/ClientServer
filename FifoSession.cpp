@@ -4,9 +4,13 @@
 
 #include "FifoSession.h"
 
+#include <cassert>
 #include <filesystem>
 #include <sys/stat.h>
 
+#include <boost/algorithm/hex.hpp>
+
+#include "DHKeyExchange.h"
 #include "Fifo.h"
 #include "Logger.h"
 #include "ServerOptions.h"
@@ -18,7 +22,9 @@ namespace fifo {
 
 FifoSession::FifoSession() :
   RunnableT(ServerOptions::_maxFifoSessions),
-  _task(std::make_shared<Task>(_response)) {}
+  _task(std::make_shared<Task>(_response)) {
+  _Astring = DHKeyExchange::step1(_priv, _pub);
+}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
@@ -32,6 +38,18 @@ bool FifoSession::start() {
     LogError << std::strerror(errno) << '-' << _fifoName << '\n';
     return false;
   }
+  return true;
+}
+
+bool FifoSession::receiveBString() {
+  HEADER header;
+  std::string Bstring;
+  if (!Fifo::readMsgBlock(_fifoName, header, Bstring))
+    return false;
+  HEADERTYPE type = extractHeaderType(header);
+  assert(type == HEADERTYPE::KEY_EXCHANGE);
+  CryptoPP::Integer crossPub(Bstring.c_str());
+  _key = DHKeyExchange::step2(_priv, crossPub);
   return true;
 }
 
@@ -66,7 +84,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   }
   if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
-  if (serverutility::processTask(header, _request, _task))
+  if (serverutility::processTask(_key, header, _request, _task))
     return sendResponse();
   return false;
 }
@@ -75,16 +93,20 @@ bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
   HEADER header;
-  std::string_view body = serverutility::buildReply(_response, header, _status);
+  std::string_view body = serverutility::buildReply(_key, _response, header, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, body);
 }
 
 bool FifoSession::sendStatusToClient() {
-  unsigned size = _clientId.size();
+  std::string payload(_clientId);
+  payload.append(1, '\n').append(_Astring);
+  unsigned size = payload.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(ServerOptions::_acceptorName, header, _clientId);
+  if (Fifo::sendMsg(ServerOptions::_acceptorName, header, payload))
+    return receiveBString();
+  return false;
 }
 
 } // end of namespace fifo

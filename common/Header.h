@@ -24,6 +24,7 @@ constexpr char NDIAGNOSTICS_CHAR = 'N';
 
 enum class HEADERTYPE : char {
   CREATE_SESSION,
+  KEY_EXCHANGE,
   SESSION,
   HEARTBEAT,
   ERROR
