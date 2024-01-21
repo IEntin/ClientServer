@@ -45,13 +45,13 @@ Run './deploy.sh' in the project root, './deploy.sh -h' for details.
 
 ## Design
 
+Encryption is using Diffie-Hellman key exchange algorithm.\
+AES encryption is used after the key is set for every session.\
+The key is specific for every session / client.
+
 Business logic, tasks multithreading, and communication layer are decoupled.\
 Business logic is an example of financial calculations. It can be replaced with any\
 other batch processing from a different field, not necessarily financial.
-
-Encryption is using Diffie-Hellman key exchange algorithm.\
-AES encryption is used after the key is set for every session.\
-Crypto key is specific for every session / client.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\
