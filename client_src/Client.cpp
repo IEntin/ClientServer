@@ -5,13 +5,17 @@
 #include "Client.h"
 #include "ClientOptions.h"
 #include "Crypto.h"
-#include "PayloadTransform.h"
+#include "DHKeyExchange.h"
 #include "Metrics.h"
+#include "PayloadTransform.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
+#include "Utility.h"
 
 Client::Client() :
-  _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {}
+  _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {
+  _Bstring = DHKeyExchange::step1(_priv, _pub);
+}
 
 Client::~Client() {
   stop();
@@ -48,6 +52,17 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
     }
   }
   return false;
+}
+
+bool Client::obtainKeyClientId(std::string_view buffer) {
+  std::vector<std::string_view> components;
+  utility::splitFast(buffer, components);
+  if (components.size() < 2)
+    return false;
+  _clientId = components[0];
+  CryptoPP::Integer crossPub(components[1].data());
+  _key = DHKeyExchange::step2(_priv, crossPub);
+  return true;
 }
 
 bool Client::run() {
@@ -92,6 +107,7 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) {
 }
 
 void Client::start() {
+  sendBString();
   if (ClientOptions::_showKey)
     Crypto::showKey(_key);
   if (ClientOptions::_heartbeatEnabled) {

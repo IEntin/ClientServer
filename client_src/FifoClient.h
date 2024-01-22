@@ -10,13 +10,12 @@ namespace fifo {
 
 class FifoClient : public Client {
 
-  bool sendBString();
+  bool sendBString() override;
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
   void close() override;
   bool wakeupAcceptor();
-  std::string _clientId;
   std::string _fifoName;
   std::string _response;
 

@@ -5,15 +5,12 @@
 #include "TcpClient.h"
 
 #include "ClientOptions.h"
-#include "DHKeyExchange.h"
 #include "Subtask.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 
 TcpClient::TcpClient() : _socket(_ioContext) {
-  _Bstring = DHKeyExchange::step1(_priv, _pub);
   auto error = Tcp::setSocket(_socket);
   if (error)
     throw(std::runtime_error(error.what()));
@@ -31,7 +28,6 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::run() {
-  sendBString();
   start();
   return Client::run();
 }
@@ -68,14 +64,8 @@ bool TcpClient::receiveStatus() {
   HEADER header;
   std::string payload;
   auto ec = Tcp::readMsg(_socket, header, payload);
-  std::vector<std::string> components;
-  utility::splitFast(payload, components);
-  if (components.size() < 2)
+  if (!obtainKeyClientId(payload))
     return false;
-  _clientId = components[0];
-  _Astring = components[1];
-  CryptoPP::Integer crossPub(_Astring.c_str());
-  _key = DHKeyExchange::step2(_priv, crossPub);
   assert(!isCompressed(header) && "expected uncompressed");
   if (ec)
     throw(std::runtime_error(ec.what()));

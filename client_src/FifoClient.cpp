@@ -10,16 +10,13 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "ClientOptions.h"
-#include "DHKeyExchange.h"
 #include "Fifo.h"
 #include "Logger.h"
 #include "Subtask.h"
-#include "Utility.h"
 
 namespace fifo {
 
 FifoClient::FifoClient() {
-  _Bstring = DHKeyExchange::step1(_priv, _pub);
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   if (!wakeupAcceptor())
@@ -34,7 +31,6 @@ FifoClient::~FifoClient() {
 }
 
 bool FifoClient::run() {
-  sendBString();
   start();
   return Client::run();
 }
@@ -88,14 +84,8 @@ bool FifoClient::receiveStatus() {
   std::string buffer;
   if (!Fifo::readMsgBlock(ClientOptions::_acceptorName, header, buffer))
     return false;
-  std::vector<std::string> components;
-  utility::splitFast(buffer, components);
-  if (components.size() < 2)
+  if (!obtainKeyClientId(buffer))
     return false;
-  _clientId = components[0];
-  _Astring = components[1];
-  CryptoPP::Integer crossPub(_Astring.c_str());
-  _key = DHKeyExchange::step2(_priv, crossPub);
   _status = extractStatus(header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/' + _clientId;
   switch (_status) {
