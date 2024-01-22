@@ -80,9 +80,7 @@ bool FifoClient::sendBString() {
   std::this_thread::sleep_for(std::chrono::milliseconds(200));  
   size_t size = _Bstring.size();
   HEADER header{ HEADERTYPE::KEY_EXCHANGE, size, size, COMPRESSORS::NONE, false, false, _status };
-  if (Fifo::sendMsg(_fifoName, header, _Bstring))
-    return true;
-  return false;
+  return Fifo::sendMsg(_fifoName, header, _Bstring);
 }
 
 bool FifoClient::receiveStatus() {

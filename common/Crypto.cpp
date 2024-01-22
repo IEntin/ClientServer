@@ -57,10 +57,7 @@ std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
     stfDecryptor.MessageEnd();
   }
   catch (const std::exception& e) {
-    std::string error(e.what());
-    error.append("\n\n\tMake sure crypto key file on client site is current!\n").
-      append("\trun 'copyCryptoKey.sh <number clients>' on server site.\n");
-    throw std::runtime_error(error);
+    throw std::runtime_error(e.what());
   }
   return decrypted;
 }
