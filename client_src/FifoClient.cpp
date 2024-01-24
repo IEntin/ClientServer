@@ -36,7 +36,20 @@ bool FifoClient::run() {
 }
 
 bool FifoClient::send(const Subtask& subtask) {
-  std::string_view body = subtask._body;
+  HEADER header;
+  std::string body = subtask._body;
+  if (!_alreadySet.test_and_set()) {
+    auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = subtask._header;
+    body.append(_Bstring);
+    size_t newParameter = _Bstring.size();
+    size_t newPayloadSz = payloadSz + newParameter;
+    header =
+      { HEADERTYPE::KEY_EXCHANGE, newPayloadSz, uncomprSz, compressor, encrypted, diagnostics, status, newParameter };
+  }
+  else {
+    header = subtask._header;
+    body = subtask._body;
+  }
   while (true) {
     if (_closeFlag) {
       Fifo::onExit(_fifoName);
@@ -45,7 +58,7 @@ bool FifoClient::send(const Subtask& subtask) {
       if (ec)
 	LogError << ec.message() << '\n';
     }
-    if (Fifo::sendMsg(_fifoName, subtask._header, body))
+    if (Fifo::sendMsg(_fifoName, header, body))
       return true;
     // waiting client
     // server stopped
@@ -67,16 +80,8 @@ bool FifoClient::receive() {
 
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
-    { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
+    { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status, 0 };
   return Fifo::sendMsg(ClientOptions::_acceptorName, header);
-}
-
-bool FifoClient::sendBString() {
-  // wait for _fifoName created
-  std::this_thread::sleep_for(std::chrono::milliseconds(200));  
-  size_t size = _Bstring.size();
-  HEADER header{ HEADERTYPE::KEY_EXCHANGE, size, size, COMPRESSORS::NONE, false, false, _status };
-  return Fifo::sendMsg(_fifoName, header, _Bstring);
 }
 
 bool FifoClient::receiveStatus() {

@@ -16,7 +16,7 @@ std::string_view buildReply(const CryptoPP::SecByteBlock& key,
 			    std::atomic<STATUS>& status) {
   if (response.empty())
     return {};
-  header = { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status };
+  header = { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status, 0 };
   static thread_local std::string data;
   data.resize(0);
   for (const auto& entry : response)

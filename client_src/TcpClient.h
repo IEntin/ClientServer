@@ -12,11 +12,11 @@ namespace tcp {
 
 class TcpClient : public Client {
 
-  bool sendBString() override;
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
   void close() override;
+  bool sendBString();
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;

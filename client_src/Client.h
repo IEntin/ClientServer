@@ -35,11 +35,11 @@ protected:
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder1;
   TaskBuilderWeakPtr _taskBuilder2;
+  std::atomic_flag _alreadySet;
   std::atomic<bool> _closeFlag = false;
 public:
   virtual ~Client();
 
-  virtual bool sendBString() = 0;
   virtual bool send(const Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;

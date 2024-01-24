@@ -46,10 +46,6 @@ bool FifoSession::receiveBString() {
   std::string Bstring;
   if (!Fifo::readMsgBlock(_fifoName, header, Bstring))
     return false;
-  HEADERTYPE type = extractHeaderType(header);
-  assert(type == HEADERTYPE::KEY_EXCHANGE);
-  CryptoPP::Integer crossPub(Bstring.c_str());
-  _key = DHKeyExchange::step2(_priv, crossPub);
   return true;
 }
 
@@ -82,8 +78,20 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  if (!Fifo::readMsgBlock(_fifoName, header, _request))
+  std::string body;
+  if (!Fifo::readMsgBlock(_fifoName, header, body))
     return false;
+  auto&  [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
+  assert(payloadSz == body.size());
+  if (type == HEADERTYPE::KEY_EXCHANGE) {
+    std::string Bstring = body.substr(payloadSz - parameter, parameter);
+    CryptoPP::Integer crossPub(Bstring.c_str());
+    _key = DHKeyExchange::step2(_priv, crossPub);
+    body.erase(payloadSz - parameter, parameter);
+    header =
+      { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
+  }
+  _request.swap(body);
   if (serverutility::processTask(_key, header, _request, _task))
     return sendResponse();
   return false;
@@ -103,10 +111,8 @@ bool FifoSession::sendStatusToClient() {
   std::string payload(_clientId);
   payload.append(1, '\n').append(_Astring);
   unsigned size = payload.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
-  if (Fifo::sendMsg(ServerOptions::_acceptorName, header, payload))
-    return receiveBString();
-  return false;
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
+  return Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
 }
 
 } // end of namespace fifo

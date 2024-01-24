@@ -42,7 +42,7 @@ bool TcpSession::sendStatusToClient() {
   std::string payload(_clientId);
   payload.append(1, '\n').append(_Astring);
   unsigned size = payload.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
   auto ec = Tcp::sendMsg(_socket, header, payload);
   if (!ec)
     return receiveBString();

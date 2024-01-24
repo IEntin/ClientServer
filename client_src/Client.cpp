@@ -107,7 +107,6 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) {
 }
 
 void Client::start() {
-  sendBString();
   if (ClientOptions::_showKey)
     Crypto::showKey(_key);
   if (ClientOptions::_heartbeatEnabled) {

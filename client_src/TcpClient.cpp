@@ -14,7 +14,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   auto error = Tcp::setSocket(_socket);
   if (error)
     throw(std::runtime_error(error.what()));
-  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status };
+  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status, 0 };
   auto ec = Tcp::sendMsg(_socket, header);
   if (ec)
     throw(std::runtime_error(ec.what()));
@@ -28,13 +28,14 @@ TcpClient::~TcpClient() {
 }
 
 bool TcpClient::run() {
+  sendBString();
   start();
   return Client::run();
 }
 
 bool TcpClient::sendBString() {
   size_t size = _Bstring.size();
-  HEADER header{ HEADERTYPE::KEY_EXCHANGE, size, size, COMPRESSORS::NONE, false, false, _status };
+  HEADER header{ HEADERTYPE::KEY_EXCHANGE, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
   auto ec = Tcp::sendMsg(_socket, header, _Bstring);
   if (ec)
     LogError << ec.what() << '\n';
@@ -42,6 +43,8 @@ bool TcpClient::sendBString() {
 }
 
 bool TcpClient::send(const Subtask& subtask) {
+  if (!_alreadySet.test_and_set()) {
+  }
   auto ec = Tcp::sendMsg(_socket, subtask._header, subtask._body);
   if (ec)
     LogError << ec.what() << '\n';

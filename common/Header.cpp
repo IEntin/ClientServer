@@ -38,6 +38,10 @@ STATUS extractStatus(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::STATUS)>(header);
 }
 
+size_t extractParameter(const HEADER& header) {
+  return std::get<static_cast<int>(HEADER_INDEX::PARAMETER)>(header);
+}
+
 bool isOk(const HEADER& header) {
   STATUS status = extractStatus(header);
   switch(status) {
@@ -51,7 +55,7 @@ bool isOk(const HEADER& header) {
 }
 
 void encodeHeader(char* buffer, const HEADER& header) {
-  const auto& [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status] = header;
+  const auto& [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
   std::memset(buffer, 0, HEADER_SIZE);
   size_t offset = 0;
   buffer[offset] = std::underlying_type_t<HEADERTYPE>(headerType);
@@ -67,6 +71,8 @@ void encodeHeader(char* buffer, const HEADER& header) {
   buffer[offset] = diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::underlying_type_t<STATUS>(status);
+  offset += STATUS_SIZE;
+  ioutility::toChars(parameter, buffer + offset, PARAMETER_SIZE);
 }
 
 HEADER decodeHeader(const char* buffer) {
@@ -88,5 +94,9 @@ HEADER decodeHeader(const char* buffer) {
   bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
   STATUS status = static_cast<STATUS>(buffer[offset]);
-  return { headerType, payloadSize, uncomprSize, compressor, encrypted, diagnostics, status };
+  offset += STATUS_SIZE;
+  size_t parameter = 0;
+  std::string_view strp(buffer + offset, PARAMETER_SIZE);
+  ioutility::fromChars(strp, parameter);
+  return { headerType, payloadSize, uncomprSize, compressor, encrypted, diagnostics, status, parameter };
 }

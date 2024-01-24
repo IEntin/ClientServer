@@ -10,7 +10,6 @@ namespace fifo {
 
 class FifoClient : public Client {
 
-  bool sendBString() override;
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;

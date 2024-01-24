@@ -13,8 +13,9 @@ constexpr int COMPRESSOR_SIZE = 1;
 constexpr int CRYPTO_SIZE = 1;
 constexpr int DIAGNOSTICS_SIZE = 1;
 constexpr int STATUS_SIZE = 1;
+constexpr int PARAMETER_SIZE = NUM_FIELD_SIZE;
 constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE;
+  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 constexpr char CRYPTO_CHAR = 'C';
 constexpr char NCRYPTO_CHAR = 'N';
@@ -61,10 +62,11 @@ enum class HEADER_INDEX : char {
   COMPRESSOR,
   CRYPTO,
   DIAGNOSTICS,
-  STATUS
+  STATUS,
+  PARAMETER
 };
 
-using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, bool, STATUS>;
+using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, bool, STATUS, size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
@@ -81,6 +83,8 @@ bool isEncrypted(const HEADER& header);
 bool isDiagnosticsEnabled(const HEADER& header);
 
 STATUS extractStatus(const HEADER& header);
+
+size_t extractParameter(const HEADER& header);
 
 bool isOk(const HEADER& header);
 

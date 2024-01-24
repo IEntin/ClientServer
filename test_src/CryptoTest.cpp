@@ -33,7 +33,7 @@ struct PayloadTransformTest : testing::Test {
     std::string data = TestEnvironment::_source;
     ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
-    HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE};
+    HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE,0};
     CryptoPP::SecByteBlock key;
     key.resize(KEY_LENGTH);
     CryptoPP::AutoSeededRandomPool prng;
