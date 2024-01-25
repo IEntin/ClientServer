@@ -40,7 +40,7 @@ protected:
 public:
   virtual ~Client();
 
-  virtual bool send(const Subtask& subtask) = 0;
+  virtual bool send(Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
   virtual bool run() = 0;

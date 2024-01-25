@@ -35,20 +35,14 @@ bool FifoClient::run() {
   return Client::run();
 }
 
-bool FifoClient::send(const Subtask& subtask) {
-  HEADER header;
-  std::string body = subtask._body;
+bool FifoClient::send(Subtask& subtask) {
   if (!_alreadySet.test_and_set()) {
     auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = subtask._header;
-    body.append(_Bstring);
+    subtask._body.append(_Bstring);
     size_t newParameter = _Bstring.size();
     size_t newPayloadSz = payloadSz + newParameter;
-    header =
+    subtask._header =
       { HEADERTYPE::KEY_EXCHANGE, newPayloadSz, uncomprSz, compressor, encrypted, diagnostics, status, newParameter };
-  }
-  else {
-    header = subtask._header;
-    body = subtask._body;
   }
   while (true) {
     if (_closeFlag) {
@@ -58,7 +52,7 @@ bool FifoClient::send(const Subtask& subtask) {
       if (ec)
 	LogError << ec.message() << '\n';
     }
-    if (Fifo::sendMsg(_fifoName, header, body))
+    if (Fifo::sendMsg(_fifoName, subtask._header, subtask._body))
       return true;
     // waiting client
     // server stopped

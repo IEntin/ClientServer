@@ -42,7 +42,7 @@ bool TcpClient::sendBString() {
   return !ec;
 }
 
-bool TcpClient::send(const Subtask& subtask) {
+bool TcpClient::send(Subtask& subtask) {
   if (!_alreadySet.test_and_set()) {
   }
   auto ec = Tcp::sendMsg(_socket, subtask._header, subtask._body);
