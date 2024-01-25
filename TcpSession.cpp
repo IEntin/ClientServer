@@ -44,23 +44,6 @@ bool TcpSession::sendStatusToClient() {
   unsigned size = payload.size();
   HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
   auto ec = Tcp::sendMsg(_socket, header, payload);
-  if (!ec)
-    return receiveBString();
-  return !ec;
-}
-
-bool TcpSession::receiveBString() {
-  HEADER header;
-  std::string Bstring;
-  auto ec = Tcp::readMsg(_socket, header, Bstring);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
-  }
-  HEADERTYPE type = extractHeaderType(header);
-  assert(type == HEADERTYPE::KEY_EXCHANGE);
-  CryptoPP::Integer crossPub(Bstring.c_str());
-  _key = DHKeyExchange::step2(_priv, crossPub);
   return !ec;
 }
 
@@ -118,11 +101,11 @@ void TcpSession::readHeader() {
     });
 }
 
-void TcpSession::readRequest(const HEADER& header) {
+void TcpSession::readRequest(HEADER& header) {
   asyncWait();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
-    [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) mutable {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -135,6 +118,16 @@ void TcpSession::readRequest(const HEADER& header) {
       }
       if (_status != STATUS::NONE)
 	return;
+      auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
+      assert(payloadSz == _request.size());
+      if (type == HEADERTYPE::KEY_EXCHANGE) {
+	std::string Bstring = _request.substr(payloadSz - parameter, parameter);
+	CryptoPP::Integer crossPub(Bstring.c_str());
+	_key = DHKeyExchange::step2(_priv, crossPub);
+	_request.erase(payloadSz - parameter, parameter);
+	header =
+	  { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
+      }
       if (serverutility::processTask(_key, header, _request, _task))
 	sendReply();
       else {

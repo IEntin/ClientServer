@@ -31,11 +31,10 @@ private:
   std::string_view getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "tcp"; }
   void readHeader();
-  void readRequest(const HEADER& header);
+  void readRequest(HEADER& header);
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
-  bool receiveBString();
   CryptoPP::Integer _priv;
   CryptoPP::Integer _pub;
   std::string _Astring;

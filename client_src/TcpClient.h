@@ -16,7 +16,6 @@ class TcpClient : public Client {
   bool receive() override;
   bool receiveStatus() override;
   void close() override;
-  bool sendBString();
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
