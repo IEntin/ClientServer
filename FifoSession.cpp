@@ -78,20 +78,18 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  std::string body;
-  if (!Fifo::readMsgBlock(_fifoName, header, body))
+  if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
-  auto&  [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
-  assert(payloadSz == body.size());
+  auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
+  assert(payloadSz == _request.size());
   if (type == HEADERTYPE::KEY_EXCHANGE) {
-    std::string Bstring = body.substr(payloadSz - parameter, parameter);
+    std::string Bstring = _request.substr(payloadSz - parameter, parameter);
     CryptoPP::Integer crossPub(Bstring.c_str());
     _key = DHKeyExchange::step2(_priv, crossPub);
-    body.erase(payloadSz - parameter, parameter);
+    _request.erase(payloadSz - parameter, parameter);
     header =
       { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
   }
-  _request.swap(body);
   if (serverutility::processTask(_key, header, _request, _task))
     return sendResponse();
   return false;
