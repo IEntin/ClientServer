@@ -33,14 +33,7 @@ bool TcpClient::run() {
 }
 
 bool TcpClient::send(Subtask& subtask) {
-  if (!_alreadySet.test_and_set()) {
-    auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = subtask._header;
-    subtask._body.append(_Bstring);
-    size_t newParameter = _Bstring.size();
-    size_t newPayloadSz = payloadSz + newParameter;
-    subtask._header =
-      { HEADERTYPE::KEY_EXCHANGE, newPayloadSz, uncomprSz, compressor, encrypted, diagnostics, status, newParameter };
-  }
+  packBstring(subtask);
   auto ec = Tcp::sendMsg(_socket, subtask._header, subtask._body);
   if (ec)
     LogError << ec.what() << '\n';

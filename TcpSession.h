@@ -4,20 +4,19 @@
 
 #pragma once
 
+#include <boost/asio.hpp>
 #include <boost/container/static_vector.hpp>
-#include <cryptopp/integer.h>
 
 #include "Runnable.h"
-#include <boost/asio.hpp>
-
-using Response = std::vector<std::string>;
-using TaskPtr = std::shared_ptr<class Task>;
+#include "Session.h"
 
 namespace tcp {
 
 using AsioTimer = boost::asio::basic_waitable_timer<std::chrono::steady_clock>;
 
-class TcpSession final : public std::enable_shared_from_this<TcpSession>, public RunnableT<TcpSession> {
+class TcpSession final : public std::enable_shared_from_this<TcpSession>,
+			 public RunnableT<TcpSession>,
+			 public Session {
 public:
   TcpSession();
   ~TcpSession() override;
@@ -35,18 +34,10 @@ private:
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
-  CryptoPP::Integer _priv;
-  CryptoPP::Integer _pub;
-  std::string _Astring;
-  CryptoPP::SecByteBlock _key;
-  std::string _request;
-  std::string _clientId;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
-  Response _response;
-  TaskPtr _task;
   boost::container::static_vector<boost::asio::const_buffer, 2> _asioBuffers;
 };
 

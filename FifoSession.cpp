@@ -8,23 +8,15 @@
 #include <filesystem>
 #include <sys/stat.h>
 
-#include <boost/algorithm/hex.hpp>
-
-#include "DHKeyExchange.h"
 #include "Fifo.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
-#include "Task.h"
-#include "Utility.h"
 
 namespace fifo {
 
 FifoSession::FifoSession() :
-  RunnableT(ServerOptions::_maxFifoSessions),
-  _task(std::make_shared<Task>(_response)) {
-  _Astring = DHKeyExchange::step1(_priv, _pub);
-}
+  RunnableT(ServerOptions::_maxFifoSessions) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
@@ -32,20 +24,11 @@ FifoSession::~FifoSession() {
 }
 
 bool FifoSession::start() {
-  _clientId = utility::getUniqueId();
   _fifoName = ServerOptions::_fifoDirectoryName + '/' + _clientId;
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     LogError << std::strerror(errno) << '-' << _fifoName << '\n';
     return false;
   }
-  return true;
-}
-
-bool FifoSession::receiveBString() {
-  HEADER header;
-  std::string Bstring;
-  if (!Fifo::readMsgBlock(_fifoName, header, Bstring))
-    return false;
   return true;
 }
 
@@ -80,16 +63,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   }
   if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
-  auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
-  assert(payloadSz == _request.size());
-  if (type == HEADERTYPE::KEY_EXCHANGE) {
-    std::string Bstring = _request.substr(payloadSz - parameter, parameter);
-    CryptoPP::Integer crossPub(Bstring.c_str());
-    _key = DHKeyExchange::step2(_priv, crossPub);
-    _request.erase(payloadSz - parameter, parameter);
-    header =
-      { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
-  }
+  createKey(header);
   if (serverutility::processTask(_key, header, _request, _task))
     return sendResponse();
   return false;

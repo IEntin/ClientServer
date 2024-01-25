@@ -4,29 +4,23 @@
 
 #include "TcpSession.h"
 
-#include "DHKeyExchange.h"
 #include "ServerOptions.h"
 #include "ServerUtility.h"
 #include "Task.h"
 #include "Tcp.h"
-#include "Utility.h"
 
 namespace tcp {
 
 TcpSession::TcpSession() :
   RunnableT(ServerOptions::_maxTcpSessions),
   _socket(_ioContext),
-  _timeoutTimer(_ioContext) {
-  _Astring = DHKeyExchange::step1(_priv, _pub);
-}
+  _timeoutTimer(_ioContext) {}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
 }
 
 bool TcpSession::start() {
-  _task = std::make_shared<Task>(_response);
-  _clientId = utility::getUniqueId();
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
@@ -118,16 +112,7 @@ void TcpSession::readRequest(HEADER& header) {
       }
       if (_status != STATUS::NONE)
 	return;
-      auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
-      assert(payloadSz == _request.size());
-      if (type == HEADERTYPE::KEY_EXCHANGE) {
-	std::string Bstring = _request.substr(payloadSz - parameter, parameter);
-	CryptoPP::Integer crossPub(Bstring.c_str());
-	_key = DHKeyExchange::step2(_priv, crossPub);
-	_request.erase(payloadSz - parameter, parameter);
-	header =
-	  { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
-      }
+      createKey(header);
       if (serverutility::processTask(_key, header, _request, _task))
 	sendReply();
       else {

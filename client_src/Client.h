@@ -17,6 +17,7 @@ private:
   CryptoPP::Integer _priv;
   CryptoPP::Integer _pub;
   CryptoPP::SecByteBlock _key;
+  std::atomic_flag _alreadySet;
 protected:
   Client();
 
@@ -27,6 +28,7 @@ protected:
   void displayMaxTotalSessionsWarn();
   void displayMaxSessionsOfTypeWarn(std::string_view type);
   bool displayStatus(STATUS status);
+  bool packBstring(Subtask& subtask);
   std::string _clientId;
   std::string _Bstring;
   Chronometer _chronometer;
@@ -35,7 +37,6 @@ protected:
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder1;
   TaskBuilderWeakPtr _taskBuilder2;
-  std::atomic_flag _alreadySet;
   std::atomic<bool> _closeFlag = false;
 public:
   virtual ~Client();

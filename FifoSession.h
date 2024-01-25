@@ -4,27 +4,13 @@
 
 #pragma once
 
-#include <vector>
-
-#include <cryptopp/integer.h>
-
 #include "Runnable.h"
-
-using Response = std::vector<std::string>;
-using TaskPtr = std::shared_ptr<class Task>;
+#include "Session.h"
 
 namespace fifo {
 
-class FifoSession final : public RunnableT<FifoSession> {
-  Response _response;
-  std::string _request;
-  std::string _clientId;
+class FifoSession final : public RunnableT<FifoSession>, public Session {
   std::string _fifoName;
-  TaskPtr _task;
-  CryptoPP::Integer _priv;
-  CryptoPP::Integer _pub;
-  std::string _Astring;
-  CryptoPP::SecByteBlock _key;
   bool receiveRequest(HEADER& header);
   bool sendResponse();
   bool start() override;
@@ -33,7 +19,6 @@ class FifoSession final : public RunnableT<FifoSession> {
   bool sendStatusToClient() override;
   std::string_view getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "fifo"; }
-  bool receiveBString();
  public:
   FifoSession();
   ~FifoSession() override;

@@ -54,6 +54,19 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   return false;
 }
 
+bool Client::packBstring(Subtask& subtask) {
+  if (!_alreadySet.test_and_set()) {
+    auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = subtask._header;
+    subtask._body.append(_Bstring);
+    size_t newParameter = _Bstring.size();
+    size_t newPayloadSz = payloadSz + newParameter;
+    subtask._header =
+      { HEADERTYPE::KEY_EXCHANGE, newPayloadSz, uncomprSz, compressor, encrypted, diagnostics, status, newParameter };
+    return true;
+  }
+  return false;
+}
+
 bool Client::obtainKeyClientId(std::string_view buffer) {
   std::vector<std::string_view> components;
   utility::splitFast(buffer, components);
