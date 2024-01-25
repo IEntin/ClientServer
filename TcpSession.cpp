@@ -5,7 +5,6 @@
 #include "TcpSession.h"
 
 #include "ServerOptions.h"
-#include "ServerUtility.h"
 #include "Task.h"
 #include "Tcp.h"
 
@@ -57,7 +56,7 @@ void TcpSession::stop() {
 
 bool TcpSession::sendReply() {
   HEADER header;
-  std::string_view body = serverutility::buildReply(_key, _response, header, _status);
+  std::string_view body = buildReply(header, _status);
   if (body.empty())
     return false;
   asyncWait();
@@ -113,7 +112,7 @@ void TcpSession::readRequest(HEADER& header) {
       if (_status != STATUS::NONE)
 	return;
       createKey(header);
-      if (serverutility::processTask(_key, header, _request, _task))
+      if (processTask(header))
 	sendReply();
       else {
 	boost::asio::post(_ioContext, [this] {

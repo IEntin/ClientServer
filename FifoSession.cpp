@@ -11,7 +11,6 @@
 #include "Fifo.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "ServerUtility.h"
 
 namespace fifo {
 
@@ -64,7 +63,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
   createKey(header);
-  if (serverutility::processTask(_key, header, _request, _task))
+  if (processTask(header))
     return sendResponse();
   return false;
 }
@@ -73,7 +72,7 @@ bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
   HEADER header;
-  std::string_view body = serverutility::buildReply(_key, _response, header, _status);
+  std::string_view body = buildReply(header, _status);
   if (body.empty())
     return false;
   return Fifo::sendMsg(_fifoName, header, body);

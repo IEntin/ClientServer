@@ -25,7 +25,10 @@ class Session {
   std::string _request;
   Response _response;
   TaskPtr _task;
+  std::string _data;
 
   Session();
   void createKey(HEADER& header);
+  std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
+  bool processTask(const HEADER& header);
 };
