@@ -46,7 +46,7 @@ public:
   virtual bool receiveStatus() = 0;
   virtual bool run() = 0;
 
-  bool obtainKeyClientId(std::string_view buffer);
+  bool obtainKeyClientId(const std::string&, const HEADER& header);
   void stop();
   static void onSignal(std::atomic<Client*>& clientPtr);
   virtual void close() = 0;

@@ -64,14 +64,14 @@ struct Logger : private boost::noncopyable {
   static void translateLogThreshold(std::string_view configName);
 
   static LOG_LEVEL _threshold;
-};
 
-void integerWrite(Logger& logger, long value);
+  static void integerWrite(Logger& logger, long value);
+};
 
 template<ioutility::Integer N>
 Logger& operator <<(Logger& logger, const N& value) {
   if (logger._level >= Logger::_threshold) {
-    integerWrite(logger, value);
+    Logger::integerWrite(logger, value);
   }
   return logger;
 }

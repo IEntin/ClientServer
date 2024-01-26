@@ -55,7 +55,7 @@ bool TcpClient::receiveStatus() {
   HEADER header;
   std::string payload;
   auto ec = Tcp::readMsg(_socket, header, payload);
-  if (!obtainKeyClientId(payload))
+  if (!obtainKeyClientId(payload, header))
     return false;
   assert(!isCompressed(header) && "expected uncompressed");
   if (ec)

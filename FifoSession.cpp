@@ -80,9 +80,10 @@ bool FifoSession::sendResponse() {
 
 bool FifoSession::sendStatusToClient() {
   std::string payload(_clientId);
-  payload.append(1, '\n').append(_Astring);
+  payload.append(_Astring);
   unsigned size = payload.size();
-  HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
+  HEADER header
+    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
   return Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
 }
 

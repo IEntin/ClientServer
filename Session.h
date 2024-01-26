@@ -25,7 +25,7 @@ class Session {
   std::string _request;
   Response _response;
   TaskPtr _task;
-  std::string _data;
+  std::string _responseData;
 
   Session();
   void createKey(HEADER& header);

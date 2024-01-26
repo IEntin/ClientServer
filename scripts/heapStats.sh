@@ -4,6 +4,11 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+# valgrind --tool=massif
+# ms_print massif.out.13253 > output
+
+# valgrind --leak-check=full --show-leak-kinds=all
+
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 echo "SCRIPT_DIR:" $SCRIPT_DIR
 

@@ -41,7 +41,7 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
   return *this;
 }
 
-void integerWrite(Logger& logger, long value) {
+void Logger::integerWrite(Logger& logger, long value) {
   char buffer[CONV_BUFFER_SIZE] = {};
   auto length = ioutility::toChars(value, buffer);
   logger._stream.write(buffer, length);

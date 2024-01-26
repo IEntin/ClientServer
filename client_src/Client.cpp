@@ -10,7 +10,6 @@
 #include "PayloadTransform.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
-#include "Utility.h"
 
 Client::Client() :
   _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {
@@ -67,13 +66,12 @@ bool Client::packBstring(Subtask& subtask) {
   return false;
 }
 
-bool Client::obtainKeyClientId(std::string_view buffer) {
-  std::vector<std::string_view> components;
-  utility::splitFast(buffer, components);
-  if (components.size() < 2)
-    return false;
-  _clientId = components[0];
-  CryptoPP::Integer crossPub(components[1].data());
+bool Client::obtainKeyClientId(const std::string& buffer, const HEADER& header) {
+  size_t payloadSz = extractPayloadSize(header);
+  size_t AstringSz = extractParameter(header);
+  _clientId = buffer.substr(0, payloadSz - AstringSz);
+  std::string Astring = buffer.substr(payloadSz - AstringSz, AstringSz);
+  CryptoPP::Integer crossPub(Astring.data());
   _key = DHKeyExchange::step2(_priv, crossPub);
   return true;
 }

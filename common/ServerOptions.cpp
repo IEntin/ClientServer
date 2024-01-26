@@ -17,6 +17,7 @@ std::string ServerOptions::_fifoDirectoryName;
 std::string ServerOptions::_acceptorName;
 COMPRESSORS ServerOptions::_compressor;
 bool ServerOptions::_encrypted;
+bool ServerOptions::_showKey;
 int ServerOptions::_numberWorkThreads;
 int ServerOptions::_maxTcpSessions;
 int ServerOptions::_maxFifoSessions;
@@ -38,6 +39,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", true);
+  _showKey = appOptions.get("ShowKey", false);
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);
   _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();
   _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);

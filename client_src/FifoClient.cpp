@@ -76,7 +76,7 @@ bool FifoClient::receiveStatus() {
   std::string buffer;
   if (!Fifo::readMsgBlock(ClientOptions::_acceptorName, header, buffer))
     return false;
-  if (!obtainKeyClientId(buffer))
+  if (!obtainKeyClientId(buffer, header))
     return false;
   _status = extractStatus(header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/' + _clientId;

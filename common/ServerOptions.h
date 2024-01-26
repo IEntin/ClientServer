@@ -18,6 +18,7 @@ struct ServerOptions {
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
+  static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;
   static int _maxFifoSessions;

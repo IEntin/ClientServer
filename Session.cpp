@@ -6,6 +6,7 @@
 
 #include <cassert>
 
+#include "Crypto.h"
 #include "DHKeyExchange.h"
 #include "PayloadTransform.h"
 #include "ServerOptions.h"
@@ -26,6 +27,8 @@ void Session::createKey(HEADER& header) {
     std::string Bstring = _request.substr(payloadSz - parameter, parameter);
     CryptoPP::Integer crossPub(Bstring.c_str());
     _key = DHKeyExchange::step2(_priv, crossPub);
+    if (ServerOptions::_showKey)
+      Crypto::showKey(_key);
     _request.erase(payloadSz - parameter, parameter);
     header =
       { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
@@ -37,10 +40,10 @@ std::string_view Session::buildReply(HEADER& header, std::atomic<STATUS>& status
     return {};
   header =
     { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status, 0 };
-  _data.resize(0);
+  _responseData.resize(0);
   for (const auto& entry : _response)
-    _data.insert(_data.end(), entry.begin(), entry.end());
-  return payloadtransform::compressEncrypt(_key, _data, header);
+    _responseData.insert(_responseData.end(), entry.begin(), entry.end());
+  return payloadtransform::compressEncrypt(_key, _responseData, header);
 }
 
 bool Session::processTask(const HEADER& header) {

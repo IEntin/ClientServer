@@ -13,7 +13,7 @@
 #include "ServerOptions.h"
 
 void Crypto::showKey(const CryptoPP::SecByteBlock& key) {
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  Logger logger(LOG_LEVEL::INFO, std::clog, false);
   logger << "KEY SIZE: " << key.size() << '\n' << "KEY: ";
   boost::algorithm::hex(key, std::ostream_iterator<char> { logger.getStream(), "" });
   logger << '\n';
@@ -27,6 +27,8 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
   bool showKey = false;
   if (ClientOptions::_parsed)
     showKey = ClientOptions::_showKey;
+  else if (ServerOptions::_parsed)
+    showKey = ServerOptions::_showKey;
   if (showKey)
     static bool showOnce [[maybe_unused]] = showIv(iv);
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
@@ -63,7 +65,7 @@ std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
 }
 
 bool Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  Logger logger(LOG_LEVEL::INFO, std::clog, false);
   logger << "IV : ";
   boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
   logger << '\n';
