@@ -8,9 +8,7 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/osrng.h>
 
-#include "ClientOptions.h"
 #include "Logger.h"
-#include "ServerOptions.h"
 
 void Crypto::showKey(const CryptoPP::SecByteBlock& key) {
   Logger logger(LOG_LEVEL::INFO, std::clog, false);
@@ -24,13 +22,6 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   prng.GenerateBlock(iv, iv.size());
-  bool showKey = false;
-  if (ClientOptions::_parsed)
-    showKey = ClientOptions::_showKey;
-  else if (ServerOptions::_parsed)
-    showKey = ServerOptions::_showKey;
-  if (showKey)
-    static bool showOnce [[maybe_unused]] = showIv(iv);
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;
