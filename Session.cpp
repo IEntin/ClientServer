@@ -6,7 +6,6 @@
 
 #include <cassert>
 
-#include "Crypto.h"
 #include "DHKeyExchange.h"
 #include "PayloadTransform.h"
 #include "ServerOptions.h"
@@ -27,8 +26,6 @@ void Session::createKey(HEADER& header) {
     std::string Bstring = _request.substr(payloadSz - parameter, parameter);
     CryptoPP::Integer crossPub(Bstring.c_str());
     _key = DHKeyExchange::step2(_priv, crossPub);
-    if (ServerOptions::_showKey)
-      Crypto::showKey(_key);
     _request.erase(payloadSz - parameter, parameter);
     header =
       { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };

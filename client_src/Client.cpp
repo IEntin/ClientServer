@@ -4,7 +4,6 @@
 
 #include "Client.h"
 #include "ClientOptions.h"
-#include "Crypto.h"
 #include "DHKeyExchange.h"
 #include "Metrics.h"
 #include "PayloadTransform.h"
@@ -118,8 +117,6 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) {
 }
 
 void Client::start() {
-  if (ClientOptions::_showKey)
-    Crypto::showKey(_key);
   if (ClientOptions::_heartbeatEnabled) {
     RunnablePtr ptr = std::make_shared<tcp::TcpClientHeartbeat>();
     ptr->start();

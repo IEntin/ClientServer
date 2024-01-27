@@ -9,12 +9,20 @@
 #include <cryptopp/osrng.h>
 
 #include "Logger.h"
+#include "ClientOptions.h"
+#include "ServerOptions.h"
 
-void Crypto::showKey(const CryptoPP::SecByteBlock& key) {
-  Logger logger(LOG_LEVEL::INFO, std::clog, false);
-  logger << "KEY SIZE: " << key.size() << '\n' << "KEY: ";
-  boost::algorithm::hex(key, std::ostream_iterator<char> { logger.getStream(), "" });
-  logger << '\n';
+void Crypto::showKeyIv(const CryptoPP::SecByteBlock& key,
+		       const CryptoPP::SecByteBlock& iv) {
+  if (LOG_LEVEL::INFO >= Logger::_threshold) {
+    Logger logger(LOG_LEVEL::INFO, std::clog, false);
+    logger << "KEY SIZE: " << key.size() << '\n' << "KEY: 0x";
+    boost::algorithm::hex(key, std::ostream_iterator<char> { logger.getStream(), "" });
+    logger << '\n';
+    logger << "IV : 0x";
+    boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
+    logger << '\n';
+  }
 }
 
 std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
@@ -31,6 +39,8 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
   stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   cipher.insert(cipher.cend(), iv.begin(), iv.end());
+  if (ClientOptions::_showKey)
+    showKeyIv(key, iv);
   return cipher;
 }
 
@@ -52,13 +62,7 @@ std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
   catch (const std::exception& e) {
     throw std::runtime_error(e.what());
   }
+  if (ServerOptions::_showKey)
+    showKeyIv(key, iv);
   return decrypted;
-}
-
-bool Crypto::showIv(const CryptoPP::SecByteBlock& iv) {
-  Logger logger(LOG_LEVEL::INFO, std::clog, false);
-  logger << "IV : ";
-  boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
-  logger << '\n';
-  return true;
 }

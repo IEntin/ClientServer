@@ -7,6 +7,8 @@
 #include <cryptopp/secblock.h>
 
 class Crypto {
+  Crypto() = delete;
+  ~Crypto() = delete;
  public:
   static std::string_view encrypt(const CryptoPP::SecByteBlock& key,
 				  std::string_view data);
@@ -14,7 +16,6 @@ class Crypto {
   static std::string_view decrypt(const CryptoPP::SecByteBlock& key,
 				  std::string_view data);
 
-  static void showKey(const CryptoPP::SecByteBlock& key);
-
-  static bool showIv(const CryptoPP::SecByteBlock& iv);
+  static void showKeyIv(const CryptoPP::SecByteBlock& key,
+			const CryptoPP::SecByteBlock& iv);
 };

@@ -1,7 +1,10 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
 #include "DHKeyExchange.h"
 
 #include <cassert>
-#include <iostream>
 #include <sstream>
 
 #include <cryptopp/osrng.h>
@@ -9,7 +12,6 @@
 #include <cryptopp/secblock.h>
 
 #include "CommonConstants.h"
-#include "ServerOptions.h"
 
 std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub) {
   CryptoPP::SecByteBlock sec;
@@ -19,7 +21,7 @@ std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub
   priv = { sec.BytePtr(), sec.size() };
   pub = ModularExponentiation(G, priv, P);
   std::stringstream stream;
-  stream << std::hex << pub;
+  stream << "0x" << std::hex << pub;
   return stream.str();
 }
 
