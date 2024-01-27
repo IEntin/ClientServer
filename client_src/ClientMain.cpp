@@ -29,7 +29,7 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
-  std::string fileName("ClientOptions.json");
+  std::string_view fileName("ClientOptions.json");
   // The folowing covers setup with the client starting from
   // the project root rather than prepared client directory.
   if (!std::filesystem::exists(fileName)) {

@@ -30,7 +30,7 @@ TEST(CryptoTest, 1) {
 
 struct PayloadTransformTest : testing::Test {
   void test(bool encrypted, COMPRESSORS compressor) {
-    std::string data = TestEnvironment::_source;
+    std::string_view data = TestEnvironment::_source;
     ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
     HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE,0};

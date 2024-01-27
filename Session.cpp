@@ -23,8 +23,8 @@ void Session::createKey(HEADER& header) {
   auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
   assert(payloadSz == _request.size());
   if (type == HEADERTYPE::KEY_EXCHANGE) {
-    std::string Bstring = _request.substr(payloadSz - parameter, parameter);
-    CryptoPP::Integer crossPub(Bstring.c_str());
+    const char* Bstring = _request.data() + payloadSz - parameter;
+    CryptoPP::Integer crossPub(Bstring);
     _key = DHKeyExchange::step2(_priv, crossPub);
     _request.erase(payloadSz - parameter, parameter);
     header =

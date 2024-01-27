@@ -25,7 +25,6 @@ FifoAcceptor::~FifoAcceptor() {
 }
 
 HEADERTYPE FifoAcceptor::unblockAcceptor() {
-  static std::string emptyString;
   // blocks until the client opens writing end
   if (_stopped)
     return HEADERTYPE::ERROR;

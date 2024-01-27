@@ -65,12 +65,12 @@ bool Client::packBstring(Subtask& subtask) {
   return false;
 }
 
-bool Client::obtainKeyClientId(const std::string& buffer, const HEADER& header) {
+bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
   size_t payloadSz = extractPayloadSize(header);
   size_t AstringSz = extractParameter(header);
-  _clientId = buffer.substr(0, payloadSz - AstringSz);
-  std::string Astring = buffer.substr(payloadSz - AstringSz, AstringSz);
-  CryptoPP::Integer crossPub(Astring.data());
+  _clientId = { buffer.data(), payloadSz - AstringSz };
+  const char* Astring = buffer.data() + payloadSz - AstringSz;
+  CryptoPP::Integer crossPub(Astring);
   _key = DHKeyExchange::step2(_priv, crossPub);
   return true;
 }
