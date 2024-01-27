@@ -82,13 +82,13 @@ For fifo clients an analogous acceptor method is used.\
 The fifo acceptor is a special pipe waiting for a request for a new session\
 from the starting client on a blocking fd read open(...) call. The client\
 unblocks acceptor by opening its writing end. The server (acceptor) generates\
-UUID pipe name, creates the pipe and a new session, and sends pipe name to\
+unique pipe name, creates the pipe and a new session, and sends pipe name to\
 the client.\
 Only one starting client creates a session at a time. This process is\
 syncronized by a named_mutex. Tests show that any number of clients\
-can be started concurrently by the script checkmulticlients.sh.\
-Globally unique pipe name is an analogy of the unique combination\
-of ip address and ephemeral port in the tcp case.
+can be started concurrently by the script scripts/checkmulticlients.sh.\
+Unique pipe name is an analogy of the unique combination of the ip\
+address and ephemeral port in the tcp case.
 
 .........
 

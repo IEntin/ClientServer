@@ -31,8 +31,6 @@ date
 function printReport {
     printf "\n$clients\n"
     sync
-    printf "\n$fifos\n"
-    sync
     printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
     sync
     date
@@ -109,8 +107,6 @@ done
 sleep 60
 
 clients=$(ps -ef | grep -w './client' | grep -v 'grep')
-
-fifos=$(ls ../Fifos)
 
 echo -e "\nkilling server\n"
 

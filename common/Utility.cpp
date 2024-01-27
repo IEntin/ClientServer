@@ -6,11 +6,8 @@
 
 #include <filesystem>
 #include <fstream>
-#include <mutex>
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include "IOUtility.h"
 
 #include "Logger.h"
 
@@ -26,13 +23,10 @@ CloseFileDescriptor::~CloseFileDescriptor() {
 
 std::string getUniqueId() {
   try {
-    static boost::uuids::random_generator generator;
-    static std::mutex mutex;
-    std::lock_guard lock(mutex);
-    auto uuid = generator();
-    std::string str = boost::uuids::to_string(uuid);
-    auto it = std::remove(str.begin(), str.end(), '-');
-    return { str.begin(), it };
+    static std::atomic<size_t> uniqueInteger;
+    std::string buffer;
+    ioutility::toChars(uniqueInteger.fetch_add(1), buffer);
+    return buffer;
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
