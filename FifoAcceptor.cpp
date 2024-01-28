@@ -17,6 +17,7 @@
 namespace fifo {
 
 FifoAcceptor::FifoAcceptor(Server& server) :
+  _acceptorName(ServerOptions::_acceptorName),
   _server(server) {}
 
 FifoAcceptor::~FifoAcceptor() {
@@ -30,7 +31,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
     return HEADERTYPE::ERROR;
   HEADER header;
   std::string body;
-  if (!Fifo::readMsgBlock(ServerOptions::_acceptorName, header, body))
+  if (!Fifo::readMsgBlock(_acceptorName, header, body))
     return HEADERTYPE::ERROR;
   return extractHeaderType(header);
 }
@@ -52,8 +53,8 @@ void FifoAcceptor::run() {
 bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
-  if (mkfifo(ServerOptions::_acceptorName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << ServerOptions::_acceptorName << '\n';
+  if (mkfifo(_acceptorName.data(), 0666) == -1 && errno != EEXIST) {
+    LogError << std::strerror(errno) << '-' << _acceptorName << '\n';
     return false;
   }
   return true;
@@ -61,7 +62,7 @@ bool FifoAcceptor::start() {
 
 void FifoAcceptor::stop() {
   _stopped = true;
-  Fifo::onExit(ServerOptions::_acceptorName);
+  Fifo::onExit(_acceptorName);
 }
 
 void FifoAcceptor::removeFifoFiles() {

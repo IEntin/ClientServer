@@ -58,7 +58,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
   return readString(fdRead, body.data(), payloadSize);
 }
 
-  bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
+bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1) {

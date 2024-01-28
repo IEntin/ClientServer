@@ -16,7 +16,7 @@
 
 namespace fifo {
 
-FifoClient::FifoClient() {
+FifoClient::FifoClient() : _acceptorName(ClientOptions::_acceptorName) {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   if (!wakeupAcceptor())
@@ -68,13 +68,13 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status, 0 };
-  return Fifo::sendMsg(ClientOptions::_acceptorName, header);
+  return Fifo::sendMsg(_acceptorName, header);
 }
 
 bool FifoClient::receiveStatus() {
   HEADER header;
   std::string buffer;
-  if (!Fifo::readMsgBlock(ClientOptions::_acceptorName, header, buffer))
+  if (!Fifo::readMsgBlock(_acceptorName, header, buffer))
     return false;
   if (!obtainKeyClientId(buffer, header))
     return false;

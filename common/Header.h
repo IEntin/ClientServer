@@ -28,6 +28,7 @@ enum class HEADERTYPE : char {
   KEY_EXCHANGE,
   SESSION,
   HEARTBEAT,
+  RECEIPT,
   ERROR
 };
 
