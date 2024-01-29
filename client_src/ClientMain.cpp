@@ -6,17 +6,18 @@
 
 #include <filesystem>
 
+#include "Client.h"
 #include "ClientOptions.h"
 #include "Metrics.h"
 #include "FifoClient.h"
 #include "TcpClient.h"
 
 namespace {
-  std::atomic<Client*> clientPtr = 0;
+  std::shared_ptr<ClientWrapper> wrapper;
 }// end of anonimous namespace
 
 void signalHandler(int) {
-  Client::onSignal(clientPtr);
+  Client::onSignal(wrapper);
 }
 
 int main() {
@@ -40,13 +41,13 @@ int main() {
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;
-      clientPtr.store(&client);
+      wrapper = std::make_shared<ClientWrapper>(client);
       if (!client.run())
 	return 1;
     }
     if (ClientOptions::_tcpClient) {
       tcp::TcpClient client;
-      clientPtr.store(&client);
+      wrapper = std::make_shared<ClientWrapper>(client);
       if (!client.run())
 	return 2;
     }

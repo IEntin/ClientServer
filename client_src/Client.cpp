@@ -131,10 +131,12 @@ void Client::start() {
   _taskBuilder2 = taskBuilder2;
 }
 
-void Client::onSignal(std::atomic<Client*>& clientPtr) {
+void Client::onSignal(std::weak_ptr<ClientWrapper> wrapperWeak) {
   auto errnoSaved = errno;
-  if (clientPtr)
-    clientPtr.load()->close();
+  if (auto wrapper = wrapperWeak.lock(); wrapper) {
+    Client& client = wrapper->_client;
+    client.close();
+  }
   errno = errnoSaved;
 }
 

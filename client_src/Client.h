@@ -11,6 +11,14 @@ struct Subtask;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
+class Client;
+
+struct ClientWrapper {
+  ClientWrapper(Client& client) : _client(client) {}
+  ~ClientWrapper() {}
+  Client& _client;
+};
+
 class Client {
 
 private:
@@ -48,6 +56,6 @@ public:
 
   bool obtainKeyClientId(std::string_view, const HEADER& header);
   void stop();
-  static void onSignal(std::atomic<Client*>& clientPtr);
+  static void onSignal(std::weak_ptr<ClientWrapper> wrapperWeak);
   virtual void close() = 0;
 };
