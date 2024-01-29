@@ -10,8 +10,9 @@
 
 namespace tcp {
 
-TcpSession::TcpSession() :
+TcpSession::TcpSession(Server& server) :
   RunnableT(ServerOptions::_maxTcpSessions),
+  Session(server),
   _socket(_ioContext),
   _timeoutTimer(_ioContext) {}
 

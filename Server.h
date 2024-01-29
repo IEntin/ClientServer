@@ -19,6 +19,7 @@ public:
   bool start();
   void stop();
   bool startSession(RunnablePtr session);
+  bool removeFromSessions(const std::string& clientId);
   void stopSessions();
 private:
   Chronometer _chronometer;

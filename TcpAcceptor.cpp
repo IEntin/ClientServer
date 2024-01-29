@@ -80,7 +80,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::accept() {
-  auto connection = std::make_shared<TcpSession>();
+  auto connection = std::make_shared<TcpSession>(_server);
   _acceptor.async_accept(connection->socket(),
     [connection, this](boost::system::error_code ec) {
       if (_stopped)

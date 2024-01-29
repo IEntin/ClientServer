@@ -7,16 +7,24 @@
 #include <cassert>
 
 #include "DHKeyExchange.h"
+#include "Logger.h"
 #include "PayloadTransform.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
 #include "Utility.h"
 
-Session::Session() :
-  _task(std::make_shared<Task>(_response)) {
+Session::Session(Server& server) :
+  _task(std::make_shared<Task>(_response)),
+  _server(server) {
   _clientId = utility::getUniqueId();
   _Astring = DHKeyExchange::step1(_priv, _pub);
+}
+
+Session::~Session() {
+  _server.removeFromSessions(_clientId);
+  Trace << '\n';
 }
 
 void Session::createKey(HEADER& header) {

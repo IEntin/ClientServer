@@ -14,8 +14,9 @@
 
 namespace fifo {
 
-FifoSession::FifoSession() :
-  RunnableT(ServerOptions::_maxFifoSessions) {}
+FifoSession::FifoSession(Server& server) :
+  RunnableT(ServerOptions::_maxFifoSessions),
+  Session(server) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);

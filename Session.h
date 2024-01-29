@@ -12,6 +12,8 @@
 
 #include "Header.h"
 
+class Server;
+
 using Response = std::vector<std::string>;
 using TaskPtr = std::shared_ptr<class Task>;
 
@@ -26,8 +28,10 @@ class Session {
   Response _response;
   TaskPtr _task;
   std::string _responseData;
+  Server& _server;
 
-  Session();
+  Session(Server& server);
+  virtual ~Session();
   void createKey(HEADER& header);
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);

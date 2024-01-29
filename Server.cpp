@@ -62,6 +62,11 @@ bool Server::startSession(RunnablePtr session) {
   return true;
 }
 
+bool Server::removeFromSessions(const std::string& clientId) {
+  std::lock_guard lock(_mutex);
+  return _sessions.erase(clientId) > 0;
+}
+
 void Server::stopSessions() {
   std::lock_guard lock(_mutex);
   for (auto& pr : _sessions)

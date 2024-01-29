@@ -9,7 +9,8 @@
 
 namespace fifo {
 
-class FifoSession final : public RunnableT<FifoSession>, public Session {
+class FifoSession final : public RunnableT<FifoSession>,
+			  public Session {
   std::string _fifoName;
   bool receiveRequest(HEADER& header);
   bool sendResponse();
@@ -20,7 +21,7 @@ class FifoSession final : public RunnableT<FifoSession>, public Session {
   std::string_view getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "fifo"; }
  public:
-  FifoSession();
+  FifoSession(Server& server);
   ~FifoSession() override;
 };
 

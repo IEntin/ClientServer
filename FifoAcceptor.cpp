@@ -38,7 +38,7 @@ HEADERTYPE FifoAcceptor::unblockAcceptor() {
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto session = std::make_shared<FifoSession>();
+    auto session = std::make_shared<FifoSession>(_server);
     auto type = unblockAcceptor();
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
