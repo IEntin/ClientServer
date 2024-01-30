@@ -67,7 +67,7 @@ void  ThreadPoolBase::createThread() {
 	runnable->stop();
 	LogError << e.what() << '\n';
       }
-   }
+    }
   });
 }
 

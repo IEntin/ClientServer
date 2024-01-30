@@ -19,7 +19,7 @@ Lines::Lines(std::string_view fileName, char delimiter, bool keepDelimiter) :
 bool Lines::getLineImpl(std::string_view& line) {
   auto itBeg = _buffer.begin() + _processed;
   auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
-  if (itEnd == _buffer.end() && static_cast<size_t>(_stream.tellg()) < _fileSize) {
+  if (itEnd == _buffer.end() && static_cast<std::size_t>(_stream.tellg()) < _fileSize) {
     removeProcessedLines();
     if (!refillBuffer())
       return false;
@@ -34,13 +34,13 @@ bool Lines::getLineImpl(std::string_view& line) {
   // optionally keep delimiter
   line = { itBeg, itEnd + (endsWithDelimiter && _keepDelimiter ? 1 : 0) };
   _processed += dist + 1;
-  if (_processed == _sizeInUse && static_cast<size_t>(_stream.tellg()) == _fileSize)
+  if (_processed == _sizeInUse && static_cast<std::size_t>(_stream.tellg()) == _fileSize)
     _last = true;
   return true;
 }
 
 bool Lines::refillBuffer() {
-  size_t bytesToRead = std::min(_fileSize - _stream.tellg(), _buffer.size() - _sizeInUse);
+  std::size_t bytesToRead = std::min(_fileSize - _stream.tellg(), _buffer.size() - _sizeInUse);
   _stream.read(_buffer.data() + _sizeInUse, bytesToRead);
   _sizeInUse += _stream.gcount();
   return true;

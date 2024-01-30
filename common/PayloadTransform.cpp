@@ -25,7 +25,7 @@ std::string_view compressEncrypt(const CryptoPP::SecByteBlock& key,
 std::string_view decryptDecompress(const CryptoPP::SecByteBlock& key,
 				   const HEADER& header,
 				   std::string_view data) {
-  size_t uncomprSize = extractUncompressedSize(header);
+  std::size_t uncomprSize = extractUncompressedSize(header);
   std::string_view output = data;
   if (isEncrypted(header))
     output = Crypto::decrypt(key, output);

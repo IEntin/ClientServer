@@ -30,5 +30,5 @@ struct ServerOptions {
   static int _numberRepeatENXIO;
   static int _ENXIOwait;
   static bool _setPipeSize;
-  static size_t _pipeSize;
+  static std::size_t _pipeSize;
 };

@@ -37,7 +37,7 @@ protected:
   void displayMaxSessionsOfTypeWarn(std::string_view type);
   bool displayStatus(STATUS status);
   bool packBstring(Subtask& subtask);
-  std::string _clientId;
+  std::size_t _clientId;
   std::string _Bstring;
   Chronometer _chronometer;
   ThreadPoolBase _threadPoolClient;
@@ -52,7 +52,7 @@ public:
   virtual bool send(Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
-  virtual bool run() = 0;
+  virtual void run() = 0;
 
   bool obtainKeyClientId(std::string_view, const HEADER& header);
   void stop();

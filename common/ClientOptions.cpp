@@ -27,12 +27,12 @@ int ClientOptions::_heartbeatTimeout;
 bool ClientOptions::_heartbeatEnabled;
 bool ClientOptions::_diagnostics;
 bool ClientOptions::_runLoop;
-size_t ClientOptions::_bufferSize;
+std::size_t ClientOptions::_bufferSize;
 bool ClientOptions::_timing;
 int ClientOptions::_numberRepeatENXIO;
 int ClientOptions::_ENXIOwait;
 bool ClientOptions::_setPipeSize;
-size_t ClientOptions::_pipeSize;
+std::size_t ClientOptions::_pipeSize;
 std::string ClientOptions::_serverAddress;
 unsigned short ClientOptions::_tcpPort;
 

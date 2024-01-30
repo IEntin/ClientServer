@@ -16,7 +16,7 @@ class Fifo {
   ~Fifo() = delete;
 
   static short pollFd(int fd, short expected);
-  static bool readString(int fd, char* received, size_t size);
+  static bool readString(int fd, char* received, std::size_t size);
  public:
   static bool readMsgNonBlock(std::string_view name, HEADER& header, std::vector<char>& body);
 

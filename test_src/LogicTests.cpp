@@ -20,7 +20,7 @@ struct LogicTest : testing::Test {
 		    COMPRESSORS clientCompressor,
 		    bool serverEncrypt,
 		    bool clientEncrypt,
-		    size_t bufferSize,
+		    std::size_t bufferSize,
 		    bool diagnostics) {
     // start server
     ServerOptions::_compressor = serverCompressor;
@@ -46,7 +46,7 @@ struct LogicTest : testing::Test {
 		     COMPRESSORS clientCompressor,
 		     bool serverEncrypt,
 		     bool clientEncrypt,
-		     size_t bufferSize,
+		     std::size_t bufferSize,
 		     bool diagnostics) {
     // start server
     ServerOptions::_compressor = serverCompressor;

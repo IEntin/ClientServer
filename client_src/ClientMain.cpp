@@ -42,14 +42,12 @@ int main() {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;
       wrapper = std::make_shared<ClientWrapper>(client);
-      if (!client.run())
-	return 1;
+      client.run();
     }
     if (ClientOptions::_tcpClient) {
       tcp::TcpClient client;
       wrapper = std::make_shared<ClientWrapper>(client);
-      if (!client.run())
-	return 2;
+      client.run();
     }
   }
   catch (const std::exception& e) {

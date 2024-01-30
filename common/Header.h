@@ -67,7 +67,8 @@ enum class HEADER_INDEX : char {
   PARAMETER
 };
 
-using HEADER = std::tuple<HEADERTYPE, size_t, size_t, COMPRESSORS, bool, bool, STATUS, size_t>;
+using HEADER =
+  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, bool, bool, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
@@ -85,7 +86,7 @@ bool isDiagnosticsEnabled(const HEADER& header);
 
 STATUS extractStatus(const HEADER& header);
 
-size_t extractParameter(const HEADER& header);
+std::size_t extractParameter(const HEADER& header);
 
 bool isOk(const HEADER& header);
 

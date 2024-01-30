@@ -20,7 +20,7 @@ namespace fifo {
 bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<char>& body) {
   int fdRead = openReadNonBlock(name);
   utility::CloseFileDescriptor cfdr(fdRead);
-  size_t readSoFar = 0;
+  std::size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fdRead, buffer + readSoFar, HEADER_SIZE - readSoFar);
@@ -53,7 +53,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<ch
     LogError << "header is invalid." << '\n';
     return false;
   }
-  size_t payloadSize = extractPayloadSize(header);
+  std::size_t payloadSize = extractPayloadSize(header);
   body.resize(payloadSize);
   return readString(fdRead, body.data(), payloadSize);
 }
@@ -66,7 +66,7 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
     return false;
   }
   setPipeSize(fd);
-  size_t readSoFar = 0;
+  std::size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
@@ -84,7 +84,7 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
       return false;
     }
     else
-      readSoFar += static_cast<size_t>(result);
+      readSoFar += static_cast<std::size_t>(result);
   }
   if (readSoFar != HEADER_SIZE) {
     LogError << "HEADER_SIZE=" << HEADER_SIZE
@@ -96,13 +96,13 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
     LogError << "header is invalid." << '\n';
     return false;
   }
-  size_t payloadSize = extractPayloadSize(header);
+  std::size_t payloadSize = extractPayloadSize(header);
   body.resize(payloadSize);
   return readString(fd, body.data(), payloadSize);
 }
 
-bool Fifo::readString(int fd, char* received, size_t size) {
-  size_t readSoFar = 0;
+bool Fifo::readString(int fd, char* received, std::size_t size) {
+  std::size_t readSoFar = 0;
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
@@ -128,7 +128,7 @@ bool Fifo::readString(int fd, char* received, size_t size) {
 }
 
 bool Fifo::writeString(int fd, std::string_view str) {
-  size_t written = 0;
+  std::size_t written = 0;
   while (written < str.size()) {
     ssize_t result = write(fd, str.data() + written, str.size() - written);
     if (result == -1) {

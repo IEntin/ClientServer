@@ -33,7 +33,8 @@ bool TcpSession::start() {
 }
 
 bool TcpSession::sendStatusToClient() {
-  std::string payload(_clientId);
+  std::string payload;
+  ioutility::toChars(_clientId, payload);
   payload.append(_Astring);
   unsigned size = payload.size();
   HEADER header
@@ -69,7 +70,7 @@ bool TcpSession::sendReply() {
 void TcpSession::readHeader() {
   boost::asio::async_read(_socket,
   boost::asio::buffer(_headerBuffer),
-    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -100,7 +101,7 @@ void TcpSession::readRequest(HEADER& header) {
   asyncWait();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
-    [this, header] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) mutable {
+    [this, header] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) mutable {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -131,7 +132,7 @@ void TcpSession::write(const HEADER& header, std::string_view body) {
   _asioBuffers.emplace_back(boost::asio::buffer(body));
   boost::asio::async_write(_socket,
     _asioBuffers,
-    [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)
 	return;

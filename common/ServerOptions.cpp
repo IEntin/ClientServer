@@ -29,7 +29,7 @@ bool ServerOptions::_timing;
 int ServerOptions::_numberRepeatENXIO;
 int ServerOptions::_ENXIOwait;
 bool ServerOptions::_setPipeSize;
-size_t ServerOptions::_pipeSize;
+std::size_t ServerOptions::_pipeSize;
 
 void ServerOptions::parse(std::string_view jsonName) {
   _parsed = true;

@@ -97,7 +97,7 @@ void TcpClientHeartbeat::read() {
     return;
   }
   boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
-    [this] (const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
       auto self = weak_from_this().lock();
@@ -141,7 +141,7 @@ void TcpClientHeartbeat::write() {
   encodeHeader(_heartbeatBuffer, header);
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),
-    [this](const boost::system::error_code& ec, size_t transferred[[maybe_unused]]) {
+    [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)
 	return;

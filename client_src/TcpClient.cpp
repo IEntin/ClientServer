@@ -26,9 +26,9 @@ TcpClient::~TcpClient() {
   Trace << '\n';
 }
 
-bool TcpClient::run() {
+void TcpClient::run() {
   start();
-  return Client::run();
+  Client::run();
 }
 
 bool TcpClient::send(Subtask& subtask) {

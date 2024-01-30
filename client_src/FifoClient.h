@@ -23,7 +23,7 @@ class FifoClient : public Client {
   FifoClient();
   ~FifoClient() override;
 
-  bool run() override;
+  void run() override;
 };
 
 } // end of namespace fifo

@@ -37,7 +37,6 @@
 #include <queue>
 #include <signal.h>
 #include <sstream>
-#include <stddef.h>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>

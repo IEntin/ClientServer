@@ -19,7 +19,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 
 class Session {
  protected:
-  std::string _clientId;
+  std::size_t _clientId;
   CryptoPP::Integer _priv;
   CryptoPP::Integer _pub;
   std::string _Astring;

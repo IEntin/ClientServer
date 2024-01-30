@@ -53,7 +53,7 @@ void Server::stop() {
 
 bool Server::startSession(RunnablePtr session) {
   session->start();
-  std::string_view clientId = session->getId();
+  std::size_t clientId = session->getId();
   std::lock_guard lock(_mutex);
   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)
@@ -62,7 +62,7 @@ bool Server::startSession(RunnablePtr session) {
   return true;
 }
 
-bool Server::removeFromSessions(const std::string& clientId) {
+bool Server::removeFromSessions(std::size_t clientId) {
   std::lock_guard lock(_mutex);
   return _sessions.erase(clientId) > 0;
 }

@@ -56,8 +56,8 @@ bool Client::packBstring(Subtask& subtask) {
   if (!_alreadySet.test_and_set()) {
     auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = subtask._header;
     subtask._body.append(_Bstring);
-    size_t newParameter = _Bstring.size();
-    size_t newPayloadSz = payloadSz + newParameter;
+    std::size_t newParameter = _Bstring.size();
+    std::size_t newPayloadSz = payloadSz + newParameter;
     subtask._header =
       { HEADERTYPE::KEY_EXCHANGE, newPayloadSz, uncomprSz, compressor, encrypted, diagnostics, status, newParameter };
     return true;
@@ -66,27 +66,28 @@ bool Client::packBstring(Subtask& subtask) {
 }
 
 bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
-  size_t payloadSz = extractPayloadSize(header);
-  size_t AstringSz = extractParameter(header);
-  _clientId = { buffer.data(), payloadSz - AstringSz };
+  std::size_t payloadSz = extractPayloadSize(header);
+  std::size_t AstringSz = extractParameter(header);
+  std::string_view source(buffer.data(), payloadSz - AstringSz);
+  ioutility::fromChars(source, _clientId);
   const char* Astring = buffer.data() + payloadSz - AstringSz;
   CryptoPP::Integer crossPub(Astring);
   _key = DHKeyExchange::step2(_priv, crossPub);
   return true;
 }
 
-bool Client::run() {
+void Client::run() {
   int numberTasks = 0;
   do {
     Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
     auto current = numberTasks % 2 == 1 ? _taskBuilder1 : _taskBuilder2;
     if (!processTask(current))
-      return false;
+      break;
     ++numberTasks;
     if (ClientOptions::_maxNumberTasks > 0 && numberTasks == ClientOptions::_maxNumberTasks)
       break;
   } while (ClientOptions::_runLoop);
-  return true;
+  //stop();
 }
 
 void Client::stop() {

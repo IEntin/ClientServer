@@ -23,7 +23,7 @@ Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)
     LogError << "invalid request, sizeKey is default, input:" << input << '\n';
     return;
   }
-  size_t pos = input.find(']');
+  std::size_t pos = input.find(']');
   if (pos != std::string_view::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
     _request = { input.data() + pos + 1, input.size() - pos - 1 };
@@ -39,7 +39,7 @@ Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) :
     LogError << "invalid request, sizeKey is default, input:" << input << '\n';
     return;
   }
-  size_t pos = input.find(']');
+  std::size_t pos = input.find(']');
   if (pos != std::string_view::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
     _request = { input.data() + pos + 1, input.size() - pos - 1 };
@@ -119,7 +119,7 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   std::string_view SIZE_START;
   std::string_view SEPARATOR;
-  size_t begPos = 0;
+  std::size_t begPos = 0;
   begPos = request.find(SIZE_START_REG);
   // size format as in "728x90"
   if (begPos != std::string_view::npos) {
@@ -136,13 +136,13 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
     else
       return { 0, 0 };
   }
-  size_t sepPos = request.find(SEPARATOR, begPos + SIZE_START.size());
+  std::size_t sepPos = request.find(SEPARATOR, begPos + SIZE_START.size());
   if (sepPos == std::string_view::npos)
     return { 0, 0 };
   std::string_view widthView =
     { request.data() + begPos + SIZE_START.size(), sepPos - begPos - SIZE_START.size() };
-  size_t endPos = request.find(SIZE_END, sepPos + SEPARATOR.size());
-  size_t heightViewSize =
+  std::size_t endPos = request.find(SIZE_END, sepPos + SEPARATOR.size());
+  std::size_t heightViewSize =
     (endPos == std::string_view::npos ? request.size() : endPos) - sepPos - SEPARATOR.size();
   std::string_view heightView = { request.data() + sepPos + SEPARATOR.size(), heightViewSize };
   unsigned width = 0;
@@ -203,11 +203,11 @@ void Transaction::breakKeywords(std::string_view kwStr) {
 // format1 - kw=toy+longshoremen+recognize+jesbasementsystems+500loans, & - ending
 // format2 - keywords=cars+mazda, & - ending
 bool Transaction::parseKeywords(std::string_view start) {
-  size_t beg = _request.find(start);
+  std::size_t beg = _request.find(start);
   if (beg == std::string_view::npos)
     return false;
   auto keyWordsbeg = std::next(_request.cbegin(), beg + start.size());
-  size_t end = _request.find(KEYWORDS_END, beg);
+  std::size_t end = _request.find(KEYWORDS_END, beg);
   auto keyWordsEnd = end == std::string_view::npos ?
     _request.cend() : std::next(_request.cbegin(), end);
   std::string_view kwStr(keyWordsbeg, keyWordsEnd);

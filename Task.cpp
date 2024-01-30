@@ -64,7 +64,7 @@ bool Task::processNext() {
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
     try {
-      size_t typeIndex = _function.index();
+      std::size_t typeIndex = _function.index();
       switch (typeIndex) {
       case SORTFUNCTION:
 	_response[row._orgIndex] = std::get<SORTFUNCTION>(_function)(row._sizeKey, row._value, _diagnostics);

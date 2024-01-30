@@ -9,10 +9,10 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
-size_t Metrics::_pid;
+std::size_t Metrics::_pid;
 std::string Metrics::_procFdPath;
 std::string Metrics::_procThreadPath;
-size_t Metrics::_maxRss = 0;
+std::size_t Metrics::_maxRss = 0;
 int Metrics::_numberThreads = 0;
 int Metrics::_numberOpenFDs = 0;
 
@@ -45,7 +45,7 @@ void Metrics::print(LOG_LEVEL level,
     << "\t\'lsof\'=" << _numberOpenFDs << '\n';
 }
 
-size_t Metrics::getMaxRss() {
+std::size_t Metrics::getMaxRss() {
   struct rusage usage;
   if (getrusage(RUSAGE_SELF, &usage)) {
     LogError << strerror(errno) << '\n';

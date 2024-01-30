@@ -23,7 +23,7 @@ class Runnable {
   virtual bool start() = 0;
   virtual void run() = 0;
   virtual void stop() = 0;
-  virtual std::string_view getId() { return {}; }
+  virtual std::size_t getId() { return {}; }
   virtual unsigned getNumberObjects() const { return 0; }
   virtual unsigned getNumberRunningByType() const { return 0; }
   virtual bool sendStatusToClient() { return true; }

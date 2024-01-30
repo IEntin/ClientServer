@@ -116,7 +116,7 @@ struct FifoNonblockingTest : testing::Test {
     std::filesystem::remove(_testFifo);
   }
   bool send(std::string_view payload) {
-    size_t size = payload.size();
+    std::size_t size = payload.size();
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE, 0 };
     return fifo::Fifo::sendMsg(_testFifo, header, payload);
   }

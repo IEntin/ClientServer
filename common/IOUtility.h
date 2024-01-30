@@ -38,7 +38,7 @@ template <typename N>
 concept FloatingPoint = std::is_floating_point_v<N>;
 
 template <Integer T>
-int toChars(T value, char* buffer, size_t size = CONV_BUFFER_SIZE) {
+int toChars(T value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
   if (ec != std::errc()) {
     std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
@@ -49,10 +49,10 @@ int toChars(T value, char* buffer, size_t size = CONV_BUFFER_SIZE) {
 }
 
 template <Integer N>
-void toChars(N value, std::string& target, size_t size = CONV_BUFFER_SIZE) {
-  size_t origSize = target.size();
+void toChars(N value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) {
+  std::size_t origSize = target.size();
   target.resize(origSize + size);
-  size_t sizeIncr = 0;
+  std::size_t sizeIncr = 0;
   auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value);
   sizeIncr = ptr - target.data() - origSize;
   if (ec == std::errc())
@@ -65,7 +65,7 @@ void toChars(N value, std::string& target, size_t size = CONV_BUFFER_SIZE) {
 }
 
 template <FloatingPoint N>
-int toChars(N value, char* buffer, int precision, size_t size = CONV_BUFFER_SIZE) {
+int toChars(N value, char* buffer, int precision, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value,
 				 std::chars_format::fixed, precision);
   if (ec != std::errc()) {
@@ -77,10 +77,10 @@ int toChars(N value, char* buffer, int precision, size_t size = CONV_BUFFER_SIZE
 }
 
 template <FloatingPoint N>
-void toChars(N value, std::string& target, int precision, size_t size = CONV_BUFFER_SIZE) {
-  size_t origSize = target.size();
+void toChars(N value, std::string& target, int precision, std::size_t size = CONV_BUFFER_SIZE) {
+  std::size_t origSize = target.size();
   target.resize(origSize + size);
-  size_t sizeIncr = 0;
+  std::size_t sizeIncr = 0;
   auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value,
 				 std::chars_format::fixed, precision);
   sizeIncr = ptr - target.data() - origSize;

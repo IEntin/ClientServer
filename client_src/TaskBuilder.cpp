@@ -80,7 +80,7 @@ STATUS TaskBuilder::createSubtask(Lines& lines) {
   // LogAlways << "\t### _aggregate.capacity()=" << _aggregate.capacity() << '\n';
   _aggregate.erase(_aggregate.begin(), _aggregate.end());
   // lower bound estimate considering added id
-  size_t maxSubtaskSize = ClientOptions::_bufferSize - CONV_BUFFER_SIZE;
+  std::size_t maxSubtaskSize = ClientOptions::_bufferSize - CONV_BUFFER_SIZE;
   std::string_view line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
@@ -108,7 +108,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   Subtask& subtask = subtaskRef.get();
   subtask._header = header;
   subtask._body = output;
-  assert(static_cast<size_t>(extractPayloadSize(subtask._header)) == output.size() && "Must be equal");
+  assert(static_cast<std::size_t>(extractPayloadSize(subtask._header)) == output.size() && "Must be equal");
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

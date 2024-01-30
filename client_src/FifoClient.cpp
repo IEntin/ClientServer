@@ -30,9 +30,9 @@ FifoClient::~FifoClient() {
   Trace << '\n';
 }
 
-bool FifoClient::run() {
+void FifoClient::run() {
   start();
-  return Client::run();
+  Client::run();
 }
 
 bool FifoClient::send(Subtask& subtask) {
@@ -79,7 +79,8 @@ bool FifoClient::receiveStatus() {
   if (!obtainKeyClientId(buffer, header))
     return false;
   _status = extractStatus(header);
-  _fifoName = ClientOptions::_fifoDirectoryName + '/' + _clientId;
+  _fifoName = ClientOptions::_fifoDirectoryName + '/';
+  ioutility::toChars(_clientId, _fifoName);
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     displayMaxSessionsOfTypeWarn("fifo");

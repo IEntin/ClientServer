@@ -21,17 +21,9 @@ CloseFileDescriptor::~CloseFileDescriptor() {
   _fd = -1;
 }
 
-std::string getUniqueId() {
-  try {
-    static std::atomic<size_t> uniqueInteger;
-    std::string buffer;
-    ioutility::toChars(uniqueInteger.fetch_add(1), buffer);
-    return buffer;
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return "";
-  }
+std::size_t getUniqueId() {
+  static std::atomic<size_t> uniqueInteger;
+  return uniqueInteger.fetch_add(1);
 }
 
 void readFile(std::string_view fileName, std::string& buffer) {

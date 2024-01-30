@@ -31,12 +31,12 @@ struct ClientOptions {
   static bool _heartbeatEnabled;
   static bool _diagnostics;
   static bool _runLoop;
-  static size_t _bufferSize;
+  static std::size_t _bufferSize;
   static bool _timing;
   static int _numberRepeatENXIO;
   static int _ENXIOwait;
   static bool _setPipeSize;
-  static size_t _pipeSize;
+  static std::size_t _pipeSize;
   static std::string _serverAddress;
   static unsigned short _tcpPort;
 };

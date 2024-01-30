@@ -37,9 +37,9 @@ void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim
 
 template <typename INPUT, typename CONTAINER>
 void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  size_t start = 0;
+  std::size_t start = 0;
   while (start < input.size()) {
-    size_t next = input.find(delim, start);
+    std::size_t next = input.find(delim, start);
     bool endOfInput = next == INPUT::npos;
     rows.emplace_back(input.cbegin() + start,
       endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
@@ -51,10 +51,10 @@ void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepD
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, const char* separators) {
-  size_t beg = input.find_first_not_of(separators);
+  std::size_t beg = input.find_first_not_of(separators);
   while (beg != INPUT::npos) {
-    size_t pos = input.find_first_of(separators, beg + 1);
-    size_t end = pos == INPUT::npos ? input.size() : pos;
+    std::size_t pos = input.find_first_of(separators, beg + 1);
+    std::size_t end = pos == INPUT::npos ? input.size() : pos;
     rows.emplace_back(input.data() + beg, input.data() + end);
     beg = input.find_first_not_of(separators, end + 1);
   }
@@ -66,7 +66,7 @@ struct CloseFileDescriptor {
   int& _fd;
 };
 
-std::string getUniqueId();
+std::size_t getUniqueId();
 
 void readFile(std::string_view name, std::string& buffer);
 

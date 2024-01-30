@@ -111,9 +111,9 @@ TEST(HeaderTest, 1) {
   HEADER header{HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   encodeHeader(buffer, header);
   header = decodeHeader(buffer);
-  size_t payloadSzResult = extractPayloadSize(header);
+  std::size_t payloadSzResult = extractPayloadSize(header);
   ASSERT_EQ(payloadSz, payloadSzResult);
-  size_t uncomprSzResult = extractUncompressedSize(header);
+  std::size_t uncomprSzResult = extractUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);
   COMPRESSORS compressorResult = extractCompressor(header);
   ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
