@@ -42,6 +42,8 @@ bool Server::start() {
 }
 
 void Server::stop() {
+  setStarted();
+  _stopped.store(true);
   if (_tcpAcceptor)
     _tcpAcceptor->stop();
   if (_fifoAcceptor)
@@ -54,11 +56,14 @@ void Server::stop() {
 bool Server::startSession(RunnablePtr session) {
   session->start();
   std::size_t clientId = session->getId();
-  std::lock_guard lock(_mutex);
-  auto [it, inserted] = _sessions.emplace(clientId, session);
+  std::lock_guard lock1(_mutex);
+   auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)
     return false;
   _threadPoolSession.push(session);
+  std::unique_lock lock(_startMutex);
+  _startCondition.wait(lock, [this] { return _started || _stopped; });
+  _started.store(false);
   return true;
 }
 
@@ -72,4 +77,16 @@ void Server::stopSessions() {
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->stop();
+}
+
+void Server::lockStartMutex() {
+  std::unique_lock lock(_startMutex);
+  _started.store(false);
+  _startCondition.wait(lock,  [this] { return _started || _stopped; });
+}
+
+void Server::setStarted() {
+  std::lock_guard lock(_startMutex);
+  _started.store(true);
+  _startCondition.notify_all();
 }

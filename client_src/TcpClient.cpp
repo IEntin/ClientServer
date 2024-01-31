@@ -32,7 +32,6 @@ void TcpClient::run() {
 }
 
 bool TcpClient::send(Subtask& subtask) {
-  packBstring(subtask);
   auto ec = Tcp::sendMsg(_socket, subtask._header, subtask._body);
   if (ec)
     LogError << ec.what() << '\n';
@@ -71,6 +70,12 @@ bool TcpClient::receiveStatus() {
   default:
     break;
   }
+  std::size_t size = _Bstring.size();
+  header =
+    { HEADERTYPE::RECEIPT, size, size, COMPRESSORS::NONE, false, false, _status, size };
+  ec = Tcp::sendMsg(_socket, header, _Bstring);
+  if (ec)
+    throw(std::runtime_error(ec.what()));
   return true;
 }
 

@@ -17,7 +17,7 @@
 
 namespace fifo {
 
-bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::vector<char>& body) {
+bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& body) {
   int fdRead = openReadNonBlock(name);
   utility::CloseFileDescriptor cfdr(fdRead);
   std::size_t readSoFar = 0;
@@ -254,8 +254,8 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
 	break;
       case ENOENT:
-	LogError << std::strerror(errno) << '-' << fifoName << '\n';
-	return fd;
+	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
+	break;
       default:
 	return fd;
       }

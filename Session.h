@@ -32,7 +32,6 @@ class Session {
 
   Session(Server& server);
   virtual ~Session();
-  void createKey(HEADER& header);
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);
 };

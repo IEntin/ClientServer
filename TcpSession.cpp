@@ -4,6 +4,8 @@
 
 #include "TcpSession.h"
 
+#include "DHKeyExchange.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "Tcp.h"
@@ -33,6 +35,13 @@ bool TcpSession::start() {
 }
 
 bool TcpSession::sendStatusToClient() {
+  struct DoAtExit {
+    DoAtExit(Server& server) : _server(server) {}
+    ~DoAtExit() {
+      _server.setStarted();
+    }
+    Server& _server;
+  } doAtExit(_server);
   std::string payload;
   ioutility::toChars(_clientId, payload);
   payload.append(_Astring);
@@ -40,7 +49,19 @@ bool TcpSession::sendStatusToClient() {
   HEADER header
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
   auto ec = Tcp::sendMsg(_socket, header, payload);
-  return !ec;
+  if (!ec) {
+    std::string Bstring;
+    ec = Tcp::readMsg(_socket, header, Bstring);
+    if (ec)
+      return false;
+    CryptoPP::Integer crossPub(Bstring.data());
+    _key = DHKeyExchange::step2(_priv, crossPub);
+  }
+  else {
+    LogError << ec.what() << '\n';
+    return false;
+  }
+  return true;
 }
 
 void TcpSession::run() noexcept {
@@ -114,7 +135,6 @@ void TcpSession::readRequest(HEADER& header) {
       }
       if (_status != STATUS::NONE)
 	return;
-      createKey(header);
       if (processTask(header))
 	sendReply();
       else {

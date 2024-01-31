@@ -120,13 +120,13 @@ struct FifoNonblockingTest : testing::Test {
     HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE, 0 };
     return fifo::Fifo::sendMsg(_testFifo, header, payload);
   }
-  bool receive(std::vector<char>& received) {
+  bool receive(std::string& received) {
     HEADER header;
     return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
-    static thread_local std::vector<char> received;
+    static thread_local std::string received;
     received.clear();
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
@@ -140,7 +140,7 @@ struct FifoNonblockingTest : testing::Test {
   }
 
   void testNonblockingFifoReverse(std::string_view payload) {
-    static thread_local std::vector<char> received;
+    static thread_local std::string received;
     received.clear();
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));

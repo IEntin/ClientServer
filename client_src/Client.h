@@ -25,7 +25,6 @@ private:
   CryptoPP::Integer _priv;
   CryptoPP::Integer _pub;
   CryptoPP::SecByteBlock _key;
-  std::atomic_flag _alreadySet;
 protected:
   Client();
 
@@ -36,7 +35,6 @@ protected:
   void displayMaxTotalSessionsWarn();
   void displayMaxSessionsOfTypeWarn(std::string_view type);
   bool displayStatus(STATUS status);
-  bool packBstring(Subtask& subtask);
   std::size_t _clientId;
   std::string _Bstring;
   Chronometer _chronometer;

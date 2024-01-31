@@ -36,7 +36,6 @@ void FifoClient::run() {
 }
 
 bool FifoClient::send(Subtask& subtask) {
-  packBstring(subtask);
   while (true) {
     if (_closeFlag) {
       Fifo::onExit(_fifoName);
@@ -91,7 +90,10 @@ bool FifoClient::receiveStatus() {
   default:
     break;
   }
-  return true;
+  std::size_t size = _Bstring.size();
+  header =
+    { HEADERTYPE::RECEIPT, size, size, COMPRESSORS::NONE, false, false, _status, size };
+  return Fifo::sendMsg(_fifoName, header, _Bstring);
 }
 
 void FifoClient::close() {

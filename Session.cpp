@@ -27,19 +27,6 @@ Session::~Session() {
   Trace << '\n';
 }
 
-void Session::createKey(HEADER& header) {
-  auto& [type, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
-  assert(payloadSz == _request.size());
-  if (type == HEADERTYPE::KEY_EXCHANGE) {
-    const char* Bstring = _request.data() + payloadSz - parameter;
-    CryptoPP::Integer crossPub(Bstring);
-    _key = DHKeyExchange::step2(_priv, crossPub);
-    _request.erase(payloadSz - parameter, parameter);
-    header =
-      { HEADERTYPE::SESSION, payloadSz - parameter, uncomprSz, compressor, encrypted, diagnostics, status, 0 };
-  }
-}
-
 std::string_view Session::buildReply(HEADER& header, std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};

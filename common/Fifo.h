@@ -18,7 +18,7 @@ class Fifo {
   static short pollFd(int fd, short expected);
   static bool readString(int fd, char* received, std::size_t size);
  public:
-  static bool readMsgNonBlock(std::string_view name, HEADER& header, std::vector<char>& body);
+  static bool readMsgNonBlock(std::string_view name, HEADER& header, std::string& body);
 
   static bool readMsgBlock(std::string_view name, HEADER& header, std::string& body);
   static bool writeString(int fd, std::string_view str);

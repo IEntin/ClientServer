@@ -8,8 +8,10 @@
 #include <filesystem>
 #include <sys/stat.h>
 
+#include "DHKeyExchange.h"
 #include "Fifo.h"
 #include "Logger.h"
+#include "Server.h"
 #include "ServerOptions.h"
 
 namespace fifo {
@@ -64,7 +66,6 @@ bool FifoSession::receiveRequest(HEADER& header) {
   }
   if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
-  createKey(header);
   if (processTask(header))
     return sendResponse();
   return false;
@@ -81,13 +82,27 @@ bool FifoSession::sendResponse() {
 }
 
 bool FifoSession::sendStatusToClient() {
+  struct DoAtExit {
+    DoAtExit(Server& server) : _server(server) {}
+    ~DoAtExit() {
+      _server.setStarted();
+    }
+    Server& _server;
+  } doAtExit(_server);
   std::string payload;
   ioutility::toChars(_clientId, payload);
   payload.append(_Astring);
   unsigned size = payload.size();
   HEADER header
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
-  return Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
+  if (!Fifo::sendMsg(ServerOptions::_acceptorName, header, payload))
+    return false;
+  std::string Bstring;
+  if (!Fifo::readMsgNonBlock(_fifoName, header, Bstring))
+    return false;
+  CryptoPP::Integer crossPub(Bstring.data());
+  _key = DHKeyExchange::step2(_priv, crossPub);
+  return true;
 }
 
 } // end of namespace fifo

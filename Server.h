@@ -21,6 +21,8 @@ public:
   bool startSession(RunnablePtr session);
   bool removeFromSessions(std::size_t clientId);
   void stopSessions();
+  void lockStartMutex();
+  void setStarted();
 private:
   Chronometer _chronometer;
   SessionMap _sessions;
@@ -30,4 +32,8 @@ private:
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;
+  std::mutex _startMutex;
+  std::condition_variable _startCondition;
+  std::atomic<bool> _started = true;
+  std::atomic<bool> _stopped = false;
 };
