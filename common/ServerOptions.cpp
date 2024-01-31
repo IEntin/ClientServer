@@ -46,13 +46,13 @@ void ServerOptions::parse(std::string_view jsonName) {
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
   _tcpPort = appOptions.get("TcpPort", 49151);
-  _tcpTimeout = appOptions.get("TcpTimeout", 2000);
+  _tcpTimeout = appOptions.get("TcpTimeout", 3000);
   _sortInput = appOptions.get("SortInput", true);
   _timing = appOptions.get("Timing", false);
   // next 2 parameters may be decreased for better responsiveness
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
-  _ENXIOwait = appOptions.get("ENXIOwai", 10);
+  _ENXIOwait = appOptions.get("ENXIOwai", 20);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));

@@ -67,7 +67,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     _instrStream = nullptr;
   _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 15000);
-  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 2000);
+  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 3000);
   _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
   _diagnostics = appOptions.get("Diagnostics", false);
   _runLoop = appOptions.get("RunLoop", false);
@@ -76,7 +76,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   // next 2 parameters may be decreased for better responsiveness
   // or increased to prevent deadlocking on slow machines.
   _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
-  _ENXIOwait = appOptions.get("ENXIOwai", 10);
+  _ENXIOwait = appOptions.get("ENXIOwai", 20);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
