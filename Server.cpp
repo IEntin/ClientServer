@@ -61,9 +61,7 @@ bool Server::startSession(RunnablePtr session) {
   if (!inserted)
     return false;
   _threadPoolSession.push(session);
-  std::unique_lock lock(_startMutex);
-  _startCondition.wait(lock, [this] { return _started || _stopped; });
-  _started.store(false);
+  lockStartMutex();
   return true;
 }
 
@@ -81,8 +79,8 @@ void Server::stopSessions() {
 
 void Server::lockStartMutex() {
   std::unique_lock lock(_startMutex);
-  _started.store(false);
   _startCondition.wait(lock,  [this] { return _started || _stopped; });
+  _started.store(false);
 }
 
 void Server::setStarted() {
