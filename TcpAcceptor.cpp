@@ -3,6 +3,7 @@
  */
 
 #include "TcpAcceptor.h"
+#include "Connection.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "TcpSession.h"
@@ -80,8 +81,8 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::accept() {
-  auto connection = std::make_shared<TcpSession>(_server);
-  _acceptor.async_accept(connection->socket(),
+  auto connection = std::make_shared<Connection>();
+  _acceptor.async_accept(connection->_socket,
     [connection, this](boost::system::error_code ec) {
       if (_stopped)
 	return;
@@ -92,13 +93,16 @@ void TcpAcceptor::accept() {
 	(ec == boost::asio::error::operation_aborted ? Debug : LogError) <<
 	  ec.what() << '\n';
       else {
-	HEADERTYPE type = connectionType(connection->socket());
+	HEADERTYPE type = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  _server.startSession(connection);
+	  {
+	    auto session = std::make_shared<TcpSession>(_server, connection);
+	    _server.startSession(session);
+	  }
 	  break;
 	case HEADERTYPE::HEARTBEAT:
-	  replyHeartbeat(connection->socket());
+	  replyHeartbeat(connection->_socket);
 	  break;
 	default:
 	  break;

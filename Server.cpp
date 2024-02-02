@@ -56,7 +56,7 @@ void Server::stop() {
 bool Server::startSession(RunnablePtr session) {
   session->start();
   std::size_t clientId = session->getId();
-  std::lock_guard lock1(_mutex);
+  std::lock_guard lock(_mutex);
    auto [it, inserted] = _sessions.emplace(clientId, session);
   if (!inserted)
     return false;

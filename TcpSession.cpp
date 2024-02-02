@@ -4,6 +4,7 @@
 
 #include "TcpSession.h"
 
+#include "Connection.h"
 #include "DHKeyExchange.h"
 #include "Server.h"
 #include "ServerOptions.h"
@@ -12,10 +13,12 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(Server& server) :
+TcpSession::TcpSession(Server& server, ConnectionPtr connection) :
   RunnableT(ServerOptions::_maxTcpSessions),
   Session(server),
-  _socket(_ioContext),
+  _connection(std::move(connection)),
+  _ioContext(_connection->_ioContext),
+  _socket(std::move(_connection->_socket)),
   _timeoutTimer(_ioContext) {}
 
 TcpSession::~TcpSession() {
