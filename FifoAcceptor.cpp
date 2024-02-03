@@ -16,7 +16,7 @@
 
 namespace fifo {
 
-FifoAcceptor::FifoAcceptor(Server& server) :
+FifoAcceptor::FifoAcceptor(ServerPtr server) :
   _acceptorName(ServerOptions::_acceptorName),
   _server(server) {}
 
@@ -42,7 +42,8 @@ void FifoAcceptor::run() {
     auto type = unblockAcceptor();
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
-      _server.startSession(session);
+      if (auto server = _server.lock(); server)
+	server->startSession(session);
       break;
     default:
       break;

@@ -15,7 +15,7 @@
 #include "TaskController.h"
 #include "Utility.h"
 
-Session::Session(Server& server) :
+Session::Session(ServerWeakPtr server) :
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
@@ -23,7 +23,8 @@ Session::Session(Server& server) :
 }
 
 Session::~Session() {
-  _server.removeFromSessions(_clientId);
+  if (auto server = _server.lock(); server)
+    server->removeFromSessions(_clientId);
   Trace << '\n';
 }
 

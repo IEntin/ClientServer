@@ -16,7 +16,7 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(Server& server) :
+FifoSession::FifoSession(ServerWeakPtr server) :
   RunnableT(ServerOptions::_maxFifoSessions),
   Session(server) {}
 
@@ -83,11 +83,12 @@ bool FifoSession::sendResponse() {
 
 bool FifoSession::sendStatusToClient() {
   struct DoAtExit {
-    DoAtExit(Server& server) : _server(server) {}
+    DoAtExit(ServerWeakPtr server) : _server(server) {}
     ~DoAtExit() {
-      _server.setStarted();
+      if (auto server = _server.lock(); server)
+	server->setStarted();
     }
-    Server& _server;
+    ServerWeakPtr _server;
   } doAtExit(_server);
   std::string payload;
   ioutility::toChars(_clientId, payload);

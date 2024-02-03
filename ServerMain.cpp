@@ -33,14 +33,14 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions::parse("ServerOptions.json");
-    Server server(std::make_unique<TransactionStrategy>());
-    if (!server.start())
+    ServerPtr server = std::make_shared<Server>(std::make_unique<TransactionStrategy>());
+    if (!server->start())
       return 3;
     int sig = 0;
     if (sigwait(&set, &sig))
       LogError << strerror(errno) << '\n';
     Metrics::save();
-    server.stop();
+    server->stop();
     int closed = fcloseall();
     assert(closed == 0);
     return 0;

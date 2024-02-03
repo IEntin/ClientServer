@@ -23,8 +23,8 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     ServerOptions::_compressor = serverCompressor;
-    Server server(std::make_unique<EchoStrategy>());
-    ASSERT_TRUE(server.start());
+    ServerPtr server = std::make_shared<Server>(std::make_unique<EchoStrategy>());
+    ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
     {
@@ -33,7 +33,7 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
-    server.stop();
+    server->stop();
   }
 
   void testEchoFifo(COMPRESSORS serverCompressor,
@@ -43,8 +43,8 @@ struct EchoTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encrypted = serverEncrypt;
-    Server server(std::make_unique<EchoStrategy>());
-    ASSERT_TRUE(server.start());
+    ServerPtr server = std::make_shared<Server>(std::make_unique<EchoStrategy>());
+    ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
     ClientOptions::_encrypted = clientEncrypt;
@@ -54,7 +54,7 @@ struct EchoTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
-    server.stop();
+    server->stop();
   }
   void TearDown() {
     TestEnvironment::reset();

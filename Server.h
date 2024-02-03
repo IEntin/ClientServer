@@ -9,16 +9,19 @@
 #include "Chronometer.h"
 #include "ThreadPoolDiffObj.h"
 
+class Server;
+using ServerPtr = std::shared_ptr<Server>;
+using ServerWeakPtr = std::weak_ptr<Server>;
 using StrategyPtr = std::unique_ptr<class Strategy>;
 using SessionMap = std::map<std::size_t, RunnableWeakPtr>;
 
-class Server {
+class Server : public std::enable_shared_from_this<Server> {
 public:
   Server(StrategyPtr strategy);
   ~Server();
   bool start();
   void stop();
-  bool startSession(RunnablePtr session);
+  bool startSession(RunnableWeakPtr sessionWeak);
   bool removeFromSessions(std::size_t clientId);
   void stopSessions();
   void lockStartMutex();
@@ -34,6 +37,6 @@ private:
   std::mutex _mutex;
   std::mutex _startMutex;
   std::condition_variable _startCondition;
-  std::atomic<bool> _started = true;
+  std::atomic<bool> _started = false;
   std::atomic<bool> _stopped = false;
 };

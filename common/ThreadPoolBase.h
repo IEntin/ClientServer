@@ -26,7 +26,7 @@ public:
   ThreadPoolBase(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
   virtual ~ThreadPoolBase();
   void stop();
-  virtual void push(RunnablePtr runnable);
+  virtual STATUS push(RunnablePtr runnable);
   virtual RunnablePtr get();
   unsigned size() const { return _threads.size(); }
   unsigned maxSize() const { return _maxSize; }

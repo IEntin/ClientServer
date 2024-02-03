@@ -13,7 +13,7 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(Server& server, ConnectionPtr connection) :
+TcpSession::TcpSession(ServerWeakPtr server, ConnectionPtr connection) :
   RunnableT(ServerOptions::_maxTcpSessions),
   Session(server),
   _connection(std::move(connection)),
@@ -39,11 +39,12 @@ bool TcpSession::start() {
 
 bool TcpSession::sendStatusToClient() {
   struct DoAtExit {
-    DoAtExit(Server& server) : _server(server) {}
+    DoAtExit(ServerWeakPtr server) : _server(server) {}
     ~DoAtExit() {
-      _server.setStarted();
+      if (auto server = _server.lock(); server)
+	server->setStarted();
     }
-    Server& _server;
+    ServerWeakPtr _server;
   } doAtExit(_server);
   std::string payload;
   ioutility::toChars(_clientId, payload);

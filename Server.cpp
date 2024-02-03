@@ -30,11 +30,11 @@ bool Server::start() {
   _strategy->set();
   if (!TaskController::create())
     return false;
-  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(*this);
+  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());
   if (!_tcpAcceptor->start())
     return false;
   _threadPoolAcceptor.push(_tcpAcceptor);
-  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(*this);
+  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(shared_from_this());
   if (!_fifoAcceptor->start())
     return false;
   _threadPoolAcceptor.push(_fifoAcceptor);
@@ -53,15 +53,17 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-bool Server::startSession(RunnablePtr session) {
-  session->start();
-  std::size_t clientId = session->getId();
-  std::lock_guard lock(_mutex);
-   auto [it, inserted] = _sessions.emplace(clientId, session);
-  if (!inserted)
-    return false;
-  _threadPoolSession.push(session);
-  lockStartMutex();
+bool Server::startSession(RunnableWeakPtr sessionWeak) {
+  if (auto session = sessionWeak.lock(); session) {
+    session->start();
+    std::size_t clientId = session->getId();
+    std::lock_guard lock(_mutex);
+    auto [it, inserted] = _sessions.emplace(clientId, session);
+    if (!inserted)
+      return false;
+    _threadPoolSession.push(session);
+    lockStartMutex();
+  }
   return true;
 }
 
@@ -80,7 +82,6 @@ void Server::stopSessions() {
 void Server::lockStartMutex() {
   std::unique_lock lock(_startMutex);
   _startCondition.wait(lock,  [this] { return _started || _stopped; });
-  _started.store(false);
 }
 
 void Server::setStarted() {

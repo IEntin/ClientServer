@@ -10,6 +10,6 @@ class ThreadPoolSameObj : public ThreadPoolBase {
 public:
   explicit ThreadPoolSameObj(int maxSize);
   ~ThreadPoolSameObj() override;
-  void push(RunnablePtr runnable) override;
+  STATUS push(RunnablePtr runnable) override;
   RunnablePtr get() override;
 };

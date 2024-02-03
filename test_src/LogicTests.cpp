@@ -25,8 +25,8 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encrypted = serverEncrypt;
-    Server server(std::make_unique<TransactionStrategy>());
-    ASSERT_TRUE(server.start());
+    ServerPtr server = std::make_shared<Server>(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
     ClientOptions::_encrypted = clientEncrypt;
@@ -39,7 +39,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    server.stop();
+    server->stop();
   }
 
   void testLogicFifo(COMPRESSORS serverCompressor,
@@ -51,8 +51,8 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encrypted = serverEncrypt;
-    Server server(std::make_unique<TransactionStrategy>());
-    ASSERT_TRUE(server.start());
+    ServerPtr server = std::make_shared<Server>(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
     ClientOptions::_encrypted = clientEncrypt;
@@ -66,7 +66,7 @@ struct LogicTest : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    server.stop();
+    server->stop();
   }
 
   void TearDown() {
@@ -150,8 +150,8 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
-    Server server(std::make_unique<TransactionStrategy>());
-    ASSERT_TRUE(server.start());
+    ServerPtr server = std::make_shared<Server>(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_sourceName = "data/requestsDiffFormat.log";
     ClientOptions::_diagnostics = true;
@@ -162,7 +162,7 @@ struct LogicTestAltFormat : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    server.stop();
+    server->stop();
   }
 
   void TearDown() {
@@ -178,8 +178,8 @@ struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
     // start server
     ServerOptions::_sortInput = sort;
-    Server server(std::make_unique<TransactionStrategy>());
-    ASSERT_TRUE(server.start());
+    ServerPtr server = std::make_shared<Server>(std::make_unique<TransactionStrategy>());
+    ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_diagnostics = true;
     {
@@ -189,7 +189,7 @@ struct LogicTestSortInput : testing::Test {
       ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
-    server.stop();
+    server->stop();
   }
 
   void TearDown() {

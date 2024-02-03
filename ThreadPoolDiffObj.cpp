@@ -21,7 +21,7 @@ ThreadPoolDiffObj::~ThreadPoolDiffObj() {
   Trace << '\n';
 }
 
-void ThreadPoolDiffObj::push(RunnablePtr runnable) {
+STATUS ThreadPoolDiffObj::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   increment();
   // need one more thread
@@ -41,6 +41,7 @@ void ThreadPoolDiffObj::push(RunnablePtr runnable) {
     _func(runnable);
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();
+  return runnable->_status;
 }
 
 RunnablePtr ThreadPoolDiffObj::get() {

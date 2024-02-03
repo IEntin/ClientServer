@@ -7,6 +7,8 @@
 #include "Runnable.h"
 
 class Server;
+using ServerPtr = std::shared_ptr<Server>;
+using ServerWeakPtr = std::weak_ptr<Server>;
 
 namespace fifo {
 
@@ -17,9 +19,9 @@ class FifoAcceptor : public Runnable {
   HEADERTYPE unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;
-  Server& _server;
+  ServerWeakPtr _server;
  public:
-  FifoAcceptor(Server& server);
+  FifoAcceptor(ServerPtr server);
   ~FifoAcceptor() override;
 };
 

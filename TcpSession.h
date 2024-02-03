@@ -20,7 +20,7 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 			 public RunnableT<TcpSession>,
 			 public Session {
 public:
-  TcpSession(Server& server, ConnectionPtr connection);
+  TcpSession(ServerWeakPtr server, ConnectionPtr connection);
   ~TcpSession() override;
 
   boost::asio::ip::tcp::socket& socket() { return _socket; }

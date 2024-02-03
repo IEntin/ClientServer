@@ -11,7 +11,7 @@
 
 namespace tcp {
 
-TcpAcceptor::TcpAcceptor(Server& server) :
+TcpAcceptor::TcpAcceptor(ServerPtr server) :
   _server(server),
   _acceptor(_ioContext) {}
 
@@ -44,7 +44,8 @@ void TcpAcceptor::stop() {
   boost::asio::post(_ioContext, [this] () {
     if (auto self = shared_from_this(); self) {
       _ioContext.stop();
-      _server.stopSessions();
+      if (auto server = _server.lock(); server)
+	server->stopSessions();
     }
   });
 }
@@ -98,7 +99,8 @@ void TcpAcceptor::accept() {
 	case HEADERTYPE::CREATE_SESSION:
 	  {
 	    auto session = std::make_shared<TcpSession>(_server, connection);
-	    _server.startSession(session);
+	    if (auto server = _server.lock(); server)
+	      server->startSession(session);
 	  }
 	  break;
 	case HEADERTYPE::HEARTBEAT:

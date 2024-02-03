@@ -15,6 +15,7 @@
 class Server;
 
 using Response = std::vector<std::string>;
+using ServerWeakPtr = std::weak_ptr<Server>;
 using TaskPtr = std::shared_ptr<class Task>;
 
 class Session {
@@ -28,9 +29,9 @@ class Session {
   Response _response;
   TaskPtr _task;
   std::string _responseData;
-  Server& _server;
+  ServerWeakPtr _server;
 
-  Session(Server& server);
+  Session(ServerWeakPtr server);
   virtual ~Session();
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);

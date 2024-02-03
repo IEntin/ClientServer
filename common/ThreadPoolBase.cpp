@@ -71,7 +71,7 @@ void  ThreadPoolBase::createThread() {
   });
 }
 
-void ThreadPoolBase::push(RunnablePtr runnable) {
+STATUS ThreadPoolBase::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   increment();
   if (_totalNumberObjects > size()) {
@@ -80,6 +80,7 @@ void ThreadPoolBase::push(RunnablePtr runnable) {
   }
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();
+  return STATUS::NONE;
 }
 
 RunnablePtr ThreadPoolBase::get() {

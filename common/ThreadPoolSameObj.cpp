@@ -17,16 +17,20 @@ ThreadPoolSameObj::~ThreadPoolSameObj() {
   Trace << '\n';
 }
 
-void ThreadPoolSameObj::push(RunnablePtr runnable) {
+STATUS ThreadPoolSameObj::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   increment();
+  STATUS status = STATUS::NONE;;
   bool condition = _totalNumberObjects > size();
   if (condition && runnable->checkCapacity()) {
     createThread();
     Debug << "numberOfThreads=" << size() << ' ' << runnable->getType() << '\n';
   }
+  else
+    status = STATUS::MAX_OBJECTS_OF_TYPE;
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();
+  return status;
 }
 
 RunnablePtr ThreadPoolSameObj::get() {

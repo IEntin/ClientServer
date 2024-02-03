@@ -14,5 +14,5 @@ public:
   explicit ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func = nullptr);
   ~ThreadPoolDiffObj() override;
   RunnablePtr get() override;
-  void push(RunnablePtr runnable) override;
+  STATUS push(RunnablePtr runnable) override;
 };

@@ -9,13 +9,15 @@
 #include "Runnable.h"
 
 class Server;
+using ServerPtr = std::shared_ptr<Server>;
+using ServerWeakPtr = std::weak_ptr<Server>;
 
 namespace tcp {
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public Runnable {
  public:
-  TcpAcceptor(Server& server);
+  TcpAcceptor(ServerPtr server);
   ~TcpAcceptor() override;
 private:
   void run() override;
@@ -26,7 +28,7 @@ private:
   HEADERTYPE connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
-  Server& _server;
+  ServerWeakPtr _server;
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
