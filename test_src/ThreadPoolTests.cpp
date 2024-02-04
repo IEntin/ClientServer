@@ -30,7 +30,6 @@ public:
     _stopped = true;
   }
   bool _running = false;
-protected:
   bool sendStatusToClient() override {
     _running = _status == STATUS::NONE;
     return true;
@@ -62,12 +61,14 @@ TEST(ThreadPoolTest, Same) {
 TEST(ThreadPoolTest, Diff) {
   std::vector<TestRunnablePtr> runnables;
   const unsigned maxNumberThreads = 20;
-  ThreadPoolDiffObj pool(maxNumberThreads, &Runnable::sendStatusToClient);
+  ThreadPoolDiffObj pool(maxNumberThreads);
   for (unsigned i = 0; i < maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnables.emplace_back(runnable);
     runnable->start();
     ASSERT_TRUE(runnable->_status == STATUS::NONE);
+    pool.calculateStatus(runnable);
+    runnable->sendStatusToClient();
     pool.push(runnable);
     std::string type = runnable->getType();
     ASSERT_TRUE(boost::contains(type, "TestRunnable"));

@@ -13,20 +13,18 @@ not creating redundant threads.
 #include "ThreadPoolDiffObj.h"
 #include "Logger.h"
 
-ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func) :
-  ThreadPoolBase(maxSize),
-  _func(func) {}
+ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize) :
+  ThreadPoolBase(maxSize) {}
 
 ThreadPoolDiffObj::~ThreadPoolDiffObj() {
   Trace << '\n';
 }
 
-STATUS ThreadPoolDiffObj::push(RunnablePtr runnable) {
-  std::lock_guard lock(_queueMutex);
-  increment();
-  // need one more thread
+void ThreadPoolDiffObj::calculateStatus(RunnablePtr runnable) {
+  _totalNumberObjects++;
+  // need one more thread ?
   bool condition1 = _totalNumberObjects > size();
-  // can run one more of type
+  // can run one more of type ?
   bool condition2 = runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType;
   if (condition1 && condition2 && size() < _maxSize) {
     createThread();
@@ -37,8 +35,10 @@ STATUS ThreadPoolDiffObj::push(RunnablePtr runnable) {
   else if (runnable->_numberRunningTotal == _maxSize)
     runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   runnable->displayCapacityCheck(_totalNumberObjects);
-  if (_func)
-    _func(runnable);
+}
+
+STATUS ThreadPoolDiffObj::push(RunnablePtr runnable) {
+  std::lock_guard lock(_queueMutex);
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();
   return runnable->_status;

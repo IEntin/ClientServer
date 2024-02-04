@@ -16,7 +16,7 @@
 
 Server::Server(StrategyPtr strategy) :
   _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
-  _threadPoolSession(ServerOptions::_maxTotalSessions, &Runnable::sendStatusToClient),
+  _threadPoolSession(ServerOptions::_maxTotalSessions),
   _strategy(std::move(strategy)) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
 }
@@ -61,6 +61,8 @@ bool Server::startSession(RunnableWeakPtr sessionWeak) {
     auto [it, inserted] = _sessions.emplace(clientId, session);
     if (!inserted)
       return false;
+    _threadPoolSession.calculateStatus(session);
+    session->sendStatusToClient();
     _threadPoolSession.push(session);
     lockStartMutex();
   }

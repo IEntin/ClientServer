@@ -4,15 +4,13 @@
 
 #pragma once
 
-#include <functional>
-
 #include "ThreadPoolBase.h"
 
 class ThreadPoolDiffObj : public ThreadPoolBase {
-  std::function<bool(RunnablePtr)> _func = nullptr;
 public:
-  explicit ThreadPoolDiffObj(int maxSize, std::function<bool(RunnablePtr)> func = nullptr);
+  explicit ThreadPoolDiffObj(int maxSize);
   ~ThreadPoolDiffObj() override;
   RunnablePtr get() override;
+  void calculateStatus(RunnablePtr runnable);
   STATUS push(RunnablePtr runnable) override;
 };
