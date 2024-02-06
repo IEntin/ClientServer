@@ -16,9 +16,13 @@
 
 namespace fifo {
 
-FifoSession::FifoSession(ServerWeakPtr server) :
+FifoSession::FifoSession(ServerWeakPtr server,
+			 std::string_view Bstring) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server) {}
+  Session(server) {
+  CryptoPP::Integer crossPub(Bstring.data());
+  _key = DHKeyExchange::step2(_priv, crossPub);
+}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
@@ -98,11 +102,6 @@ bool FifoSession::sendStatusToClient() {
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
   if (!Fifo::sendMsg(ServerOptions::_acceptorName, header, payload))
     return false;
-  std::string Bstring;
-  if (!Fifo::readMsgNonBlock(_fifoName, header, Bstring))
-    return false;
-  CryptoPP::Integer crossPub(Bstring.data());
-  _key = DHKeyExchange::step2(_priv, crossPub);
   return true;
 }
 

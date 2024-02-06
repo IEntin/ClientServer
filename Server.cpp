@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <boost/interprocess/sync/named_mutex.hpp>
 
+#include "Ad.h"
 #include "FifoAcceptor.h"
 #include "Logger.h"
 #include "ServerOptions.h"
@@ -14,20 +15,20 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 
-Server::Server(StrategyPtr strategy) :
+Server::Server(Strategy& strategy) :
   _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
-  _threadPoolSession(ServerOptions::_maxTotalSessions),
-  _strategy(std::move(strategy)) {
+  _threadPoolSession(ServerOptions::_maxTotalSessions) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
+  strategy.set();
 }
 
 Server::~Server() {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
+  Ad::clear();
   Trace << '\n';
 }
 
 bool Server::start() {
-  _strategy->set();
   if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());
@@ -54,17 +55,16 @@ void Server::stop() {
 }
 
 bool Server::startSession(RunnableWeakPtr sessionWeak) {
+  std::lock_guard lock(_mutex);
   if (auto session = sessionWeak.lock(); session) {
     session->start();
     std::size_t clientId = session->getId();
-    std::lock_guard lock(_mutex);
     auto [it, inserted] = _sessions.emplace(clientId, session);
     if (!inserted)
       return false;
     _threadPoolSession.calculateStatus(session);
     session->sendStatusToClient();
     _threadPoolSession.push(session);
-    lockStartMutex();
   }
   return true;
 }

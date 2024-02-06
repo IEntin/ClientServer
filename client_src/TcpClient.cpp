@@ -13,8 +13,10 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   auto error = Tcp::setSocket(_socket);
   if (error)
     throw(std::runtime_error(error.what()));
-  HEADER header{ HEADERTYPE::CREATE_SESSION, 0, 0, COMPRESSORS::NONE, false, false, _status, 0 };
-  auto ec = Tcp::sendMsg(_socket, header);
+  std::size_t size = _Bstring.size();
+  HEADER header =
+    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
+  auto ec = Tcp::sendMsg(_socket, header, _Bstring);
   if (ec)
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())
@@ -70,12 +72,6 @@ bool TcpClient::receiveStatus() {
   default:
     break;
   }
-  std::size_t size = _Bstring.size();
-  header =
-    { HEADERTYPE::RECEIPT, size, size, COMPRESSORS::NONE, false, false, _status, size };
-  ec = Tcp::sendMsg(_socket, header, _Bstring);
-  if (ec)
-    throw(std::runtime_error(ec.what()));
   return true;
 }
 

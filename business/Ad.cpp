@@ -90,7 +90,7 @@ void Ad::readAds(std::string_view filename) {
       continue;
     }
     std::vector<Ad> empty;
-    auto [itTuple, insertedTuple] = _mapBySize.emplace(row._sizeKey, empty);
+    auto [itTuple, inserted] = _mapBySize.emplace(row._sizeKey, empty);
     itTuple->second.emplace_back(row);
       Ad& adTuple = itTuple->second.back();
       if (!adTuple.parseArray(row._array))

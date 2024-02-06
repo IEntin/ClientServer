@@ -59,16 +59,16 @@ void TcpAcceptor::run() {
   }
 }
 
-HEADERTYPE TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
-  std::string dummy;
-  auto ec = Tcp::readMsg(socket, _header, dummy);
+  std::tuple<HEADERTYPE, std::string>
+  TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
+  std::string Bstring;
+  auto ec = Tcp::readMsg(socket, _header, Bstring);
   assert(!isCompressed(_header) && "Expected uncompressed");
   if (ec) {
     LogError << ec.what() << '\n';
-    return HEADERTYPE::ERROR;
+    return { HEADERTYPE::ERROR, Bstring };
   }
-  HEADERTYPE type = extractHeaderType(_header);
-  return type;
+  return { extractHeaderType(_header), Bstring };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -94,11 +94,11 @@ void TcpAcceptor::accept() {
 	(ec == boost::asio::error::operation_aborted ? Debug : LogError) <<
 	  ec.what() << '\n';
       else {
-	HEADERTYPE type = connectionType(connection->_socket);
+	auto [type, Bstring] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
 	  {
-	    auto session = std::make_shared<TcpSession>(_server, connection);
+	    auto session = std::make_shared<TcpSession>(_server, connection, Bstring);
 	    if (auto server = _server.lock(); server)
 	      server->startSession(session);
 	  }

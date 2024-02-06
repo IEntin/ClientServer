@@ -25,7 +25,7 @@ private:
   void stop() override;
 
   void accept();
-  HEADERTYPE connectionType(boost::asio::ip::tcp::socket& socket);
+  std::tuple<HEADERTYPE, std::string> connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   ServerWeakPtr _server;

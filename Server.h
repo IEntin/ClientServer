@@ -12,12 +12,11 @@
 class Server;
 using ServerPtr = std::shared_ptr<Server>;
 using ServerWeakPtr = std::weak_ptr<Server>;
-using StrategyPtr = std::unique_ptr<class Strategy>;
 using SessionMap = std::map<std::size_t, RunnableWeakPtr>;
 
 class Server : public std::enable_shared_from_this<Server> {
 public:
-  Server(StrategyPtr strategy);
+  Server(class Strategy& strategy);
   ~Server();
   bool start();
   void stop();
@@ -31,7 +30,6 @@ private:
   SessionMap _sessions;
   ThreadPoolBase _threadPoolAcceptor;
   ThreadPoolDiffObj _threadPoolSession;
-  StrategyPtr _strategy;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;

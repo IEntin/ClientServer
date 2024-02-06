@@ -16,7 +16,7 @@ class FifoAcceptor : public Runnable {
   void run() override;
   bool start() override;
   void stop() override;
-  HEADERTYPE unblockAcceptor();
+  std::tuple<HEADERTYPE, std::string> unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;
   ServerWeakPtr _server;

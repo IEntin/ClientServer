@@ -33,7 +33,8 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions::parse("ServerOptions.json");
-    ServerPtr server = std::make_shared<Server>(std::make_unique<TransactionStrategy>());
+    TransactionStrategy strategy;
+    ServerPtr server = std::make_shared<Server>(strategy);
     if (!server->start())
       return 3;
     int sig = 0;

@@ -13,13 +13,18 @@
 
 namespace tcp {
 
-TcpSession::TcpSession(ServerWeakPtr server, ConnectionPtr connection) :
+TcpSession::TcpSession(ServerWeakPtr server,
+		       ConnectionPtr connection,
+		       std::string_view Bstring) :
   RunnableT(ServerOptions::_maxTcpSessions),
   Session(server),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext) {
+  CryptoPP::Integer crossPub(Bstring.data());
+  _key = DHKeyExchange::step2(_priv, crossPub);
+}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
@@ -53,15 +58,7 @@ bool TcpSession::sendStatusToClient() {
   HEADER header
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
   auto ec = Tcp::sendMsg(_socket, header, payload);
-  if (!ec) {
-    std::string Bstring;
-    ec = Tcp::readMsg(_socket, header, Bstring);
-    if (ec)
-      return false;
-    CryptoPP::Integer crossPub(Bstring.data());
-    _key = DHKeyExchange::step2(_priv, crossPub);
-  }
-  else {
+  if (ec) {
     LogError << ec.what() << '\n';
     return false;
   }

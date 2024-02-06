@@ -20,7 +20,3 @@ void TransactionStrategy::set() {
     Task::setProcessFunction(Transaction::processRequestNoSort);
   }
 }
-
-TransactionStrategy::~TransactionStrategy() {
-  Ad::clear();
-}

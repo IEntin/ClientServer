@@ -23,7 +23,8 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     ServerOptions::_compressor = serverCompressor;
-    ServerPtr server = std::make_shared<Server>(std::make_unique<EchoStrategy>());
+    EchoStrategy strategy;
+    ServerPtr server = std::make_shared<Server>(strategy);
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
@@ -43,7 +44,8 @@ struct EchoTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encrypted = serverEncrypt;
-    ServerPtr server = std::make_shared<Server>(std::make_unique<EchoStrategy>());
+    EchoStrategy strategy;
+    ServerPtr server = std::make_shared<Server>(strategy);
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
