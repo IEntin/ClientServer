@@ -86,14 +86,6 @@ bool FifoSession::sendResponse() {
 }
 
 bool FifoSession::sendStatusToClient() {
-  struct DoAtExit {
-    DoAtExit(ServerWeakPtr server) : _server(server) {}
-    ~DoAtExit() {
-      if (auto server = _server.lock(); server)
-	server->setStarted();
-    }
-    ServerWeakPtr _server;
-  } doAtExit(_server);
   std::string payload;
   ioutility::toChars(_clientId, payload);
   payload.append(_Astring);
