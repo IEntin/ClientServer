@@ -43,8 +43,8 @@ bool Server::start() {
 }
 
 void Server::stop() {
-  setStarted();
   _stopped.store(true);
+  stopSessions();
   if (_tcpAcceptor)
     _tcpAcceptor->stop();
   if (_fifoAcceptor)
@@ -79,15 +79,4 @@ void Server::stopSessions() {
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->stop();
-}
-
-void Server::lockStartMutex() {
-  std::unique_lock lock(_startMutex);
-  _startCondition.wait(lock,  [this] { return _started || _stopped; });
-}
-
-void Server::setStarted() {
-  std::lock_guard lock(_startMutex);
-  _started.store(true);
-  _startCondition.notify_all();
 }

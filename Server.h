@@ -23,8 +23,6 @@ public:
   bool startSession(RunnableWeakPtr sessionWeak);
   bool removeFromSessions(std::size_t clientId);
   void stopSessions();
-  void lockStartMutex();
-  void setStarted();
 private:
   Chronometer _chronometer;
   SessionMap _sessions;
@@ -33,7 +31,6 @@ private:
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;
-  std::mutex _startMutex;
   std::condition_variable _startCondition;
   std::atomic<bool> _started = false;
   std::atomic<bool> _stopped = false;
