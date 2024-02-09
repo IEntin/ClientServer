@@ -54,24 +54,17 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-bool Server::startSession(RunnableWeakPtr sessionWeak) {
+bool Server::startSession(RunnablePtr session) {
   std::lock_guard lock(_mutex);
-  if (auto session = sessionWeak.lock(); session) {
-    session->start();
-    std::size_t clientId = session->getId();
-    auto [it, inserted] = _sessions.emplace(clientId, session);
-    if (!inserted)
-      return false;
-    _threadPoolSession.calculateStatus(session);
-    session->sendStatusToClient();
-    _threadPoolSession.push(session);
-  }
+  session->start();
+  std::size_t clientId = session->getId();
+  auto [it, inserted] = _sessions.emplace(clientId, session);
+  if (!inserted)
+    return false;
+  _threadPoolSession.calculateStatus(session);
+  session->sendStatusToClient();
+  _threadPoolSession.push(session);
   return true;
-}
-
-bool Server::removeFromSessions(std::size_t clientId) {
-  std::lock_guard lock(_mutex);
-  return _sessions.erase(clientId) > 0;
 }
 
 void Server::stopSessions() {

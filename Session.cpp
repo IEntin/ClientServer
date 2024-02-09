@@ -23,8 +23,6 @@ Session::Session(ServerWeakPtr server) :
 }
 
 Session::~Session() {
-  if (auto server = _server.lock(); server)
-    server->removeFromSessions(_clientId);
   Trace << '\n';
 }
 

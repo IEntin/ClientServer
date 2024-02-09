@@ -74,7 +74,6 @@ void Client::run() {
     if (ClientOptions::_maxNumberTasks > 0 && numberTasks == ClientOptions::_maxNumberTasks)
       break;
   } while (ClientOptions::_runLoop);
-  //stop();
 }
 
 void Client::stop() {

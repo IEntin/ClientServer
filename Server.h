@@ -20,8 +20,7 @@ public:
   ~Server();
   bool start();
   void stop();
-  bool startSession(RunnableWeakPtr sessionWeak);
-  bool removeFromSessions(std::size_t clientId);
+  bool startSession(RunnablePtr session);
   void stopSessions();
 private:
   Chronometer _chronometer;
@@ -32,6 +31,5 @@ private:
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;
   std::condition_variable _startCondition;
-  std::atomic<bool> _started = false;
   std::atomic<bool> _stopped = false;
 };
