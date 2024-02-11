@@ -31,7 +31,7 @@ class Session {
   std::string _responseData;
   ServerWeakPtr _server;
 
-  Session(ServerWeakPtr server);
+  Session(ServerWeakPtr server, std::string_view Bstring);
   virtual ~Session();
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);

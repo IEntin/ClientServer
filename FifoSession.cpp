@@ -4,13 +4,10 @@
 
 #include "FifoSession.h"
 
-#include <cassert>
 #include <filesystem>
 #include <sys/stat.h>
 
-#include "DHKeyExchange.h"
 #include "Fifo.h"
-#include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
 
@@ -19,10 +16,7 @@ namespace fifo {
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view Bstring) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server) {
-  CryptoPP::Integer crossPub(Bstring.data());
-  _key = DHKeyExchange::step2(_priv, crossPub);
-}
+  Session(server, Bstring) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);

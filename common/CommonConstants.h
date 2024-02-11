@@ -26,7 +26,7 @@ constexpr const char* Pstr =
 
 const CryptoPP::Integer P(Pstr);
 
-constexpr const char*  Gstr = "0x2aaf7";
+constexpr const char*  Gstr = "0x2";
 
 const CryptoPP::Integer G(Gstr);
 

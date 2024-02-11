@@ -5,7 +5,6 @@
 #include "TcpSession.h"
 
 #include "Connection.h"
-#include "DHKeyExchange.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
@@ -17,14 +16,11 @@ TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
 		       std::string_view Bstring) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server),
+  Session(server, Bstring),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
-  _timeoutTimer(_ioContext) {
-  CryptoPP::Integer crossPub(Bstring.data());
-  _key = DHKeyExchange::step2(_priv, crossPub);
-}
+  _timeoutTimer(_ioContext) {}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
