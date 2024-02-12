@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <charconv>
 #include <cstdint>
 #include <stdexcept>
@@ -55,8 +56,10 @@ void toChars(N value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) 
   std::size_t sizeIncr = 0;
   auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value);
   sizeIncr = ptr - target.data() - origSize;
-  if (ec == std::errc())
-    target.resize(origSize + sizeIncr);
+  if (ec == std::errc()) {
+    assert(sizeIncr <= size);
+    target.erase(origSize + sizeIncr, size - sizeIncr);
+  }
   else {
     std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
     errorString.append(1, ' ').append(std::to_string(value));

@@ -14,8 +14,7 @@
 #include "CommonConstants.h"
 
 std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub) {
-  CryptoPP::SecByteBlock sec;
-  sec.resize(KEY_LENGTH);
+  CryptoPP::SecByteBlock sec(KEY_LENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(sec, sec.size());
   priv = { sec.BytePtr(), sec.size() };
@@ -27,8 +26,7 @@ std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub
 
 CryptoPP::SecByteBlock DHKeyExchange::step2(CryptoPP::Integer& priv, CryptoPP::Integer& crossPub) {
   CryptoPP::Integer keyInteger = ModularExponentiation(crossPub, priv, P);
-  CryptoPP::SecByteBlock key;
-  key.resize(KEY_LENGTH);
+  CryptoPP::SecByteBlock key(KEY_LENGTH);
   keyInteger.Encode(key.BytePtr(), KEY_LENGTH, CryptoPP::Integer::UNSIGNED);
   return key;
 }

@@ -4,7 +4,7 @@
 
 #include "Echo.h"
 
-// test transport layer, multithreading, compression, and encoding
+// tests transport layer, multithreading, compression, and encryption
 std::string_view Echo::processRequest(std::string_view request) noexcept {
   std::string_view response(request);
   // remove id part, if there is, to run 'diff' with the source file

@@ -34,7 +34,7 @@ std::string_view Session::buildReply(HEADER& header, std::atomic<STATUS>& status
     return {};
   header =
     { HEADERTYPE::SESSION, 0, 0, ServerOptions::_compressor, ServerOptions::_encrypted, false, status, 0 };
-  _responseData.resize(0);
+  _responseData.clear();
   for (const auto& entry : _response)
     _responseData.insert(_responseData.end(), entry.begin(), entry.end());
   return payloadtransform::compressEncrypt(_key, _responseData, header);
