@@ -16,13 +16,14 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server, std::string_view Bstring) :
+  _key(KEY_LENGTH),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
   _Astring = DHKeyExchange::step1(_priv, _pub);
   CryptoPP::Integer crossPub(Bstring.data());
   assert(_pub != crossPub);
-  _key = DHKeyExchange::step2(_priv, crossPub);
+  DHKeyExchange::step2(_priv, crossPub, _key);
 }
 
 Session::~Session() {

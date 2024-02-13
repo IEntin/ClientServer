@@ -24,11 +24,11 @@ std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub
   return stream.str();
 }
 
-CryptoPP::SecByteBlock DHKeyExchange::step2(CryptoPP::Integer& priv, CryptoPP::Integer& crossPub) {
+void DHKeyExchange::step2(const CryptoPP::Integer& priv,
+			  const CryptoPP::Integer& crossPub,
+			  CryptoPP::SecByteBlock& key) {
   CryptoPP::Integer keyInteger = ModularExponentiation(crossPub, priv, P);
-  CryptoPP::SecByteBlock key(KEY_LENGTH);
   keyInteger.Encode(key.BytePtr(), KEY_LENGTH, CryptoPP::Integer::UNSIGNED);
-  return key;
 }
 
 /*

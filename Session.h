@@ -24,7 +24,7 @@ class Session {
   CryptoPP::Integer _priv;
   CryptoPP::Integer _pub;
   std::string _Astring;
-  CryptoPP::SecByteBlock _key;  
+  CryptoPP::SecByteBlock _key;
   std::string _request;
   Response _response;
   TaskPtr _task;

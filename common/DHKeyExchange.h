@@ -16,6 +16,9 @@ struct DHKeyExchange {
   ~DHKeyExchange() = delete;
 
   static std::string step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub);
-  static CryptoPP::SecByteBlock step2(CryptoPP::Integer& priv, CryptoPP::Integer& crossPub);
+
+  static void step2(const CryptoPP::Integer& priv,
+		    const CryptoPP::Integer& crossPub,
+		    CryptoPP::SecByteBlock& key);
 
 };

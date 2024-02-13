@@ -11,6 +11,7 @@
 #include "TcpClientHeartbeat.h"
 
 Client::Client() :
+  _key(KEY_LENGTH),
   _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {
   _Bstring = DHKeyExchange::step1(_priv, _pub);
 }
@@ -59,7 +60,7 @@ bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
   ioutility::fromChars(source, _clientId);
   const char* Astring = buffer.data() + payloadSz - AstringSz;
   CryptoPP::Integer crossPub(Astring);
-  _key = DHKeyExchange::step2(_priv, crossPub);
+  DHKeyExchange::step2(_priv, crossPub, _key);
   return true;
 }
 
