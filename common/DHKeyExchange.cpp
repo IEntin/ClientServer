@@ -4,7 +4,6 @@
 
 #include "DHKeyExchange.h"
 
-#include <cassert>
 #include <sstream>
 
 #include <cryptopp/osrng.h>
@@ -14,11 +13,9 @@
 #include "CommonConstants.h"
 
 std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub) {
-  CryptoPP::SecByteBlock sec(KEY_LENGTH);
   CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(sec, sec.size());
-  priv = { sec.BytePtr(), sec.size() };
-  pub = ModularExponentiation(G, priv, P);
+  CryptoPP::Integer(prng, KEY_LENGTH * 8).swap(priv);
+  ModularExponentiation(G, priv, P).swap(pub);
   std::stringstream stream;
   stream << "0x" << std::hex << pub;
   return stream.str();
@@ -27,7 +24,8 @@ std::string DHKeyExchange::step1(CryptoPP::Integer& priv, CryptoPP::Integer& pub
 void DHKeyExchange::step2(const CryptoPP::Integer& priv,
 			  const CryptoPP::Integer& crossPub,
 			  CryptoPP::SecByteBlock& key) {
-  CryptoPP::Integer keyInteger = ModularExponentiation(crossPub, priv, P);
+  CryptoPP::Integer keyInteger;
+  ModularExponentiation(crossPub, priv, P).swap(keyInteger);
   keyInteger.Encode(key.BytePtr(), KEY_LENGTH, CryptoPP::Integer::UNSIGNED);
 }
 

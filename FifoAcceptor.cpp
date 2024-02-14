@@ -39,6 +39,8 @@ std::tuple<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
 void FifoAcceptor::run() {
   while (!_stopped) {
     auto [type, Bstring] = unblockAcceptor();
+    if (_stopped)
+      break;
     auto session = std::make_shared<FifoSession>(_server, Bstring);
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
