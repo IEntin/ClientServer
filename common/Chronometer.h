@@ -22,6 +22,8 @@ struct Chronometer : private boost::noncopyable {
     }
   }
 
+  // usage: chronometer.start(__FILE__, __func__, __LINE__);
+  // where chronometer is an object created somewhere.
   void start(const char* file, const char* function, int line) {
     if (_enabled) {
       _localStart = std::chrono::steady_clock::now();
@@ -31,17 +33,19 @@ struct Chronometer : private boost::noncopyable {
     }
   }
 
-  void stop(const char* file, int line) {
+  // usage: chronometer.stop(__FILE__, __func__, __LINE__);
+  // shows elapsed time since start or construction.
+  void stop(const char* file, const char* function, int line) {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };
       Logger logger(LOG_LEVEL::INFO, _stream);
       logger << __func__ << '-' << file << ':' << line << ' '
-        << _function << std::fixed << std::setprecision(3) << " elapsed="
+        << function << std::fixed << std::setprecision(3) << " elapsed="
 	<< elapsed_seconds.count() << 's' << '\n';
     }
   }
-
+  // shows elapsed time since construction.
   ~Chronometer() {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
