@@ -5,6 +5,7 @@
 #include "Transaction.h"
 
 #include <cassert>
+#include <functional>
 #include <iomanip>
 
 #include "Ad.h"
@@ -13,15 +14,10 @@
 #include "Logger.h"
 #include "Utility.h"
 
-namespace {
-  std::vector<Ad> emptyAdVector;
-} // end of anonimous namespace
-
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 
-Transaction::Transaction(std::string_view input) :
-  _adVector(emptyAdVector), _sizeKey(createSizeKey(input)) {
+Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
     LogError << "invalid request, sizeKey is default, input:" << input << '\n';
@@ -36,8 +32,7 @@ Transaction::Transaction(std::string_view input) :
   }
 }
 
-Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) :
-  _adVector(emptyAdVector), _sizeKey(sizeKey)  {
+Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) : _sizeKey(sizeKey)  {
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
     LogError << "invalid request, sizeKey is default, input:" << input << '\n';
@@ -70,11 +65,14 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
     output.append(INVALID_REQUEST);
     return output;
   }
-  if (sizeKey != transaction._prevKey) {
-    transaction._prevKey = sizeKey;
-    transaction._adVector = Ad::getAdsBySize(sizeKey);
+  static const std::vector<Ad> emptyAdVector;
+  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = emptyAdVector;
+  static thread_local SIZETUPLE prevKey;
+  if (sizeKey != prevKey) {
+    prevKey = sizeKey;
+    adVector = Ad::getAdsBySize(sizeKey);
   }
-  transaction.matchAds(transaction._adVector);
+  transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
       output.append(transaction._id);

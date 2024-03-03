@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <functional>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -39,8 +38,6 @@ private:
   void printWinningAd(std::string& output) const;
   std::string_view _id;
   std::string_view _request;
-  std::reference_wrapper<const std::vector<Ad>> _adVector;
-  SIZETUPLE _prevKey;
   // Made static to keep the capacity growing as needed.
   // thread_local makes it thread safe. Transaction destructor
   // clears this vector, but it keeps capacity for further
