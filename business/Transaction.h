@@ -42,11 +42,10 @@ private:
   std::reference_wrapper<const std::vector<Ad>> _adVector;
   SIZETUPLE _prevKey;
   // Made static to keep the capacity growing as needed.
-  // thread_local makes it thread safe b/c single request
-  // is processed in one thread. Transaction destructor clears this
-  // vector which keeps its capacity for further usage. Number
-  // of matched bids is not exceeding 10, so additional memory
-  // is negligible. callgrind shows improvement.
+  // thread_local makes it thread safe. Transaction destructor
+  // clears this vector, but it keeps capacity for further
+  // usage. Number of matched bids is not exceeding 10,
+  // additional memory is negligible.
   static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
