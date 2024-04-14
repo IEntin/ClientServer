@@ -37,7 +37,7 @@ else
 endif
 
 # temporary
-@FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
+FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
 
 RM := rm -f
 
