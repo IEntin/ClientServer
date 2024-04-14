@@ -2,6 +2,8 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+# sudo sysctl vm.mmap_rnd_bits=28
+
 #LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./server
 #LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./client
 #use clang++ (CMPLR=clang++) for sanitized build if use jemalloc
@@ -30,7 +32,12 @@ all: server client testbin runtests
 
 ifeq ($(CMPLR),)
   CXX := clang++
+else
+  CXX := $(CMPLR)
 endif
+
+# temporary
+@FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
 
 RM := rm -f
 

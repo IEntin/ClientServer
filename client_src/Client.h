@@ -7,7 +7,6 @@
 #include "Chronometer.h"
 #include "ThreadPoolBase.h"
 
-struct Subtask;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
@@ -41,13 +40,12 @@ protected:
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;
-  TaskBuilderWeakPtr _taskBuilder1;
-  TaskBuilderWeakPtr _taskBuilder2;
+  TaskBuilderWeakPtr _taskBuilder;
   std::atomic<bool> _closeFlag = false;
 public:
   virtual ~Client();
 
-  virtual bool send(Subtask& subtask) = 0;
+  virtual bool send(struct Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;

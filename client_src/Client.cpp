@@ -29,28 +29,33 @@ Client::~Client() {
 
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
-    while (true) {
+    std::deque<Subtask> task;
+    STATUS state = STATUS::SUBTASK_DONE;
+    do {
       Subtask& subtask = taskBuilder->getSubtask();
-      STATUS state = subtask._state;
+      state = subtask._state;
       switch (state) {
       case STATUS::ERROR:
 	LogError << "TaskBuilder failed." << '\n';
 	return false;
       case STATUS::SUBTASK_DONE:
       case STATUS::TASK_DONE:
-	if (!(send(subtask) && receive()))
-	  return false;
-	if (state == STATUS::TASK_DONE) {
-	  taskBuilder->resume();
-	  return true;
-	}
+	task.emplace_back();
+	task.back()._body.swap(subtask._body);
+	task.back()._header.swap(subtask._header);
+	task.back()._state = state;
 	break;
       default:
 	return false;
       }
+    } while (state == STATUS::SUBTASK_DONE);
+    taskBuilder->resume();
+    for (auto& subtask : task) {
+      if (!(send(subtask) && receive()))
+	return false;
     }
   }
-  return false;
+  return true;
 }
 
 bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
@@ -68,8 +73,7 @@ void Client::run() {
   int numberTasks = 0;
   do {
     Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
-    auto current = numberTasks % 2 == 1 ? _taskBuilder1 : _taskBuilder2;
-    if (!processTask(current))
+    if (!processTask(_taskBuilder))
       break;
     ++numberTasks;
     if (ClientOptions::_maxNumberTasks > 0 && numberTasks == ClientOptions::_maxNumberTasks)
@@ -81,9 +85,7 @@ void Client::stop() {
   Metrics::save();
   if (auto heartbeat = _heartbeat.lock(); heartbeat)
     heartbeat->stop();
-  if (auto taskBuilder = _taskBuilder1.lock(); taskBuilder)
-    taskBuilder->stop();
-  if (auto taskBuilder = _taskBuilder2.lock(); taskBuilder)
+  if (auto taskBuilder = _taskBuilder.lock(); taskBuilder)
     taskBuilder->stop();
   _threadPoolClient.stop();
 }
@@ -111,12 +113,9 @@ void Client::start() {
     _threadPoolClient.push(ptr);
     _heartbeat = ptr;
   }
-  auto taskBuilder1 = std::make_shared<TaskBuilder>(_key);
-  _threadPoolClient.push(taskBuilder1);
-  _taskBuilder1 = taskBuilder1;
-  auto taskBuilder2 = std::make_shared<TaskBuilder>(_key);
-  _threadPoolClient.push(taskBuilder2);
-  _taskBuilder2 = taskBuilder2;
+  auto taskBuilder = std::make_shared<TaskBuilder>(_key);
+  _threadPoolClient.push(taskBuilder);
+  _taskBuilder = taskBuilder;
 }
 
 void Client::onSignal(std::weak_ptr<ClientWrapper> wrapperWeak) {
