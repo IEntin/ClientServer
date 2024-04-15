@@ -41,9 +41,7 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
       case STATUS::SUBTASK_DONE:
       case STATUS::TASK_DONE:
 	task.emplace_back();
-	task.back()._body.swap(subtask._body);
-	task.back()._header.swap(subtask._header);
-	task.back()._state = state;
+	task.back().swap(subtask);
 	break;
       default:
 	return false;
