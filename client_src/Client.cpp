@@ -25,28 +25,14 @@ Client::~Client() {
 // Allows to read and process the source in parts with sizes
 // determined by the buffer size. This reduces memory footprint.
 // For maximum speed the buffer should be large to read the
-// content in one shot.
+// contents in one shot.
 
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
-    std::deque<Subtask> task;
-    STATUS state = STATUS::SUBTASK_DONE;
-    do {
-      Subtask& subtask = taskBuilder->getSubtask();
-      state = subtask._state;
-      switch (state) {
-      case STATUS::ERROR:
-	LogError << "TaskBuilder failed." << '\n';
-	return false;
-      case STATUS::SUBTASK_DONE:
-      case STATUS::TASK_DONE:
-	task.emplace_back();
-	task.back().swap(subtask);
-	break;
-      default:
-	return false;
-      }
-    } while (state == STATUS::SUBTASK_DONE);
+    static Task task;
+    task.clear();
+    Task& receivedTask = taskBuilder->getTask();
+    task.swap(receivedTask);
     taskBuilder->resume();
     for (auto& subtask : task) {
       if (!(send(subtask) && receive()))

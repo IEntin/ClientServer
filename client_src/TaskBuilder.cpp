@@ -7,13 +7,14 @@
 #include <cassert>
 
 #include "ClientOptions.h"
-#include "Header.h"
 #include "IOUtility.h"
 #include "Lines.h"
 #include "Logger.h"
 #include "PayloadTransform.h"
 
 Subtask TaskBuilder::_emptySubtask;
+
+Task TaskBuilder::_emptyTask;
 
 TaskBuilder::TaskBuilder(const CryptoPP::SecByteBlock& key) : _key(key), _subtasks(1) {
   _aggregate.reserve(ClientOptions::_bufferSize);
@@ -40,6 +41,25 @@ void TaskBuilder::run() {
       break;
     }
   }
+}
+
+Task& TaskBuilder::getTask() {
+  STATUS state = STATUS::NONE;
+  do {
+    Subtask& subtask = getSubtask();
+    state = subtask._state;
+    switch (state) {
+    case STATUS::ERROR:
+      LogError << "TaskBuilder failed." << '\n';
+      return _emptyTask;
+    case STATUS::SUBTASK_DONE:
+    case STATUS::TASK_DONE:
+      break;
+    default:
+      return _emptyTask;
+    }
+  } while (state == STATUS::SUBTASK_DONE);
+  return _subtasks;
 }
 
 Subtask& TaskBuilder::getSubtask() {

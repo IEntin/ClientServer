@@ -13,6 +13,8 @@
 
 enum class STATUS : char;
 
+using Task = std::deque<Subtask>;
+
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
@@ -20,18 +22,20 @@ class TaskBuilder final : public Runnable {
 
   const CryptoPP::SecByteBlock& _key;
   std::string _aggregate;
-  std::deque<Subtask> _subtasks;
+  Task _subtasks;
   std::atomic<unsigned> _subtaskIndexConsumed = 0;
   std::atomic<unsigned> _subtaskIndexProduced = 0;
   std::mutex _mutex;
   std::condition_variable _condition;
   bool _resume = false;
   static Subtask _emptySubtask;
+  static Task _emptyTask;
   void run() override;
   bool start() override { return true; }
  public:
   TaskBuilder(const CryptoPP::SecByteBlock& key);
   ~TaskBuilder() override;
+  Task& getTask();
   Subtask& getSubtask();
   STATUS createSubtask(class Lines& lines);
   void stop() override;
