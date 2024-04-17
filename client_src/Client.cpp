@@ -30,7 +30,6 @@ Client::~Client() {
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
     static Task task;
-    task.clear();
     Task& receivedTask = taskBuilder->getTask();
     task.swap(receivedTask);
     taskBuilder->resume();
