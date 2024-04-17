@@ -128,7 +128,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   Subtask& subtask = subtaskRef.get();
   subtask._header = header;
   subtask._body = output;
-  assert(static_cast<std::size_t>(extractPayloadSize(subtask._header)) == output.size() && "Must be equal");
+  assert(extractPayloadSize(subtask._header) == output.size() && "Must be equal");
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

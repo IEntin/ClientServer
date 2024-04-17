@@ -10,11 +10,11 @@ HEADERTYPE extractHeaderType(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::HEADERTYPE)>(header);
 }
 
-ssize_t extractPayloadSize(const HEADER& header) {
+std::size_t extractPayloadSize(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::PAYLOADSIZE)>(header);
 }
 
-ssize_t extractUncompressedSize(const HEADER& header) {
+std::size_t extractUncompressedSize(const HEADER& header) {
   return std::get<static_cast<int>(HEADER_INDEX::UNCOMPRESSED)>(header);
 }
 

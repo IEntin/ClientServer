@@ -72,9 +72,9 @@ using HEADER =
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
-ssize_t extractPayloadSize(const HEADER& header);
+std::size_t extractPayloadSize(const HEADER& header);
 
-ssize_t extractUncompressedSize(const HEADER& header);
+std::size_t extractUncompressedSize(const HEADER& header);
 
 COMPRESSORS extractCompressor(const HEADER& header);
 
