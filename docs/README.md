@@ -52,6 +52,7 @@ Business logic, tasks multithreading, and communication layer are decoupled.
 Encryption: secure keys exchage implemented based on Diffie-Hellman algorithm.\
 AES-256 encryption is used after the keys are set for all sessions.\
 The key is specific for every session / client.
+TBD: Authentication for Diffie-Hellman algorithm.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\

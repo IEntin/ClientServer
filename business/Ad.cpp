@@ -9,7 +9,7 @@
 
 #include "AdBid.h"
 #include "IOUtility.h"
-#include "Lines.h"
+#include "FileLines.h"
 #include "Logger.h"
 #include "Utility.h"
 
@@ -80,7 +80,7 @@ const std::vector<Ad>& Ad::getAdsBySize(const SIZETUPLE& key) {
 }
 
 void Ad::readAds(std::string_view filename) {
-  Lines lines(filename);
+  FileLines lines(filename);
   std::string_view line;
   while (lines.getLine(line)) {
     AdRow row(line);

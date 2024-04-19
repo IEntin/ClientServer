@@ -5,15 +5,14 @@
 #pragma once
 
 #include <array>
-#include <fstream>
 #include <string_view>
 
 // nonallocating analog of getline
-// this version saves delimiter in the line
+// this version optionally saves a delimiter in the line
 class Lines {
  public:
-  Lines(std::string_view fileName, char delimiter = '\n', bool keepDelimiter = false);
-  ~Lines() = default;
+  virtual std::size_t getInputPosition() = 0;
+  virtual bool refillBuffer() = 0;
   // The line can be a string_view or a string depending on
   // the usage. If the line is used up by the app before the
   // next line is created use a string_view, it is
@@ -29,15 +28,15 @@ class Lines {
   bool getLineImpl(std::string_view& line);
   long _index = -1;
   bool _last = false;
- private:
-  bool refillBuffer();
+ protected:
+  Lines(char delimiter = '\n', bool keepDelimiter = false);
+  virtual ~Lines() {};
   void removeProcessedLines();
   const char _delimiter;
   const bool _keepDelimiter;
   std::size_t _processed = 0;
   std::size_t _sizeInUse = 0;
-  std::ifstream _stream;
-  std::size_t _fileSize = 0;
+  std::size_t _inputSize = 0;
   static constexpr unsigned ARRAY_SIZE = 65536;
   std::array<char, ARRAY_SIZE> _buffer;
 };

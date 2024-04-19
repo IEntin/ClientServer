@@ -8,7 +8,7 @@
 
 #include "ClientOptions.h"
 #include "IOUtility.h"
-#include "Lines.h"
+#include "FileLines.h"
 #include "Logger.h"
 #include "PayloadTransform.h"
 
@@ -29,7 +29,7 @@ void TaskBuilder::run() {
     _resume = false;
     try {
       // can be a new or the same source for tests.
-      Lines lines(ClientOptions::_sourceName, '\n', true);
+      FileLines lines(ClientOptions::_sourceName, '\n', true);
       while (createSubtask(lines) == STATUS::SUBTASK_DONE) {}
       std::unique_lock lock(_mutex);
       _condition.wait(lock, [this] { return _resume || _stopped; });

@@ -6,13 +6,15 @@
 #include "Compression.h"
 #include "Header.h"
 #include "IOUtility.h"
-#include "Lines.h"
+#include "FileLines.h"
 #include "Logger.h"
+#include "StringLines.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 
-// ./testbin --gtest_filter=GetLineTest*
-// gdb --args testbin --gtest_filter=GetLineTest*
+// ./testbin --gtest_filter=GetFileLineTest*
+// gdb --args testbin --gtest_filter=GetFileLineTest*
+// gdb --args testbin --gtest_filter=GetStringLineTest*
 
 struct CompressionTest : testing::Test {
   void testCompressionDecompression(std::string& input) {
@@ -129,16 +131,16 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(GetLineTest, 1) {
+TEST(GetFileLineTest, 1) {
   // get last line in the file using std::getline
   std::string lastLine;
   ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
   if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
     lastLine.push_back('\n');
 
-  // use Lines::getLine
+  // use FileLines::getLine
   std::string_view lineView;
-  Lines linesV(ClientOptions::_sourceName, '\n', true);
+  FileLines linesV(ClientOptions::_sourceName, '\n', true);
   while (linesV.getLine(lineView)) {
     if (linesV._last) {
       ASSERT_EQ(lineView, lastLine);
@@ -146,7 +148,7 @@ TEST(GetLineTest, 1) {
   }
 
   std::string lineStr;
-  Lines linesS(ClientOptions::_sourceName, '\n', true);
+  FileLines linesS(ClientOptions::_sourceName, '\n', true);
   while (linesS.getLine(lineStr)) {
     if (linesS._last) {
       ASSERT_EQ(lineStr, lastLine);
@@ -154,11 +156,29 @@ TEST(GetLineTest, 1) {
   }
   // discard delimiter:
   // keepDelimiter == false by default
-  Lines linesDiscardDelimiter(ClientOptions::_sourceName);
+  FileLines linesDiscardDelimiter(ClientOptions::_sourceName);
   lastLine.pop_back();
   while (linesDiscardDelimiter.getLine(lineView)) {
     if (linesDiscardDelimiter._last) {
       ASSERT_EQ(lineView, lastLine);
+    }
+  }
+}
+
+TEST(GetStringLineTest, 1) {
+  // get last line in the file using std::getline
+  std::string lastLine;
+  ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
+  if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
+    lastLine.push_back('\n');
+  std::string_view lastLineView = lastLine;
+  lastLineView.remove_suffix(1);
+  // use StringLines::getLine
+  std::string_view lineView;
+  StringLines lines(TestEnvironment::_source);
+  while (lines.getLine(lineView)) {
+    if (lines._last) {
+      ASSERT_EQ(lineView, lastLineView);
     }
   }
 }
