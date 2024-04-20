@@ -36,8 +36,14 @@ else
   CXX := $(CMPLR)
 endif
 
-# temporary
-FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
+# workaround for LLVM bug affecting sanitized builds
+# https://github.com/google/sanitizers/issues/1716
+# temporary until LLVM18 is available
+# alternatively run this command elsewhere after every
+# reboot
+ifneq ($(SANITIZE),)
+  FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
+endif
 
 RM := rm -f
 
