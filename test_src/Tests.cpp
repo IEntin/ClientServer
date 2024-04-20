@@ -171,14 +171,23 @@ TEST(GetStringLineTest, 1) {
   ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
   if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
     lastLine.push_back('\n');
-  std::string_view lastLineView = lastLine;
-  lastLineView.remove_suffix(1);
+  std::string_view lastLineCmp = lastLine;
+
   // use StringLines::getLine
-  std::string_view lineView;
+  std::string_view line;
+
+  StringLines linesKeepDelimeter(TestEnvironment::_source, '\n', true);
+  while (linesKeepDelimeter.getLine(line)) {
+    if (linesKeepDelimeter._last) {
+      ASSERT_EQ(line, lastLineCmp);
+    }
+  }
+
   StringLines lines(TestEnvironment::_source);
-  while (lines.getLine(lineView)) {
+  lastLineCmp.remove_suffix(1);
+  while (lines.getLine(line)) {
     if (lines._last) {
-      ASSERT_EQ(lineView, lastLineView);
+      ASSERT_EQ(line, lastLineCmp);
     }
   }
 }

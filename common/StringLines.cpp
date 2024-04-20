@@ -4,7 +4,8 @@
 
 #include "StringLines.h"
 
-StringLines::StringLines(std::string_view source) :
+StringLines::StringLines(std::string_view source, char delimiter, bool keepDelimiter) :
+  Lines(delimiter, keepDelimiter),
   _source(source) {
   _inputSize = source.size();
   refillBuffer();

@@ -8,7 +8,7 @@
 
 class StringLines : public Lines {
  public:
-  StringLines(std::string_view source);
+  StringLines(std::string_view source, char delimiter = '\n', bool keepDelimiter = false);
   ~StringLines() override {}
  private:
   std::size_t getInputPosition() override;
