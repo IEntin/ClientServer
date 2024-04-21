@@ -4,7 +4,7 @@
 
 #include "Tcp.h"
 
-#include <boost/container/static_vector.hpp>
+#include <array>
 
 #include "ClientOptions.h"
 
@@ -65,11 +65,7 @@ boost::system::error_code
 Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body) {
     char buffer[HEADER_SIZE] = {};
     encodeHeader(buffer, header);
-    static thread_local boost::container::static_vector<boost::asio::const_buffer, 2> buffers;
-    buffers.clear();
-    buffers.emplace_back(boost::asio::buffer(buffer));
-    if (!body.empty())
-      buffers.emplace_back(boost::asio::buffer(body));
+    std::array<boost::asio::const_buffer, 2> buffers{boost::asio::buffer(buffer), boost::asio::buffer(body)};
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec)

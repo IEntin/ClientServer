@@ -4,6 +4,8 @@
 
 #include "TcpSession.h"
 
+#include <array>
+
 #include "Connection.h"
 #include "Server.h"
 #include "ServerOptions.h"
@@ -135,12 +137,10 @@ void TcpSession::readRequest(HEADER& header) {
 }
 
 void TcpSession::write(const HEADER& header, std::string_view body) {
-  _asioBuffers.clear();
   encodeHeader(_headerBuffer, header);
-  _asioBuffers.emplace_back(boost::asio::buffer(_headerBuffer));
-  _asioBuffers.emplace_back(boost::asio::buffer(body));
+  std::array<boost::asio::const_buffer, 2> asioBuffers{boost::asio::buffer(_headerBuffer),  boost::asio::buffer(body)};
   boost::asio::async_write(_socket,
-    _asioBuffers,
+    asioBuffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)

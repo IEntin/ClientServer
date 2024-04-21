@@ -5,7 +5,6 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include <boost/container/static_vector.hpp>
 
 #include "Runnable.h"
 #include "Session.h"
@@ -43,7 +42,6 @@ private:
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
   char _headerBuffer[HEADER_SIZE] = {};
-  boost::container::static_vector<boost::asio::const_buffer, 2> _asioBuffers;
 };
 
 } // end of namespace tcp
