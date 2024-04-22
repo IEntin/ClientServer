@@ -36,13 +36,19 @@ else
   CXX := $(CMPLR)
 endif
 
-# workaround for LLVM bug affecting sanitized builds
+# workaround for LLVM17 bug affecting sanitized builds
 # https://github.com/google/sanitizers/issues/1716
-# temporary until LLVM18 is available
+# temporary.
 # alternatively run this command elsewhere after every
 # reboot
+# this workaround is not necessary if clang19 is installed
+# and compiler is clang++
+# but is still needed for g++ compiler.
+
+ifeq ($(CMPLR),g++)
 ifneq ($(SANITIZE),)
   FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
+endif
 endif
 
 RM := rm -f
