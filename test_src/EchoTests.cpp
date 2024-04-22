@@ -5,8 +5,8 @@
 #include <filesystem>
 
 #include "ClientOptions.h"
-#include "Fifo.h"
 #include "EchoStrategy.h"
+#include "Fifo.h"
 #include "FifoClient.h"
 #include "Logger.h"
 #include "Server.h"
@@ -109,7 +109,7 @@ TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
 
 struct FifoNonblockingTest : testing::Test {
   static constexpr std::string_view _testFifo = "TestFifo";
-  static constexpr std::string_view _smallPayload = "0123456789876543210";
+  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
@@ -129,7 +129,6 @@ struct FifoNonblockingTest : testing::Test {
 
   void testNonblockingFifo(std::string_view payload) {
     std::string received;
-    received.clear();
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
     // Optional interval between send and receive
@@ -137,13 +136,11 @@ struct FifoNonblockingTest : testing::Test {
     auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
     fr.wait();
     fs.wait();
-    ASSERT_EQ(received.size(), payload.size());
-    ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
+    ASSERT_EQ(received, payload);
   }
 
   void testNonblockingFifoReverse(std::string_view payload) {
     std::string received;
-    received.clear();
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
     // Optional interval between receive and send
@@ -151,8 +148,7 @@ struct FifoNonblockingTest : testing::Test {
     auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
     fr.wait();
     fs.wait();
-    ASSERT_EQ(received.size(), payload.size());
-    ASSERT_TRUE(std::memcmp(received.data(), payload.data(), payload.size()) == 0);
+    ASSERT_EQ(received, payload);
   }
 
   void SetUp() {}
