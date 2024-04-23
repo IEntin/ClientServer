@@ -16,7 +16,7 @@ using SessionMap = std::map<std::size_t, RunnableWeakPtr>;
 
 class Server : public std::enable_shared_from_this<Server> {
 public:
-  Server(class Strategy& strategy);
+  Server(class Policy& policy);
   ~Server();
   bool start();
   void stop();

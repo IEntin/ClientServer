@@ -11,15 +11,15 @@
 #include "FifoAcceptor.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "Strategy.h"
+#include "Policy.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 
-Server::Server(Strategy& strategy) :
+Server::Server(Policy& policy) :
   _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
   boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
-  strategy.set();
+  policy.set();
 }
 
 Server::~Server() {

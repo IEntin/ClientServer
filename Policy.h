@@ -6,17 +6,15 @@
 
 #include <memory>
 
-using StrategyPtr = std::unique_ptr<class Strategy>;
-
-class Strategy {
+class Policy {
 
 protected:
 
-  Strategy() = default;
+  Policy() = default;
 
 public:
 
-  virtual ~Strategy() {}
+  virtual ~Policy() {}
 
   virtual void set() = 0;
 

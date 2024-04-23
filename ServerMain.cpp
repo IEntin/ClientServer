@@ -11,7 +11,7 @@
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
-#include "TransactionStrategy.h"
+#include "TransactionPolicy.h"
 
 void signalHandler([[maybe_unused]] int signal) {}
 
@@ -33,8 +33,8 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions::parse("ServerOptions.json");
-    TransactionStrategy strategy;
-    ServerPtr server = std::make_shared<Server>(strategy);
+    TransactionPolicy policy;
+    ServerPtr server = std::make_shared<Server>(policy);
     if (!server->start())
       return 3;
     int sig = 0;

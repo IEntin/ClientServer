@@ -5,7 +5,7 @@
 #include <filesystem>
 
 #include "ClientOptions.h"
-#include "EchoStrategy.h"
+#include "EchoPolicy.h"
 #include "Fifo.h"
 #include "FifoClient.h"
 #include "Logger.h"
@@ -23,8 +23,8 @@ struct EchoTest : testing::Test {
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
     // start server
     ServerOptions::_compressor = serverCompressor;
-    EchoStrategy strategy;
-    ServerPtr server = std::make_shared<Server>(strategy);
+    EchoPolicy policy;
+    ServerPtr server = std::make_shared<Server>(policy);
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
@@ -44,8 +44,8 @@ struct EchoTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encrypted = serverEncrypt;
-    EchoStrategy strategy;
-    ServerPtr server = std::make_shared<Server>(strategy);
+    EchoPolicy policy;
+    ServerPtr server = std::make_shared<Server>(policy);
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
