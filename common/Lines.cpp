@@ -6,7 +6,8 @@
 
 #include <algorithm>
 #include <cstring>
-
+#include <stdexcept>
+	
 Lines::Lines(char delimiter, bool keepDelimiter) :
   _delimiter(delimiter), _keepDelimiter(keepDelimiter) {}
 
@@ -14,8 +15,7 @@ bool Lines::getLineImpl(std::string_view& line) {
   auto itBeg = _buffer.begin() + _processed;
   auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
   if (itEnd == _buffer.end() && getInputPosition() < _inputSize) {
-    removeProcessedLines();
-    if (!refillBuffer())
+    if (!(removeProcessedLines() && refillBuffer()))
       return false;
     itBeg = _buffer.begin() + _processed;
     itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
@@ -33,10 +33,11 @@ bool Lines::getLineImpl(std::string_view& line) {
   return true;
 }
 
-void Lines::removeProcessedLines() {
-  if (_processed == 0)
-    return;
+bool Lines::removeProcessedLines() {
+  if (_processed == 0 || _processed >= _sizeInUse)
+    throw std::runtime_error(": The buffer is too small.");
   std::memmove(_buffer.data(), _buffer.data() + _processed, _sizeInUse - _processed);
   _sizeInUse -= _processed;
   _processed = 0;
+  return true;
 }

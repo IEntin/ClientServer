@@ -31,7 +31,7 @@ class Lines {
  protected:
   Lines(char delimiter = '\n', bool keepDelimiter = false);
   virtual ~Lines() {};
-  void removeProcessedLines();
+  bool removeProcessedLines();
   const char _delimiter;
   const bool _keepDelimiter;
   std::size_t _processed = 0;
