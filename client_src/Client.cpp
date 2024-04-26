@@ -31,6 +31,8 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
     static Task task;
     Task& receivedTask = taskBuilder->getTask();
+    if (receivedTask.empty())
+      return false;
     task.swap(receivedTask);
     taskBuilder->resume();
     for (auto& subtask : task) {
