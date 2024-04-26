@@ -10,7 +10,7 @@ This code was built and tested on
 
 1. Ubuntu 23.10\
 gcc 13.2.0\
-clang 17.0.6\
+clang 19.0.0\
 8GB RAM\
 4 cores
 
@@ -27,7 +27,7 @@ Any distribution and/or version supporting C++20 is expected to work as well.
 LZ4 must be installed:\
 'sudo apt-get install liblz4-dev'
 
-Header only boost libraries, currently boost 1_84 must be installed.
+Header only boost libraries, currently boost 1_85, must be installed.
 
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
