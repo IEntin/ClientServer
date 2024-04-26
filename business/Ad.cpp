@@ -57,7 +57,7 @@ bool Ad::parseArray(std::string_view array) {
   static std::vector<std::string> vect;
   vect.clear();
   utility::split(array, vect, "\", ");
-  for (unsigned i = 0; i < vect.size(); i += 2) {
+  for (unsigned i = 0; i + 1 < vect.size(); i += 2) {
     double dblMoney = 0;
     ioutility::fromChars(vect[i + 1], dblMoney);
     long money = std::lround(dblMoney * _scaler);
