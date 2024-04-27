@@ -43,7 +43,7 @@ void TaskBuilder::run() {
   }
 }
 
-Task& TaskBuilder::getTask() {
+std::tuple<STATUS, Task&> TaskBuilder::getResult() {
   STATUS state = STATUS::NONE;
   do {
     Subtask& subtask = getSubtask();
@@ -51,15 +51,15 @@ Task& TaskBuilder::getTask() {
     switch (state) {
     case STATUS::ERROR:
       LogError << "TaskBuilder failed." << '\n';
-      return _emptyTask;
+      return { STATUS::ERROR, _emptyTask };
     case STATUS::SUBTASK_DONE:
     case STATUS::TASK_DONE:
       break;
     default:
-      return _emptyTask;
+      return { STATUS::ERROR, _emptyTask };
     }
   } while (state == STATUS::SUBTASK_DONE);
-  return _subtasks;
+  return { STATUS::NONE, _subtasks };
 }
 
 Subtask& TaskBuilder::getSubtask() {

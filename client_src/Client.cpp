@@ -30,9 +30,11 @@ Client::~Client() {
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
     static Task task;
-    Task& receivedTask = taskBuilder->getTask();
-    if (receivedTask.empty())
+    auto result = taskBuilder->getResult();
+    auto status = std::get<0>(result);
+    if (status != STATUS::NONE)
       return false;
+    auto& receivedTask = std::get<1>(result);
     task.swap(receivedTask);
     taskBuilder->resume();
     for (auto& subtask : task) {
