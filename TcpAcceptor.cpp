@@ -88,10 +88,7 @@ void TcpAcceptor::accept() {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
-      if (ec)
-	(ec == boost::asio::error::operation_aborted ? Debug : LogError) <<
-	  ec.what() << '\n';
-      else {
+      if (!ec) {
 	auto [type, Bstring] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
@@ -108,6 +105,10 @@ void TcpAcceptor::accept() {
 	  break;
 	}
 	accept();
+      }
+      else {
+	(ec == boost::asio::error::operation_aborted ? Debug : LogError) <<
+	  ec.what() << '\n';
       }
     });
 }

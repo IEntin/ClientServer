@@ -35,9 +35,7 @@ bool FifoSession::start() {
 
 void FifoSession::run() {
   CountRunning countRunning;
-  if (!std::filesystem::exists(_fifoName))
-    return;
-  if (_stopped)
+  if (!std::filesystem::exists(_fifoName) || _stopped)
     return;
   while (true) {
     HEADER header;
@@ -86,9 +84,7 @@ bool FifoSession::sendStatusToClient() {
   unsigned size = payload.size();
   HEADER header
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
-  if (!Fifo::sendMsg(ServerOptions::_acceptorName, header, payload))
-    return false;
-  return true;
+  return Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
 }
 
 } // end of namespace fifo

@@ -24,7 +24,7 @@ Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   socket.connect(endpoint, ec);
   if (!ec)
     socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
-  if (ec)
+  else
     LogError << ec.what() << '\n';
   return ec;
 }

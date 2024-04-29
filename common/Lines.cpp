@@ -28,8 +28,7 @@ bool Lines::getLineImpl(std::string_view& line) {
   // optionally keep delimiter
   line = { itBeg, itEnd + (endsWithDelimiter && _keepDelimiter ? 1 : 0) };
   _processed += dist + (endsWithDelimiter ? 1 : 0);
-  if (_processed == _sizeInUse && getInputPosition() == _inputSize)
-    _last = true;
+  _last = _processed == _sizeInUse && getInputPosition() == _inputSize;
   return true;
 }
 

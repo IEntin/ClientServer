@@ -11,12 +11,12 @@
 
 void TransactionPolicy::set() {
   Ad::load(ServerOptions::_adsFileName);
-  if (ServerOptions::_sortInput) {
-    Task::setPreprocessFunction(Transaction::createSizeKey);
-    Task::setProcessFunction(Transaction::processRequestSort);
-  }
-  else {
+  if (!ServerOptions::_sortInput) {
     Task::setPreprocessFunction(nullptr);
     Task::setProcessFunction(Transaction::processRequestNoSort);
+  }
+  else {
+    Task::setPreprocessFunction(Transaction::createSizeKey);
+    Task::setProcessFunction(Transaction::processRequestSort);
   }
 }

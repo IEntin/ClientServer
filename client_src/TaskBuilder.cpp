@@ -121,10 +121,10 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     return STATUS::NONE;
   std::reference_wrapper<Subtask> subtaskRef = _subtasks[0];
   unsigned index = _subtaskIndexProduced.fetch_add(1);
-  if (index == _subtasks.size())
-    subtaskRef = _subtasks.emplace_back();
-  else
+  if (index < _subtasks.size())
     subtaskRef = _subtasks[index];
+  else
+    subtaskRef = _subtasks.emplace_back();
   Subtask& subtask = subtaskRef.get();
   subtask._header = header;
   subtask._body = output;
