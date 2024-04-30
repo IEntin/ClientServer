@@ -16,6 +16,7 @@
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
+thread_local std::string Transaction::_output;
 
 Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
   if (_sizeKey == ZERO_SIZE) {
@@ -55,15 +56,14 @@ Transaction::~Transaction() {
 std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 						 std::string_view request,
 						 bool diagnostics) noexcept {
-  static thread_local std::string output;
-  output.erase(output.begin(), output.end());
+  _output.clear();
   Transaction transaction(sizeKey, request);
   if (request.empty()) {
     LogError << "request is empty." << '\n';
     transaction._invalid = true;
-    output.append("[unknown]");
-    output.append(INVALID_REQUEST);
-    return output;
+    _output.append("[unknown]");
+    _output.append(INVALID_REQUEST);
+    return _output;
   }
   static const std::vector<Ad> emptyAdVector;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = emptyAdVector;
@@ -75,44 +75,43 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
-      output.append(transaction._id);
-      output.push_back(' ');
-      output.append(EMPTY_REPLY);
+      _output.append(transaction._id);
+      _output.push_back(' ');
+      _output.append(EMPTY_REPLY);
     }
     else
-      transaction.printSummary(output);
-    return output;
+      transaction.printSummary();
+    return _output;
   }
-  transaction.printDiagnostics(output);
-  return output;
+  transaction.printDiagnostics();
+  return _output;
 }
 
 std::string_view Transaction::processRequestNoSort(std::string_view request,
 						   bool diagnostics) noexcept {
-  static thread_local std::string output;
-  output.erase(output.begin(), output.end());
+  _output.clear();
   Transaction transaction(request);
   if (request.empty()) {
     LogError << "request is empty." << '\n';
     transaction._invalid = true;
-    output.append("[unknown]");
-    output.append(INVALID_REQUEST);
-    return output;
+    _output.append("[unknown]");
+    _output.append(INVALID_REQUEST);
+    return _output;
   }
   const std::vector<Ad>& adVector = Ad::getAdsBySize(transaction._sizeKey);
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch) {
-      output.append(transaction._id);
-      output.push_back(' ');
-      output.append(EMPTY_REPLY);
+      _output.append(transaction._id);
+      _output.push_back(' ');
+      _output.append(EMPTY_REPLY);
     }
     else
-      transaction.printSummary(output);
-    return output;
+      transaction.printSummary();
+    return _output;
   }
-  transaction.printDiagnostics(output);
-  return output;
+  transaction.printDiagnostics();
+  return _output;
 }
 
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
@@ -218,86 +217,86 @@ bool Transaction::parseKeywords(std::string_view start) {
 // unreasonable number of memory allocations and negative
 // performance impact
 
-void Transaction::printDiagnostics(std::string& output) const {
-  printRequestData(output);
-  printMatchingAds(output);
+void Transaction::printDiagnostics() const {
+  printRequestData();
+  printMatchingAds();
   static constexpr std::string_view SUMMARY{ "summary:" };
-  output.append(SUMMARY);
+  _output.append(SUMMARY);
   static constexpr std::string_view STARS{ "*****" };
   if (_noMatch) {
-    output.append(EMPTY_REPLY);
-    output.append(STARS);
-    output.push_back('\n');
+    _output.append(EMPTY_REPLY);
+    _output.append(STARS);
+    _output.push_back('\n');
   }
   else if (_invalid) {
-    output.append(INVALID_REQUEST);
-    output.append(STARS);
-    output.push_back('\n');
+    _output.append(INVALID_REQUEST);
+    _output.append(STARS);
+    _output.push_back('\n');
   }
   else
-    printWinningAd(output);
+    printWinningAd();
 }
 
-void Transaction::printSummary(std::string& output) const {
+void Transaction::printSummary() const {
   const Ad* const winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
-  output.append(_id);
-  output.push_back(' ');
+  _output.append(_id);
+  _output.push_back(' ');
   std::string_view adId = winningAdPtr->getId();
-  output.append(adId);
-  output.push_back(',');
-  output.push_back(' ');
+  _output.append(adId);
+  _output.push_back(',');
+  _output.push_back(' ');
   double money = _winningBid->_money / Ad::_scaler;
-  ioutility::toChars(money, output, 1);
-  output.push_back('\n');
+  ioutility::toChars(money, _output, 1);
+  _output.push_back('\n');
 }
 
-void Transaction::printMatchingAds(std::string& output) const {
+void Transaction::printMatchingAds() const {
   static constexpr std::string_view MATCHINGADS{ "matching ads:\n" };
-  output.append(MATCHINGADS);
+  _output.append(MATCHINGADS);
   for (const AdBid& adBid : _bids) {
-    adBid._ad->print(output);
+    adBid._ad->print(_output);
     static constexpr std::string_view MATCH{ " match:" };
-    output.append(MATCH);
-    output.append(adBid._keyword);
-    output.push_back(' ');
-    ioutility::toChars(adBid._money, output);
-    output.push_back('\n');
+    _output.append(MATCH);
+    _output.append(adBid._keyword);
+    _output.push_back(' ');
+    ioutility::toChars(adBid._money, _output);
+    _output.push_back('\n');
   }
 }
 
-void Transaction::printWinningAd(std::string& output) const {
+void Transaction::printWinningAd() const {
   auto winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
   std::string_view adId = winningAdPtr->getId();
-  output.append(adId);
+  _output.append(adId);
   static constexpr std::string_view DELIMITER(", ");
-  output.append(DELIMITER);
+  _output.append(DELIMITER);
   std::string_view winningKeyword = _winningBid->_keyword;
-  output.append(winningKeyword);
-  output.append(DELIMITER);
+  _output.append(winningKeyword);
+  _output.append(DELIMITER);
   double money = _winningBid->_money / Ad::_scaler;
-  ioutility::toChars(money, output, 1);
+  ioutility::toChars(money, _output, 1);
   static constexpr std::string_view ENDING{ "\n*****\n" };
-  output.append(ENDING);
+  _output.append(ENDING);
 }
 
-void Transaction::printRequestData(std::string& output) const {
-  output.append(_id);
-  output.push_back(' ');
+void Transaction::printRequestData() const {
+  _output.append(_id);
+  _output.push_back(' ');
   static constexpr std::string_view TRANSACTIONSIZE{ "Transaction size=" };
-  output.append(TRANSACTIONSIZE);
-  ioutility::printSizeKey(_sizeKey, output);
+  _output.append(TRANSACTIONSIZE);
+  ioutility::printSizeKey(_sizeKey, _output);
   static constexpr std::string_view MATCHES{ " #matches=" };
-  output.append(MATCHES);
-  ioutility::toChars(_bids.size(), output);
-  output.push_back('\n');
-  output.append(_request);
+  _output.append(MATCHES);
+  ioutility::toChars(_bids.size(), _output);
+  _output.push_back('\n');
+  _output.append(_request);
   static constexpr std::string_view REQUESTKEYWORDS{ "\nrequest keywords:\n" };
-  output.append(REQUESTKEYWORDS);
+  _output.append(REQUESTKEYWORDS);
   for (std::string_view keyword : _keywords) {
-    output.push_back(' ');
-    output.append(keyword);
-    output.push_back('\n');
+    _output.push_back(' ');
+    _output.append(keyword);
+    _output.push_back('\n');
   }
 }

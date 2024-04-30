@@ -30,12 +30,12 @@ private:
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<Ad>& adVector);
-  void printSummary(std::string& output) const;
-  void printDiagnostics(std::string& output) const;
+  void printSummary() const;
+  void printDiagnostics() const;
   const AdBid* findWinningBid() const;
-  void printRequestData(std::string& output) const;
-  void printMatchingAds(std::string& output) const;
-  void printWinningAd(std::string& output) const;
+  void printRequestData() const;
+  void printMatchingAds() const;
+  void printWinningAd() const;
   std::string_view _id;
   std::string_view _request;
   // Made static to keep the capacity growing as needed.
@@ -46,6 +46,7 @@ private:
   static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
+  static thread_local std::string _output;
   const SIZETUPLE _sizeKey;
   const AdBid* _winningBid = nullptr;
   bool _noMatch{ false };
