@@ -250,10 +250,8 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
       switch (errno) {
-      case ENXIO:
-	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
-	break;
       case ENOENT:
+      case ENXIO:
 	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
 	break;
       default:
