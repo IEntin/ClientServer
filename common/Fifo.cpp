@@ -25,20 +25,10 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& b
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fdRead, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK) {
-	continue;
-      }
-      else {
+      if (errno != EAGAIN) {
 	LogError << std::strerror(errno) << '\n';
 	throw std::runtime_error(std::strerror(errno));
       }
-    }
-    else if (result == 0) {
-      int fdOld = fdRead;
-      fdRead = openReadNonBlock(name);
-      if (fdOld != -1)
-	close(fdOld);
-      continue;
     }
     else
       readSoFar += result;
@@ -71,10 +61,7 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK) {
-	continue;
-      }
-      else {
+      if (errno != EAGAIN) {
 	LogError << std::strerror(errno) << '\n';
 	throw std::runtime_error(std::strerror(errno));
       }
@@ -84,7 +71,7 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
       return false;
     }
     else
-      readSoFar += static_cast<std::size_t>(result);
+      readSoFar += result;
   }
   if (readSoFar != HEADER_SIZE) {
     LogError << "HEADER_SIZE=" << HEADER_SIZE
@@ -106,9 +93,7 @@ bool Fifo::readString(int fd, char* received, std::size_t size) {
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK)
-	continue;
-      else {
+      if (errno != EAGAIN) {
 	LogError << std::strerror(errno) << '\n';
 	return false;
       }
@@ -132,7 +117,7 @@ bool Fifo::writeString(int fd, std::string_view str) {
   while (written < str.size()) {
     ssize_t result = write(fd, str.data() + written, str.size() - written);
     if (result == -1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK)
+      if (errno == EAGAIN)
 	continue;
       else {
 	LogError << strerror(errno) << ", written=" << written
