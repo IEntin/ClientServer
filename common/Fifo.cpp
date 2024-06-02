@@ -230,8 +230,6 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
   int fd = -1;
   int rep = 0;
   do {
-    if (fd != -1)
-      close(fd);
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
       switch (errno) {
