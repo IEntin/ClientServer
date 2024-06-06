@@ -20,22 +20,8 @@ namespace fifo {
 bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& body) {
   int fdRead = openReadNonBlock(name);
   utility::CloseFileDescriptor cfdr(fdRead);
-  std::size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
-  while (readSoFar < HEADER_SIZE) {
-    ssize_t result = read(fdRead, buffer + readSoFar, HEADER_SIZE - readSoFar);
-    if (result == -1) {
-      if (errno != EAGAIN) {
-	LogError << std::strerror(errno) << '\n';
-	throw std::runtime_error(std::strerror(errno));
-      }
-    }
-    else
-      readSoFar += result;
-  }
-  if (readSoFar != HEADER_SIZE) {
-    LogError << "HEADER_SIZE=" << HEADER_SIZE
-	     << " readSoFar=" << readSoFar << '\n';
+  if (!readString(fdRead, buffer, HEADER_SIZE)) {
     throw std::runtime_error(std::strerror(errno));
   }
   header = decodeHeader(buffer);
@@ -55,7 +41,6 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
     LogError << name << '-' << std::strerror(errno) << '\n';
     return false;
   }
-  setPipeSize(fd);
   std::size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
@@ -98,10 +83,6 @@ bool Fifo::readString(int fd, char* received, std::size_t size) {
 	return false;
       }
     }
-    else if (result == 0) {
-      Info << (errno ? std::strerror(errno) : "EOF") << '\n';
-      return false;
-    }
     else
       readSoFar += result;
   }
@@ -141,7 +122,6 @@ bool Fifo::sendMsg(std::string_view name, const HEADER& header, std::string_view
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
-  setPipeSize(fdWrite);
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, header);
   return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
@@ -251,9 +231,8 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   if (!std::filesystem::exists(fifoName))
     return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
-  if (fd == -1)
+  if (fd != -1)
     Info << std::strerror(errno) << ' ' << fifoName << '\n';
-  setPipeSize(fd);
   return fd;
 }
 
