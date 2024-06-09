@@ -19,6 +19,8 @@ namespace fifo {
 
 bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& body) {
   int fdRead = openReadNonBlock(name);
+  if (fdRead == -1)
+    return false;
   utility::CloseFileDescriptor cfdr(fdRead);
   char buffer[HEADER_SIZE] = {};
   if (!readString(fdRead, buffer, HEADER_SIZE)) {
@@ -52,7 +54,7 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
       }
     }
     else if (result == 0) {
-      Warn << (errno ? std::strerror(errno) : "EOF") << '-' << name << '\n';
+      Info << name << "-EOF" << '\n';
       return false;
     }
     else
@@ -137,7 +139,7 @@ short Fifo::pollFd(int fd, short expected) {
     return result;
   }
   else if (pfd.revents & POLLERR) {
-    Info << "errno=" << errno << ' ' << std::strerror(errno) << '\n';
+    Info << std::strerror(errno) << '\n';
     return -1;
   }
   else if (pfd.revents & POLLHUP) {
@@ -232,7 +234,7 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
     return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd != -1)
-    Info << std::strerror(errno) << ' ' << fifoName << '\n';
+    Warn << std::strerror(errno) << ' ' << fifoName << '\n';
   return fd;
 }
 
