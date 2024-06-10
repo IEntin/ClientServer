@@ -33,7 +33,7 @@ private:
   std::size_t getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "tcp"; }
   void readHeader();
-  void readRequest(HEADER& header);
+  void readRequest(const HEADER& header);
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();

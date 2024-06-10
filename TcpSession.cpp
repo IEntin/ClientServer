@@ -109,7 +109,7 @@ void TcpSession::readHeader() {
     });
 }
 
-void TcpSession::readRequest(HEADER& header) {
+void TcpSession::readRequest(const HEADER& header) {
   asyncWait();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),

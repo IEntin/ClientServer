@@ -77,7 +77,7 @@ void Client::stop() {
   _threadPoolClient.stop();
 }
 
-bool Client::printReply(const HEADER& header, std::string_view buffer) {
+bool Client::printReply(const HEADER& header, std::string_view buffer) const {
   if (auto ptr = _heartbeat.lock(); ptr) {
     if (displayStatus(ptr->getStatus()))
       return false;
@@ -114,7 +114,7 @@ void Client::onSignal(std::weak_ptr<ClientWrapper> wrapperWeak) {
   errno = errnoSaved;
 }
 
-void Client::displayMaxTotalSessionsWarn() {
+void Client::displayMaxTotalSessionsWarn() const {
   Warn << "\n\t!!!!!!!!!\n"
        << "\tThe total number of sessions exceeds system capacity.\n"
        << "\tThis client will wait in the queue until load subsides.\n"
@@ -125,7 +125,7 @@ void Client::displayMaxTotalSessionsWarn() {
        << "\t!!!!!!!!!\n";
 }
 
-void Client::displayMaxSessionsOfTypeWarn(std::string_view type) {
+void Client::displayMaxSessionsOfTypeWarn(std::string_view type) const {
   Warn << "\n\t!!!!!!!!!\n"
        << "\tThe number of " << type << " sessions exceeds pool capacity.\n"
        << "\tThis client is waiting in the queue for available thread.\n"
@@ -138,7 +138,7 @@ void Client::displayMaxSessionsOfTypeWarn(std::string_view type) {
        << "\t!!!!!!!!!\n";
 }
 
-bool Client::displayStatus(STATUS status) {
+bool Client::displayStatus(STATUS status) const {
   switch (status) {
   case STATUS::NONE:
   case STATUS::MAX_TOTAL_OBJECTS:

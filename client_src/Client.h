@@ -28,12 +28,12 @@ protected:
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
-  bool printReply(const HEADER& header, std::string_view buffer);
+  bool printReply(const HEADER& header, std::string_view buffer) const;
   void start();
 
-  void displayMaxTotalSessionsWarn();
-  void displayMaxSessionsOfTypeWarn(std::string_view type);
-  bool displayStatus(STATUS status);
+  void displayMaxTotalSessionsWarn() const;
+  void displayMaxSessionsOfTypeWarn(std::string_view type) const;
+  bool displayStatus(STATUS status) const;
   std::size_t _clientId;
   std::string _Bstring;
   Chronometer _chronometer;
