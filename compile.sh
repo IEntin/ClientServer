@@ -13,7 +13,7 @@ echo "UP_DIR:" $UP_DIR
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
     echo "This script calls make with different parameters."
-    echo "If build succeeds the client binary is copied to"
+    echo "If build succeeds the clientX binary is copied to"
     echo "all client directories."
     echo "Runs tests at the end."
     echo "Usage: cd to the project root and run this script"
@@ -28,7 +28,7 @@ then
     echo "'./compile.sh'"
     echo "Run 'make cleanall' if arguments changed since the last build."
     echo "Start the server in the project root terminal: './server'"
-    echo "and each client in its terminal: './client' or './client > /dev/null'"
+    echo "and each client in its terminal: './clientX' or './clientX > /dev/null'"
     exit 0
 fi
 
@@ -38,9 +38,10 @@ trap EXIT SIGHUP SIGINT SIGTERM
 
 make -j4 $1 $2 $3 $4
 
-for (( c=1; c<=5; c++ ))do
+for (( c=1; c<=5; c++ ))
+do
     mkdir -p $UP_DIR/Client$c
-    cp client $UP_DIR/Client$c
+    cp clientX $UP_DIR/Client$c
 done
 
 date

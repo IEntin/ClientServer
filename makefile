@@ -4,17 +4,17 @@
 
 # sudo sysctl vm.mmap_rnd_bits=28
 
-#LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./server
-#LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./client
+#LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./serverX
+#LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./clientX
 #use clang++ (CMPLR=clang++) for sanitized build if use jemalloc
-#gprof -b ./server gmon.out > profile.txt
+#gprof -b ./serverX gmon.out > profile.txt
 #	valgrind
 # to use valgrind rebuild with -gdwarf-4
 # make -j4 GDWARF=-gdwarf-4
-# valgrind --tool=massif ./server
+# valgrind --tool=massif ./serverX
 # ms_print massif.out.*
-# valgrind --leak-check=yes ./server
-# valgrind --tool=callgrind ./server
+# valgrind --leak-check=yes ./serverX
+# valgrind --tool=callgrind ./serverX
 # kcachegrind callgrind.out.*
 
 #ps huH p <pid> | wc -l
@@ -28,7 +28,7 @@
 #make SANITIZE=[  | aul | thread ]
 #make CMPLR=[ g++ | clang++ ]
 
-all: server client testbin runtests
+all: serverX clientX testbin runtests
 
 ifeq ($(CMPLR),)
   CXX := clang++
@@ -64,8 +64,8 @@ CRYPTOLIB := $(CRYPTOLIBDIR)/libcryptopp.a
 
 DATADIR := data
 
-SERVERBIN := server
-CLIENTBIN := client
+SERVERBIN := serverX
+CLIENTBIN := clientX
 TESTBIN := testbin
 
 # precompiled headers
@@ -135,7 +135,7 @@ SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
-server : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ) $(CRYPTOLIB)
+serverX : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ) $(CRYPTOLIB)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) \
 $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
 

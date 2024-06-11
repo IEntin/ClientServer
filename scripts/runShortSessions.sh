@@ -37,11 +37,12 @@ trap cleanup EXIT
 
 for (( c=1; c<501; c++ ))
 do
-	(./client > /dev/null)
+	(./clientX > /dev/null)
     	sync
    	printf "\nrepeated %d times \n" $c
    	sync
 done
 
 date
+
 sync

@@ -18,7 +18,7 @@ then
     echo "here with default arguments."
     echo "Script creates only 5 clients to fit into display size."
     echo "Every next client will have different type, TCP or FIFO."
-    echo "Start the server in the project root terminal './server'"
+    echo "Start the server in the project root terminal './serverX'"
     echo "and each client in its terminal"
     echo "'./client' or './client > /dev/null'"
     exit 0

@@ -29,7 +29,7 @@ function copyClient {
 for (( c=1; c<=5; c++ ))
 do
     mkdir -p $UP_DIR/Client$c
-    /bin/cp -f client $UP_DIR/Client1
+    /bin/cp -f clientX $UP_DIR/Client$c
 done
 }
 

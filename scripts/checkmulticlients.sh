@@ -19,8 +19,8 @@ then
     exit 0
 fi
 
-pkill server
-pkill client
+pkill serverX
+pkill clientX
 
 set -e
 
@@ -81,19 +81,19 @@ do
     c=$(($c+1))
 done
 
-# build binaries and copy client binary to Client* directories
+# build binaries and copy clientX binary to Client* directories
 #optionally you can pass SANITIZE parameter (aul or thread) as $2
 
 make -j4 SANITIZE=$2
 
 for (( c=1; c<=$1; c++ ))
 do
-    /bin/cp -f client $UP_DIR/Client$c
+    /bin/cp -f clientX $UP_DIR/Client$c
 done
 
 # Start the server
 
-$PRJ_DIR/server&
+$PRJ_DIR/serverX&
 
 sleep 1
 
@@ -101,16 +101,16 @@ sleep 1
 
 for (( c=1; c<=$1; c++ ))
 do
-    ( cd $UP_DIR/Client$c; ./client > /dev/null& )
+    ( cd $UP_DIR/Client$c; ./clientX > /dev/null& )
 done
 
 sleep 60
 
-clients=$(ps -ef | grep -w './client' | grep -v 'grep')
+clients=$(ps -ef | grep -w './clientX' | grep -v 'grep')
 
 echo -e "\nkilling server\n"
 
-pkill server
+pkill serverX
 
 sleep 5
 

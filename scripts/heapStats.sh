@@ -21,7 +21,7 @@ echo "UP_DIR:" $UP_DIR
 CLIENT_DIR=$UP_DIR/$2
 echo "CLIENT_DIR:" $CLIENT_DIR
 
-pids=$(pidof $PRJ_DIR/server)
+pids=$(pidof $PRJ_DIR/serverX)
 if [ ! -z "$pids" ];
 then
    kill -9 $pids
@@ -29,12 +29,12 @@ fi
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 2 || $# -gt 2 ]]
 then
-    echo "Usage: [path]/serverAllocations.sh <server or nothing> <Client1 or Client2>"
+    echo "Usage: [path]/serverAllocations.sh <serverX or nothing> <Client1 or Client2>"
     echo "where Client1 is tcp client and Client2 is fifo client"
-    echo "If the first parameter is not empty heap statistics is collected for the server."
+    echo "If the first parameter is not empty heap statistics is collected for the serverX."
     echo "If it is empty then statistics is for the client."
     echo "Examples:"
-    echo "  scripts/heapStats.sh server Client1"
+    echo "  scripts/heapStats.sh serverX Client1"
     echo "  scripts/heapStats.sh '' Client2"
     exit 0
 fi
@@ -48,7 +48,7 @@ date
 # Build binaries.
 ( cd $PRJ_DIR; make cleanall; make -j4 GDWARF=-gdwarf-4 )
 
-cp -f $PRJ_DIR/client $CLIENT_DIR
+cp -f $PRJ_DIR/clientX $CLIENT_DIR
 
 sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 100/' $CLIENT_DIR/ClientOptions.json
 
@@ -57,9 +57,9 @@ sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 100/' $CLIENT_DIR/ClientOption
 cd $PRJ_DIR
 if [ -z $1 ]
 then
-    ./server&
+    ./serverX&
 else
-    valgrind --leak-check=full --show-leak-kinds=all ./server&
+    valgrind --leak-check=full --show-leak-kinds=all ./serverX&
 fi
 
 SERVER_PID=$!
@@ -70,9 +70,9 @@ sleep 5
 ( cd $CLIENT_DIR
 if [ -z $1 ]
 then
-    valgrind --leak-check=full --show-leak-kinds=all ./client > /dev/null
+    valgrind --leak-check=full --show-leak-kinds=all ./clientX > /dev/null
 else
-    ./client > /dev/null
+    ./clientX > /dev/null
 fi )
 
 sed -i 's/"MaxNumberTasks" : 100/"MaxNumberTasks" : 0/' $CLIENT_DIR/ClientOptions.json

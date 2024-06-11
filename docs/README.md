@@ -38,6 +38,9 @@ sudo apt-get install binutils
 
 #### Notice:
 
+Renamed binary executables server -> serverX and client -> clientX to\
+avoid collision in scripts.
+
 libcryptopp.a is now recreated by make if necessary.\
 No need to run makeCrypto.sh manually.
 
@@ -116,9 +119,9 @@ will run on different hosts.
 Fifo code is increasing the pipe size to make read and write "atomic".\
 This operation requires sudo access if requested size exceeds 1MB\
 (with original configuration, buffer size is 64 KB). If more than 1MB is necessary:\
-sudo ./server\
+sudo ./serverX\
 and\
-sudo ./client\
+sudo ./clientX\
 in appropriate directories.\
 The same for scripts profile.sh and runtests.sh.\
 If you do not have sudo access, binaries and scripts will still run for any\
@@ -148,7 +151,7 @@ Business logic, compression, task multithreading, and communication layers are d
 
 Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GB RAM on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./client > /dev/null or write output to the file to exclude/reduce printing latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GB RAM on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./clientX > /dev/null or write output to the file to exclude/reduce printing latency.
 
 To test the code manually (not using deploy.sh):
 
@@ -168,14 +171,14 @@ OPTIMIZE = [ -O3 | any |  ] By default -O3.\
 CMPLR = [ clang++ | g++ |  ] By default clang++.
 
 There are four targets:\
-server client testbin runtests.\
+serverX clientX testbin runtests.\
 runtests is a pseudo target which invokes running\
 tests if this target is older than test binary testbin.\
 By default all targets are built and tests run:\
 'make -j4'\
 (4 is the number of cpu cores)\
 Any combination of targets can be specified, e.g.\
-'make -j4 server client'
+'make -j4 serverX clientX'
 
 3. run\
 server:
@@ -206,18 +209,18 @@ tcp:\
 To start:\
 in the server terminal\
 cd project_root\
-./server
+./serverX
 
 in another client terminal\
 cd project_root\
-./client
+./clientX
 
-To run the server outside of the project create a directory, copy server binary,\
+To run the server outside of the project create a directory, copy serverX binary,\
 make a soft link to the project_root/data directory, copy ServerOptions.json\
-to this directory, and issue './server' command.
+to this directory, and issue './serverX' command.
 
-Similarly for the client: create a directory, copy binary client, make a soft link to data\
-directory, copy ClientOptions.json, and run './client'.
+Similarly for the client: create a directory, copy binary clientX, make a soft link to data\
+directory, copy ClientOptions.json, and run './clientX'.
 
 No special requirements for the hardware.\
 Tested on desktop with 4 cores and 8GB RAM to run the server and up to 40 mixed fifo and tcp clients.\
@@ -246,7 +249,7 @@ memory footprint of the server and client. This is important for embedded system
 value 0 means that the number of threads is std::hardware_concurrency
 
 Client can request diagnostics for a specific task to show details of all stages of business calculations.\
-This setting is '"Diagnostics" : true' in the ClientOptions.json. It enables diagnostics only\
+This setting is '"Diagnostics" : true' in the ClientOptions.json. It enables diagnostics\
 for that client.
 
 To run Google tests:\

@@ -22,7 +22,7 @@ echo "CLIENT_DIR2:" $CLIENT_DIR2
 CLIENT_DIR3=$UP_DIR/Client3
 echo "CLIENT_DIR3:" $CLIENT_DIR3
 
-pkill server
+pkill serverX
 
 set -e
 
@@ -60,13 +60,13 @@ echo "SECOND_CLIENT_PROFILE is $SECOND_CLIENT_PROFILE"
 make -j4 PROFILE=1
 # Start the server.
 
-$PRJ_DIR/server&
+$PRJ_DIR/serverX&
 
 sleep 2
 
-cp -f $PRJ_DIR/client $CLIENT_DIR2
+cp -f $PRJ_DIR/clientX $CLIENT_DIR2
 
-cp -f $PRJ_DIR/client $CLIENT_DIR3
+cp -f $PRJ_DIR/clientX $CLIENT_DIR3
 
 date
 
@@ -75,11 +75,11 @@ date
 
 cd $CLIENT_DIR2
 sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 1000/' $CLIENT_DIR2/ClientOptions.json
-./client > /dev/null&
+./clientX > /dev/null&
 
 cd $UP_DIR/Client3
 sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 1000/' $CLIENT_DIR3/ClientOptions.json
-./client > /dev/null
+./clientX > /dev/null
 
 sleep 2
 
@@ -88,16 +88,16 @@ sed -i 's/"MaxNumberTasks" : 1000/"MaxNumberTasks" : 0/' $CLIENT_DIR3/ClientOpti
 
 date
 
-pkill server
+pkill serverX
 
 sleep 2
 
 cd $SCRIPT_DIR
-gprof -b server gmon.out > profiles/profile_server.txt
+gprof -b serverX gmon.out > profiles/profile_server.txt
 
-( cd $CLIENT_DIR2; gprof -b client gmon.out > $FIRST_CLIENT_PROFILE )
+( cd $CLIENT_DIR2; gprof -b clientX gmon.out > $FIRST_CLIENT_PROFILE )
 
-( cd $CLIENT_DIR3; gprof -b client gmon.out > $SECOND_CLIENT_PROFILE )
+( cd $CLIENT_DIR3; gprof -b clientX gmon.out > $SECOND_CLIENT_PROFILE )
 
 # These directories are not under git and gmon.out must be removed 'manually'
 # in order not to distort the results of the next run.
