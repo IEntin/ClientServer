@@ -20,7 +20,6 @@ then
 fi
 
 pkill serverX
-pkill clientX
 
 set -e
 
@@ -106,7 +105,7 @@ done
 
 sleep 60
 
-clients=$(ps -ef | grep -w './clientX' | grep -v 'grep')
+clients=$(ps -ef | grep clientX | grep -v 'grep')
 
 echo -e "\nkilling server\n"
 

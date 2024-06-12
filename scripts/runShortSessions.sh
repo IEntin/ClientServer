@@ -4,6 +4,8 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+NUMREPEAT=500
+
 set -e
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -gt 1 ]]
@@ -23,6 +25,7 @@ function cleanup {
 }
 
 function interrupted {
+    NUMREPEAT=0
     printf "interrupted"
     sync
 }
@@ -35,12 +38,16 @@ trap cleanup EXIT
 
 (sed -i 's/"RunLoop" : true/"RunLoop" : false/' ClientOptions.json)
 
-for (( c=1; c<501; c++ ))
+for (( c=1; c<=$NUMREPEAT; c++ ))
 do
-	(./clientX > /dev/null)
-    	sync
-   	printf "\nrepeated %d times \n" $c
-   	sync
+    if ! pgrep -x "serverX" > /dev/null
+    then
+	break;
+    fi
+    (./clientX > /dev/null)
+    sync
+    printf "\nrepeated %d times \n" $c
+    sync
 done
 
 date

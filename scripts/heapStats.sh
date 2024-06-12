@@ -21,11 +21,7 @@ echo "UP_DIR:" $UP_DIR
 CLIENT_DIR=$UP_DIR/$2
 echo "CLIENT_DIR:" $CLIENT_DIR
 
-pids=$(pidof $PRJ_DIR/serverX)
-if [ ! -z "$pids" ];
-then
-   kill -9 $pids
-fi
+pkill serverX
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 2 || $# -gt 2 ]]
 then
@@ -57,28 +53,28 @@ sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 100/' $CLIENT_DIR/ClientOption
 cd $PRJ_DIR
 if [ -z $1 ]
 then
-    ./serverX&
+    $PRJ_DIR/serverX&
 else
-    valgrind --leak-check=full --show-leak-kinds=all ./serverX&
+    valgrind --leak-check=full --show-leak-kinds=all $PRJ_DIR/serverX&
 fi
 
-SERVER_PID=$!
-echo "SERVER_PID:" $SERVER_PID
+APP_PID=$!
+echo "APP_PID:" $APP_PID
 
 sleep 5
 
 ( cd $CLIENT_DIR
 if [ -z $1 ]
 then
-    valgrind --leak-check=full --show-leak-kinds=all ./clientX > /dev/null
+    valgrind --leak-check=full --show-leak-kinds=all $CLIENT_DIR/clientX > /dev/null
 else
-    ./clientX > /dev/null
+    $CLIENT_DIR/clientX > /dev/null
 fi )
 
 sed -i 's/"MaxNumberTasks" : 100/"MaxNumberTasks" : 0/' $CLIENT_DIR/ClientOptions.json
 
 echo "Killing server"
-kill $SERVER_PID
+kill $APP_PID
 
 date
 sleep 5
