@@ -36,6 +36,8 @@ set -e
 
 trap EXIT SIGHUP SIGINT SIGTERM
 
+mkdir -p $UP_DIR/Fifos
+
 make -j4 $1 $2 $3 $4
 
 for (( c=1; c<=5; c++ ))

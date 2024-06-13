@@ -4,23 +4,23 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
-NUMREPEAT=500
-
 set -e
 
-if [[ ( $@ == "--help") ||  $@ == "-h" || $# -gt 1 ]]
+if [[ $@ == "--help" ||  $@ == "-h" || $# -ne 1 ]]
 then
-    echo "Usage: './runShortSessions.sh' in any one or all client directories. 
-It is a test of server stability under concurrent load from multiple clients 
-of different types frequently creating and destroying sessions. It can be run 
-on binaries built with thread or address sanitizer or on a plain build."
-
-     exit 0
+    echo "Usage: scripts/runShortSessions.sh <times to repeat>"
+    echo "in any or many client directories"
+    echo "It is a test of server stability under concurrent load from multiple clients"
+    echo "of different types frequently creating and destroying sessions. It can be run"
+    echo "on binaries built with thread or address sanitizer or on a plain build."
+    exit 0
 fi
+
+NUMREPEAT=$1
 
 function cleanup {
     printf "\nrestoring ClientOptions.json 'RunLoop : true'\n"
-    (sed -i 's/"RunLoop" : false/"RunLoop" : true/' ClientOptions.json)
+    sed -i 's/"RunLoop" : false/"RunLoop" : true/' ClientOptions.json
     sync
 }
 
@@ -36,15 +36,15 @@ trap interrupted SIGTERM
 
 trap cleanup EXIT
 
-(sed -i 's/"RunLoop" : true/"RunLoop" : false/' ClientOptions.json)
+sed -i 's/"RunLoop" : true/"RunLoop" : false/' ClientOptions.json
 
-for (( c=1; c<=$NUMREPEAT; c++ ))
+for (( c=1; c<=NUMREPEAT; c++ ))
 do
     if ! pgrep -x "serverX" > /dev/null
     then
 	break;
     fi
-    (./clientX > /dev/null)
+    ./clientX > /dev/null
     sync
     printf "\nrepeated %d times \n" $c
     sync
