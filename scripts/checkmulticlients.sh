@@ -83,7 +83,9 @@ done
 # build binaries and copy clientX binary to Client* directories
 #optionally you can pass SANITIZE parameter (aul or thread) as $2
 
-make -j4 SANITIZE=$2
+NUMBER_CORES=$(nproc)
+
+make -j$NUMBER_CORES SANITIZE=$2
 
 for (( c=1; c<=$1; c++ ))
 do

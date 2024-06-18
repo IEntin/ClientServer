@@ -42,7 +42,10 @@ trap EXIT SIGHUP SIGINT SIGTERM
 date
 
 # Build binaries.
-( cd $PRJ_DIR; make cleanall; make -j4 GDWARF=-gdwarf-4 )
+
+NUMBER_CORES=$(nproc)
+
+( cd $PRJ_DIR; make cleanall; make -j$NUMBER_CORES GDWARF=-gdwarf-4 )
 
 cp -f $PRJ_DIR/clientX $CLIENT_DIR
 

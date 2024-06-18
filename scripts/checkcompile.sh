@@ -33,12 +33,14 @@ do
 done
 }
 
+NUMBER_CORES=$(nproc)
+
 echo
 echo "***** g++ compiler *****"
 
 echo
 make cleanall
-make -j4 CMPLR=g++
+make -j$NUMBER_CORES CMPLR=g++
 copyClient
 
 sleep 2
@@ -47,7 +49,7 @@ echo
 echo "***** disable precompiled headers *****"
 echo
 make cleanall
-make -j4 CMPLR=g++ ENABLEPCH=0
+make -j$NUMBER_CORES CMPLR=g++ ENABLEPCH=0
 copyClient
 
 sleep 2
@@ -56,7 +58,7 @@ echo
 echo "***** address + ub + leak sanitizer *****"
 echo
 make cleanall
-make -j4 CMPLR=g++ SANITIZE=aul
+make -j$NUMBER_CORES CMPLR=g++ SANITIZE=aul
 copyClient
 
 sleep 2
@@ -65,7 +67,7 @@ echo
 echo "***** thread sanitizer *****"
 echo
 make cleanall
-make -j4 CMPLR=g++ SANITIZE=thread
+make -j$NUMBER_CORES CMPLR=g++ SANITIZE=thread
 copyClient
 
 echo
@@ -73,7 +75,7 @@ echo "***** clang++ compiler *****"
 
 echo
 make cleanall
-make -j4
+make -j$NUMBER_CORES
 copyClient
 
 sleep 2
@@ -82,7 +84,7 @@ echo
 echo "***** disable precompiled headers *****"
 echo
 make cleanall
-make -j4 ENABLEPCH=0
+make -j$NUMBER_CORES ENABLEPCH=0
 copyClient
 
 sleep 2
@@ -91,7 +93,7 @@ echo
 echo "***** address + ub + leak sanitizer *****"
 echo
 make cleanall
-make -j4 SANITIZE=aul
+make -j$NUMBER_CORES SANITIZE=aul
 copyClient
 
 sleep 2
@@ -100,7 +102,7 @@ echo
 echo "***** thread sanitizer *****"
 echo
 make cleanall
-make -j4 SANITIZE=thread
+make -j$NUMBER_CORES SANITIZE=thread
 copyClient
 
 #make cleanall

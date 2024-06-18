@@ -13,7 +13,7 @@ struct Connection {
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
 
-  Connection();
+  Connection() : _socket(_ioContext) {}
   virtual ~Connection() {}
 
 };

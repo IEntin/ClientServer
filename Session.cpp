@@ -45,7 +45,7 @@ bool Session::processTask(const HEADER& header) {
   auto weakPtr = TaskController::weakInstance();
   if (auto taskController = weakPtr.lock(); taskController) {
     std::string_view restored = payloadtransform::decryptDecompress(_key, header, _request);
-    _task->initialize(header, restored);
+    _task->update(isDiagnosticsEnabled(header), restored);
     taskController->processTask(_task);
     return true;
   }

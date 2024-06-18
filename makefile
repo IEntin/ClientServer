@@ -10,7 +10,7 @@
 #gprof -b ./serverX gmon.out > profile.txt
 #	valgrind
 # to use valgrind rebuild with -gdwarf-4
-# make -j4 GDWARF=-gdwarf-4
+# make -j$NUMBER_CORES GDWARF=-gdwarf-4
 # valgrind --tool=massif ./serverX
 # ms_print massif.out.*
 # valgrind --leak-check=yes ./serverX
@@ -86,7 +86,7 @@ ifeq ($(ENABLEPCH),0)
   INCLUDE_PRECOMPILED :=
 endif
 
-# e.g. make -j4 OPTIMIZE=-O0
+# e.g. make -j$NUMBER_CORES OPTIMIZE=-O0
 # for no optimization, useful for debugging
 ifeq ($(OPTIMIZE),)
   OPTIMIZATION := -O3

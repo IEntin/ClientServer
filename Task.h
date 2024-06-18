@@ -60,7 +60,7 @@ class Task : private boost::noncopyable {
 
   ~Task();
 
-  void initialize(const HEADER& header, std::string_view input);
+  void update(bool diagnostics, std::string_view request);
 
   void sortIndices();
 
