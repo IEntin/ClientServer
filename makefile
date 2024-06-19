@@ -41,9 +41,7 @@ endif
 # temporary.
 # alternatively run this command elsewhere after every
 # reboot
-# this workaround is not necessary if clang19 is installed
-# and compiler is clang++
-# but is still needed for g++ compiler.
+# this workaround is not necessary if clang19 is installed.
 
 # start with original configuration
 ORIGINALINT=32
@@ -51,13 +49,11 @@ $(info ORIGINALINT=$(ORIGINALINT))
 ORIGINAL := $(shell sudo sysctl vm.mmap_rnd_bits=$(ORIGINALINT))
 $(info ORIGINAL=$(ORIGINAL))
 
-ifeq ($(CMPLR),g++)
 ifneq ($(SANITIZE),)
   NEW=$(shell sudo sysctl vm.mmap_rnd_bits=28)
   $(info NEW=$(NEW))
   NEWINT=$(filter-out vm.mmap_rnd_bits = ,$(NEW))
   $(info NEWINT=$(NEWINT))
-endif
 endif
 
 RM := rm -f
