@@ -40,7 +40,7 @@ sed -i 's/"RunLoop" : true/"RunLoop" : false/' ClientOptions.json
 
 for (( c=1; c<=NUMREPEAT; c++ ))
 do
-    if ! pgrep -x "serverX" > /dev/null
+    if ! pgrep serverX
     then
 	break;
     fi

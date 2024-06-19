@@ -45,9 +45,18 @@ endif
 # and compiler is clang++
 # but is still needed for g++ compiler.
 
+# start with original configuration
+ORIGINALINT=32
+$(info ORIGINALINT=$(ORIGINALINT))
+ORIGINAL := $(shell sudo sysctl vm.mmap_rnd_bits=$(ORIGINALINT))
+$(info ORIGINAL=$(ORIGINAL))
+
 ifeq ($(CMPLR),g++)
 ifneq ($(SANITIZE),)
-  FIXLLVMbug := $(shell sudo sysctl vm.mmap_rnd_bits=28)
+  NEW=$(shell sudo sysctl vm.mmap_rnd_bits=28)
+  $(info NEW=$(NEW))
+  NEWINT=$(filter-out vm.mmap_rnd_bits = ,$(NEW))
+  $(info NEWINT=$(NEWINT))
 endif
 endif
 

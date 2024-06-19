@@ -175,10 +175,10 @@ serverX clientX testbin runtests.\
 runtests is a pseudo target which invokes running\
 tests if this target is older than test binary testbin.\
 By default all targets are built and tests run:\
-'make -j4'\
-(4 is the number of cpu cores)\
+'make -j$NUMBER_CORES'\
+(NUMBER_CORES is the number of cpu cores (processing units))\
 Any combination of targets can be specified, e.g.\
-'make -j4 serverX clientX'
+'make -j$NUMBER_CORES serverX clientX'
 
 3. run\
 server:
