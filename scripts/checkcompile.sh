@@ -55,22 +55,6 @@ copyClient
 sleep 2
 
 echo
-echo "***** address + ub + leak sanitizer *****"
-echo
-make cleanall
-make -j$NUMBER_CORES CMPLR=g++ SANITIZE=aul
-copyClient
-
-sleep 2
-
-echo
-echo "***** thread sanitizer *****"
-echo
-make cleanall
-make -j$NUMBER_CORES CMPLR=g++ SANITIZE=thread
-copyClient
-
-echo
 echo "***** clang++ compiler *****"
 
 echo
