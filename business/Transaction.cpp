@@ -14,6 +14,21 @@
 #include "Logger.h"
 #include "Utility.h"
 
+namespace {
+constexpr const char* INVALID_REQUEST{ " Invalid request\n" };
+constexpr const char* EMPTY_REPLY{ "0, 0.0\n" };
+constexpr std::string_view START_KEYWORDS1{ "kw=" };
+constexpr char KEYWORD_SEP = '+';
+constexpr char KEYWORDS_END = '&';
+constexpr const char* START_KEYWORDS2{ "keywords=" };
+constexpr const char* SIZE_START_REG{ "size=" };
+constexpr const char* SEPARATOR_REG{ "x" };
+constexpr const char* SIZE_START_ALT{ "ad_width=" };
+constexpr const char* SEPARATOR_ALT{ "&ad_height=" };
+constexpr const char* SIZE_END{ "&" };
+constexpr std::tuple<unsigned, unsigned> ZERO_SIZE;
+}
+
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 thread_local std::string Transaction::_output;

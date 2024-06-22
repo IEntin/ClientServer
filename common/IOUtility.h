@@ -10,9 +10,9 @@
 #include <stdexcept>
 #include <system_error>
 
-#include "CommonConstants.h"
-
 namespace ioutility {
+
+constexpr int CONV_BUFFER_SIZE = 10;
 
 inline std::string createErrorString(std::string_view file, int line, std::string_view func, std::errc ec) {
   std::string msg(std::make_error_code(ec).message());

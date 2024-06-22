@@ -8,8 +8,9 @@
 #include <memory>
 #include <string_view>
 
-#include "CommonConstants.h"
 #include "Header.h"
+
+inline constexpr int MAX_NUMBER_THREADS_DEFAULT = 1000;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 
@@ -27,7 +28,7 @@ class Runnable {
   virtual unsigned getNumberObjects() const { return 0; }
   virtual unsigned getNumberRunningByType() const { return 0; }
   virtual bool sendStatusToClient() { return true; }
-  virtual std::string_view getDisplayName() const { return _emptyView; }
+  virtual std::string_view getDisplayName() const { return std::string_view(); }
   std::string getType() const;
   void displayCapacityCheck(std::atomic<unsigned>&) const;
   std::atomic<STATUS>& getStatus() { return _status; }
@@ -35,7 +36,6 @@ class Runnable {
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
   const unsigned _maxNumberRunningByType;
-  static constexpr std::string_view _emptyView{};
   static std::atomic<unsigned> _numberRunningTotal;
 };
 
@@ -45,11 +45,11 @@ class Runnable {
 template <class T>
 class RunnableT : public Runnable {
  protected:
-  explicit RunnableT(int maxNumberThreads = MAX_NUMBER_THREADS_DEFAULT) :
+  explicit RunnableT(int maxNumberThreads) :
     Runnable(maxNumberThreads) { _numberObjects++; }
   ~RunnableT() override { _numberObjects--; }
-  static inline std::atomic<unsigned> _numberObjects = 0;
-  static inline std::atomic<unsigned> _numberRunningByType = 0;
+  inline static std::atomic<unsigned> _numberObjects = 0;
+  inline static std::atomic<unsigned> _numberRunningByType = 0;
  public:
   struct CountRunning {
     CountRunning() { _numberRunningByType++; _numberRunningTotal++; }

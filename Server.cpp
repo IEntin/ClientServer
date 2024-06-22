@@ -18,12 +18,10 @@
 Server::Server(Policy& policy) :
   _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
-  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   policy.set();
 }
 
 Server::~Server() {
-  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
   Ad::clear();
   Trace << '\n';
 }

@@ -4,6 +4,7 @@
 
 #include "Utility.h"
 
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 

@@ -5,6 +5,7 @@
 #include "Session.h"
 
 #include <cassert>
+#include <cryptopp/aes.h>
 
 #include "DHKeyExchange.h"
 #include "Logger.h"
@@ -16,7 +17,7 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server, std::string_view Bstring) :
-  _key(KEY_LENGTH),
+  _key(CryptoPP::AES::MAX_KEYLENGTH),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();

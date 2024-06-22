@@ -3,6 +3,9 @@
  */
 
 #include "Client.h"
+
+#include <cryptopp/aes.h>
+
 #include "ClientOptions.h"
 #include "DHKeyExchange.h"
 #include "Metrics.h"
@@ -11,7 +14,7 @@
 #include "TcpClientHeartbeat.h"
 
 Client::Client() :
-  _key(KEY_LENGTH),
+  _key(CryptoPP::AES::MAX_KEYLENGTH),
   _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {
   _Bstring = DHKeyExchange::step1(_priv, _pub);
 }

@@ -6,7 +6,6 @@
 
 #include <cryptopp/osrng.h>
 
-#include "CommonConstants.h"
 #include "Crypto.h"
 #include "Logger.h"
 #include "PayloadTransform.h"
@@ -17,7 +16,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=PayloadTransformTest*; done
 
 TEST(CryptoTest, 1) {
-  CryptoPP::SecByteBlock key(KEY_LENGTH);
+  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
   std::string_view data = TestEnvironment::_source;
@@ -33,7 +32,7 @@ struct PayloadTransformTest : testing::Test {
     ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
     HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE,0};
-    CryptoPP::SecByteBlock key(KEY_LENGTH);
+    CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(key, key.size());
     std::string_view transformed = payloadtransform::compressEncrypt(key, data, header);
