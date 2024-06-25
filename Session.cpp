@@ -10,16 +10,14 @@
 #include "DHKeyExchange.h"
 #include "Logger.h"
 #include "PayloadTransform.h"
-#include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
 #include "Utility.h"
 
-Session::Session(ServerWeakPtr server, std::string_view Bstring) :
+Session::Session(std::string_view Bstring) :
   _key(CryptoPP::AES::MAX_KEYLENGTH),
-  _task(std::make_shared<Task>(_response)),
-  _server(server) {
+  _task(std::make_shared<Task>(_response)) {
   _clientId = utility::getUniqueId();
   _Astring = DHKeyExchange::step1(_priv, _pub);
   CryptoPP::Integer crossPub(Bstring.data());

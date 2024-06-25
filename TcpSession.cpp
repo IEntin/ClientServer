@@ -7,18 +7,15 @@
 #include <array>
 
 #include "Connection.h"
-#include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "Tcp.h"
 
 namespace tcp {
 
-TcpSession::TcpSession(ServerWeakPtr server,
-		       ConnectionPtr connection,
-		       std::string_view Bstring) :
+TcpSession::TcpSession(ConnectionPtr connection, std::string_view Bstring) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, Bstring),
+  Session(Bstring),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),

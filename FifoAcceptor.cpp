@@ -41,7 +41,7 @@ void FifoAcceptor::run() {
     auto [type, Bstring] = unblockAcceptor();
     if (_stopped)
       break;
-    auto session = std::make_shared<FifoSession>(_server, Bstring);
+    auto session = std::make_shared<FifoSession>(Bstring);
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       if (auto server = _server.lock(); server)

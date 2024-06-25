@@ -93,7 +93,7 @@ void TcpAcceptor::accept() {
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
 	  {
-	    auto session = std::make_shared<TcpSession>(_server, connection, Bstring);
+	    auto session = std::make_shared<TcpSession>(connection, Bstring);
 	    if (auto server = _server.lock(); server)
 	      server->startSession(session);
 	  }

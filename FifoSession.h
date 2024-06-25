@@ -7,9 +7,6 @@
 #include "Runnable.h"
 #include "Session.h"
 
-class Server;
-using ServerWeakPtr = std::weak_ptr<Server>;
-
 namespace fifo {
 
 class FifoSession final : public RunnableT<FifoSession>,
@@ -24,7 +21,7 @@ class FifoSession final : public RunnableT<FifoSession>,
   std::size_t getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "fifo"; }
  public:
-  FifoSession(ServerWeakPtr server, std::string_view Bstring);
+  FifoSession(std::string_view Bstring);
   ~FifoSession() override;
 };
 

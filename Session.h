@@ -12,10 +12,7 @@
 
 #include "Header.h"
 
-class Server;
-
 using Response = std::vector<std::string>;
-using ServerWeakPtr = std::weak_ptr<Server>;
 using TaskPtr = std::shared_ptr<class Task>;
 
 class Session {
@@ -29,9 +26,8 @@ class Session {
   Response _response;
   TaskPtr _task;
   std::string _responseData;
-  ServerWeakPtr _server;
 
-  Session(ServerWeakPtr server, std::string_view Bstring);
+  Session(std::string_view Bstring);
   virtual ~Session();
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);

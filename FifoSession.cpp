@@ -8,15 +8,14 @@
 #include <sys/stat.h>
 
 #include "Fifo.h"
-#include "Server.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 
 namespace fifo {
 
-FifoSession::FifoSession(ServerWeakPtr server,
-			 std::string_view Bstring) :
+FifoSession::FifoSession(std::string_view Bstring) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, Bstring) {}
+  Session(Bstring) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
