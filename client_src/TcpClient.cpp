@@ -63,6 +63,8 @@ bool TcpClient::receiveStatus() {
   assert(!isCompressed(header) && "expected uncompressed");
   _status = extractStatus(header);
   switch (_status) {
+  case STATUS::NONE:
+    break;
   case STATUS::MAX_OBJECTS_OF_TYPE:
     displayMaxSessionsOfTypeWarn("tcp");
     break;
@@ -70,6 +72,7 @@ bool TcpClient::receiveStatus() {
     displayMaxTotalSessionsWarn();
     break;
   default:
+    return false;
     break;
   }
   return true;

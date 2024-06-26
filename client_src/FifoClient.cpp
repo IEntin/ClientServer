@@ -87,6 +87,8 @@ bool FifoClient::receiveStatus() {
   _fifoName = ClientOptions::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
   switch (_status) {
+  case STATUS::NONE:
+    break;
   case STATUS::MAX_OBJECTS_OF_TYPE:
     displayMaxSessionsOfTypeWarn("fifo");
     break;
@@ -94,6 +96,7 @@ bool FifoClient::receiveStatus() {
     displayMaxTotalSessionsWarn();
     break;
   default:
+    return false;
     break;
   }
   return true;
