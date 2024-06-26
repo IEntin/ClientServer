@@ -4,20 +4,24 @@
 
 #include "Client.h"
 
+#include <boost/algorithm/hex.hpp>
 #include <cryptopp/aes.h>
 
 #include "ClientOptions.h"
-#include "DHKeyExchange.h"
+#include "Crypto.h"
 #include "Metrics.h"
 #include "PayloadTransform.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
 Client::Client() :
-  _key(CryptoPP::AES::MAX_KEYLENGTH),
-  _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {
-  _Bstring = DHKeyExchange::step1(_priv, _pub);
-}
+  _dhB(Crypto::_curve),
+  _privB(_dhB.PrivateKeyLength()),
+  _pubB(_dhB.PublicKeyLength()),
+  _generatedKeyPair(Crypto::generateKeyPair(_dhB, _privB, _pubB)),
+  _pubBstring(reinterpret_cast<const char*>(_pubB.data()), _pubB.size()),
+  _sharedB(_dhB.AgreedValueLength()),
+  _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {}
 
 Client::~Client() {
   stop();
@@ -50,13 +54,12 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
 
 bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
   std::size_t payloadSz = extractPayloadSize(header);
-  std::size_t AstringSz = extractParameter(header);
-  std::string_view source(buffer.data(), payloadSz - AstringSz);
-  ioutility::fromChars(source, _clientId);
-  const char* Astring = buffer.data() + payloadSz - AstringSz;
-  CryptoPP::Integer crossPub(Astring);
-  DHKeyExchange::step2(_priv, crossPub, _key);
-  return true;
+  std::size_t pubAstringSz = extractParameter(header);
+  std::string_view idStr(buffer.data(), payloadSz - pubAstringSz);
+  ioutility::fromChars(idStr, _clientId);
+  std::string pubAstring(buffer.data() + payloadSz - pubAstringSz, pubAstringSz);
+  CryptoPP::SecByteBlock pubAreceived(reinterpret_cast<const byte*>(pubAstring.data()), pubAstring.size());
+  return _dhB.Agree(_sharedB, _privB, pubAreceived);
 }
 
 void Client::run() {
@@ -87,7 +90,7 @@ bool Client::printReply(const HEADER& header, std::string_view buffer) const {
   }
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view restored = payloadtransform::decryptDecompress(_key, header, buffer);
+  std::string_view restored = payloadtransform::decryptDecompress(_sharedB, header, buffer);
   if (restored.empty()) {
     displayStatus(STATUS::ERROR);
     return false;
@@ -103,7 +106,7 @@ void Client::start() {
     _threadPoolClient.push(ptr);
     _heartbeat = ptr;
   }
-  auto taskBuilder = std::make_shared<TaskBuilder>(_key);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_sharedB);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

@@ -8,14 +8,15 @@
 #include <sys/stat.h>
 
 #include "Fifo.h"
-#include "Logger.h"
+#include "Server.h"
 #include "ServerOptions.h"
 
 namespace fifo {
 
-FifoSession::FifoSession(std::string_view Bstring) :
+FifoSession::FifoSession(ServerWeakPtr server,
+			 std::string_view pubBstring) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(Bstring) {}
+  Session(server, pubBstring) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);
@@ -77,13 +78,17 @@ bool FifoSession::sendResponse() {
 }
 
 bool FifoSession::sendStatusToClient() {
-  std::string payload;
-  ioutility::toChars(_clientId, payload);
-  payload.append(_Astring);
-  unsigned size = payload.size();
-  HEADER header
-    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
-  return Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
+  bool rtn = false;
+  if (auto server = _server.lock(); server) {
+    std::string payload;
+    ioutility::toChars(_clientId, payload);
+    payload.append(_pubAstrng);
+    unsigned size = payload.size();
+    HEADER header
+      { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _pubAstrng.size() };
+    rtn = Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
+  }
+  return rtn;
 }
 
 } // end of namespace fifo

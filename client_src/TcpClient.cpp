@@ -13,10 +13,10 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   auto error = Tcp::setSocket(_socket);
   if (error)
     throw(std::runtime_error(error.what()));
-  std::size_t size = _Bstring.size();
+  std::size_t size = _pubBstring.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
-  auto ec = Tcp::sendMsg(_socket, header, _Bstring);
+  auto ec = Tcp::sendMsg(_socket, header, _pubBstring);
   if (ec)
     throw(std::runtime_error(ec.what()));
   if (!receiveStatus())
@@ -56,11 +56,11 @@ bool TcpClient::receiveStatus() {
   HEADER header;
   std::string payload;
   auto ec = Tcp::readMsg(_socket, header, payload);
+  if (ec)
+    throw(std::runtime_error(ec.what()));
   if (!obtainKeyClientId(payload, header))
     return false;
   assert(!isCompressed(header) && "expected uncompressed");
-  if (ec)
-    throw(std::runtime_error(ec.what()));
   _status = extractStatus(header);
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:

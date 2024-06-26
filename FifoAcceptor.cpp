@@ -30,18 +30,18 @@ std::tuple<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
   if (_stopped)
     return { HEADERTYPE::ERROR, std::string() };
   HEADER header;
-  std::string Bstring;
-  if (!Fifo::readMsgBlock(_acceptorName, header, Bstring))
+  std::string pubBstring;
+  if (!Fifo::readMsgBlock(_acceptorName, header, pubBstring))
     return { HEADERTYPE::ERROR, std::string() };
-  return { extractHeaderType(header), Bstring };
+  return { extractHeaderType(header), pubBstring };
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, Bstring] = unblockAcceptor();
+    auto [type, pubBstring] = unblockAcceptor();
     if (_stopped)
       break;
-    auto session = std::make_shared<FifoSession>(Bstring);
+    auto session = std::make_shared<FifoSession>(_server, pubBstring);
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       if (auto server = _server.lock(); server)

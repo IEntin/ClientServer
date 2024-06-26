@@ -7,15 +7,18 @@
 #include <array>
 
 #include "Connection.h"
+#include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
 #include "Tcp.h"
 
 namespace tcp {
 
-TcpSession::TcpSession(ConnectionPtr connection, std::string_view Bstring) :
+TcpSession::TcpSession(ServerWeakPtr server,
+		       ConnectionPtr connection,
+		       std::string_view pubBstring) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(Bstring),
+  Session(server, pubBstring),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
@@ -38,18 +41,20 @@ bool TcpSession::start() {
 }
 
 bool TcpSession::sendStatusToClient() {
-  std::string payload;
-  ioutility::toChars(_clientId, payload);
-  payload.append(_Astring);
-  unsigned size = payload.size();
-  HEADER header
-    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _Astring.size() };
-  auto ec = Tcp::sendMsg(_socket, header, payload);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
+  bool rtn = false;
+  if (auto server = _server.lock(); server) {
+    std::string payload;
+    ioutility::toChars(_clientId, payload);
+    payload.append(_pubAstrng);
+    unsigned size = payload.size();
+    HEADER header
+      { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _pubAstrng.size() };
+    auto ec = Tcp::sendMsg(_socket, header, payload);
+    rtn = !ec;
+    if (ec)
+      LogError << ec.what() << '\n';
   }
-  return true;
+  return rtn;
 }
 
 void TcpSession::run() noexcept {

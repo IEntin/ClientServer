@@ -12,6 +12,9 @@
 #include "ClientOptions.h"
 #include "ServerOptions.h"
 
+CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
+CryptoPP::AutoSeededX917RNG<CryptoPP::AES> Crypto::_rng;
+
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& key,
 		       const CryptoPP::SecByteBlock& iv) {
   if (LOG_LEVEL::INFO >= Logger::_threshold) {

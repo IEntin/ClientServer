@@ -17,8 +17,7 @@
 
 TEST(CryptoTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
-  CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(key, key.size());
+  Crypto::_rng.GenerateBlock(key, key.size());
   std::string_view data = TestEnvironment::_source;
   std::string_view cipher = Crypto::encrypt(key, data);
   std::string_view decrypted = Crypto::decrypt(key, cipher);
@@ -33,8 +32,7 @@ struct PayloadTransformTest : testing::Test {
     ServerOptions::_compressor = compressor;
     HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE,0};
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
-    CryptoPP::AutoSeededRandomPool prng;
-    prng.GenerateBlock(key, key.size());
+    Crypto::_rng.GenerateBlock(key, key.size());
     std::string_view transformed = payloadtransform::compressEncrypt(key, data, header);
     std::string_view restored = payloadtransform::decryptDecompress(key, header, transformed);
     ASSERT_EQ(restored.size(), TestEnvironment::_source.size());

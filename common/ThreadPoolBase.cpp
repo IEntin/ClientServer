@@ -8,7 +8,6 @@
 ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
-  stop();
   Trace << '\n';
 }
 
@@ -30,10 +29,11 @@ void ThreadPoolBase::stop() {
 	  thread.detach();
 	  Warn << "thread detached." << '\n';
 	}
-	else
+	else {
 	  thread.join();
+	  it = _threads.erase(it);
+	}
       }
-      it = _threads.erase(it);
     }
     std::deque<RunnablePtr>().swap(_queue);
   }

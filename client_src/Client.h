@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "cryptopp/eccrypto.h"
 #include <cryptopp/integer.h>
 
 #include "Chronometer.h"
@@ -22,10 +23,14 @@ struct ClientWrapper {
 
 class Client {
 
+protected:
+  CryptoPP::ECDH<CryptoPP::ECP>::Domain _dhB;
+  CryptoPP::SecByteBlock _privB;
+  CryptoPP::SecByteBlock _pubB;
+  const bool _generatedKeyPair;
+  const std::string _pubBstring;
 private:
-  CryptoPP::Integer _priv;
-  CryptoPP::Integer _pub;
-  CryptoPP::SecByteBlock _key;
+  CryptoPP::SecByteBlock _sharedB;
 protected:
   Client();
 
@@ -37,7 +42,6 @@ protected:
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;
   std::size_t _clientId;
-  std::string _Bstring;
   Chronometer _chronometer;
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
