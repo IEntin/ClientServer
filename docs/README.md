@@ -38,6 +38,8 @@ sudo apt-get install binutils
 
 #### Notice:
 
+Simple Diffie-Hellman protocol is replaced with Elliptic-curve Diffie–Hellman (ECDH)
+
 Renamed binary executables server -> serverX and client -> clientX to\
 avoid collision in scripts.
 
@@ -55,7 +57,7 @@ Business logic, tasks multithreading, and communication layer are decoupled.
 Encryption: Elliptic-curve Diffie–Hellman (ECDH) protocol is used.\
 Symmetric encryption is used after the key is set for each session/client.\
 The key is specific for every session/client pair.\
-Unlike simple DIFIIE-Hellman the used protocol is resistant to\
+Unlike simple Diffie-Hellman the used protocol is resistant to\
 'Man In The Middle' attack types.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
