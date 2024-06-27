@@ -29,11 +29,8 @@ date
 
 function printReport {
     printf "\n$clients\n"
-    sync
     printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
-    sync
     date
-    sync
 }
 
 trap printReport EXIT
@@ -114,5 +111,3 @@ echo -e "\nkilling server\n"
 pkill serverX
 
 sleep 5
-
-sync

@@ -21,13 +21,11 @@ NUMREPEAT=$1
 function cleanup {
     printf "\nrestoring ClientOptions.json 'RunLoop : true'\n"
     sed -i 's/"RunLoop" : false/"RunLoop" : true/' ClientOptions.json
-    sync
 }
 
 function interrupted {
     NUMREPEAT=0
     printf "interrupted"
-    sync
 }
 
 trap interrupted SIGINT
@@ -45,11 +43,8 @@ do
 	break;
     fi
     ./clientX > /dev/null
-    sync
+    wait $!
     printf "\nrepeated %d times \n" $c
-    sync
 done
 
 date
-
-sync
