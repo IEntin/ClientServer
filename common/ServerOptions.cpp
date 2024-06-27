@@ -8,7 +8,7 @@
 #include <thread>
 
 #include "AppOptions.h"
-#include "Compression.h"
+#include "Header.h"
 #include "Logger.h"
 
 bool ServerOptions::_parsed = false;
@@ -37,7 +37,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
+  _compressor = translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", true);
   _showKey = appOptions.get("ShowKey", false);
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);

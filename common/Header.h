@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <string_view>
 #include <sys/types.h>
 #include <tuple>
 
@@ -93,3 +94,5 @@ bool isOk(const HEADER& header);
 void encodeHeader(char* buffer, const HEADER& header);
 
 HEADER decodeHeader(const char* buffer);
+
+COMPRESSORS translateName(std::string_view compressorStr);

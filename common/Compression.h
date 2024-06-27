@@ -10,8 +10,6 @@ enum class COMPRESSORS : char;
 
 namespace compression {
 
-COMPRESSORS translateName(std::string_view compressorStr);
-
 std::string_view compress(std::string_view data);
 
 std::string_view uncompress(std::string_view data, size_t uncomprSize);

@@ -8,15 +8,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Header.h"
 #include "Logger.h"
 
 namespace compression {
-
-COMPRESSORS translateName(std::string_view compressorStr) {
-  COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
-  return compressor;
-}
 
 std::string_view compress(std::string_view data) {
   static thread_local std::vector<char> buffer;

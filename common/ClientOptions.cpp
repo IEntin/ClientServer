@@ -7,7 +7,7 @@
 #include <filesystem>
 
 #include "AppOptions.h"
-#include "Compression.h"
+#include "Header.h"
 #include "Logger.h"
 
 bool ClientOptions::_parsed = false;
@@ -44,7 +44,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _tcpClient = clientType == "TCP";
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _compressor = compression::translateName(appOptions.get("Compression", std::string("LZ4")));
+  _compressor = translateName(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Encrypted", true);
   _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
