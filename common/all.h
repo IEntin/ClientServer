@@ -36,6 +36,7 @@
 #include <poll.h>
 #include <queue>
 #include <signal.h>
+#include <source_location>
 #include <sstream>
 #include <stdexcept>
 #include <stdlib.h>
@@ -71,9 +72,13 @@
 #include <boost/unordered_map.hpp>
 
 #include <cryptopp/aes.h>
+#include <cryptopp/asn.h>
+#include "cryptopp/eccrypto.h"
 #include <cryptopp/files.h>
 #include <cryptopp/filters.h>
+#include <cryptopp/integer.h>
 #include <cryptopp/modes.h>
+#include <cryptopp/oids.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/secblock.h>
 

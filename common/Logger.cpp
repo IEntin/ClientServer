@@ -16,7 +16,7 @@ void Logger::translateLogThreshold(std::string_view configName) {
   }
 }
 
-Logger& Logger::printPrefix(const char* file, int line, const char* func) {
+Logger& Logger::printPrefix(const std::source_location& location) {
   try {
     if (_level < _threshold || !_displayPrefix)
       return *this;
@@ -26,11 +26,11 @@ Logger& Logger::printPrefix(const char* file, int line, const char* func) {
     output.append(leveName);
     output.push_back(']');
     output.push_back(' ');
-    output.append(file);
+    output.append(location.file_name());
     output.push_back(':');
-    ioutility::toChars(line, output);
+    ioutility::toChars(location.line(), output);
     output.push_back(' ');
-    output.append(func);
+    output.append(location.function_name());
     output.push_back(' ');
     _stream.write(output.data(), output.size());
     return *this;

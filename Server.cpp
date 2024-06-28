@@ -16,7 +16,7 @@
 #include "TcpAcceptor.h"
 
 Server::Server(Policy& policy) :
-  _chronometer(ServerOptions::_timing, __FILE__, __LINE__),
+  _chronometer(ServerOptions::_timing),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
   policy.set();
 }

@@ -5,16 +5,16 @@
 #pragma once
 
 #include <chrono>
+#include <source_location>
 
 #include "Logger.h"
 
 struct Chronometer : private boost::noncopyable {
   explicit Chronometer(bool enable = true,
-		       std::string_view file = __FILE__,
-		       int line = __LINE__,
-		       std::string_view function = "global",
-		       std::ostream* pstream = nullptr) :
-    _enabled(enable), _file(file), _line(line), _function(function),
+		       std::ostream* pstream = nullptr,
+		       const std::source_location& location =
+		       std::source_location::current()) :
+    _enabled(enable), _file(location.file_name()), _line(location.line()), _function(location.function_name()),
     _stream(pstream ? *pstream : std::clog) {
     if (_enabled) {
       _globalStart = std::chrono::steady_clock::now();
@@ -22,27 +22,29 @@ struct Chronometer : private boost::noncopyable {
     }
   }
 
-  // usage: chronometer.start(__FILE__, __func__, __LINE__);
+  // usage: chronometer.start();
   // where chronometer is an object created somewhere.
-  void start(const char* file, const char* function, int line) {
+  void start(const std::source_location& location =
+	     std::source_location::current()) {
     if (_enabled) {
       _localStart = std::chrono::steady_clock::now();
       Logger logger(LOG_LEVEL::INFO, _stream);
-      logger << __func__ << '-' << file << ':'
-        << line << ' ' << function << '\n';
+      logger << __func__ << '-' << location.file_name() << ':'
+	     << location.line() << ' ' << location.function_name() << '\n';
     }
   }
 
-  // usage: chronometer.stop(__FILE__, __func__, __LINE__);
+  // usage: chronometer.stop();
   // shows elapsed time since start or construction.
-  void stop(const char* file, const char* function, int line) {
+  void stop(const std::source_location& location =
+	    std::source_location::current()) {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };
       Logger logger(LOG_LEVEL::INFO, _stream);
-      logger << __func__ << '-' << file << ':' << line << ' '
-        << function << std::fixed << std::setprecision(3) << " elapsed="
-	<< elapsed_seconds.count() << 's' << '\n';
+      logger << __func__ << '-' << location.file_name() << ':' << location.line() << ' '
+	     << location.function_name() << std::fixed << std::setprecision(3) << " elapsed="
+	     << elapsed_seconds.count() << 's' << '\n';
     }
   }
   // shows elapsed time since construction.

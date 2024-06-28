@@ -7,6 +7,7 @@
 #include <cassert>
 #include <charconv>
 #include <cstdint>
+#include <source_location>
 #include <stdexcept>
 #include <system_error>
 
@@ -14,15 +15,17 @@ namespace ioutility {
 
 constexpr int CONV_BUFFER_SIZE = 10;
 
-inline std::string createErrorString(std::string_view file, int line, std::string_view func, std::errc ec) {
+  inline std::string createErrorString(std::errc ec,
+				       const std::source_location& location = std::source_location::current()) {
   std::string msg(std::make_error_code(ec).message());
-  return msg.append(1, ':').append(file).append(1, ':').append(std::to_string(line)).append(1, ' ').append(func);
+  return msg.append(1, ':').append(location.file_name()).append(1, ':').
+    append(std::to_string(location.line())).append(1, ' ').append(location.function_name());
 }
 
 constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
-    std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
+    std::string errorString(createErrorString(ec));
     errorString.append(1, ' ').append(str);
     throw std::runtime_error(errorString);
   }
@@ -42,7 +45,7 @@ template <Integer T>
 int toChars(T value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
   if (ec != std::errc()) {
-    std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
+    std::string errorString(createErrorString(ec));
     errorString.append(1, ' ').append(std::to_string(value));
     throw std::runtime_error(errorString);
   }
@@ -61,7 +64,7 @@ void toChars(N value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) 
     target.erase(origSize + sizeIncr, size - sizeIncr);
   }
   else {
-    std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
+    std::string errorString(createErrorString(ec));
     errorString.append(1, ' ').append(std::to_string(value));
     throw std::runtime_error(errorString);
   }
@@ -72,7 +75,7 @@ int toChars(N value, char* buffer, int precision, std::size_t size = CONV_BUFFER
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value,
 				 std::chars_format::fixed, precision);
   if (ec != std::errc()) {
-    std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
+    std::string errorString(createErrorString(ec));
     errorString.append(1, ' ').append(std::to_string(value));
     throw std::runtime_error(errorString);
   }
@@ -90,7 +93,7 @@ void toChars(N value, std::string& target, int precision, std::size_t size = CON
   if (ec == std::errc())
     target.resize(origSize + sizeIncr);
   else {
-    std::string errorString(createErrorString(__FILE__, __LINE__, __func__, ec));
+    std::string errorString(createErrorString(ec));
     errorString.append(1, ' ').append(std::to_string(value));
     throw std::runtime_error(errorString);
   }

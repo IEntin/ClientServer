@@ -6,6 +6,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <source_location>
 #include <string_view>
 #include <syncstream>
 
@@ -13,14 +14,12 @@
 
 #include "IOUtility.h"
 
-#define CODELOCATION __FILE__, __LINE__, __func__
-
-#define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix(CODELOCATION)
-#define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix(CODELOCATION)
-#define Warn Logger(LOG_LEVEL::WARN, std::cerr).printPrefix(CODELOCATION)
-#define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix(CODELOCATION)
-#define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix(CODELOCATION)
-#define Trace Logger(LOG_LEVEL::TRACE, std::clog).printPrefix(CODELOCATION)
+#define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix()
+#define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix()
+#define Warn Logger(LOG_LEVEL::WARN, std::cerr).printPrefix()
+#define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix()
+#define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix()
+#define Trace Logger(LOG_LEVEL::TRACE, std::clog).printPrefix()
 
 enum class LOG_LEVEL : int {
   TRACE,
@@ -53,7 +52,7 @@ struct Logger : private boost::noncopyable {
     _stream.flush();
   }
 
-  Logger& printPrefix(const char* file, int line, const char* func);
+  Logger& printPrefix(const std::source_location& location = std::source_location::current());
 
   const LOG_LEVEL _level;
   std::osyncstream _stream;

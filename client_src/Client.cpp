@@ -21,7 +21,7 @@ Client::Client() :
   _generatedKeyPair(Crypto::generateKeyPair(_dhB, _privB, _pubB)),
   _pubBstring(reinterpret_cast<const char*>(_pubB.data()), _pubB.size()),
   _sharedB(_dhB.AgreedValueLength()),
-  _chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__) {}
+  _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {
   stop();
@@ -65,7 +65,7 @@ bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
 void Client::run() {
   int numberTasks = 0;
   do {
-    Chronometer chronometer(ClientOptions::_timing, __FILE__, __LINE__, __func__, ClientOptions::_instrStream);
+    Chronometer chronometer(ClientOptions::_timing, ClientOptions::_instrStream);
     if (!processTask(_taskBuilder))
       break;
     ++numberTasks;
