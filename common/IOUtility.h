@@ -7,16 +7,17 @@
 #include <cassert>
 #include <charconv>
 #include <cstdint>
-#include <source_location>
 #include <stdexcept>
 #include <system_error>
+
+#include <boost/assert/source_location.hpp>
 
 namespace ioutility {
 
 constexpr int CONV_BUFFER_SIZE = 10;
 
   inline std::string createErrorString(std::errc ec,
-				       const std::source_location& location = std::source_location::current()) {
+				       const boost::source_location& location = BOOST_CURRENT_LOCATION) {
   std::string msg(std::make_error_code(ec).message());
   return msg.append(1, ':').append(location.file_name()).append(1, ':').
     append(std::to_string(location.line())).append(1, ' ').append(location.function_name());

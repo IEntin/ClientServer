@@ -16,7 +16,7 @@ void Logger::translateLogThreshold(std::string_view configName) {
   }
 }
 
-Logger& Logger::printPrefix(const std::source_location& location) {
+Logger& Logger::printPrefix(const boost::source_location& location) {
   try {
     if (_level < _threshold || !_displayPrefix)
       return *this;

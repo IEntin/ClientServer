@@ -6,10 +6,11 @@
 
 #include <iomanip>
 #include <iostream>
-#include <source_location>
 #include <string_view>
 #include <syncstream>
 
+#include <boost/assert/source_location.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <boost/core/noncopyable.hpp>
 
 #include "IOUtility.h"
@@ -52,7 +53,7 @@ struct Logger : private boost::noncopyable {
     _stream.flush();
   }
 
-  Logger& printPrefix(const std::source_location& location = std::source_location::current());
+  Logger& printPrefix(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
   const LOG_LEVEL _level;
   std::osyncstream _stream;
