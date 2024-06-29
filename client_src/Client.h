@@ -13,6 +13,8 @@
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
+constexpr const char* FIFO_NAMED_MUTEX{ "FIFO_NAMED_MUTEX" };
+
 class Client;
 
 struct ClientWrapper {

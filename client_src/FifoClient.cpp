@@ -11,11 +11,9 @@
 
 #include "ClientOptions.h"
 #include "Fifo.h"
-#include "Logger.h"
 #include "Subtask.h"
 
 namespace {
-constexpr const char* FIFO_NAMED_MUTEX{ "FIFO_NAMED_MUTEX" };
 constexpr int FIFO_CLIENT_POLLING_PERIOD = 250;
 }
 

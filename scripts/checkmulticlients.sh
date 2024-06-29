@@ -16,6 +16,7 @@ echo "UP_DIR:" $UP_DIR
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
     echo "Usage: [path]/checkmulticlients.sh <number of clients> [sanitizer] 2>&1 | tee checkmclog.txt"
+    echo "example: scripts/checkmulticlients.sh 20 thread 2>&1 | tee checkmclog.txt"
     exit 0
 fi
 
@@ -78,7 +79,7 @@ do
 done
 
 # build binaries and copy clientX binary to Client* directories
-#optionally you can pass SANITIZE parameter (aul or thread) as $2
+# optionally you can pass SANITIZE parameter (aul or thread) as $2
 
 NUMBER_CORES=$(nproc)
 
@@ -99,7 +100,7 @@ sleep 1
 
 for (( c=1; c<=$1; c++ ))
 do
-    ( cd $UP_DIR/Client$c; ./clientX > /dev/null& )
+    $UP_DIR/Client$c/clientX > /dev/null&
 done
 
 sleep 60

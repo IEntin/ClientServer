@@ -5,7 +5,6 @@
 #include "Server.h"
 
 #include <filesystem>
-#include <boost/interprocess/sync/named_mutex.hpp>
 
 #include "Ad.h"
 #include "FifoAcceptor.h"

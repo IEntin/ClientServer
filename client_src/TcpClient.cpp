@@ -4,12 +4,17 @@
 
 #include "TcpClient.h"
 
+#include <boost/interprocess/sync/named_mutex.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+
 #include "Subtask.h"
 #include "Tcp.h"
 
 namespace tcp {
 
 TcpClient::TcpClient() : _socket(_ioContext) {
+  boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
+  boost::interprocess::scoped_lock lock(mutex);
   auto error = Tcp::setSocket(_socket);
   if (error)
     throw(std::runtime_error(error.what()));
