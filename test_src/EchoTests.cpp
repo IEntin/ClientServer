@@ -15,6 +15,7 @@
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=FifoBlockingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4; done
 
@@ -118,13 +119,10 @@ struct FifoNonblockingTest : testing::Test {
     std::filesystem::remove(_testFifo);
   }
   bool send(std::string_view payload) {
-    std::size_t size = payload.size();
-    HEADER header{ HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, STATUS::NONE, 0 };
-    return fifo::Fifo::sendMsg(_testFifo, header, payload);
+    return fifo::Fifo::sendMsg(_testFifo, payload);
   }
   bool receive(std::string& received) {
-    HEADER header;
-    return fifo::Fifo::readMsgNonBlock(_testFifo, header, received);
+    return fifo::Fifo::readMsgNonBlock(_testFifo, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
@@ -169,5 +167,67 @@ TEST_F(FifoNonblockingTest, FifoNonblockingTestReverse) {
   for (int i = 0; i < 10; ++i) {
     testNonblockingFifoReverse(_smallPayload);
     testNonblockingFifoReverse(TestEnvironment::_source);
+  }
+}
+
+struct FifoBlockingTest : testing::Test {
+  static constexpr std::string_view _testFifo = "TestFifo";
+  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
+  FifoBlockingTest() {
+    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
+      LogError << strerror(errno) << '\n';
+  }
+  ~FifoBlockingTest() {
+    std::filesystem::remove(_testFifo);
+  }
+  bool send(std::string_view payload) {
+    return fifo::Fifo::sendMsg(_testFifo, payload);
+  }
+  bool receive(std::string& received) {
+    return fifo::Fifo::readMsgBlock(_testFifo, received);
+  }
+
+  void testBlockingFifo(std::string_view payload) {
+    std::string received;
+    ASSERT_TRUE(std::filesystem::exists(_testFifo));
+    auto fs = std::async(std::launch::async, &FifoBlockingTest::send, this, payload);
+    // Optional interval between send and receive
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto fr = std::async(std::launch::async, &FifoBlockingTest::receive, this, std::ref(received));
+    fr.wait();
+    fs.wait();
+    ASSERT_EQ(received, payload);
+  }
+
+  void testBlockingFifoReverse(std::string_view payload) {
+    std::string received;
+    ASSERT_TRUE(std::filesystem::exists(_testFifo));
+    auto fr = std::async(std::launch::async, &FifoBlockingTest::receive, this, std::ref(received));
+    // Optional interval between receive and send
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto fs = std::async(std::launch::async, &FifoBlockingTest::send, this, payload);
+    fr.wait();
+    fs.wait();
+    ASSERT_EQ(received, payload);
+  }
+
+  void SetUp() {}
+
+  void TearDown() {
+    TestEnvironment::reset();
+  }
+};
+
+TEST_F(FifoBlockingTest, FifoBlockingTestD) {
+  for (int i = 0; i < 10; ++i) {
+    testBlockingFifo(_smallPayload);
+    testBlockingFifo(TestEnvironment::_source);
+  }
+}
+
+TEST_F(FifoBlockingTest, FifoBlockingTestReverse) {
+  for (int i = 0; i < 10; ++i) {
+    testBlockingFifoReverse(_smallPayload);
+    testBlockingFifoReverse(TestEnvironment::_source);
   }
 }

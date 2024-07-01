@@ -9,8 +9,8 @@
 #include "Ad.h"
 #include "FifoAcceptor.h"
 #include "Logger.h"
-#include "ServerOptions.h"
 #include "Policy.h"
+#include "ServerOptions.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 

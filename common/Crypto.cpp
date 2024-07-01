@@ -6,7 +6,6 @@
 
 #include <boost/algorithm/hex.hpp>
 #include <cryptopp/modes.h>
-#include <cryptopp/osrng.h>
 
 #include "Logger.h"
 #include "ClientOptions.h"

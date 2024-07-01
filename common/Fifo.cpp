@@ -36,6 +36,38 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& b
   return readString(fdRead, body.data(), payloadSize);
 }
 
+bool Fifo::readMsgNonBlock(std::string_view name, std::string& payload) {
+  int fdRead = openReadNonBlock(name);
+  if (fdRead == -1)
+    return false;
+  utility::CloseFileDescriptor cfdr(fdRead);
+  char buffer[ioutility::CONV_BUFFER_SIZE] = {};
+  if (!readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE)) {
+    throw std::runtime_error(std::strerror(errno));
+  }
+  std::size_t payloadSize = 0;
+  ioutility::fromChars(buffer, payloadSize);
+  payload.resize(payloadSize);
+  return readString(fdRead, payload.data(), payloadSize);
+}
+
+bool Fifo::readMsgBlock(std::string_view name, std::string& payload) {
+  int fd = open(name.data(), O_RDONLY);
+  utility::CloseFileDescriptor cfdr(fd);
+  if (fd == -1) {
+    LogError << name << '-' << std::strerror(errno) << '\n';
+    return false;
+  }
+  char buffer[ioutility::CONV_BUFFER_SIZE] = {};
+  if (!readString(fd, buffer, ioutility::CONV_BUFFER_SIZE)) {
+    throw std::runtime_error(std::strerror(errno));
+  }
+  std::size_t payloadSize = 0;
+  ioutility::fromChars(buffer, payloadSize);
+  payload.resize(payloadSize);
+  return readString(fd, payload.data(), payloadSize);
+}
+
 bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
@@ -127,7 +159,18 @@ bool Fifo::sendMsg(std::string_view name, const HEADER& header, std::string_view
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, header);
   return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
-    writeString(fdWrite, std::string_view(body.data(), body.size()));
+    writeString(fdWrite, body);
+}
+
+bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
+  int fdWrite = openWriteNonBlock(name);
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  if (fdWrite == -1)
+    return false;
+  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
+  ioutility::toChars(payload.size(), sizeStr);
+  return writeString(fdWrite, std::string_view(sizeStr, ioutility::CONV_BUFFER_SIZE)) &&
+    writeString(fdWrite, payload);
 }
 
 short Fifo::pollFd(int fd, short expected) {

@@ -63,14 +63,27 @@ Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& 
 
 boost::system::error_code
 Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body) {
-    char buffer[HEADER_SIZE] = {};
-    encodeHeader(buffer, header);
-    std::array<boost::asio::const_buffer, 2> buffers{boost::asio::buffer(buffer), boost::asio::buffer(body)};
-    boost::system::error_code ec;
-    std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
-    if (ec)
-      LogError << ec.what() << '\n';
-    return ec;
-  }
+  char buffer[HEADER_SIZE] = {};
+  encodeHeader(buffer, header);
+  std::array<boost::asio::const_buffer, 2> buffers{boost::asio::buffer(buffer), boost::asio::buffer(body)};
+  boost::system::error_code ec;
+  std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+  if (ec)
+    LogError << ec.what() << '\n';
+  return ec;
+}
+
+boost::system::error_code
+Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
+  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
+  ioutility::toChars(payload.size(), sizeStr);
+  std::array<boost::asio::const_buffer, 2>
+    buffers{boost::asio::buffer(sizeStr), boost::asio::buffer(payload)};
+  boost::system::error_code ec;
+  std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+  if (ec)
+    LogError << ec.what() << '\n';
+  return ec;
+}
 
 } // end of namespace tcp

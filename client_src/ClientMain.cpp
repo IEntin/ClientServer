@@ -8,8 +8,8 @@
 
 #include "Client.h"
 #include "ClientOptions.h"
-#include "Metrics.h"
 #include "FifoClient.h"
+#include "Metrics.h"
 #include "TcpClient.h"
 
 namespace {
@@ -34,7 +34,7 @@ int main() {
   // The folowing covers setup with the client starting from
   // the project root rather than prepared client directory.
   if (!std::filesystem::exists(fileName)) {
-    LogError << fileName << " not found,\n trying client_src/ClientOptions.json.\n";
+    Expected << fileName << " not found,\n trying client_src/ClientOptions.json.\n";
     fileName = "client_src/ClientOptions.json";
   }
   ClientOptions::parse(fileName);

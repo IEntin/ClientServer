@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-LOG_LEVEL Logger::_threshold = LOG_LEVEL::ERROR;
+LOG_LEVEL Logger::_threshold = LOG_LEVEL::EXPECTED;
 
 void Logger::translateLogThreshold(std::string_view configName) {
   constexpr int size = static_cast<int>(LOG_LEVEL::NUMBEROF);

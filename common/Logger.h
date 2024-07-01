@@ -17,6 +17,7 @@
 
 #define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix()
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix()
+#define Expected Logger(LOG_LEVEL::EXPECTED, std::cerr).printPrefix()
 #define Warn Logger(LOG_LEVEL::WARN, std::cerr).printPrefix()
 #define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix()
 #define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix()
@@ -27,6 +28,7 @@ enum class LOG_LEVEL : int {
   DEBUG,
   INFO,
   WARN,
+  EXPECTED,
   ERROR,
   ALWAYS,
   NUMBEROF
@@ -37,6 +39,7 @@ constexpr std::string_view levelNames[] {
   "DEBUG",
   "INFO",
   "WARN",
+  "EXPECTED",
   "ERROR",
   "ALWAYS"
 };

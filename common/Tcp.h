@@ -27,6 +27,9 @@ public:
   static boost::system::error_code sendMsg(boost::asio::ip::tcp::socket& socket,
 					   const HEADER& header,
 					   std::string_view body = {});
+
+  static boost::system::error_code sendMsg(boost::asio::ip::tcp::socket& socket,
+					   std::string_view payload);
 };
 
 } // end of namespace tcp

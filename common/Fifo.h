@@ -18,10 +18,13 @@ class Fifo {
   static bool readString(int fd, char* received, std::size_t size);
  public:
   static bool readMsgNonBlock(std::string_view name, HEADER& header, std::string& body);
+  static bool readMsgNonBlock(std::string_view name, std::string& payload);
 
   static bool readMsgBlock(std::string_view name, HEADER& header, std::string& body);
+  static bool readMsgBlock(std::string_view name, std::string& payload);
   static bool writeString(int fd, std::string_view str);
   static bool sendMsg(std::string_view name, const HEADER& header, std::string_view body = {});
+  static bool sendMsg(std::string_view name, std::string_view payload);
   static bool setPipeSize(int fd);
   static void onExit(std::string_view fifoName);
   static int openWriteNonBlock(std::string_view fifoName);
