@@ -4,8 +4,6 @@
 
 #include <filesystem>
 
-#include <cryptopp/osrng.h>
-
 #include "Crypto.h"
 #include "Logger.h"
 #include "PayloadTransform.h"
@@ -21,8 +19,7 @@ TEST(CryptoTest, 1) {
   std::string_view data = TestEnvironment::_source;
   std::string_view cipher = Crypto::encrypt(key, data);
   std::string_view decrypted = Crypto::decrypt(key, cipher);
-  ASSERT_EQ(TestEnvironment::_source.size(), decrypted.size());
-  ASSERT_TRUE(std::memcmp(TestEnvironment::_source.data(), decrypted.data(), decrypted.size()) == 0);
+  ASSERT_EQ(data, decrypted);
 }
 
 struct PayloadTransformTest : testing::Test {
@@ -35,8 +32,7 @@ struct PayloadTransformTest : testing::Test {
     Crypto::_rng.GenerateBlock(key, key.size());
     std::string_view transformed = payloadtransform::compressEncrypt(key, data, header);
     std::string_view restored = payloadtransform::decryptDecompress(key, header, transformed);
-    ASSERT_EQ(restored.size(), TestEnvironment::_source.size());
-    ASSERT_EQ(restored, TestEnvironment::_source);
+    ASSERT_EQ(data, restored);
   }
 
   void TearDown() {

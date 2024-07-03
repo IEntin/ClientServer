@@ -7,8 +7,8 @@
 #include <boost/algorithm/hex.hpp>
 #include <cryptopp/modes.h>
 
-#include "Logger.h"
 #include "ClientOptions.h"
+#include "Logger.h"
 #include "ServerOptions.h"
 
 CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
@@ -19,10 +19,10 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& key,
   if (LOG_LEVEL::INFO >= Logger::_threshold) {
     Logger logger(LOG_LEVEL::INFO, std::clog, false);
     logger << "KEY SIZE: " << key.size() << '\n' << "KEY: 0x";
-    boost::algorithm::hex(key, std::ostream_iterator<char> { logger.getStream(), "" });
+    boost::algorithm::hex(key, std::ostream_iterator<char> { logger.getStream() });
     logger << '\n';
     logger << "IV : 0x";
-    boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream(), "" });
+    boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream() });
     logger << '\n';
   }
 }
@@ -38,7 +38,7 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
   cipher.erase(cipher.begin(), cipher.end());
   //LogAlways << "\t### " << cipher.capacity() << '\n';
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
-  stfEncryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
+  stfEncryptor.Put(reinterpret_cast<const byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   cipher.insert(cipher.cend(), iv.begin(), iv.end());
   if (ClientOptions::_showKey)
@@ -49,7 +49,7 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
 std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
 				 std::string_view data) {
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  auto beg = reinterpret_cast<const unsigned char*>(data.data()) + data.size() - iv.size();
+  auto beg = reinterpret_cast<const byte*>(data.data()) + data.size() - iv.size();
   std::copy(beg, beg + iv.size(), iv.data());
   static thread_local std::string decrypted;
   decrypted.erase(decrypted.begin(), decrypted.end());
@@ -58,7 +58,7 @@ std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
     CryptoPP::AES::Decryption aesDecryption(key.data(), key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
-    stfDecryptor.Put(reinterpret_cast<const unsigned char*>(data.data()), data.size() - iv.size());
+    stfDecryptor.Put(reinterpret_cast<const byte*>(data.data()), data.size() - iv.size());
     stfDecryptor.MessageEnd();
   }
   catch (const std::exception& e) {

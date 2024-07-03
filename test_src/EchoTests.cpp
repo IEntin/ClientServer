@@ -32,7 +32,6 @@ struct EchoTest : testing::Test {
     {
       tcp::TcpClient client;
       client.run();
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
     server->stop();
@@ -54,7 +53,6 @@ struct EchoTest : testing::Test {
     {
       fifo::FifoClient client;
       client.run();
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), _originalSource.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     }
     server->stop();

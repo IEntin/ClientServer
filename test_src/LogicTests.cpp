@@ -38,7 +38,6 @@ struct LogicTest : testing::Test {
       tcp::TcpClient client;
       client.run();
       std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     server->stop();
@@ -66,7 +65,6 @@ struct LogicTest : testing::Test {
     {
       fifo::FifoClient client;
       client.run();
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     server->stop();
@@ -163,7 +161,6 @@ struct LogicTestAltFormat : testing::Test {
       tcp::TcpClient client;
       client.run();
       std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     server->stop();
@@ -191,7 +188,6 @@ struct LogicTestSortInput : testing::Test {
       tcp::TcpClient client;
       client.run();
       std::string_view calibratedOutput = TestEnvironment::_outputD;
-      ASSERT_EQ(TestEnvironment::_oss.str().size(), calibratedOutput.size());
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     server->stop();
