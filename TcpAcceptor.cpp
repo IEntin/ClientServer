@@ -57,24 +57,16 @@ void TcpAcceptor::run() {
   }
 }
 
-  std::tuple<HEADERTYPE, std::string>
-  TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
+std::tuple<HEADERTYPE, std::string>
+TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::string pubBstring;
-  auto ec = Tcp::readMsg(socket, _header, pubBstring);
+  Tcp::readMsg(socket, _header, pubBstring);
   assert(!isCompressed(_header) && "Expected uncompressed");
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return { HEADERTYPE::ERROR, pubBstring };
-  }
   return { extractHeaderType(_header), pubBstring };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  auto ec = Tcp::sendMsg(socket, _header);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return;
-  }
+  Tcp::sendMsg(socket, _header);
   Logger logger(LOG_LEVEL::INFO, std::clog, false);
   logger << '*';
 }

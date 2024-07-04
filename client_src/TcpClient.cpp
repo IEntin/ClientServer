@@ -15,15 +15,11 @@ namespace tcp {
 TcpClient::TcpClient() : _socket(_ioContext) {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
-  auto error = Tcp::setSocket(_socket);
-  if (error)
-    throw(std::runtime_error(error.what()));
+  Tcp::setSocket(_socket);
   std::size_t size = _pubBstring.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
-  auto ec = Tcp::sendMsg(_socket, header, _pubBstring);
-  if (ec)
-    throw(std::runtime_error(ec.what()));
+  Tcp::sendMsg(_socket, header, _pubBstring);
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
@@ -39,20 +35,14 @@ void TcpClient::run() {
 }
 
 bool TcpClient::send(Subtask& subtask) {
-  auto ec = Tcp::sendMsg(_socket, subtask._header, subtask._body);
-  if (ec)
-    LogError << ec.what() << '\n';
-  return !ec;
+  Tcp::sendMsg(_socket, subtask._header, subtask._body);
+  return true;
 }
 
 bool TcpClient::receive() {
   HEADER header;
   _response.clear();
-  auto ec = Tcp::readMsg(_socket, header, _response);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
-  }
+  Tcp::readMsg(_socket, header, _response);
   _status = STATUS::NONE;
   return printReply(header, _response);
 }
@@ -60,9 +50,7 @@ bool TcpClient::receive() {
 bool TcpClient::receiveStatus() {
   HEADER header;
   std::string payload;
-  auto ec = Tcp::readMsg(_socket, header, payload);
-  if (ec)
-    throw(std::runtime_error(ec.what()));
+  Tcp::readMsg(_socket, header, payload);
   if (!obtainKeyClientId(payload, header))
     return false;
   assert(!isCompressed(header) && "expected uncompressed");
@@ -84,11 +72,7 @@ bool TcpClient::receiveStatus() {
 }
 
 void TcpClient::close() {
-  boost::system::error_code ec;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-  }
+  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
 }
 
 } // end of namespace tcp

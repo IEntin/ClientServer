@@ -15,21 +15,17 @@ class Tcp {
   Tcp() = delete;
   ~Tcp() = delete;
 
-  boost::system::error_code
-  static readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header);
+  static void readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header);
 public:
-  boost::system::error_code
-  static setSocket(boost::asio::ip::tcp::socket& socket);
+  static void setSocket(boost::asio::ip::tcp::socket& socket);
 
-  static boost::system::error_code
-  readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload);
+  static void readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload);
 
-  static boost::system::error_code sendMsg(boost::asio::ip::tcp::socket& socket,
-					   const HEADER& header,
-					   std::string_view body = {});
+  static void sendMsg(boost::asio::ip::tcp::socket& socket,
+		      const HEADER& header,
+		      std::string_view body = {});
 
-  static boost::system::error_code sendMsg(boost::asio::ip::tcp::socket& socket,
-					   std::string_view payload);
+  static void sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload);
 };
 
 } // end of namespace tcp

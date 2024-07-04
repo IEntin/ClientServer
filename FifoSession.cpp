@@ -77,8 +77,7 @@ bool FifoSession::sendResponse() {
   return Fifo::sendMsg(_fifoName, header, body);
 }
 
-bool FifoSession::sendStatusToClient() {
-  bool rtn = false;
+void FifoSession::sendStatusToClient() {
   if (auto server = _server.lock(); server) {
     std::string payload;
     ioutility::toChars(_clientId, payload);
@@ -86,9 +85,8 @@ bool FifoSession::sendStatusToClient() {
     unsigned size = payload.size();
     HEADER header
       { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _pubAstrng.size() };
-    rtn = Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
+    Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
   }
-  return rtn;
 }
 
 } // end of namespace fifo

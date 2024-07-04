@@ -30,9 +30,8 @@ public:
     _stopped = true;
   }
   bool _running = false;
-  bool sendStatusToClient() override {
+  void sendStatusToClient() override {
     _running = _status == STATUS::NONE;
-    return true;
   }
 };
 

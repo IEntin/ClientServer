@@ -20,7 +20,7 @@ class FifoSession final : public RunnableT<FifoSession>,
   bool start() override;
   void run() override;
   void stop() override;
-  bool sendStatusToClient() override;
+  void sendStatusToClient() override;
   std::size_t getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "fifo"; }
  public:

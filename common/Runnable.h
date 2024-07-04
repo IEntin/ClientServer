@@ -27,7 +27,7 @@ class Runnable {
   virtual std::size_t getId() { return {}; }
   virtual unsigned getNumberObjects() const { return 0; }
   virtual unsigned getNumberRunningByType() const { return 0; }
-  virtual bool sendStatusToClient() { return true; }
+  virtual void sendStatusToClient() {}
   virtual std::string_view getDisplayName() const { return std::string_view(); }
   std::string getType() const;
   void displayCapacityCheck(std::atomic<unsigned>&) const;

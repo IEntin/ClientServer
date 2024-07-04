@@ -29,7 +29,7 @@ private:
   bool start() override;
   void run() noexcept override;
   void stop() override;
-  bool sendStatusToClient() override;
+  void sendStatusToClient() override;
   std::size_t getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "tcp"; }
   void readHeader();

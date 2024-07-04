@@ -40,8 +40,7 @@ bool TcpSession::start() {
   return true;
 }
 
-bool TcpSession::sendStatusToClient() {
-  bool rtn = false;
+void TcpSession::sendStatusToClient() {
   if (auto server = _server.lock(); server) {
     std::string payload;
     ioutility::toChars(_clientId, payload);
@@ -49,12 +48,8 @@ bool TcpSession::sendStatusToClient() {
     unsigned size = payload.size();
     HEADER header
       { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _pubAstrng.size() };
-    auto ec = Tcp::sendMsg(_socket, header, payload);
-    rtn = !ec;
-    if (ec)
-      LogError << ec.what() << '\n';
+    Tcp::sendMsg(_socket, header, payload);
   }
-  return rtn;
 }
 
 void TcpSession::run() noexcept {

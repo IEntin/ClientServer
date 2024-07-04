@@ -125,11 +125,9 @@ void TcpClientHeartbeat::read() {
 
 void TcpClientHeartbeat::write() {
   timeoutWait();
-  auto error = Tcp::setSocket(_socket);
-  if (error) {
-    LogError << error.what() << '\n';
-    return;
-  }
+  if (_socket.is_open())
+    _socket.close();
+  Tcp::setSocket(_socket);
   // receives interrupt and unblocks read on CtrlC in wait mode
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);

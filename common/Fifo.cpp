@@ -23,17 +23,12 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& b
     return false;
   utility::CloseFileDescriptor cfdr(fdRead);
   char buffer[HEADER_SIZE] = {};
-  if (!readString(fdRead, buffer, HEADER_SIZE)) {
-    throw std::runtime_error(std::strerror(errno));
-  }
+  readString(fdRead, buffer, HEADER_SIZE);
   header = decodeHeader(buffer);
-  if (!isOk(header)) {
-    LogError << "header is invalid." << '\n';
-    return false;
-  }
   std::size_t payloadSize = extractPayloadSize(header);
   body.resize(payloadSize);
-  return readString(fdRead, body.data(), payloadSize);
+  readString(fdRead, body.data(), payloadSize);
+  return true;
 }
 
 bool Fifo::readMsgNonBlock(std::string_view name, std::string& payload) {
@@ -42,48 +37,35 @@ bool Fifo::readMsgNonBlock(std::string_view name, std::string& payload) {
     return false;
   utility::CloseFileDescriptor cfdr(fdRead);
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
-  if (!readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE)) {
-    throw std::runtime_error(std::strerror(errno));
-  }
+  readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
   ioutility::fromChars(buffer, payloadSize);
   payload.resize(payloadSize);
-  return readString(fdRead, payload.data(), payloadSize);
+  readString(fdRead, payload.data(), payloadSize);
+  return true;
 }
 
-bool Fifo::readMsgBlock(std::string_view name, std::string& payload) {
+void Fifo::readMsgBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
-  if (fd == -1) {
-    LogError << name << '-' << std::strerror(errno) << '\n';
-    return false;
-  }
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
-  if (!readString(fd, buffer, ioutility::CONV_BUFFER_SIZE)) {
-    throw std::runtime_error(std::strerror(errno));
-  }
+  readString(fd, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
   ioutility::fromChars(buffer, payloadSize);
   payload.resize(payloadSize);
-  return readString(fd, payload.data(), payloadSize);
+  readString(fd, payload.data(), payloadSize);
 }
 
 bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
-  if (fd == -1) {
-    LogError << name << '-' << std::strerror(errno) << '\n';
-    return false;
-  }
   std::size_t readSoFar = 0;
   char buffer[HEADER_SIZE] = {};
   while (readSoFar < HEADER_SIZE) {
     ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
     if (result == -1) {
-      if (errno != EAGAIN) {
-	LogError << std::strerror(errno) << '\n';
+      if (errno != EAGAIN)
 	throw std::runtime_error(std::strerror(errno));
-      }
     }
     else if (result == 0) {
       Info << name << "-EOF" << '\n';
@@ -92,63 +74,39 @@ bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body
     else
       readSoFar += result;
   }
-  if (readSoFar != HEADER_SIZE) {
-    LogError << "HEADER_SIZE=" << HEADER_SIZE
-	     << " readSoFar=" << readSoFar << '\n';
-    throw std::runtime_error(std::strerror(errno));
-  }
   header = decodeHeader(buffer);
-  if (!isOk(header)) {
-    LogError << "header is invalid." << '\n';
-    return false;
-  }
   std::size_t payloadSize = extractPayloadSize(header);
   body.resize(payloadSize);
-  return readString(fd, body.data(), payloadSize);
+  readString(fd, body.data(), payloadSize);
+  return true;
 }
 
-bool Fifo::readString(int fd, char* received, std::size_t size) {
+void Fifo::readString(int fd, char* received, std::size_t size) {
   std::size_t readSoFar = 0;
   while (readSoFar < size) {
     ssize_t result = read(fd, received + readSoFar, size - readSoFar);
     if (result == -1) {
-      if (errno != EAGAIN) {
-	LogError << std::strerror(errno) << '\n';
-	return false;
-      }
+      if (errno != EAGAIN)
+	throw std::runtime_error(std::strerror(errno));
     }
     else
       readSoFar += result;
   }
-  if (readSoFar != size) {
-    LogError << "size=" << size << " readSoFar=" << readSoFar << '\n';
-    return false;
-  }
-  return true;
 }
 
-bool Fifo::writeString(int fd, std::string_view str) {
+void Fifo::writeString(int fd, std::string_view str) {
   std::size_t written = 0;
   while (written < str.size()) {
     ssize_t result = write(fd, str.data() + written, str.size() - written);
     if (result == -1) {
       if (errno == EAGAIN)
 	continue;
-      else {
-	LogError << strerror(errno) << ", written=" << written
-		 << " str.size()=" << str.size() << '\n';
-	return false;
-      }
+      else
+	throw std::runtime_error(std::strerror(errno));
     }
     else
       written += result;
   }
-  if (str.size() != written) {
-    LogError << "str.size()=" << str.size()
-	     << "!=written=" << written << '\n';
-    return false;
-  }
-  return true;
 }
 
 bool Fifo::sendMsg(std::string_view name, const HEADER& header, std::string_view body) {
@@ -158,8 +116,9 @@ bool Fifo::sendMsg(std::string_view name, const HEADER& header, std::string_view
     return false;
   char buffer[HEADER_SIZE] = {};
   encodeHeader(buffer, header);
-  return writeString(fdWrite, std::string_view(buffer, HEADER_SIZE)) &&
-    writeString(fdWrite, body);
+  writeString(fdWrite, std::string_view(buffer, HEADER_SIZE));
+  writeString(fdWrite, body);
+  return true;
 }
 
 bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
@@ -169,18 +128,17 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
     return false;
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
   ioutility::toChars(payload.size(), sizeStr);
-  return writeString(fdWrite, std::string_view(sizeStr, ioutility::CONV_BUFFER_SIZE)) &&
-    writeString(fdWrite, payload);
+  writeString(fdWrite, std::string_view(sizeStr, ioutility::CONV_BUFFER_SIZE));
+  writeString(fdWrite, payload);
+  return true;
 }
 
 short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   pfd.revents = 0;
   int result = poll(&pfd, 1, -1);
-  if (result <= 0) {
-    LogError << strerror(errno) << '\n';
-    return result;
-  }
+  if (result <= 0)
+    throw std::runtime_error(std::strerror(errno));
   else if (pfd.revents & POLLERR) {
     Info << std::strerror(errno) << '\n';
     return -1;
@@ -213,10 +171,8 @@ bool Fifo::setPipeSize(int fd) {
   if (!setPipeBufferSize)
     return false;
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
-  if (currentSz == -1) {
-    LogError << std::strerror(errno) << '\n';
-    return false;
-  }
+  if (currentSz == -1)
+    throw std::runtime_error(std::strerror(errno));
   if (pipeSize > currentSz) {
     int ret = fcntl(fd, F_SETPIPE_SZ, pipeSize);
     if (ret < 0) {
