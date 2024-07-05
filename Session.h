@@ -17,10 +17,11 @@ class Server;
 
 using Response = std::vector<std::string>;
 using ServerWeakPtr = std::weak_ptr<Server>;
+using SessionPtr = std::shared_ptr<class Session>;
 using TaskPtr = std::shared_ptr<class Task>;
 
 class Session {
- protected:
+protected:
   std::size_t _clientId;
 
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dhA;
@@ -40,4 +41,7 @@ class Session {
   virtual ~Session();
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);
+public:
+  virtual void sendStatusToClient() = 0;
+  virtual std::size_t getId() = 0;
 };

@@ -87,7 +87,7 @@ void TcpAcceptor::accept() {
 	  {
 	    auto session = std::make_shared<TcpSession>(_server, connection, pubBstring);
 	    if (auto server = _server.lock(); server)
-	      server->startSession(session);
+	      server->startSession(session, session);
 	  }
 	  break;
 	case HEADERTYPE::HEARTBEAT:

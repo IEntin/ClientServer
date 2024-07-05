@@ -36,7 +36,7 @@ Client::~Client() {
 
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
-    static Task task;
+    static Subtasks task;
     auto result = taskBuilder->getResult();
     auto status = std::get<0>(result);
     if (status != STATUS::NONE)

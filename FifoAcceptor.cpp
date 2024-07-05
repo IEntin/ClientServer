@@ -45,7 +45,7 @@ void FifoAcceptor::run() {
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       if (auto server = _server.lock(); server)
-	server->startSession(session);
+	server->startSession(session, session);
       break;
     default:
       break;

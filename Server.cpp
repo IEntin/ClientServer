@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "Policy.h"
 #include "ServerOptions.h"
+#include "Session.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 
@@ -51,16 +52,16 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-bool Server::startSession(RunnablePtr session) {
+bool Server::startSession(RunnablePtr runnable, SessionPtr session) {
   std::lock_guard lock(_mutex);
-  session->start();
+  runnable->start();
   std::size_t clientId = session->getId();
-  auto [it, inserted] = _sessions.emplace(clientId, session);
+  auto [it, inserted] = _sessions.emplace(clientId, runnable);
   if (!inserted)
     return false;
-  _threadPoolSession.calculateStatus(session);
+  _threadPoolSession.calculateStatus(runnable);
   session->sendStatusToClient();
-  _threadPoolSession.push(session);
+  _threadPoolSession.push(runnable);
   return true;
 }
 

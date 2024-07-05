@@ -14,7 +14,7 @@
 
 Subtask TaskBuilder::_emptySubtask;
 
-Task TaskBuilder::_emptyTask;
+Subtasks TaskBuilder::_emptyTask;
 
 TaskBuilder::TaskBuilder(const CryptoPP::SecByteBlock& key) : _key(key), _subtasks(1) {
   _aggregate.reserve(ClientOptions::_bufferSize);
@@ -43,7 +43,7 @@ void TaskBuilder::run() {
   }
 }
 
-std::tuple<STATUS, Task&> TaskBuilder::getResult() {
+std::tuple<STATUS, Subtasks&> TaskBuilder::getResult() {
   STATUS state = STATUS::NONE;
   do {
     Subtask& subtask = getSubtask();

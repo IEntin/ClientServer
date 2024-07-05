@@ -13,6 +13,7 @@ class Server;
 using ServerPtr = std::shared_ptr<Server>;
 using ServerWeakPtr = std::weak_ptr<Server>;
 using SessionMap = std::map<std::size_t, RunnableWeakPtr>;
+using SessionPtr = std::shared_ptr<class Session>;
 
 class Server : public std::enable_shared_from_this<Server> {
 public:
@@ -20,7 +21,7 @@ public:
   ~Server();
   bool start();
   void stop();
-  bool startSession(RunnablePtr session);
+  bool startSession(RunnablePtr runnable, SessionPtr session);
   void stopSessions();
 private:
   Chronometer _chronometer;
