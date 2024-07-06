@@ -12,7 +12,7 @@
 
 using TestRunnablePtr = std::shared_ptr<class TestRunnable>;
 
-class TestRunnable : public RunnableT<TestRunnable> {
+class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public RunnableT<TestRunnable> {
 public:
   TestRunnable(int maxNumberThreads) :
     RunnableT(maxNumberThreads) {}
@@ -30,6 +30,10 @@ public:
     _stopped = true;
   }
   bool _running = false;
+  bool sendStatusToClient() {
+    _running = _status == STATUS::NONE;
+    return true;
+  }
 };
 
 TEST(ThreadPoolTest, Same) {
@@ -64,12 +68,15 @@ TEST(ThreadPoolTest, Diff) {
     runnable->start();
     ASSERT_TRUE(runnable->_status == STATUS::NONE);
     pool.calculateStatus(runnable);
+    runnable->sendStatusToClient();
     pool.push(runnable);
     std::string type = runnable->getType();
     ASSERT_TRUE(boost::contains(type, "TestRunnable"));
     ASSERT_TRUE(pool.size() == i + 1);
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }
+  for (auto runnable : runnables)
+    ASSERT_TRUE(runnable->_running);
   ASSERT_TRUE(pool.size() == maxNumberThreads);
   std::this_thread::sleep_for(std::chrono::milliseconds(20));
   for (RunnablePtr runnable : runnables)
