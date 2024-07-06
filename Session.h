@@ -28,7 +28,6 @@ protected:
   CryptoPP::SecByteBlock _privA;
   CryptoPP::SecByteBlock _pubA;
   const bool _generatedKeyPair;
-  const std::string _pubAstrng;
   CryptoPP::SecByteBlock _sharedA;
 
   std::string _request;

@@ -16,7 +16,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   Tcp::setSocket(_socket);
-  std::size_t size = _pubBstring.size();
+  std::size_t size = _pubB.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
   Tcp::sendMsg(_socket, header, _pubBstring);

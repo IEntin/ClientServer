@@ -23,7 +23,6 @@ Session::Session(ServerWeakPtr server, std::string_view pubBstring) :
   _privA(_dhA.PrivateKeyLength()),
   _pubA(_dhA.PublicKeyLength()),
   _generatedKeyPair(Crypto::generateKeyPair(_dhA, _privA, _pubA)),
-  _pubAstrng(reinterpret_cast<const char*>(_pubA.data()), _pubA.size()),
   _sharedA(_dhA.AgreedValueLength()),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
