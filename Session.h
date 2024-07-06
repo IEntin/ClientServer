@@ -41,7 +41,13 @@ protected:
   virtual ~Session();
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
   bool processTask(const HEADER& header);
+  void displayCapacityCheck(unsigned totalNumberObjects,
+			    unsigned numberObjects,
+			    unsigned numberRunningByType,
+			    unsigned maxNumberRunningByType,
+			    STATUS status) const;
 public:
   virtual void sendStatusToClient() = 0;
   virtual std::size_t getId() = 0;
+  virtual std::string_view getDisplayName() const = 0;
 };

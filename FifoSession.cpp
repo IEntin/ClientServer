@@ -89,4 +89,12 @@ void FifoSession::sendStatusToClient() {
   }
 }
 
+void FifoSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {
+  Session::displayCapacityCheck(totalNumberObjects,
+				getNumberObjects(),
+				getNumberRunningByType(),
+				_maxNumberRunningByType,
+				_status);
+}
+
 } // end of namespace fifo

@@ -59,3 +59,26 @@ bool Session::processTask(const HEADER& header) {
   }
   return false;
 }
+
+void Session::displayCapacityCheck(unsigned totalNumberObjects,
+				   unsigned numberObjects,
+				   unsigned numberRunningByType,
+				   unsigned maxNumberRunningByType,
+				   STATUS status) const {
+  Info << "Number " << getDisplayName() << " sessions=" << numberObjects
+       << ", Number running " << getDisplayName() << " sessions=" << numberRunningByType
+       << ", max number " << getDisplayName() << " running=" << maxNumberRunningByType
+       << '\n';
+  switch (status) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    Warn << "\nThe number of " << getDisplayName() << " sessions="
+	 << numberObjects << " exceeds thread pool capacity." << '\n';
+    break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    Warn << "\nTotal sessions=" << totalNumberObjects
+	 << " exceeds system capacity." << '\n';
+    break;
+  default:
+    break;
+  }
+}

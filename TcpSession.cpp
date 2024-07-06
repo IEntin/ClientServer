@@ -178,4 +178,12 @@ void TcpSession::asyncWait() {
   });
 }
 
+void TcpSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {
+  Session::displayCapacityCheck(totalNumberObjects,
+				getNumberObjects(),
+				getNumberRunningByType(),
+				_maxNumberRunningByType,
+				_status);
+}
+
 } // end of namespace tcp

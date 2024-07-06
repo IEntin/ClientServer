@@ -26,15 +26,13 @@ class Runnable {
   virtual void stop() = 0;
   virtual unsigned getNumberObjects() const { return 0; }
   virtual unsigned getNumberRunningByType() const { return 0; }
-  virtual std::string_view getDisplayName() const { return std::string_view(); }
+  virtual void displayCapacityCheck(std::atomic<unsigned>&) const {}
   std::string getType() const;
-  void displayCapacityCheck(std::atomic<unsigned>&) const;
-  std::atomic<STATUS>& getStatus() { return _status; }
   bool checkCapacity();
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
   const unsigned _maxNumberRunningByType;
-  static std::atomic<unsigned> _numberRunningTotal;
+  inline static std::atomic<unsigned> _numberRunningTotal = 0;
 };
 
 // The Curiously Recurring Template Pattern (CRTP)

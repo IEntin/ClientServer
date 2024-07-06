@@ -85,7 +85,7 @@ void Client::stop() {
 
 bool Client::printReply(const HEADER& header, std::string_view buffer) const {
   if (auto ptr = _heartbeat.lock(); ptr) {
-    if (displayStatus(ptr->getStatus()))
+    if (displayStatus(ptr->_status))
       return false;
   }
   std::ostream* pstream = ClientOptions::_dataStream;
