@@ -19,7 +19,6 @@ Client::Client() :
   _privB(_dhB.PrivateKeyLength()),
   _pubB(_dhB.PublicKeyLength()),
   _generatedKeyPair(Crypto::generateKeyPair(_dhB, _privB, _pubB)),
-  _pubBstring(reinterpret_cast<const char*>(_pubB.data()), _pubB.size()),
   _sharedB(_dhB.AgreedValueLength()),
   _chronometer(ClientOptions::_timing) {}
 
@@ -57,7 +56,7 @@ bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
   std::size_t pubAstringSz = extractParameter(header);
   std::string_view idStr(buffer.data(), payloadSz - pubAstringSz);
   ioutility::fromChars(idStr, _clientId);
-  std::string pubAstring(buffer.data() + payloadSz - pubAstringSz, pubAstringSz);
+  std::string_view pubAstring(buffer.data() + payloadSz - pubAstringSz, pubAstringSz);
   CryptoPP::SecByteBlock pubAreceived(reinterpret_cast<const byte*>(pubAstring.data()), pubAstring.size());
   return _dhB.Agree(_sharedB, _privB, pubAreceived);
 }

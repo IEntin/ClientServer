@@ -13,7 +13,6 @@
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
-#include "Utility.h"
 
 namespace fifo {
 
@@ -94,33 +93,6 @@ void Fifo::readString(int fd, char* received, std::size_t size) {
   }
 }
 
-void Fifo::writeString(int fd, std::string_view str) {
-  std::size_t written = 0;
-  while (written < str.size()) {
-    ssize_t result = write(fd, str.data() + written, str.size() - written);
-    if (result == -1) {
-      if (errno == EAGAIN)
-	continue;
-      else
-	throw std::runtime_error(std::strerror(errno));
-    }
-    else
-      written += result;
-  }
-}
-
-bool Fifo::sendMsg(std::string_view name, const HEADER& header, std::string_view body) {
-  int fdWrite = openWriteNonBlock(name);
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  if (fdWrite == -1)
-    return false;
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, header);
-  writeString(fdWrite, std::string_view(buffer, HEADER_SIZE));
-  writeString(fdWrite, body);
-  return true;
-}
-
 bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
   int fdWrite = openWriteNonBlock(name);
   utility::CloseFileDescriptor cfdw(fdWrite);
@@ -128,7 +100,8 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
     return false;
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
   ioutility::toChars(payload.size(), sizeStr);
-  writeString(fdWrite, std::string_view(sizeStr, ioutility::CONV_BUFFER_SIZE));
+  std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);
+  writeString(fdWrite, view);
   writeString(fdWrite, payload);
   return true;
 }

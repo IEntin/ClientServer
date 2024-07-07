@@ -4,6 +4,7 @@
 
 #include "TcpClientHeartbeat.h"
 #include "ClientOptions.h"
+#include "Logger.h"
 #include "Tcp.h"
 
 namespace tcp {

@@ -7,6 +7,7 @@
 #include <array>
 
 #include "ClientOptions.h"
+#include "Logger.h"
 
 namespace tcp {
 
@@ -35,13 +36,6 @@ void Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::str
     boost::system::error_code ec;
     std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload), ec);
   }
-}
-
-void Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body) {
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, header);
-  std::array<boost::asio::const_buffer, 2> buffers{boost::asio::buffer(buffer), boost::asio::buffer(body)};
-  std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
 }
 
 void Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
