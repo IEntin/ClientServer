@@ -79,13 +79,12 @@ bool FifoSession::sendResponse() {
 
 void FifoSession::sendStatusToClient() {
   if (auto server = _server.lock(); server) {
-    std::string payload;
-    ioutility::toChars(_clientId, payload);
-    payload.append(reinterpret_cast<const char*>(_pubA.data()), _pubA.size());
-    unsigned size = payload.size();
+    std::string clientIdStr;
+    ioutility::toChars(_clientId, clientIdStr);
+    unsigned size = clientIdStr.size();
     HEADER header
       { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, _pubA.size() };
-    Fifo::sendMsg(ServerOptions::_acceptorName, header, payload);
+    Fifo::sendMsg(ServerOptions::_acceptorName, header, clientIdStr, _pubA);
   }
 }
 

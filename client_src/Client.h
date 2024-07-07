@@ -30,7 +30,6 @@ protected:
   CryptoPP::SecByteBlock _privB;
   CryptoPP::SecByteBlock _pubB;
   const bool _generatedKeyPair;
-private:
   CryptoPP::SecByteBlock _sharedB;
 protected:
   Client();
@@ -57,7 +56,6 @@ public:
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;
 
-  bool obtainKeyClientId(std::string_view, const HEADER& header);
   void stop();
   static void onSignal(std::weak_ptr<ClientWrapper> wrapperWeak);
   virtual void close() = 0;

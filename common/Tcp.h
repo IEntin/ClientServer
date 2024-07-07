@@ -21,6 +21,11 @@ public:
 
   static void readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload);
 
+  static void readMsg(boost::asio::ip::tcp::socket& socket,
+		      HEADER& header,
+		      std::string& payload1,
+		      CryptoPP::SecByteBlock& payload2);
+
   template <typename B>
   static void sendMsg(boost::asio::ip::tcp::socket& socket,
 		      const HEADER& header,
@@ -30,6 +35,11 @@ public:
     std::array<boost::asio::const_buffer, 2> buffers{boost::asio::buffer(buffer), boost::asio::buffer(body)};
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
   }
+
+  static void sendMsg(boost::asio::ip::tcp::socket& socket,
+		      const HEADER& header,
+		      std::string_view payload1,
+		      CryptoPP::SecByteBlock& payload2);
 
   static void sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload);
 };

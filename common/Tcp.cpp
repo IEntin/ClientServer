@@ -33,9 +33,33 @@ void Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::str
   std::size_t size = extractPayloadSize(header);
   if (size > 0) {
     payload.resize(size);
-    boost::system::error_code ec;
-    std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload), ec);
+    std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload));
   }
+}
+
+void Tcp::readMsg(boost::asio::ip::tcp::socket& socket,
+		  HEADER& header,
+		  std::string& payload1,
+		  CryptoPP::SecByteBlock& payload2) {
+  readHeader(socket, header);
+  std::size_t payloadSize1 = extractPayloadSize(header);
+  payload1.resize(payloadSize1);
+  std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload1));
+  std::size_t payload2Size = extractParameter(header);
+  payload2.resize(payload2Size);
+  transferred = boost::asio::read(socket, boost::asio::buffer(payload2));
+}
+
+void Tcp::sendMsg(boost::asio::ip::tcp::socket& socket,
+		  const HEADER& header,
+		  std::string_view payload1,
+		  CryptoPP::SecByteBlock& payload2) {
+    char buffer[HEADER_SIZE] = {};
+    encodeHeader(buffer, header);
+    std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(buffer),
+						      boost::asio::buffer(payload1),
+						      boost::asio::buffer(payload2) };
+    std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
 }
 
 void Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload) {

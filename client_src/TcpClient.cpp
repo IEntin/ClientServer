@@ -49,9 +49,11 @@ bool TcpClient::receive() {
 
 bool TcpClient::receiveStatus() {
   HEADER header;
-  std::string payload;
-  Tcp::readMsg(_socket, header, payload);
-  if (!obtainKeyClientId(payload, header))
+  std::string clientIdStr;
+  CryptoPP::SecByteBlock pubAreceived;
+  Tcp::readMsg(_socket, header, clientIdStr, pubAreceived);
+  ioutility::fromChars(clientIdStr, _clientId);
+  if (!_dhB.Agree(_sharedB, _privB, pubAreceived))
     return false;
   assert(!isCompressed(header) && "expected uncompressed");
   _status = extractStatus(header);

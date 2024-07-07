@@ -51,16 +51,6 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   return true;
 }
 
-bool Client::obtainKeyClientId(std::string_view buffer, const HEADER& header) {
-  std::size_t payloadSz = extractPayloadSize(header);
-  std::size_t pubAstringSz = extractParameter(header);
-  std::string_view idStr(buffer.data(), payloadSz - pubAstringSz);
-  ioutility::fromChars(idStr, _clientId);
-  std::string_view pubAstring(buffer.data() + payloadSz - pubAstringSz, pubAstringSz);
-  CryptoPP::SecByteBlock pubAreceived(reinterpret_cast<const byte*>(pubAstring.data()), pubAstring.size());
-  return _dhB.Agree(_sharedB, _privB, pubAreceived);
-}
-
 void Client::run() {
   int numberTasks = 0;
   do {
