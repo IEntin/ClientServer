@@ -31,7 +31,7 @@ protected:
   CryptoPP::SecByteBlock _pubB;
   const bool _generatedKeyPair;
   CryptoPP::SecByteBlock _sharedB;
-protected:
+  std::string _response;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);

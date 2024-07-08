@@ -54,37 +54,6 @@ void Fifo::readMsgBlock(std::string_view name, std::string& payload) {
   readString(fd, payload.data(), payloadSize);
 }
 
-  bool Fifo::readMsgBlock(std::string_view name,
-			HEADER& header,
-			std::string& payload1,
-			CryptoPP::SecByteBlock& payload2) {
-  int fd = open(name.data(), O_RDONLY);
-  utility::CloseFileDescriptor cfdr(fd);
-  std::size_t readSoFar = 0;
-  char buffer[HEADER_SIZE] = {};
-  while (readSoFar < HEADER_SIZE) {
-    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
-    if (result == -1) {
-      if (errno != EAGAIN)
-	throw std::runtime_error(std::strerror(errno));
-    }
-    else if (result == 0) {
-      Info << name << "-EOF" << '\n';
-      return false;
-    }
-    else
-      readSoFar += result;
-  }
-  header = decodeHeader(buffer);
-  std::size_t payload1Size = extractPayloadSize(header);
-  payload1.resize(payload1Size);
-  readString(fd, payload1.data(), payload1Size);
-  std::size_t payload2Size = extractParameter(header);
-  payload2.resize(payload2Size);
-  readString(fd, payload2.data(), payload2Size);
-  return true;
-}
-
 bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
   int fdWrite = openWriteNonBlock(name);
   utility::CloseFileDescriptor cfdw(fdWrite);
@@ -95,23 +64,6 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
   std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);
   writeString(fdWrite, view);
   writeString(fdWrite, payload);
-  return true;
-}
-
-bool Fifo::sendMsg(std::string_view name,
-		   const HEADER& header,
-		   std::string_view payload1,
-		   CryptoPP::SecByteBlock& payload2) {
-  int fdWrite = openWriteNonBlock(name);
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  if (fdWrite == -1)
-    return false;
-  char buffer[HEADER_SIZE] = {};
-  encodeHeader(buffer, header);
-  std::string_view headerView(buffer, HEADER_SIZE);
-  writeString(fdWrite, headerView);
-  writeString(fdWrite, payload1);
-  writeString(fdWrite, payload2);
   return true;
 }
 

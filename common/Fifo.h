@@ -23,8 +23,13 @@ public:
   static bool readMsgNonBlock(std::string_view name, HEADER& header, std::string& body);
   static bool readMsgNonBlock(std::string_view name, std::string& payload);
 
-  template <typename B>
-  static bool readMsgBlock(std::string_view name, HEADER& header, B& body) {
+  static void readMsgBlock(std::string_view name, std::string& payload);
+
+  template <typename P1, typename P2>
+  static bool readMsgBlock(std::string_view name,
+			   HEADER& header,
+			   P1& payload1,
+			   P2& payload2) {
     int fd = open(name.data(), O_RDONLY);
     utility::CloseFileDescriptor cfdr(fd);
     std::size_t readSoFar = 0;
@@ -43,17 +48,17 @@ public:
 	readSoFar += result;
     }
     header = decodeHeader(buffer);
-    std::size_t payloadSize = extractPayloadSize(header);
-    body.resize(payloadSize);
-    readString(fd, body.data(), payloadSize);
+    std::size_t payload1Size = extractPayloadSize(header);
+    payload1.resize(payload1Size);
+    readString(fd, payload1.data(), payload1Size);
+    std::size_t payload2Size = extractParameter(header);
+    if (payload2Size > 0) {
+      payload2.resize(payload2Size);
+      readString(fd, payload2.data(), payload2Size);
+    }
     return true;
   }
 
-  static void readMsgBlock(std::string_view name, std::string& payload);
-  static bool readMsgBlock(std::string_view name,
-			   HEADER& header,
-			   std::string& payload1,
-			   CryptoPP::SecByteBlock& payload2);
   template <typename T>
   static void readString(int fd, T* received, std::size_t size) {
     std::size_t readSoFar = 0;
@@ -84,25 +89,23 @@ public:
     }
   }
 
-  template <typename B>
+  template <typename P1, typename P2>
   static bool sendMsg(std::string_view name,
 		      const HEADER& header,
-		      B& body) {
+		      const P1& payload1,
+		      const P2& payload2) {
     int fdWrite = openWriteNonBlock(name);
     utility::CloseFileDescriptor cfdw(fdWrite);
     if (fdWrite == -1)
       return false;
-    char buffer[HEADER_SIZE] = {};
-    encodeHeader(buffer, header);
-    std::string_view headerView(buffer, HEADER_SIZE);
+    char headerBuffer[HEADER_SIZE] = {};
+    encodeHeader(headerBuffer, header);
+    std::string_view headerView(headerBuffer, HEADER_SIZE);
     writeString(fdWrite, headerView);
-    writeString(fdWrite, body);
+    writeString(fdWrite, payload1);
+    writeString(fdWrite, payload2);
     return true;
   }
-  static bool sendMsg(std::string_view name,
-		      const HEADER& header,
-		      std::string_view payload1,
-		      CryptoPP::SecByteBlock& payload2);
   static bool sendMsg(std::string_view name, std::string_view payload);
   static bool setPipeSize(int fd);
   static void onExit(std::string_view fifoName);

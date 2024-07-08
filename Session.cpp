@@ -7,8 +7,6 @@
 #include <cassert>
 #include <cryptopp/aes.h>
 
-#include <boost/algorithm/hex.hpp>
-
 #include "Crypto.h"
 #include "Logger.h"
 #include "PayloadTransform.h"

@@ -19,7 +19,8 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   std::size_t size = _pubB.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
-  Tcp::sendMsg(_socket, header, _pubB);
+  static const CryptoPP::SecByteBlock dummy(0);
+  Tcp::sendMsg(_socket, header, _pubB, dummy);
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
@@ -35,14 +36,16 @@ void TcpClient::run() {
 }
 
 bool TcpClient::send(Subtask& subtask) {
-  Tcp::sendMsg(_socket, subtask._header, subtask._body);
+  static const std::string empty;
+  Tcp::sendMsg(_socket, subtask._header, subtask._body, empty);
   return true;
 }
 
 bool TcpClient::receive() {
   HEADER header;
   _response.clear();
-  Tcp::readMsg(_socket, header, _response);
+  static std::string dummy;
+  Tcp::readMsg(_socket, header, _response, dummy);
   _status = STATUS::NONE;
   return printReply(header, _response);
 }

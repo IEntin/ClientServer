@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "cryptopp/eccrypto.h"
-#include <cryptopp/integer.h>
 
 #include "Header.h"
 

@@ -17,7 +17,6 @@ class FifoClient : public Client {
   bool wakeupAcceptor();
   std::string_view _acceptorName;
   std::string _fifoName;
-  std::string _response;
 
  public:
   FifoClient();

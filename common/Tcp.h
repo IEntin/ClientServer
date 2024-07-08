@@ -19,35 +19,34 @@ class Tcp {
 public:
   static void setSocket(boost::asio::ip::tcp::socket& socket);
 
-  template <typename B>
-  static void readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, B& payload) {
+  template <typename P1, typename P2>
+  static void readMsg(boost::asio::ip::tcp::socket& socket,
+		      HEADER& header,
+		      P1& payload1,
+		      P2& payload2) {
     readHeader(socket, header);
-    std::size_t size = extractPayloadSize(header);
-    if (size > 0) {
-      payload.resize(size);
-      std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload));
+    std::size_t payloadSize1 = extractPayloadSize(header);
+    payload1.resize(payloadSize1);
+    std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload1));
+    std::size_t payload2Size = extractParameter(header);
+    if (payload2Size > 0) {
+      payload2.resize(payload2Size);
+      transferred = boost::asio::read(socket, boost::asio::buffer(payload2));
     }
   }
 
-  static void readMsg(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      std::string& payload1,
-		      CryptoPP::SecByteBlock& payload2);
-
-  template <typename B>
+  template <typename P1, typename P2>
   static void sendMsg(boost::asio::ip::tcp::socket& socket,
 		      const HEADER& header,
-		      B& body) {
-    char buffer[HEADER_SIZE] = {};
-    encodeHeader(buffer, header);
-    std::array<boost::asio::const_buffer, 2> buffers{boost::asio::buffer(buffer), boost::asio::buffer(body)};
+		      const P1& payload1,
+		      const P2& payload2) {
+    char headerBuffer[HEADER_SIZE] = {};
+    encodeHeader(headerBuffer, header);
+    std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(headerBuffer),
+						      boost::asio::buffer(payload1),
+						      boost::asio::buffer(payload2) };
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
   }
-
-  static void sendMsg(boost::asio::ip::tcp::socket& socket,
-		      const HEADER& header,
-		      std::string_view payload1,
-		      CryptoPP::SecByteBlock& payload2);
 
   static void sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload);
 };

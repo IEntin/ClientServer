@@ -9,7 +9,6 @@
 #include "cryptopp/eccrypto.h"
 #include <cryptopp/oids.h>
 #include "cryptopp/osrng.h"
-#include <cryptopp/secblock.h>
 
 using byte = uint8_t;
 
