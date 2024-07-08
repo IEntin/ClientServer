@@ -27,7 +27,7 @@ void Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
     boost::asio::read(socket, boost::asio::buffer(buffer));
   header = decodeHeader(buffer);
 }
-
+  /*
 void Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload) {
   readHeader(socket, header);
   std::size_t size = extractPayloadSize(header);
@@ -36,7 +36,7 @@ void Tcp::readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::str
     std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload));
   }
 }
-
+  */
 void Tcp::readMsg(boost::asio::ip::tcp::socket& socket,
 		  HEADER& header,
 		  std::string& payload1,

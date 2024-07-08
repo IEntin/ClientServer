@@ -25,23 +25,23 @@ FifoAcceptor::~FifoAcceptor() {
   Trace << '\n';
 }
 
-std::tuple<HEADERTYPE, std::string> FifoAcceptor::unblockAcceptor() {
+std::tuple<HEADERTYPE, CryptoPP::SecByteBlock> FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, std::string() };
+    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
   HEADER header;
-  std::string pubBstring;
-  if (!Fifo::readMsgBlock(_acceptorName, header, pubBstring))
-    return { HEADERTYPE::ERROR, std::string() };
-  return { extractHeaderType(header), pubBstring };
+  CryptoPP::SecByteBlock pubB;
+  if (!Fifo::readMsgBlock(_acceptorName, header, pubB))
+    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
+  return { extractHeaderType(header), pubB };
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, pubBstring] = unblockAcceptor();
+    auto [type, pubB] = unblockAcceptor();
     if (_stopped)
       break;
-    auto session = std::make_shared<FifoSession>(_server, pubBstring);
+    auto session = std::make_shared<FifoSession>(_server, pubB);
     switch (type) {
     case HEADERTYPE::CREATE_SESSION:
       if (auto server = _server.lock(); server)

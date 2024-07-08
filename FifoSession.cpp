@@ -14,9 +14,9 @@
 namespace fifo {
 
 FifoSession::FifoSession(ServerWeakPtr server,
-			 std::string_view pubBstring) :
+			 const CryptoPP::SecByteBlock& pubB) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, pubBstring) {}
+  Session(server, pubB) {}
 
 FifoSession::~FifoSession() {
   std::filesystem::remove(_fifoName);

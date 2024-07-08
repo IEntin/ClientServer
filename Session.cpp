@@ -18,7 +18,7 @@
 #include "TaskController.h"
 #include "Utility.h"
 
-Session::Session(ServerWeakPtr server, std::string_view pubBstring) :
+Session::Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB) :
   _dhA(Crypto::_curve),
   _privA(_dhA.PrivateKeyLength()),
   _pubA(_dhA.PublicKeyLength()),
@@ -26,8 +26,7 @@ Session::Session(ServerWeakPtr server, std::string_view pubBstring) :
   _sharedA(_dhA.AgreedValueLength()),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
-  CryptoPP::SecByteBlock pubBreceived(reinterpret_cast<const byte*>(pubBstring.data()), pubBstring.size());
-  bool rtnA = _dhA.Agree(_sharedA, _privA, pubBreceived);
+  bool rtnA = _dhA.Agree(_sharedA, _privA, pubB);
   if(!rtnA)
     throw std::runtime_error("Failed to reach shared secret (A)");
   _clientId = utility::getUniqueId();

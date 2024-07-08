@@ -19,7 +19,15 @@ class Tcp {
 public:
   static void setSocket(boost::asio::ip::tcp::socket& socket);
 
-  static void readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, std::string& payload);
+  template <typename B>
+  static void readMsg(boost::asio::ip::tcp::socket& socket, HEADER& header, B& payload) {
+    readHeader(socket, header);
+    std::size_t size = extractPayloadSize(header);
+    if (size > 0) {
+      payload.resize(size);
+      std::size_t transferred[[maybe_unused]] = boost::asio::read(socket, boost::asio::buffer(payload));
+    }
+  }
 
   static void readMsg(boost::asio::ip::tcp::socket& socket,
 		      HEADER& header,

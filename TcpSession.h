@@ -21,7 +21,7 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
-	     std::string_view pubBstring);
+	     const CryptoPP::SecByteBlock& pubB);
   ~TcpSession() override;
 
   boost::asio::ip::tcp::socket& socket() { return _socket; }

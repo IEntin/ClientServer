@@ -5,7 +5,6 @@
 #include "Fifo.h"
 
 #include <chrono>
-#include <fcntl.h>
 #include <filesystem>
 #include <poll.h>
 #include <thread>
@@ -55,32 +54,7 @@ void Fifo::readMsgBlock(std::string_view name, std::string& payload) {
   readString(fd, payload.data(), payloadSize);
 }
 
-bool Fifo::readMsgBlock(std::string_view name, HEADER& header, std::string& body) {
-  int fd = open(name.data(), O_RDONLY);
-  utility::CloseFileDescriptor cfdr(fd);
-  std::size_t readSoFar = 0;
-  char buffer[HEADER_SIZE] = {};
-  while (readSoFar < HEADER_SIZE) {
-    ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
-    if (result == -1) {
-      if (errno != EAGAIN)
-	throw std::runtime_error(std::strerror(errno));
-    }
-    else if (result == 0) {
-      Info << name << "-EOF" << '\n';
-      return false;
-    }
-    else
-      readSoFar += result;
-  }
-  header = decodeHeader(buffer);
-  std::size_t payloadSize = extractPayloadSize(header);
-  body.resize(payloadSize);
-  readString(fd, body.data(), payloadSize);
-  return true;
-}
-
-bool Fifo::readMsgBlock(std::string_view name,
+  bool Fifo::readMsgBlock(std::string_view name,
 			HEADER& header,
 			std::string& payload1,
 			CryptoPP::SecByteBlock& payload2) {

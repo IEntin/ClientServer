@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cryptopp/secblock.h>
 #include "Runnable.h"
 
 class Server;
@@ -16,7 +17,7 @@ class FifoAcceptor : public Runnable {
   void run() override;
   bool start() override;
   void stop() override;
-  std::tuple<HEADERTYPE, std::string> unblockAcceptor();
+  std::tuple<HEADERTYPE, CryptoPP::SecByteBlock> unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;
   ServerWeakPtr _server;

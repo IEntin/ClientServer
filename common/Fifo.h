@@ -4,10 +4,12 @@
 
 #pragma once
 
+#include <fcntl.h>
 #include <string_view>
 #include <cryptopp/secblock.h>
 
 #include "Header.h"
+#include "Logger.h"
 #include "Utility.h"
 
 namespace fifo {
@@ -21,7 +23,32 @@ public:
   static bool readMsgNonBlock(std::string_view name, HEADER& header, std::string& body);
   static bool readMsgNonBlock(std::string_view name, std::string& payload);
 
-  static bool readMsgBlock(std::string_view name, HEADER& header, std::string& body);
+  template <typename B>
+  static bool readMsgBlock(std::string_view name, HEADER& header, B& body) {
+    int fd = open(name.data(), O_RDONLY);
+    utility::CloseFileDescriptor cfdr(fd);
+    std::size_t readSoFar = 0;
+    char buffer[HEADER_SIZE] = {};
+    while (readSoFar < HEADER_SIZE) {
+      ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
+      if (result == -1) {
+	if (errno != EAGAIN)
+	  throw std::runtime_error(std::strerror(errno));
+      }
+      else if (result == 0) {
+	Info << name << "-EOF" << '\n';
+	return false;
+      }
+      else
+	readSoFar += result;
+    }
+    header = decodeHeader(buffer);
+    std::size_t payloadSize = extractPayloadSize(header);
+    body.resize(payloadSize);
+    readString(fd, body.data(), payloadSize);
+    return true;
+  }
+
   static void readMsgBlock(std::string_view name, std::string& payload);
   static bool readMsgBlock(std::string_view name,
 			   HEADER& header,
