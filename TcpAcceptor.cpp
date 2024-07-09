@@ -60,16 +60,13 @@ void TcpAcceptor::run() {
 std::tuple<HEADERTYPE, CryptoPP::SecByteBlock>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   CryptoPP::SecByteBlock pubB;
-  static CryptoPP::SecByteBlock dummy(0);
-  Tcp::readMsg(socket, _header, pubB, dummy);
+  Tcp::readMsg(socket, _header, pubB);
   assert(!isCompressed(_header) && "Expected uncompressed");
   return { extractHeaderType(_header), pubB };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  static const std::string_view empty1;
-  static const std::string_view empty2;
-  Tcp::sendMsg(socket, _header, empty1, empty2);
+  Tcp::sendMsg(socket, _header);
   Logger logger(LOG_LEVEL::INFO, std::clog, false);
   logger << '*';
 }

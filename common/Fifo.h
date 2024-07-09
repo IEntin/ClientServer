@@ -24,11 +24,11 @@ public:
 
   static void readMsgBlock(std::string_view name, std::string& payload);
 
-  template <typename P1, typename P2>
+  template <typename P1, typename P2 = P1>
   static bool readMsgBlock(std::string_view name,
 			   HEADER& header,
 			   P1& payload1,
-			   P2& payload2) {
+			   P2&& payload2 = P2()) {
     int fd = open(name.data(), O_RDONLY);
     utility::CloseFileDescriptor cfdr(fd);
     std::size_t readSoFar = 0;
@@ -88,11 +88,11 @@ public:
     }
   }
 
-  template <typename P1, typename P2>
+  template <typename P1, typename P2 = P1>
   static bool sendMsg(std::string_view name,
 		      const HEADER& header,
 		      const P1& payload1,
-		      const P2& payload2) {
+		      const P2& payload2 = P2()) {
     int fdWrite = openWriteNonBlock(name);
     utility::CloseFileDescriptor cfdw(fdWrite);
     if (fdWrite == -1)

@@ -31,8 +31,7 @@ std::tuple<HEADERTYPE, CryptoPP::SecByteBlock> FifoAcceptor::unblockAcceptor() {
     return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
   HEADER header;
   CryptoPP::SecByteBlock pubB;
-  static CryptoPP::SecByteBlock dummy;
-  if (!Fifo::readMsgBlock(_acceptorName, header, pubB, dummy))
+  if (!Fifo::readMsgBlock(_acceptorName, header, pubB))
     return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
   return { extractHeaderType(header), pubB };
 }

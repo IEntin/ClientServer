@@ -60,8 +60,7 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  static std::string dummy;
-  if (!Fifo::readMsgBlock(_fifoName, header, _request, dummy))
+  if (!Fifo::readMsgBlock(_fifoName, header, _request))
     return false;
   if (processTask(header))
     return sendResponse();
@@ -75,8 +74,7 @@ bool FifoSession::sendResponse() {
   std::string_view body = buildReply(header, _status);
   if (body.empty())
     return false;
-  static const std::string_view dummy;
-  return Fifo::sendMsg(_fifoName, header, body, dummy);
+  return Fifo::sendMsg(_fifoName, header, body);
 }
 
 void FifoSession::sendStatusToClient() {

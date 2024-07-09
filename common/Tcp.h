@@ -19,11 +19,11 @@ class Tcp {
 public:
   static void setSocket(boost::asio::ip::tcp::socket& socket);
 
-  template <typename P1, typename P2>
+  template <typename P1, typename P2 = P1>
   static void readMsg(boost::asio::ip::tcp::socket& socket,
 		      HEADER& header,
 		      P1& payload1,
-		      P2& payload2) {
+		      P2&& payload2 = P2()) {
     readHeader(socket, header);
     std::size_t payloadSize1 = extractPayloadSize(header);
     payload1.resize(payloadSize1);
@@ -35,11 +35,11 @@ public:
     }
   }
 
-  template <typename P1, typename P2>
+  template <typename P1 = std::string_view, typename P2 = P1>
   static void sendMsg(boost::asio::ip::tcp::socket& socket,
 		      const HEADER& header,
-		      const P1& payload1,
-		      const P2& payload2) {
+		      const P1& payload1 = P1(),
+		      const P2& payload2 = P2()) {
     char headerBuffer[HEADER_SIZE] = {};
     encodeHeader(headerBuffer, header);
     std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(headerBuffer),

@@ -48,8 +48,7 @@ bool FifoClient::send(Subtask& subtask) {
       if (ec)
 	LogError << ec.message() << '\n';
     }
-    static const std::string empty;
-    if (Fifo::sendMsg(_fifoName, subtask._header, subtask._body, empty))
+    if (Fifo::sendMsg(_fifoName, subtask._header, subtask._body))
       return true;
     // waiting client
     // server stopped
@@ -64,8 +63,7 @@ bool FifoClient::receive() {
   _status = STATUS::NONE;
   _response.clear();
   HEADER header;
-  static std::string dummy;
-  if (!Fifo::readMsgBlock(_fifoName, header, _response, dummy))
+  if (!Fifo::readMsgBlock(_fifoName, header, _response))
     return false;
   return printReply(header, _response);
 }
@@ -74,8 +72,7 @@ bool FifoClient::wakeupAcceptor() {
   std::size_t size = _pubB.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
-  static const CryptoPP::SecByteBlock dummy(0);
-  return Fifo::sendMsg(_acceptorName, header, _pubB, dummy);
+  return Fifo::sendMsg(_acceptorName, header, _pubB);
 }
 
 bool FifoClient::receiveStatus() {
