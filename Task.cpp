@@ -63,35 +63,25 @@ bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _rows.size()) {
     RequestRow& row = _rows[_indices[index]];
-    try {
-      std::size_t typeIndex = _function.index();
-      switch (typeIndex) {
-      case SORTFUNCTION:
-	_response[row._orgIndex] = std::get<SORTFUNCTION>(_function)(row._sizeKey, row._value, _diagnostics);
-	break;
-      case NOSORTFUNCTION:
-	_response[row._orgIndex] = std::get<NOSORTFUNCTION>(_function)(row._value, _diagnostics);
-	break;
-      case ECHOFUNCTION:
-	_response[row._orgIndex] = std::get<ECHOFUNCTION>(_function)(row._value);
-	break;
-      default:
-	return false;
-      }
-      return true;
+    std::size_t typeIndex = _function.index();
+    switch (typeIndex) {
+    case SORTFUNCTION:
+      _response[row._orgIndex] = std::get<SORTFUNCTION>(_function)(row._sizeKey, row._value, _diagnostics);
+      break;
+    case NOSORTFUNCTION:
+      _response[row._orgIndex] = std::get<NOSORTFUNCTION>(_function)(row._value, _diagnostics);
+      break;
+    case ECHOFUNCTION:
+      _response[row._orgIndex] = std::get<ECHOFUNCTION>(_function)(row._value);
+      break;
+    default:
+      return false;
     }
-    catch (const std::bad_variant_access& e) {
-      LogError << e.what() << '\n';
-    }
+    return true;
   }
   return false;
 }
 
 void Task::finish() {
-  try {
-    _promise.set_value();
-  }
-  catch (const std::future_error& e) {
-    LogError << e.what() << '\n';
-  }
+  _promise.set_value();
 }

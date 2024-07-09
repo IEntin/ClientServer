@@ -32,5 +32,4 @@ private:
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;
   std::condition_variable _startCondition;
-  std::atomic<bool> _stopped = false;
 };

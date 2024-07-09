@@ -4,7 +4,6 @@
 
 #include "Session.h"
 
-#include <cassert>
 #include <cryptopp/aes.h>
 
 #include "Crypto.h"
@@ -46,7 +45,7 @@ std::string_view Session::buildReply(HEADER& header, std::atomic<STATUS>& status
 }
 
 bool Session::processTask(const HEADER& header) {
-  auto weakPtr = TaskController::weakInstance();
+  auto weakPtr = TaskController::getWeakPtr();
   if (auto taskController = weakPtr.lock(); taskController) {
     std::string_view restored = payloadtransform::decryptDecompress(_sharedA, header, _request);
     _task->update(isDiagnosticsEnabled(header), restored);

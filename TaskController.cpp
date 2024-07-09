@@ -21,7 +21,7 @@ TaskController::~TaskController() {
   Trace << '\n';
 }
 
-TaskControllerWeakPtr TaskController::weakInstance() {
+TaskControllerWeakPtr TaskController::getWeakPtr() {
   return _single;
 }
 

@@ -160,13 +160,8 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   std::string_view heightView = { request.data() + sepPos + SEPARATOR.size(), heightViewSize };
   unsigned width = 0;
   unsigned height = 0;
-  try {
-    ioutility::fromChars(widthView, width);
-    ioutility::fromChars(heightView, height);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
+  ioutility::fromChars(widthView, width);
+  ioutility::fromChars(heightView, height);
   return { width, height };
 }
 

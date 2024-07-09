@@ -4,8 +4,6 @@
 
 #include "Server.h"
 
-#include <filesystem>
-
 #include "Ad.h"
 #include "FifoAcceptor.h"
 #include "Logger.h"
@@ -41,7 +39,6 @@ bool Server::start() {
 }
 
 void Server::stop() {
-  _stopped.store(true);
   stopSessions();
   if (_tcpAcceptor)
     _tcpAcceptor->stop();

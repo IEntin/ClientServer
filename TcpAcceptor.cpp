@@ -49,12 +49,7 @@ void TcpAcceptor::stop() {
 }
 
 void TcpAcceptor::run() {
-  try {
-    _ioContext.run();
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
+  _ioContext.run();
 }
 
 std::tuple<HEADERTYPE, CryptoPP::SecByteBlock>

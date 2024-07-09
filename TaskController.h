@@ -46,5 +46,5 @@ class TaskController {
   void processTask(TaskPtr task);
   static bool create();
   static void destroy();
-  static TaskControllerWeakPtr weakInstance();
+  static TaskControllerWeakPtr getWeakPtr();
 };
