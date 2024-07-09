@@ -5,7 +5,6 @@
 #pragma once
 
 #include <fcntl.h>
-#include <string_view>
 #include <cryptopp/secblock.h>
 
 #include "Header.h"

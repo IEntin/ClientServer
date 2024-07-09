@@ -5,7 +5,6 @@
 #pragma once
 
 #include "cryptopp/eccrypto.h"
-#include <cryptopp/integer.h>
 
 #include "Chronometer.h"
 #include "ThreadPoolBase.h"

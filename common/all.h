@@ -41,7 +41,6 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
-#include <string.h>
 #include <string_view>
 #include <syncstream>
 #include <sys/resource.h>
@@ -68,7 +67,6 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cryptopp/aes.h>

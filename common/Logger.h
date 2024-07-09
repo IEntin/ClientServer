@@ -11,7 +11,6 @@
 
 #include <boost/assert/source_location.hpp>
 #include <boost/core/noncopyable.hpp>
-#include <boost/core/noncopyable.hpp>
 
 #include "IOUtility.h"
 

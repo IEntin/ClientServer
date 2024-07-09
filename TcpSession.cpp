@@ -53,12 +53,7 @@ void TcpSession::sendStatusToClient() {
 
 void TcpSession::run() noexcept {
   CountRunning countRunning;
-  try {
-    _ioContext.run();
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
+  _ioContext.run();
 }
 
 void TcpSession::stop() {
@@ -154,12 +149,7 @@ void TcpSession::write(const HEADER& header, std::string_view body) {
 }
 
 void TcpSession::asyncWait() {
-  boost::system::error_code ec;
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(ServerOptions::_tcpTimeout), ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return;
-  }
+  _timeoutTimer.expires_from_now(std::chrono::milliseconds(ServerOptions::_tcpTimeout));
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
     auto self = weak_from_this().lock();
     if (!self)
