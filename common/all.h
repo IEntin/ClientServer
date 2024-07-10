@@ -45,7 +45,6 @@
 #include <syncstream>
 #include <sys/resource.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <system_error>
 #include <thread>
 #include <tuple>

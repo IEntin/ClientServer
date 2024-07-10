@@ -35,7 +35,7 @@ public:
     }
   }
 
-  template <typename P1 = std::string_view, typename P2 = P1>
+  template <typename P1 = std::vector<char>, typename P2 = P1>
   static void sendMsg(boost::asio::ip::tcp::socket& socket,
 		      const HEADER& header,
 		      const P1& payload1 = P1(),

@@ -4,7 +4,6 @@
 
 #include "Header.h"
 #include "IOUtility.h"
-#include "Utility.h"
 
 COMPRESSORS translateName(std::string_view compressorStr) {
   COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;

@@ -5,7 +5,6 @@
 #pragma once
 
 #include <string_view>
-#include <sys/types.h>
 #include <tuple>
 
 constexpr int HEADERTYPE_SIZE = 1;
