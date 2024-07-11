@@ -52,8 +52,13 @@ void TcpSession::sendStatusToClient() {
 }
 
 void TcpSession::run() noexcept {
-  CountRunning countRunning;
-  _ioContext.run();
+  try {
+    CountRunning countRunning;
+    _ioContext.run();
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+  }
 }
 
 void TcpSession::stop() {
