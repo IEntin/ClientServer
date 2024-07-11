@@ -31,5 +31,4 @@ private:
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;
-  std::condition_variable _startCondition;
 };

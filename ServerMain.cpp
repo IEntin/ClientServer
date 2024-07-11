@@ -4,10 +4,7 @@
 
 #include <cassert>
 #include <csignal>
-#include <cstring>
-#include <filesystem>
 
-#include "Chronometer.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
