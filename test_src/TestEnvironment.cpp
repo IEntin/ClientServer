@@ -43,7 +43,7 @@ void TestEnvironment::SetUp() {
 
 void TestEnvironment::TearDown() {
   Metrics::save();
-  Metrics::print(LOG_LEVEL::ERROR, std::cerr, false);
+  Metrics::print(LOG_LEVEL::ALWAYS, std::clog, false);
 }
 
 void TestEnvironment::reset() {

@@ -21,7 +21,9 @@ echo "UP_DIR:" $UP_DIR
 CLIENT_DIR=$UP_DIR/$2
 echo "CLIENT_DIR:" $CLIENT_DIR
 
-pkill serverX
+pkill -9 serverX
+
+pkill -9 clientX
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 2 || $# -gt 2 ]]
 then

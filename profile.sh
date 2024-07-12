@@ -22,7 +22,9 @@ echo "CLIENT_DIR2:" $CLIENT_DIR2
 CLIENT_DIR3=$UP_DIR/Client3
 echo "CLIENT_DIR3:" $CLIENT_DIR3
 
-pkill serverX
+pkill -9 serverX
+
+pkill -9 clientX
 
 set -e
 

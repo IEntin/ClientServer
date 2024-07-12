@@ -13,12 +13,6 @@
 void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
-  struct DoAtEnd {
-    DoAtEnd() = default;
-    ~DoAtEnd() {
-      Metrics::print();
-    }
-  } doAtEnd;
   try {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGINT, signalHandler);
@@ -39,6 +33,7 @@ int main() {
       LogError << strerror(errno) << '\n';
     Metrics::save();
     server->stop();
+    Metrics::print();
     int closed = fcloseall();
     assert(closed == 0);
     return 0;

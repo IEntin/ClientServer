@@ -20,7 +20,9 @@ then
     exit 0
 fi
 
-pkill serverX
+pkill -9 serverX
+
+pkill -9 clientX
 
 set -e
 
@@ -100,7 +102,7 @@ sleep 1
 
 for (( c=1; c<=$1; c++ ))
 do
-    ( cd $UP_DIR/Client$c; ./clientX > /dev/null& )
+    ( cd $UP_DIR/Client$c; $UP_DIR/Client$c/clientX > /dev/null& )
 done
 
 sleep 60

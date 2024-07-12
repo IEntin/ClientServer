@@ -21,12 +21,12 @@ void signalHandler(int) {
 }
 
 int main() {
-  struct DoAtEnd {
-    DoAtEnd() = default;
-    ~DoAtEnd() {
+  struct Finally {
+    Finally() = default;
+    ~Finally() {
       Metrics::print();
     }
-  } doAtEnd;
+  } finally;
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
