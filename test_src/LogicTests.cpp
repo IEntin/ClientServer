@@ -4,7 +4,6 @@
 
 #include "ClientOptions.h"
 #include "FifoClient.h"
-#include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "TcpClient.h"
@@ -34,12 +33,10 @@ struct LogicTest : testing::Test {
     ClientOptions::_encrypted = clientEncrypt;
     ClientOptions::_bufferSize = bufferSize;
     ClientOptions::_diagnostics = diagnostics;
-    {
-      tcp::TcpClient client;
-      client.run();
-      std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    }
+    tcp::TcpClient client;
+    client.run();
+    std::string_view calibratedOutput = diagnostics ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     server->stop();
   }
 
@@ -62,11 +59,9 @@ struct LogicTest : testing::Test {
     ClientOptions::_diagnostics = diagnostics;
     std::string_view calibratedOutput = diagnostics ?
       TestEnvironment::_outputD : TestEnvironment::_outputND;
-    {
-      fifo::FifoClient client;
-      client.run();
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    }
+    fifo::FifoClient client;
+    client.run();
+    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     server->stop();
   }
 
@@ -184,12 +179,10 @@ struct LogicTestSortInput : testing::Test {
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_diagnostics = true;
-    {
-      tcp::TcpClient client;
-      client.run();
-      std::string_view calibratedOutput = TestEnvironment::_outputD;
-      ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
-    }
+    tcp::TcpClient client;
+    client.run();
+    std::string_view calibratedOutput = TestEnvironment::_outputD;
+    ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     server->stop();
   }
 

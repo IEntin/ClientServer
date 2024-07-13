@@ -5,8 +5,7 @@
 #pragma once
 
 #include <algorithm>
-#include <cstring>
-#include <string_view>
+#include <string>
 
 namespace utility {
 

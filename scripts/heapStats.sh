@@ -83,3 +83,6 @@ kill $APP_PID
 
 date
 sleep 5
+
+cd $PRJ_DIR
+make cleanall

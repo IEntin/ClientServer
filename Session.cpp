@@ -15,6 +15,8 @@
 #include "TaskController.h"
 #include "Utility.h"
 
+std::mutex Session::_mutex;
+
 Session::Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB) :
   _dhA(Crypto::_curve),
   _privA(_dhA.PrivateKeyLength()),
@@ -23,6 +25,7 @@ Session::Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB) :
   _sharedA(_dhA.AgreedValueLength()),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
+  std::lock_guard lock(_mutex);
   bool rtnA = _dhA.Agree(_sharedA, _privA, pubB);
   if(!rtnA)
     throw std::runtime_error("Failed to reach shared secret (A)");

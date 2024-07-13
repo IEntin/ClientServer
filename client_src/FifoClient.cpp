@@ -23,7 +23,7 @@ FifoClient::FifoClient() : _acceptorName(ClientOptions::_acceptorName) {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   if (!wakeupAcceptor())
-    return;
+    throw std::runtime_error("FifoClient::wakeupAcceptor failed");
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
 }

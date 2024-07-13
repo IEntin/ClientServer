@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,7 @@ protected:
   TaskPtr _task;
   std::string _responseData;
   ServerWeakPtr _server;
+  static std::mutex _mutex;
 
   Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB);
   virtual ~Session();

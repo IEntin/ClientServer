@@ -29,11 +29,9 @@ struct EchoTest : testing::Test {
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
-    {
-      tcp::TcpClient client;
-      client.run();
-      ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
-    }
+    tcp::TcpClient client;
+    client.run();
+    ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     server->stop();
   }
 
@@ -50,11 +48,9 @@ struct EchoTest : testing::Test {
     // start client
     ClientOptions::_compressor = clientCompressor;
     ClientOptions::_encrypted = clientEncrypt;
-    {
-      fifo::FifoClient client;
-      client.run();
-      ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
-    }
+    fifo::FifoClient client;
+    client.run();
+    ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
     server->stop();
   }
   void TearDown() {

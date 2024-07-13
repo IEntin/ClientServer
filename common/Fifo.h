@@ -5,7 +5,6 @@
 #pragma once
 
 #include <fcntl.h>
-#include <cryptopp/secblock.h>
 
 #include "Header.h"
 #include "Logger.h"

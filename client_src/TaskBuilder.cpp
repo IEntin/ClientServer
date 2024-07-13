@@ -118,7 +118,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   std::string_view output = payloadtransform::compressEncrypt(_key, _aggregate, header);
   std::lock_guard lock(_mutex);
   if (_stopped)
-    return STATUS::NONE;
+    return STATUS::STOPPED;
   std::reference_wrapper<Subtask> subtaskRef = _subtasks[0];
   unsigned index = _subtaskIndexProduced.fetch_add(1);
   if (index < _subtasks.size())
@@ -142,6 +142,8 @@ void TaskBuilder::stop() {
 
 void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
+  if (_stopped)
+    return;
   for (auto& subtask : _subtasks)
     subtask._state = STATUS::NONE;
   _subtaskIndexConsumed = 0;

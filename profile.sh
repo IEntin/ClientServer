@@ -111,4 +111,8 @@ gprof -b serverX gmon.out > profiles/profile_server.txt
 ( cd $SCRIPT_DIR; rm -f gmon.out )
 ( cd $CLIENT_DIR2; rm -f gmon.out )
 ( cd $CLIENT_DIR3; rm -f gmon.out )
+
+cd $PRJ_DIR
+make cleanall
+
 date

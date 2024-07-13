@@ -5,7 +5,6 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include <cryptopp/secblock.h>
 
 #include "Header.h"
 
