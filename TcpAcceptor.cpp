@@ -3,10 +3,8 @@
  */
 
 #include "TcpAcceptor.h"
-#include "Connection.h"
 #include "Server.h"
 #include "ServerOptions.h"
-#include "TcpSession.h"
 #include "Tcp.h"
 
 namespace tcp {
@@ -84,11 +82,8 @@ void TcpAcceptor::accept() {
 	auto [type, pubB] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::CREATE_SESSION:
-	  {
-	    auto session = std::make_shared<TcpSession>(_server, connection, pubB);
-	    if (auto server = _server.lock(); server)
-	      server->startSession(session, session);
-	  }
+	  if (auto server = _server.lock(); server)
+	    server->createTcpSession(connection, pubB);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(connection->_socket);

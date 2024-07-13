@@ -6,7 +6,10 @@
 
 #include <map>
 
+#include <cryptopp/secblock.h>
+
 #include "Chronometer.h"
+#include "Connection.h"
 #include "ThreadPoolDiffObj.h"
 
 class Server;
@@ -21,9 +24,11 @@ public:
   ~Server();
   bool start();
   void stop();
-  bool startSession(RunnablePtr runnable, SessionPtr session);
+  void createFifoSession(HEADERTYPE type, const CryptoPP::SecByteBlock& pubB);
+  void createTcpSession(tcp::ConnectionPtr connection, const CryptoPP::SecByteBlock& pubB);
   void stopSessions();
 private:
+  bool startSession(RunnablePtr runnable, SessionPtr session);
   Chronometer _chronometer;
   SessionMap _sessions;
   ThreadPoolBase _threadPoolAcceptor;

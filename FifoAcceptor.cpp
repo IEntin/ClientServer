@@ -9,7 +9,6 @@
 #include <sys/stat.h>
 
 #include "Fifo.h"
-#include "FifoSession.h"
 #include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
@@ -41,15 +40,8 @@ void FifoAcceptor::run() {
     auto [type, pubB] = unblockAcceptor();
     if (_stopped)
       break;
-    auto session = std::make_shared<FifoSession>(_server, pubB);
-    switch (type) {
-    case HEADERTYPE::CREATE_SESSION:
-      if (auto server = _server.lock(); server)
-	server->startSession(session, session);
-      break;
-    default:
-      break;
-    }
+    if (auto server = _server.lock(); server)
+      server->createFifoSession(type, pubB);
   }
 }
 
