@@ -22,7 +22,6 @@ class FifoSession final : public RunnableT<FifoSession>,
   void stop() override;
   void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
-  std::size_t getId() override { return _clientId; }
   std::string_view getDisplayName() const override{ return "fifo"; }
  public:
   FifoSession(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB);

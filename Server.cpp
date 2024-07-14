@@ -10,7 +10,6 @@
 #include "Logger.h"
 #include "Policy.h"
 #include "ServerOptions.h"
-#include "Session.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include "TcpSession.h"
