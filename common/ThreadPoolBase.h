@@ -23,7 +23,7 @@ protected:
   std::atomic<unsigned> _totalNumberObjects = 0;
   const unsigned _maxSize;
 public:
-  ThreadPoolBase(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
+  explicit ThreadPoolBase(int maxSize = MAX_NUMBER_THREADS_DEFAULT);
   virtual ~ThreadPoolBase();
   void stop();
   virtual STATUS push(RunnablePtr runnable);

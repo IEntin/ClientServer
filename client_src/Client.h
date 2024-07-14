@@ -17,8 +17,8 @@ constexpr const char* FIFO_NAMED_MUTEX{ "FIFO_NAMED_MUTEX" };
 class Client;
 
 struct ClientWrapper {
-  ClientWrapper(Client& client) : _client(client) {}
-  ~ClientWrapper() {}
+  explicit ClientWrapper(Client& client) : _client(client) {}
+  ~ClientWrapper() = default;
   Client& _client;
 };
 

@@ -14,10 +14,10 @@ using TestRunnablePtr = std::shared_ptr<class TestRunnable>;
 
 class TestRunnable : public std::enable_shared_from_this<TestRunnable>, public RunnableT<TestRunnable> {
 public:
-  TestRunnable(int maxNumberThreads) :
+  explicit TestRunnable(int maxNumberThreads) :
     RunnableT(maxNumberThreads) {}
 
-  ~TestRunnable() override {}
+  ~TestRunnable() override = default;
   void run() override {
     while (!_stopped)
       std::this_thread::sleep_for(std::chrono::milliseconds(1));

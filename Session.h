@@ -47,5 +47,5 @@ protected:
 public:
   virtual void sendStatusToClient() = 0;
   virtual std::string_view getDisplayName() const = 0;
-  std::size_t getId() { return _clientId; }
+  std::size_t getId() const { return _clientId; }
 };

@@ -18,7 +18,7 @@ namespace tcp {
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public Runnable {
  public:
-  TcpAcceptor(ServerPtr server);
+  explicit TcpAcceptor(ServerPtr server);
   ~TcpAcceptor() override;
 private:
   void run() override;

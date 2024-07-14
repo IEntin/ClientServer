@@ -25,7 +25,7 @@ public:
   ~Transaction();
   static SIZETUPLE createSizeKey(std::string_view request);
 private:
-  Transaction(std::string_view input);
+  explicit Transaction(std::string_view input);
   Transaction(const SIZETUPLE& sizeKey, std::string_view input);
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);

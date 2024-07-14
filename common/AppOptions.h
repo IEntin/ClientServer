@@ -11,11 +11,11 @@
 
 class AppOptions : private boost::noncopyable {
  public:
-  AppOptions(std::string_view fileName);
+  explicit AppOptions(std::string_view fileName);
   ~AppOptions() = default;
 
   template<typename T>
-    const T get(const std::string& name, const T& def) {
+    const T get(const std::string& name, const T& def) const {
     if (!_initialized)
       return def;
     return _ptree.get(name, def);

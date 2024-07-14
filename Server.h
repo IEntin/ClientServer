@@ -20,7 +20,7 @@ using SessionPtr = std::shared_ptr<class Session>;
 
 class Server : public std::enable_shared_from_this<Server> {
 public:
-  Server(class Policy& policy);
+  explicit Server(class Policy& policy);
   ~Server();
   bool start();
   void stop();

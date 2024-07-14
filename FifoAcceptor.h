@@ -23,7 +23,7 @@ class FifoAcceptor : public Runnable {
   std::string_view _acceptorName;
   ServerWeakPtr _server;
  public:
-  FifoAcceptor(ServerPtr server);
+  explicit FifoAcceptor(ServerPtr server);
   ~FifoAcceptor() override;
 };
 

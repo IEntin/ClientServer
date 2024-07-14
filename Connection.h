@@ -16,7 +16,7 @@ struct Connection {
   boost::asio::ip::tcp::socket _socket;
 
   Connection() : _socket(_ioContext) {}
-  virtual ~Connection() {}
+  ~Connection() = default;
 
 };
 

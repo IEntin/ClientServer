@@ -24,7 +24,7 @@ struct AdRow : private boost::noncopyable {
     DEFAULTBID,
     NUMBEROFFIELDS
   };
-  AdRow(std::string_view line);
+  explicit AdRow(std::string_view line);
 
   bool parse();
 

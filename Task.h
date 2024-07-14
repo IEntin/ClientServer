@@ -56,7 +56,7 @@ class Task : private boost::noncopyable {
   static Response _emptyResponse;
 
  public:
-  Task(Response& response = _emptyResponse);
+  explicit Task(Response& response = _emptyResponse);
 
   ~Task();
 
