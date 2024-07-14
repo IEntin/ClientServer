@@ -37,9 +37,9 @@ class TaskBuilder final : public Runnable {
  public:
   TaskBuilder(const CryptoPP::SecByteBlock& key);
   ~TaskBuilder() override;
+  void stop() override;
   std::tuple<STATUS, Subtasks&> getResult();
   Subtask& getSubtask();
   STATUS createSubtask(class Lines& lines);
-  void stop() override;
   void resume();
 };

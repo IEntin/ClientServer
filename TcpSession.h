@@ -24,7 +24,6 @@ public:
 	     const CryptoPP::SecByteBlock& pubB);
   ~TcpSession() override;
 
-  boost::asio::ip::tcp::socket& socket() { return _socket; }
 private:
   bool start() override;
   void run() noexcept override;

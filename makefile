@@ -151,7 +151,7 @@ $(CRYPTOLIB) : scripts/makeCrypto.sh
 
 clean:
 	$(RM) build/* $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
-gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~
+gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ */*.d
 
 cleanall : clean
-	$(RM) *.gch */*.gch *.pch */*.pch .*.sec
+	$(RM) *.gch */*.gch *.pch */*.pch
