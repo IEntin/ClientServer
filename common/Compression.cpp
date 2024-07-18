@@ -35,7 +35,7 @@ std::string_view uncompress(std::string_view data, std::size_t uncomprSize) {
 					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  return { uncompressed.data(), static_cast<std::size_t>(decomprSize) };
+  return std::string_view(uncompressed.data(), decomprSize);
 }
 
 } // end of namespace compression

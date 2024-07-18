@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string_view>
 #include <tuple>
 
@@ -23,19 +24,19 @@ constexpr char NCRYPTO_CHAR = 'N';
 constexpr char DIAGNOSTICS_CHAR = 'D';
 constexpr char NDIAGNOSTICS_CHAR = 'N';
 
-enum class HEADERTYPE : char {
+enum class HEADERTYPE : uint8_t {
   CREATE_SESSION,
   SESSION,
   HEARTBEAT,
   ERROR
 };
 
-enum class COMPRESSORS : char {
+enum class COMPRESSORS : uint8_t {
   NONE,
   LZ4
 };
 
-enum class STATUS : char {
+enum class STATUS : uint8_t {
   NONE,
   SUBTASK_DONE,
   TASK_DONE,
@@ -55,8 +56,8 @@ enum class STATUS : char {
   ERROR
 };
 
-enum class HEADER_INDEX : char {
-  HEADERTYPE,
+enum class HEADER_INDEX : uint8_t {
+  HEADERTYPEINDEX,
   PAYLOADSIZE,
   UNCOMPRESSED,
   COMPRESSOR,
@@ -92,5 +93,11 @@ bool isOk(const HEADER& header);
 void encodeHeader(char* buffer, const HEADER& header);
 
 HEADER decodeHeader(const char* buffer);
+
+HEADERTYPE decodeHeadertype(uint8_t code);
+
+COMPRESSORS decodeCompressor(uint8_t code);
+
+STATUS decodeStatus(uint8_t code);
 
 COMPRESSORS translateName(std::string_view compressorStr);

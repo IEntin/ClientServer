@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 
-enum class COMPRESSORS : char;
+enum class COMPRESSORS : uint8_t;
 
 struct ServerOptions {
   ServerOptions() = delete;

@@ -4,16 +4,25 @@
 
 #include "Logger.h"
 
+#include <utility>
+
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::EXPECTED;
 
 void Logger::translateLogThreshold(std::string_view configName) {
-  constexpr int size = static_cast<int>(LOG_LEVEL::NUMBEROF);
-  for (int index = 0; index < size; ++index) {
-    if (configName == levelNames[index]) {
-      _threshold = static_cast<LOG_LEVEL>(index);
-      break;
-    }
-  }
+  if ("TRACE" == configName)
+    _threshold = LOG_LEVEL::TRACE;
+  else if ("DEBUG" == configName)
+    _threshold = LOG_LEVEL::DEBUG;
+  else if ("INFO" == configName)
+    _threshold = LOG_LEVEL::INFO;
+  else if ("WARN" == configName)
+    _threshold = LOG_LEVEL::WARN;
+  else if ("EXPECTED" == configName)
+    _threshold = LOG_LEVEL::EXPECTED;
+  else if ("ERROR" == configName)
+    _threshold = LOG_LEVEL::ERROR;
+  else if ("ALWAYS" == configName)
+    _threshold = LOG_LEVEL::ALWAYS;
 }
 
 Logger& Logger::printPrefix(const boost::source_location& location) {
@@ -22,8 +31,8 @@ Logger& Logger::printPrefix(const boost::source_location& location) {
       return *this;
     static thread_local std::string output;
     output = "[";
-    std::string_view leveName(levelNames[std::underlying_type_t<LOG_LEVEL>(_level)]);
-    output.append(leveName);
+    std::string_view levelName(levelNames[std::to_underlying(_level)]);
+    output.append(levelName);
     output.push_back(']');
     output.push_back(' ');
     output.append(location.file_name());
