@@ -110,13 +110,13 @@ HEADER decodeHeader(const char* buffer) {
 
 HEADERTYPE decodeHeadertype(uint8_t code) {
   switch (code) {
-  case 0:
+  case std::to_underlying(HEADERTYPE::CREATE_SESSION):
     return HEADERTYPE::CREATE_SESSION;
-  case 1:
+  case std::to_underlying(HEADERTYPE::SESSION):
     return HEADERTYPE::SESSION;
-  case 2:
+  case std::to_underlying(HEADERTYPE::HEARTBEAT):
     return HEADERTYPE::HEARTBEAT;
-  case 3:
+  case std::to_underlying(HEADERTYPE::ERROR):
     return HEADERTYPE::ERROR;
   default:
     throw std::runtime_error("invalid HEADERTYPE");
@@ -125,9 +125,9 @@ HEADERTYPE decodeHeadertype(uint8_t code) {
 
 COMPRESSORS decodeCompressor(uint8_t code) {
   switch (code) {
-  case 0:
+  case std::to_underlying(COMPRESSORS::NONE):
     return COMPRESSORS::NONE;
-  case 1:
+  case std::to_underlying(COMPRESSORS::LZ4):
     return COMPRESSORS::LZ4;
   default:
     throw std::runtime_error("invalid COMPRESSORS");
@@ -136,39 +136,39 @@ COMPRESSORS decodeCompressor(uint8_t code) {
 
 STATUS decodeStatus(uint8_t code) {
   switch (code) {
-  case 0:
+  case std::to_underlying(STATUS::NONE):
     return STATUS::NONE;
-  case 1:
+  case std::to_underlying(STATUS::SUBTASK_DONE):
     return STATUS::SUBTASK_DONE;
-  case 2:
+  case std::to_underlying(STATUS::TASK_DONE):
     return STATUS::TASK_DONE;
-  case 3:
+  case std::to_underlying(STATUS::BAD_HEADER):
     return STATUS::BAD_HEADER;
-  case 4:
+  case std::to_underlying(STATUS::COMPRESSION_PROBLEM):
     return STATUS::COMPRESSION_PROBLEM;
-  case 5:
+  case std::to_underlying(STATUS::ENCRYPTION_PROBLEM):
     return STATUS::ENCRYPTION_PROBLEM;
-  case 6:
+  case std::to_underlying(STATUS::DECRYPTION_PROBLEM):
     return STATUS::DECRYPTION_PROBLEM;
-  case 7:
+  case std::to_underlying(STATUS::DECOMPRESSION_PROBLEM):
     return STATUS::DECOMPRESSION_PROBLEM;
-  case 8:
+  case std::to_underlying(STATUS::FIFO_PROBLEM):
     return STATUS::FIFO_PROBLEM;
-  case 9:
+  case std::to_underlying(STATUS::TCP_PROBLEM):
     return STATUS::TCP_PROBLEM;
-  case 10:
+  case std::to_underlying(STATUS::TCP_TIMEOUT):
     return STATUS::TCP_TIMEOUT;
-  case 11:
+  case std::to_underlying(STATUS::HEARTBEAT_PROBLEM):
     return STATUS::HEARTBEAT_PROBLEM;
-  case 12:
+  case std::to_underlying(STATUS::HEARTBEAT_TIMEOUT):
     return STATUS::HEARTBEAT_TIMEOUT;
-  case 13:
+  case std::to_underlying(STATUS::MAX_TOTAL_OBJECTS):
     return STATUS::MAX_TOTAL_OBJECTS;
-  case 14:
+  case std::to_underlying(STATUS::MAX_OBJECTS_OF_TYPE):
     return STATUS::MAX_OBJECTS_OF_TYPE;
-  case 15:
+  case std::to_underlying(STATUS::STOPPED):
     return STATUS::STOPPED;
-  case 16:
+  case std::to_underlying(STATUS::ERROR):
     return STATUS::ERROR;
   default:
     throw std::runtime_error("invalid STATUS");
