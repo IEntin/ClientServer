@@ -45,7 +45,7 @@ public:
       else
 	readSoFar += result;
     }
-    header = decodeHeader(buffer);
+    deserialize(header, buffer);
     std::size_t payload1Size = extractPayloadSize(header);
     payload1.resize(payload1Size);
     readString(fd, payload1.data(), payload1Size);
@@ -97,7 +97,7 @@ public:
     if (fdWrite == -1)
       return false;
     char headerBuffer[HEADER_SIZE] = {};
-    encodeHeader(headerBuffer, header);
+    serialize(header, headerBuffer);
     std::string_view headerView(headerBuffer, HEADER_SIZE);
     writeString(fdWrite, headerView);
     writeString(fdWrite, payload1);

@@ -22,7 +22,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& b
   utility::CloseFileDescriptor cfdr(fdRead);
   char buffer[HEADER_SIZE] = {};
   readString(fdRead, buffer, HEADER_SIZE);
-  header = decodeHeader(buffer);
+  deserialize(header, buffer);
   std::size_t payloadSize = extractPayloadSize(header);
   body.resize(payloadSize);
   readString(fdRead, body.data(), payloadSize);

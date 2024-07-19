@@ -7,8 +7,6 @@
 #include <cstdint>
 #include <string_view>
 
-enum class COMPRESSORS : uint8_t;
-
 namespace compression {
 
 std::string_view compress(std::string_view data);

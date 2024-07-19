@@ -18,15 +18,15 @@ HEADERTYPE extractHeaderType(const HEADER& header) {
 }
 
 std::size_t extractPayloadSize(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZE)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header);
 }
 
 std::size_t extractUncompressedSize(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSED)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header);
 }
 
 COMPRESSORS extractCompressor(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::COMPRESSOR)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::COMPRESSORINDEX)>(header);
 }
 
 bool isCompressed(const HEADER& header) {
@@ -34,19 +34,19 @@ bool isCompressed(const HEADER& header) {
 }
 
 bool isEncrypted(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::CRYPTO)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header);
 }
 
 bool isDiagnosticsEnabled(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICS)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header);
 }
 
 STATUS extractStatus(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::STATUS)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::STATUSINDEX)>(header);
 }
 
 std::size_t extractParameter(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::PARAMETER)>(header);
+  return std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header);
 }
 
 bool isOk(const HEADER& header) {
@@ -61,7 +61,7 @@ bool isOk(const HEADER& header) {
   }
 }
 
-void encodeHeader(char* buffer, const HEADER& header) {
+void serialize(const HEADER& header, char* buffer) {
   const auto& [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
   std::memset(buffer, 0, HEADER_SIZE);
   std::size_t offset = 0;
@@ -82,33 +82,30 @@ void encodeHeader(char* buffer, const HEADER& header) {
   ioutility::toChars(parameter, buffer + offset, PARAMETER_SIZE);
 }
 
-HEADER decodeHeader(const char* buffer) {
+void deserialize(HEADER& header, const char* buffer) {
   std::size_t offset = 0;
-  HEADERTYPE headerType = decodeHeadertype(buffer[offset]);
+  std::get<std::to_underlying(HEADER_INDEX::HEADERTYPEINDEX)>(header) =
+    deserializeHeadertype(buffer[offset]);
   offset += HEADERTYPE_SIZE;
-  std::size_t payloadSize = 0;
-  std::string_view strt(buffer + offset, NUM_FIELD_SIZE);
-  ioutility::fromChars(strt, payloadSize);
+  std::string_view strl(buffer + offset, NUM_FIELD_SIZE);
+  ioutility::fromChars(strl, std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header));
   offset += NUM_FIELD_SIZE;
-  std::size_t uncomprSize = 0;
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
-  ioutility::fromChars(stru, uncomprSize);
+  ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header));
   offset += NUM_FIELD_SIZE;
-  COMPRESSORS compressor = decodeCompressor(buffer[offset]);
+  std::get<std::to_underlying(HEADER_INDEX::COMPRESSORINDEX)>(header) = deserializeCompressor(buffer[offset]);
   offset += COMPRESSOR_SIZE;
-  bool encrypted = buffer[offset] == CRYPTO_CHAR;
+  std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header) = buffer[offset] == CRYPTO_CHAR;
   offset += CRYPTO_SIZE;
-  bool diagnostics = buffer[offset] == DIAGNOSTICS_CHAR;
+  std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header) = buffer[offset] == DIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
-  STATUS status = decodeStatus(buffer[offset]);
+  std::get<std::to_underlying(HEADER_INDEX::STATUSINDEX)>(header) = deserializeStatus(buffer[offset]);
   offset += STATUS_SIZE;
-  std::size_t parameter = 0;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
-  ioutility::fromChars(strp, parameter);
-  return { headerType, payloadSize, uncomprSize, compressor, encrypted, diagnostics, status, parameter };
+  ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
 }
 
-HEADERTYPE decodeHeadertype(uint8_t code) {
+HEADERTYPE deserializeHeadertype(std::uint8_t code) {
   switch (code) {
   case std::to_underlying(HEADERTYPE::CREATE_SESSION):
     return HEADERTYPE::CREATE_SESSION;
@@ -123,7 +120,7 @@ HEADERTYPE decodeHeadertype(uint8_t code) {
   }
 }
 
-COMPRESSORS decodeCompressor(uint8_t code) {
+COMPRESSORS deserializeCompressor(std::uint8_t code) {
   switch (code) {
   case std::to_underlying(COMPRESSORS::NONE):
     return COMPRESSORS::NONE;
@@ -134,7 +131,7 @@ COMPRESSORS decodeCompressor(uint8_t code) {
   }
 }
 
-STATUS decodeStatus(uint8_t code) {
+STATUS deserializeStatus(std::uint8_t code) {
   switch (code) {
   case std::to_underlying(STATUS::NONE):
     return STATUS::NONE;

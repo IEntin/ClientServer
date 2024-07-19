@@ -10,7 +10,7 @@
 #include <cryptopp/oids.h>
 #include "cryptopp/osrng.h"
 
-using byte = uint8_t;
+using byte = std::uint8_t;
 
 class Crypto {
   Crypto() = delete;

@@ -40,7 +40,7 @@ public:
 		      const P1& payload1 = P1(),
 		      const P2& payload2 = P2()) {
     char headerBuffer[HEADER_SIZE] = {};
-    encodeHeader(headerBuffer, header);
+    serialize(header, headerBuffer);
     std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(headerBuffer),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2) };

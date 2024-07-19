@@ -27,7 +27,7 @@ struct PayloadTransformTest : testing::Test {
     std::string_view data = TestEnvironment::_source;
     ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
-    HEADER header{HEADERTYPE::SESSION, 0, 0, compressor, encrypted, false, STATUS::NONE,0};
+    HEADER header{HEADERTYPE::SESSION, 0, data.size(), compressor, encrypted, false, STATUS::NONE,0};
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     Crypto::_rng.GenerateBlock(key, key.size());
     std::string_view transformed = payloadtransform::compressEncrypt(key, data, header);

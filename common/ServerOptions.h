@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string>
 
-enum class COMPRESSORS : uint8_t;
+enum class COMPRESSORS : std::uint8_t;
 
 struct ServerOptions {
   ServerOptions() = delete;

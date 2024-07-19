@@ -25,7 +25,7 @@ void Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   char buffer[HEADER_SIZE] = {};
   std::size_t transferred[[maybe_unused]] =
     boost::asio::read(socket, boost::asio::buffer(buffer));
-  header = decodeHeader(buffer);
+  deserialize(header, buffer);
 }
 
 void Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload) {

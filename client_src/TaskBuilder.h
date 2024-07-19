@@ -13,7 +13,7 @@
 #include "Runnable.h"
 #include "Subtask.h"
 
-enum class STATUS : uint8_t;
+enum class STATUS : std::uint8_t;
 
 using Subtasks = std::deque<Subtask>;
 

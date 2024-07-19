@@ -94,7 +94,8 @@ void TcpSession::readHeader() {
 	_ioContext.stop();
 	return;
       }
-      HEADER header = decodeHeader(_headerBuffer);
+      HEADER header;
+      deserialize(header, _headerBuffer);
       if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
 	return;
@@ -132,7 +133,7 @@ void TcpSession::readRequest(const HEADER& header) {
 }
 
 void TcpSession::write(const HEADER& header, std::string_view body) {
-  encodeHeader(_headerBuffer, header);
+  serialize(header, _headerBuffer);
   std::array<boost::asio::const_buffer, 2> asioBuffers{boost::asio::buffer(_headerBuffer),  boost::asio::buffer(body)};
   boost::asio::async_write(_socket,
     asioBuffers,

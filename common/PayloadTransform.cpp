@@ -11,14 +11,12 @@ namespace payloadtransform {
 std::string_view compressEncrypt(const CryptoPP::SecByteBlock& key,
 				 std::string_view data,
 				 HEADER& header) {
-  auto& [type, payloadSize, orgSize, compressor, encrypted, diagnostics, status, parameter] = header;
-  orgSize = data.size();
   std::string_view output = data;
-  if (compressor == COMPRESSORS::LZ4)
+  if (isCompressed(header))
     output = compression::compress(output);
-  if (encrypted)
+  if (isEncrypted(header))
     output = Crypto::encrypt(key, output);
-  payloadSize = output.size();
+  std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header) = output.size();
   return output;
 }
 

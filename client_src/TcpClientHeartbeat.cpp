@@ -100,7 +100,8 @@ void TcpClientHeartbeat::read() {
 	_ioContext.stop();
 	return;
       }
-      HEADER header = decodeHeader(_heartbeatBuffer);
+      HEADER header;
+      deserialize(header, _heartbeatBuffer);
       if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
 	return;
@@ -127,7 +128,7 @@ void TcpClientHeartbeat::write() {
     return;
   }
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false, _status, 0 };
-  encodeHeader(_heartbeatBuffer, header);
+  serialize(header, _heartbeatBuffer);
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {

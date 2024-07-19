@@ -24,19 +24,19 @@ constexpr char NCRYPTO_CHAR = 'N';
 constexpr char DIAGNOSTICS_CHAR = 'D';
 constexpr char NDIAGNOSTICS_CHAR = 'N';
 
-enum class HEADERTYPE : uint8_t {
+enum class HEADERTYPE : std::uint8_t {
   CREATE_SESSION,
   SESSION,
   HEARTBEAT,
   ERROR
 };
 
-enum class COMPRESSORS : uint8_t {
+enum class COMPRESSORS : std::uint8_t {
   NONE,
   LZ4
 };
 
-enum class STATUS : uint8_t {
+enum class STATUS : std::uint8_t {
   NONE,
   SUBTASK_DONE,
   TASK_DONE,
@@ -56,15 +56,15 @@ enum class STATUS : uint8_t {
   ERROR
 };
 
-enum class HEADER_INDEX : uint8_t {
+enum class HEADER_INDEX : std::uint8_t {
   HEADERTYPEINDEX,
-  PAYLOADSIZE,
-  UNCOMPRESSED,
-  COMPRESSOR,
-  CRYPTO,
-  DIAGNOSTICS,
-  STATUS,
-  PARAMETER
+  PAYLOADSIZEINDEX,
+  UNCOMPRESSEDSIZEINDEX,
+  COMPRESSORINDEX,
+  CRYPTOINDEX,
+  DIAGNOSTICSINDEX,
+  STATUSINDEX,
+  PARAMETERINDEX
 };
 
 using HEADER =
@@ -90,14 +90,14 @@ std::size_t extractParameter(const HEADER& header);
 
 bool isOk(const HEADER& header);
 
-void encodeHeader(char* buffer, const HEADER& header);
+void serialize(const HEADER& header, char* buffer);
 
-HEADER decodeHeader(const char* buffer);
+void deserialize(HEADER& header, const char* buffer);
 
-HEADERTYPE decodeHeadertype(uint8_t code);
+HEADERTYPE deserializeHeadertype(std::uint8_t code);
 
-COMPRESSORS decodeCompressor(uint8_t code);
+COMPRESSORS deserializeCompressor(std::uint8_t code);
 
-STATUS decodeStatus(uint8_t code);
+STATUS deserializeStatus(std::uint8_t code);
 
 COMPRESSORS translateName(std::string_view compressorStr);
