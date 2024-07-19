@@ -62,24 +62,23 @@ bool isOk(const HEADER& header) {
 }
 
 void serialize(const HEADER& header, char* buffer) {
-  const auto& [headerType, payloadSz, uncomprSz, compressor, encrypted, diagnostics, status, parameter] = header;
   std::memset(buffer, 0, HEADER_SIZE);
   std::size_t offset = 0;
-  buffer[offset] = std::to_underlying(headerType);
+  buffer[offset] = std::to_underlying(std::get<std::to_underlying(HEADER_INDEX::HEADERTYPEINDEX)>(header));
   offset += HEADERTYPE_SIZE;
-  ioutility::toChars(payloadSz, buffer + offset, NUM_FIELD_SIZE);
+  ioutility::toChars(std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header), buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  ioutility::toChars(uncomprSz, buffer + offset, NUM_FIELD_SIZE);
+  ioutility::toChars(std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header), buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  buffer[offset] = std::to_underlying(compressor);
+  buffer[offset] = std::to_underlying(std::get<std::to_underlying(HEADER_INDEX::COMPRESSORINDEX)>(header));
   offset += COMPRESSOR_SIZE;
-  buffer[offset] = encrypted ? CRYPTO_CHAR : NCRYPTO_CHAR;
+  buffer[offset] = std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header) ? CRYPTO_CHAR : NCRYPTO_CHAR;
   offset += CRYPTO_SIZE;
-  buffer[offset] = diagnostics ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR;
+  buffer[offset] = std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header) ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
-  buffer[offset] = std::to_underlying(status);
+  buffer[offset] = std::to_underlying(std::get<std::to_underlying(HEADER_INDEX::STATUSINDEX)>(header));
   offset += STATUS_SIZE;
-  ioutility::toChars(parameter, buffer + offset, PARAMETER_SIZE);
+  ioutility::toChars(std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header), buffer + offset, PARAMETER_SIZE);
 }
 
 void deserialize(HEADER& header, const char* buffer) {
