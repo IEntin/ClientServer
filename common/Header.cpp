@@ -6,9 +6,10 @@
 
 #include <utility>
 
+#include "ClientOptions.h"
 #include "IOUtility.h"
-
 #include "Logger.h"
+#include "ServerOptions.h"
 
 COMPRESSORS translateName(std::string_view compressorStr) {
   COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
@@ -104,17 +105,17 @@ void deserialize(HEADER& header, const char* buffer) {
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
   ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
-  //printHeader(header);
+  if (ServerOptions::_printHeader || ClientOptions::_printHeader)
+    printHeader(header);
 }
 
 void printHeader(const HEADER& header) {
-  const auto& [headerType, payloadSz, uncompressedSz, compressor, crypto, diagnostics, status, parameter] = header;
-  LogAlways << std::boolalpha << std::to_underlying(headerType) << ',' << payloadSz << ',' << uncompressedSz << ','
-	    << std::to_underlying(compressor) << ',' << crypto << ',' << diagnostics << ','
-	    << std::to_underlying(status) << ',' << parameter << '\n';
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  logger << std::boolalpha;
+  printTuple(header, logger);
 }
 
-HEADERTYPE deserializeHeadertype(std::uint8_t code) {
+HEADERTYPE deserializeHeadertype(char code) {
   switch (code) {
   case std::to_underlying(HEADERTYPE::CREATE_SESSION):
     return HEADERTYPE::CREATE_SESSION;
@@ -129,7 +130,7 @@ HEADERTYPE deserializeHeadertype(std::uint8_t code) {
   }
 }
 
-COMPRESSORS deserializeCompressor(std::uint8_t code) {
+COMPRESSORS deserializeCompressor(char code) {
   switch (code) {
   case std::to_underlying(COMPRESSORS::NONE):
     return COMPRESSORS::NONE;
@@ -140,7 +141,7 @@ COMPRESSORS deserializeCompressor(std::uint8_t code) {
   }
 }
 
-STATUS deserializeStatus(std::uint8_t code) {
+STATUS deserializeStatus(char code) {
   switch (code) {
   case std::to_underlying(STATUS::NONE):
     return STATUS::NONE;

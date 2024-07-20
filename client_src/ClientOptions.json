@@ -28,5 +28,6 @@
   "SetPipeSize" : true,
   "PipeSize" : 1000000,
   "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",
-  "LogThreshold" : "INFO"
+  "LogThreshold" : "INFO",
+  "PrintHeader" : false
 }

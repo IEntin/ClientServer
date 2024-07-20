@@ -30,6 +30,7 @@ int ServerOptions::_numberRepeatENXIO;
 int ServerOptions::_ENXIOwait;
 bool ServerOptions::_setPipeSize;
 std::size_t ServerOptions::_pipeSize;
+bool ServerOptions::_printHeader;
 
 void ServerOptions::parse(std::string_view jsonName) {
   _parsed = true;
@@ -55,5 +56,6 @@ void ServerOptions::parse(std::string_view jsonName) {
   _ENXIOwait = appOptions.get("ENXIOwai", 20);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
+  _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

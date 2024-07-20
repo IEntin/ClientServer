@@ -35,6 +35,7 @@ bool ClientOptions::_setPipeSize;
 std::size_t ClientOptions::_pipeSize;
 std::string ClientOptions::_serverAddress;
 unsigned short ClientOptions::_tcpPort;
+bool ClientOptions::_printHeader;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   _parsed = true;
@@ -81,5 +82,6 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _pipeSize = appOptions.get("PipeSize", 1000000);
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
   _tcpPort = appOptions.get("TcpPort", 49151);
+  _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

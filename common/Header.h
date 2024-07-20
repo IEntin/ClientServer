@@ -56,7 +56,7 @@ enum class STATUS : char {
   ERROR
 };
 
-enum class HEADER_INDEX : std::uint8_t {
+enum class HEADER_INDEX : char {
   HEADERTYPEINDEX,
   PAYLOADSIZEINDEX,
   UNCOMPRESSEDSIZEINDEX,
@@ -94,11 +94,11 @@ void serialize(const HEADER& header, char* buffer);
 
 void deserialize(HEADER& header, const char* buffer);
 
-HEADERTYPE deserializeHeadertype(std::uint8_t code);
+HEADERTYPE deserializeHeadertype(char code);
 
-COMPRESSORS deserializeCompressor(std::uint8_t code);
+COMPRESSORS deserializeCompressor(char code);
 
-STATUS deserializeStatus(std::uint8_t code);
+STATUS deserializeStatus(char code);
 
 COMPRESSORS translateName(std::string_view compressorStr);
 

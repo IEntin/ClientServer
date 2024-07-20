@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string_view>
 #include <syncstream>
+#include <utility>
 
 #include <boost/assert/source_location.hpp>
 #include <boost/core/noncopyable.hpp>
@@ -82,12 +83,33 @@ template <typename V>
 Logger& operator <<(Logger& logger, const V& value) {
   try {
     if (logger._level >= Logger::_threshold) {
-      logger._stream << value;
-      return logger;
+      if constexpr (std::is_scoped_enum_v<V>) {
+	logger._stream << std::to_underlying(value);
+	return logger;
+      }
+      if constexpr (!std::is_scoped_enum_v<V>) {
+	logger._stream << value;
+	return logger;
+      }
     }
   }
   catch (const std::exception& e) {
     std::cerr << e.what() << std::endl;
   }
   return logger;
+}
+
+template <std::size_t INDEX = 0, typename TUPLE>
+constexpr void printTuple(const TUPLE& tuple, Logger& logger) {
+  static constexpr std::size_t last = std::tuple_size_v<TUPLE> - 1;
+  if constexpr (INDEX == last) {
+    logger << std::get<INDEX>(tuple) << '\n';
+    return;
+  }
+  if constexpr (INDEX > last)
+    throw std::runtime_error("Out of bounds");
+  else {
+    logger << std::get<INDEX>(tuple) << ',';
+    printTuple<INDEX + 1>(tuple, logger);
+  }
 }
