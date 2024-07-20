@@ -24,20 +24,20 @@ constexpr char NCRYPTO_CHAR = 'N';
 constexpr char DIAGNOSTICS_CHAR = 'D';
 constexpr char NDIAGNOSTICS_CHAR = 'N';
 
-enum class HEADERTYPE : std::uint8_t {
-  CREATE_SESSION,
-  SESSION,
-  HEARTBEAT,
-  ERROR
+enum class HEADERTYPE : char {
+  CREATE_SESSION = 'C',
+  SESSION = 'S',
+  HEARTBEAT = 'H',
+  ERROR = 'E'
 };
 
-enum class COMPRESSORS : std::uint8_t {
-  NONE,
-  LZ4
+enum class COMPRESSORS : char {
+  NONE = 'N',
+  LZ4 = 'Y'
 };
 
-enum class STATUS : std::uint8_t {
-  NONE,
+enum class STATUS : char {
+  NONE = 'A',
   SUBTASK_DONE,
   TASK_DONE,
   BAD_HEADER,
@@ -101,3 +101,5 @@ COMPRESSORS deserializeCompressor(std::uint8_t code);
 STATUS deserializeStatus(std::uint8_t code);
 
 COMPRESSORS translateName(std::string_view compressorStr);
+
+void printHeader(const HEADER& header);

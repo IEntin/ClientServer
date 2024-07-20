@@ -8,6 +8,8 @@
 
 #include "IOUtility.h"
 
+#include "Logger.h"
+
 COMPRESSORS translateName(std::string_view compressorStr) {
   COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
   return compressor;
@@ -64,21 +66,21 @@ bool isOk(const HEADER& header) {
 void serialize(const HEADER& header, char* buffer) {
   std::memset(buffer, 0, HEADER_SIZE);
   std::size_t offset = 0;
-  buffer[offset] = std::to_underlying(std::get<std::to_underlying(HEADER_INDEX::HEADERTYPEINDEX)>(header));
+  buffer[offset] = std::to_underlying(extractHeaderType(header));
   offset += HEADERTYPE_SIZE;
-  ioutility::toChars(std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header), buffer + offset, NUM_FIELD_SIZE);
+  ioutility::toChars(extractPayloadSize(header), buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  ioutility::toChars(std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header), buffer + offset, NUM_FIELD_SIZE);
+  ioutility::toChars(extractUncompressedSize(header), buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  buffer[offset] = std::to_underlying(std::get<std::to_underlying(HEADER_INDEX::COMPRESSORINDEX)>(header));
+  buffer[offset] = std::to_underlying(extractCompressor(header));
   offset += COMPRESSOR_SIZE;
   buffer[offset] = std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header) ? CRYPTO_CHAR : NCRYPTO_CHAR;
   offset += CRYPTO_SIZE;
   buffer[offset] = std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header) ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR;
   offset += DIAGNOSTICS_SIZE;
-  buffer[offset] = std::to_underlying(std::get<std::to_underlying(HEADER_INDEX::STATUSINDEX)>(header));
+  buffer[offset] = std::to_underlying(extractStatus(header));
   offset += STATUS_SIZE;
-  ioutility::toChars(std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header), buffer + offset, PARAMETER_SIZE);
+  ioutility::toChars(extractParameter(header), buffer + offset, PARAMETER_SIZE);
 }
 
 void deserialize(HEADER& header, const char* buffer) {
@@ -102,6 +104,14 @@ void deserialize(HEADER& header, const char* buffer) {
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
   ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
+  //printHeader(header);
+}
+
+void printHeader(const HEADER& header) {
+  const auto& [headerType, payloadSz, uncompressedSz, compressor, crypto, diagnostics, status, parameter] = header;
+  LogAlways << std::boolalpha << std::to_underlying(headerType) << ',' << payloadSz << ',' << uncompressedSz << ','
+	    << std::to_underlying(compressor) << ',' << crypto << ',' << diagnostics << ','
+	    << std::to_underlying(status) << ',' << parameter << '\n';
 }
 
 HEADERTYPE deserializeHeadertype(std::uint8_t code) {
