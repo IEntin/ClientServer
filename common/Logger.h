@@ -101,7 +101,7 @@ Logger& operator <<(Logger& logger, const V& value) {
 
 template <std::size_t INDEX = 0, typename TUPLE>
 constexpr void printTuple(const TUPLE& tuple, Logger& logger) {
-  static constexpr std::size_t last = std::tuple_size_v<TUPLE> - 1;
+  constexpr std::size_t last = std::tuple_size_v<TUPLE> - 1;
   if constexpr (INDEX == last) {
     logger << std::get<INDEX>(tuple) << '\n';
     return;
