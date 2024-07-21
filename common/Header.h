@@ -26,14 +26,16 @@ constexpr char NDIAGNOSTICS_CHAR = 'N';
 
 enum class HEADERTYPE : char {
   CREATE_SESSION = 'C',
-  SESSION = 'S',
-  HEARTBEAT = 'H',
-  ERROR = 'E'
+  SESSION,
+  HEARTBEAT,
+  ERROR,
+  INVALID
 };
 
 enum class COMPRESSORS : char {
-  NONE = 'N',
-  LZ4 = 'Y'
+  NONE = 'K',
+  LZ4,
+  INVALID
 };
 
 enum class STATUS : char {
@@ -53,7 +55,8 @@ enum class STATUS : char {
   MAX_TOTAL_OBJECTS,
   MAX_OBJECTS_OF_TYPE,
   STOPPED,
-  ERROR
+  ERROR,
+  INVALID
 };
 
 enum class HEADER_INDEX : char {
@@ -64,7 +67,8 @@ enum class HEADER_INDEX : char {
   CRYPTOINDEX,
   DIAGNOSTICSINDEX,
   STATUSINDEX,
-  PARAMETERINDEX
+  PARAMETERINDEX,
+  INVALID
 };
 
 using HEADER =

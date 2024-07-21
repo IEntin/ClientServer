@@ -116,68 +116,37 @@ void printHeader(const HEADER& header) {
 }
 
 HEADERTYPE deserializeHeadertype(char code) {
-  switch (code) {
-  case std::to_underlying(HEADERTYPE::CREATE_SESSION):
-    return HEADERTYPE::CREATE_SESSION;
-  case std::to_underlying(HEADERTYPE::SESSION):
-    return HEADERTYPE::SESSION;
-  case std::to_underlying(HEADERTYPE::HEARTBEAT):
-    return HEADERTYPE::HEARTBEAT;
-  case std::to_underlying(HEADERTYPE::ERROR):
-    return HEADERTYPE::ERROR;
-  default:
-    throw std::runtime_error("invalid HEADERTYPE");
+  HEADERTYPE type = HEADERTYPE::CREATE_SESSION;
+  char charValue = std::to_underlying(HEADERTYPE::CREATE_SESSION);
+  while (std::to_underlying(type) != code) {
+    ++charValue;
+    type = HEADERTYPE{ charValue };
+    if (type == HEADERTYPE::INVALID)
+      throw std::runtime_error("invalid HEADERTYPE");
   }
+  return type;
 }
 
 COMPRESSORS deserializeCompressor(char code) {
-  switch (code) {
-  case std::to_underlying(COMPRESSORS::NONE):
-    return COMPRESSORS::NONE;
-  case std::to_underlying(COMPRESSORS::LZ4):
-    return COMPRESSORS::LZ4;
-  default:
-    throw std::runtime_error("invalid COMPRESSORS");
+  COMPRESSORS type = COMPRESSORS::NONE;
+  char charValue = std::to_underlying(COMPRESSORS::NONE);
+  while (std::to_underlying(type) != code) {
+    ++charValue;
+    type = COMPRESSORS{ charValue };
+    if (type == COMPRESSORS::INVALID)
+      throw std::runtime_error("invalid COMPRESSORS");
   }
+  return type;
 }
 
 STATUS deserializeStatus(char code) {
-  switch (code) {
-  case std::to_underlying(STATUS::NONE):
-    return STATUS::NONE;
-  case std::to_underlying(STATUS::SUBTASK_DONE):
-    return STATUS::SUBTASK_DONE;
-  case std::to_underlying(STATUS::TASK_DONE):
-    return STATUS::TASK_DONE;
-  case std::to_underlying(STATUS::BAD_HEADER):
-    return STATUS::BAD_HEADER;
-  case std::to_underlying(STATUS::COMPRESSION_PROBLEM):
-    return STATUS::COMPRESSION_PROBLEM;
-  case std::to_underlying(STATUS::ENCRYPTION_PROBLEM):
-    return STATUS::ENCRYPTION_PROBLEM;
-  case std::to_underlying(STATUS::DECRYPTION_PROBLEM):
-    return STATUS::DECRYPTION_PROBLEM;
-  case std::to_underlying(STATUS::DECOMPRESSION_PROBLEM):
-    return STATUS::DECOMPRESSION_PROBLEM;
-  case std::to_underlying(STATUS::FIFO_PROBLEM):
-    return STATUS::FIFO_PROBLEM;
-  case std::to_underlying(STATUS::TCP_PROBLEM):
-    return STATUS::TCP_PROBLEM;
-  case std::to_underlying(STATUS::TCP_TIMEOUT):
-    return STATUS::TCP_TIMEOUT;
-  case std::to_underlying(STATUS::HEARTBEAT_PROBLEM):
-    return STATUS::HEARTBEAT_PROBLEM;
-  case std::to_underlying(STATUS::HEARTBEAT_TIMEOUT):
-    return STATUS::HEARTBEAT_TIMEOUT;
-  case std::to_underlying(STATUS::MAX_TOTAL_OBJECTS):
-    return STATUS::MAX_TOTAL_OBJECTS;
-  case std::to_underlying(STATUS::MAX_OBJECTS_OF_TYPE):
-    return STATUS::MAX_OBJECTS_OF_TYPE;
-  case std::to_underlying(STATUS::STOPPED):
-    return STATUS::STOPPED;
-  case std::to_underlying(STATUS::ERROR):
-    return STATUS::ERROR;
-  default:
-    throw std::runtime_error("invalid STATUS");
+  STATUS type = STATUS::NONE;
+  char charValue = std::to_underlying(STATUS::NONE);
+  while (std::to_underlying(type) != code) {
+    ++charValue;
+    type = STATUS{ charValue };
+    if (type == STATUS::INVALID)
+      throw std::runtime_error("invalid STATUS");
   }
+  return type;
 }

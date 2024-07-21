@@ -31,7 +31,7 @@ enum class LOG_LEVEL : int {
   EXPECTED,
   ERROR,
   ALWAYS,
-  NUMBEROF
+  INVALID
 };
 
 constexpr std::string_view levelNames[] {
@@ -41,7 +41,8 @@ constexpr std::string_view levelNames[] {
   "WARN",
   "EXPECTED",
   "ERROR",
-  "ALWAYS"
+  "ALWAYS",
+  "INVALID"
 };
 
 struct Logger : private boost::noncopyable {
