@@ -5,8 +5,10 @@
 #pragma once
 
 #include <cstdint>
+#include <stdexcept>
 #include <string_view>
 #include <tuple>
+#include <utility>
 
 constexpr int HEADERTYPE_SIZE = 1;
 constexpr int NUM_FIELD_SIZE = 10;
@@ -25,7 +27,8 @@ constexpr char DIAGNOSTICS_CHAR = 'D';
 constexpr char NDIAGNOSTICS_CHAR = 'N';
 
 enum class HEADERTYPE : char {
-  CREATE_SESSION = 'C',
+  NONE = 'B',
+  CREATE_SESSION,
   SESSION,
   HEARTBEAT,
   ERROR,
@@ -98,11 +101,15 @@ void serialize(const HEADER& header, char* buffer);
 
 void deserialize(HEADER& header, const char* buffer);
 
-HEADERTYPE deserializeHeadertype(char code);
-
-COMPRESSORS deserializeCompressor(char code);
-
-STATUS deserializeStatus(char code);
+// works if there are no gaps in values
+template <typename ENUM>
+ENUM deserializeEnumeration(char code, ENUM none, ENUM invalid) {
+  auto valueNone = std::to_underlying(none);
+  auto valueInvalid = std::to_underlying(invalid);
+  if (code < valueNone || code >= valueInvalid)
+    throw std::runtime_error("invalid code");
+  return ENUM{ code };
+}
 
 COMPRESSORS translateName(std::string_view compressorStr);
 

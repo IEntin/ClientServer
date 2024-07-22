@@ -17,7 +17,7 @@
 
 #define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix()
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix()
-#define Expected Logger(LOG_LEVEL::EXPECTED, std::cerr).printPrefix()
+#define Expected Logger(LOG_LEVEL::EXPECTED, std::clog).printPrefix()
 #define Warn Logger(LOG_LEVEL::WARN, std::cerr).printPrefix()
 #define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix()
 #define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix()
@@ -88,7 +88,7 @@ Logger& operator <<(Logger& logger, const V& value) {
 	logger._stream << std::to_underlying(value);
 	return logger;
       }
-      if constexpr (!std::is_scoped_enum_v<V>) {
+      else {
 	logger._stream << value;
 	return logger;
       }
@@ -103,14 +103,14 @@ Logger& operator <<(Logger& logger, const V& value) {
 template <std::size_t INDEX = 0, typename TUPLE>
 constexpr void printTuple(const TUPLE& tuple, Logger& logger) {
   constexpr std::size_t last = std::tuple_size_v<TUPLE> - 1;
-  if constexpr (INDEX == last) {
-    logger << std::get<INDEX>(tuple) << '\n';
-    return;
-  }
-  if constexpr (INDEX > last)
-    throw std::runtime_error("Out of bounds");
-  else {
+  if constexpr (INDEX < last) {
     logger << std::get<INDEX>(tuple) << ',';
     printTuple<INDEX + 1>(tuple, logger);
   }
+  else if constexpr (INDEX == last) {
+    logger << std::get<INDEX>(tuple) << '\n';
+    return;
+  }
+  else
+    throw std::runtime_error("Out of bounds");
 }

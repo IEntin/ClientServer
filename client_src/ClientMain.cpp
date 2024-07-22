@@ -44,7 +44,7 @@ int main() {
       wrapper = std::make_shared<ClientWrapper>(client);
       client.run();
     }
-    if (ClientOptions::_tcpClient) {
+    else if (ClientOptions::_tcpClient) {
       tcp::TcpClient client;
       wrapper = std::make_shared<ClientWrapper>(client);
       client.run();
