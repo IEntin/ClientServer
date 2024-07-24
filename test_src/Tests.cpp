@@ -108,8 +108,8 @@ TEST(HeaderTest, 1) {
   unsigned payloadSz = 123567;
   unsigned uncomprSz = 123456;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
-  bool encrypted = false;
-  bool diagnostics = true;
+  CRYPTO encrypted = CRYPTO::NONE;
+  DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
   HEADER header{HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   deserialize(header, buffer);
@@ -119,9 +119,9 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(uncomprSz, uncomprSzResult);
   COMPRESSORS compressorResult = extractCompressor(header);
   ASSERT_EQ(COMPRESSORS::LZ4, compressorResult);
-  bool encryptedResult = isEncrypted(header);
+  CRYPTO encryptedResult = extractCrypto(header);
   ASSERT_EQ(encrypted, encryptedResult);
-  bool diagnosticsResult = isDiagnosticsEnabled(header);
+  DIAGNOSTICS diagnosticsResult = extractDiagnostics(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
   header = {HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};

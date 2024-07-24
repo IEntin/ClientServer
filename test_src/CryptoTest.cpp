@@ -23,11 +23,11 @@ TEST(CryptoTest, 1) {
 }
 
 struct PayloadTransformTest : testing::Test {
-  void test(bool encrypted, COMPRESSORS compressor) {
+  void test(CRYPTO encrypted, COMPRESSORS compressor) {
     std::string_view data = TestEnvironment::_source;
-    ServerOptions::_encrypted = encrypted;
     ServerOptions::_compressor = compressor;
-    HEADER header{HEADERTYPE::SESSION, 0, data.size(), compressor, encrypted, false, STATUS::NONE,0};
+    ServerOptions::_encrypted = encrypted;
+    HEADER header{HEADERTYPE::SESSION, 0, data.size(), compressor, encrypted, DIAGNOSTICS::NONE, STATUS::NONE,0};
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     Crypto::_rng.GenerateBlock(key, key.size());
     std::string_view transformed = payloadtransform::compressEncrypt(key, data, header);
@@ -41,17 +41,17 @@ struct PayloadTransformTest : testing::Test {
 };
 
 TEST_F(PayloadTransformTest, ENCRYPTED_LZ4) {
-  test(true, COMPRESSORS::LZ4);
+  test(CRYPTO::ENCRYPTED, COMPRESSORS::LZ4);
 }
 
 TEST_F(PayloadTransformTest, ENCRYPTED_NONE) {
-  test(true, COMPRESSORS::NONE);
+  test(CRYPTO::ENCRYPTED, COMPRESSORS::NONE);
 }
 
 TEST_F(PayloadTransformTest, NOTENCRYPTED_NONE) {
-  test(false, COMPRESSORS::NONE);
+  test(CRYPTO::NONE, COMPRESSORS::NONE);
 }
 
 TEST_F(PayloadTransformTest, NOTENCRYPTED_LZ4) {
-  test(false, COMPRESSORS::LZ4);
+  test(CRYPTO::NONE, COMPRESSORS::LZ4);
 }

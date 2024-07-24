@@ -13,7 +13,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   Tcp::setSocket(_socket);
   std::size_t size = _pubB.size();
   HEADER header =
-    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, false, false, _status, 0 };
+    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
   Tcp::sendMsg(_socket, header, _pubB);
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");

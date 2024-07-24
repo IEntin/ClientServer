@@ -16,7 +16,7 @@ bool ClientOptions::_tcpClient;
 std::string  ClientOptions::_fifoDirectoryName;
 std::string  ClientOptions::_acceptorName;
 COMPRESSORS ClientOptions::_compressor;
-bool ClientOptions::_encrypted;
+CRYPTO ClientOptions::_encrypted;
 bool ClientOptions::_showKey;
 std::string ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
@@ -25,7 +25,7 @@ int ClientOptions::_maxNumberTasks;
 int ClientOptions::_heartbeatPeriod;
 int ClientOptions::_heartbeatTimeout;
 bool ClientOptions::_heartbeatEnabled;
-bool ClientOptions::_diagnostics;
+DIAGNOSTICS ClientOptions::_diagnostics;
 bool ClientOptions::_runLoop;
 std::size_t ClientOptions::_bufferSize;
 bool ClientOptions::_timing;
@@ -45,8 +45,8 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _tcpClient = clientType == "TCP";
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
-  _compressor = translateName(appOptions.get("Compression", std::string("LZ4")));
-  _encrypted = appOptions.get("Encrypted", true);
+  _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
+  _encrypted = translateCryptoString(appOptions.get("Crypto", std::string("Enabled")));
   _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)
@@ -70,7 +70,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 15000);
   _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 3000);
   _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
-  _diagnostics = appOptions.get("Diagnostics", false);
+  _diagnostics = translateDiagnosticsString(appOptions.get("Diagnostics", std::string("Disabled")));
   _runLoop = appOptions.get("RunLoop", false);
   _bufferSize = appOptions.get("BufferSize", 100000);
   _timing = appOptions.get("Timing", false);

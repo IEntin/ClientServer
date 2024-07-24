@@ -127,7 +127,7 @@ void TcpClientHeartbeat::write() {
     LogError << ec.what() << '\n';
     return;
   }
-  HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, false, false, _status, 0 };
+  HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
   serialize(header, _heartbeatBuffer);
   boost::asio::async_write(_socket,
     boost::asio::buffer(_heartbeatBuffer),

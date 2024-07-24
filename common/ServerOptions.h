@@ -8,6 +8,7 @@
 #include <string>
 
 enum class COMPRESSORS : char;
+enum class CRYPTO : char;
 
 struct ServerOptions {
   ServerOptions() = delete;
@@ -18,7 +19,7 @@ struct ServerOptions {
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
-  static bool _encrypted;
+  static CRYPTO _encrypted;
   static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;

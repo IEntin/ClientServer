@@ -20,14 +20,8 @@ constexpr int PARAMETER_SIZE = NUM_FIELD_SIZE;
 constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
-constexpr char CRYPTO_CHAR = 'C';
-constexpr char NCRYPTO_CHAR = 'N';
-
-constexpr char DIAGNOSTICS_CHAR = 'D';
-constexpr char NDIAGNOSTICS_CHAR = 'N';
-
 enum class HEADERTYPE : char {
-  NONE = 'B',
+  NONE = 'A',
   CREATE_SESSION,
   SESSION,
   HEARTBEAT,
@@ -36,8 +30,20 @@ enum class HEADERTYPE : char {
 };
 
 enum class COMPRESSORS : char {
-  NONE = 'K',
+  NONE = 'D',
   LZ4,
+  INVALID
+};
+
+enum class CRYPTO : char {
+  NONE = 'D',
+  ENCRYPTED,
+  INVALID
+};
+
+enum class DIAGNOSTICS : char {
+  NONE = 'D',
+  ENABLED,
   INVALID
 };
 
@@ -75,7 +81,7 @@ enum class HEADER_INDEX : char {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, bool, bool, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, CRYPTO, DIAGNOSTICS, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
@@ -87,7 +93,11 @@ COMPRESSORS extractCompressor(const HEADER& header);
 
 bool isCompressed(const HEADER& header);
 
+CRYPTO extractCrypto(const HEADER& header);
+
 bool isEncrypted(const HEADER& header);
+
+DIAGNOSTICS extractDiagnostics(const HEADER& header);
 
 bool isDiagnosticsEnabled(const HEADER& header);
 
@@ -103,14 +113,17 @@ void deserialize(HEADER& header, const char* buffer);
 
 // works if there are no gaps in values
 template <typename ENUM>
-ENUM deserializeEnumeration(char code, ENUM none, ENUM invalid) {
-  auto valueNone = std::to_underlying(none);
-  auto valueInvalid = std::to_underlying(invalid);
-  if (code < valueNone || code >= valueInvalid)
+void deserializeEnumeration(ENUM& element, char code) {
+  if (code < std::to_underlying(ENUM::NONE) ||
+      code >= std::to_underlying(ENUM::INVALID))
     throw std::runtime_error("invalid code");
-  return ENUM{ code };
+  element = ENUM{ code };
 }
 
-COMPRESSORS translateName(std::string_view compressorStr);
+COMPRESSORS translateCompressorString(std::string_view compressorStr);
+
+CRYPTO translateCryptoString(std::string_view cryptoStr);
+
+DIAGNOSTICS translateDiagnosticsString(std::string_view diagnosticsStr);
 
 void printHeader(const HEADER& header);

@@ -8,13 +8,23 @@
 #include "Logger.h"
 #include "ServerOptions.h"
 
-COMPRESSORS translateName(std::string_view compressorStr) {
+COMPRESSORS translateCompressorString(std::string_view compressorStr) {
   COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
   return compressor;
 }
 
+CRYPTO translateCryptoString(std::string_view cryptoStr) {
+  CRYPTO crypto = cryptoStr == "Enabled" ? CRYPTO::ENCRYPTED : CRYPTO::NONE;
+  return crypto;
+}
+
+DIAGNOSTICS translateDiagnosticsString(std::string_view diagnosticsStr) {
+  DIAGNOSTICS diagnostics = diagnosticsStr == "Enabled" ? DIAGNOSTICS::ENABLED : DIAGNOSTICS::NONE;
+  return diagnostics;
+}
+
 HEADERTYPE extractHeaderType(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::HEADERTYPEINDEX)>(header);
+  return std::get<HEADERTYPE>(header);
 }
 
 std::size_t extractPayloadSize(const HEADER& header) {
@@ -26,23 +36,31 @@ std::size_t extractUncompressedSize(const HEADER& header) {
 }
 
 COMPRESSORS extractCompressor(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::COMPRESSORINDEX)>(header);
+  return std::get<COMPRESSORS>(header);
 }
 
 bool isCompressed(const HEADER& header) {
-  return extractCompressor(header) != COMPRESSORS::NONE;
+  return extractCompressor(header) == COMPRESSORS::LZ4;
+}
+
+CRYPTO extractCrypto(const HEADER& header) {
+  return std::get<CRYPTO>(header);
 }
 
 bool isEncrypted(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header);
+  return std::get<CRYPTO>(header) == CRYPTO::ENCRYPTED;
+}
+
+DIAGNOSTICS extractDiagnostics(const HEADER& header) {
+  return std::get<DIAGNOSTICS>(header);
 }
 
 bool isDiagnosticsEnabled(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header);
+  return std::get<DIAGNOSTICS>(header) == DIAGNOSTICS::ENABLED;
 }
 
 STATUS extractStatus(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::STATUSINDEX)>(header);
+  return std::get<STATUS>(header);
 }
 
 std::size_t extractParameter(const HEADER& header) {
@@ -72,9 +90,9 @@ void serialize(const HEADER& header, char* buffer) {
   offset += NUM_FIELD_SIZE;
   buffer[offset] = std::to_underlying(extractCompressor(header));
   offset += COMPRESSOR_SIZE;
-  buffer[offset] = std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header) ? CRYPTO_CHAR : NCRYPTO_CHAR;
+  buffer[offset] = std::to_underlying(extractCrypto(header));
   offset += CRYPTO_SIZE;
-  buffer[offset] = std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header) ? DIAGNOSTICS_CHAR : NDIAGNOSTICS_CHAR;
+  buffer[offset] = std::to_underlying(extractDiagnostics(header));
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::to_underlying(extractStatus(header));
   offset += STATUS_SIZE;
@@ -83,8 +101,7 @@ void serialize(const HEADER& header, char* buffer) {
 
 void deserialize(HEADER& header, const char* buffer) {
   std::size_t offset = 0;
-  std::get<std::to_underlying(HEADER_INDEX::HEADERTYPEINDEX)>(header) =
-    deserializeEnumeration(buffer[offset], HEADERTYPE::NONE, HEADERTYPE::INVALID);
+  deserializeEnumeration(std::get<HEADERTYPE>(header), buffer[offset]);
   offset += HEADERTYPE_SIZE;
   std::string_view strl(buffer + offset, NUM_FIELD_SIZE);
   ioutility::fromChars(strl, std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header));
@@ -92,15 +109,13 @@ void deserialize(HEADER& header, const char* buffer) {
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
   ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header));
   offset += NUM_FIELD_SIZE;
-  std::get<std::to_underlying(HEADER_INDEX::COMPRESSORINDEX)>(header) =
-    deserializeEnumeration(buffer[offset], COMPRESSORS::NONE, COMPRESSORS::INVALID);
+  deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]);
   offset += COMPRESSOR_SIZE;
-  std::get<std::to_underlying(HEADER_INDEX::CRYPTOINDEX)>(header) = buffer[offset] == CRYPTO_CHAR;
+  deserializeEnumeration(std::get<CRYPTO>(header), buffer[offset]);
   offset += CRYPTO_SIZE;
-  std::get<std::to_underlying(HEADER_INDEX::DIAGNOSTICSINDEX)>(header) = buffer[offset] == DIAGNOSTICS_CHAR;
+  deserializeEnumeration(std::get<DIAGNOSTICS>(header), buffer[offset]);
   offset += DIAGNOSTICS_SIZE;
-  std::get<std::to_underlying(HEADER_INDEX::STATUSINDEX)>(header) =
-    deserializeEnumeration(buffer[offset], STATUS::NONE, STATUS::INVALID);
+  deserializeEnumeration(std::get<STATUS>(header), buffer[offset]);
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
   ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));

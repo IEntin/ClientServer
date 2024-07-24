@@ -8,6 +8,8 @@
 #include <iostream>
 
 enum class COMPRESSORS : char;
+enum class CRYPTO : char;
+enum class DIAGNOSTICS : char;
 
 struct ClientOptions {
   ClientOptions() = delete;
@@ -19,7 +21,7 @@ struct ClientOptions {
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
-  static bool _encrypted;
+  static CRYPTO _encrypted;
   static bool _showKey;
   static std::string _sourceName;
   static std::ostream* _dataStream;
@@ -30,7 +32,7 @@ struct ClientOptions {
   static int _heartbeatPeriod;
   static int _heartbeatTimeout;
   static bool _heartbeatEnabled;
-  static bool _diagnostics;
+  static DIAGNOSTICS _diagnostics;
   static bool _runLoop;
   static std::size_t _bufferSize;
   static bool _timing;

@@ -4,7 +4,7 @@
   "_comment": "0 for hardware_concurrency",
   "NumberWorkThreads" : 0,
   "Compression" : "LZ4",
-  "Encrypted" : true,
+  "Crypto" : "Enabled",
   "_comment": "If true logs crypto key.",
   "ShowKey" : false,
   "Timing" : true,
@@ -20,7 +20,7 @@
   "ENXIOwait" : 20,
   "SetPipeSize" : true,
   "PipeSize" : 1000000,
-  "_comment": "any of TRACE, DEBUG, INFO, WARN, ERROR",
+  "_comment": "any of TRACE, DEBUG, INFO, WARN, EXPECTED, ERROR, ALWAYS",
   "LogThreshold" : "INFO",
   "PrintHeader" : false
 }

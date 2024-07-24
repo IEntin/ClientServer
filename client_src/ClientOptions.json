@@ -1,6 +1,6 @@
 {
   "ClientType" : "TCP",
-  "Diagnostics" : false,
+  "Diagnostics" : "Disabled",
   "_comment": "Next 2 setiings must match server settings.",
   "FifoDirectoryName" : "../Fifos",
   "AcceptorBaseName" : "Acceptor",
@@ -8,7 +8,7 @@
   "OutputFileName" : "",
   "InstrumentationFn" : "",
   "Compression" : "LZ4",
-  "Encrypted" : true,
+  "Crypto" : "Enabled",
   "_comment": "If true logs crypto key and iv.",
   "ShowKey" : false,
   "BufferSize" : 3000000,
@@ -27,7 +27,7 @@
   "ENXIOwait" : 20,
   "SetPipeSize" : true,
   "PipeSize" : 1000000,
-  "_comment": "one of TRACE, DEBUG, INFO, WARN, ERROR",
+  "_comment": "one of TRACE, DEBUG, INFO, WARN, EXPECTED, ERROR, ALWAYS",
   "LogThreshold" : "INFO",
   "PrintHeader" : false
 }
