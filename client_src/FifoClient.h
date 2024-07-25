@@ -13,7 +13,6 @@ class FifoClient : public Client {
   bool send(Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
-  void close() override;
   bool wakeupAcceptor();
   std::string_view _acceptorName;
   std::string _fifoName;

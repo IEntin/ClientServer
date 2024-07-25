@@ -14,6 +14,8 @@
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
+std::atomic<bool> Client::_closeFlag = false;
+
 Client::Client() :
   _dhB(Crypto::_curve),
   _privB(_dhB.PrivateKeyLength()),
@@ -24,7 +26,6 @@ Client::Client() :
 
 Client::~Client() {
   stop();
-  _closeFlag.store(false);
   Trace << '\n';
 }
 
@@ -100,12 +101,9 @@ void Client::start() {
   _taskBuilder = taskBuilder;
 }
 
-void Client::onSignal(std::weak_ptr<ClientWrapper> wrapperWeak) {
+void Client::onSignal() {
   auto errnoSaved = errno;
-  if (auto wrapper = wrapperWeak.lock(); wrapper) {
-    Client& client = wrapper->_client;
-    client.close();
-  }
+  _closeFlag.store(true);
   errno = errnoSaved;
 }
 

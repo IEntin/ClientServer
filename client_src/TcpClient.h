@@ -15,7 +15,6 @@ class TcpClient : public Client {
   bool send(Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
-  void close() override;
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;

@@ -16,12 +16,6 @@ constexpr const char* FIFO_NAMED_MUTEX{ "FIFO_NAMED_MUTEX" };
 
 class Client;
 
-struct ClientWrapper {
-  explicit ClientWrapper(Client& client) : _client(client) {}
-  ~ClientWrapper() = default;
-  Client& _client;
-};
-
 class Client {
 
 protected:
@@ -46,7 +40,7 @@ protected:
   std::atomic<STATUS> _status = STATUS::NONE;
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder;
-  std::atomic<bool> _closeFlag = false;
+  static std::atomic<bool> _closeFlag;
 public:
   virtual ~Client();
 
@@ -56,6 +50,5 @@ public:
   virtual void run() = 0;
 
   void stop();
-  static void onSignal(std::weak_ptr<ClientWrapper> wrapperWeak);
-  virtual void close() = 0;
+  static void onSignal();
 };

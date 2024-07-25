@@ -68,8 +68,4 @@ bool TcpClient::receiveStatus() {
   return true;
 }
 
-void TcpClient::close() {
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-}
-
 } // end of namespace tcp

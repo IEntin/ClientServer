@@ -12,12 +12,8 @@
 #include "Metrics.h"
 #include "TcpClient.h"
 
-namespace {
-  std::shared_ptr<ClientWrapper> wrapper;
-}// end of anonimous namespace
-
 void signalHandler(int) {
-  Client::onSignal(wrapper);
+  Client::onSignal();
 }
 
 int main() {
@@ -41,12 +37,10 @@ int main() {
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;
-      wrapper = std::make_shared<ClientWrapper>(client);
       client.run();
     }
     else if (ClientOptions::_tcpClient) {
       tcp::TcpClient client;
-      wrapper = std::make_shared<ClientWrapper>(client);
       client.run();
     }
   }

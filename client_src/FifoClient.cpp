@@ -103,8 +103,4 @@ bool FifoClient::receiveStatus() {
   return true;
 }
 
-void FifoClient::close() {
-  _closeFlag.store(true);
-}
-
 } // end of namespace fifo
