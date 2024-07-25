@@ -26,9 +26,10 @@ public:
   void stop();
   void createFifoSession(HEADERTYPE type, const CryptoPP::SecByteBlock& pubB);
   void createTcpSession(tcp::ConnectionPtr connection, const CryptoPP::SecByteBlock& pubB);
-  void stopSessions();
 private:
   bool startSession(RunnablePtr runnable, SessionPtr session);
+  void markSessionsStopped();
+  void stopSessions();
   Chronometer _chronometer;
   SessionMap _sessions;
   ThreadPoolBase _threadPoolAcceptor;

@@ -51,7 +51,8 @@ RunnablePtr ThreadPoolDiffObj::get() {
     return RunnablePtr();
   for (auto it = _queue.begin(); it != _queue.end(); ++it) {
     RunnablePtr runnable = *it;
-    if (runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType) {
+    if (!runnable->_stopped &&
+	runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType) {
       _queue.erase(it);
       return runnable;
     }
