@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <iostream>
 
 enum class COMPRESSORS : char;

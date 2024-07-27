@@ -7,6 +7,7 @@
 #include <array>
 
 #include "ClientOptions.h"
+#include "IOUtility.h"
 #include "Logger.h"
 
 namespace tcp {

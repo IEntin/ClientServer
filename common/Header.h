@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cstdint>
 #include <stdexcept>
 #include <string_view>
 #include <tuple>

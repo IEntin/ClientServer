@@ -10,6 +10,7 @@
 #include <thread>
 
 #include "ClientOptions.h"
+#include "IOUtility.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 

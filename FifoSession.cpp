@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 
 #include "Fifo.h"
+#include "IOUtility.h"
 #include "Server.h"
 #include "ServerOptions.h"
 

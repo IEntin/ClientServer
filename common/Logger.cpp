@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 
+#include "IOUtility.h"
 #include <utility>
 
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::EXPECTED;
@@ -48,10 +49,4 @@ Logger& Logger::printPrefix(const boost::source_location& location) {
     std::cerr << e.what() << std::endl;
   }
   return *this;
-}
-
-void Logger::integerWrite(Logger& logger, long value) {
-  char buffer[ioutility::CONV_BUFFER_SIZE] = {};
-  auto length = ioutility::toChars(value, buffer);
-  logger._stream.write(buffer, length);
 }

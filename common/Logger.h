@@ -13,8 +13,6 @@
 #include <boost/assert/source_location.hpp>
 #include <boost/core/noncopyable.hpp>
 
-#include "IOUtility.h"
-
 #define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix()
 #define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix()
 #define Expected Logger(LOG_LEVEL::EXPECTED, std::clog).printPrefix()
@@ -68,17 +66,7 @@ struct Logger : private boost::noncopyable {
   static void translateLogThreshold(std::string_view configName);
 
   static LOG_LEVEL _threshold;
-
-  static void integerWrite(Logger& logger, long value);
 };
-
-template<ioutility::Integer N>
-Logger& operator <<(Logger& logger, const N& value) {
-  if (logger._level >= Logger::_threshold) {
-    Logger::integerWrite(logger, value);
-  }
-  return logger;
-}
 
 template <typename V>
 Logger& operator <<(Logger& logger, const V& value) {

@@ -4,6 +4,7 @@
 
 #include "TcpClient.h"
 
+#include "IOUtility.h"
 #include "Subtask.h"
 #include "Tcp.h"
 

@@ -20,9 +20,9 @@ then
     exit 0
 fi
 
-pkill -9 serverX
+pkill serverX
 
-pkill -9 clientX
+pkill clientX
 
 set -e
 
@@ -112,5 +112,7 @@ clients=$(ps -ef | grep clientX | grep -v 'grep')
 echo -e "\nkilling server\n"
 
 pkill serverX
+
+wait
 
 sleep 5
