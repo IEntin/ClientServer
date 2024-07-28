@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 
+#include "IOUtility.h"
 #include "Logger.h"
 
 namespace utility {
@@ -59,6 +60,21 @@ bool fileEndsWithEOL(std::string_view fileName) {
   stream.seekg(-1, std::ios::end);
   stream.get(ch);
   return ch == '\n';
+}
+
+std::string createErrorString(std::errc ec,
+			      const boost::source_location& location) {
+  std::string msg(std::make_error_code(ec).message());
+  msg.append(1, ':').append(location.file_name()).append(1, ':');
+  ioutility::toChars(location.line(), msg);
+  return msg.append(1, ' ').append(location.function_name());
+}
+
+std::string createErrorString(const boost::source_location& location) {
+  std::string msg(std::strerror(errno));
+  msg.append(1, ':').append(location.file_name()).append(1, ':');
+  ioutility::toChars(location.line(), msg);
+  return msg.append(1, ' ').append(location.function_name());
 }
 
 } // end of namespace utility

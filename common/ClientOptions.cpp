@@ -30,7 +30,6 @@ bool ClientOptions::_runLoop;
 std::size_t ClientOptions::_bufferSize;
 bool ClientOptions::_timing;
 int ClientOptions::_numberRepeatENXIO;
-int ClientOptions::_ENXIOwait;
 bool ClientOptions::_setPipeSize;
 std::size_t ClientOptions::_pipeSize;
 std::string ClientOptions::_serverAddress;
@@ -74,10 +73,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _runLoop = appOptions.get("RunLoop", false);
   _bufferSize = appOptions.get("BufferSize", 100000);
   _timing = appOptions.get("Timing", false);
-  // next 2 parameters may be decreased for better responsiveness
-  // or increased to prevent deadlocking on slow machines.
-  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
-  _ENXIOwait = appOptions.get("ENXIOwai", 20);
+  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 200);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));

@@ -27,7 +27,6 @@ int ServerOptions::_tcpTimeout;
 bool ServerOptions::_sortInput;
 bool ServerOptions::_timing;
 int ServerOptions::_numberRepeatENXIO;
-int ServerOptions::_ENXIOwait;
 bool ServerOptions::_setPipeSize;
 std::size_t ServerOptions::_pipeSize;
 bool ServerOptions::_printHeader;
@@ -50,10 +49,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _tcpTimeout = appOptions.get("TcpTimeout", 3000);
   _sortInput = appOptions.get("SortInput", true);
   _timing = appOptions.get("Timing", false);
-  // next 2 parameters may be decreased for better responsiveness
-  // or increased to prevent deadlocking on slow machines.
-  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 50);
-  _ENXIOwait = appOptions.get("ENXIOwai", 20);
+  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 200);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
   _printHeader = appOptions.get("PrintHeader", false);

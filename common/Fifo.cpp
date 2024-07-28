@@ -73,7 +73,7 @@ short Fifo::pollFd(int fd, short expected) {
   pfd.revents = 0;
   int result = poll(&pfd, 1, -1);
   if (result <= 0)
-    throw std::runtime_error(std::strerror(errno));
+    throw std::runtime_error(utility::createErrorString());
   else if (pfd.revents & POLLERR) {
     Info << std::strerror(errno) << '\n';
     return -1;
@@ -107,7 +107,7 @@ bool Fifo::setPipeSize(int fd) {
     return false;
   long currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1)
-    throw std::runtime_error(std::strerror(errno));
+    throw std::runtime_error(utility::createErrorString());
   if (pipeSize > currentSz) {
     int ret = fcntl(fd, F_SETPIPE_SZ, pipeSize);
     if (ret < 0) {
@@ -134,15 +134,10 @@ void Fifo::onExit(std::string_view fifoName) {
 
 int Fifo::openWriteNonBlock(std::string_view fifoName) {
   int numberRepeatENXIO = 0;
-  int ENXIOwait = 0;
-  if (ServerOptions::_parsed) {
+  if (ServerOptions::_parsed)
     numberRepeatENXIO = ServerOptions::_numberRepeatENXIO;
-    ENXIOwait = ServerOptions::_ENXIOwait;
-  }
-  else if (ClientOptions::_parsed) {
+  else if (ClientOptions::_parsed)
     numberRepeatENXIO = ClientOptions::_numberRepeatENXIO;
-    ENXIOwait = ClientOptions::_ENXIOwait;
-  }
   int fd = -1;
   int rep = 0;
   do {
@@ -151,7 +146,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
       switch (errno) {
       case ENOENT:
       case ENXIO:
-	std::this_thread::sleep_for(std::chrono::milliseconds(ENXIOwait));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	break;
       default:
 	return fd;

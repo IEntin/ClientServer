@@ -8,25 +8,17 @@
 #include <charconv>
 #include <cstdint>
 #include <stdexcept>
-#include <system_error>
 
-#include <boost/assert/source_location.hpp>
+#include "Utility.h"
 
 namespace ioutility {
 
 constexpr int CONV_BUFFER_SIZE = 10;
 
-  inline std::string createErrorString(std::errc ec,
-				       const boost::source_location& location = BOOST_CURRENT_LOCATION) {
-  std::string msg(std::make_error_code(ec).message());
-  return msg.append(1, ':').append(location.file_name()).append(1, ':').
-    append(std::to_string(location.line())).append(1, ' ').append(location.function_name());
-}
-
 constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc()) {
-    std::string errorString(createErrorString(ec));
+    std::string errorString(utility::createErrorString(ec));
     errorString.append(1, ' ').append(str);
     throw std::runtime_error(errorString);
   }
@@ -45,11 +37,8 @@ concept FloatingPoint = std::is_floating_point_v<N>;
 template <Integer T>
 int toChars(T value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-  if (ec != std::errc()) {
-    std::string errorString(createErrorString(ec));
-    errorString.append(1, ' ').append(std::to_string(value));
-    throw std::runtime_error(errorString);
-  }
+  if (ec != std::errc())
+    throw std::runtime_error(utility::createErrorString(ec));
   return ptr - buffer;
 }
 
@@ -64,22 +53,16 @@ void toChars(N value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) 
     assert(sizeIncr <= size);
     target.erase(origSize + sizeIncr, size - sizeIncr);
   }
-  else {
-    std::string errorString(createErrorString(ec));
-    errorString.append(1, ' ').append(std::to_string(value));
-    throw std::runtime_error(errorString);
-  }
+  else
+    throw std::runtime_error(utility::createErrorString(ec));
 }
 
 template <FloatingPoint N>
 int toChars(N value, char* buffer, int precision, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value,
 				 std::chars_format::fixed, precision);
-  if (ec != std::errc()) {
-    std::string errorString(createErrorString(ec));
-    errorString.append(1, ' ').append(std::to_string(value));
-    throw std::runtime_error(errorString);
-  }
+  if (ec != std::errc())
+    throw std::runtime_error(utility::createErrorString(ec));
   return ptr - buffer;
 }
 
@@ -93,11 +76,8 @@ void toChars(N value, std::string& target, int precision, std::size_t size = CON
   sizeIncr = ptr - target.data() - origSize;
   if (ec == std::errc())
     target.resize(origSize + sizeIncr);
-  else {
-    std::string errorString(createErrorString(ec));
-    errorString.append(1, ' ').append(std::to_string(value));
-    throw std::runtime_error(errorString);
-  }
+  else
+    throw std::runtime_error(utility::createErrorString(ec));
 }
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;

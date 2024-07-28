@@ -4,10 +4,11 @@
 
 #include "Metrics.h"
 
-#include <cstring>
 #include <filesystem>
 #include <sys/resource.h>
 #include <unistd.h>
+
+#include "IOUtility.h"
 
 std::size_t Metrics::_pid;
 std::string Metrics::_procFdPath;
@@ -18,7 +19,8 @@ int Metrics::_numberOpenFDs = 0;
 
 void Metrics::save() {
   _pid = getpid();
-  std::string prefix = std::string("/proc/").append(std::to_string(_pid));
+  std::string prefix("/proc/");
+  ioutility::toChars(_pid, prefix);
   _procFdPath = prefix;
   _procFdPath.append("/fd");
   _procThreadPath = prefix;

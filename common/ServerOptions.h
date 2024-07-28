@@ -29,7 +29,6 @@ struct ServerOptions {
   static bool _sortInput;
   static bool _timing;
   static int _numberRepeatENXIO;
-  static int _ENXIOwait;
   static bool _setPipeSize;
   static std::size_t _pipeSize;
   static bool _printHeader;

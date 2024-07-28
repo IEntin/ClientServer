@@ -6,6 +6,9 @@
 
 #include <algorithm>
 #include <string>
+#include <system_error>	
+
+#include <boost/assert/source_location.hpp>
 
 namespace utility {
 
@@ -72,5 +75,10 @@ void readFile(std::string_view name, std::string& buffer);
 bool getLastLine(std::string_view fileName, std::string& lastLine);
 
 bool fileEndsWithEOL(std::string_view fileName);
+
+std::string createErrorString(std::errc ec,
+			      const boost::source_location& location = BOOST_CURRENT_LOCATION);
+
+std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
 } // end of namespace utility
