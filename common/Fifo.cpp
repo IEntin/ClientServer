@@ -4,14 +4,10 @@
 
 #include "Fifo.h"
 
-#include <chrono>
-#include <filesystem>
-#include <poll.h>
 #include <thread>
 
 #include "ClientOptions.h"
 #include "IOUtility.h"
-#include "Logger.h"
 #include "ServerOptions.h"
 
 namespace fifo {
@@ -70,26 +66,16 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
 
 short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
-  pfd.revents = 0;
   int result = poll(&pfd, 1, -1);
-  if (result <= 0)
+  if (result <= 0 || pfd.revents & POLLERR || pfd.revents & POLLNVAL)
     throw std::runtime_error(utility::createErrorString());
-  else if (pfd.revents & POLLERR) {
-    Info << std::strerror(errno) << '\n';
-    return -1;
-  }
+  else if (pfd.revents & expected)
+    return expected;
   else if (pfd.revents & POLLHUP) {
     Debug << std::strerror(errno) << '\n';
     return POLLHUP;
   }
-  else if (pfd.revents & POLLNVAL) {
-    Debug << std::strerror(errno) << '\n';
-    return POLLNVAL;
-  }
-  else if (pfd.revents & expected)
-    return expected;
-  else
-    return -1;
+  return -1;
 }
 
 bool Fifo::setPipeSize(int fd) {
@@ -159,8 +145,6 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 }
 
 int Fifo::openReadNonBlock(std::string_view fifoName) {
-  if (!std::filesystem::exists(fifoName))
-    return -1;
   int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
   if (fd != -1)
     Warn << std::strerror(errno) << ' ' << fifoName << '\n';

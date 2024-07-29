@@ -5,6 +5,7 @@
 #pragma once
 
 #include <fcntl.h>
+#include <poll.h>
 
 #include "Header.h"
 #include "Logger.h"
@@ -61,14 +62,21 @@ public:
   static void readString(int fd, T* received, std::size_t size) {
     std::size_t readSoFar = 0;
     while (readSoFar < size) {
-      ssize_t result = read(fd, received + readSoFar, size - readSoFar);
-      if (result == -1) {
-	if (errno != EAGAIN)
-	  throw std::runtime_error(std::strerror(errno));
+	ssize_t result = read(fd, received + readSoFar, size - readSoFar);
+	if (result == -1) {
+	  switch (errno) {
+	  case EAGAIN:// happens in non blocking mode
+	    pollFd(fd, POLLIN);
+	    continue;
+	    break;
+	  default:
+	    throw std::runtime_error(std::strerror(errno));
+	    break;
+	  }
+	}
+	else
+	  readSoFar += result;
       }
-      else
-	readSoFar += result;
-    }
   }
 
   template <typename B>
@@ -77,10 +85,14 @@ public:
     while (written < body.size()) {
       ssize_t result = write(fd, body.data() + written, body.size() - written);
       if (result == -1) {
-	if (errno == EAGAIN)
-	  continue;
-	else
+	switch (errno) {
+	case EAGAIN:// happens in non blocking mode
+	  pollFd(fd, POLLOUT);
+	  break;
+	default:
 	  throw std::runtime_error(std::strerror(errno));
+	  break;
+	}
       }
       else
 	written += result;
