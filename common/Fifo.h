@@ -19,8 +19,8 @@ class Fifo {
 
   static short pollFd(int fd, short expected);
 public:
-  static bool readMsgNonBlock(std::string_view name, HEADER& header, std::string& body);
-  static bool readMsgNonBlock(std::string_view name, std::string& payload);
+  static bool readMsgNonBlock(int fdRead, HEADER& header, std::string& body);
+  static bool readMsgNonBlock(int fdRead, std::string& payload);
 
   static void readMsgBlock(std::string_view name, std::string& payload);
 
@@ -117,9 +117,11 @@ public:
     return true;
   }
   static bool sendMsg(std::string_view name, std::string_view payload);
+  static bool sendMsg(int fdWrite, std::string_view payload);
   static bool setPipeSize(int fd);
   static void onExit(std::string_view fifoName);
   static int openWriteNonBlock(std::string_view fifoName);
+  static int openWriteNonBlockOpenedRead(std::string_view fifoName);
   static int openReadNonBlock(std::string_view fifoName);
 };
 

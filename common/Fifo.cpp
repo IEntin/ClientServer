@@ -12,11 +12,7 @@
 
 namespace fifo {
 
-bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& body) {
-  int fdRead = openReadNonBlock(name);
-  if (fdRead == -1)
-    return false;
-  utility::CloseFileDescriptor cfdr(fdRead);
+bool Fifo::readMsgNonBlock(int fdRead, HEADER& header, std::string& body) {
   char buffer[HEADER_SIZE] = {};
   readString(fdRead, buffer, HEADER_SIZE);
   deserialize(header, buffer);
@@ -26,11 +22,7 @@ bool Fifo::readMsgNonBlock(std::string_view name, HEADER& header, std::string& b
   return true;
 }
 
-bool Fifo::readMsgNonBlock(std::string_view name, std::string& payload) {
-  int fdRead = openReadNonBlock(name);
-  if (fdRead == -1)
-    return false;
-  utility::CloseFileDescriptor cfdr(fdRead);
+  bool Fifo::readMsgNonBlock(int fdRead, std::string& payload) {
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
   readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
@@ -56,6 +48,15 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
+  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
+  ioutility::toChars(payload.size(), sizeStr);
+  std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);
+  writeString(fdWrite, view);
+  writeString(fdWrite, payload);
+  return true;
+}
+
+bool Fifo::sendMsg(int fdWrite, std::string_view payload) {
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
   ioutility::toChars(payload.size(), sizeStr);
   std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);
@@ -144,11 +145,15 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
   return fd;
 }
 
-int Fifo::openReadNonBlock(std::string_view fifoName) {
-  int fd = open(fifoName.data(), O_RDONLY | O_NONBLOCK);
+int Fifo::openWriteNonBlockOpenedRead(std::string_view fifoName) {
+  int fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
   if (fd != -1)
-    Warn << std::strerror(errno) << ' ' << fifoName << '\n';
+    setPipeSize(fd);
   return fd;
+}
+
+int Fifo::openReadNonBlock(std::string_view fifoName) {
+  return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
 } // end of namespace fifo

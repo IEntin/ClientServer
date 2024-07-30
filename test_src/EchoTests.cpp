@@ -105,18 +105,34 @@ TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
 struct FifoNonblockingTest : testing::Test {
   static constexpr std::string_view _testFifo = "TestFifo";
   static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
+  int _fdRead = -1;
+  int _fdWrite = -1;
+
   FifoNonblockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
+    _fdRead = fifo::Fifo::openReadNonBlock(_testFifo);
+    if (_fdRead == -1)
+      throw std::runtime_error(utility::createErrorString());
+    _fdWrite = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
+    if (_fdWrite == -1)
+      throw std::runtime_error(utility::createErrorString());
   }
+
   ~FifoNonblockingTest() {
-    std::filesystem::remove(_testFifo);
+  if (_fdRead != -1 && close(_fdRead) == -1)
+    LogError << std::strerror(errno) << '\n';
+  if (_fdWrite != -1 && close(_fdWrite) == -1)
+    LogError << std::strerror(errno) << '\n';
+  std::filesystem::remove(_testFifo);
   }
+
   bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_testFifo, payload);
+    return fifo::Fifo::sendMsg(_fdWrite, payload);
   }
+
   bool receive(std::string& received) {
-    return fifo::Fifo::readMsgNonBlock(_testFifo, received);
+    return fifo::Fifo::readMsgNonBlock(_fdRead, received);
   }
 
   void testNonblockingFifo(std::string_view payload) {
