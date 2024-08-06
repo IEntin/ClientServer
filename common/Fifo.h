@@ -35,10 +35,8 @@ public:
     char buffer[HEADER_SIZE] = {};
     while (readSoFar < HEADER_SIZE) {
       ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
-      if (result == -1) {
-	if (errno != EAGAIN)
-	  throw std::runtime_error(std::strerror(errno));
-      }
+      if (result == -1)
+	throw std::runtime_error(std::strerror(errno));
       else if (result == 0) {
 	Info << name << "-EOF" << '\n';
 	return false;
