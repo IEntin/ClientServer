@@ -182,8 +182,10 @@ TEST_F(FifoNonblockingTest, FifoNonblockingTestReverse) {
 struct FifoNonBlockingDuplexTest : testing::Test {
   static constexpr std::string_view _testFifo = "TestFifo";
   static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-  int _fdRead = -1;
-  int _fdWrite = -1;
+  int _fdReadC = -1;// client
+  int _fdWriteC = -1;// client
+  int _fdReadS = -1;// server
+  int _fdWriteS = -1;// server
 
   FifoNonBlockingDuplexTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
@@ -196,42 +198,64 @@ struct FifoNonBlockingDuplexTest : testing::Test {
   }
 
   void closeFileDescriptors() {
-    if (_fdRead != -1 && close(_fdRead) == -1)
+    if (_fdReadC != -1 && close(_fdReadC) == -1)
       LogError << std::strerror(errno) << '\n';
-    _fdRead = -1;
-    if (_fdWrite != -1 && close(_fdWrite) == -1)
+    _fdReadC = -1;
+    if (_fdWriteC != -1 && close(_fdWriteC) == -1)
       LogError << std::strerror(errno) << '\n';
-    _fdWrite  = -1;
+    _fdWriteC  = -1;
+    if (_fdReadS != -1 && close(_fdReadS) == -1)
+      LogError << std::strerror(errno) << '\n';
+    _fdReadS = -1;
+    if (_fdWriteS != -1 && close(_fdWriteS) == -1)
+      LogError << std::strerror(errno) << '\n';
+    _fdWriteS = -1;
   }
-
-  bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_fdWrite, payload);
+  // client send
+  bool sendC(std::string_view payload) {
+    return fifo::Fifo::sendMsg(_fdWriteC, payload);
   }
-
-  bool receive(std::string& received) {
-    return fifo::Fifo::readMsgNonBlock(_fdRead, received);
+  // client receive
+  bool receiveC(std::string& received) {
+    return fifo::Fifo::readMsgNonBlock(_fdReadC, received);
+  }
+  // server send
+  bool sendS(std::string_view payload) {
+    return fifo::Fifo::sendMsg(_fdWriteS, payload);
+  }
+  // server receive
+  bool receiveS(std::string& received) {
+    return fifo::Fifo::readMsgNonBlock(_fdReadS, received);
   }
 
   void testNonblockingFifoDuplex(std::string_view payload) {
     std::string received;
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
-    if (_fdRead == -1)
-      _fdRead = fifo::Fifo::openReadNonBlock(_testFifo);
-    if (_fdRead == -1)
+    if (_fdReadC == -1)
+      _fdReadC = fifo::Fifo::openReadNonBlock(_testFifo);
+    if (_fdReadC == -1)
       throw std::runtime_error(utility::createErrorString());
-    if (_fdWrite == -1)
-      _fdWrite = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
-    if (_fdWrite == -1)
+    if (_fdWriteC == -1)
+      _fdWriteC = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
+    if (_fdWriteC == -1)
       throw std::runtime_error(utility::createErrorString());
-    auto fs = std::async(std::launch::async, &FifoNonBlockingDuplexTest::send, this, payload);
-    auto fr = std::async(std::launch::async, &FifoNonBlockingDuplexTest::receive, this, std::ref(received));
+    if (_fdReadS== -1)
+      _fdReadS = fifo::Fifo::openReadNonBlock(_testFifo);
+    if (_fdReadS == -1)
+      throw std::runtime_error(utility::createErrorString());
+    if (_fdWriteS == -1)
+      _fdWriteS = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
+    if (_fdWriteS == -1)
+      throw std::runtime_error(utility::createErrorString());
+    auto fs = std::async(std::launch::async, &FifoNonBlockingDuplexTest::sendC, this, payload);
+    auto fr = std::async(std::launch::async, &FifoNonBlockingDuplexTest::receiveS, this, std::ref(received));
     fr.wait();
     fs.wait();
     ASSERT_EQ(received, payload);
     std::string receivedSaved = received;
     received.clear();
-    fs = std::async(std::launch::async, &FifoNonBlockingDuplexTest::send, this, receivedSaved);
-    fr = std::async(std::launch::async, &FifoNonBlockingDuplexTest::receive, this, std::ref(received));
+    fs = std::async(std::launch::async, &FifoNonBlockingDuplexTest::sendS, this, receivedSaved);
+    fr = std::async(std::launch::async, &FifoNonBlockingDuplexTest::receiveC, this, std::ref(received));
     fr.wait();
     fs.wait();
     ASSERT_EQ(received, receivedSaved);

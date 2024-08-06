@@ -10,7 +10,7 @@ This code was built and tested on
 
 1. Ubuntu 23.10\
 gcc 13.2.0\
-clang 19.0.0\
+clang 20.0.0\
 8GB RAM\
 4 cores
 
@@ -22,7 +22,11 @@ clang 12.0.0\
 4GB RAM\
 4 cores
 
-Any distribution and/or version supporting C++20 is expected to work as well.
+Note: current gcc versions have well documented problems with sanitizers.\
+For this reason all sanitized builds are built by clang++.\
+This limitation will be removed as soon as new versions of gcc/g++ are available.
+
+For now any distribution and/or version supporting C++20 is expected to work as well.
 
 LZ4 must be installed:\
 'sudo apt-get install liblz4-dev'
