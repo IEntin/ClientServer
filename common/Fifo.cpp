@@ -11,18 +11,7 @@
 #include "ServerOptions.h"
 
 namespace fifo {
-
-bool Fifo::readMsgNonBlock(int fdRead, HEADER& header, std::string& body) {
-  char buffer[HEADER_SIZE] = {};
-  readString(fdRead, buffer, HEADER_SIZE);
-  deserialize(header, buffer);
-  std::size_t payloadSize = extractPayloadSize(header);
-  body.resize(payloadSize);
-  readString(fdRead, body.data(), payloadSize);
-  return true;
-}
-
-  bool Fifo::readMsgNonBlock(int fdRead, std::string& payload) {
+bool Fifo::readMsgNonBlock(int fdRead, std::string& payload) {
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
   readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
