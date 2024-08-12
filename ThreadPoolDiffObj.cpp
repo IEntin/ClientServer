@@ -21,7 +21,7 @@ ThreadPoolDiffObj::~ThreadPoolDiffObj() {
 }
 
 void ThreadPoolDiffObj::calculateStatus(RunnablePtr runnable) {
-  _totalNumberObjects++;
+  ++_totalNumberObjects;
   // need one more thread ?
   bool condition1 = _totalNumberObjects > size();
   // can run one more of type ?

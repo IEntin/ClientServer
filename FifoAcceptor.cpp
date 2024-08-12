@@ -4,7 +4,6 @@
 
 #include "FifoAcceptor.h"
 
-#include <cstring>
 #include <filesystem>
 #include <sys/stat.h>
 

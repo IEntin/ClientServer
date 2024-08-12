@@ -14,7 +14,6 @@
 class ThreadPoolBase {
 protected:
   void createThread();
-  void increment() { _totalNumberObjects++; }
   std::vector<std::thread> _threads;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;

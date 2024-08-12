@@ -3,17 +3,19 @@
  */
 
 #include "ThreadPoolBase.h"
+
+#include <cassert>
+
 #include "Logger.h"
 
 ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
+  assert(_threads.empty());
   Trace << '\n';
 }
 
 void ThreadPoolBase::stop() {
-  // It is safe and cheap to call this more than once.
-  // Wake up and join threads
   try {
     {
       std::lock_guard lock(_queueMutex);
@@ -47,13 +49,14 @@ void ThreadPoolBase::stop() {
 void  ThreadPoolBase::createThread() {
   _threads.emplace_back([this] () {
     while (true) {
-      struct Decrement {
-	Decrement(ThreadPoolBase* threadPool) : _threadPool(threadPool) {}
-	~Decrement() {
-	  _threadPool->_totalNumberObjects--;
+      struct Finally {
+	Finally(ThreadPoolBase* threadPool) : _threadPool(threadPool) {}
+	~Finally() {
+	  if (_threadPool->_totalNumberObjects > 0)
+	    --_threadPool->_totalNumberObjects;
 	}
 	ThreadPoolBase* _threadPool = nullptr;
-      } decrement(this);
+      } finally(this);
       // this blocks waiting for a new runnable
       RunnablePtr runnable = get();
       if (_stopped)
@@ -73,7 +76,7 @@ void  ThreadPoolBase::createThread() {
 
 STATUS ThreadPoolBase::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
-  increment();
+  ++_totalNumberObjects;
   if (_totalNumberObjects > size()) {
     createThread();
     Debug << "numberOfThreads=" << size() << ' ' << runnable->getType() << '\n';

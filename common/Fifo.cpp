@@ -12,6 +12,8 @@
 
 namespace fifo {
 bool Fifo::readMsgNonBlock(int fdRead, std::string& payload) {
+  if (fdRead == -1)
+    return false;
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
   readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
@@ -46,6 +48,8 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
 }
 
 bool Fifo::sendMsg(int fdWrite, std::string_view payload) {
+  if (fdWrite == -1)
+    return false;
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
   ioutility::toChars(payload.size(), sizeStr);
   std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);

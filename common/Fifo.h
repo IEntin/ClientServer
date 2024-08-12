@@ -135,6 +135,8 @@ public:
 				  HEADER& header,
 				  P1& payload1,
 				  P2&& payload2 = P2()) {
+    if (fdRead == -1)
+      return false;
     char buffer[HEADER_SIZE] = {};
     readString(fdRead, buffer, HEADER_SIZE);
     deserialize(header, buffer);

@@ -19,7 +19,7 @@ ThreadPoolSameObj::~ThreadPoolSameObj() {
 
 STATUS ThreadPoolSameObj::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
-  increment();
+  ++_totalNumberObjects;
   STATUS status = STATUS::NONE;;
   bool condition = _totalNumberObjects > size();
   if (condition && runnable->checkCapacity()) {
