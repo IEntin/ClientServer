@@ -27,7 +27,6 @@ class Runnable {
   virtual unsigned getNumberRunningByType() const { return 0; }
   virtual void displayCapacityCheck(std::atomic<unsigned>&) const {}
   std::string getType() const;
-  bool checkCapacity();
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;
   const unsigned _maxNumberRunningByType;

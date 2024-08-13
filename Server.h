@@ -10,7 +10,7 @@
 
 #include "Chronometer.h"
 #include "Connection.h"
-#include "ThreadPoolDiffObj.h"
+#include "ThreadPoolSessions.h"
 
 class Server;
 using ServerPtr = std::shared_ptr<Server>;
@@ -33,7 +33,7 @@ private:
   Chronometer _chronometer;
   SessionMap _sessions;
   ThreadPoolBase _threadPoolAcceptor;
-  ThreadPoolDiffObj _threadPoolSession;
+  ThreadPoolSessions _threadPoolSession;
   RunnablePtr _tcpAcceptor;
   RunnablePtr _fifoAcceptor;
   std::mutex _mutex;

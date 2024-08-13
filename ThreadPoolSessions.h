@@ -6,11 +6,11 @@
 
 #include "ThreadPoolBase.h"
 
-class ThreadPoolDiffObj : public ThreadPoolBase {
+class ThreadPoolSessions : public ThreadPoolBase {
 public:
-  explicit ThreadPoolDiffObj(int maxSize);
-  ~ThreadPoolDiffObj() override;
-  RunnablePtr get() override;
+  explicit ThreadPoolSessions(int maxSize);
+  ~ThreadPoolSessions() override;
   void calculateStatus(RunnablePtr runnable);
   STATUS push(RunnablePtr runnable) override;
+  RunnablePtr get() override;
 };

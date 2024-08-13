@@ -7,7 +7,7 @@
 #include <barrier>
 #include <queue>
 
-#include "ThreadPoolSameObj.h"
+#include "ThreadPoolBase.h"
 
 using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
@@ -33,7 +33,7 @@ class TaskController {
   void onCompletion();
   std::atomic<bool> _stopped = false;
   std::barrier<CompletionFunction> _barrier;
-  ThreadPoolSameObj _threadPool;
+  ThreadPoolBase _threadPool;
   std::mutex _queueMutex;
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;

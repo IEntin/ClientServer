@@ -10,17 +10,17 @@ of running objects. It creates threads on demand
 not creating redundant threads.
 */
 
-#include "ThreadPoolDiffObj.h"
+#include "ThreadPoolSessions.h"
 #include "Logger.h"
 
-ThreadPoolDiffObj::ThreadPoolDiffObj(int maxSize) :
+ThreadPoolSessions::ThreadPoolSessions(int maxSize) :
   ThreadPoolBase(maxSize) {}
 
-ThreadPoolDiffObj::~ThreadPoolDiffObj() {
+ThreadPoolSessions::~ThreadPoolSessions() {
   Trace << '\n';
 }
 
-void ThreadPoolDiffObj::calculateStatus(RunnablePtr runnable) {
+void ThreadPoolSessions::calculateStatus(RunnablePtr runnable) {
   ++_totalNumberObjects;
   // need one more thread ?
   bool condition1 = _totalNumberObjects > size();
@@ -37,14 +37,14 @@ void ThreadPoolDiffObj::calculateStatus(RunnablePtr runnable) {
   runnable->displayCapacityCheck(_totalNumberObjects);
 }
 
-STATUS ThreadPoolDiffObj::push(RunnablePtr runnable) {
+STATUS ThreadPoolSessions::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
   _queue.emplace_back(runnable);
   _queueCondition.notify_one();
   return runnable->_status;
 }
 
-RunnablePtr ThreadPoolDiffObj::get() {
+RunnablePtr ThreadPoolSessions::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty() || _stopped; });
   if (_stopped)

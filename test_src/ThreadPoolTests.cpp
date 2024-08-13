@@ -5,8 +5,7 @@
 #include <boost/algorithm/string.hpp>
 #include <gtest/gtest.h>
 
-#include "ThreadPoolDiffObj.h"
-#include "ThreadPoolSameObj.h"
+#include "ThreadPoolSessions.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=ThreadPoolTest*; done
 
@@ -23,7 +22,6 @@ public:
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   bool start() override {
-    checkCapacity();
     return true;
   }
   void stop() override {
@@ -36,19 +34,20 @@ public:
   }
 };
 
-TEST(ThreadPoolTest, Same) {
+TEST(ThreadPoolTest, Base) {
   std::vector<TestRunnablePtr> runnables;
   int maxNumberThreads = 10;
-  ThreadPoolSameObj pool(maxNumberThreads);
+  ThreadPoolBase pool(maxNumberThreads);
   for (int i = 0; i < 2 * maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnables.emplace_back(runnable);
     runnable->start();
+    STATUS status = pool.push(runnable);
+    ASSERT_TRUE(status == runnable->_status);
     if (i < maxNumberThreads)
       ASSERT_TRUE(runnable->_status == STATUS::NONE);
     else
-      ASSERT_TRUE(runnable->_status == STATUS::MAX_OBJECTS_OF_TYPE);
-    pool.push(runnable);
+      ASSERT_TRUE(runnable->_status == STATUS::MAX_TOTAL_OBJECTS);
   }
   ASSERT_TRUE(pool.size() == pool.maxSize());
   std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -58,10 +57,10 @@ TEST(ThreadPoolTest, Same) {
   ASSERT_TRUE(pool.size() == 0);
 }
 
-TEST(ThreadPoolTest, Diff) {
+TEST(ThreadPoolTest, Sessions) {
   std::vector<TestRunnablePtr> runnables;
   const unsigned maxNumberThreads = 20;
-  ThreadPoolDiffObj pool(maxNumberThreads);
+  ThreadPoolSessions pool(maxNumberThreads);
   for (unsigned i = 0; i < maxNumberThreads; ++i) {
     auto runnable = std::make_shared<TestRunnable>(maxNumberThreads);
     runnables.emplace_back(runnable);

@@ -76,6 +76,10 @@ void  ThreadPoolBase::createThread() {
 
 STATUS ThreadPoolBase::push(RunnablePtr runnable) {
   std::lock_guard lock(_queueMutex);
+  if (size() >= _maxSize) {
+    runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
+    return STATUS::MAX_TOTAL_OBJECTS;
+  }
   ++_totalNumberObjects;
   if (_totalNumberObjects > size()) {
     createThread();
@@ -91,7 +95,12 @@ RunnablePtr ThreadPoolBase::get() {
   _queueCondition.wait(lock, [this] { return !_queue.empty() || _stopped; });
   if (_stopped)
     return RunnablePtr();
-  RunnablePtr runnable = _queue.front();
-  _queue.pop_front();
-  return runnable;
+  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
+    RunnablePtr runnable = *it;
+    if (!runnable->_stopped && _totalNumberObjects < _maxSize) {
+      _queue.erase(it);
+      return runnable;
+    }
+  }
+  return RunnablePtr();
 }
