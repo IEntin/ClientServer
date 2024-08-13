@@ -48,7 +48,7 @@ void ThreadPoolBase::stop() {
 
 void  ThreadPoolBase::createThread() {
   _threads.emplace_back([this] () {
-    while (true) {
+    while (!_stopped) {
       struct Finally {
 	Finally(ThreadPoolBase* threadPool) : _threadPool(threadPool) {}
 	~Finally() {
@@ -59,16 +59,14 @@ void  ThreadPoolBase::createThread() {
       } finally(this);
       // this blocks waiting for a new runnable
       RunnablePtr runnable = get();
-      if (_stopped)
-	return;
-      if (!runnable)
-	continue;
-      try {
-	runnable->run();
-      }
-      catch (const std::exception& e) {
-	runnable->stop();
-	LogError << e.what() << '\n';
+      if (runnable) {
+	try {
+	  runnable->run();
+	}
+	catch (const std::exception& e) {
+	  runnable->stop();
+	  LogError << e.what() << '\n';
+	}
       }
     }
   });
