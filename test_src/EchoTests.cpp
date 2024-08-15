@@ -122,11 +122,16 @@ struct FifoNonblockingTest : testing::Test {
   }
 
   ~FifoNonblockingTest() {
-  if (_fdRead != -1 && close(_fdRead) == -1)
-    LogError << std::strerror(errno) << '\n';
-  if (_fdWrite != -1 && close(_fdWrite) == -1)
-    LogError << std::strerror(errno) << '\n';
-  std::filesystem::remove(_testFifo);
+    if (_fdRead != -1 && close(_fdRead) == -1)
+      LogError << std::strerror(errno) << '\n';
+    if (_fdWrite != -1 && close(_fdWrite) == -1)
+      LogError << std::strerror(errno) << '\n';
+    try {
+      std::filesystem::remove(_testFifo);
+    }
+    catch (const std::exception& e) {
+      Warn << e.what() << '\n';
+    }
   }
 
   bool send(std::string_view payload) {
@@ -207,7 +212,12 @@ struct FifoNonBlockingDuplexTest : testing::Test {
 
   ~FifoNonBlockingDuplexTest() {
     closeFileDescriptors();
-    std::filesystem::remove(_testFifo);
+    try {
+      std::filesystem::remove(_testFifo);
+    }
+    catch (const std::exception& e) {
+      Warn << e.what() << '\n';
+    }
   }
 
   void closeFileDescriptors() {
@@ -297,8 +307,13 @@ struct FifoNonBlockDuplex : testing::Test {
   }
 
   ~FifoNonBlockDuplex() {
-    closeFileDescriptors();
-    std::filesystem::remove(_testFifo);
+    try {
+      closeFileDescriptors();
+      std::filesystem::remove(_testFifo);
+    }
+    catch (const std::exception& e) {
+      Warn << e.what() << '\n';
+    }
   }
 
   void closeFileDescriptors() {
@@ -376,7 +391,12 @@ struct FifoBlockingTest : testing::Test {
       LogError << strerror(errno) << '\n';
   }
   ~FifoBlockingTest() {
-    std::filesystem::remove(_testFifo);
+    try {
+      std::filesystem::remove(_testFifo);
+    }
+    catch (const std::exception& e) {
+      Warn << e.what() << '\n';
+    }
   }
   bool send(std::string_view payload) {
     return fifo::Fifo::sendMsg(_testFifo, payload);

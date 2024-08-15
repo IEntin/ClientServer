@@ -61,8 +61,13 @@ void FifoAcceptor::stop() {
 
 void FifoAcceptor::removeFifoFiles() {
   for(auto const& entry : std::filesystem::directory_iterator(ServerOptions::_fifoDirectoryName))
-    if (entry.is_fifo())
-      std::filesystem::remove(entry);
+    try {
+      if (entry.is_fifo())
+	std::filesystem::remove(entry);
+    }
+    catch (const std::exception& e) {
+      Warn << e.what() << '\n';
+    }
 }
 
 } // end of namespace fifo

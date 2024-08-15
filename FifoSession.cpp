@@ -20,7 +20,12 @@ FifoSession::FifoSession(ServerWeakPtr server,
   Session(server, pubB) {}
 
 FifoSession::~FifoSession() {
-  std::filesystem::remove(_fifoName);
+  try {
+    std::filesystem::remove(_fifoName);
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+  }
   Trace << '\n';
 }
 
