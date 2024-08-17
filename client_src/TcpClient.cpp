@@ -31,16 +31,28 @@ void TcpClient::run() {
 }
 
 bool TcpClient::send(Subtask& subtask) {
-  Tcp::sendMsg(_socket, subtask._header, subtask._body);
-  return true;
+  try {
+    Tcp::sendMsg(_socket, subtask._header, subtask._body);
+    return true;
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+    return false;
+  }
 }
 
 bool TcpClient::receive() {
-  HEADER header;
-  _response.clear();
-  Tcp::readMsg(_socket, header, _response);
-  _status = STATUS::NONE;
-  return printReply(header, _response);
+  try {
+    HEADER header;
+    _response.clear();
+    Tcp::readMsg(_socket, header, _response);
+    _status = STATUS::NONE;
+    return printReply(header, _response);
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+    return false;
+  }
 }
 
 bool TcpClient::receiveStatus() {

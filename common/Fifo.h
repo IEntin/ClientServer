@@ -115,37 +115,23 @@ public:
   }
 
   template <typename P1, typename P2 = P1>
-  static bool sendMessage(int fdWrite,
-			  const HEADER& header,
-			  const P1& payload1,
-			  const P2& payload2 = P2()) {
-    if (fdWrite == -1)
+  static bool readMsgNonBlock(std::string_view name,
+			      HEADER& header,
+			      P1& payload1,
+			      P2&& payload2 = P2()) {
+    int fd = openReadNonBlock(name);
+    if (fd == -1)
       return false;
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    std::string_view headerView(headerBuffer, HEADER_SIZE);
-    writeString(fdWrite, headerView);
-    writeString(fdWrite, payload1);
-    writeString(fdWrite, payload2);
-    return true;
-  }
-
-  template <typename P1, typename P2 = P1>
-  static bool readMessageNonBlock(int fdRead,
-				  HEADER& header,
-				  P1& payload1,
-				  P2&& payload2 = P2()) {
-    if (fdRead == -1)
-      return false;
+    utility::CloseFileDescriptor cfdr(fd);
     char buffer[HEADER_SIZE] = {};
-    readString(fdRead, buffer, HEADER_SIZE);
+    readString(fd, buffer, HEADER_SIZE);
     deserialize(header, buffer);
     std::size_t payloadSize = extractPayloadSize(header);
     payload1.resize(payloadSize);
-    readString(fdRead, payload1.data(), payloadSize);
+    readString(fd, payload1.data(), payloadSize);
     std::size_t parameter = extractParameter(header);
     payload2.resize(parameter);
-    readString(fdRead, payload2.data(), parameter);
+    readString(fd, payload2.data(), parameter);
     return true;
   }
 

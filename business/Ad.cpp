@@ -85,7 +85,7 @@ void Ad::readAds(std::string_view filename) {
   while (lines.getLine(line)) {
     AdRow row(line);
     if (!row.parse()) {
-      Warn << "unexpected entry format:\"" << row._input
+      Expected << "Wrong entry format:\"" << row._input
 	   << "\", skipping.\n";
       continue;
     }

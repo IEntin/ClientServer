@@ -185,204 +185,6 @@ TEST_F(FifoNonblockingTest, FifoNonblockingTestReverse) {
   }
 }
 
-struct FifoNonBlockingDuplexTest : testing::Test {
-  static constexpr std::string_view _testFifo = "TestFifo";
-  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-  int _fdReadC = -1;// client
-  int _fdWriteC = -1;// client
-  int _fdReadS = -1;// server
-  int _fdWriteS = -1;// server
-
-  FifoNonBlockingDuplexTest() {
-    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
-      LogError << strerror(errno) << '\n';
-    _fdReadC = fifo::Fifo::openReadNonBlock(_testFifo);
-    if (_fdReadC == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdWriteC = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
-    if (_fdWriteC == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdReadS = fifo::Fifo::openReadNonBlock(_testFifo);
-    if (_fdReadS == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdWriteS = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
-    if (_fdWriteS == -1)
-      throw std::runtime_error(utility::createErrorString());
-  }
-
-  ~FifoNonBlockingDuplexTest() {
-    closeFileDescriptors();
-    try {
-      std::filesystem::remove(_testFifo);
-    }
-    catch (const std::exception& e) {
-      Warn << e.what() << '\n';
-    }
-  }
-
-  void closeFileDescriptors() {
-    if (_fdReadC != -1 && close(_fdReadC) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdReadC = -1;
-    if (_fdWriteC != -1 && close(_fdWriteC) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdWriteC  = -1;
-    if (_fdReadS != -1 && close(_fdReadS) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdReadS = -1;
-    if (_fdWriteS != -1 && close(_fdWriteS) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdWriteS = -1;
-  }
-  // client send
-  bool sendC(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_fdWriteC, payload);
-  }
-  // client receive
-  bool receiveC(std::string& received) {
-    return fifo::Fifo::readMsgNonBlock(_fdReadC, received);
-  }
-  // server send
-  bool sendS(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_fdWriteS, payload);
-  }
-  // server receive
-  bool receiveS(std::string& received) {
-    return fifo::Fifo::readMsgNonBlock(_fdReadS, received);
-  }
-
-  void testNonblockingFifoDuplex(std::string_view payload) {
-    std::string receivedIntermed;
-    ASSERT_TRUE(std::filesystem::exists(_testFifo));
-    auto fs = std::async(std::launch::async, &FifoNonBlockingDuplexTest::sendC, this, payload);
-    auto fr = std::async(std::launch::async, &FifoNonBlockingDuplexTest::receiveS, this, std::ref(receivedIntermed));
-    fr.wait();
-    fs.wait();
-    ASSERT_EQ(receivedIntermed, payload);
-    std::string receivedFin;
-    fs = std::async(std::launch::async, &FifoNonBlockingDuplexTest::sendS, this, receivedIntermed);
-    fr = std::async(std::launch::async, &FifoNonBlockingDuplexTest::receiveC, this, std::ref(receivedFin));
-    fr.wait();
-    fs.wait();
-    ASSERT_EQ(receivedFin, payload);
-  }
-
-  void SetUp() {}
-
-  void TearDown() {}
-};
-
-TEST_F(FifoNonBlockingDuplexTest, FifoNonBlockingDuplexTest) {
-  for (int i = 0; i < 10; ++i) {
-    testNonblockingFifoDuplex(_smallPayload);
-    testNonblockingFifoDuplex(TestEnvironment::_source);
-  }
-}
-
-// test close to possible usage
-struct FifoNonBlockDuplex : testing::Test {
-  static constexpr std::string_view _testFifo = "TestFifo";
-  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-  // in real code client and server run in different processes
-  int _fdReadC = -1;// client
-  int _fdWriteC = -1;// client
-  int _fdReadS = -1;// server
-  int _fdWriteS = -1;// server
-
-  FifoNonBlockDuplex() {
-    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
-      LogError << strerror(errno) << '\n';
-    _fdReadC = fifo::Fifo::openReadNonBlock(_testFifo);
-    if (_fdReadC == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdWriteC = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
-    if (_fdWriteC == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdReadS = fifo::Fifo::openReadNonBlock(_testFifo);
-    if (_fdReadS == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdWriteS = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
-    if (_fdWriteS == -1)
-      throw std::runtime_error(utility::createErrorString());
-  }
-
-  ~FifoNonBlockDuplex() {
-    try {
-      closeFileDescriptors();
-      std::filesystem::remove(_testFifo);
-    }
-    catch (const std::exception& e) {
-      Warn << e.what() << '\n';
-    }
-  }
-
-  void closeFileDescriptors() {
-    if (_fdReadC != -1 && close(_fdReadC) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdReadC = -1;
-    if (_fdWriteC != -1 && close(_fdWriteC) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdWriteC  = -1;
-    if (_fdReadS != -1 && close(_fdReadS) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdReadS = -1;
-    if (_fdWriteS != -1 && close(_fdWriteS) == -1)
-      LogError << std::strerror(errno) << '\n';
-    _fdWriteS = -1;
-  }
-  // client send
-  bool sendC(const HEADER& header, std::string_view body) {
-    return fifo::Fifo::sendMessage(_fdWriteC, header, body);
-  }
-  // client receive
-  bool receiveC(HEADER& header, std::string& body) {
-    return fifo::Fifo::readMessageNonBlock(_fdReadC, header, body);
-  }
-  // server send
-  bool sendS(const HEADER& header, std::string_view body) {
-    return fifo::Fifo::sendMessage(_fdWriteS, header, body);
-  }
-  // server receive
-  bool receiveS(HEADER& header, std::string& body) {
-    return fifo::Fifo::readMessageNonBlock(_fdReadS, header, body);
-  }
-
-  void testNonblockingFifoDuplex(std::string_view payload) {
-    ASSERT_TRUE(std::filesystem::exists(_testFifo));
-    std::size_t size = payload.size();
-    HEADER header =
-      { HEADERTYPE::SESSION, size, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
-    auto fs = std::async(std::launch::async, &FifoNonBlockDuplex::sendC, this, std::cref(header), payload);
-    HEADER headerIntermed;
-    std::string bodyIntermed;
-    auto fr = std::async(std::launch::async, &FifoNonBlockDuplex::receiveS, this, std::ref(headerIntermed), std::ref(bodyIntermed));
-    fr.wait();
-    fs.wait();
-    ASSERT_EQ(headerIntermed, header);
-    ASSERT_EQ(bodyIntermed, payload);
-    HEADER headerFin;
-    std::string bodyFin;
-    fs = std::async(std::launch::async, &FifoNonBlockDuplex::sendS, this, std::cref(headerIntermed), bodyIntermed);
-    fr = std::async(std::launch::async, &FifoNonBlockDuplex::receiveC, this, std::ref(headerFin), std::ref(bodyFin));
-    fr.wait();
-    fs.wait();
-    ASSERT_EQ(header, headerFin);
-    ASSERT_EQ(payload, bodyFin);
-  }
-
-  void SetUp() {}
-
-  void TearDown() {}
-};
-
-TEST_F(FifoNonBlockDuplex, FifoNonBlockDuplex) {
-  for (int i = 0; i < 10; ++i) {
-    testNonblockingFifoDuplex(_smallPayload);
-    testNonblockingFifoDuplex(TestEnvironment::_source);
-  }
-}
-
-
 struct FifoBlockingTest : testing::Test {
   static constexpr std::string_view _testFifo = "TestFifo";
   static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
@@ -445,5 +247,76 @@ TEST_F(FifoBlockingTest, FifoBlockingTestReverse) {
   for (int i = 0; i < 10; ++i) {
     testBlockingFifoReverse(_smallPayload);
     testBlockingFifoReverse(TestEnvironment::_source);
+  }
+}
+
+// test close to possible usage
+struct FifoNBDuplex : testing::Test {
+  static constexpr std::string_view _testFifo = "TestFifo";
+  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
+
+  FifoNBDuplex() {
+    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
+      LogError << strerror(errno) << '\n';
+  }
+
+  ~FifoNBDuplex() {
+    try {
+      std::filesystem::remove(_testFifo);
+    }
+    catch (const std::exception& e) {
+      Warn << e.what() << '\n';
+    }
+  }
+
+  // client send
+  bool sendC(const HEADER& header, std::string_view body) {
+    return fifo::Fifo::sendMsg(_testFifo, header, body);
+  }
+  // client receive
+  bool receiveC(HEADER& header, std::string& body) {
+    return fifo::Fifo::readMsgNonBlock(_testFifo, header, body);
+  }
+  // server send
+  bool sendS(const HEADER& header, std::string_view body) {
+    return fifo::Fifo::sendMsg(_testFifo, header, body);
+  }
+  // server receive
+  bool receiveS(HEADER& header, std::string& body) {
+    return fifo::Fifo::readMsgNonBlock(_testFifo, header, body);
+  }
+
+  void testFifoNBDuplex(std::string_view payload) {
+    ASSERT_TRUE(std::filesystem::exists(_testFifo));
+    std::size_t size = payload.size();
+    HEADER header =
+      { HEADERTYPE::SESSION, size, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+    auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
+    HEADER headerIntermed;
+    std::string bodyIntermed;
+    auto fr = std::async(std::launch::async, &FifoNBDuplex::receiveS, this, std::ref(headerIntermed), std::ref(bodyIntermed));
+    fr.wait();
+    fs.wait();
+    ASSERT_EQ(headerIntermed, header);
+    ASSERT_EQ(bodyIntermed, payload);
+    HEADER headerFin;
+    std::string bodyFin;
+    fs = std::async(std::launch::async, &FifoNBDuplex::sendS, this, std::cref(headerIntermed), bodyIntermed);
+    fr = std::async(std::launch::async, &FifoNBDuplex::receiveC, this, std::ref(headerFin), std::ref(bodyFin));
+    fr.wait();
+    fs.wait();
+    ASSERT_EQ(header, headerFin);
+    ASSERT_EQ(payload, bodyFin);
+  }
+
+  void SetUp() {}
+
+  void TearDown() {}
+};
+
+TEST_F(FifoNBDuplex, FifoNBDuplex) {
+  for (int i = 0; i < 10; ++i) {
+    testFifoNBDuplex(_smallPayload);
+    testFifoNBDuplex(TestEnvironment::_source);
   }
 }
