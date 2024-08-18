@@ -123,6 +123,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
   do {
     fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
     if (fd == -1) {
+      // wait until read end is open
       switch (errno) {
       case ENOENT:
       case ENXIO:
@@ -133,13 +134,6 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
       }
     }
   } while (fd == -1 && rep++ < numberRepeatENXIO);
-  if (fd != -1)
-    setPipeSize(fd);
-  return fd;
-}
-
-int Fifo::openWriteNonBlockOpenedRead(std::string_view fifoName) {
-  int fd = open(fifoName.data(), O_WRONLY | O_NONBLOCK);
   if (fd != -1)
     setPipeSize(fd);
   return fd;

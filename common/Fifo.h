@@ -140,7 +140,6 @@ public:
   static bool setPipeSize(int fd);
   static void onExit(std::string_view fifoName);
   static int openWriteNonBlock(std::string_view fifoName);
-  static int openWriteNonBlockOpenedRead(std::string_view fifoName);
   static int openReadNonBlock(std::string_view fifoName);
 };
 

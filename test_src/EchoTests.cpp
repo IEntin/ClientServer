@@ -116,7 +116,7 @@ struct FifoNonblockingTest : testing::Test {
     _fdRead = fifo::Fifo::openReadNonBlock(_testFifo);
     if (_fdRead == -1)
       throw std::runtime_error(utility::createErrorString());
-    _fdWrite = fifo::Fifo::openWriteNonBlockOpenedRead(_testFifo);
+    _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo);
     if (_fdWrite == -1)
       throw std::runtime_error(utility::createErrorString());
   }
