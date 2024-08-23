@@ -46,11 +46,7 @@ bool TcpClient::receive() {
     _response.erase(_response.begin(), _response.end());
     Tcp::readMsg(_socket, _response);
     _status = STATUS::NONE;
-    std::string_view headerView(_response.begin(), _response.begin() + HEADER_SIZE);
-    HEADER header;
-    deserialize(header, headerView.data());
-    _response.erase(_response.begin(), _response.begin() + HEADER_SIZE);
-    return printReply(header, _response);
+    return printReply();
   }
   catch (const std::exception& e) {
     Warn << e.what() << '\n';

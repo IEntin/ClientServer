@@ -61,14 +61,17 @@ bool FifoClient::send(Subtask& subtask) {
 }
 
 bool FifoClient::receive() {
-  _status = STATUS::NONE;
-  _response.erase(_response.begin(), _response.end());
-  Fifo::readMessage(_fifoName, _response);
-  std::string_view headerView(_response.begin(), _response.begin() + HEADER_SIZE);
-  HEADER header;
-  deserialize(header, headerView.data());
-  _response.erase(_response.begin(), _response.begin() + HEADER_SIZE);
-  return printReply(header, _response);
+  try {
+    _response.erase(_response.begin(), _response.end());
+    _status = STATUS::NONE;
+    _response.erase(_response.begin(), _response.end());
+    Fifo::readMessage(_fifoName, _response);
+    return printReply();
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+    return false;
+  }
 }
 
 bool FifoClient::wakeupAcceptor() {

@@ -28,7 +28,7 @@ protected:
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
-  bool printReply(const HEADER& header, std::string_view buffer) const;
+  bool printReply();
   void start();
 
   void displayMaxTotalSessionsWarn() const;

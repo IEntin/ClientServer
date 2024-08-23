@@ -73,14 +73,18 @@ void Client::stop() {
   _threadPoolClient.stop();
 }
 
-bool Client::printReply(const HEADER& header, std::string_view buffer) const {
+bool Client::printReply() {
   if (auto ptr = _heartbeat.lock(); ptr) {
     if (displayStatus(ptr->_status))
       return false;
   }
+  std::string_view headerView(_response.begin(), _response.begin() + HEADER_SIZE);
+  HEADER header;
+  deserialize(header, headerView.data());
+  _response.erase(_response.begin(), _response.begin() + HEADER_SIZE);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view restored = payloadtransform::decryptDecompress(_sharedB, header, buffer);
+  std::string_view restored = payloadtransform::decryptDecompress(_sharedB, header, _response);
   if (restored.empty()) {
     displayStatus(STATUS::ERROR);
     return false;
