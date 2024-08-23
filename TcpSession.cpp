@@ -6,7 +6,6 @@
 
 #include <array>
 
-#include "IOUtility.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
@@ -36,7 +35,7 @@ bool TcpSession::start() {
     return false;
   }
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
-  boost::asio::post(_ioContext, [this] { readHeader(); });
+  boost::asio::post(_ioContext, [this] { readSize(); });
   return true;
 }
 
@@ -75,9 +74,10 @@ bool TcpSession::sendReply() {
   return true;
 }
 
-void TcpSession::readHeader() {
+void TcpSession::readSize() {
+  std::memset(_sizeBuffer, '\0', ioutility::CONV_BUFFER_SIZE);
   boost::asio::async_read(_socket,
-  boost::asio::buffer(_headerBuffer),
+  boost::asio::buffer(_sizeBuffer),
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)
@@ -95,22 +95,19 @@ void TcpSession::readHeader() {
 	_ioContext.stop();
 	return;
       }
-      HEADER header;
-      deserialize(header, _headerBuffer);
-      if (!isOk(header)) {
-	LogError << "header is invalid." << '\n';
-	return;
-      }
-      _request.resize(extractPayloadSize(header));
-      readRequest(header);
+      std::size_t payloadSz = 0;
+      std::string_view sizeStr(_sizeBuffer, ioutility::CONV_BUFFER_SIZE);
+      ioutility::fromChars(sizeStr, payloadSz);
+      _request.resize(payloadSz);
+      readRequest();
     });
 }
 
-void TcpSession::readRequest(const HEADER& header) {
+void TcpSession::readRequest() {
   asyncWait();
   boost::asio::async_read(_socket,
     boost::asio::buffer(_request),
-    [this, header] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) mutable {
+    [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) mutable {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -123,7 +120,7 @@ void TcpSession::readRequest(const HEADER& header) {
       }
       if (_status != STATUS::NONE)
 	return;
-      if (processTask(header))
+      if (processTask())
 	sendReply();
       else {
 	boost::asio::post(_ioContext, [this] {
@@ -135,7 +132,12 @@ void TcpSession::readRequest(const HEADER& header) {
 
 void TcpSession::write(const HEADER& header, std::string_view body) {
   serialize(header, _headerBuffer);
-  std::array<boost::asio::const_buffer, 2> asioBuffers{boost::asio::buffer(_headerBuffer),  boost::asio::buffer(body)};
+  std::size_t payloadSize = HEADER_SIZE + body.size();
+  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
+  ioutility::toChars(payloadSize, sizeStr);
+  std::array<boost::asio::const_buffer, 3> asioBuffers{ boost::asio::buffer(sizeStr),
+						        boost::asio::buffer(_headerBuffer),
+						        boost::asio::buffer(body) };
   boost::asio::async_write(_socket,
     asioBuffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
@@ -150,7 +152,7 @@ void TcpSession::write(const HEADER& header, std::string_view body) {
 	return;
       }
       if (_status == STATUS::NONE)
-	readHeader();
+	readSize();
     });
 }
 

@@ -49,7 +49,7 @@ bool FifoClient::send(Subtask& subtask) {
       if (ec)
 	LogError << ec.message() << '\n';
     }
-    if (Fifo::sendMsg(_fifoName, subtask._header, subtask._body))
+    if (Fifo::sendMessage(_fifoName, subtask._header, subtask._body))
       return true;
     // waiting client
     // server stopped
@@ -62,10 +62,12 @@ bool FifoClient::send(Subtask& subtask) {
 
 bool FifoClient::receive() {
   _status = STATUS::NONE;
-  _response.clear();
+  _response.erase(_response.begin(), _response.end());
+  Fifo::readMessage(_fifoName, _response);
+  std::string_view headerView(_response.begin(), _response.begin() + HEADER_SIZE);
   HEADER header;
-  if (!Fifo::readMsgBlock(_fifoName, header, _response))
-    return false;
+  deserialize(header, headerView.data());
+  _response.erase(_response.begin(), _response.begin() + HEADER_SIZE);
   return printReply(header, _response);
 }
 

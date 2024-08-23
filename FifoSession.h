@@ -15,7 +15,7 @@ namespace fifo {
 class FifoSession final : public RunnableT<FifoSession>,
 			  public Session {
   std::string _fifoName;
-  bool receiveRequest(HEADER& header);
+  bool receiveRequest();
   bool sendResponse();
   bool start() override;
   void run() override;

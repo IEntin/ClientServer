@@ -113,8 +113,6 @@ TEST(HeaderTest, 1) {
   HEADER header{HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   deserialize(header, buffer);
-  std::size_t payloadSzResult = extractPayloadSize(header);
-  ASSERT_EQ(payloadSz, payloadSzResult);
   std::size_t uncomprSzResult = extractUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);
   COMPRESSORS compressorResult = extractCompressor(header);

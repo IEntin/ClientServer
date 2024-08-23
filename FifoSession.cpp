@@ -43,9 +43,8 @@ void FifoSession::run() {
   CountRunning countRunning;
   if (!std::filesystem::exists(_fifoName) || _stopped)
     return;
-  while (true) {
-    HEADER header;
-    if (!receiveRequest(header))
+  while (!_stopped) {
+    if (!receiveRequest())
       break;
   }
 }
@@ -55,7 +54,7 @@ void FifoSession::stop() {
   Fifo::onExit(_fifoName);
 }
 
-bool FifoSession::receiveRequest(HEADER& header) {
+bool FifoSession::receiveRequest() {
   if (!std::filesystem::exists(_fifoName))
     return false;
   switch (_status) {
@@ -66,10 +65,15 @@ bool FifoSession::receiveRequest(HEADER& header) {
   default:
     break;
   }
-  if (!Fifo::readMsgBlock(_fifoName, header, _request))
-    return false;
-  if (processTask(header))
-    return sendResponse();
+  try {
+    _request.erase(_request.begin(), _request.end());
+    Fifo::readMessage(_fifoName, _request);
+    if (processTask())
+      return sendResponse();
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+  }
   return false;
 }
 
@@ -80,7 +84,7 @@ bool FifoSession::sendResponse() {
   std::string_view body = buildReply(header, _status);
   if (body.empty())
     return false;
-  return Fifo::sendMsg(_fifoName, header, body);
+  return Fifo::sendMessage(_fifoName, header, body);
 }
 
 void FifoSession::sendStatusToClient() {

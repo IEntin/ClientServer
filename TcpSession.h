@@ -6,6 +6,7 @@
 
 #include <boost/asio.hpp>
 
+#include "IOUtility.h"
 #include "Runnable.h"
 #include "Session.h"
 
@@ -31,8 +32,8 @@ private:
   void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
   std::string_view getDisplayName() const override{ return "tcp"; }
-  void readHeader();
-  void readRequest(const HEADER& header);
+  void readSize();
+  void readRequest();
   void write(const HEADER& header, std::string_view msg);
   void asyncWait();
   bool sendReply();
@@ -40,6 +41,7 @@ private:
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
+  char _sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
   char _headerBuffer[HEADER_SIZE] = {};
 };
 

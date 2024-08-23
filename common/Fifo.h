@@ -35,7 +35,7 @@ public:
     while (readSoFar < HEADER_SIZE) {
       ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
       if (result == -1)
-	throw std::runtime_error(std::strerror(errno));
+	throw std::runtime_error(utility::createErrorString());
       else if (result == 0) {
 	Info << name << "-EOF" << '\n';
 	return false;
@@ -67,7 +67,7 @@ public:
 	    continue;
 	    break;
 	  default:
-	    throw std::runtime_error(std::strerror(errno));
+	    throw std::runtime_error(utility::createErrorString());
 	    break;
 	  }
 	}
@@ -87,7 +87,7 @@ public:
 	  pollFd(fd, POLLOUT);
 	  break;
 	default:
-	  throw std::runtime_error(std::strerror(errno));
+	  throw std::runtime_error(utility::createErrorString());
 	  break;
 	}
       }
@@ -135,6 +135,8 @@ public:
     return true;
   }
 
+  static bool sendMessage(std::string_view name, const HEADER& header, std::string_view body);
+  static bool readMessage(std::string_view name, std::string&payload);
   static bool sendMsg(std::string_view name, std::string_view payload);
   static bool sendMsg(int fdWrite, std::string_view payload);
   static bool setPipeSize(int fd);

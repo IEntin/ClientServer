@@ -44,7 +44,11 @@ std::string_view Session::buildReply(HEADER& header, std::atomic<STATUS>& status
   return payloadtransform::compressEncrypt(_sharedA, _responseData, header);
 }
 
-bool Session::processTask(const HEADER& header) {
+bool Session::processTask() {
+  std::string_view headerView(_request.begin(), _request.begin() + HEADER_SIZE);
+  HEADER header;
+  deserialize(header, headerView.data());
+  _request.erase(_request.begin(), _request.begin() + HEADER_SIZE);
   auto weakPtr = TaskController::getWeakPtr();
   if (auto taskController = weakPtr.lock(); taskController) {
     std::string_view restored = payloadtransform::decryptDecompress(_sharedA, header, _request);

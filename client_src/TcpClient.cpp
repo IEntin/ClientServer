@@ -32,7 +32,7 @@ void TcpClient::run() {
 
 bool TcpClient::send(Subtask& subtask) {
   try {
-    Tcp::sendMsg(_socket, subtask._header, subtask._body);
+    Tcp::sendMessage(_socket, subtask._header, subtask._body);
     return true;
   }
   catch (const std::exception& e) {
@@ -43,10 +43,13 @@ bool TcpClient::send(Subtask& subtask) {
 
 bool TcpClient::receive() {
   try {
-    HEADER header;
-    _response.clear();
-    Tcp::readMsg(_socket, header, _response);
+    _response.erase(_response.begin(), _response.end());
+    Tcp::readMsg(_socket, _response);
     _status = STATUS::NONE;
+    std::string_view headerView(_response.begin(), _response.begin() + HEADER_SIZE);
+    HEADER header;
+    deserialize(header, headerView.data());
+    _response.erase(_response.begin(), _response.begin() + HEADER_SIZE);
     return printReply(header, _response);
   }
   catch (const std::exception& e) {

@@ -143,4 +143,56 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
+bool Fifo::sendMessage(std::string_view name, const HEADER& header, std::string_view body) {
+  int fdWrite = openWriteNonBlock(name);
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  if (fdWrite == -1)
+    return false;
+  char sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
+  std::size_t payloadSz = HEADER_SIZE + body.size();
+  ioutility::toChars(payloadSz, sizeBuffer);
+  std::string_view sizeStr(sizeBuffer, ioutility::CONV_BUFFER_SIZE);
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  std::string_view headerView(headerBuffer, HEADER_SIZE);
+  writeString(fdWrite, sizeStr);
+  writeString(fdWrite, headerView);
+  writeString(fdWrite, body);
+  return true;
+}
+
+bool Fifo::readMessage(std::string_view name, std::string&payload) {
+  int fd = open(name.data(), O_RDONLY);
+  utility::CloseFileDescriptor cfdr(fd);
+  std::size_t payloadSz = 0;
+  char sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
+  std::size_t readSoFar = 0;
+  while (readSoFar < ioutility::CONV_BUFFER_SIZE) {
+    ssize_t result = read(fd, sizeBuffer + readSoFar, ioutility::CONV_BUFFER_SIZE - readSoFar);
+    if (result == -1)
+      throw std::runtime_error(utility::createErrorString());
+    else if (result == 0) {
+      Info << name << "-EOF" << '\n';
+      return false;
+    }
+    else
+      readSoFar += result;
+  }
+  std::string_view sizeStr(sizeBuffer, ioutility::CONV_BUFFER_SIZE);
+  ioutility::fromChars(sizeStr, payloadSz);
+  payload.resize(payloadSz);
+  readSoFar = 0;
+  while (readSoFar < payloadSz) {
+    ssize_t result = read(fd, payload.data() + readSoFar, payloadSz - readSoFar);
+    if (result == -1)
+      throw std::runtime_error(utility::createErrorString());
+    else if (result == 0) {
+      Info << name << "-EOF" << '\n';
+      return false;
+    }
+    else
+      readSoFar += result;
+  }
+  return true;
+}
 } // end of namespace fifo

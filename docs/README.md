@@ -31,7 +31,7 @@ For now any distribution and/or version supporting C++20 is expected to work as 
 LZ4 must be installed:\
 'sudo apt-get install liblz4-dev'
 
-Header only boost libraries, currently boost 1_85, must be installed.
+Header only boost libraries, currently boost 1_86, must be installed.
 
 google tests must be installed:\
 'sudo scripts/installGtest.sh'

@@ -38,7 +38,7 @@ protected:
   Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB);
   virtual ~Session();
   std::string_view buildReply(HEADER& header, std::atomic<STATUS>& status);
-  bool processTask(const HEADER& header);
+  bool processTask();
   void displayCapacityCheck(unsigned totalNumberObjects,
 			    unsigned numberObjects,
 			    unsigned numberRunningByType,
