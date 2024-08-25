@@ -8,9 +8,9 @@
 #include <cryptopp/aes.h>
 
 #include "ClientOptions.h"
+#include "Compression.h"
 #include "Crypto.h"
 #include "Metrics.h"
-#include "PayloadTransform.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 
@@ -78,13 +78,40 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
+  bool encrypted = true;
+  try {
+    HEADER header;
+    std::string_view probe(_response.begin(), _response.begin() + HEADER_SIZE);
+    deserialize(header, probe.data());
+    encrypted = isEncrypted(header);
+  }
+  catch (...) {
+    encrypted = true;
+  }
+  std::string_view restored;
+  if (encrypted)
+    restored = Crypto::decrypt(_sharedB, _response);
+  else
+    restored = _response;
+  std::string_view headerView = std::string_view(restored.begin(), restored.begin() + HEADER_SIZE);
+  HEADER header;
+  deserialize(header, headerView.data());
+  std::size_t uncomprSize = extractUncompressedSize(header);
+  restored.remove_prefix(HEADER_SIZE);
+  if (isCompressed(header))
+    restored = compression::uncompress(restored, uncomprSize);
+
+
+  /*
   std::string_view headerView(_response.begin(), _response.begin() + HEADER_SIZE);
   HEADER header;
   deserialize(header, headerView.data());
   _response.erase(_response.begin(), _response.begin() + HEADER_SIZE);
+  */
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-  std::string_view restored = payloadtransform::decryptDecompress(_sharedB, header, _response);
+
+  //std::string_view restored = payloadtransform::decryptDecompress(_sharedB, header, _response);
   if (restored.empty()) {
     displayStatus(STATUS::ERROR);
     return false;

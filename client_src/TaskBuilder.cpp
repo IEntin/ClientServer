@@ -7,10 +7,11 @@
 #include <cassert>
 
 #include "ClientOptions.h"
+#include "Compression.h"
+#include "Crypto.h"
 #include "IOUtility.h"
 #include "FileLines.h"
 #include "Logger.h"
-#include "PayloadTransform.h"
 
 Subtask TaskBuilder::_emptySubtask;
 
@@ -123,7 +124,14 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     ClientOptions::_diagnostics,
     _status,
     0 };
-  std::string_view output = payloadtransform::compressEncrypt(_key, _aggregate, header);
+  if (isCompressed(header))
+    _aggregate = compression::compress(_aggregate);
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  std::string_view headerStr(headerBuffer, HEADER_SIZE);
+  _aggregate.insert(_aggregate.begin(), headerStr.cbegin(), headerStr.cend());
+  if (isEncrypted(header))
+    _aggregate = Crypto::encrypt(_key, _aggregate);
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;
@@ -135,7 +143,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     subtaskRef = _subtasks.emplace_back();
   Subtask& subtask = subtaskRef.get();
   subtask._header = header;
-  subtask._body = output;
+  subtask._body = _aggregate;
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

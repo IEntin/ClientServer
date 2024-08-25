@@ -67,7 +67,8 @@ bool FifoSession::receiveRequest() {
   }
   try {
     _request.erase(_request.begin(), _request.end());
-    Fifo::readMessage(_fifoName, _request);
+    if (!Fifo::readMessage(_fifoName, _request))
+      return false;
     if (processTask())
       return sendResponse();
   }
@@ -80,11 +81,10 @@ bool FifoSession::receiveRequest() {
 bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
-  HEADER header;
-  std::string_view body = buildReply(header, _status);
-  if (body.empty())
+  std::string_view payload = buildReply(_status);
+  if (payload.empty())
     return false;
-  return Fifo::sendMessage(_fifoName, header, body);
+  return Fifo::sendMessage(_fifoName, payload);
 }
 
 void FifoSession::sendStatusToClient() {

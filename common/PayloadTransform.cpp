@@ -16,7 +16,6 @@ std::string_view compressEncrypt(const CryptoPP::SecByteBlock& key,
     output = compression::compress(output);
   if (isEncrypted(header))
     output = Crypto::encrypt(key, output);
-  std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header) = output.size();
   return output;
 }
 

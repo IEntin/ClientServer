@@ -34,7 +34,7 @@ private:
   std::string_view getDisplayName() const override{ return "tcp"; }
   void readSize();
   void readRequest();
-  void write(const HEADER& header, std::string_view msg);
+  void write(std::string_view payload);
   void asyncWait();
   bool sendReply();
   ConnectionPtr _connection;
@@ -42,7 +42,6 @@ private:
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
   char _sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
-  char _headerBuffer[HEADER_SIZE] = {};
 };
 
 } // end of namespace tcp

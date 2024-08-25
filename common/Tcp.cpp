@@ -29,7 +29,7 @@ void Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   deserialize(header, buffer);
 }
 
-void Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body) {
+bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body) {
   std::size_t payloadSize = HEADER_SIZE + body.size();
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
   ioutility::toChars(payloadSize, sizeStr);
@@ -40,17 +40,21 @@ void Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header
 	    boost::asio::buffer(headerBuffer),
 	    boost::asio::buffer(body)};
   std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
+  return bytes == payloadSize;
 }
 
-void Tcp::sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
+bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body) {
+  std::size_t payloadSize = body.size();
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
-  ioutility::toChars(payload.size(), sizeStr);
+  ioutility::toChars(payloadSize, sizeStr);
   std::array<boost::asio::const_buffer, 2>
-    buffers{boost::asio::buffer(sizeStr), boost::asio::buffer(payload)};
+    buffers{boost::asio::buffer(sizeStr),
+	    boost::asio::buffer(body)};
   std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
+  return bytes == payloadSize;
 }
 
-void Tcp::readMsg(boost::asio::ip::tcp::socket& socket, std::string& payload) {
+bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload) {
   socket.wait(boost::asio::ip::tcp::socket::wait_read);
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
   std::size_t transferred[[maybe_unused]] =
@@ -59,6 +63,7 @@ void Tcp::readMsg(boost::asio::ip::tcp::socket& socket, std::string& payload) {
   ioutility::fromChars(buffer, payloadSize);
   payload.resize(payloadSize);
   transferred = boost::asio::read(socket, boost::asio::buffer(payload));
+  return transferred == payloadSize;
 }
 
 } // end of namespace tcp

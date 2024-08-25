@@ -47,9 +47,9 @@ public:
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers);
   }
 
-  static void sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body);
-  static void sendMsg(boost::asio::ip::tcp::socket& socket, std::string_view payload);
-  static void readMsg(boost::asio::ip::tcp::socket& socket, std::string& payload);
+  static bool sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body);
+  static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body);
+  static bool readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload);
 };
 
 } // end of namespace tcp

@@ -161,9 +161,25 @@ bool Fifo::sendMessage(std::string_view name, const HEADER& header, std::string_
   return true;
 }
 
-bool Fifo::readMessage(std::string_view name, std::string&payload) {
+bool Fifo::sendMessage(std::string_view name, std::string_view body) {
+  int fdWrite = openWriteNonBlock(name);
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  if (fdWrite == -1)
+    return false;
+  char sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
+  std::size_t payloadSz = body.size();
+  ioutility::toChars(payloadSz, sizeBuffer);
+  std::string_view sizeStr(sizeBuffer, ioutility::CONV_BUFFER_SIZE);
+  writeString(fdWrite, sizeStr);
+  writeString(fdWrite, body);
+  return true;
+}
+
+bool Fifo::readMessage(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
+  if (fd == -1)
+    return false;
   std::size_t payloadSz = 0;
   char sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
   std::size_t readSoFar = 0;

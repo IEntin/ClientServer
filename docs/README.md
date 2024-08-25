@@ -61,8 +61,9 @@ Business logic, tasks multithreading, and communication layer are decoupled.
 Encryption: Elliptic-curve Diffie–Hellman (ECDH) protocol is used.\
 Symmetric encryption is used after the key is set for each session/client.\
 The key is specific for every session/client pair.\
-Unlike simple Diffie-Hellman the used protocol is resistant to\
-'Man In The Middle' attack types.
+Unlike simple Diffie-Hellman the protocol in use is resistant to\
+'Man In The Middle' attack types. Headers being sent with the data\
+are encrypted as well.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\
