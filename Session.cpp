@@ -6,7 +6,6 @@
 
 #include <cryptopp/aes.h>
 
-#include "Compression.h"
 #include "Crypto.h"
 #include "Logger.h"
 #include "Server.h"
@@ -42,40 +41,12 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, 0, uncompressedSz, ServerOptions::_compressor, ServerOptions::_encrypted, DIAGNOSTICS::NONE, status, 0 };
-  if (isCompressed(header))
-    _responseData = compression::compress(_responseData);
-  char headerBuffer[HEADER_SIZE] = {};
-  serialize(header, headerBuffer);
-  std::string_view headerStr(headerBuffer, HEADER_SIZE);
-  _responseData.insert(_responseData.begin(), headerStr.cbegin(), headerStr.cend());
-  if (isEncrypted(header))
-    _responseData = Crypto::encrypt(_sharedA, _responseData);
-  return _responseData;
+  return utility::compressEncrypt(header, _sharedA, _responseData);
 }
 
 bool Session::processTask() {
-  bool encrypted = true;
-  try {
-    HEADER header;
-    std::string_view probe(_request.begin(), _request.begin() + HEADER_SIZE);
-    deserialize(header, probe.data());
-    encrypted = isEncrypted(header);
-  }
-  catch (...) {
-    encrypted = true;
-  }
-  std::string_view restored;
-  if (encrypted)
-    restored = Crypto::decrypt(_sharedA, _request);
-  else
-    restored = _request;
-  std::string_view headerView = std::string_view(restored.begin(), restored.begin() + HEADER_SIZE);
   HEADER header;
-  deserialize(header, headerView.data());
-  restored.remove_prefix(HEADER_SIZE);
-  std::size_t uncomprSize = extractUncompressedSize(header);
-  if (isCompressed(header))
-    restored = compression::uncompress(restored, uncomprSize);
+  std::string_view restored = utility::decryptDecompress(header, _sharedA, _request);
   auto weakPtr = TaskController::getWeakPtr();
   if (auto taskController = weakPtr.lock(); taskController) {
     _task->update(isDiagnosticsEnabled(header), restored);

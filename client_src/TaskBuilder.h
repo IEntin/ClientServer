@@ -8,7 +8,7 @@
 #include <deque>
 #include <mutex>
 
-#include <cryptopp/integer.h>
+#include <cryptopp/secblock.h>
 
 #include "Runnable.h"
 #include "Subtask.h"

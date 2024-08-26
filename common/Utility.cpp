@@ -8,6 +8,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "Compression.h"
+#include "Crypto.h"
 #include "IOUtility.h"
 #include "Logger.h"
 
@@ -75,6 +77,45 @@ std::string createErrorString(const boost::source_location& location) {
   msg.append(1, ':').append(location.file_name()).append(1, ':');
   ioutility::toChars(location.line(), msg);
   return msg.append(1, ' ').append(location.function_name());
+}
+
+std::string_view
+compressEncrypt(const HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data) {
+  if (isCompressed(header))
+    data = compression::compress(data);
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  std::string_view headerStr(headerBuffer, HEADER_SIZE);
+  data.insert(data.begin(), headerStr.cbegin(), headerStr.cend());
+  if (isEncrypted(header))
+    data = Crypto::encrypt(key, data);
+  return data;
+  }
+
+std::string_view
+decryptDecompress(HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data) {
+  bool encrypted = true;
+  try {
+    HEADER header;
+    std::string_view probe(data.begin(), data.begin() + HEADER_SIZE);
+    deserialize(header, probe.data());
+    encrypted = isEncrypted(header);
+  }
+  catch (...) {
+    encrypted = true;
+  }
+  std::string_view restored;
+  if (encrypted)
+    restored = Crypto::decrypt(key, data);
+  else
+    restored = data;
+  std::string_view headerView = std::string_view(restored.begin(), restored.begin() + HEADER_SIZE);
+  deserialize(header, headerView.data());
+  restored.remove_prefix(HEADER_SIZE);
+  std::size_t uncomprSize = extractUncompressedSize(header);
+  if (isCompressed(header))
+    restored = compression::uncompress(restored, uncomprSize);
+  return restored;
 }
 
 } // end of namespace utility

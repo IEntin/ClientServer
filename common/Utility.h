@@ -10,6 +10,10 @@
 
 #include <boost/assert/source_location.hpp>
 
+#include <cryptopp/secblock.h>
+
+#include "Header.h"
+
 namespace utility {
 
 // INPUT can be a string or string_view.
@@ -80,5 +84,11 @@ std::string createErrorString(std::errc ec,
 			      const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
 std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
+
+std::string_view
+compressEncrypt(const HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data);
+
+std::string_view
+decryptDecompress(HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data);
 
 } // end of namespace utility
