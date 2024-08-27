@@ -131,7 +131,6 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   else
     subtaskRef = _subtasks.emplace_back();
   Subtask& subtask = subtaskRef.get();
-  subtask._header = header;
   subtask._body = data;
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();

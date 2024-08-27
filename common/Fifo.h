@@ -136,8 +136,8 @@ public:
   }
 
   static bool sendMessage(std::string_view name, const HEADER& header, std::string_view body);
-  static bool sendMessage(std::string_view name, std::string_view body);
-  static bool readMessage(std::string_view name, std::string&payload);
+  static bool sendMessage(std::string_view name, std::string_view payload);
+  static bool readMessage(std::string_view name, std::string& payload);
   static bool sendMsg(std::string_view name, std::string_view payload);
   static bool sendMsg(int fdWrite, std::string_view payload);
   static bool setPipeSize(int fd);
