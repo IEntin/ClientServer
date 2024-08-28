@@ -170,22 +170,19 @@ bool Fifo::sendMessage(std::string_view name, std::string_view payload) {
   return true;
 }
 
-// message size unknown, read until EOF
 bool Fifo::readMessage(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1)
     return false;
-  constexpr std::size_t bufferSz = 1000;
-  char buffer[bufferSz] = {};
+  static constexpr std::size_t BUFFER_SIZE = 10000;
+  char buffer[BUFFER_SIZE] = {};
   while (true) {
-    ssize_t result = read(fd, buffer, bufferSz);
+    ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1)
       throw std::runtime_error(utility::createErrorString());
-    else if (result == 0) {
-      Trace << name << "-EOF" << '\n';
-      return !payload.empty();
-    }
+    else if (result == 0)
+      break;
     else
       payload.append(buffer, result);
   }

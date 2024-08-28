@@ -11,7 +11,8 @@
 namespace tcp {
 
 TcpClient::TcpClient() : _socket(_ioContext) {
-  Tcp::setSocket(_socket);
+  if (!Tcp::setSocket(_socket))
+    throw std::runtime_error(utility::createErrorString());
   std::size_t size = _pubB.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
@@ -44,7 +45,8 @@ bool TcpClient::send(Subtask& subtask) {
 bool TcpClient::receive() {
   try {
     _response.erase(_response.begin(), _response.end());
-    Tcp::readMessage(_socket, _response);
+    if (!Tcp::readMessage(_socket, _response))
+      return false;
     _status = STATUS::NONE;
     return printReply();
   }
@@ -58,7 +60,8 @@ bool TcpClient::receiveStatus() {
   HEADER header;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  Tcp::readMsg(_socket, header, clientIdStr, pubAreceived);
+  if (!Tcp::readMsg(_socket, header, clientIdStr, pubAreceived))
+    return false;
   ioutility::fromChars(clientIdStr, _clientId);
   if (!_dhB.Agree(_sharedB, _privB, pubAreceived))
     return false;
