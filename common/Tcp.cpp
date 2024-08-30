@@ -68,19 +68,16 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header
 }
 
 bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body) {
-  std::size_t payloadSize = body.size();
-  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
-  ioutility::toChars(payloadSize, sizeStr);
   std::array<boost::asio::const_buffer, 2>
-    buffers{boost::asio::buffer(sizeStr),
-	    boost::asio::buffer(body)};
+    buffers{ boost::asio::buffer(body),
+	     boost::asio::buffer(ioutility::ENDOFMESSAGE) };
   boost::system::error_code ec;
   std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
   if (ec) {
     LogError << ec.what() << '\n';
     return false;
   }
-  return bytes == payloadSize;
+  return true;
 }
 
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload) {

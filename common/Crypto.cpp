@@ -34,7 +34,7 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   static thread_local std::string cipher;
-  cipher.erase(cipher.begin(), cipher.end());
+  cipher.erase(0);
   //LogAlways << "\t### " << cipher.capacity() << '\n';
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
@@ -51,7 +51,7 @@ std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
   auto beg = data.data() + data.size() - iv.size();
   std::copy(beg, beg + iv.size(), iv.data());
   static thread_local std::string decrypted;
-  decrypted.erase(decrypted.begin(), decrypted.end());
+  decrypted.erase(0);
   //LogAlways << "\t### " << decrypted.capacity() << '\n';
   CryptoPP::AES::Decryption aesDecryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());

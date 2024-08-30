@@ -32,7 +32,6 @@ private:
   void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
   std::string_view getDisplayName() const override{ return "tcp"; }
-  void readSize();
   void readRequest();
   void write(std::string_view payload);
   void asyncWait();
@@ -41,7 +40,6 @@ private:
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _timeoutTimer;
-  char _sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
 };
 
 } // end of namespace tcp

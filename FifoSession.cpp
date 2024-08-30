@@ -66,7 +66,7 @@ bool FifoSession::receiveRequest() {
     break;
   }
   try {
-    _request.erase(_request.begin(), _request.end());
+    _request.erase(0);
     if (!Fifo::readMessage(_fifoName, _request))
       return false;
     if (processTask())

@@ -35,7 +35,7 @@ bool TcpSession::start() {
     return false;
   }
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
-  boost::asio::post(_ioContext, [this] { readSize(); });
+  boost::asio::post(_ioContext, [this] { readRequest(); });
   return true;
 }
 
@@ -52,6 +52,14 @@ void TcpSession::sendStatusToClient() {
 
 void TcpSession::run() noexcept {
   try {
+    switch (_status) {
+    case STATUS::MAX_OBJECTS_OF_TYPE:
+    case STATUS::MAX_TOTAL_OBJECTS:
+      _status = STATUS::NONE;
+      break;
+    default:
+      break;
+    }
     CountRunning countRunning;
     _ioContext.run();
   }
@@ -73,40 +81,15 @@ bool TcpSession::sendReply() {
   return true;
 }
 
-void TcpSession::readSize() {
-  std::memset(_sizeBuffer, '\0', ioutility::CONV_BUFFER_SIZE);
-  boost::asio::async_read(_socket,
-  boost::asio::buffer(_sizeBuffer),
-    [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
-      auto self = weak_from_this().lock();
-      if (!self)
-	return;
-      switch (_status) {
-      case STATUS::MAX_OBJECTS_OF_TYPE:
-      case STATUS::MAX_TOTAL_OBJECTS:
-	_status = STATUS::NONE;
-	break;
-      default:
-	break;
-      }
-      if (ec) {
-	(ec == boost::asio::error::eof ? Warn : LogError) << ec.what() << '\n';
-	_ioContext.stop();
-	return;
-      }
-      std::size_t payloadSz = 0;
-      std::string_view sizeStr(_sizeBuffer, ioutility::CONV_BUFFER_SIZE);
-      ioutility::fromChars(sizeStr, payloadSz);
-      _request.resize(payloadSz);
-      readRequest();
-    });
-}
-
 void TcpSession::readRequest() {
   asyncWait();
-  boost::asio::async_read(_socket,
-    boost::asio::buffer(_request),
-    [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) mutable {
+  _request.erase(0);
+  boost::asio::async_read_until(_socket,
+    boost::asio::dynamic_string_buffer(_request),
+    ioutility::ENDOFMESSAGE,
+    [this] (const boost::system::error_code& ec, std::size_t transferred) mutable {
+      if (transferred > ioutility::ENDOFMESSAGE.size())
+	_request.erase(transferred - ioutility::ENDOFMESSAGE.size());
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -134,7 +117,7 @@ void TcpSession::write(std::string_view payload) {
   char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
   ioutility::toChars(payloadSize, sizeStr);
   std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(sizeStr),
-						        boost::asio::buffer(payload) };
+							boost::asio::buffer(payload) };
   boost::asio::async_write(_socket,
     asioBuffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
@@ -149,7 +132,7 @@ void TcpSession::write(std::string_view payload) {
 	return;
       }
       if (_status == STATUS::NONE)
-	readSize();
+	readRequest();
     });
 }
 

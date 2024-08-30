@@ -44,7 +44,7 @@ bool TcpClient::send(Subtask& subtask) {
 
 bool TcpClient::receive() {
   try {
-    _response.erase(_response.begin(), _response.end());
+    _response.erase(0);
     if (!Tcp::readMessage(_socket, _response))
       return false;
     _status = STATUS::NONE;
