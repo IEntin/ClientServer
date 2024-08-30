@@ -74,7 +74,7 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view bod
   boost::system::error_code ec;
   std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
   if (ec) {
-    LogError << ec.what() << '\n';
+    Warn << ec.what() << '\n';
     return false;
   }
   return true;
@@ -87,22 +87,17 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
     LogError << ec.what() << '\n';
     return false;
   }
-  char buffer[ioutility::CONV_BUFFER_SIZE] = {};
-  std::size_t transferred[[maybe_unused]] =
-    boost::asio::read(socket, boost::asio::buffer(buffer), ec);
+  std::size_t transferred = boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), ioutility::ENDOFMESSAGE, ec);
   if (ec) {
-    LogError << ec.what() << '\n';
+    if (errno == EAGAIN)
+      Trace << ec.what() << '\n';
+    else
+      LogError << ec.what() << '\n';
     return false;
   }
-  std::size_t payloadSize = 0;
-  ioutility::fromChars(buffer, payloadSize);
-  payload.resize(payloadSize);
-  transferred = boost::asio::read(socket, boost::asio::buffer(payload), ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
-  }
-  return transferred == payloadSize;
+  if (transferred > ioutility::ENDOFMESSAGE.size())
+    payload.erase(transferred - ioutility::ENDOFMESSAGE.size());
+  return true;
 }
 
 } // end of namespace tcp

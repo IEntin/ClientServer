@@ -94,7 +94,10 @@ void TcpSession::readRequest() {
       if (!self)
 	return;
       if (ec) {
-	LogError << ec.what() << '\n';
+	if (errno == EAGAIN)
+	  Trace << ec.what() << '\n';
+	else
+	  LogError << ec.what() << '\n';
 	boost::asio::post(_ioContext, [this] {
 	  _timeoutTimer.cancel();
 	});
@@ -113,11 +116,8 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::write(std::string_view payload) {
-  std::size_t payloadSize = payload.size();
-  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
-  ioutility::toChars(payloadSize, sizeStr);
-  std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(sizeStr),
-							boost::asio::buffer(payload) };
+  std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(payload),
+							boost::asio::buffer(ioutility::ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
     asioBuffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
