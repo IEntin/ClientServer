@@ -66,7 +66,6 @@ public:
     return true;
   }
 
-  static bool sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body);
   static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body);
   static bool readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload);
 };

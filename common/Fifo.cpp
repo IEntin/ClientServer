@@ -148,14 +148,9 @@ bool Fifo::sendMessage(std::string_view name, const HEADER& header, std::string_
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)
     return false;
-  char sizeBuffer[ioutility::CONV_BUFFER_SIZE] = {};
-  std::size_t payloadSz = HEADER_SIZE + body.size();
-  ioutility::toChars(payloadSz, sizeBuffer);
-  std::string_view sizeStr(sizeBuffer, ioutility::CONV_BUFFER_SIZE);
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   std::string_view headerView(headerBuffer, HEADER_SIZE);
-  //writeString(fdWrite, sizeStr);
   writeString(fdWrite, headerView);
   writeString(fdWrite, body);
   return true;

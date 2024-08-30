@@ -48,25 +48,6 @@ bool Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
   return true;
 }
 
-bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, const HEADER& header, std::string_view body) {
-  std::size_t payloadSize = HEADER_SIZE + body.size();
-  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
-  ioutility::toChars(payloadSize, sizeStr);
-  char headerBuffer[HEADER_SIZE] = {};
-  serialize(header, headerBuffer);
-  std::array<boost::asio::const_buffer, 3>
-    buffers{boost::asio::buffer(sizeStr),
-	    boost::asio::buffer(headerBuffer),
-	    boost::asio::buffer(body)};
-  boost::system::error_code ec;
-  std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
-  }
-  return bytes == payloadSize;
-}
-
 bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body) {
   std::array<boost::asio::const_buffer, 2>
     buffers{ boost::asio::buffer(body),
@@ -89,14 +70,13 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
   }
   std::size_t transferred = boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), ioutility::ENDOFMESSAGE, ec);
   if (ec) {
-    if (errno == EAGAIN)
-      Trace << ec.what() << '\n';
-    else
-      LogError << ec.what() << '\n';
+    Warn << ec.what() << '\n';
     return false;
   }
   if (transferred > ioutility::ENDOFMESSAGE.size())
     payload.erase(transferred - ioutility::ENDOFMESSAGE.size());
+  else
+    return false;
   return true;
 }
 

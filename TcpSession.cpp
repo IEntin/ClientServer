@@ -95,9 +95,7 @@ void TcpSession::readRequest() {
 	return;
       if (ec) {
 	if (errno == EAGAIN)
-	  Trace << ec.what() << '\n';
-	else
-	  LogError << ec.what() << '\n';
+	  Warn << ec.what() << '\n';
 	boost::asio::post(_ioContext, [this] {
 	  _timeoutTimer.cancel();
 	});
