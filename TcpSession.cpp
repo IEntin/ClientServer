@@ -69,6 +69,7 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::stop() {
+  _stopped = true;
   _ioContext.stop();
 }
 

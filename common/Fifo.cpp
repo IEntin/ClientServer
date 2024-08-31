@@ -34,30 +34,6 @@ void Fifo::readMsgBlock(std::string_view name, std::string& payload) {
   readString(fd, payload.data(), payloadSize);
 }
 
-bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
-  int fdWrite = openWriteNonBlock(name);
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  if (fdWrite == -1)
-    return false;
-  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
-  ioutility::toChars(payload.size(), sizeStr);
-  std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);
-  writeString(fdWrite, view);
-  writeString(fdWrite, payload);
-  return true;
-}
-
-bool Fifo::sendMsg(int fdWrite, std::string_view payload) {
-  if (fdWrite == -1)
-    return false;
-  char sizeStr[ioutility::CONV_BUFFER_SIZE] = {};
-  ioutility::toChars(payload.size(), sizeStr);
-  std::string_view view(sizeStr, ioutility::CONV_BUFFER_SIZE);
-  writeString(fdWrite, view);
-  writeString(fdWrite, payload);
-  return true;
-}
-
 short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   int result = poll(&pfd, 1, -1);

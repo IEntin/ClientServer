@@ -104,87 +104,6 @@ TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
   testEchoFifo(COMPRESSORS::NONE, COMPRESSORS::LZ4, CRYPTO::ENCRYPTED, CRYPTO::NONE);
 }
 
-struct FifoNonblockingTest : testing::Test {
-  static constexpr std::string_view _testFifo = "TestFifo";
-  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-  int _fdRead = -1;
-  int _fdWrite = -1;
-
-  FifoNonblockingTest() {
-    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
-      LogError << strerror(errno) << '\n';
-    _fdRead = fifo::Fifo::openReadNonBlock(_testFifo);
-    if (_fdRead == -1)
-      throw std::runtime_error(utility::createErrorString());
-    _fdWrite = fifo::Fifo::openWriteNonBlock(_testFifo);
-    if (_fdWrite == -1)
-      throw std::runtime_error(utility::createErrorString());
-  }
-
-  ~FifoNonblockingTest() {
-    if (_fdRead != -1 && close(_fdRead) == -1)
-      LogError << std::strerror(errno) << '\n';
-    if (_fdWrite != -1 && close(_fdWrite) == -1)
-      LogError << std::strerror(errno) << '\n';
-    try {
-      std::filesystem::remove(_testFifo);
-    }
-    catch (const std::exception& e) {
-      Warn << e.what() << '\n';
-    }
-  }
-
-  bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_fdWrite, payload);
-  }
-
-  bool receive(std::string& received) {
-    return fifo::Fifo::readMsgNonBlock(_fdRead, received);
-  }
-
-  void testNonblockingFifo(std::string_view payload) {
-    std::string received;
-    ASSERT_TRUE(std::filesystem::exists(_testFifo));
-    auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
-    // Optional interval between send and receive
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
-    fr.wait();
-    fs.wait();
-    ASSERT_EQ(received, payload);
-  }
-
-  void testNonblockingFifoReverse(std::string_view payload) {
-    std::string received;
-    ASSERT_TRUE(std::filesystem::exists(_testFifo));
-    auto fr = std::async(std::launch::async, &FifoNonblockingTest::receive, this, std::ref(received));
-    // Optional interval between receive and send
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    auto fs = std::async(std::launch::async, &FifoNonblockingTest::send, this, payload);
-    fr.wait();
-    fs.wait();
-    ASSERT_EQ(received, payload);
-  }
-
-  void SetUp() {}
-
-  void TearDown() {}
-};
-
-TEST_F(FifoNonblockingTest, FifoNonblockingTestD) {
-  for (int i = 0; i < 10; ++i) {
-    testNonblockingFifo(_smallPayload);
-    testNonblockingFifo(TestEnvironment::_source);
-  }
-}
-
-TEST_F(FifoNonblockingTest, FifoNonblockingTestReverse) {
-  for (int i = 0; i < 10; ++i) {
-    testNonblockingFifoReverse(_smallPayload);
-    testNonblockingFifoReverse(TestEnvironment::_source);
-  }
-}
-
 struct FifoBlockingTest : testing::Test {
   static constexpr std::string_view _testFifo = "TestFifo";
   static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
@@ -201,10 +120,10 @@ struct FifoBlockingTest : testing::Test {
     }
   }
   bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_testFifo, payload);
+    return fifo::Fifo::sendMessage(_testFifo, payload);
   }
   void receive(std::string& received) {
-    fifo::Fifo::readMsgBlock(_testFifo, received);
+    fifo::Fifo::readMessage(_testFifo, received);
   }
 
   void testBlockingFifo(std::string_view payload) {
