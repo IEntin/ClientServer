@@ -101,7 +101,8 @@ void TcpClientHeartbeat::read() {
 	return;
       }
       HEADER header;
-      deserialize(header, _heartbeatBuffer);
+      if (!deserialize(header, _heartbeatBuffer))
+	return;
       if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
 	return;

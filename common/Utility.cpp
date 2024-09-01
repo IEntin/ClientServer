@@ -72,6 +72,17 @@ std::string createErrorString(std::errc ec,
   return msg.append(1, ' ').append(location.function_name());
 }
 
+bool isEncrypted(std::string_view data) {
+  try {
+    HEADER header;
+    std::string_view probe(data.begin(), data.begin() + HEADER_SIZE);
+    return !deserialize(header, probe.data());
+  }
+  catch (...) {
+    return true;
+  }
+}
+
 std::string createErrorString(const boost::source_location& location) {
   std::string msg(std::strerror(errno));
   msg.append(1, ':').append(location.file_name()).append(1, ':');
@@ -90,22 +101,12 @@ compressEncrypt(const HEADER& header, const CryptoPP::SecByteBlock& key, std::st
   if (isEncrypted(header))
     data = Crypto::encrypt(key, data);
   return data;
-  }
+}
 
 std::string_view
 decryptDecompress(HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data) {
-  bool encrypted = true;
-  try {
-    HEADER header;
-    std::string_view probe(data.begin(), data.begin() + HEADER_SIZE);
-    deserialize(header, probe.data());
-    encrypted = isEncrypted(header);
-  }
-  catch (...) {
-    encrypted = true;
-  }
   std::string_view restored;
-  if (encrypted)
+  if (isEncrypted(data))
     restored = Crypto::decrypt(key, data);
   else
     restored = data;

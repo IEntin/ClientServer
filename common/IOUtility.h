@@ -17,14 +17,13 @@ constexpr int CONV_BUFFER_SIZE = 10;
 
 constexpr std::string_view ENDOFMESSAGE = { "@#$.7D!%Ox37!^*(+" };
 
-constexpr auto fromChars = []<typename T>(std::string_view str, T& value) {
+template <typename T>
+constexpr bool fromChars (std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
-      ec != std::errc()) {
-    std::string errorString(utility::createErrorString(ec));
-    errorString.append(1, ' ').append(str);
-    throw std::runtime_error(errorString);
-  }
-};
+      ec != std::errc())
+    return false;
+  return true;
+}
 
 template <typename T, typename... U>
 concept IsAnyOf = (std::same_as<T, U> || ...);

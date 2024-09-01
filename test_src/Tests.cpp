@@ -112,7 +112,7 @@ TEST(HeaderTest, 1) {
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
   HEADER header{HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
-  deserialize(header, buffer);
+  ASSERT_TRUE(deserialize(header, buffer));
   std::size_t uncomprSzResult = extractUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);
   COMPRESSORS compressorResult = extractCompressor(header);
@@ -124,7 +124,7 @@ TEST(HeaderTest, 1) {
   compressor = COMPRESSORS::NONE;
   header = {HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
-  deserialize(header, buffer);
+  ASSERT_TRUE(deserialize(header, buffer));
   compressorResult = extractCompressor(header);
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }

@@ -43,7 +43,8 @@ public:
       else
 	readSoFar += result;
     }
-    deserialize(header, buffer);
+    if (!deserialize(header, buffer))
+      return false;
     std::size_t payload1Size = extractPayloadSize(header);
     payload1.resize(payload1Size);
     readString(fd, payload1.data(), payload1Size);
@@ -125,7 +126,8 @@ public:
     utility::CloseFileDescriptor cfdr(fd);
     char buffer[HEADER_SIZE] = {};
     readString(fd, buffer, HEADER_SIZE);
-    deserialize(header, buffer);
+    if (!deserialize(header, buffer))
+      return false;
     std::size_t payloadSize = extractPayloadSize(header);
     payload1.resize(payloadSize);
     readString(fd, payload1.data(), payloadSize);

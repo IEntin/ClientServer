@@ -44,8 +44,7 @@ bool Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
     LogError << ec.what() << '\n';
     return false;
   }
-  deserialize(header, buffer);
-  return true;
+  return deserialize(header, buffer);
 }
 
 bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body) {

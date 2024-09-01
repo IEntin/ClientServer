@@ -108,15 +108,16 @@ bool isOk(const HEADER& header);
 
 void serialize(const HEADER& header, char* buffer);
 
-void deserialize(HEADER& header, const char* buffer);
+bool deserialize(HEADER& header, const char* buffer);
 
 // works if there are no gaps in values
 template <typename ENUM>
-void deserializeEnumeration(ENUM& element, char code) {
+bool deserializeEnumeration(ENUM& element, char code) {
   if (code < std::to_underlying(ENUM::NONE) ||
       code >= std::to_underlying(ENUM::INVALID))
-    throw std::runtime_error("invalid code");
+    return false;
   element = ENUM{ code };
+  return true;
 }
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr);

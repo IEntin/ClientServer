@@ -99,9 +99,10 @@ void serialize(const HEADER& header, char* buffer) {
   ioutility::toChars(extractParameter(header), buffer + offset, PARAMETER_SIZE);
 }
 
-void deserialize(HEADER& header, const char* buffer) {
+bool deserialize(HEADER& header, const char* buffer) {
   std::size_t offset = 0;
-  deserializeEnumeration(std::get<HEADERTYPE>(header), buffer[offset]);
+  if (!deserializeEnumeration(std::get<HEADERTYPE>(header), buffer[offset]))
+    return false;
   offset += HEADERTYPE_SIZE;
   std::string_view strl(buffer + offset, NUM_FIELD_SIZE);
   ioutility::fromChars(strl, std::get<std::to_underlying(HEADER_INDEX::PAYLOADSIZEINDEX)>(header));
@@ -109,18 +110,24 @@ void deserialize(HEADER& header, const char* buffer) {
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
   ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header));
   offset += NUM_FIELD_SIZE;
-  deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]);
+  if (!deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]))
+    return false;
   offset += COMPRESSOR_SIZE;
-  deserializeEnumeration(std::get<CRYPTO>(header), buffer[offset]);
+  if (!deserializeEnumeration(std::get<CRYPTO>(header), buffer[offset]))
+    return false;
   offset += CRYPTO_SIZE;
-  deserializeEnumeration(std::get<DIAGNOSTICS>(header), buffer[offset]);
+  if (!deserializeEnumeration(std::get<DIAGNOSTICS>(header), buffer[offset]))
+    return false;
   offset += DIAGNOSTICS_SIZE;
-  deserializeEnumeration(std::get<STATUS>(header), buffer[offset]);
+  if (!deserializeEnumeration(std::get<STATUS>(header), buffer[offset]))
+    return false;
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
-  ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
+  if (!ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header)))
+    return false;
   if (ServerOptions::_printHeader || ClientOptions::_printHeader)
     printHeader(header);
+  return true;
 }
 
 void printHeader(const HEADER& header) {
