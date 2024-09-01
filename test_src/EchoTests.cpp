@@ -14,9 +14,7 @@
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 
-// for i in {1..10}; do ./testbin --gtest_filter=FifoNonblockingTest*; done
-// for i in {1..10}; do ./testbin --gtest_filter=FifoNonBlockingDuplexTest*; done
-// for i in {1..10}; do ./testbin --gtest_filter=FifoNonBlockDuplex*; done
+// for i in {1..10}; do ./testbin --gtest_filter=FifoNBDuplex*; done
 // for i in {1..10}; do ./testbin --gtest_filter=FifoBlockingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4; done
