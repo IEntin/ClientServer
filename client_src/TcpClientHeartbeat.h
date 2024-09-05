@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 
-#include "IOUtility.h"
 #include "Runnable.h"
 
 namespace tcp {
@@ -31,7 +30,7 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _periodTimer;
   AsioTimer _timeoutTimer;
-  char _heartbeatBuffer[HEADER_SIZE + ioutility::ENDOFMESSAGE.size()] = {};
+  std::string _heartbeatBuffer;
 };
 
 } // end of namespace tcp

@@ -192,7 +192,7 @@ struct FifoNBDuplex : testing::Test {
   }
   // client receive
   bool receiveC(HEADER& header, std::string& body) {
-    return fifo::Fifo::readMsgNonBlock(_testFifo, header, body);
+    return fifo::Fifo::readMsg(_testFifo, true, header, body);
   }
   // server send
   bool sendS(const HEADER& header, std::string_view body) {
@@ -200,7 +200,7 @@ struct FifoNBDuplex : testing::Test {
   }
   // server receive
   bool receiveS(HEADER& header, std::string& body) {
-    return fifo::Fifo::readMsgNonBlock(_testFifo, header, body);
+    return fifo::Fifo::readMsg(_testFifo, true, header, body);
   }
 
   void testFifoNBDuplex(std::string_view payload) {

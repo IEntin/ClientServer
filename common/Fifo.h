@@ -19,16 +19,17 @@ class Fifo {
 
   static short pollFd(int fd, short expected);
 public:
-  static bool readMsgNonBlock(int fdRead, std::string& payload);
-
-  static void readMsgBlock(std::string_view name, std::string& payload);
-
   template <typename P1, typename P2 = P1>
-  static bool readMsgBlock(std::string_view name,
-			   HEADER& header,
-			   P1& payload1,
-			   P2&& payload2 = P2()) {
-    int fd = open(name.data(), O_RDONLY);
+  static bool readMsg(std::string_view name,
+		      bool nonblock,
+		      HEADER& header,
+		      P1& payload1,
+		      P2&& payload2 = P2()) {
+    int fd = -1;
+    if (nonblock)
+      fd = openReadNonBlock(name);
+    else
+      fd = open(name.data(), O_RDONLY);
     utility::CloseFileDescriptor cfdr(fd);
     if (pollFd(fd, POLLIN) != POLLIN)
       return false;
@@ -116,31 +117,6 @@ public:
     return true;
   }
 
-  template <typename P1, typename P2 = P1>
-  static bool readMsgNonBlock(std::string_view name,
-			      HEADER& header,
-			      P1& payload1,
-			      P2&& payload2 = P2()) {
-    int fd = openReadNonBlock(name);
-    if (fd == -1)
-      return false;
-    utility::CloseFileDescriptor cfdr(fd);
-    char buffer[HEADER_SIZE] = {};
-    if (pollFd(fd, POLLIN) != POLLIN)
-      return false;
-    readString(fd, buffer, HEADER_SIZE);
-    if (!deserialize(header, buffer))
-      return false;
-    std::size_t payloadSize = extractPayloadSize(header);
-    payload1.resize(payloadSize);
-    readString(fd, payload1.data(), payloadSize);
-    std::size_t parameter = extractParameter(header);
-    payload2.resize(parameter);
-    readString(fd, payload2.data(), parameter);
-    return true;
-  }
-
-  static bool sendMessage(std::string_view name, const HEADER& header, std::string_view body);
   static bool sendMessage(std::string_view name, std::string_view payload);
   static bool readMessage(std::string_view name, std::string& payload);
   static bool setPipeSize(int fd);

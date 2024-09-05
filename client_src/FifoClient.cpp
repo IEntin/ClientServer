@@ -87,7 +87,7 @@ bool FifoClient::receiveStatus() {
   HEADER header;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  if (!Fifo::readMsgBlock(_acceptorName, header, clientIdStr, pubAreceived))
+  if (!Fifo::readMsg(_acceptorName, false, header, clientIdStr, pubAreceived))
     return false;
   ioutility::fromChars(clientIdStr, _clientId);
   if (!_dhB.Agree(_sharedB, _privB, pubAreceived))

@@ -147,16 +147,23 @@ void TcpSession::asyncWait() {
     auto self = weak_from_this().lock();
     if (!self)
       return;
-    if (ec != boost::asio::error::operation_aborted) {
-      if (ec) {
+    if (ec) {
+      switch (ec.value()) {
+      case boost::asio::error::eof:
+      case boost::asio::error::connection_reset:
+      case boost::asio::error::broken_pipe:
+	Info << ec.what() << '\n';
+	break;
+      case boost::asio::error::operation_aborted:
+	break;
+      default:
 	LogError << ec.what() << '\n';
-	_status = STATUS::TCP_PROBLEM;
+	break;
       }
-      else {
-	LogError << "timeout" << '\n';
-	_status = STATUS::TCP_TIMEOUT;
-      }
+      return;
     }
+    LogError << "timeout\n";
+    _status = STATUS::TCP_TIMEOUT;
   });
 }
 

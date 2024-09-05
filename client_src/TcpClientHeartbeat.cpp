@@ -12,14 +12,15 @@ namespace tcp {
 TcpClientHeartbeat::TcpClientHeartbeat() :
   _socket(_ioContext),
   _periodTimer(_ioContext),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext),
+  _heartbeatBuffer(HEADER_SIZE + ioutility::ENDOFMESSAGE.size(), '\0') {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
   Trace << '\n';
 }
 
 bool TcpClientHeartbeat::start() {
-  boost::asio::post(_ioContext, [this] { heartbeatWait(); });
+  boost::asio::post(_ioContext, [this] { write(); });
   return true;
 }
 
@@ -68,14 +69,23 @@ void TcpClientHeartbeat::timeoutWait() {
     auto self = weak_from_this().lock();
     if (!self)
       return;
-    if (ec != boost::asio::error::operation_aborted) {
-      if (ec)
+    if (ec) {
+      switch (ec.value()) {
+      case boost::asio::error::eof:
+      case boost::asio::error::connection_reset:
+      case boost::asio::error::broken_pipe:
+	Info << ec.what() << '\n';
+	break;
+      case boost::asio::error::operation_aborted:
+	break;
+      default:
 	LogError << ec.what() << '\n';
-      else {
-	LogError << "timeout" << '\n';
-	_status = STATUS::HEARTBEAT_TIMEOUT;
+	break;
       }
+      return;
     }
+    LogError << "timeout\n";
+    _status = STATUS::HEARTBEAT_TIMEOUT;
   });
 }
 
@@ -87,7 +97,6 @@ void TcpClientHeartbeat::read() {
     LogError << ec.what() << '\n';
     return;
   }
-  std::memset(_heartbeatBuffer, '\0', sizeof(_heartbeatBuffer));
   boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
@@ -102,7 +111,7 @@ void TcpClientHeartbeat::read() {
 	return;
       }
       HEADER header;
-      if (!deserialize(header, _heartbeatBuffer))
+      if (!deserialize(header, _heartbeatBuffer.data()))
 	return;
       if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
@@ -131,7 +140,7 @@ void TcpClientHeartbeat::write() {
     return;
   }
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
-  serialize(header, _heartbeatBuffer);
+  serialize(header, _heartbeatBuffer.data());
   std::array<boost::asio::const_buffer, 2> buffers{ boost::asio::buffer(_heartbeatBuffer),
 						    boost::asio::buffer(ioutility::ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
