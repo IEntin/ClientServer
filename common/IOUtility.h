@@ -18,11 +18,10 @@ constexpr int CONV_BUFFER_SIZE = 10;
 constexpr std::string_view ENDOFMESSAGE = { "@#$.7D!%Ox37!^*(+" };
 
 template <typename T>
-constexpr bool fromChars (std::string_view str, T& value) {
+constexpr void fromChars (std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
       ec != std::errc())
-    return false;
-  return true;
+    throw std::runtime_error(utility::createErrorString(ec));
 }
 
 template <typename T, typename... U>

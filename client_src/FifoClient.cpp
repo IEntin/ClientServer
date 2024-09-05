@@ -82,6 +82,8 @@ bool FifoClient::wakeupAcceptor() {
 }
 
 bool FifoClient::receiveStatus() {
+  if (_status != STATUS::NONE)
+    return false;
   HEADER header;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;

@@ -65,6 +65,7 @@ void Client::run() {
 }
 
 void Client::stop() {
+  _status = STATUS::STOPPED;
   Metrics::save();
   if (auto heartbeat = _heartbeat.lock(); heartbeat)
     heartbeat->stop();

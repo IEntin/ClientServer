@@ -95,15 +95,21 @@ void TcpSession::readRequest() {
       if (!self)
 	return;
       if (ec) {
-	if (errno == EAGAIN)
+	switch (ec.value()) {
+	case boost::asio::error::eof :
+	case boost::asio::error::connection_reset:
+	case boost::asio::error::broken_pipe:
+	  Info << ec.what() << '\n';
+	  break;
+	default:
 	  Warn << ec.what() << '\n';
+	  break;
+	}
 	boost::asio::post(_ioContext, [this] {
 	  _timeoutTimer.cancel();
 	});
 	return;
       }
-      if (_status != STATUS::NONE)
-	return;
       if (processTask())
 	sendReply();
       else {

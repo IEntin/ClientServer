@@ -7,6 +7,7 @@
 #include <boost/asio.hpp>
 
 #include "Header.h"
+#include "IOUtility.h"
 #include "Logger.h"
 
 namespace tcp {
@@ -15,8 +16,15 @@ class Tcp {
   Tcp() = delete;
   ~Tcp() = delete;
 
-  static bool readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header);
 public:
+
+  static void shutdownSocket(boost::asio::ip::tcp::socket& socket) {
+    boost::system::error_code ec;
+    socket.shutdown(boost::asio::socket_base::shutdown_both, ec);
+    if (!ec)
+      socket.close(ec);
+  }
+
   static bool setSocket(boost::asio::ip::tcp::socket& socket);
 
   template <typename P1, typename P2 = P1>
@@ -24,26 +32,23 @@ public:
 		      HEADER& header,
 		      P1& payload1,
 		      P2&& payload2 = P2()) {
-    if (!readHeader(socket, header))
-      return false;
-    std::size_t payloadSize1 = extractPayloadSize(header);
-    payload1.resize(payloadSize1);
+    std::string payload;
+    payload.erase(0);
     boost::system::error_code ec;
-    std::size_t transferred[[maybe_unused]] =
-      boost::asio::read(socket, boost::asio::buffer(payload1), ec);
+    std::size_t transferred =
+      boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), ioutility::ENDOFMESSAGE, ec);
     if (ec) {
       LogError << ec.what() << '\n';
       return false;
     }
-    std::size_t payload2Size = extractParameter(header);
-    if (payload2Size > 0) {
-      payload2.resize(payload2Size);
-      transferred = boost::asio::read(socket, boost::asio::buffer(payload2), ec);
-      if (ec) {
-	LogError << ec.what() << '\n';
-	return false;
-      }
-    }
+    transferred -= ioutility::ENDOFMESSAGE.size();
+    std::string_view headerStr(payload.data(), HEADER_SIZE);
+    if (!deserialize(header, headerStr.data()))
+      return false;
+    std::size_t payload1Size = extractPayloadSize(header);
+    payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
+    std::size_t payload2Size = transferred - HEADER_SIZE - payload1Size;
+    payload2 = { reinterpret_cast<decltype(payload2.data())>(payload.data()) + HEADER_SIZE + payload1Size, payload2Size };
     return true;
   }
 
@@ -54,9 +59,10 @@ public:
 		      const P2& payload2 = P2()) {
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(headerBuffer),
+    std::array<boost::asio::const_buffer, 4> buffers{ boost::asio::buffer(headerBuffer),
 						      boost::asio::buffer(payload1),
-						      boost::asio::buffer(payload2) };
+						      boost::asio::buffer(payload2),
+						      boost::asio::buffer(ioutility::ENDOFMESSAGE) };
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {

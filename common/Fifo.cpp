@@ -15,6 +15,8 @@ bool Fifo::readMsgNonBlock(int fdRead, std::string& payload) {
   if (fdRead == -1)
     return false;
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
+  if (pollFd(fdRead, POLLIN != POLLIN))
+    return false;
   readString(fdRead, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
   ioutility::fromChars(buffer, payloadSize);
@@ -27,6 +29,8 @@ void Fifo::readMsgBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
   char buffer[ioutility::CONV_BUFFER_SIZE] = {};
+  if (pollFd(fd, POLLIN != POLLIN))
+    return;
   readString(fd, buffer, ioutility::CONV_BUFFER_SIZE);
   std::size_t payloadSize = 0;
   ioutility::fromChars(buffer, payloadSize);
@@ -127,6 +131,8 @@ bool Fifo::sendMessage(std::string_view name, const HEADER& header, std::string_
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   std::string_view headerView(headerBuffer, HEADER_SIZE);
+  if (pollFd(fdWrite, POLLOUT != POLLOUT))
+    return false;
   writeString(fdWrite, headerView);
   writeString(fdWrite, body);
   return true;

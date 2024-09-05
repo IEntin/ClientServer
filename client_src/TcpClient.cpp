@@ -33,6 +33,12 @@ void TcpClient::run() {
 
 bool TcpClient::send(Subtask& subtask) {
   try {
+    boost::system::error_code ec;
+    _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
+    if (ec) {
+      Warn << ec.what() << '\n';
+      return false;
+    }
     Tcp::sendMessage(_socket, subtask._body);
     return true;
   }
@@ -45,8 +51,15 @@ bool TcpClient::send(Subtask& subtask) {
 bool TcpClient::receive() {
   try {
     _response.erase(0);
-    if (!Tcp::readMessage(_socket, _response))
+    boost::system::error_code ec;
+    _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
+    if (ec) {
+      Warn << ec.what() << '\n';
       return false;
+    }
+    if (!Tcp::readMessage(_socket, _response)) {
+      return false;
+    }
     _status = STATUS::NONE;
     return printReply();
   }
@@ -60,8 +73,9 @@ bool TcpClient::receiveStatus() {
   HEADER header;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  if (!Tcp::readMsg(_socket, header, clientIdStr, pubAreceived))
+  if (!Tcp::readMsg(_socket, header, clientIdStr, pubAreceived)) {
     return false;
+  }
   ioutility::fromChars(clientIdStr, _clientId);
   if (!_dhB.Agree(_sharedB, _privB, pubAreceived))
     return false;

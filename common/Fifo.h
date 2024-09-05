@@ -30,6 +30,8 @@ public:
 			   P2&& payload2 = P2()) {
     int fd = open(name.data(), O_RDONLY);
     utility::CloseFileDescriptor cfdr(fd);
+    if (pollFd(fd, POLLIN) != POLLIN)
+      return false;
     std::size_t readSoFar = 0;
     char buffer[HEADER_SIZE] = {};
     while (readSoFar < HEADER_SIZE) {
@@ -85,7 +87,6 @@ public:
       if (result == -1) {
 	switch (errno) {
 	case EAGAIN:// happens in non blocking mode
-	  pollFd(fd, POLLOUT);
 	  break;
 	default:
 	  throw std::runtime_error(utility::createErrorString());
@@ -125,6 +126,8 @@ public:
       return false;
     utility::CloseFileDescriptor cfdr(fd);
     char buffer[HEADER_SIZE] = {};
+    if (pollFd(fd, POLLIN) != POLLIN)
+      return false;
     readString(fd, buffer, HEADER_SIZE);
     if (!deserialize(header, buffer))
       return false;

@@ -87,6 +87,7 @@ void TcpClientHeartbeat::read() {
     LogError << ec.what() << '\n';
     return;
   }
+  std::memset(_heartbeatBuffer, '\0', sizeof(_heartbeatBuffer));
   boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
@@ -131,8 +132,10 @@ void TcpClientHeartbeat::write() {
   }
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
   serialize(header, _heartbeatBuffer);
+  std::array<boost::asio::const_buffer, 2> buffers{ boost::asio::buffer(_heartbeatBuffer),
+						    boost::asio::buffer(ioutility::ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
-    boost::asio::buffer(_heartbeatBuffer),
+			   buffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)

@@ -123,8 +123,7 @@ bool deserialize(HEADER& header, const char* buffer) {
     return false;
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
-  if (!ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header)))
-    return false;
+  ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
   if (ServerOptions::_printHeader || ClientOptions::_printHeader)
     printHeader(header);
   return true;
