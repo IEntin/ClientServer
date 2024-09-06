@@ -74,6 +74,7 @@ void TcpClientHeartbeat::timeoutWait() {
       case boost::asio::error::eof:
       case boost::asio::error::connection_reset:
       case boost::asio::error::broken_pipe:
+      case boost::asio::error::connection_refused:
 	Info << ec.what() << '\n';
 	break;
       case boost::asio::error::operation_aborted:
@@ -82,10 +83,7 @@ void TcpClientHeartbeat::timeoutWait() {
 	LogError << ec.what() << '\n';
 	break;
       }
-      return;
     }
-    LogError << "timeout\n";
-    _status = STATUS::HEARTBEAT_TIMEOUT;
   });
 }
 
@@ -105,9 +103,23 @@ void TcpClientHeartbeat::read() {
       if (!self)
 	return;
       if (ec) {
-	LogError << ec.what() << '\n';
+	switch (ec.value()) {
+	case boost::asio::error::eof:
+	case boost::asio::error::connection_reset:
+	case boost::asio::error::broken_pipe:
+	case boost::asio::error::connection_refused:
+	  Info << ec.what() << '\n';
+	  break;
+	case boost::asio::error::operation_aborted:
+	  break;
+	default:
+	  LogError << ec.what() << '\n';
+	  break;
+	}
+	boost::asio::post(_ioContext, [this] {
+	  stop();
+	});
 	_status = STATUS::HEARTBEAT_PROBLEM;
-	_ioContext.stop();
 	return;
       }
       HEADER header;
@@ -118,8 +130,9 @@ void TcpClientHeartbeat::read() {
 	return;
       }
       std::size_t numberCanceled = _timeoutTimer.cancel();
-      if (numberCanceled == 0)
-	LogError << "timeout" << '\n';
+      if (numberCanceled == 0) {
+	_status = STATUS::HEARTBEAT_TIMEOUT;
+      }
       Logger logger(LOG_LEVEL::INFO, std::clog, false);
       logger << '*';
       heartbeatWait();

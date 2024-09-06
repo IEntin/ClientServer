@@ -99,6 +99,7 @@ void TcpSession::readRequest() {
 	case boost::asio::error::eof :
 	case boost::asio::error::connection_reset:
 	case boost::asio::error::broken_pipe:
+	case boost::asio::error::connection_refused:
 	  Info << ec.what() << '\n';
 	  break;
 	default:
@@ -118,6 +119,11 @@ void TcpSession::readRequest() {
 	});
       }
     });
+  std::size_t numberCanceled = _timeoutTimer.cancel();
+  if (numberCanceled == 0) {
+    LogError << "timeout\n";
+    _status = STATUS::TCP_TIMEOUT;
+  }
 }
 
 void TcpSession::write(std::string_view payload) {
@@ -136,8 +142,13 @@ void TcpSession::write(std::string_view payload) {
 	});
 	return;
       }
-      if (_status == STATUS::NONE)
-	readRequest();
+      std::size_t numberCanceled = _timeoutTimer.cancel();
+      if (numberCanceled == 0) {
+	LogError << "timeout\n";
+	_status = STATUS::TCP_TIMEOUT;
+	return;
+      }
+      readRequest();
     });
 }
 
@@ -152,6 +163,7 @@ void TcpSession::asyncWait() {
       case boost::asio::error::eof:
       case boost::asio::error::connection_reset:
       case boost::asio::error::broken_pipe:
+      case boost::asio::error::connection_refused:
 	Info << ec.what() << '\n';
 	break;
       case boost::asio::error::operation_aborted:
@@ -160,10 +172,7 @@ void TcpSession::asyncWait() {
 	LogError << ec.what() << '\n';
 	break;
       }
-      return;
     }
-    LogError << "timeout\n";
-    _status = STATUS::TCP_TIMEOUT;
   });
 }
 
