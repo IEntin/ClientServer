@@ -5,7 +5,6 @@
 #pragma once
 
 #include <chrono>
-
 #include <source_location>
 
 #include "Logger.h"

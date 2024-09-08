@@ -6,11 +6,10 @@
 
 #include <iomanip>
 #include <iostream>
+#include <source_location>
 #include <string_view>
 #include <syncstream>
 #include <utility>
-
-#include <source_location>
 
 #include <boost/core/noncopyable.hpp>
 
