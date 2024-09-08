@@ -7,7 +7,6 @@
 #include <fcntl.h>
 #include <poll.h>
 
-#include "Header.h"
 #include "Logger.h"
 #include "Utility.h"
 

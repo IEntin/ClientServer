@@ -48,13 +48,16 @@ bool FifoClient::send(Subtask& subtask) {
       std::filesystem::remove(_fifoName, ec);
       if (ec)
 	LogError << ec.message() << '\n';
+      _status = STATUS::STOPPED;
     }
     if (Fifo::sendMessage(_fifoName, subtask._body))
       return true;
     // waiting client
-    // server stopped
-    if (!std::filesystem::exists(_fifoName))
+    // session stopped
+    if (!std::filesystem::exists(_fifoName)) {
+      _status = STATUS::SESSION_STOPPED;
       return false;
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(FIFO_CLIENT_POLLING_PERIOD));
   }
   return false;

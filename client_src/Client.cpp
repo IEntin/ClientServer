@@ -139,6 +139,8 @@ bool Client::displayStatus(STATUS status) const {
   case STATUS::NONE:
   case STATUS::MAX_TOTAL_OBJECTS:
   case STATUS::MAX_OBJECTS_OF_TYPE:
+  case STATUS::STOPPED:
+  case STATUS::SESSION_STOPPED:
     return false;
   case STATUS::BAD_HEADER:
     LogError << "STATUS::BAD_HEADER" << '\n';

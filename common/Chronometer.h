@@ -6,14 +6,14 @@
 
 #include <chrono>
 
-#include <boost/assert/source_location.hpp>
+#include <source_location>
 
 #include "Logger.h"
 
 struct Chronometer : private boost::noncopyable {
   explicit Chronometer(bool enable = true,
 		       std::ostream* pstream = nullptr,
-		       const boost::source_location& location = BOOST_CURRENT_LOCATION) :
+		       const std::source_location& location = std::source_location::current()) :
     _enabled(enable), _file(location.file_name()), _line(location.line()), _function(location.function_name()),
     _stream(pstream ? *pstream : std::clog) {
     if (_enabled) {
@@ -24,7 +24,7 @@ struct Chronometer : private boost::noncopyable {
 
   // usage: chronometer.start();
   // where chronometer is an object created somewhere.
-  void start(const boost::source_location& location = BOOST_CURRENT_LOCATION) {
+  void start(const std::source_location& location = std::source_location::current()) {
     if (_enabled) {
       _localStart = std::chrono::steady_clock::now();
       Logger logger(LOG_LEVEL::INFO, _stream);
@@ -35,7 +35,7 @@ struct Chronometer : private boost::noncopyable {
 
   // usage: chronometer.stop();
   // shows elapsed time since start or construction.
-  void stop(const boost::source_location& location = BOOST_CURRENT_LOCATION) {
+  void stop(const std::source_location& location = std::source_location::current()) {
     if (_enabled) {
       auto end{ std::chrono::steady_clock::now() };
       std::chrono::duration<double> elapsed_seconds{ end - _localStart };

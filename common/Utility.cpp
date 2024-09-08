@@ -65,7 +65,7 @@ bool fileEndsWithEOL(std::string_view fileName) {
 }
 
 std::string createErrorString(std::errc ec,
-			      const boost::source_location& location) {
+			      const std::source_location& location) {
   std::string msg(std::make_error_code(ec).message());
   msg.append(1, ':').append(location.file_name()).append(1, ':');
   ioutility::toChars(location.line(), msg);
@@ -83,7 +83,7 @@ bool isEncrypted(std::string_view data) {
   }
 }
 
-std::string createErrorString(const boost::source_location& location) {
+std::string createErrorString(const std::source_location& location) {
   std::string msg(std::strerror(errno));
   msg.append(1, ':').append(location.file_name()).append(1, ':');
   ioutility::toChars(location.line(), msg);

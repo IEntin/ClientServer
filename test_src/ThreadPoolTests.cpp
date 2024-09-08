@@ -2,7 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include <boost/algorithm/string.hpp>
 #include <gtest/gtest.h>
 
 #include "ThreadPoolSessions.h"
@@ -70,7 +69,7 @@ TEST(ThreadPoolTest, Sessions) {
     runnable->sendStatusToClient();
     pool.push(runnable);
     std::string type = runnable->getType();
-    ASSERT_TRUE(boost::contains(type, "TestRunnable"));
+    ASSERT_TRUE(type.contains("TestRunnable"));
     ASSERT_TRUE(pool.size() == i + 1);
     ASSERT_TRUE(runnable->getNumberObjects() == pool.size());
   }

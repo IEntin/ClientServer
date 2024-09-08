@@ -53,17 +53,13 @@
 #include <vector>
 
 #include <boost/algorithm/hex.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
-#include <boost/container/small_vector.hpp>
-#include <boost/container/static_vector.hpp>
 #include <boost/core/demangle.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/unordered_map.hpp>
 
 #include <cryptopp/aes.h>
 #include <cryptopp/asn.h>

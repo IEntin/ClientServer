@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 
-#include "Header.h"
 #include "IOUtility.h"
 #include "Logger.h"
 
