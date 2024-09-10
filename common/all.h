@@ -33,7 +33,6 @@
 #include <poll.h>
 #include <queue>
 #include <signal.h>
-#include <source_location>
 #include <sstream>
 #include <stdexcept>
 #include <stdlib.h>
@@ -53,6 +52,7 @@
 #include <vector>
 
 #include <boost/algorithm/hex.hpp>
+#include <boost/assert/source_location.hpp>
 #include <boost/asio.hpp>
 #include <boost/core/demangle.hpp>
 #include <boost/core/noncopyable.hpp>

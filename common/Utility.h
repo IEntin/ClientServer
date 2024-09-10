@@ -8,7 +8,7 @@
 #include <string>
 #include <system_error>	
 
-#include <source_location>
+#include <boost/assert/source_location.hpp>
 
 #include <cryptopp/secblock.h>
 
@@ -81,9 +81,9 @@ bool getLastLine(std::string_view fileName, std::string& lastLine);
 bool fileEndsWithEOL(std::string_view fileName);
 
 std::string createErrorString(std::errc ec,
-			      const std::source_location& location = std::source_location::current());
+			      const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
-std::string createErrorString(const std::source_location& location = std::source_location::current());
+std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
 bool isEncrypted(std::string_view data);
 
