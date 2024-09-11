@@ -72,7 +72,7 @@ void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
 void TcpAcceptor::accept() {
   auto connection = std::make_shared<Connection>();
   _acceptor.async_accept(connection->_socket,
-    [connection, this](boost::system::error_code ec) {
+    [connection, this](const boost::system::error_code& ec) {
       if (_stopped)
 	return;
       auto self = weak_from_this().lock();
