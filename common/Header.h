@@ -19,34 +19,39 @@ constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 enum class HEADERTYPE : char {
-  NONE = 'A',
+  INVALIDLOW = 'A',
+  NONE = 'B',
   CREATE_SESSION,
   SESSION,
   HEARTBEAT,
   ERROR,
-  INVALID
+  INVALIDHIGH
 };
 
 enum class COMPRESSORS : char {
-  NONE = 'D',
+  INVALIDLOW = 'A',
+  NONE = 'B',
   LZ4,
-  INVALID
+  INVALIDHIGH
 };
 
 enum class CRYPTO : char {
-  NONE = 'D',
+  INVALIDLOW = 'A',
+  NONE = 'B',
   ENCRYPTED,
-  INVALID
+  INVALIDHIGH
 };
 
 enum class DIAGNOSTICS : char {
-  NONE = 'D',
+  INVALIDLOW = 'A',
+  NONE = 'B',
   ENABLED,
-  INVALID
+  INVALIDHIGH
 };
 
 enum class STATUS : char {
-  NONE = 'A',
+  INVALIDLOW = 'A',
+  NONE = 'B',
   SUBTASK_DONE,
   TASK_DONE,
   BAD_HEADER,
@@ -64,7 +69,7 @@ enum class STATUS : char {
   SESSION_STOPPED,
   STOPPED,
   ERROR,
-  INVALID
+  INVALIDHIGH
 };
 
 enum class HEADER_INDEX : char {
@@ -76,7 +81,7 @@ enum class HEADER_INDEX : char {
   DIAGNOSTICSINDEX,
   STATUSINDEX,
   PARAMETERINDEX,
-  INVALID
+  INVALIDHIGH
 };
 
 using HEADER =
@@ -113,8 +118,8 @@ bool deserialize(HEADER& header, const char* buffer);
 // works if there are no gaps in values
 template <typename ENUM>
 bool deserializeEnumeration(ENUM& element, char code) {
-  if (code < std::to_underlying(ENUM::NONE) ||
-      code >= std::to_underlying(ENUM::INVALID))
+  if (code <= std::to_underlying(ENUM::INVALIDLOW) ||
+      code >= std::to_underlying(ENUM::INVALIDHIGH))
     return false;
   element = ENUM{ code };
   return true;

@@ -41,8 +41,7 @@ public:
       return false;
     }
     transferred -= ioutility::ENDOFMESSAGE.size();
-    std::string_view headerStr(payload.data(), HEADER_SIZE);
-    if (!deserialize(header, headerStr.data()))
+    if (!deserialize(header, payload.data()))
       return false;
     std::size_t payload1Size = extractPayloadSize(header);
     payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };

@@ -80,7 +80,7 @@ bool isOk(const HEADER& header) {
 }
 
 void serialize(const HEADER& header, char* buffer) {
-  std::memset(buffer, 0, HEADER_SIZE);
+  std::memset(buffer, ' ', HEADER_SIZE);
   std::size_t offset = 0;
   buffer[offset] = std::to_underlying(extractHeaderType(header));
   offset += HEADERTYPE_SIZE;

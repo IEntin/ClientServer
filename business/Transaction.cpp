@@ -36,7 +36,7 @@ thread_local std::string Transaction::_output;
 Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
-    LogError << "invalid request, ZERO_SIZE sizeKey, input:" << input << '\n';
+    LogError << "invalid request, ZERO_SIZE sizeKey" << '\n';
     return;
   }
   std::size_t pos = input.find(']');

@@ -41,15 +41,27 @@ TEST(ReadUntilTest, 1) {
 	    "abc3456789defghijklmnABCDEFGHIJKLMNOPQRSTUVWZ987654321ab"
 	    "c3456789defghijklmnABCDEFGHIJKLMNOPQRSTUVWZ9876543210");
   std::string message;
-  for (int i = 0;i < 1000; ++i)
+  char headerBuffer[HEADER_SIZE + 1] = {};
+  constexpr std::size_t NUMBERELEMENTS = 10000;
+  constexpr std::size_t size = element.size() * NUMBERELEMENTS;
+  constexpr COMPRESSORS compressor = COMPRESSORS::NONE;
+  constexpr CRYPTO encrypted = CRYPTO::ENCRYPTED;
+  constexpr DIAGNOSTICS diagnostics = DIAGNOSTICS::NONE;
+  constexpr HEADER header{
+    HEADERTYPE::SESSION, size, size, compressor, encrypted, diagnostics, STATUS::NONE, 0 };
+  serialize(header, headerBuffer);
+  message.append(headerBuffer);
+  for (std::size_t i = 0;i < NUMBERELEMENTS; ++i)
     message.append(element);
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   std::string_view cipher = Crypto::encrypt(key, message);
   ASSERT_TRUE(utility::isEncrypted(cipher));
   const std::string_view delimiter = ioutility::ENDOFMESSAGE;
   // Write a string from socketW to socketR
-  boost::asio::write(socketW, boost::asio::buffer(cipher));
-  boost::asio::write(socketW, boost::asio::buffer(std::string(ioutility::ENDOFMESSAGE)));
+  std::array<boost::asio::const_buffer, 2>
+    buffers{ boost::asio::buffer(cipher),
+	     boost::asio::buffer(ioutility::ENDOFMESSAGE) };
+  boost::asio::write(socketW, buffers);
   // Read a result from socketR
   boost::asio::async_read_until(socketR, boost::asio::dynamic_string_buffer(result),
 				delimiter,
@@ -62,6 +74,9 @@ TEST(ReadUntilTest, 1) {
 	 result.erase(transferred - delimiter.size());
 	 ASSERT_TRUE(utility::isEncrypted(result));
 	 std::string_view decrypted = Crypto::decrypt(key, result);
+	 HEADER receivedHeader;
+	 ASSERT_TRUE(deserialize(receivedHeader, decrypted.data()));
+	 ASSERT_EQ(receivedHeader, header);
 	 ASSERT_EQ(decrypted, message);
 				});
   io_service.run();
