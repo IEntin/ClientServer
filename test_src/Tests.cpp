@@ -4,7 +4,6 @@
 
 #include "ClientOptions.h"
 #include "Compression.h"
-#include "Header.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 #include "Logger.h"

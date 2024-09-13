@@ -2,6 +2,7 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+# can be used to workaround gcc bug:
 # sudo sysctl vm.mmap_rnd_bits=28
 
 #LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./serverX

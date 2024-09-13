@@ -14,8 +14,7 @@ if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
     echo "This script calls make with different parameters."
     echo "If build succeeds the clientX binary is copied to"
-    echo "all client directories."
-    echo "Runs tests at the end."
+    echo "first 5 client directories."
     echo "Usage: cd to the project root and run this script"
     echo "with any combination of arguments or without arguments"
     echo "compile.sh"
