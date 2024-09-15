@@ -15,7 +15,7 @@ namespace ioutility {
 
 constexpr int CONV_BUFFER_SIZE = 10;
 
-constexpr std::string_view ENDOFMESSAGE = { "@#$.7D!%Ox37!^*(+" };
+constexpr std::string_view ENDOFMESSAGE("EsSaGeEnDoFm");
 
 template <typename T>
 constexpr void fromChars (std::string_view str, T& value) {

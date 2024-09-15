@@ -31,7 +31,7 @@ public:
 		      HEADER& header,
 		      P1& payload1,
 		      P2&& payload2 = P2()) {
-    std::string payload;
+    static thread_local std::string payload;
     payload.erase(0);
     boost::system::error_code ec;
     std::size_t transferred =
@@ -43,9 +43,9 @@ public:
     transferred -= ioutility::ENDOFMESSAGE.size();
     if (!deserialize(header, payload.data()))
       return false;
-    std::size_t payload1Size = extractPayloadSize(header);
+    std::size_t payload2Size = extractParameter(header);
+    std::size_t payload1Size = transferred - HEADER_SIZE - payload2Size;
     payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
-    std::size_t payload2Size = transferred - HEADER_SIZE - payload1Size;
     payload2 = { reinterpret_cast<decltype(payload2.data())>(payload.data()) + HEADER_SIZE + payload1Size, payload2Size };
     return true;
   }

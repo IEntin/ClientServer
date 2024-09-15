@@ -17,6 +17,7 @@ class Fifo {
   ~Fifo() = delete;
 
   static short pollFd(int fd, short expected);
+
 public:
   template <typename P1, typename P2 = P1>
   static bool readMsg(std::string_view name,
