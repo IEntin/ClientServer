@@ -118,7 +118,7 @@ public:
   }
 
   static bool sendMessage(std::string_view name, std::string_view payload);
-  static bool readMessage(std::string_view name, std::string& payload, bool nonblock = false);
+  static bool readMessage(std::string_view name, std::string& payload);
   static bool setPipeSize(int fd);
   static void onExit(std::string_view fifoName);
   static int openWriteNonBlock(std::string_view fifoName);

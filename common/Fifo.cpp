@@ -106,12 +106,8 @@ bool Fifo::sendMessage(std::string_view name, std::string_view payload) {
   return true;
 }
 
-bool Fifo::readMessage(std::string_view name, std::string& payload, bool nonblock) {
-  int fd = -1;
-  if (nonblock)
-    fd = openReadNonBlock(name);
-  else
-    fd = open(name.data(), O_RDONLY);
+bool Fifo::readMessage(std::string_view name, std::string& payload) {
+  int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1)
     return false;
