@@ -52,6 +52,7 @@ class Task : private boost::noncopyable {
   std::promise<void> _promise;
   std::atomic<unsigned> _index = 0;
   bool _diagnostics;
+  HEADER _header;
   static ProcessRequest _function;
   static Response _emptyResponse;
 
@@ -60,7 +61,7 @@ class Task : private boost::noncopyable {
 
   ~Task();
 
-  void update(bool diagnostics, std::string_view request);
+  void update(std::string_view request);
 
   void sortIndices();
 
@@ -73,6 +74,8 @@ class Task : private boost::noncopyable {
   bool processNext();
 
   void finish();
+
+  HEADER& header() { return _header; }
 
   static void setProcessFunction(ProcessRequest function);
 

@@ -45,11 +45,10 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
 }
 
 bool Session::processTask() {
-  HEADER header;
-  std::string_view restored = utility::decryptDecompress(header, _sharedA, _request);
+  std::string_view restored = utility::decryptDecompress(_task->header(), _sharedA, _request);
   auto weakPtr = TaskController::getWeakPtr();
   if (auto taskController = weakPtr.lock(); taskController) {
-    _task->update(isDiagnosticsEnabled(header), restored);
+    _task->update(restored);
     taskController->processTask(_task);
     return true;
   }

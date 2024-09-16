@@ -95,7 +95,10 @@ void TcpClientHeartbeat::read() {
     LogError << ec.what() << '\n';
     return;
   }
-  boost::asio::async_read(_socket, boost::asio::buffer(_heartbeatBuffer),
+  _heartbeatBuffer.erase(0);
+  boost::asio::async_read_until(_socket,
+				boost::asio::dynamic_string_buffer(_heartbeatBuffer),
+				ioutility::ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
@@ -108,7 +111,7 @@ void TcpClientHeartbeat::read() {
 	case boost::asio::error::connection_reset:
 	case boost::asio::error::broken_pipe:
 	case boost::asio::error::connection_refused:
-	  Info << ec.what() << '\n';
+	  Warn << ec.what() << '\n';
 	  break;
 	case boost::asio::error::operation_aborted:
 	  break;
@@ -131,6 +134,7 @@ void TcpClientHeartbeat::read() {
       }
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0) {
+	Warn << "timeout\n";
 	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
       Logger logger(LOG_LEVEL::INFO, std::clog, false);

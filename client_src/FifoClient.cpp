@@ -87,15 +87,14 @@ bool FifoClient::wakeupAcceptor() {
 bool FifoClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
-  HEADER header;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  if (!Fifo::readMsg(_acceptorName, false, header, clientIdStr, pubAreceived))
+  if (!Fifo::readMsg(_acceptorName, false, _header, clientIdStr, pubAreceived))
     return false;
   ioutility::fromChars(clientIdStr, _clientId);
   if (!_dhB.Agree(_sharedB, _privB, pubAreceived))
     return false;
-  _status = extractStatus(header);
+  _status = extractStatus(_header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
   switch (_status) {

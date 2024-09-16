@@ -79,8 +79,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  HEADER header;
-  std::string_view restored = utility::decryptDecompress(header, _sharedB, _response);
+  std::string_view restored = utility::decryptDecompress(_header, _sharedB, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
 

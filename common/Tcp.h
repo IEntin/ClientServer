@@ -33,18 +33,12 @@ public:
 		      P2&& payload2 = P2()) {
     static thread_local std::string payload;
     payload.erase(0);
-    boost::system::error_code ec;
-    std::size_t transferred =
-      boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), ioutility::ENDOFMESSAGE, ec);
-    if (ec) {
-      LogError << ec.what() << '\n';
+    if (!readMessage(socket, payload))
       return false;
-    }
-    transferred -= ioutility::ENDOFMESSAGE.size();
     if (!deserialize(header, payload.data()))
       return false;
     std::size_t payload2Size = extractParameter(header);
-    std::size_t payload1Size = transferred - HEADER_SIZE - payload2Size;
+    std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
     payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
     payload2 = { reinterpret_cast<decltype(payload2.data())>(payload.data()) + HEADER_SIZE + payload1Size, payload2Size };
     return true;
@@ -70,7 +64,7 @@ public:
     return true;
   }
 
-  static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body);
+  static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload);
   static bool readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload);
 };
 

@@ -88,7 +88,7 @@ void TcpSession::readRequest() {
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_string_buffer(_request),
     ioutility::ENDOFMESSAGE,
-    [this] (const boost::system::error_code& ec, std::size_t transferred) mutable {
+    [this] (const boost::system::error_code& ec, std::size_t transferred) {
       if (transferred > ioutility::ENDOFMESSAGE.size())
 	_request.erase(transferred - ioutility::ENDOFMESSAGE.size());
       auto self = weak_from_this().lock();
@@ -96,7 +96,7 @@ void TcpSession::readRequest() {
 	return;
       if (ec) {
 	switch (ec.value()) {
-	case boost::asio::error::eof :
+	case boost::asio::error::eof:
 	case boost::asio::error::connection_reset:
 	case boost::asio::error::broken_pipe:
 	case boost::asio::error::connection_refused:

@@ -62,7 +62,7 @@ std::tuple<STATUS, Subtasks&> TaskBuilder::getResult() {
 Subtask& TaskBuilder::getSubtask() {
   std::unique_lock lock(_mutex);
   std::reference_wrapper subtaskRef = _emptySubtask;
-  _condition.wait(lock, [&] () mutable {
+  _condition.wait(lock, [&] () {
     if (_subtaskIndexConsumed < _subtasks.size()) {
       if (_status == STATUS::ERROR)
 	return true;

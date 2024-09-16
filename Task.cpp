@@ -30,9 +30,9 @@ void Task::setProcessFunction(ProcessRequest function) {
   _function = function;
 }
 
-void Task::update(bool diagnostics, std::string_view request) {
+void Task::update(std::string_view request) {
   _promise = std::promise<void>();
-  _diagnostics = diagnostics;
+  _diagnostics = isDiagnosticsEnabled(_header);
   _rows.clear();
   utility::splitFast(request, _rows);
   _indices.resize(_rows.size());

@@ -38,6 +38,7 @@ protected:
   Chronometer _chronometer;
   ThreadPoolBase _threadPoolClient;
   std::atomic<STATUS> _status = STATUS::NONE;
+  HEADER _header;
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder;
   static std::atomic<bool> _closeFlag;

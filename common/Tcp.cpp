@@ -5,6 +5,7 @@
 #include "Tcp.h"
 
 #include <array>
+#include <cassert>
 
 #include "ClientOptions.h"
 #include "IOUtility.h"
@@ -29,9 +30,9 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   return true;
 }
 
-bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view body) {
+bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
   std::array<boost::asio::const_buffer, 2>
-    buffers{ boost::asio::buffer(body),
+    buffers{ boost::asio::buffer(payload),
 	     boost::asio::buffer(ioutility::ENDOFMESSAGE) };
   boost::system::error_code ec;
   socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
@@ -42,7 +43,7 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view bod
   std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
   if (ec) {
     switch (ec.value()) {
-    case boost::asio::error::eof :
+    case boost::asio::error::eof:
     case boost::asio::error::connection_reset:
     case boost::asio::error::broken_pipe:
       Info << ec.what() << '\n';
@@ -71,7 +72,7 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
     boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), ioutility::ENDOFMESSAGE, ec);
   if (ec) {
     switch (ec.value()) {
-    case boost::asio::error::eof :
+    case boost::asio::error::eof:
     case boost::asio::error::connection_reset:
     case boost::asio::error::broken_pipe:
       Info << ec.what() << '\n';
@@ -81,8 +82,8 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
       return false;
     }
   }
-  if (transferred > ioutility::ENDOFMESSAGE.size())
-    payload.erase(transferred - ioutility::ENDOFMESSAGE.size());
+  assert(transferred >= ioutility::ENDOFMESSAGE.size() + HEADER_SIZE && "Too short message");
+  payload.erase(transferred - ioutility::ENDOFMESSAGE.size());
   return true;
 }
 
