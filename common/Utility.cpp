@@ -96,8 +96,7 @@ compressEncrypt(const HEADER& header, const CryptoPP::SecByteBlock& key, std::st
     data = compression::compress(data);
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
-  std::string_view headerStr(headerBuffer, HEADER_SIZE);
-  data.insert(data.begin(), headerStr.cbegin(), headerStr.cend());
+  data.insert(0, headerBuffer, HEADER_SIZE);
   if (isEncrypted(header))
     data = Crypto::encrypt(key, data);
   return data;

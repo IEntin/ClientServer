@@ -187,20 +187,20 @@ struct FifoNBDuplex : testing::Test {
   }
 
   // client send
-  bool sendC(const HEADER& header, std::string_view body) {
-    return fifo::Fifo::sendMsg(_testFifo, header, body);
+  bool sendC(const HEADER& header, std::string_view data) {
+    return fifo::Fifo::sendMsg(_testFifo, header, data);
   }
   // client receive
-  bool receiveC(HEADER& header, std::string& body) {
-    return fifo::Fifo::readMsg(_testFifo, true, header, body);
+  bool receiveC(HEADER& header, std::string& data) {
+    return fifo::Fifo::readMsg(_testFifo, true, header, data);
   }
   // server send
-  bool sendS(const HEADER& header, std::string_view body) {
-    return fifo::Fifo::sendMsg(_testFifo, header, body);
+  bool sendS(const HEADER& header, std::string_view data) {
+    return fifo::Fifo::sendMsg(_testFifo, header, data);
   }
   // server receive
-  bool receiveS(HEADER& header, std::string& body) {
-    return fifo::Fifo::readMsg(_testFifo, true, header, body);
+  bool receiveS(HEADER& header, std::string& data) {
+    return fifo::Fifo::readMsg(_testFifo, true, header, data);
   }
 
   void testFifoNBDuplex(std::string_view payload) {
@@ -210,20 +210,20 @@ struct FifoNBDuplex : testing::Test {
       { HEADERTYPE::SESSION, size, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
-    std::string bodyIntermed;
-    auto fr = std::async(std::launch::async, &FifoNBDuplex::receiveS, this, std::ref(headerIntermed), std::ref(bodyIntermed));
+    std::string dataIntermed;
+    auto fr = std::async(std::launch::async, &FifoNBDuplex::receiveS, this, std::ref(headerIntermed), std::ref(dataIntermed));
     fr.wait();
     fs.wait();
     ASSERT_EQ(headerIntermed, header);
-    ASSERT_EQ(bodyIntermed, payload);
+    ASSERT_EQ(dataIntermed, payload);
     HEADER headerFin;
-    std::string bodyFin;
-    fs = std::async(std::launch::async, &FifoNBDuplex::sendS, this, std::cref(headerIntermed), bodyIntermed);
-    fr = std::async(std::launch::async, &FifoNBDuplex::receiveC, this, std::ref(headerFin), std::ref(bodyFin));
+    std::string dataFin;
+    fs = std::async(std::launch::async, &FifoNBDuplex::sendS, this, std::cref(headerIntermed), dataIntermed);
+    fr = std::async(std::launch::async, &FifoNBDuplex::receiveC, this, std::ref(headerFin), std::ref(dataFin));
     fr.wait();
     fs.wait();
     ASSERT_EQ(header, headerFin);
-    ASSERT_EQ(payload, bodyFin);
+    ASSERT_EQ(payload, dataFin);
   }
 
   void SetUp() {}

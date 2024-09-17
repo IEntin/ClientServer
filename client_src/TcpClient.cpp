@@ -39,7 +39,7 @@ bool TcpClient::send(Subtask& subtask) {
       Warn << ec.what() << '\n';
       return false;
     }
-    Tcp::sendMessage(_socket, subtask._body);
+    Tcp::sendMessage(_socket, subtask._data);
     return true;
   }
   catch (const std::exception& e) {

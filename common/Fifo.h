@@ -80,11 +80,11 @@ public:
       }
   }
 
-  template <typename B>
-  static void writeString(int fd, B& body) {
+  template <typename S>
+  static void writeString(int fd, S& str) {
     std::size_t written = 0;
-    while (written < body.size()) {
-      ssize_t result = write(fd, body.data() + written, body.size() - written);
+    while (written < str.size()) {
+      ssize_t result = write(fd, str.data() + written, str.size() - written);
       if (result == -1) {
 	switch (errno) {
 	case EAGAIN:

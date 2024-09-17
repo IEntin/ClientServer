@@ -35,22 +35,22 @@ TEST(ReadUntilTest, 1) {
   constexpr std::string_view element(
 	    "abc3456789defghijklmnABCDEFGHIJKLMNOPQRSTUVWZ987654321ab"
 	    "c3456789defghijklmnABCDEFGHIJKLMNOPQRSTUVWZ9876543210\n");
-  std::string body;
+  std::string data;
   constexpr std::size_t NUMBERELEMENTS = 10000;
   for (std::size_t i = 0; i < NUMBERELEMENTS; ++i)
-    body.append(element);
+    data.append(element);
   constexpr COMPRESSORS compressor = COMPRESSORS::NONE;
   constexpr CRYPTO encrypted = CRYPTO::ENCRYPTED;
   constexpr DIAGNOSTICS diagnostics = DIAGNOSTICS::NONE;
   HEADER header{
-    HEADERTYPE::SESSION, body.size(), body.size(), compressor, encrypted, diagnostics, STATUS::NONE, 0 };
+    HEADERTYPE::SESSION, data.size(), data.size(), compressor, encrypted, diagnostics, STATUS::NONE, 0 };
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
-  std::string message(HEADER_SIZE + body.size(), '\0');
+  std::string message(HEADER_SIZE + data.size(), '\0');
   std::size_t offset = 0;
   std::copy(headerBuffer, headerBuffer + HEADER_SIZE, message.begin());
   offset += HEADER_SIZE;
-  std::copy(body.begin(), body.end(), message.begin() + offset);
+  std::copy(data.begin(), data.end(), message.begin() + offset);
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   Crypto::_rng.GenerateBlock(key, key.size());
   std::string_view cipher = Crypto::encrypt(key, message);
