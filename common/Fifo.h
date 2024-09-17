@@ -66,7 +66,7 @@ public:
 	ssize_t result = read(fd, received + readSoFar, size - readSoFar);
 	if (result == -1) {
 	  switch (errno) {
-	  case EAGAIN:// happens in non blocking mode
+	  case EAGAIN:
 	    pollFd(fd, POLLIN);
 	    continue;
 	    break;
@@ -87,7 +87,7 @@ public:
       ssize_t result = write(fd, body.data() + written, body.size() - written);
       if (result == -1) {
 	switch (errno) {
-	case EAGAIN:// happens in non blocking mode
+	case EAGAIN:
 	  break;
 	default:
 	  throw std::runtime_error(utility::createErrorString());
