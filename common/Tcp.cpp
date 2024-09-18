@@ -8,7 +8,6 @@
 #include <cassert>
 
 #include "ClientOptions.h"
-#include "IOUtility.h"
 
 namespace tcp {
 
@@ -33,7 +32,7 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
 bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
   std::array<boost::asio::const_buffer, 2>
     buffers{ boost::asio::buffer(payload),
-	     boost::asio::buffer(ioutility::ENDOFMESSAGE) };
+	     boost::asio::buffer(utility::ENDOFMESSAGE) };
   boost::system::error_code ec;
   socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
   if (ec) {
@@ -69,7 +68,7 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
     return false;
   }
   std::size_t transferred =
-    boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), ioutility::ENDOFMESSAGE, ec);
+    boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), utility::ENDOFMESSAGE, ec);
   if (ec) {
     switch (ec.value()) {
     case boost::asio::error::eof:
@@ -82,8 +81,8 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
       return false;
     }
   }
-  assert(transferred >= ioutility::ENDOFMESSAGE.size() + HEADER_SIZE && "Too short message");
-  payload.erase(transferred - ioutility::ENDOFMESSAGE.size());
+  assert(transferred >= utility::ENDOFMESSAGE.size() + HEADER_SIZE && "Too short message");
+  payload.erase(transferred - utility::ENDOFMESSAGE.size());
   return true;
 }
 

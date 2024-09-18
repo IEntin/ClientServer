@@ -6,8 +6,8 @@
 
 #include <boost/asio.hpp>
 
-#include "IOUtility.h"
 #include "Logger.h"
+#include "Utility.h"
 
 namespace tcp {
 
@@ -54,7 +54,7 @@ public:
     std::array<boost::asio::const_buffer, 4> buffers{ boost::asio::buffer(headerBuffer),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2),
-						      boost::asio::buffer(ioutility::ENDOFMESSAGE) };
+						      boost::asio::buffer(utility::ENDOFMESSAGE) };
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {

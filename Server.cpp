@@ -4,6 +4,8 @@
 
 #include "Server.h"
 
+#include <boost/interprocess/sync/named_mutex.hpp>
+
 #include "Ad.h"
 #include "FifoAcceptor.h"
 #include "FifoSession.h"
@@ -13,10 +15,16 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include "TcpSession.h"
+#include "Utility.h"
 
 Server::Server(Policy& policy) :
   _chronometer(ServerOptions::_timing),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
+  // Unlock computer in case the app crashed during debugging
+  // leaving mutex locked, run serverX or testbin in this case
+  // so that all processes are on the same host rather than
+  // rebooting machine:
+  boost::interprocess::named_mutex::remove(utility::FIFO_NAMED_MUTEX);
   policy.set();
 }
 

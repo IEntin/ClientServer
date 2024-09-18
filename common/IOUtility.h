@@ -15,8 +15,6 @@ namespace ioutility {
 
 constexpr int CONV_BUFFER_SIZE = 10;
 
-constexpr std::string_view ENDOFMESSAGE("EsSaGeEnDoFm");
-
 template <typename T>
 constexpr void fromChars (std::string_view str, T& value) {
   if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);

@@ -13,7 +13,7 @@ TcpClientHeartbeat::TcpClientHeartbeat() :
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext),
-  _heartbeatBuffer(HEADER_SIZE + ioutility::ENDOFMESSAGE.size(), '\0') {}
+  _heartbeatBuffer(HEADER_SIZE + utility::ENDOFMESSAGE.size(), '\0') {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
   Trace << '\n';
@@ -98,7 +98,7 @@ void TcpClientHeartbeat::read() {
   _heartbeatBuffer.erase(0);
   boost::asio::async_read_until(_socket,
 				boost::asio::dynamic_string_buffer(_heartbeatBuffer),
-				ioutility::ENDOFMESSAGE,
+				utility::ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
@@ -159,7 +159,7 @@ void TcpClientHeartbeat::write() {
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
   serialize(header, _heartbeatBuffer.data());
   std::array<boost::asio::const_buffer, 2> buffers{ boost::asio::buffer(_heartbeatBuffer),
-						    boost::asio::buffer(ioutility::ENDOFMESSAGE) };
+						    boost::asio::buffer(utility::ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
 			   buffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {

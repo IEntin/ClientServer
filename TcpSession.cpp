@@ -87,10 +87,10 @@ void TcpSession::readRequest() {
   _request.erase(0);
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_string_buffer(_request),
-    ioutility::ENDOFMESSAGE,
+    utility::ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
-      if (transferred > ioutility::ENDOFMESSAGE.size())
-	_request.erase(transferred - ioutility::ENDOFMESSAGE.size());
+      if (transferred > utility::ENDOFMESSAGE.size())
+	_request.erase(transferred - utility::ENDOFMESSAGE.size());
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -128,7 +128,7 @@ void TcpSession::readRequest() {
 
 void TcpSession::write(std::string_view payload) {
   std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(payload),
-							boost::asio::buffer(ioutility::ENDOFMESSAGE) };
+							boost::asio::buffer(utility::ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
     asioBuffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {

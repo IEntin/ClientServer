@@ -4,9 +4,11 @@
 
 #include <boost/asio.hpp>
 
+#include "Header.h"
 #include "Crypto.h"
 #include "IOUtility.h"
 #include "TestEnvironment.h"
+#include "Utility.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=ReadUntilTest*; done
@@ -55,7 +57,7 @@ TEST(ReadUntilTest, 1) {
   Crypto::_rng.GenerateBlock(key, key.size());
   std::string_view cipher = Crypto::encrypt(key, message);
   ASSERT_TRUE(utility::isEncrypted(cipher));
-  const std::string_view delimiter = ioutility::ENDOFMESSAGE;
+  const std::string_view delimiter = utility::ENDOFMESSAGE;
   // Write a string from socketW to socketR
   std::vector<boost::asio::const_buffer> buffers{
     boost::asio::buffer(cipher),

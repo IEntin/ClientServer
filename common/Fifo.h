@@ -33,29 +33,16 @@ public:
     utility::CloseFileDescriptor cfdr(fd);
     if (pollFd(fd, POLLIN) != POLLIN)
       return false;
-    std::size_t readSoFar = 0;
     char buffer[HEADER_SIZE] = {};
-    while (readSoFar < HEADER_SIZE) {
-      ssize_t result = read(fd, buffer + readSoFar, HEADER_SIZE - readSoFar);
-      if (result == -1)
-	throw std::runtime_error(utility::createErrorString());
-      else if (result == 0) {
-	Info << name << "-EOF" << '\n';
-	return false;
-      }
-      else
-	readSoFar += result;
-    }
+    readString(fd, buffer, HEADER_SIZE);
     if (!deserialize(header, buffer))
       return false;
     std::size_t payload1Size = extractPayloadSize(header);
-    payload1.resize(payload1Size);
-    readString(fd, payload1.data(), payload1Size);
     std::size_t payload2Size = extractParameter(header);
-    if (payload2Size > 0) {
-      payload2.resize(payload2Size);
-      readString(fd, payload2.data(), payload2Size);
-    }
+    payload1.resize(payload1Size + payload2Size);
+    readString(fd, payload1.data(), payload1.size());
+    payload2 = { reinterpret_cast<decltype(payload2.data())>(payload1.data()) + payload1Size, payload2Size };
+    payload1 = { payload1.data(), payload1Size };
     return true;
   }
 

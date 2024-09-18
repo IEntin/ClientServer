@@ -16,6 +16,10 @@
 
 namespace utility {
 
+// common constants
+constexpr std::string_view ENDOFMESSAGE("EsSaGeEnDoFm");
+constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
+
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,
 // string_view, vector<char> or vector of objects of any

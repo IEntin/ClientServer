@@ -21,7 +21,7 @@ constexpr int FIFO_CLIENT_POLLING_PERIOD = 250;
 namespace fifo {
 
 FifoClient::FifoClient() : _acceptorName(ClientOptions::_acceptorName) {
-  boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
+  boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, utility::FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   if (!wakeupAcceptor())
     throw std::runtime_error("FifoClient::wakeupAcceptor failed");
