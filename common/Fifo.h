@@ -21,50 +21,31 @@ class Fifo {
 public:
   template <typename P1, typename P2 = P1>
   static bool readMsg(std::string_view name,
-		      bool nonblock,
+		      bool block,
 		      HEADER& header,
 		      P1& payload1,
 		      P2&& payload2 = P2()) {
-    int fd = -1;
-    if (nonblock)
-      fd = openReadNonBlock(name);
-    else
-      fd = open(name.data(), O_RDONLY);
-    utility::CloseFileDescriptor cfdr(fd);
-    if (pollFd(fd, POLLIN) != POLLIN)
+    static thread_local std::string payload;
+    payload.erase(0);
+    if (block) {
+      if (!readStringBlock(name, payload))
+	  return false;
+    }
+    else {
+      if (!readStringNonBlock(name, payload))
+	return false;
+    }
+    if (!deserialize(header, payload.data()))
       return false;
-    char buffer[HEADER_SIZE] = {};
-    readString(fd, buffer, HEADER_SIZE);
-    if (!deserialize(header, buffer))
-      return false;
-    std::size_t payload1Size = extractPayloadSize(header);
     std::size_t payload2Size = extractParameter(header);
-    payload1.resize(payload1Size + payload2Size);
-    readString(fd, payload1.data(), payload1.size());
-    payload2 = { reinterpret_cast<decltype(payload2.data())>(payload1.data()) + payload1Size, payload2Size };
-    payload1 = { payload1.data(), payload1Size };
+    std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
+    if (payload1Size > 0)
+      payload1 =
+	{ reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
+    if (payload2Size > 0)
+      payload2 =
+	{ reinterpret_cast<decltype(payload2.data())>(payload.data()) + HEADER_SIZE + payload1Size, payload2Size };
     return true;
-  }
-
-  template <typename T>
-  static void readString(int fd, T* received, std::size_t size) {
-    std::size_t readSoFar = 0;
-    while (readSoFar < size) {
-	ssize_t result = read(fd, received + readSoFar, size - readSoFar);
-	if (result == -1) {
-	  switch (errno) {
-	  case EAGAIN:
-	    pollFd(fd, POLLIN);
-	    continue;
-	    break;
-	  default:
-	    throw std::runtime_error(utility::createErrorString());
-	    break;
-	  }
-	}
-	else
-	  readSoFar += result;
-      }
   }
 
   template <typename S>
@@ -105,7 +86,8 @@ public:
   }
 
   static bool sendMessage(std::string_view name, std::string_view payload);
-  static bool readMessage(std::string_view name, std::string& payload);
+  static bool readStringBlock(std::string_view name, std::string& payload);
+  static bool readStringNonBlock(std::string_view name, std::string& payload);
   static bool setPipeSize(int fd);
   static void onExit(std::string_view fifoName);
   static int openWriteNonBlock(std::string_view fifoName);

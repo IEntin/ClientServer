@@ -19,7 +19,7 @@ CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
-    LogError << std::strerror(errno) << '\n';
+    LogError << strerror(errno) << '\n';
   _fd = -1;
 }
 
@@ -84,7 +84,7 @@ bool isEncrypted(std::string_view data) {
 }
 
 std::string createErrorString(const boost::source_location& location) {
-  std::string msg(std::strerror(errno));
+  std::string msg(strerror(errno));
   msg.append(1, ':').append(location.file_name()).append(1, ':');
   ioutility::toChars(location.line(), msg);
   return msg.append(1, ' ').append(location.function_name());

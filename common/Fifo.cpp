@@ -4,6 +4,7 @@
 
 #include "Fifo.h"
 
+#include <sys/ioctl.h>
 #include <thread>
 
 #include "ClientOptions.h"
@@ -20,7 +21,7 @@ short Fifo::pollFd(int fd, short expected) {
   else if (pfd.revents & expected)
     return expected;
   else if (pfd.revents & POLLHUP) {
-    Debug << std::strerror(errno) << '\n';
+    Debug << strerror(errno) << '\n';
     return POLLHUP;
   }
   return -1;
@@ -46,13 +47,13 @@ bool Fifo::setPipeSize(int fd) {
     int ret = fcntl(fd, F_SETPIPE_SZ, pipeSize);
     if (ret < 0) {
       static auto& printOnce[[maybe_unused]] =
-	Info << std::strerror(errno) << ":\n"
+	Info << strerror(errno) << ":\n"
 	     << "su privileges required, ignore." << '\n';
       return false;
     }
     long newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
-      Info << std::strerror(errno) << '\n';
+      Info << strerror(errno) << '\n';
       return false;
     }
     return newSz >= pipeSize || pipeSize < currentSz;
@@ -106,7 +107,7 @@ bool Fifo::sendMessage(std::string_view name, std::string_view payload) {
   return true;
 }
 
-bool Fifo::readMessage(std::string_view name, std::string& payload) {
+bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1)
@@ -124,4 +125,39 @@ bool Fifo::readMessage(std::string_view name, std::string& payload) {
   }
   return !payload.empty();
 }
+
+bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
+  int fd = openReadNonBlock(name);
+  if (fd == -1)
+    return false;
+  utility::CloseFileDescriptor cfdr(fd);
+  while (true) {
+    if (pollFd(fd, POLLIN) != POLLIN)
+      break;
+    std::size_t availableBytes = 0;
+    int err = ioctl(fd, FIONREAD, &availableBytes);
+    if (err != 0)
+      return false;
+    ssize_t result = 0;
+    if (availableBytes > 0) {
+      std::size_t shift = payload.size();
+      payload.resize(payload.size() + availableBytes);
+      result = read(fd, payload.data() + shift, availableBytes);
+      if (result == -1) {
+	switch (errno) {
+	case EAGAIN:
+	  if (pollFd(fd, POLLIN) != POLLIN)
+	    return false;
+	  continue;
+	  break;
+	default:
+	  throw std::runtime_error(utility::createErrorString());
+	  break;
+	}
+      }
+    }
+  }
+  return true;
+}
+
 } // end of namespace fifo

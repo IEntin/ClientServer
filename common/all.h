@@ -39,6 +39,7 @@
 #include <string>
 #include <string_view>
 #include <syncstream>
+#include <sys/ioctl.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <system_error>

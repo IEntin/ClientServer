@@ -29,7 +29,7 @@ std::tuple<HEADERTYPE, CryptoPP::SecByteBlock> FifoAcceptor::unblockAcceptor() {
     return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
   HEADER header;
   CryptoPP::SecByteBlock pubB;
-  if (!Fifo::readMsg(_acceptorName, false, header, pubB))
+  if (!Fifo::readMsg(_acceptorName, true, header, pubB))
     return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
   return { extractHeaderType(header), pubB };
 }
@@ -48,7 +48,7 @@ bool FifoAcceptor::start() {
   // in case there was no proper shutdown.
   removeFifoFiles();
   if (mkfifo(_acceptorName.data(), 0666) == -1 && errno != EEXIST) {
-    LogError << std::strerror(errno) << '-' << _acceptorName << '\n';
+    LogError << strerror(errno) << '-' << _acceptorName << '\n';
     return false;
   }
   return true;
