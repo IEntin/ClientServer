@@ -116,12 +116,13 @@ bool deserialize(HEADER& header, const char* buffer) {
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
   ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
   if (ServerOptions::_printHeader || ClientOptions::_printHeader)
-    printHeader(header);
+    printHeader(header, LOG_LEVEL::ALWAYS);
   return true;
 }
 
-void printHeader(const HEADER& header) {
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+void printHeader(const HEADER& header, LOG_LEVEL level) {
+  Logger logger(level, std::clog, false);
+  logger << "\nheader:\n";
   logger << std::boolalpha;
   printTuple(header, logger);
 }

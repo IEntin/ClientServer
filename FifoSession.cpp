@@ -84,7 +84,7 @@ bool FifoSession::sendResponse() {
   std::string_view payload = buildReply(_status);
   if (payload.empty())
     return false;
-  return Fifo::sendMessage(_fifoName, payload);
+  return Fifo::sendMsgNonBlock(_fifoName, payload);
 }
 
 void FifoSession::sendStatusToClient() {

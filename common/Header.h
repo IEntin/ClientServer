@@ -8,6 +8,10 @@
 #include <tuple>
 #include <utility>
 
+#include "Logger.h"
+
+enum class LOG_LEVEL;
+
 constexpr int HEADERTYPE_SIZE = 1;
 constexpr int NUM_FIELD_SIZE = 10;
 constexpr int COMPRESSOR_SIZE = 1;
@@ -19,8 +23,8 @@ constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + NUM_FIELD_SIZE + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 enum class HEADERTYPE : char {
-  INVALIDLOW = 'A',
-  NONE = 'B',
+  INVALIDLOW = '@',
+  NONE = 'A',
   CREATE_SESSION,
   SESSION,
   HEARTBEAT,
@@ -29,29 +33,29 @@ enum class HEADERTYPE : char {
 };
 
 enum class COMPRESSORS : char {
-  INVALIDLOW = 'A',
-  NONE = 'B',
+  INVALIDLOW = '@',
+  NONE = 'A',
   LZ4,
   INVALIDHIGH
 };
 
 enum class CRYPTO : char {
-  INVALIDLOW = 'A',
-  NONE = 'B',
+  INVALIDLOW = '@',
+  NONE = 'A',
   ENCRYPTED,
   INVALIDHIGH
 };
 
 enum class DIAGNOSTICS : char {
-  INVALIDLOW = 'A',
-  NONE = 'B',
+  INVALIDLOW = '@',
+  NONE = 'A',
   ENABLED,
   INVALIDHIGH
 };
 
 enum class STATUS : char {
-  INVALIDLOW = 'A',
-  NONE = 'B',
+  INVALIDLOW = '@',
+  NONE = 'A',
   SUBTASK_DONE,
   TASK_DONE,
   BAD_HEADER,
@@ -128,4 +132,4 @@ CRYPTO translateCryptoString(std::string_view cryptoStr);
 
 DIAGNOSTICS translateDiagnosticsString(std::string_view diagnosticsStr);
 
-void printHeader(const HEADER& header);
+void printHeader(const HEADER& header, LOG_LEVEL level);

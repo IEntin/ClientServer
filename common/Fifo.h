@@ -37,8 +37,7 @@ public:
     }
     if (!deserialize(header, payload.data()))
       return false;
-    Info << "\nheader:\n";
-    printTuple(header, Info);
+    printHeader(header, LOG_LEVEL::INFO);
     std::size_t payload2Size = extractParameter(header);
     std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
     if (payload1Size > 0)
@@ -87,7 +86,7 @@ public:
     return true;
   }
 
-  static bool sendMessage(std::string_view name, std::string_view payload);
+  static bool sendMsgNonBlock(std::string_view name, std::string_view payload);
   static bool readStringBlock(std::string_view name, std::string& payload);
   static bool readStringNonBlock(std::string_view name, std::string& payload);
   static bool setPipeSize(int fd);

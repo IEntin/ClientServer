@@ -50,7 +50,7 @@ bool FifoClient::send(Subtask& subtask) {
 	LogError << ec.message() << '\n';
       _status = STATUS::STOPPED;
     }
-    if (Fifo::sendMessage(_fifoName, subtask._data))
+    if (Fifo::sendMsgNonBlock(_fifoName, subtask._data))
       return true;
     // waiting client
     // session stopped
