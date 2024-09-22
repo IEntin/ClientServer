@@ -16,7 +16,7 @@ constexpr int DIAGNOSTICS_SIZE = 1;
 constexpr int STATUS_SIZE = 1;
 constexpr int PARAMETER_SIZE = NUM_FIELD_SIZE;
 constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + NUM_FIELD_SIZE * 2 + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
+  HEADERTYPE_SIZE + NUM_FIELD_SIZE + COMPRESSOR_SIZE + CRYPTO_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 enum class HEADERTYPE : char {
   INVALIDLOW = 'A',
@@ -74,7 +74,6 @@ enum class STATUS : char {
 
 enum class HEADER_INDEX : char {
   HEADERTYPEINDEX,
-  PAYLOADSIZEINDEX,
   UNCOMPRESSEDSIZEINDEX,
   COMPRESSORINDEX,
   CRYPTOINDEX,
@@ -85,11 +84,9 @@ enum class HEADER_INDEX : char {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, CRYPTO, DIAGNOSTICS, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, std::size_t, COMPRESSORS, CRYPTO, DIAGNOSTICS, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
-
-std::size_t extractPayloadSize(const HEADER& header);
 
 std::size_t extractUncompressedSize(const HEADER& header);
 

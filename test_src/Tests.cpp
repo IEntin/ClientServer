@@ -104,12 +104,11 @@ TEST(FromCharsTest, FloatingPoint) {
 
 TEST(HeaderTest, 1) {
   char buffer[HEADER_SIZE] = {};
-  unsigned payloadSz = 123567;
   unsigned uncomprSz = 123456;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   CRYPTO encrypted = CRYPTO::NONE;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
-  HEADER header{HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
+  HEADER header{HEADERTYPE::SESSION, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   ASSERT_TRUE(deserialize(header, buffer));
   std::size_t uncomprSzResult = extractUncompressedSize(header);
@@ -121,7 +120,7 @@ TEST(HeaderTest, 1) {
   DIAGNOSTICS diagnosticsResult = extractDiagnostics(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
-  header = {HEADERTYPE::SESSION, payloadSz, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
+  header = {HEADERTYPE::SESSION, uncomprSz, compressor, encrypted, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   ASSERT_TRUE(deserialize(header, buffer));
   compressorResult = extractCompressor(header);

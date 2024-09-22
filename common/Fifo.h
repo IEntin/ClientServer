@@ -37,6 +37,8 @@ public:
     }
     if (!deserialize(header, payload.data()))
       return false;
+    Info << "\nheader:\n";
+    printTuple(header, Info);
     std::size_t payload2Size = extractParameter(header);
     std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
     if (payload1Size > 0)

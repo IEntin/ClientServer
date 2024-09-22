@@ -45,7 +45,7 @@ TEST(ReadUntilTest, 1) {
   constexpr CRYPTO encrypted = CRYPTO::ENCRYPTED;
   constexpr DIAGNOSTICS diagnostics = DIAGNOSTICS::NONE;
   HEADER header{
-    HEADERTYPE::SESSION, data.size(), data.size(), compressor, encrypted, diagnostics, STATUS::NONE, 0 };
+    HEADERTYPE::SESSION, data.size(), compressor, encrypted, diagnostics, STATUS::NONE, 0 };
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   std::string message(HEADER_SIZE + data.size(), '\0');

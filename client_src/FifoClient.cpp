@@ -80,7 +80,7 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   std::size_t size = _pubB.size();
   HEADER header =
-    { HEADERTYPE::CREATE_SESSION, size, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
+    { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, CRYPTO::NONE, DIAGNOSTICS::NONE, _status, 0 };
   return Fifo::sendMsg(_acceptorName, header, _pubB);
 }
 
