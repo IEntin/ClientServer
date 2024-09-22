@@ -2,10 +2,12 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <cmath>
+
 #include <boost/asio.hpp>
 
-#include "Header.h"
 #include "Crypto.h"
+#include "Header.h"
 #include "IOUtility.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
@@ -24,23 +26,18 @@ TEST(CryptoTest, 1) {
 
 TEST(ReadUntilTest, 1) {
   const auto noop = std::bind([](){});
-  boost::asio::io_service io_service;
+  boost::asio::io_context ioContext;
   boost::asio::ip::tcp::acceptor
-    acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
-  boost::asio::ip::tcp::socket socketW(io_service);
-  boost::asio::ip::tcp::socket socketR(io_service);
+    acceptor(ioContext, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
+  boost::asio::ip::tcp::socket socketW(ioContext);
+  boost::asio::ip::tcp::socket socketR(ioContext);
   // Connect sockets.
   acceptor.async_accept(socketW, noop);
   socketR.async_connect(acceptor.local_endpoint(), noop);
-  io_service.run();
-  io_service.reset();
-  constexpr std::string_view element(
-	    "abc3456789defghijklmnABCDEFGHIJKLMNOPQRSTUVWZ987654321ab"
-	    "c3456789defghijklmnABCDEFGHIJKLMNOPQRSTUVWZ9876543210\n");
-  std::string data;
-  constexpr std::size_t NUMBERELEMENTS = 10000;
-  for (std::size_t i = 0; i < NUMBERELEMENTS; ++i)
-    data.append(element);
+  ioContext.run();
+  ioContext.reset();
+  std::size_t MAXDATASIZE = std::pow(2, 20);
+  std::string data(TestEnvironment::_source, MAXDATASIZE);
   constexpr COMPRESSORS compressor = COMPRESSORS::NONE;
   constexpr CRYPTO encrypted = CRYPTO::ENCRYPTED;
   constexpr DIAGNOSTICS diagnostics = DIAGNOSTICS::NONE;
@@ -81,5 +78,5 @@ TEST(ReadUntilTest, 1) {
 	 ASSERT_EQ(receivedHeader, header);
 	 ASSERT_EQ(decrypted, message);
 				});
-  io_service.run();
+  ioContext.run();
 }

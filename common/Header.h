@@ -24,7 +24,7 @@ constexpr int HEADER_SIZE =
 
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
-  NONE = 'A',
+  NONE,
   CREATE_SESSION,
   SESSION,
   HEARTBEAT,
@@ -34,28 +34,28 @@ enum class HEADERTYPE : char {
 
 enum class COMPRESSORS : char {
   INVALIDLOW = '@',
-  NONE = 'A',
+  NONE,
   LZ4,
   INVALIDHIGH
 };
 
 enum class CRYPTO : char {
   INVALIDLOW = '@',
-  NONE = 'A',
+  NONE,
   ENCRYPTED,
   INVALIDHIGH
 };
 
 enum class DIAGNOSTICS : char {
   INVALIDLOW = '@',
-  NONE = 'A',
+  NONE,
   ENABLED,
   INVALIDHIGH
 };
 
 enum class STATUS : char {
   INVALIDLOW = '@',
-  NONE = 'A',
+  NONE,
   SUBTASK_DONE,
   TASK_DONE,
   BAD_HEADER,
