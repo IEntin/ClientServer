@@ -18,7 +18,7 @@ struct ServerOptions {
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
-  static CRYPTO _encrypted;
+  static bool _encrypted;
   static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;

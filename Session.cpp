@@ -40,8 +40,8 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
     _responseData.insert(_responseData.end(), entry.begin(), entry.end());
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
-    { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, ServerOptions::_encrypted, DIAGNOSTICS::NONE, status, 0 };
-  return utility::compressEncrypt(header, _sharedA, _responseData);
+    { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+  return utility::compressEncrypt(ServerOptions::_encrypted, header, _sharedA, _responseData);
 }
 
 bool Session::processTask() {

@@ -13,11 +13,6 @@ COMPRESSORS translateCompressorString(std::string_view compressorStr) {
   return compressor;
 }
 
-CRYPTO translateCryptoString(std::string_view cryptoStr) {
-  CRYPTO crypto = cryptoStr == "Enabled" ? CRYPTO::ENCRYPTED : CRYPTO::NONE;
-  return crypto;
-}
-
 DIAGNOSTICS translateDiagnosticsString(std::string_view diagnosticsStr) {
   DIAGNOSTICS diagnostics = diagnosticsStr == "Enabled" ? DIAGNOSTICS::ENABLED : DIAGNOSTICS::NONE;
   return diagnostics;
@@ -37,14 +32,6 @@ COMPRESSORS extractCompressor(const HEADER& header) {
 
 bool isCompressed(const HEADER& header) {
   return extractCompressor(header) == COMPRESSORS::LZ4;
-}
-
-CRYPTO extractCrypto(const HEADER& header) {
-  return std::get<CRYPTO>(header);
-}
-
-bool isEncrypted(const HEADER& header) {
-  return std::get<CRYPTO>(header) == CRYPTO::ENCRYPTED;
 }
 
 DIAGNOSTICS extractDiagnostics(const HEADER& header) {
@@ -84,8 +71,6 @@ void serialize(const HEADER& header, char* buffer) {
   offset += NUM_FIELD_SIZE;
   buffer[offset] = std::to_underlying(extractCompressor(header));
   offset += COMPRESSOR_SIZE;
-  buffer[offset] = std::to_underlying(extractCrypto(header));
-  offset += CRYPTO_SIZE;
   buffer[offset] = std::to_underlying(extractDiagnostics(header));
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::to_underlying(extractStatus(header));
@@ -104,9 +89,6 @@ bool deserialize(HEADER& header, const char* buffer) {
   if (!deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]))
     return false;
   offset += COMPRESSOR_SIZE;
-  if (!deserializeEnumeration(std::get<CRYPTO>(header), buffer[offset]))
-    return false;
-  offset += CRYPTO_SIZE;
   if (!deserializeEnumeration(std::get<DIAGNOSTICS>(header), buffer[offset]))
     return false;
   offset += DIAGNOSTICS_SIZE;

@@ -20,7 +20,7 @@ struct ClientOptions {
   static std::string _fifoDirectoryName;
   static std::string _acceptorName;
   static COMPRESSORS _compressor;
-  static CRYPTO _encrypted;
+  static bool _encrypted;
   static bool _showKey;
   static std::string _sourceName;
   static std::ostream* _dataStream;

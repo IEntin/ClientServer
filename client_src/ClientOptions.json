@@ -8,7 +8,7 @@
   "OutputFileName" : "",
   "InstrumentationFn" : "",
   "Compression" : "LZ4",
-  "Crypto" : "Enabled",
+  "Crypto" : true,
   "_comment": "If true logs crypto key and iv.",
   "ShowKey" : false,
   "BufferSize" : 3000000,

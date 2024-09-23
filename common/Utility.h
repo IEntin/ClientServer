@@ -92,7 +92,9 @@ std::string createErrorString(const boost::source_location& location = BOOST_CUR
 bool isEncrypted(std::string_view data);
 
 std::string_view
-compressEncrypt(const HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data);
+compressEncrypt(bool encrypt,
+		const HEADER& header,
+		const CryptoPP::SecByteBlock& key, std::string& data);
 
 std::string_view
 decryptDecompress(HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data);

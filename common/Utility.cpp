@@ -74,9 +74,8 @@ std::string createErrorString(std::errc ec,
 
 bool isEncrypted(std::string_view data) {
   try {
-    HEADER header;
-    std::string_view probe(data.begin(), data.begin() + HEADER_SIZE);
-    return !deserialize(header, probe.data());
+    HEADER probe;
+    return !deserialize(probe, data.data());
   }
   catch (...) {
     return true;
@@ -91,13 +90,15 @@ std::string createErrorString(const boost::source_location& location) {
 }
 
 std::string_view
-compressEncrypt(const HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data) {
+compressEncrypt(bool encrypt,
+		const HEADER& header,
+		const CryptoPP::SecByteBlock& key, std::string& data) {
   if (isCompressed(header))
     data = compression::compress(data);
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
-  if (isEncrypted(header))
+  if (encrypt)
     data = Crypto::encrypt(key, data);
   return data;
 }

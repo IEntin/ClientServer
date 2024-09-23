@@ -16,7 +16,7 @@ bool ClientOptions::_tcpClient;
 std::string  ClientOptions::_fifoDirectoryName;
 std::string  ClientOptions::_acceptorName;
 COMPRESSORS ClientOptions::_compressor;
-CRYPTO ClientOptions::_encrypted;
+bool ClientOptions::_encrypted;
 bool ClientOptions::_showKey;
 std::string ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
@@ -45,7 +45,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
-  _encrypted = translateCryptoString(appOptions.get("Crypto", std::string("Enabled")));
+  _encrypted = appOptions.get("Crypto", true);
   _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)

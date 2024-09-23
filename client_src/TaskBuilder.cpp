@@ -115,11 +115,11 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     HEADERTYPE::SESSION,
     _aggregate.size(),
     ClientOptions::_compressor,
-    ClientOptions::_encrypted,
     ClientOptions::_diagnostics,
     _status,
     0 };
-  std::string_view data = utility::compressEncrypt(header, _key, _aggregate);
+  std::string_view data = utility::compressEncrypt(
+	   ClientOptions::_encrypted, header, _key, _aggregate);
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;
