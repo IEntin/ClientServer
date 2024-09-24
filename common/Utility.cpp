@@ -92,7 +92,8 @@ std::string createErrorString(const boost::source_location& location) {
 std::string_view
 compressEncrypt(bool encrypt,
 		const HEADER& header,
-		const CryptoPP::SecByteBlock& key, std::string& data) {
+		const CryptoPP::SecByteBlock& key,
+		std::string& data) {
   if (isCompressed(header))
     data = compression::compress(data);
   char headerBuffer[HEADER_SIZE] = {};
@@ -104,7 +105,9 @@ compressEncrypt(bool encrypt,
 }
 
 std::string_view
-decryptDecompress(HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data) {
+decryptDecompress(HEADER& header,
+		  const CryptoPP::SecByteBlock& key,
+		  std::string& data) {
   std::string_view restored;
   if (isEncrypted(data))
     restored = Crypto::decrypt(key, data);
