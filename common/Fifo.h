@@ -83,6 +83,7 @@ public:
     writeString(fdWrite, headerView);
     writeString(fdWrite, payload1);
     writeString(fdWrite, payload2);
+    writeString(fdWrite, utility::ENDOFMESSAGE);
     return true;
   }
 

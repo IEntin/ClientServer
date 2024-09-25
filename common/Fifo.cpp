@@ -104,6 +104,7 @@ bool Fifo::sendMsgNonBlock(std::string_view name, std::string_view payload) {
   if (fdWrite == -1)
     return false;
   writeString(fdWrite, payload);
+  writeString(fdWrite, utility::ENDOFMESSAGE);
   return true;
 }
 
@@ -118,10 +119,16 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1)
       throw std::runtime_error(utility::createErrorString());
-    else if (result == 0)
+    else if (result == 0) {
+      if (payload.ends_with(utility::ENDOFMESSAGE))
+	payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
       break;
-    else
+    }
+    else {
       payload.append(buffer, result);
+      if (payload.ends_with(utility::ENDOFMESSAGE))
+	payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
+    }
   }
   return !payload.empty();
 }
@@ -152,6 +159,12 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
 	  break;
 	default:
 	  throw std::runtime_error(utility::createErrorString());
+	  break;
+	}
+      }
+      else if (result >= 0) {
+	if (payload.ends_with(utility::ENDOFMESSAGE)) {
+	  payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
 	  break;
 	}
       }

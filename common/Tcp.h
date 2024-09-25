@@ -37,6 +37,7 @@ public:
       return false;
     if (!deserialize(header, payload.data()))
       return false;
+    printHeader(header, LOG_LEVEL::INFO);
     std::size_t payload2Size = extractParameter(header);
     std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
     payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
