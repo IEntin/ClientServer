@@ -139,8 +139,6 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     return false;
   utility::CloseFileDescriptor cfdr(fd);
   while (true) {
-    if (pollFd(fd, POLLIN) != POLLIN)
-      break;
     std::size_t availableBytes = 0;
     int err = ioctl(fd, FIONREAD, &availableBytes);
     if (err != 0)
@@ -153,8 +151,6 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       if (result == -1) {
 	switch (errno) {
 	case EAGAIN:
-	  if (pollFd(fd, POLLIN) != POLLIN)
-	    return false;
 	  continue;
 	  break;
 	default:

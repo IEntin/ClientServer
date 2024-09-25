@@ -17,7 +17,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNBDuplex*; done
 // for i in {1..10}; do ./testbin --gtest_filter=FifoBlockingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
-// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT; done
 
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
