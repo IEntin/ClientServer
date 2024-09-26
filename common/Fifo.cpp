@@ -139,30 +139,26 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     return false;
   utility::CloseFileDescriptor cfdr(fd);
   while (true) {
-    std::size_t availableBytes = 0;
-    int err = ioctl(fd, FIONREAD, &availableBytes);
-    if (err != 0)
-      return false;
     ssize_t result = 0;
-    if (availableBytes > 0) {
-      std::size_t shift = payload.size();
-      payload.resize(payload.size() + availableBytes);
-      result = read(fd, payload.data() + shift, availableBytes);
-      if (result == -1) {
-	switch (errno) {
-	case EAGAIN:
-	  continue;
-	  break;
-	default:
-	  throw std::runtime_error(utility::createErrorString());
-	  break;
-	}
+    static constexpr std::size_t BUFFER_SIZE = 10000;
+    char buffer[BUFFER_SIZE] = {};
+    result = read(fd, buffer, BUFFER_SIZE);
+    if (result == -1) {
+      switch (errno) {
+      case EAGAIN:
+	continue;
+	break;
+      default:
+	throw std::runtime_error(utility::createErrorString());
+	break;
       }
-      else if (result >= 0) {
-	if (payload.ends_with(utility::ENDOFMESSAGE)) {
-	  payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
-	  break;
-	}
+    }
+    else if (result >= 0) {
+      if (result > 0)
+	payload.append(buffer, result);
+      if (payload.ends_with(utility::ENDOFMESSAGE)) {
+	payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
+	break;
       }
     }
   }
