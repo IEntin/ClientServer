@@ -34,6 +34,8 @@ Server::~Server() {
 }
 
 bool Server::start() {
+  // create and save new delimiter
+  utility::createDelimiter();
   if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());

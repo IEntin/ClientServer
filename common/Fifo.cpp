@@ -8,7 +8,6 @@
 #include <thread>
 
 #include "ClientOptions.h"
-#include "IOUtility.h"
 #include "ServerOptions.h"
 
 namespace fifo {
@@ -139,10 +138,9 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     return false;
   utility::CloseFileDescriptor cfdr(fd);
   while (true) {
-    ssize_t result = 0;
     static constexpr std::size_t BUFFER_SIZE = 10000;
     char buffer[BUFFER_SIZE] = {};
-    result = read(fd, buffer, BUFFER_SIZE);
+    ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1) {
       switch (errno) {
       case EAGAIN:

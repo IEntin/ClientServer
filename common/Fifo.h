@@ -16,7 +16,7 @@ class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;
 
-  static short pollFd(int fd, short expected);
+  short pollFd(int fd, short expected);
 
 public:
   template <typename P1, typename P2 = P1>

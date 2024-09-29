@@ -5,8 +5,8 @@
 #include "TaskBuilder.h"
 
 #include "ClientOptions.h"
-#include "IOUtility.h"
 #include "FileLines.h"
+#include "IOUtility.h"
 #include "Logger.h"
 
 Subtask TaskBuilder::_emptySubtask;

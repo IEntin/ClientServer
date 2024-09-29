@@ -6,8 +6,6 @@
 
 #include <atomic>
 
-#include "Header.h"
-
 struct Subtask {
   Subtask() = default;
   ~Subtask() = default;

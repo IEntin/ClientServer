@@ -8,10 +8,9 @@
 #include <cmath>
 
 #include "AdBid.h"
-#include "IOUtility.h"
 #include "FileLines.h"
+#include "IOUtility.h"
 #include "Logger.h"
-#include "Utility.h"
 
 AdRow::AdRow(std::string_view line) : _input(line) {}
 

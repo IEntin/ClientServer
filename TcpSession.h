@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 
-#include "IOUtility.h"
 #include "Runnable.h"
 #include "Session.h"
 

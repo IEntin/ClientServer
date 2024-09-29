@@ -10,8 +10,8 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "ClientOptions.h"
-#include "IOUtility.h"
 #include "Fifo.h"
+#include "IOUtility.h"
 #include "Subtask.h"
 
 namespace {

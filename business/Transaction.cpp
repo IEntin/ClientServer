@@ -12,7 +12,6 @@
 #include "AdBid.h"
 #include "IOUtility.h"
 #include "Logger.h"
-#include "Utility.h"
 
 namespace {
 constexpr const char* INVALID_REQUEST{ " Invalid request\n" };
