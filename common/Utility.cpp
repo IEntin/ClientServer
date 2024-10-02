@@ -122,21 +122,4 @@ decryptDecompress(HEADER& header,
   return restored;
 }
 
-void createDelimiter() {
-  static std::mutex mutex;
-  std::scoped_lock lock(mutex);
-  try {
-    static std::string ENDOFMESSAGE;
-    CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
-    Crypto::_rng.GenerateBlock(key, key.size());
-    std::string ENDOFMESSAGESOURCE = "ENDOFMESSAGESOURCE";
-    ENDOFMESSAGE = Crypto::encrypt(key, ENDOFMESSAGESOURCE);
-    ENDOFMESSAGE.erase(ENDOFMESSAGE.size() - CryptoPP::AES::BLOCKSIZE);
-    std::ofstream stream("delimiter.bin");
-    stream << ENDOFMESSAGE;
-  }
-  catch (...) {
-  }
-}
-
 } // end of namespace utility
