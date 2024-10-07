@@ -4,7 +4,6 @@
 
 #include "Fifo.h"
 
-#include <sys/ioctl.h>
 #include <thread>
 
 #include "ClientOptions.h"

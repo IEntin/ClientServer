@@ -33,9 +33,9 @@ class Runnable {
   inline static std::atomic<unsigned> _numberRunningTotal = 0;
 };
 
-// The Curiously Recurring Template Pattern (CRTP)
-// Counting objects of specific derived class
-
+// Every template class instantiation has its own copy of a
+// static member.
+// Used here to count objects of the specific derived class.
 template <class T>
 class RunnableT : public Runnable {
  protected:
