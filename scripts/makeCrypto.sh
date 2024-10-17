@@ -6,7 +6,7 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
-    echo "Usage: ./makeCrypto.sh <required cryptopp release>"
+    echo "Usage: sudo scripts/makeCrypto.sh <cryptopp release>"
     echo "current is cryptopp890.zip"
     exit 0
 fi
@@ -16,7 +16,7 @@ rm -rf /usr/local/include/cryptopp
 rm -rf /usr/local/lib/cryptopp
 cryptoppBaseName=$(basename $1 .zip)
 rm -rf "$cryptoppBaseName"
-wget https://www.cryptopp.com/$1
+wget https://github.com/weidai11/cryptopp/releases/download/CRYPTOPP_8_9_0/cryptopp890.zip
 unzip -aoq $1 -d "$cryptoppBaseName"
 mkdir -p /usr/local/lib/cryptopp
 cd "$cryptoppBaseName"
