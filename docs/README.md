@@ -48,7 +48,7 @@ Renamed binary executables server -> serverX and client -> clientX to\
 avoid collision in scripts.
 
 libcryptopp.a is now recreated by make if necessary.\
-No need to run makeCrypto.sh manually.
+No need to run installCryptopp.sh manually.
 
 ...
 

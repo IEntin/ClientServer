@@ -146,8 +146,8 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 	./$(TESTBIN)
 	@touch $(RUNTESTSPSEUDOTARGET)
 
-$(CRYPTOLIB) : scripts/makeCrypto.sh
-	sudo scripts/makeCrypto.sh $(CRYPTOPPRELEASE)
+$(CRYPTOLIB) : scripts/installCryptopp.sh
+	sudo scripts/installCryptopp.sh $(CRYPTOPPRELEASE)
 
 .PHONY: clean cleanall
 
