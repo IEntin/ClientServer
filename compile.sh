@@ -22,6 +22,7 @@ then
     echo "SANITIZE=<aul | thread>"
     echo "OPTIMIZE=<-O0 | -O1 | -O2 | -O3>"
     echo "GDWARF=<gdwarf-5 | gdwarf-4>"
+    echo "ENABLEPCH<1 | 0>"
     echo "examples:"
     echo "'./compile.sh GDWARF=-gdwarf-4 OPTIMIZE=-O0 SANITIZE=aul CMPLR=g++'"
     echo "'./compile.sh'"

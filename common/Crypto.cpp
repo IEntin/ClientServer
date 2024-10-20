@@ -48,8 +48,7 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
 std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
 				 std::string_view data) {
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  auto beg = data.data() + data.size() - iv.size();
-  std::copy(beg, beg + iv.size(), iv.data());
+  std::copy(data.cend() - iv.size(), data.cend(), iv.data());
   static thread_local std::string decrypted;
   decrypted.erase(0);
   //LogAlways << "\t### " << decrypted.capacity() << '\n';
