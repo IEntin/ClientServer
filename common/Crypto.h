@@ -16,6 +16,9 @@ class Crypto {
  public:
   static CryptoPP::OID _curve;
   static CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
+  static CryptoPP::SecByteBlock _endTag;
+  
+  static CryptoPP::SecByteBlock createEndTag();
 
   static bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 			      CryptoPP::SecByteBlock& priv,
@@ -24,7 +27,8 @@ class Crypto {
     return true;
   }
 
-  static std::string_view encrypt(const CryptoPP::SecByteBlock& key,
+  static std::string_view encrypt(bool encrypt,
+				  const CryptoPP::SecByteBlock& key,
 				  std::string_view data);
 
   static std::string_view decrypt(const CryptoPP::SecByteBlock& key,

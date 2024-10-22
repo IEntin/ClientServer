@@ -88,8 +88,6 @@ std::string createErrorString(std::errc ec,
 
 std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
-bool isEncrypted(std::string_view data);
-
 std::string_view
 compressEncrypt(bool encrypt,
 		const HEADER& header,

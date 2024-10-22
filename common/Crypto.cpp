@@ -13,6 +13,13 @@
 
 CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 CryptoPP::AutoSeededX917RNG<CryptoPP::AES> Crypto::_rng;
+CryptoPP::SecByteBlock Crypto::_endTag = createEndTag();
+
+CryptoPP::SecByteBlock Crypto::createEndTag() {
+  static CryptoPP::SecByteBlock secBlock(CryptoPP::AES::BLOCKSIZE);
+  _rng.GenerateBlock(secBlock, secBlock.size());
+  return secBlock;
+}
 
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& key,
 		       const CryptoPP::SecByteBlock& iv) {
@@ -26,16 +33,21 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& key,
   }
 }
 
-std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
+std::string_view Crypto::encrypt(bool encrypt,
+				 const CryptoPP::SecByteBlock& key,
 				 std::string_view data) {
-  CryptoPP::AutoSeededRandomPool prng;
-  CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  prng.GenerateBlock(iv, iv.size());
-  CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
-  CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
-  static thread_local std::string cipher;
+  static std::string cipher;
   cipher.erase(0);
   //LogAlways << "\t### " << cipher.capacity() << '\n';
+  if (!encrypt) {
+    cipher.insert(cipher.cend(), data.cbegin(), data.cend());
+    cipher.insert(cipher.cend(), _endTag.begin(), _endTag.end());
+    return cipher;
+  }
+  CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
+  _rng.GenerateBlock(iv, iv.size());
+  CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
+  CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
@@ -47,8 +59,13 @@ std::string_view Crypto::encrypt(const CryptoPP::SecByteBlock& key,
 
 std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
 				 std::string_view data) {
+  
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   std::copy(data.cend() - iv.size(), data.cend(), iv.data());
+  if (iv == _endTag) {
+    data.remove_suffix(iv.size());
+    return data;
+  }
   static thread_local std::string decrypted;
   decrypted.erase(0);
   //LogAlways << "\t### " << decrypted.capacity() << '\n';

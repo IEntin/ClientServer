@@ -17,7 +17,7 @@ TEST(CryptoTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   Crypto::_rng.GenerateBlock(key, key.size());
   std::string_view data = TestEnvironment::_source;
-  std::string_view cipher = Crypto::encrypt(key, data);
+  std::string_view cipher = Crypto::encrypt(true, key, data);
   std::string_view decrypted = Crypto::decrypt(key, cipher);
   ASSERT_EQ(data, decrypted);
 }

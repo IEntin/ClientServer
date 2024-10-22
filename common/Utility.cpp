@@ -72,16 +72,6 @@ std::string createErrorString(std::errc ec,
   return msg.append(1, ' ').append(location.function_name());
 }
 
-bool isEncrypted(std::string_view data) {
-  try {
-    HEADER probe;
-    return !deserialize(probe, data.data());
-  }
-  catch (...) {
-    return true;
-  }
-}
-
 std::string createErrorString(const boost::source_location& location) {
   std::string msg(strerror(errno));
   msg.append(1, ':').append(location.file_name()).append(1, ':');
@@ -94,13 +84,14 @@ compressEncrypt(bool encrypt,
 		const HEADER& header,
 		const CryptoPP::SecByteBlock& key,
 		std::string& data) {
+  static std::mutex mutex;
+  std::scoped_lock lock(mutex);
   if (isCompressed(header))
     data = compression::compress(data);
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
-  if (encrypt)
-    data = Crypto::encrypt(key, data);
+  data = Crypto::encrypt(encrypt, key, data);
   return data;
 }
 
@@ -109,10 +100,7 @@ decryptDecompress(HEADER& header,
 		  const CryptoPP::SecByteBlock& key,
 		  std::string& data) {
   std::string_view restored;
-  if (isEncrypted(data))
-    restored = Crypto::decrypt(key, data);
-  else
-    restored = data;
+  restored = Crypto::decrypt(key, data);
   std::string_view headerView = std::string_view(restored.begin(), restored.begin() + HEADER_SIZE);
   deserialize(header, headerView.data());
   restored.remove_prefix(HEADER_SIZE);
