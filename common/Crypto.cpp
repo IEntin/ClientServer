@@ -59,9 +59,8 @@ std::string_view Crypto::encrypt(bool encrypt,
 
 std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
 				 std::string_view data) {
-  
-  CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  std::copy(data.cend() - iv.size(), data.cend(), iv.data());
+  CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.cend() - CryptoPP::AES::BLOCKSIZE),
+			    CryptoPP::AES::BLOCKSIZE);
   if (iv == _endTag) {
     data.remove_suffix(iv.size());
     return data;
