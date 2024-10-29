@@ -84,13 +84,13 @@ compressEncrypt(bool encrypt,
 		const HEADER& header,
 		const CryptoPP::SecByteBlock& key,
 		std::string& data) {
-  static std::mutex mutex;
-  std::scoped_lock lock(mutex);
   if (isCompressed(header))
     data = compression::compress(data);
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
+  static std::mutex mutex;
+  std::scoped_lock lock(mutex);
   data = Crypto::encrypt(encrypt, key, data);
   return data;
 }
