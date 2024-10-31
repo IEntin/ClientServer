@@ -18,6 +18,10 @@ TEST(CryptoTest, 1) {
   Crypto::_rng.GenerateBlock(key, key.size());
   std::string_view data = TestEnvironment::_source;
   std::string_view cipher = Crypto::encrypt(true, key, data);
+  std::string ivStr1(cipher.end() - CryptoPP::AES::BLOCKSIZE, cipher.end());
+  utility::checkEnd(ivStr1);
+  std::string ivStr2(cipher.end() - 2 * CryptoPP::AES::BLOCKSIZE, cipher.end() - CryptoPP::AES::BLOCKSIZE);
+  utility::checkEnd(ivStr2);
   std::string_view decrypted = Crypto::decrypt(key, cipher);
   ASSERT_EQ(data, decrypted);
 }
@@ -35,7 +39,7 @@ struct CompressEncryptTest : testing::Test {
 		   STATUS::NONE,
 		   0 };
     std::string_view transformed[[maybe_unused]] = utility::compressEncrypt(encrypt, header, key, data);
-    HEADER restoredHeader;
+    HEADER restoredHeader;    
     std::string_view restored = utility::decryptDecompress(restoredHeader, key, data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(restored, TestEnvironment::_source);

@@ -94,4 +94,6 @@ compressEncrypt(bool encrypt,
 std::string_view
 decryptDecompress(HEADER& header, const CryptoPP::SecByteBlock& key, std::string& data);
 
+bool checkEnd(std::string_view data);
+
 } // end of namespace utility

@@ -7,6 +7,7 @@
 #include <atomic>
 #include <filesystem>
 #include <fstream>
+#include <regex>
 
 #include "Compression.h"
 #include "Crypto.h"
@@ -108,6 +109,11 @@ decryptDecompress(HEADER& header,
   if (isCompressed(header))
     restored = compression::uncompress(restored, uncomprSize);
   return restored;
+}
+
+bool checkEnd(std::string_view data) {
+  assert(data.size() == CryptoPP::AES::BLOCKSIZE);
+  return false;
 }
 
 } // end of namespace utility

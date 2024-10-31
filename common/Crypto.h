@@ -14,9 +14,10 @@ class Crypto {
   Crypto() = delete;
   ~Crypto() = delete;
  public:
-  static CryptoPP::OID _curve;
+  static const CryptoPP::OID _curve;
   static CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
-  static CryptoPP::SecByteBlock _endTag;
+  static const CryptoPP::SecByteBlock _endTag;
+  static const std::string _endTagString;
   
   static CryptoPP::SecByteBlock createEndTag();
 

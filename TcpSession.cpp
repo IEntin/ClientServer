@@ -91,7 +91,8 @@ void TcpSession::readRequest() {
     utility::ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
       if (transferred > utility::ENDOFMESSAGE.size())
-	_request.erase(transferred - utility::ENDOFMESSAGE.size());
+	if (_request.ends_with(utility::ENDOFMESSAGE))
+	  _request.erase(transferred - utility::ENDOFMESSAGE.size());
       auto self = weak_from_this().lock();
       if (!self)
 	return;

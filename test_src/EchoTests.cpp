@@ -118,7 +118,7 @@ struct FifoBlockingTest : testing::Test {
     }
   }
   bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsgNonBlock(_testFifo, payload);
+    return fifo::Fifo::sendMsg(_testFifo, payload);
   }
   void receive(std::string& received) {
     fifo::Fifo::readStringBlock(_testFifo, received);

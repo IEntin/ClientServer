@@ -4,8 +4,9 @@
 
 #include "Logger.h"
 
-#include "IOUtility.h"
 #include <utility>
+
+#include "IOUtility.h"
 
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::EXPECTED;
 

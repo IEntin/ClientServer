@@ -28,6 +28,7 @@
 #include <mutex>
 #include <poll.h>
 #include <queue>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>

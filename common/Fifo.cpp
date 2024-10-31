@@ -96,7 +96,7 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
-bool Fifo::sendMsgNonBlock(std::string_view name, std::string_view payload) {
+bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
   int fdWrite = openWriteNonBlock(name);
   utility::CloseFileDescriptor cfdw(fdWrite);
   if (fdWrite == -1)

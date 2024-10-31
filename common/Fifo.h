@@ -87,7 +87,7 @@ public:
     return true;
   }
 
-  static bool sendMsgNonBlock(std::string_view name, std::string_view payload);
+  static bool sendMsg(std::string_view name, std::string_view payload);
   static bool readStringBlock(std::string_view name, std::string& payload);
   static bool readStringNonBlock(std::string_view name, std::string& payload);
   static bool setPipeSize(int fd);
