@@ -54,15 +54,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include <cryptopp/aes.h>
-#include <cryptopp/asn.h>
-#include "cryptopp/eccrypto.h"
-#include <cryptopp/files.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/integer.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/oids.h>
-#include <cryptopp/osrng.h>
-#include <cryptopp/secblock.h>
-
 #include <gtest/gtest.h>
+
+#include "Crypto.h"

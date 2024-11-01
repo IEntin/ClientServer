@@ -5,10 +5,8 @@
 #include "Client.h"
 
 #include <boost/algorithm/hex.hpp>
-#include <cryptopp/aes.h>
 
 #include "ClientOptions.h"
-#include "Crypto.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"

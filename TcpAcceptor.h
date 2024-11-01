@@ -5,8 +5,8 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include <cryptopp/secblock.h>
 
+#include "Crypto.h"
 #include "Runnable.h"
 
 class Server;

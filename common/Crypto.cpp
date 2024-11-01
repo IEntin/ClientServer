@@ -5,7 +5,6 @@
 #include "Crypto.h"
 
 #include <boost/algorithm/hex.hpp>
-#include <cryptopp/modes.h>
 
 #include "ClientOptions.h"
 #include "Logger.h"

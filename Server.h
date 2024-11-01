@@ -6,10 +6,9 @@
 
 #include <map>
 
-#include <cryptopp/secblock.h>
-
 #include "Chronometer.h"
 #include "Connection.h"
+#include "Crypto.h"
 #include "ThreadPoolSessions.h"
 
 class Server;
@@ -28,7 +27,6 @@ public:
   void createTcpSession(tcp::ConnectionPtr connection, const CryptoPP::SecByteBlock& pubB);
 private:
   bool startSession(RunnablePtr runnable, SessionPtr session);
-  void markSessionsStopped();
   void stopSessions();
   Chronometer _chronometer;
   SessionMap _sessions;

@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 
-#include "Crypto.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 

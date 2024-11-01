@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "cryptopp/eccrypto.h"
-
+#include "Crypto.h"
 #include "Header.h"
 
 class Server;

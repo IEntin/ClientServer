@@ -87,15 +87,11 @@ bool Server::startSession(RunnablePtr runnable, SessionPtr session) {
   return true;
 }
 
-void Server::markSessionsStopped() {
+void Server::stopSessions() {
+  std::lock_guard lock(_mutex);
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->_stopped.store(true);
-}
-
-void Server::stopSessions() {
-  std::lock_guard lock(_mutex);
-  markSessionsStopped();
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->stop();

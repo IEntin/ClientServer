@@ -10,7 +10,6 @@
 #include <regex>
 
 #include "Compression.h"
-#include "Crypto.h"
 #include "IOUtility.h"
 #include "Logger.h"
 

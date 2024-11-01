@@ -8,8 +8,7 @@
 
 #include <boost/assert/source_location.hpp>
 
-#include <cryptopp/secblock.h>
-
+#include "Crypto.h"
 #include "Header.h"
 
 namespace utility {

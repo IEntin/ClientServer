@@ -4,9 +4,6 @@
 
 #include "Session.h"
 
-#include <cryptopp/aes.h>
-
-#include "Crypto.h"
 #include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
