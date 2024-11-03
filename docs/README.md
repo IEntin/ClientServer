@@ -26,10 +26,7 @@ Note: current gcc versions have well documented problems with sanitizers.\
 For this reason all sanitized builds are built by clang++.\
 This limitation will be removed as soon as new versions of gcc/g++ are available.
 
-For now any distribution and/or version supporting C++20 is expected to work as well.
-
-LZ4 must be installed:\
-'sudo apt-get install liblz4-dev'
+Any distribution and/or version supporting C++20 is expected to work as well.
 
 Header only boost libraries, currently boost 1_86, must be installed.
 
