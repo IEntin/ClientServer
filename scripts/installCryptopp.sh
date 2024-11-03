@@ -6,7 +6,7 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
-    echo "Usage: sudo scripts/makeCrypto.sh <cryptopp release>"
+    echo "Usage: sudo scripts/installCryptopp.sh <cryptopp release>"
     echo "current is cryptopp890.zip"
     exit 0
 fi
