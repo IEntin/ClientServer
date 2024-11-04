@@ -16,9 +16,9 @@ clang 20.0.0\
 
 and
 
-2. Mint 20.3\
-gcc 11.4.0\
-clang 12.0.0\
+2. Ubuntu 24.04.1 LTS\
+gcc 13.2.0\
+clang 18.1.3\
 4GB RAM\
 4 cores
 
