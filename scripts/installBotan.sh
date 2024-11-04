@@ -6,7 +6,7 @@
 
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
-    echo "Usage: sudo scripts/makeCryptoBotan.sh <botan release>"
+    echo "Usage: sudo scripts/installBotan.sh <botan release>"
     echo "current is Botan-3.5.0.tar.xz"
     exit 0
 fi
@@ -16,13 +16,13 @@ rm -rf /usr/local/include/botan
 rm -rf /usr/local/lib/botan
 botanBaseName=$(basename $1 .xz)
 botanBaseName=$(basename $botanBaseName .tar)
-rm -rf "$botanBaseName"
+rm -rf $botanBaseName
 wget https://botan.randombit.net/releases/$1
-tar -xJvf $1 "$botanBaseName"
+tar -xJvf $1 $botanBaseName
 mkdir -p /usr/local/lib/botan
-cd "$botanBaseName"
+cd $botanBaseName
 ./configure.py --cc=clang
-make
+make -j4
 make check
 make install
 mv /usr/local/lib/libbotan-3.a /usr/local/lib/botan
