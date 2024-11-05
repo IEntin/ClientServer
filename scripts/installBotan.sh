@@ -7,7 +7,7 @@
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
     echo "Usage: sudo scripts/installBotan.sh <botan release>"
-    echo "current is Botan-3.5.0.tar.xz"
+    echo "current is Botan-3.6.1.tar.xz"
     exit 0
 fi
 cd /usr/local
@@ -21,7 +21,7 @@ wget https://botan.randombit.net/releases/$1
 tar -xJvf $1 $botanBaseName
 mkdir -p /usr/local/lib/botan
 cd $botanBaseName
-./configure.py --cc=clang
+./configure.py
 make -j4
 make check
 make install
