@@ -44,7 +44,7 @@ sudo apt-get install binutils
 
 Simple Diffie-Hellman protocol is replaced with Elliptic-curve Diffie–Hellman (ECDH)
 
-Renamed binary executables server -> serverX and client -> clientX to\
+Renamed binaries server -> serverX and client -> clientX to\
 avoid collision in scripts.
 
 libcryptopp.a is now recreated by make if necessary.\
@@ -98,7 +98,7 @@ unique pipe name, creates the pipe and a new session, and sends pipe name to\
 the client.\
 Only one starting client creates a session at a time. This process is\
 syncronized by a named_mutex. Tests show that any number of clients\
-can be started concurrently by the script scripts/checkmulticlients.sh.\
+can be started concurrently by scripts/checkmulticlients.sh.\
 Unique pipe name is an analogy of the unique combination of the ip\
 address and ephemeral port in the tcp case.
 
