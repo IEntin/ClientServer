@@ -43,7 +43,10 @@ BUSINESSDIR := business
 CLIENTSRCDIR := client_src
 COMMONDIR := common
 TESTSRCDIR := test_src
-LIBLZ4 := /usr/lib/x86_64-linux-gnu/liblz4.a
+# lz4 must be installed with
+# 'sudo scripts/installLZ4.sh'
+# library location changed:
+LIBLZ4 := /usr/local/lib/lz4/liblz4.a
 CRYPTOPPRELEASE := cryptopp890.zip
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
 CRYPTOLIB := $(CRYPTOLIBDIR)/libcryptopp.a

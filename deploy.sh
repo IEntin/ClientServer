@@ -76,5 +76,5 @@ done
 
 for d in 1 2 3 4 5
 do
-    (cd $UP_DIR/Client$d; xterm -geometry 67x24&)
+    (cd $UP_DIR/Client$d; xterm -geometry 67x24 -bg white -fg black&)
 done

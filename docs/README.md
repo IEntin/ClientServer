@@ -30,6 +30,9 @@ Any distribution and/or version supporting C++20 is expected to work as well.
 
 Header only boost libraries, currently boost 1_86, must be installed.
 
+lz4 dev version must be installed:\
+'sudo scripts/installLZ4.sh'
+
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
 
