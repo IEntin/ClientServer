@@ -16,11 +16,11 @@ then
     echo "'./deploy.sh'"
     echo "If app was not built previously it will be built"
     echo "here with default arguments."
-    echo "Script creates only 5 clients to fit into display size."
-    echo "Every next client will have different type, TCP or FIFO."
+    echo "Script creates 6 clients to fit into display size."
+    echo "of intermitten types, TCP or FIFO."
     echo "Start the server in the project root terminal './serverX'"
     echo "and each client in its terminal"
-    echo "'./client' or './client > /dev/null'"
+    echo "'./clientX' or './clientX > /dev/null'"
     exit 0
 fi
 
@@ -45,7 +45,7 @@ done
 
 mkdir -p $UP_DIR/Fifos
 
-for (( c=1; c<=5; c++ ))
+for (( c=1; c<=6; c++ ))
 do
 mkdir -p $UP_DIR/Client$c
 done
@@ -53,7 +53,7 @@ done
 # create data directory links in every client directory
 # copy scripts and ClientOptions.json
 
-for (( c=1; c<=5; c++ ))
+for (( c=1; c<=6; c++ ))
 do
     (cd $UP_DIR/Client$c; ln -sf $SCRIPT_DIR/data .;\
      cp $SCRIPT_DIR/scripts/runShortSessions.sh .;\
@@ -61,9 +61,9 @@ do
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
-# if you want to make some of the clients, e.g. 2 and 4, FIFO:
+# if you want to make some of the clients, e.g. 2, 4, 6 FIFO:
 
-for c in 2 4
+for c in 2 4 6
 do
   (cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
 done
@@ -74,7 +74,7 @@ done
 
 # create client terminals
 
-for d in 1 2 3 4 5
+for d in 1 2 3 4 5 6
 do
     (cd $UP_DIR/Client$d; xterm -geometry 67x24 -bg white -fg black&)
 done
