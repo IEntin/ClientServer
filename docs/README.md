@@ -16,9 +16,9 @@ clang 20.0.0\
 
 and
 
-2. Ubuntu 24.04.1 LTS\
-gcc 13.2.0\
-clang 18.1.3\
+2. Ubuntu 24.10\
+gcc 14.2.0\
+clang 19.1.1\
 4GB RAM\
 4 cores
 
