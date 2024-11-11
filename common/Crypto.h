@@ -18,7 +18,6 @@ class Crypto {
   static const CryptoPP::OID _curve;
   static CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   static const CryptoPP::SecByteBlock _endTag;
-  static const std::string _endTagString;
   
   static CryptoPP::SecByteBlock createEndTag();
 

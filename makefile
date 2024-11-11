@@ -2,33 +2,6 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
-# can be used to workaround gcc bug:
-# sudo sysctl vm.mmap_rnd_bits=28
-
-#LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./serverX
-#LD_PRELOAD=$LD_PRELOAD:$HOME/jemalloc/lib/libjemalloc.so ./clientX
-#use clang++ (CMPLR=clang++) for sanitized build if use jemalloc
-#gprof -b ./serverX gmon.out > profile.txt
-#	valgrind
-# to use valgrind rebuild with -gdwarf-4
-# make -j$NUMBER_CORES GDWARF=-gdwarf-4
-# valgrind --tool=massif ./serverX
-# ms_print massif.out.*
-# valgrind --leak-check=yes ./serverX
-# valgrind --tool=callgrind ./serverX
-# kcachegrind callgrind.out.*
-
-#ps huH p <pid> | wc -l
-# cores in
-# /var/lib/systemd/coredump
-# latest core:
-# coredumpctl gdb
-# sudo du -a | sort -n -r | head -n 5
-# find ./ -type f -exec sed -i 's/old_string/new_string/g' {} \;
-#make PROFILE=[  | 1]
-#make SANITIZE=[  | aul | thread ]
-#make CMPLR=[ g++ | clang++ ]
-
 all: serverX clientX testbin runtests
 
 ifeq ($(CMPLR),)

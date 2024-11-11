@@ -13,7 +13,6 @@
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 CryptoPP::AutoSeededX917RNG<CryptoPP::AES> Crypto::_rng;
 const CryptoPP::SecByteBlock Crypto::_endTag = createEndTag();
-const std::string Crypto::_endTagString(Crypto::_endTag.begin(), Crypto::_endTag.end());
 
 CryptoPP::SecByteBlock Crypto::createEndTag() {
   static CryptoPP::SecByteBlock secBlock(CryptoPP::AES::BLOCKSIZE);
