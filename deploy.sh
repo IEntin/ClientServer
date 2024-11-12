@@ -10,13 +10,13 @@ echo "SCRIPT_DIR:" $SCRIPT_DIR
 UP_DIR=$(dirname $SCRIPT_DIR)
 echo "UP_DIR:" $UP_DIR
 
-if [[ ( $@ == "--help") ||  $@ == "-h" ]]
+if [[ ( $@ == "--help") ||  $@ == "-h"  || $# -lt 1 || $# -gt 2 ]]
 then 
     echo "cd to the project root and run this script"
-    echo "'./deploy.sh'"
+    echo "'./deploy.sh <number of client terminals>'"
     echo "If app was not built previously it will be built"
     echo "here with default arguments."
-    echo "Script creates 6 clients to fit into display size."
+    echo "Script creates $1 clients to fit into display size."
     echo "of intermitten types, TCP or FIFO."
     echo "Start the server in the project root terminal './serverX'"
     echo "and each client in its terminal"
@@ -36,7 +36,7 @@ rm -f $UP_DIR/Fifos/*
 
 export c
 
-for (( c=1; c<=20; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
 rm -f $UP_DIR/Client$c/*
 done
@@ -45,36 +45,46 @@ done
 
 mkdir -p $UP_DIR/Fifos
 
-for (( c=1; c<=6; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
 mkdir -p $UP_DIR/Client$c
+done
+
+# build binaries if needed
+
+cd $SCRIPT_DIR
+./compile.sh
+
+for ((c=1; c<=$1; c++))
+do
+    cp $SCRIPT_DIR/clientX $UP_DIR/Client$c
 done
 
 # create data directory links in every client directory
 # copy scripts and ClientOptions.json
 
-for (( c=1; c<=6; c++ ))
+for (( c=1; c<=$1; c++ ))
 do
-    (cd $UP_DIR/Client$c; ln -sf $SCRIPT_DIR/data .;\
+    (cd $UP_DIR/Client$c;\
+     ln -sf $SCRIPT_DIR/data .;\
      cp $SCRIPT_DIR/scripts/runShortSessions.sh .;\
      cp /$SCRIPT_DIR/client_src/ClientOptions.json .)
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
-# if you want to make some of the clients, e.g. 2, 4, 6 FIFO:
+# if you want to make some of the clients, e.g. 2, 4, 6 ... FIFO:
 
-for c in 2 4 6
+for (( c=1; c<=$1; c++ ))
 do
-  (cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
+    if [[ $(($c%2)) -eq 0 ]]
+    then
+       (cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
+    fi
 done
-
-# build binaries and copy client binary to Client* directories
-
-./compile.sh
 
 # create client terminals
 
-for d in 1 2 3 4 5 6
+for (( c=1; c<=$1; c++ ))
 do
-    (cd $UP_DIR/Client$d; xterm -geometry 67x24 -bg white -fg black&)
+    (cd $UP_DIR/Client$c; xterm -geometry 67x24 -bg white -fg black&)
 done

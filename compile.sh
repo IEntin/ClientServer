@@ -13,8 +13,8 @@ echo "UP_DIR:" $UP_DIR
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
     echo "This script calls make with different parameters."
-    echo "If build succeeds the clientX binary is copied to"
-    echo "first 6 client directories."
+    #echo "If build succeeds the clientX binary is copied to"
+    #echo "first 6 client directories."
     echo "Usage: cd to the project root and run this script"
     echo "with any combination of arguments or without arguments"
     echo "compile.sh"
@@ -41,12 +41,6 @@ mkdir -p $UP_DIR/Fifos
 NUMBER_CORES=$(nproc)
 
 make -j$NUMBER_CORES $1 $2 $3 $4
-
-for (( c=1; c<=6; c++ ))
-do
-    mkdir -p $UP_DIR/Client$c
-    cp clientX $UP_DIR/Client$c
-done
 
 date
 
