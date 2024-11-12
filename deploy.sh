@@ -16,7 +16,7 @@ then
     echo "'./deploy.sh <number of client terminals>'"
     echo "If app was not built previously it will be built"
     echo "here with default arguments."
-    echo "Script creates $1 clients to fit into display size."
+    echo "Script creates requested number of clients"
     echo "of intermitten types, TCP or FIFO."
     echo "Start the server in the project root terminal './serverX'"
     echo "and each client in its terminal"
