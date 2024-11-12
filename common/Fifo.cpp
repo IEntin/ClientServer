@@ -102,7 +102,6 @@ bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
   if (fdWrite == -1)
     return false;
   writeString(fdWrite, payload);
-  writeString(fdWrite, utility::ENDOFMESSAGE);
   return true;
 }
 
@@ -118,15 +117,10 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
     if (result == -1)
       throw std::runtime_error(utility::createErrorString());
     else if (result == 0) {
-      if (payload.ends_with(utility::ENDOFMESSAGE))
-	payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
       break;
     }
-    else {
+    else
       payload.append(buffer, result);
-      if (payload.ends_with(utility::ENDOFMESSAGE))
-	payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
-    }
   }
   return !payload.empty();
 }
@@ -153,10 +147,9 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     else if (result >= 0) {
       if (result > 0)
 	payload.append(buffer, result);
-      if (payload.ends_with(utility::ENDOFMESSAGE)) {
-	payload.erase(payload.size() - utility::ENDOFMESSAGE.size());
-	break;
-      }
+      else if (result == 0)
+	if (pollFd(fd, POLLIN) != POLLIN)
+	  break;
     }
   }
   return !payload.empty();

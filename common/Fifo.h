@@ -16,7 +16,7 @@ class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;
 
-  short pollFd(int fd, short expected);
+  static short pollFd(int fd, short expected);
 
 public:
   template <typename P1, typename P2 = P1>
@@ -83,7 +83,6 @@ public:
     writeString(fdWrite, headerView);
     writeString(fdWrite, payload1);
     writeString(fdWrite, payload2);
-    writeString(fdWrite, utility::ENDOFMESSAGE);
     return true;
   }
 
