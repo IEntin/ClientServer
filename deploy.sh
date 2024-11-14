@@ -65,10 +65,10 @@ done
 
 for (( c=1; c<=$1; c++ ))
 do
-    (cd $UP_DIR/Client$c;\
-     ln -sf $SCRIPT_DIR/data .;\
-     cp $SCRIPT_DIR/scripts/runShortSessions.sh .;\
-     cp /$SCRIPT_DIR/client_src/ClientOptions.json .)
+    cd $UP_DIR/Client$c
+    ln -sf $SCRIPT_DIR/data .
+    cp $SCRIPT_DIR/scripts/runShortSessions.sh .
+    cp /$SCRIPT_DIR/client_src/ClientOptions.json .
 done
 
 # now all client directories have the same ClientOptions.json for TCP client
@@ -78,7 +78,7 @@ for (( c=1; c<=$1; c++ ))
 do
     if [[ $(($c%2)) -eq 0 ]]
     then
-       (cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json)
+	cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json
     fi
 done
 
@@ -86,5 +86,5 @@ done
 
 for (( c=1; c<=$1; c++ ))
 do
-    (cd $UP_DIR/Client$c; xterm -geometry 67x24 -bg white -fg black&)
+    cd $UP_DIR/Client$c; xterm -geometry 67x24 -bg white -fg black&
 done

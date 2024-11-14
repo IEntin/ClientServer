@@ -39,8 +39,14 @@ void FifoAcceptor::run() {
     auto [type, pubB] = unblockAcceptor();
     if (_stopped)
       break;
-    if (auto server = _server.lock(); server)
-      server->createFifoSession(type, pubB);
+    switch (type) {
+    case HEADERTYPE::CREATE_SESSION:
+      if (auto server = _server.lock(); server)
+	server->createFifoSession(pubB);
+      break;
+    default:
+      break;
+    }
   }
 }
 

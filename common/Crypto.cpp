@@ -13,6 +13,7 @@
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 CryptoPP::AutoSeededX917RNG<CryptoPP::AES> Crypto::_rng;
 const CryptoPP::SecByteBlock Crypto::_endTag = createEndTag();
+std::mutex Crypto::_rngMutex;
 
 CryptoPP::SecByteBlock Crypto::createEndTag() {
   static CryptoPP::SecByteBlock secBlock(CryptoPP::AES::BLOCKSIZE);
@@ -44,7 +45,10 @@ std::string_view Crypto::encrypt(bool encrypt,
     return cipher;
   }
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  _rng.GenerateBlock(iv, iv.size());
+  {
+    std::scoped_lock lock(_rngMutex);
+    _rng.GenerateBlock(iv, iv.size());
+  }
   CryptoPP::AES::Encryption aesEncryption(key.data(), key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));

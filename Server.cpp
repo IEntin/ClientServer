@@ -57,16 +57,10 @@ void Server::stop() {
   _threadPoolSession.stop();
   TaskController::destroy();
 }
-void Server::createFifoSession(HEADERTYPE type, const CryptoPP::SecByteBlock& pubB) {
+void Server::createFifoSession(const CryptoPP::SecByteBlock& pubB) {
   std::lock_guard lock(_mutex);
   auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), pubB);
-  switch (type) {
-  case HEADERTYPE::CREATE_SESSION:
-    startSession(session, session);
-    break;
-  default:
-    break;
-  }
+  startSession(session, session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection, const CryptoPP::SecByteBlock& pubB) {

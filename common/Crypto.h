@@ -18,12 +18,13 @@ class Crypto {
   static const CryptoPP::OID _curve;
   static CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   static const CryptoPP::SecByteBlock _endTag;
-  
+  static std::mutex _rngMutex;
   static CryptoPP::SecByteBlock createEndTag();
 
   static bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 			      CryptoPP::SecByteBlock& priv,
 			      CryptoPP::SecByteBlock& pub) {
+    std::scoped_lock lock(_rngMutex);
     dh.GenerateKeyPair(_rng, priv, pub);
     return true;
   }
