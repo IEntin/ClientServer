@@ -65,6 +65,25 @@ public:
     return true;
   }
 
+  template <typename P1 = std::vector<char>, typename P2 = P1>
+  static bool sendMsgNE(boost::asio::ip::tcp::socket& socket,
+			const HEADER& header,
+			const P1& payload1 = P1(),
+			const P2& payload2 = P2()) {
+    char headerBuffer[HEADER_SIZE] = {};
+    serialize(header, headerBuffer);
+    std::array<boost::asio::const_buffer, 4> buffers{ boost::asio::buffer(headerBuffer),
+						      boost::asio::buffer(payload1),
+						      boost::asio::buffer(payload2) };
+    boost::system::error_code ec;
+    std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+    if (ec) {
+      LogError << ec.what() << '\n';
+      return false;
+    }
+    return true;
+  }
+
   static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload);
   static bool readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload);
 };

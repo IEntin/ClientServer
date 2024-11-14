@@ -64,7 +64,7 @@ TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
-  Tcp::sendMsg(socket, _header);
+  Tcp::sendMsgNE(socket, _header);
   Logger logger(LOG_LEVEL::INFO, std::clog, false);
   logger << '*';
 }

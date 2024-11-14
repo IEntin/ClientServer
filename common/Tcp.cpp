@@ -62,11 +62,6 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload
     Warn << ec.what() << '\n';
     return false;
   }
-  socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-  if (ec) {
-    Warn << ec.what() << '\n';
-    return false;
-  }
   std::size_t transferred =
     boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), utility::ENDOFMESSAGE, ec);
   if (ec) {

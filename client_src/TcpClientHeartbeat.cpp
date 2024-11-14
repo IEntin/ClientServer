@@ -13,7 +13,7 @@ TcpClientHeartbeat::TcpClientHeartbeat() :
   _socket(_ioContext),
   _periodTimer(_ioContext),
   _timeoutTimer(_ioContext),
-  _heartbeatBuffer(HEADER_SIZE + utility::ENDOFMESSAGE.size(), '\0') {}
+  _heartbeatBuffer(HEADER_SIZE, '\0') {}
 
 TcpClientHeartbeat::~TcpClientHeartbeat() {
   Trace << '\n';
@@ -96,18 +96,36 @@ void TcpClientHeartbeat::read() {
     return;
   }
   _heartbeatBuffer.erase(0);
-  boost::asio::async_read_until(_socket,
-				boost::asio::dynamic_string_buffer(_heartbeatBuffer),
-				utility::ENDOFMESSAGE,
+  boost::asio::async_read(_socket,
+			  boost::asio::dynamic_string_buffer(_heartbeatBuffer),
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
       auto self = weak_from_this().lock();
       if (!self)
 	return;
+      if (transferred == HEADER_SIZE) {
+	HEADER header;
+	if (!deserialize(header, _heartbeatBuffer.data()))
+	  return;
+	if (!isOk(header)) {
+	  LogError << "header is invalid." << '\n';
+	  return;
+	}
+	std::size_t numberCanceled = _timeoutTimer.cancel();
+	if (numberCanceled == 0) {
+	  Warn << "timeout\n";
+	  _status = STATUS::HEARTBEAT_TIMEOUT;
+	}
+	Logger logger(LOG_LEVEL::INFO, std::clog, false);
+	logger << '*';
+	heartbeatWait();
+	return;
+      }
       if (ec) {
 	switch (ec.value()) {
 	case boost::asio::error::eof:
+	  break;
 	case boost::asio::error::connection_reset:
 	case boost::asio::error::broken_pipe:
 	case boost::asio::error::connection_refused:
@@ -125,21 +143,6 @@ void TcpClientHeartbeat::read() {
 	_status = STATUS::HEARTBEAT_PROBLEM;
 	return;
       }
-      HEADER header;
-      if (!deserialize(header, _heartbeatBuffer.data()))
-	return;
-      if (!isOk(header)) {
-	LogError << "header is invalid." << '\n';
-	return;
-      }
-      std::size_t numberCanceled = _timeoutTimer.cancel();
-      if (numberCanceled == 0) {
-	Warn << "timeout\n";
-	_status = STATUS::HEARTBEAT_TIMEOUT;
-      }
-      Logger logger(LOG_LEVEL::INFO, std::clog, false);
-      logger << '*';
-      heartbeatWait();
     });
 }
 
