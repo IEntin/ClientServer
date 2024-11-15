@@ -15,11 +15,7 @@
 std::atomic<bool> Client::_closeFlag = false;
 
 Client::Client() :
-  _dhB(Crypto::_curve),
-  _privB(_dhB.PrivateKeyLength()),
-  _pubB(_dhB.PublicKeyLength()),
-  _generatedKeyPair(Crypto::generateKeyPair(_dhB, _privB, _pubB)),
-  _sharedB(_dhB.AgreedValueLength()),
+  _crypto(std::make_shared<CryptoNS>()),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {
@@ -77,7 +73,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  std::string_view restored = utility::decryptDecompress(_header, _sharedB, _response);
+  std::string_view restored = utility::decryptDecompressNS(_header, _crypto, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
 
@@ -96,7 +92,7 @@ void Client::start() {
     _threadPoolClient.push(ptr);
     _heartbeat = ptr;
   }
-  auto taskBuilder = std::make_shared<TaskBuilder>(_sharedB);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_crypto);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

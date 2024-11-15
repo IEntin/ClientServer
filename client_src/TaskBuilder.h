@@ -8,7 +8,7 @@
 #include <deque>
 #include <mutex>
 
-#include "Crypto.h"
+#include "CryptoNS.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
@@ -16,12 +16,14 @@ enum class STATUS : char;
 
 using Subtasks = std::deque<Subtask>;
 
+class CryptoNS;
+
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
 
-  const CryptoPP::SecByteBlock& _key;
+  CryptoWeakPtr _crypto;
   std::string _aggregate;
   Subtasks _subtasks;
   std::atomic<unsigned> _subtaskIndexConsumed = 0;
@@ -34,7 +36,7 @@ class TaskBuilder final : public Runnable {
   void run() override;
   bool start() override { return true; }
  public:
-  TaskBuilder(const CryptoPP::SecByteBlock& key);
+  TaskBuilder(CryptoWeakPtr crypto);
   ~TaskBuilder() override;
   void stop() override;
   std::tuple<STATUS, Subtasks&> getResult();

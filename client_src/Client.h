@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Chronometer.h"
-#include "Crypto.h"
+#include "CryptoNS.h"
 #include "ThreadPoolBase.h"
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
@@ -16,12 +16,8 @@ class Client;
 class Client {
 
 protected:
-  CryptoPP::ECDH<CryptoPP::ECP>::Domain _dhB;
-  CryptoPP::SecByteBlock _privB;
-  CryptoPP::SecByteBlock _pubB;
-  const bool _generatedKeyPair;
-  CryptoPP::SecByteBlock _sharedB;
   std::string _response;
+  CryptoPtr _crypto;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);

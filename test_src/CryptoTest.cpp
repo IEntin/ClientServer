@@ -18,9 +18,7 @@ TEST(CryptoTest, 1) {
   std::string_view data = TestEnvironment::_source;
   std::string_view cipher = Crypto::encrypt(true, key, data);
   std::string ivStr1(cipher.end() - CryptoPP::AES::BLOCKSIZE, cipher.end());
-  utility::checkEnd(ivStr1);
   std::string ivStr2(cipher.end() - 2 * CryptoPP::AES::BLOCKSIZE, cipher.end() - CryptoPP::AES::BLOCKSIZE);
-  utility::checkEnd(ivStr2);
   std::string_view decrypted = Crypto::decrypt(key, cipher);
   ASSERT_EQ(data, decrypted);
 }

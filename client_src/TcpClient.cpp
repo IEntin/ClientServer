@@ -13,10 +13,11 @@ namespace tcp {
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(utility::createErrorString());
-  std::size_t size = _pubB.size();
+  const auto& pubKey = _crypto->getPubKey();
+  std::size_t size = pubKey.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
-  Tcp::sendMsg(_socket, header, _pubB);
+  Tcp::sendMsg(_socket, header, pubKey);
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
@@ -74,9 +75,11 @@ bool TcpClient::receiveStatus() {
   CryptoPP::SecByteBlock pubAreceived;
   if (!Tcp::readMsg(_socket, _header, clientIdStr, pubAreceived))
     return false;
-  ioutility::fromChars(clientIdStr, _clientId);
-  if (!_dhB.Agree(_sharedB, _privB, pubAreceived))
+  if (!_crypto->handshake(pubAreceived)) {
+    LogError << "handshake failed";
     return false;
+  }
+  ioutility::fromChars(clientIdStr, _clientId);
   assert(!isCompressed(_header) && "expected uncompressed");
   _status = extractStatus(_header);
   switch (_status) {

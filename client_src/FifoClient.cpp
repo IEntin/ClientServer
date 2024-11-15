@@ -78,10 +78,11 @@ bool FifoClient::receive() {
 }
 
 bool FifoClient::wakeupAcceptor() {
-  std::size_t size = _pubB.size();
+  const auto& pubKey = _crypto->getPubKey();
+  std::size_t size = pubKey.size();
   HEADER header =
     { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
-  return Fifo::sendMsg(_acceptorName, header, _pubB);
+  return Fifo::sendMsg(_acceptorName, header, pubKey);
 }
 
 bool FifoClient::receiveStatus() {
@@ -91,9 +92,11 @@ bool FifoClient::receiveStatus() {
   CryptoPP::SecByteBlock pubAreceived;
   if (!Fifo::readMsg(_acceptorName, true, _header, clientIdStr, pubAreceived))
     return false;
-  ioutility::fromChars(clientIdStr, _clientId);
-  if (!_dhB.Agree(_sharedB, _privB, pubAreceived))
+  if (!_crypto->handshake(pubAreceived)) {
+    LogError << "handshake failed";
     return false;
+  }
+  ioutility::fromChars(clientIdStr, _clientId);
   _status = extractStatus(_header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);

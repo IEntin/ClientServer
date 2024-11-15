@@ -98,6 +98,7 @@ void TcpClientHeartbeat::read() {
   _heartbeatBuffer.erase(0);
   boost::asio::async_read(_socket,
 			  boost::asio::dynamic_string_buffer(_heartbeatBuffer),
+			  boost::asio::transfer_all(),
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
