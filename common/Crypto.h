@@ -11,16 +11,15 @@
 #include <cryptopp/oids.h>
 #include <cryptopp/osrng.h>
 
+constexpr std::u8string_view endTagStr = u8"r2345ufg5432105t";
+
 class Crypto {
   Crypto() = delete;
   ~Crypto() = delete;
  public:
   static const CryptoPP::OID _curve;
   static CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
-  static const CryptoPP::SecByteBlock _endTag;
-  static const std::string _endTagStr;
   static std::mutex _rngMutex;
-  static CryptoPP::SecByteBlock createEndTag();
 
   static bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 			      CryptoPP::SecByteBlock& priv,

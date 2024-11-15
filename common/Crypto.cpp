@@ -12,15 +12,7 @@
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 CryptoPP::AutoSeededX917RNG<CryptoPP::AES> Crypto::_rng;
-const CryptoPP::SecByteBlock Crypto::_endTag = createEndTag();
-const std::string Crypto::_endTagStr(_endTag.begin(), _endTag.end());
 std::mutex Crypto::_rngMutex;
-
-CryptoPP::SecByteBlock Crypto::createEndTag() {
-  static CryptoPP::SecByteBlock secBlock(CryptoPP::AES::BLOCKSIZE);
-  _rng.GenerateBlock(secBlock, secBlock.size());
-  return secBlock;
-}
 
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& key,
 		       const CryptoPP::SecByteBlock& iv) {
@@ -42,7 +34,7 @@ std::string_view Crypto::encrypt(bool encrypt,
   //LogAlways << "\t### " << cipher.capacity() << '\n';
   if (!encrypt) {
     cipher.insert(cipher.cend(), data.cbegin(), data.cend());
-    cipher.insert(cipher.cend(), _endTag.begin(), _endTag.end());
+    cipher.insert(cipher.cend(), endTagStr.begin(), endTagStr.end());
     return cipher;
   }
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
@@ -63,12 +55,12 @@ std::string_view Crypto::encrypt(bool encrypt,
 
 std::string_view Crypto::decrypt(const CryptoPP::SecByteBlock& key,
 				 std::string_view data) {
-  CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.cend() - CryptoPP::AES::BLOCKSIZE),
-			    CryptoPP::AES::BLOCKSIZE);
-  if (iv == _endTag) {
-    data.remove_suffix(iv.size());
+  if (data.ends_with(reinterpret_cast<const char*>(endTagStr.data()))) {
+    data.remove_suffix(endTagStr.size());
     return data;
   }
+  CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.cend() - CryptoPP::AES::BLOCKSIZE),
+			    CryptoPP::AES::BLOCKSIZE);
   static thread_local std::string decrypted;
   decrypted.erase(0);
   //LogAlways << "\t### " << decrypted.capacity() << '\n';
