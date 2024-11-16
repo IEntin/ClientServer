@@ -82,7 +82,7 @@ std::string createErrorString(const boost::source_location& location) {
 std::string_view
 compressEncrypt(bool encrypt,
 		const HEADER& header,
-		const CryptoPP::SecByteBlock& key,
+		CryptoWeakPtr weak,
 		std::string& data) {
   if (isCompressed(header))
     data = compression::compress(data);
@@ -91,43 +91,13 @@ compressEncrypt(bool encrypt,
   data.insert(0, headerBuffer, HEADER_SIZE);
   static std::mutex mutex;
   std::scoped_lock lock(mutex);
-  data = Crypto::encrypt(encrypt, key, data);
-  return data;
-}
-
-std::string_view
-decryptDecompress(HEADER& header,
-		  const CryptoPP::SecByteBlock& key,
-		  std::string& data) {
-  std::string_view restored;
-  restored = Crypto::decrypt(key, data);
-  std::string_view headerView = std::string_view(restored.begin(), restored.begin() + HEADER_SIZE);
-  deserialize(header, headerView.data());
-  restored.remove_prefix(HEADER_SIZE);
-  std::size_t uncomprSize = extractUncompressedSize(header);
-  if (isCompressed(header))
-    restored = compression::uncompress(restored, uncomprSize);
-  return restored;
-}
-
-
-std::string_view
-compressEncryptNS(bool encrypt,
-		  const HEADER& header,
-		  CryptoWeakPtr weak,
-		  std::string& data) {
-  if (isCompressed(header))
-    data = compression::compress(data);
-  char headerBuffer[HEADER_SIZE] = {};
-  serialize(header, headerBuffer);
-  data.insert(0, headerBuffer, HEADER_SIZE);
   if (auto crypto = weak.lock();crypto)
     data = crypto->encrypt(encrypt, data);
   return data;
 }
 
 std::string_view
-decryptDecompressNS(HEADER& header, CryptoWeakPtr weak, std::string& data) {
+decryptDecompress(HEADER& header, CryptoWeakPtr weak, std::string& data) {
   std::string_view restored;
   if (auto crypto = weak.lock();crypto)
     restored = crypto->decrypt(data);

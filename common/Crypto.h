@@ -11,31 +11,32 @@
 #include <cryptopp/oids.h>
 #include <cryptopp/osrng.h>
 
-constexpr std::u8string_view endTagStr = u8"r2345ufg5432105t";
+constexpr std::u8string_view endTagString = u8"r2345ufg5432105t";
+
+using CryptoPtr = std::shared_ptr<class Crypto>;
+
+using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
 class Crypto {
-  Crypto() = delete;
-  ~Crypto() = delete;
- public:
-  static const CryptoPP::OID _curve;
-  static CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
-  static std::mutex _rngMutex;
-
-  static bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
-			      CryptoPP::SecByteBlock& priv,
-			      CryptoPP::SecByteBlock& pub) {
-    std::scoped_lock lock(_rngMutex);
+  CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
+  CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
+  CryptoPP::SecByteBlock _privKey;
+  CryptoPP::SecByteBlock _pubKey;
+  CryptoPP::SecByteBlock _key;
+  bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
+		       CryptoPP::SecByteBlock& priv,
+		       CryptoPP::SecByteBlock& pub) {
     dh.GenerateKeyPair(_rng, priv, pub);
     return true;
   }
-
-  static std::string_view encrypt(bool encrypt,
-				  const CryptoPP::SecByteBlock& key,
-				  std::string_view data);
-
-  static std::string_view decrypt(const CryptoPP::SecByteBlock& key,
-				  std::string_view data);
-
-  static void showKeyIv(const CryptoPP::SecByteBlock& key,
-			const CryptoPP::SecByteBlock& iv);
+  void showKeyIv(const CryptoPP::SecByteBlock& iv);
+public:
+  Crypto();
+  Crypto(const CryptoPP::SecByteBlock& pubB);
+  ~Crypto() {}
+  std::string_view encrypt(bool encrypt, std::string_view data);
+  std::string_view decrypt(std::string_view data);
+  const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
+  bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
+  static const CryptoPP::OID _curve;
 };

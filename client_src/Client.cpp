@@ -15,7 +15,7 @@
 std::atomic<bool> Client::_closeFlag = false;
 
 Client::Client() :
-  _crypto(std::make_shared<CryptoNS>()),
+  _crypto(std::make_shared<Crypto>()),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {
@@ -73,7 +73,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  std::string_view restored = utility::decryptDecompressNS(_header, _crypto, _response);
+  std::string_view restored = utility::decryptDecompress(_header, _crypto, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
 

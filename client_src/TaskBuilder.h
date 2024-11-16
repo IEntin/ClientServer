@@ -8,7 +8,7 @@
 #include <deque>
 #include <mutex>
 
-#include "CryptoNS.h"
+#include "Crypto.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
@@ -16,7 +16,7 @@ enum class STATUS : char;
 
 using Subtasks = std::deque<Subtask>;
 
-class CryptoNS;
+class Crypto;
 
 class TaskBuilder final : public Runnable {
 

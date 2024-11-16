@@ -55,6 +55,3 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <gtest/gtest.h>
-
-#include "Crypto.h"
-#include "CryptoNS.h"

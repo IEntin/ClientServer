@@ -9,7 +9,6 @@
 #include <boost/assert/source_location.hpp>
 
 #include "Crypto.h"
-#include "CryptoNS.h"
 #include "Header.h"
 
 namespace utility {
@@ -88,21 +87,11 @@ std::string createErrorString(const boost::source_location& location = BOOST_CUR
 
 std::string_view
 compressEncrypt(bool encrypt,
-		const HEADER& header,
-		const CryptoPP::SecByteBlock& key, std::string& data);
-
- std::string_view
- decryptDecompress(HEADER& header,
-		   const CryptoPP::SecByteBlock& key,
-		   std::string& data);
-
-std::string_view
-compressEncryptNS(bool encrypt,
 		  const HEADER& header,
 		  CryptoWeakPtr crypto,
 		  std::string& data);
 
 std::string_view
-decryptDecompressNS(HEADER& header, CryptoWeakPtr crypto, std::string& data);
+decryptDecompress(HEADER& header, CryptoWeakPtr crypto, std::string& data);
 
 } // end of namespace utility

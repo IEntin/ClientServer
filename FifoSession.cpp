@@ -92,9 +92,10 @@ void FifoSession::sendStatusToClient() {
     std::string clientIdStr;
     ioutility::toChars(_clientId, clientIdStr);
     unsigned size = clientIdStr.size();
+    const auto& pubA(_crypto->getPubKey());
     HEADER header
-      { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, _pubA.size() };
-    Fifo::sendMsg(ServerOptions::_acceptorName, header, clientIdStr, _pubA);
+      { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, pubA.size() };
+    Fifo::sendMsg(ServerOptions::_acceptorName, header, clientIdStr, pubA);
   }
 }
 

@@ -13,7 +13,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptTest*; done
 
 TEST(CryptoTest, 1) {
-  auto crypto(std::make_shared<CryptoNS>());
+  auto crypto(std::make_shared<Crypto>());
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
@@ -28,7 +28,7 @@ TEST(CryptoTest, 1) {
 
 struct CompressEncryptTest : testing::Test {
   void testCompressEncrypt(bool encrypt, COMPRESSORS compressor) {
-    auto crypto(std::make_shared<CryptoNS>());
+    auto crypto(std::make_shared<Crypto>());
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(key, key.size());
@@ -40,9 +40,9 @@ struct CompressEncryptTest : testing::Test {
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
 		   0 };
-    std::string_view transformed[[maybe_unused]] = utility::compressEncryptNS(encrypt, header, crypto, data);
+    std::string_view transformed[[maybe_unused]] = utility::compressEncrypt(encrypt, header, crypto, data);
     HEADER restoredHeader;    
-    std::string_view restored = utility::decryptDecompressNS(restoredHeader, crypto, data);
+    std::string_view restored = utility::decryptDecompress(restoredHeader, crypto, data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(restored, TestEnvironment::_source);
   }

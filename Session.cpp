@@ -12,16 +12,9 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB) :
-  _dhA(Crypto::_curve),
-  _privA(_dhA.PrivateKeyLength()),
-  _pubA(_dhA.PublicKeyLength()),
-  _generatedKeyPair(Crypto::generateKeyPair(_dhA, _privA, _pubA)),
-  _sharedA(_dhA.AgreedValueLength()),
+  _crypto(std::make_shared<Crypto>(pubB)),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
-  bool rtnA = _dhA.Agree(_sharedA, _privA, pubB);
-  if(!rtnA)
-    throw std::runtime_error("Failed to reach shared secret (A)");
   _clientId = utility::getUniqueId();
 }
 
@@ -38,11 +31,11 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
-  return utility::compressEncrypt(ServerOptions::_encrypted, header, _sharedA, _responseData);
+  return utility::compressEncrypt(ServerOptions::_encrypted, header, _crypto, _responseData);
 }
 
 bool Session::processTask() {
-  std::string_view restored = utility::decryptDecompress(_task->header(), _sharedA, _request);
+  std::string_view restored = utility::decryptDecompress(_task->header(), _crypto, _request);
   auto weakPtr = TaskController::getWeakPtr();
   if (auto taskController = weakPtr.lock(); taskController) {
     _task->update(restored);

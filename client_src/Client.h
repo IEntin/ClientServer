@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Chronometer.h"
-#include "CryptoNS.h"
+#include "Crypto.h"
 #include "ThreadPoolBase.h"
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;

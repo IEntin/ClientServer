@@ -21,13 +21,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session {
 protected:
   std::size_t _clientId;
-
-  CryptoPP::ECDH<CryptoPP::ECP>::Domain _dhA;
-  CryptoPP::SecByteBlock _privA;
-  CryptoPP::SecByteBlock _pubA;
-  const bool _generatedKeyPair;
-  CryptoPP::SecByteBlock _sharedA;
-
+  CryptoPtr _crypto;
   std::string _request;
   Response _response;
   TaskPtr _task;
