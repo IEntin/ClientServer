@@ -130,8 +130,12 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::write(std::string_view payload) {
-  std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(payload),
-							boost::asio::buffer(utility::ENDOFMESSAGE) };
+  HEADER header
+    { HEADERTYPE::SESSION, payload.size(), ServerOptions::_compressor, DIAGNOSTICS::NONE, _status, 0 };
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(headerBuffer),
+							boost::asio::buffer(payload) };
   boost::asio::async_write(_socket,
     asioBuffers,
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {

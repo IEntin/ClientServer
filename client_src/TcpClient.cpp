@@ -58,7 +58,8 @@ bool TcpClient::receive() {
       Warn << ec.what() << '\n';
       return false;
     }
-    if (!Tcp::readMessage(_socket, _response)) {
+    HEADER header;
+    if (!Tcp::readMsg(_socket, header, _response)) {
       return false;
     }
     _status = STATUS::NONE;

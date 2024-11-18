@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "ClientOptions.h"
+#include "Utility.h"
 
 namespace tcp {
 
@@ -103,32 +104,6 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
       return false;
     }
   }
-  return true;
-}
-
-bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload) {
-  boost::system::error_code ec;
-  socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-  if (ec) {
-    Warn << ec.what() << '\n';
-    return false;
-  }
-  std::size_t transferred =
-    boost::asio::read_until(socket, boost::asio::dynamic_string_buffer(payload), utility::ENDOFMESSAGE, ec);
-  if (ec) {
-    switch (ec.value()) {
-    case boost::asio::error::eof:
-    case boost::asio::error::connection_reset:
-    case boost::asio::error::broken_pipe:
-      Info << ec.what() << '\n';
-      return false;
-    default:
-      Warn << ec.what() << '\n';
-      return false;
-    }
-  }
-  assert(transferred >= utility::ENDOFMESSAGE.size() + HEADER_SIZE && "Too short message");
-  payload.erase(transferred - utility::ENDOFMESSAGE.size());
   return true;
 }
 

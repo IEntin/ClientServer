@@ -6,8 +6,7 @@
 
 #include <boost/asio.hpp>
 
-#include "Logger.h"
-#include "Utility.h"
+#include "Header.h"
 
 namespace tcp {
 
@@ -33,7 +32,6 @@ public:
 		      P2&& payload2 = P2()) {
     if (!readHeader(socket, header))
       return false;
-    printHeader(header, LOG_LEVEL::INFO);
     static thread_local std::string payload;
     std::size_t size = extractUncompressedSize(header);
     if (size != 0) {
@@ -92,7 +90,6 @@ public:
 
   static bool readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header);
   static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload);
-  static bool readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload);
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  std::string& payload,
 			  std::size_t size);
