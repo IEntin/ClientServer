@@ -81,7 +81,7 @@ bool FifoClient::wakeupAcceptor() {
   const auto& pubKey = _crypto->getPubKey();
   std::size_t size = pubKey.size();
   HEADER header =
-    { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
+    { HEADERTYPE::DH_INIT, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
   return Fifo::sendMsg(_acceptorName, header, pubKey);
 }
 

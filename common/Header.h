@@ -24,9 +24,10 @@ constexpr int HEADER_SIZE =
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
   NONE,
-  CREATE_SESSION,
-  SESSION,
+  DH_INIT,
+  DH_HANDSHAKE,
   HEARTBEAT,
+  SESSION,
   ERROR,
   INVALIDHIGH
 };

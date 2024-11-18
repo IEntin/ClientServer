@@ -40,7 +40,7 @@ void FifoAcceptor::run() {
     if (_stopped)
       break;
     switch (type) {
-    case HEADERTYPE::CREATE_SESSION:
+    case HEADERTYPE::DH_INIT:
       if (auto server = _server.lock(); server)
 	server->createFifoSession(pubB);
       break;

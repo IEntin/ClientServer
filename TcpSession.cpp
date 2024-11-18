@@ -47,7 +47,7 @@ void TcpSession::sendStatusToClient() {
     unsigned size = clientIdStr.size();
     const auto& pubA(_crypto->getPubKey());
     HEADER header
-      { HEADERTYPE::CREATE_SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, pubA.size() };
+      { HEADERTYPE::DH_HANDSHAKE, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, pubA.size() };
     Tcp::sendMsg(_socket, header, clientIdStr, pubA);
   }
 }

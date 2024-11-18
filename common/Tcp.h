@@ -31,17 +31,24 @@ public:
 		      HEADER& header,
 		      P1& payload1,
 		      P2&& payload2 = P2()) {
-    static thread_local std::string payload;
-    payload.erase(0);
-    if (!readMessage(socket, payload))
-      return false;
-    if (!deserialize(header, payload.data()))
+    if (!readHeader(socket, header))
       return false;
     printHeader(header, LOG_LEVEL::INFO);
-    std::size_t payload2Size = extractParameter(header);
-    std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
-    payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
-    payload2 = { reinterpret_cast<decltype(payload2.data())>(payload.data()) + HEADER_SIZE + payload1Size, payload2Size };
+    static thread_local std::string payload;
+    std::size_t size = extractUncompressedSize(header);
+    if (size != 0) {
+      payload.resize(size);
+      if (!readMessage(socket, payload, size))
+	return false;
+      payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()), size };
+    }
+    size = extractParameter(header);
+    if (size != 0) {
+      payload.resize(size);
+      if (!readMessage(socket, payload, size))
+	return false;
+      payload2 = { reinterpret_cast<decltype(payload2.data())>(payload.data()), size };
+    }
     return true;
   }
 
@@ -52,10 +59,9 @@ public:
 		      const P2& payload2 = P2()) {
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    std::array<boost::asio::const_buffer, 4> buffers{ boost::asio::buffer(headerBuffer),
+    std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(headerBuffer),
 						      boost::asio::buffer(payload1),
-						      boost::asio::buffer(payload2),
-						      boost::asio::buffer(utility::ENDOFMESSAGE) };
+						      boost::asio::buffer(payload2) };
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {
@@ -84,8 +90,12 @@ public:
     return true;
   }
 
+  static bool readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header);
   static bool sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload);
   static bool readMessage(boost::asio::ip::tcp::socket& socket, std::string& payload);
+  static bool readMessage(boost::asio::ip::tcp::socket& socket,
+			  std::string& payload,
+			  std::size_t size);
 };
 
 } // end of namespace tcp

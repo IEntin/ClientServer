@@ -81,7 +81,7 @@ void TcpAcceptor::accept() {
       if (!ec) {
 	auto [type, pubB] = connectionType(connection->_socket);
 	switch (type) {
-	case HEADERTYPE::CREATE_SESSION:
+	case HEADERTYPE::DH_INIT:
 	  if (auto server = _server.lock(); server)
 	    server->createTcpSession(connection, pubB);
 	  break;
