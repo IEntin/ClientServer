@@ -11,7 +11,7 @@
 #include <cryptopp/oids.h>
 #include <cryptopp/osrng.h>
 
-constexpr std::u8string_view endTagString = u8"r2345ufg5432105t";
+constexpr std::u8string_view endTag = u8"r2345ufg5432105t";
 
 using CryptoPtr = std::shared_ptr<class Crypto>;
 

@@ -80,13 +80,12 @@ bool TcpSession::sendReply() {
   if (payload.empty())
     return false;
   asyncWait();
-  write(payload);
+  boost::asio::post(_ioContext, [this, payload] { write(payload); });
   return true;
 }
 
 void TcpSession::readRequest() {
   asyncWait();
-  _request.erase(0);
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_string_buffer(_request),
     utility::ENDOFMESSAGE,
@@ -115,7 +114,7 @@ void TcpSession::readRequest() {
 	return;
       }
       if (processTask())
-	sendReply();
+	boost::asio::post(_ioContext, [this] { sendReply(); });
       else {
 	boost::asio::post(_ioContext, [this] {
 	  _timeoutTimer.cancel();
@@ -155,7 +154,8 @@ void TcpSession::write(std::string_view payload) {
 	_status = STATUS::TCP_TIMEOUT;
 	return;
       }
-      readRequest();
+      _request.erase(0);
+      boost::asio::post(_ioContext, [this] { readRequest(); });
     });
 }
 

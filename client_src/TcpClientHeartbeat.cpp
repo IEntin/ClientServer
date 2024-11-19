@@ -105,45 +105,39 @@ void TcpClientHeartbeat::read() {
       auto self = weak_from_this().lock();
       if (!self)
 	return;
-      if (transferred == HEADER_SIZE) {
-	HEADER header;
-	if (!deserialize(header, _heartbeatBuffer.data()))
-	  return;
-	if (!isOk(header)) {
-	  LogError << "header is invalid." << '\n';
-	  return;
-	}
-	std::size_t numberCanceled = _timeoutTimer.cancel();
-	if (numberCanceled == 0) {
-	  Warn << "timeout\n";
-	  _status = STATUS::HEARTBEAT_TIMEOUT;
-	}
-	Logger logger(LOG_LEVEL::INFO, std::clog, false);
-	logger << '*';
-	heartbeatWait();
-	return;
+      std::size_t numberCanceled = _timeoutTimer.cancel();
+      if (numberCanceled == 0) {
+	Warn << "timeout\n";
+	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
       if (ec) {
 	switch (ec.value()) {
 	case boost::asio::error::eof:
-	  break;
+	case boost::asio::error::operation_aborted:
 	case boost::asio::error::connection_reset:
 	case boost::asio::error::broken_pipe:
 	case boost::asio::error::connection_refused:
-	  Warn << ec.what() << '\n';
-	  break;
-	case boost::asio::error::operation_aborted:
 	  break;
 	default:
+	  Warn << ec.what() << '\n';
 	  LogError << ec.what() << '\n';
-	  break;
+	  boost::asio::post(_ioContext, [this] {
+	    stop();
+	  });
+	  _status = STATUS::HEARTBEAT_PROBLEM;
+	  return;
 	}
-	boost::asio::post(_ioContext, [this] {
-	  stop();
-	});
-	_status = STATUS::HEARTBEAT_PROBLEM;
+      }
+      HEADER header;
+      if (!deserialize(header, _heartbeatBuffer.data()))
+	return;
+      if (!isOk(header)) {
+	LogError << "header is invalid." << '\n';
 	return;
       }
+      Logger logger(LOG_LEVEL::INFO, std::clog, false);
+      logger << '*';
+      heartbeatWait();
     });
 }
 

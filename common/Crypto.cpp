@@ -48,7 +48,7 @@ std::string_view Crypto::encrypt(bool encrypt, std::string_view data) {
   //LogAlways << "\t### " << cipher.capacity() << '\n';
   if (!encrypt) {
     cipher.insert(cipher.cend(), data.cbegin(), data.cend());
-    cipher.insert(cipher.cend(), endTagString.begin(), endTagString.end());
+    cipher.insert(cipher.cend(), endTag.begin(), endTag.end());
     return cipher;
   }
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
@@ -67,8 +67,8 @@ std::string_view Crypto::encrypt(bool encrypt, std::string_view data) {
 }
 
 std::string_view Crypto::decrypt(std::string_view data) {
-  if (data.ends_with(reinterpret_cast<const char*>(endTagString.data()))) {
-    data.remove_suffix(endTagString.size());
+  if (data.ends_with(reinterpret_cast<const char*>(endTag.data()))) {
+    data.remove_suffix(endTag.size());
     return data;
   }
   CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.cend() - CryptoPP::AES::BLOCKSIZE),
