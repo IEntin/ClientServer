@@ -158,6 +158,7 @@ void TcpClientHeartbeat::write() {
   serialize(header, _heartbeatBuffer.data());
   boost::asio::async_write(_socket,
 			   boost::asio::buffer(_heartbeatBuffer),
+			   boost::asio::transfer_all(),
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)

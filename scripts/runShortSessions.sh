@@ -38,10 +38,6 @@ sed -i 's/"RunLoop" : true/"RunLoop" : false/' ClientOptions.json
 
 for (( c=1; c<=NUMREPEAT; c++ ))
 do
-    if ! pgrep serverX
-    then
-	break;
-    fi
     ./clientX > /dev/null
     wait $!
     printf "\nrepeated %d times \n" $c

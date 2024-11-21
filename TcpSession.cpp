@@ -137,6 +137,7 @@ void TcpSession::write(std::string_view payload) {
 							boost::asio::buffer(payload) };
   boost::asio::async_write(_socket,
     asioBuffers,
+    boost::asio::transfer_all(),
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       auto self = weak_from_this().lock();
       if (!self)
