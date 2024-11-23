@@ -18,8 +18,6 @@ COMMONDIR := common
 TESTSRCDIR := test_src
 # lz4 must be installed with
 # 'sudo scripts/installLZ4.sh'
-# library location changed:
-LIBLZ4 := /usr/local/lib/lz4/liblz4.a
 CRYPTOPPRELEASE := cryptopp890.zip
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
 CRYPTOLIB := $(CRYPTOLIBDIR)/libcryptopp.a
@@ -100,21 +98,21 @@ SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 serverX : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVEROBJ) $(CRYPTOLIB)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) \
-$(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
+$(CPPFLAGS) -pthread $(CRYPTOLIB) -llz4
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ) $(CRYPTOLIB)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) -llz4
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ) $(CRYPTOLIB)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(LIBLZ4)
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) -llz4
 
 RUNTESTSPSEUDOTARGET := runtests
 

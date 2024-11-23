@@ -52,9 +52,7 @@ std::string_view Crypto::encrypt(bool encrypt, std::string_view data) {
     return cipher;
   }
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  {
-    _rng.GenerateBlock(iv, iv.size());
-  }
+  _rng.GenerateBlock(iv, iv.size());
   CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));

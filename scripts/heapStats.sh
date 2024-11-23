@@ -4,6 +4,7 @@
 # Copyright (C) 2021 Ilya Entin
 #
 
+# sudo apt install valgrind
 # valgrind --tool=massif
 # ms_print massif.out.13253 > output
 
