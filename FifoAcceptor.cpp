@@ -23,26 +23,28 @@ FifoAcceptor::~FifoAcceptor() {
   Trace << '\n';
 }
 
-std::tuple<HEADERTYPE, CryptoPP::SecByteBlock> FifoAcceptor::unblockAcceptor() {
+std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::string>
+FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
+    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock(), std::string() };
   HEADER header;
   CryptoPP::SecByteBlock pubB;
-  if (!Fifo::readMsg(_acceptorName, true, header, pubB))
-    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock() };
-  return { extractHeaderType(header), pubB };
+  std::string rsaPubB;
+  if (!Fifo::readMsg(_acceptorName, true, header, pubB, rsaPubB))
+    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock(), rsaPubB };
+  return { extractHeaderType(header), pubB, rsaPubB };
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, pubB] = unblockAcceptor();
+    auto [type, pubB, rsaPubB] = unblockAcceptor();
     if (_stopped)
       break;
     switch (type) {
     case HEADERTYPE::DH_INIT:
       if (auto server = _server.lock(); server)
-	server->createFifoSession(pubB);
+	server->createFifoSession(pubB, rsaPubB);
       break;
     default:
       break;

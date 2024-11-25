@@ -14,6 +14,7 @@
 
 // for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=AuthenticationTest*; done
 
 TEST(CryptoTest, 1) {
   auto crypto(std::make_shared<Crypto>());
@@ -72,7 +73,7 @@ TEST(AuthenticationTest, 1) {
   // Generate RSA key pair
   CryptoPP::AutoSeededRandomPool rng;
   CryptoPP::RSA::PrivateKey privateKey;
-  privateKey.GenerateRandomWithKeySize(rng, 2048);
+  privateKey.GenerateRandomWithKeySize(rng, rsaKeySize);
   CryptoPP::RSA::PublicKey publicKey;
   publicKey.AssignFrom(privateKey);
   // Message to sign
@@ -94,4 +95,13 @@ TEST(AuthenticationTest, 1) {
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length()
   );
   ASSERT_TRUE(result);
+}
+
+TEST(CryptoKeySerializationTest, 1) {
+  auto crypto(std::make_shared<Crypto>());
+  CryptoPP::RSA::PrivateKey privateKey;
+  auto [success, serialized] = crypto->encodeRsaPublicKey(privateKey);
+  ASSERT_TRUE(success);
+  CryptoPP::RSA::PublicKey publicKey;
+  ASSERT_TRUE(crypto->decodeRsaPublicKey(serialized, publicKey));
 }

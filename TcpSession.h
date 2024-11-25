@@ -21,7 +21,8 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
-	     const CryptoPP::SecByteBlock& pubB);
+	     const CryptoPP::SecByteBlock& pubB,
+	     std::string_view rsaPubB);
   ~TcpSession() override;
 
 private:

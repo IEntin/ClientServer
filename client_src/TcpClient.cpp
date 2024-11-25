@@ -14,10 +14,12 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(utility::createErrorString());
   const auto& pubKey = _crypto->getPubKey();
-  std::size_t size = pubKey.size();
+  std::size_t pubKeySz = pubKey.size();
+  std::string_view serializedRsaKey = _crypto->getSerializedRsaPubKey();
+  std::size_t rsaStrSz = serializedRsaKey.size();
   HEADER header =
-    { HEADERTYPE::DH_INIT, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
-  Tcp::sendMsg(_socket, header, pubKey);
+    { HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, rsaStrSz };
+  Tcp::sendMsg(_socket, header, pubKey, serializedRsaKey);
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';

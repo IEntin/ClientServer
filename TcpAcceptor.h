@@ -26,7 +26,8 @@ private:
   void stop() override;
 
   void accept();
-  std::tuple<HEADERTYPE, CryptoPP::SecByteBlock> connectionType(boost::asio::ip::tcp::socket& socket);
+  std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::string>
+  connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 
   ServerWeakPtr _server;

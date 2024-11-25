@@ -11,24 +11,35 @@
 #include "ServerOptions.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
-
+// server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
-  _key(_dh.AgreedValueLength()) {
+  _key(_dh.AgreedValueLength()),
+  _password("Guess!" __DATE__ "u8"  __TIME__ "Guessed?") {
   generateKeyPair(_dh, _privKey, _pubKey);
   bool rtnA = _dh.Agree(_key, _privKey, pubB);
   if(!rtnA)
     throw std::runtime_error("Failed to reach shared secret (A)");
+  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
+  _rsaPubKey.AssignFrom(_rsaPrivKey);
+  //LogAlways << "server" << ' ' << _password << '\n';
 }
 
+// client
 Crypto::Crypto() :
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
-  _key(_dh.AgreedValueLength()) {
+  _key(_dh.AgreedValueLength()),
+  _password("Guess!" __DATE__ "u8"  __TIME__ "Guessed?") {
   generateKeyPair(_dh, _privKey, _pubKey);
+  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
+  _rsaPubKey.AssignFrom(_rsaPrivKey);
+  auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
+  if (success)
+    _serializedRsaPubKey.swap(encodedStr);
 }
 
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
@@ -86,4 +97,46 @@ std::string_view Crypto::decrypt(std::string_view data) {
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   return _dh.Agree(_key, _privKey, pubAreceived);
+}
+
+void Crypto::signPassword() {
+  CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_peerRsaPubKey);
+  CryptoPP::StringSource ss(_password.data(),
+    true, 
+    new CryptoPP::SignerFilter(_rng,
+      signer,
+      new CryptoPP::StringSink(_signature)
+    )
+  );
+}
+
+std::pair<bool, std::string>
+Crypto::encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey) {
+  std::string serialized;
+  try {
+    CryptoPP::StringSink sink{ serialized };
+    CryptoPP::RSA::PublicKey{ privateKey }.DEREncode(sink);
+    return { true, serialized };
+  }
+  catch (const CryptoPP::Exception& e) {
+    LogError << e.what() << '\n';
+    return { false, "" };
+  }
+}
+
+bool Crypto::decodeRsaPublicKey(std::string_view serializedKey,
+				CryptoPP::RSA::PublicKey& publicKey) {
+  try {
+    CryptoPP::StringSource pubKeySource({ serializedKey.data(), serializedKey.size() }, true);
+    publicKey.Load(pubKeySource);
+    return true;
+  }
+  catch (const CryptoPP::Exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+}
+
+bool Crypto::decodeRsaPeerPublicKey(std::string_view serializedKey) {
+  return decodeRsaPublicKey(serializedKey, _peerRsaPubKey);
 }

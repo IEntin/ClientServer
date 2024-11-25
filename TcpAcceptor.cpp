@@ -55,12 +55,13 @@ void TcpAcceptor::run() {
   }
 }
 
-std::tuple<HEADERTYPE, CryptoPP::SecByteBlock>
+std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   CryptoPP::SecByteBlock pubB;
-  Tcp::readMsg(socket, _header, pubB);
+  std::string rsaPubB;
+  Tcp::readMsg(socket, _header, pubB, rsaPubB);
   assert(!isCompressed(_header) && "Expected uncompressed");
-  return { extractHeaderType(_header), pubB };
+  return { extractHeaderType(_header), pubB, rsaPubB };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -79,11 +80,11 @@ void TcpAcceptor::accept() {
       if (!self)
 	return;
       if (!ec) {
-	auto [type, pubB] = connectionType(connection->_socket);
+	auto [type, pubB, rsaPubB] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::DH_INIT:
 	  if (auto server = _server.lock(); server)
-	    server->createTcpSession(connection, pubB);
+	    server->createTcpSession(connection, pubB, rsaPubB);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(connection->_socket);

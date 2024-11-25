@@ -23,8 +23,11 @@ public:
   ~Server();
   bool start();
   void stop();
-  void createFifoSession(const CryptoPP::SecByteBlock& pubB);
-  void createTcpSession(tcp::ConnectionPtr connection, const CryptoPP::SecByteBlock& pubB);
+  void createFifoSession(const CryptoPP::SecByteBlock& pubB,
+			 std::string_view rsaPubB);
+  void createTcpSession(tcp::ConnectionPtr connection,
+			const CryptoPP::SecByteBlock& pubB,
+			std::string_view rsaPubB);
 private:
   bool startSession(RunnablePtr runnable, SessionPtr session);
   void stopSessions();

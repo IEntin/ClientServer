@@ -15,9 +15,12 @@
 namespace fifo {
 
 FifoSession::FifoSession(ServerWeakPtr server,
-			 const CryptoPP::SecByteBlock& pubB) :
+			 const CryptoPP::SecByteBlock& pubB,
+			 std::string_view rsaPubBserialized) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, pubB) {}
+  Session(server, pubB) {
+  _crypto->decodeRsaPeerPublicKey(rsaPubBserialized);
+}
 
 FifoSession::~FifoSession() {
   try {

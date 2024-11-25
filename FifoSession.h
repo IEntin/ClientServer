@@ -24,7 +24,9 @@ class FifoSession final : public RunnableT<FifoSession>,
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
   std::string_view getDisplayName() const override{ return "fifo"; }
  public:
-  FifoSession(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB);
+  FifoSession(ServerWeakPtr server,
+	      const CryptoPP::SecByteBlock& pubB,
+	      std::string_view rsaPubBserialized);
   ~FifoSession() override;
 };
 

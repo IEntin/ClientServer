@@ -79,10 +79,12 @@ bool FifoClient::receive() {
 
 bool FifoClient::wakeupAcceptor() {
   const auto& pubKey = _crypto->getPubKey();
-  std::size_t size = pubKey.size();
+  std::size_t pubKeySz = pubKey.size();
+  std::string_view serializedRsaKey = _crypto->getSerializedRsaPubKey();
+  std::size_t rsaStrSz = serializedRsaKey.size();
   HEADER header =
-    { HEADERTYPE::DH_INIT, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
-  return Fifo::sendMsg(_acceptorName, header, pubKey);
+    { HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, rsaStrSz };
+  return Fifo::sendMsg(_acceptorName, header, pubKey, serializedRsaKey);
 }
 
 bool FifoClient::receiveStatus() {

@@ -16,13 +16,16 @@ namespace tcp {
 
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
-		       const CryptoPP::SecByteBlock& pubB) :
+		       const CryptoPP::SecByteBlock& pubB,
+		       std::string_view rsaPubBserialized) :
   RunnableT(ServerOptions::_maxTcpSessions),
   Session(server, pubB),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext) {
+  _crypto->decodeRsaPeerPublicKey(rsaPubBserialized);
+}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
