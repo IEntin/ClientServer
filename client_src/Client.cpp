@@ -86,15 +86,15 @@ bool Client::printReply() {
 }
 
 void Client::start() {
-  if (ClientOptions::_heartbeatEnabled) {
-    RunnablePtr ptr = std::make_shared<tcp::TcpClientHeartbeat>();
-    ptr->start();
-    _threadPoolClient.push(ptr);
-    _heartbeat = ptr;
-  }
   auto taskBuilder = std::make_shared<TaskBuilder>(_crypto);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
+  if (ClientOptions::_heartbeatEnabled) {
+    RunnablePtr heartbeat = std::make_shared<tcp::TcpClientHeartbeat>();
+    heartbeat->start();
+    _threadPoolClient.push(heartbeat);
+    _heartbeat = heartbeat;
+  }
 }
 
 void Client::onSignal() {
