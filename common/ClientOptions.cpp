@@ -67,7 +67,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     _instrStream = nullptr;
   _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
   _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 15000);
-  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 4000);
+  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 3000);
   _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
   _diagnostics = translateDiagnosticsString(appOptions.get("Diagnostics", std::string("Disabled")));
   _runLoop = appOptions.get("RunLoop", false);

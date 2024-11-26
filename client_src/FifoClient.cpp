@@ -115,6 +115,7 @@ bool FifoClient::receiveStatus() {
     return false;
     break;
   }
+  startHeartbeat();
   return true;
 }
 

@@ -89,6 +89,9 @@ void Client::start() {
   auto taskBuilder = std::make_shared<TaskBuilder>(_crypto);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
+}
+
+void Client::startHeartbeat() {
   if (ClientOptions::_heartbeatEnabled) {
     RunnablePtr heartbeat = std::make_shared<tcp::TcpClientHeartbeat>();
     heartbeat->start();

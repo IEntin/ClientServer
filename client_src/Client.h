@@ -43,6 +43,7 @@ public:
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;
 
+  void startHeartbeat();
   void stop();
   static void onSignal();
 };
