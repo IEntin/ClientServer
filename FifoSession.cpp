@@ -19,7 +19,8 @@ FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view rsaPubBserialized) :
   RunnableT(ServerOptions::_maxFifoSessions),
   Session(server, pubB) {
-  _crypto->decodeRsaPeerPublicKey(rsaPubBserialized);
+  if (!_crypto->decodeRsaPeerPublicKey(rsaPubBserialized))
+    throw std::runtime_error("rsa key decode failed");
 }
 
 FifoSession::~FifoSession() {

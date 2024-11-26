@@ -38,8 +38,9 @@ Crypto::Crypto() :
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
-  if (success)
-    _serializedRsaPubKey.swap(encodedStr);
+  if (!success)
+    throw std::runtime_error("rsa key encode failed");    
+  _serializedRsaPubKey.swap(encodedStr);
 }
 
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {

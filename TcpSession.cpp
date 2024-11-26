@@ -24,7 +24,8 @@ TcpSession::TcpSession(ServerWeakPtr server,
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
   _timeoutTimer(_ioContext) {
-  _crypto->decodeRsaPeerPublicKey(rsaPubBserialized);
+  if (!_crypto->decodeRsaPeerPublicKey(rsaPubBserialized))
+    throw std::runtime_error("rsa key decode failed");
 }
 
 TcpSession::~TcpSession() {
