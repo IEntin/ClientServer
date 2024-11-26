@@ -36,8 +36,7 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
 
 bool Session::processTask() {
   std::string_view restored = utility::decryptDecompress(_task->header(), _crypto, _request);
-  auto weakPtr = TaskController::getWeakPtr();
-  if (auto taskController = weakPtr.lock(); taskController) {
+  if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(restored);
     taskController->processTask(_task);
     return true;

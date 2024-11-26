@@ -55,7 +55,7 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
 }
 
 std::string_view Crypto::encrypt(bool encrypt, std::string_view data) {
-  static std::string cipher;
+  static thread_local std::string cipher;
   cipher.erase(0);
   //LogAlways << "\t### " << cipher.capacity() << '\n';
   if (!encrypt) {

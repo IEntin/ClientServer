@@ -89,8 +89,6 @@ compressEncrypt(bool encrypt,
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
-  static std::mutex mutex;
-  std::scoped_lock lock(mutex);
   if (auto crypto = weak.lock();crypto)
     data = crypto->encrypt(encrypt, data);
   return data;
