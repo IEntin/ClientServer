@@ -16,6 +16,29 @@ echo "PRJ_DIR:" $PRJ_DIR
 UP_DIR=$(dirname $SCRIPT_DIR)
 echo "UP_DIR:" $UP_DIR
 
+mkdir -p $UP_DIR/Fifos
+
+for (( c=1; c<=5; c++ ))
+do
+mkdir -p $UP_DIR/Client$c
+done
+
+for (( c=1; c<=5; c++ ))
+do
+    cd $UP_DIR/Client$c
+    ln -sf $SCRIPT_DIR/data .
+    cp $SCRIPT_DIR/scripts/runShortSessions.sh .
+    cp /$SCRIPT_DIR/client_src/ClientOptions.json .
+done
+
+for (( c=1; c<=5; c++ ))
+do
+    if [[ $(($c%2)) -eq 0 ]]
+    then
+	cd $UP_DIR/Client$c;sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json
+    fi
+done
+
 CLIENT_DIR2=$UP_DIR/Client2
 echo "CLIENT_DIR2:" $CLIENT_DIR2
 
@@ -31,6 +54,8 @@ set -e
 trap EXIT SIGHUP SIGINT SIGTERM
 
 date
+
+cd $PRJ_DIR
 
 make cleanall
 
