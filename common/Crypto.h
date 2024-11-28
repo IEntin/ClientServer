@@ -29,6 +29,8 @@ class Crypto {
   CryptoPP::RSA::PublicKey _rsaPubKey;
   std::string _serializedRsaPubKey;
   CryptoPP::RSA::PublicKey _peerRsaPubKey;
+  std::string _cipher;
+  std::string _decrypted;
   std::string _signature;
   // temp
   const std::string_view _password;
@@ -46,8 +48,8 @@ public:
   Crypto();
   Crypto(const CryptoPP::SecByteBlock& pubB);
   ~Crypto() {}
-  std::string_view encrypt(bool encrypt, std::string_view data);
-  std::string_view decrypt(std::string_view data);
+  void encrypt(bool encrypt, std::string& data);
+  void decrypt(std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSerializedRsaPubKey() const { return _serializedRsaPubKey; }
   std::string_view getSignature() const { return _signature; }

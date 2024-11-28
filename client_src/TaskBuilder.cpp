@@ -119,7 +119,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     ClientOptions::_diagnostics,
     _status,
     0 };
-  std::string_view data = utility::compressEncrypt(
+  utility::compressEncrypt(
     ClientOptions::_encrypted, header, _crypto, _aggregate);
   std::lock_guard lock(_mutex);
   if (_stopped)
@@ -131,7 +131,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   else
     subtaskRef = _subtasks.emplace_back();
   Subtask& subtask = subtaskRef.get();
-  subtask._data = data;
+  subtask._data.assign(_aggregate);
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;

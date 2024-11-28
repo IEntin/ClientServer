@@ -31,13 +31,14 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
-  return utility::compressEncrypt(ServerOptions::_encrypted, header, _crypto, _responseData);
+  utility::compressEncrypt(ServerOptions::_encrypted, header, _crypto, _responseData);
+  return _responseData;
 }
 
 bool Session::processTask() {
-  std::string_view restored = utility::decryptDecompress(_task->header(), _crypto, _request);
+  utility::decryptDecompress(_task->header(), _crypto, _request);
   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
-    _task->update(restored);
+    _task->update(_request);
     taskController->processTask(_task);
     return true;
   }

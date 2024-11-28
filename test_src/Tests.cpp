@@ -17,22 +17,29 @@
 
 struct CompressionTest : testing::Test {
   void testCompressionDecompression(std::string& input) {
-    std::string_view compressed = compression::compress(input);
-    std::string_view uncompressed = compression::uncompress(compressed, input.size());
+    // must be a copy
+    std::string original = input;
+    compression::compress(input);
+    std::size_t compressedSz = input.size();
+    compression::uncompress(input, original.size());
     Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
     static auto& printOnce [[maybe_unused]] = logger
       << "\n\tinput.size()=" << input.size()
-      << " compressedSize=" << compressed.size() << " restored to original:"
-      << std::boolalpha << (input == uncompressed) << '\n' << '\n';
-    ASSERT_EQ(input, uncompressed);
+      << " compressedSize=" << compressedSz << " restored to original:"
+      << std::boolalpha << (original == input) << '\n' << '\n';
+    ASSERT_EQ(original, input);
   }
 };
 
 TEST_F(CompressionTest, 1_SOURCE) {
-  testCompressionDecompression(TestEnvironment::_source);
+  // must be a copy
+  std::string input = TestEnvironment::_source;
+  testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTest, 1_OUTPUTD) {
+  // must be a copy
+  std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
 

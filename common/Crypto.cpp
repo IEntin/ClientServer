@@ -54,46 +54,43 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
   }
 }
 
-std::string_view Crypto::encrypt(bool encrypt, std::string_view data) {
-  static thread_local std::string cipher;
-  cipher.erase(0);
-  //LogAlways << "\t### " << cipher.capacity() << '\n';
+void Crypto::encrypt(bool encrypt, std::string& data) {
+  _cipher.erase(0);
   if (!encrypt) {
-    cipher.insert(cipher.cend(), data.cbegin(), data.cend());
-    cipher.insert(cipher.cend(), endTag.begin(), endTag.end());
-    return cipher;
+    data.insert(data.cend(), endTag.cbegin(), endTag.cend());
+    return;
   }
+  //LogAlways << "\t### " << _cipher.capacity() << '\n';
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
   CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
-  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(cipher));
+  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(_cipher));
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  cipher.insert(cipher.cend(), iv.begin(), iv.end());
+  _cipher.insert(_cipher.cend(), iv.begin(), iv.end());
   if (ClientOptions::_showKey)
     showKeyIv(iv);
-  return cipher;
+  data.assign(_cipher);
 }
 
-std::string_view Crypto::decrypt(std::string_view data) {
+void Crypto::decrypt(std::string& data) {
+  _decrypted.erase(0);
   if (data.ends_with(reinterpret_cast<const char*>(endTag.data()))) {
-    data.remove_suffix(endTag.size());
-    return data;
+    data.erase(data.size() - endTag.size());
+    return;
   }
-  CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.cend() - CryptoPP::AES::BLOCKSIZE),
+  CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 			    CryptoPP::AES::BLOCKSIZE);
-  static thread_local std::string decrypted;
-  decrypted.erase(0);
-  //LogAlways << "\t### " << decrypted.capacity() << '\n';
+  //LogAlways << "\t### " << _decrypted.capacity() << '\n';
   CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
-  CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(decrypted));
+  CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(_decrypted));
   stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());
   stfDecryptor.MessageEnd();
   if (ServerOptions::_showKey)
     showKeyIv(iv);
-  return decrypted;
+  data.assign(_decrypted);
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
@@ -103,7 +100,7 @@ bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
 void Crypto::signPassword() {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_peerRsaPubKey);
   CryptoPP::StringSource ss(_password.data(),
-    true, 
+    true,
     new CryptoPP::SignerFilter(_rng,
       signer,
       new CryptoPP::StringSink(_signature)

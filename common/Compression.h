@@ -8,8 +8,8 @@
 
 namespace compression {
 
-std::string_view compress(std::string_view data);
+void compress(std::string& data);
 
-std::string_view uncompress(std::string_view data, size_t uncomprSize);
+void uncompress(std::string& data, size_t uncomprSize);
 
 } // end of namespace compression

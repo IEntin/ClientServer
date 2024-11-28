@@ -21,13 +21,16 @@ TEST(CryptoTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
-  std::string_view data = TestEnvironment::_source;
-  std::string_view cipher = crypto->encrypt(true, data);
-  std::string_view decrypted = crypto->decrypt(cipher);
-  ASSERT_EQ(data, decrypted);
-  std::string_view cipher2 = crypto->encrypt(false, data);
-  std::string_view decrypted2 = crypto->decrypt(cipher2);
-  ASSERT_EQ(data, decrypted2);
+  // must be a copy
+  std::string data = TestEnvironment::_source;
+  crypto->encrypt(true, data);
+  crypto->decrypt(data);
+  ASSERT_EQ(TestEnvironment::_source, data);
+  // must be a copy
+  data = TestEnvironment::_source;
+  crypto->encrypt(false, data);
+  crypto->decrypt(data);
+  ASSERT_EQ(TestEnvironment::_source, data);
 }
 
 struct CompressEncryptTest : testing::Test {
@@ -44,11 +47,11 @@ struct CompressEncryptTest : testing::Test {
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
 		   0 };
-    std::string_view transformed[[maybe_unused]] = utility::compressEncrypt(encrypt, header, crypto, data);
+    utility::compressEncrypt(encrypt, header, crypto, data);
     HEADER restoredHeader;    
-    std::string_view restored = utility::decryptDecompress(restoredHeader, crypto, data);
+    utility::decryptDecompress(restoredHeader, crypto, data);
     ASSERT_EQ(header, restoredHeader);
-    ASSERT_EQ(restored, TestEnvironment::_source);
+    ASSERT_EQ(data, TestEnvironment::_source);
   }
   void TearDown() {}
 };

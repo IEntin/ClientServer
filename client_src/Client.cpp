@@ -73,15 +73,15 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  std::string_view restored = utility::decryptDecompress(_header, _crypto, _response);
+  utility::decryptDecompress(_header, _crypto, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
 
-  if (restored.empty()) {
+  if (_response.empty()) {
     displayStatus(STATUS::ERROR);
     return false;
   }
-  stream.write(restored.data(), restored.size());
+  stream.write(_response.data(), _response.size());
   return true;
 }
 

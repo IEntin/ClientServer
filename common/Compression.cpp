@@ -12,7 +12,7 @@
 
 namespace compression {
 
-std::string_view compress(std::string_view data) {
+void compress(std::string& data) {
   static thread_local std::vector<char> buffer;
   //LogAlways << "\t### " << buffer.capacity() << '\n';
   buffer.reserve(LZ4_compressBound(data.size()));
@@ -22,10 +22,10 @@ std::string_view compress(std::string_view data) {
 						    buffer.capacity());
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
-  return { buffer.data(), compressedSize };
+  data.assign(buffer.data(), compressedSize);
 }
 
-std::string_view uncompress(std::string_view data, std::size_t uncomprSize) {
+void uncompress(std::string& data, std::size_t uncomprSize) {
   static thread_local std::vector<char> uncompressed;
   //LogAlways << "\t### " << uncompressed.capacity() << '\n';
   uncompressed.reserve(uncomprSize);
@@ -35,7 +35,7 @@ std::string_view uncompress(std::string_view data, std::size_t uncomprSize) {
 					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  return std::string_view(uncompressed.data(), decomprSize);
+  data.assign(uncompressed.data(), static_cast<size_t>(decomprSize));
 }
 
 } // end of namespace compression
