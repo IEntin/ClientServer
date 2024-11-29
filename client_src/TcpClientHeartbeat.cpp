@@ -95,7 +95,7 @@ void TcpClientHeartbeat::read() {
     LogError << ec.what() << '\n';
     return;
   }
-  _heartbeatBuffer.erase(0);
+  _heartbeatBuffer.clear();
   boost::asio::async_read(_socket,
 			  boost::asio::dynamic_string_buffer(_heartbeatBuffer),
 			  boost::asio::transfer_all(),

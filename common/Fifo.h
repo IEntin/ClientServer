@@ -26,7 +26,7 @@ public:
 		      P1& payload1,
 		      P2&& payload2 = P2()) {
     static thread_local std::string payload;
-    payload.erase(0);
+    payload.clear();
     if (block) {
       if (!readStringBlock(name, payload))
 	  return false;

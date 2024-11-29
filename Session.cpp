@@ -25,7 +25,7 @@ Session::~Session() {
 std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
-  _responseData.erase(0);
+  _responseData.clear();
   for (const auto& entry : _response)
     _responseData.insert(_responseData.end(), entry.begin(), entry.end());
   std::size_t uncompressedSz = _responseData.size();

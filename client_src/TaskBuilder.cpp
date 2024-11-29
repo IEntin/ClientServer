@@ -96,7 +96,7 @@ void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
 
 STATUS TaskBuilder::createSubtask(Lines& lines) {
   // LogAlways << "\t### _aggregate.capacity()=" << _aggregate.capacity() << '\n';
-  _aggregate.erase(0);
+  _aggregate.clear();
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
   std::string_view line;

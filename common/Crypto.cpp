@@ -55,42 +55,44 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
 }
 
 void Crypto::encrypt(bool encrypt, std::string& data) {
-  _cipher.erase(0);
+  std::lock_guard lock(_mutex);
+  _buffer.clear();
   if (!encrypt) {
     data.insert(data.cend(), endTag.cbegin(), endTag.cend());
     return;
   }
-  //LogAlways << "\t### " << _cipher.capacity() << '\n';
+  //LogAlways << "\t### " << _buffer.capacity() << '\n';
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
   CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
-  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(_cipher));
+  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(_buffer));
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  _cipher.insert(_cipher.cend(), iv.begin(), iv.end());
+  _buffer.insert(_buffer.cend(), iv.begin(), iv.end());
   if (ClientOptions::_showKey)
     showKeyIv(iv);
-  data.assign(_cipher);
+  data.assign(_buffer);
 }
 
 void Crypto::decrypt(std::string& data) {
-  _decrypted.erase(0);
+  std::lock_guard lock(_mutex);
+  _buffer.clear();
   if (data.ends_with(reinterpret_cast<const char*>(endTag.data()))) {
     data.erase(data.size() - endTag.size());
     return;
   }
   CryptoPP::SecByteBlock iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 			    CryptoPP::AES::BLOCKSIZE);
-  //LogAlways << "\t### " << _decrypted.capacity() << '\n';
+  //LogAlways << "\t### " << _buffer.capacity() << '\n';
   CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
-  CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(_decrypted));
+  CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(_buffer));
   stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());
   stfDecryptor.MessageEnd();
   if (ServerOptions::_showKey)
     showKeyIv(iv);
-  data.assign(_decrypted);
+  data.assign(_buffer);
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {

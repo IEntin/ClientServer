@@ -29,9 +29,9 @@ class Crypto {
   CryptoPP::RSA::PublicKey _rsaPubKey;
   std::string _serializedRsaPubKey;
   CryptoPP::RSA::PublicKey _peerRsaPubKey;
-  std::string _cipher;
-  std::string _decrypted;
+  std::string _buffer;
   std::string _signature;
+  std::mutex _mutex;
   // temp
   const std::string_view _password;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,

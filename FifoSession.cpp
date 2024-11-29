@@ -70,7 +70,7 @@ bool FifoSession::receiveRequest() {
     break;
   }
   try {
-    _request.erase(0);
+    _request.clear();
     if (!Fifo::readStringBlock(_fifoName, _request))
       return false;
     if (processTask())
