@@ -30,7 +30,7 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   boost::asio::ip::tcp::socket _socket;
   AsioTimer _periodTimer;
   AsioTimer _timeoutTimer;
-  std::string _heartbeatBuffer;
+  std::vector<char> _heartbeatBuffer;
 };
 
 } // end of namespace tcp

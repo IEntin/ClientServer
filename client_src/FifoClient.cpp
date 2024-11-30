@@ -65,7 +65,7 @@ bool FifoClient::send(Subtask& subtask) {
 
 bool FifoClient::receive() {
   try {
-    _response.clear();
+    _response.erase(_response.begin(), _response.end());
     _status = STATUS::NONE;
     if (!Fifo::readStringBlock(_fifoName, _response))
       return false;

@@ -13,6 +13,7 @@
 #include "Utility.h"
 
 std::atomic<bool> Client::_closeFlag = false;
+thread_local std::string Client::_buffer;
 
 Client::Client() :
   _crypto(std::make_shared<Crypto>()),
@@ -73,7 +74,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  utility::decryptDecompress(_header, _crypto, _response);
+  utility::decryptDecompress(_buffer, _header, _crypto, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
 

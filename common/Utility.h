@@ -85,11 +85,15 @@ std::string createErrorString(std::errc ec,
 
 std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
-void compressEncrypt(bool encrypt,
+void compressEncrypt(std::string& buffer,
+		     bool encrypt,
 		     const HEADER& header,
 		     CryptoWeakPtr crypto,
 		     std::string& data);
 
-void decryptDecompress(HEADER& header, CryptoWeakPtr crypto, std::string& data);
+void decryptDecompress(std::string& buffer,
+		       HEADER& header,
+		       CryptoWeakPtr crypto,
+		       std::string& data);
 
 } // end of namespace utility

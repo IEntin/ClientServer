@@ -11,6 +11,8 @@
 #include "TaskController.h"
 #include "Utility.h"
 
+thread_local std::string Session::_buffer;
+
 Session::Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB) :
   _crypto(std::make_shared<Crypto>(pubB)),
   _task(std::make_shared<Task>(_response)),
@@ -25,18 +27,18 @@ Session::~Session() {
 std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
-  _responseData.clear();
+  _responseData.erase(_responseData.begin(), _responseData.end());
   for (const auto& entry : _response)
     _responseData.insert(_responseData.end(), entry.begin(), entry.end());
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
-  utility::compressEncrypt(ServerOptions::_encrypted, header, _crypto, _responseData);
+  utility::compressEncrypt(_buffer, ServerOptions::_encrypted, header, _crypto, _responseData);
   return _responseData;
 }
 
 bool Session::processTask() {
-  utility::decryptDecompress(_task->header(), _crypto, _request);
+  utility::decryptDecompress(_buffer, _task->header(), _crypto, _request);
   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(_request);
     taskController->processTask(_task);

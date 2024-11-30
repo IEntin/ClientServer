@@ -19,9 +19,9 @@ struct CompressionTest : testing::Test {
   void testCompressionDecompression(std::string& input) {
     // must be a copy
     std::string original = input;
-    compression::compress(input);
+    compression::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
-    compression::uncompress(input, original.size());
+    compression::uncompress(TestEnvironment::_buffer, input, original.size());
     Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
     static auto& printOnce [[maybe_unused]] = logger
       << "\n\tinput.size()=" << input.size()

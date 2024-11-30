@@ -35,6 +35,7 @@ protected:
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder;
   static std::atomic<bool> _closeFlag;
+  static thread_local std::string _buffer;
 public:
   virtual ~Client();
 
@@ -43,6 +44,7 @@ public:
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;
 
+  static std::string& getBuffer() { return _buffer; }
   void startHeartbeat();
   void stop();
   static void onSignal();

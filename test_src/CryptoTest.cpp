@@ -23,13 +23,13 @@ TEST(CryptoTest, 1) {
   prng.GenerateBlock(key, key.size());
   // must be a copy
   std::string data = TestEnvironment::_source;
-  crypto->encrypt(true, data);
-  crypto->decrypt(data);
+  crypto->encrypt(TestEnvironment::_buffer, true, data);
+  crypto->decrypt(TestEnvironment::_buffer, data);
   ASSERT_EQ(TestEnvironment::_source, data);
   // must be a copy
   data = TestEnvironment::_source;
-  crypto->encrypt(false, data);
-  crypto->decrypt(data);
+  crypto->encrypt(TestEnvironment::_buffer, false, data);
+  crypto->decrypt(TestEnvironment::_buffer, data);
   ASSERT_EQ(TestEnvironment::_source, data);
 }
 
@@ -47,9 +47,9 @@ struct CompressEncryptTest : testing::Test {
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
 		   0 };
-    utility::compressEncrypt(encrypt, header, crypto, data);
+    utility::compressEncrypt(TestEnvironment::_buffer, encrypt, header, crypto, data);
     HEADER restoredHeader;    
-    utility::decryptDecompress(restoredHeader, crypto, data);
+    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(data, TestEnvironment::_source);
   }

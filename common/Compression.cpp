@@ -12,10 +12,12 @@
 
 namespace compression {
 
-void compress(std::string& data) {
-  static thread_local std::vector<char> buffer;
+void compress(std::string& buffer, std::string& data) {
+  buffer.erase(buffer.begin(), buffer.end());
   //LogAlways << "\t### " << buffer.capacity() << '\n';
-  buffer.reserve(LZ4_compressBound(data.size()));
+  std::size_t requiredCapacity = LZ4_compressBound(data.size());
+  if (requiredCapacity > buffer.capacity())
+    buffer.reserve(requiredCapacity);
   std::size_t compressedSize = LZ4_compress_default(data.data(),
 						    buffer.data(),
 						    data.size(),
@@ -25,17 +27,18 @@ void compress(std::string& data) {
   data.assign(buffer.data(), compressedSize);
 }
 
-void uncompress(std::string& data, std::size_t uncomprSize) {
-  static thread_local std::vector<char> uncompressed;
-  //LogAlways << "\t### " << uncompressed.capacity() << '\n';
-  uncompressed.reserve(uncomprSize);
+void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize) {
+  buffer.erase(buffer.begin(), buffer.end());
+  //LogAlways << "\t### " << buffer.capacity() << '\n';
+  if (uncomprSize > buffer.capacity())
+    buffer.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),
-					    uncompressed.data(),
+					    buffer.data(),
 					    data.size(),
 					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  data.assign(uncompressed.data(), static_cast<size_t>(decomprSize));
+  data.assign(buffer.data(), static_cast<size_t>(decomprSize));
 }
 
 } // end of namespace compression

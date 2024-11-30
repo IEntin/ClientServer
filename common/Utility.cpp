@@ -79,28 +79,32 @@ std::string createErrorString(const boost::source_location& location) {
   return msg.append(1, ' ').append(location.function_name());
 }
 
-void compressEncrypt(bool encrypt,
+void compressEncrypt(std::string& buffer,
+		     bool encrypt,
 		     const HEADER& header,
 		     CryptoWeakPtr weak,
 		     std::string& data) {
   if (isCompressed(header))
-    compression::compress(data);
+    compression::compress(buffer, data);
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
   if (auto crypto = weak.lock();crypto)
-    crypto->encrypt(encrypt, data);
+    crypto->encrypt(buffer, encrypt, data);
 }
 
-void decryptDecompress(HEADER& header, CryptoWeakPtr weak, std::string& data) {
+void decryptDecompress(std::string& buffer,
+		       HEADER& header,
+		       CryptoWeakPtr weak,
+		       std::string& data) {
   if (auto crypto = weak.lock();crypto)
-    crypto->decrypt(data);
+    crypto->decrypt(buffer, data);
   std::string_view headerView = std::string_view(data.cbegin(), data.cbegin() + HEADER_SIZE);
   deserialize(header, headerView.data());
   data.erase(0, HEADER_SIZE);
   std::size_t uncomprSize = extractUncompressedSize(header);
   if (isCompressed(header))
-    compression::uncompress(data, uncomprSize);
+    compression::uncompress(buffer, data, uncomprSize);
 }
 
 } // end of namespace utility

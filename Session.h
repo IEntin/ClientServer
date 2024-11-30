@@ -27,6 +27,7 @@ protected:
   TaskPtr _task;
   std::string _responseData;
   ServerWeakPtr _server;
+  static thread_local std::string _buffer;
 
   Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB);
   virtual ~Session();

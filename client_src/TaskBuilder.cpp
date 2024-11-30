@@ -4,6 +4,7 @@
 
 #include "TaskBuilder.h"
 
+#include "Client.h"
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
@@ -96,7 +97,7 @@ void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
 
 STATUS TaskBuilder::createSubtask(Lines& lines) {
   // LogAlways << "\t### _aggregate.capacity()=" << _aggregate.capacity() << '\n';
-  _aggregate.clear();
+  _aggregate.erase(_aggregate.begin(), _aggregate.end());
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
   std::string_view line;
@@ -120,7 +121,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     _status,
     0 };
   utility::compressEncrypt(
-    ClientOptions::_encrypted, header, _crypto, _aggregate);
+    Client::getBuffer(), ClientOptions::_encrypted, header, _crypto, _aggregate);
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;

@@ -53,7 +53,7 @@ bool TcpClient::send(Subtask& subtask) {
 
 bool TcpClient::receive() {
   try {
-    _response.clear();
+    _response.erase(_response.begin(), _response.end());
     boost::system::error_code ec;
     _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
     if (ec) {

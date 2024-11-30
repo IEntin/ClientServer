@@ -16,6 +16,7 @@ std::string TestEnvironment::_source;
 std::string TestEnvironment::_outputD;
 std::string TestEnvironment::_outputND;
 std::string TestEnvironment::_outputAltFormatD;
+thread_local std::string TestEnvironment::_buffer;
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);

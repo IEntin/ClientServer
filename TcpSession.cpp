@@ -159,7 +159,7 @@ void TcpSession::write(std::string_view payload) {
 	_status = STATUS::TCP_TIMEOUT;
 	return;
       }
-      _request.clear();
+      _request.erase(_request.begin(), _request.end());
       boost::asio::post(_ioContext, [this] { readRequest(); });
     });
 }

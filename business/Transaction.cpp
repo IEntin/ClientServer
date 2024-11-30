@@ -70,7 +70,7 @@ Transaction::~Transaction() {
 std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 						 std::string_view request,
 						 bool diagnostics) noexcept {
-  _output.clear();
+  _output.erase(_output.begin(), _output.end());
   Transaction transaction(sizeKey, request);
   if (request.empty()) {
     LogError << "request is empty." << '\n';
@@ -103,7 +103,7 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 
 std::string_view Transaction::processRequestNoSort(std::string_view request,
 						   bool diagnostics) noexcept {
-  _output.clear();
+  _output.erase(_output.begin(), _output.end());
   Transaction transaction(request);
   if (request.empty()) {
     LogError << "request is empty." << '\n';
