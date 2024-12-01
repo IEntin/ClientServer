@@ -25,7 +25,6 @@ Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
-  //LogAlways << "server" << ' ' << _password << '\n';
 }
 
 // client
@@ -57,22 +56,22 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
 
 void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
   buffer.erase(buffer.begin(), buffer.end());
-  if (!encrypt) {
+  if (!encrypt)
     data.insert(data.cend(), endTag.cbegin(), endTag.cend());
-    return;
+  else {
+    CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
+    _rng.GenerateBlock(iv, iv.size());
+    CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
+    CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
+    CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
+    stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
+    stfEncryptor.MessageEnd();
+    buffer.insert(buffer.cend(), iv.begin(), iv.end());
+    if (ClientOptions::_showKey)
+      showKeyIv(iv);
+    data.resize(buffer.size());
+    std::memcpy(data.data(), buffer.data(), buffer.size());
   }
-  //LogAlways << "\t### " << _buffer.capacity() << '\n';
-  CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  _rng.GenerateBlock(iv, iv.size());
-  CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
-  CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
-  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
-  stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
-  stfEncryptor.MessageEnd();
-  buffer.insert(buffer.cend(), iv.begin(), iv.end());
-  if (ClientOptions::_showKey)
-    showKeyIv(iv);
-  data.assign(buffer);
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
@@ -84,7 +83,6 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
   CryptoPP::SecByteBlock
     iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 			    CryptoPP::AES::BLOCKSIZE);
-  //LogAlways << "\t### " << buffer.capacity() << '\n';
   CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
   CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
   CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
@@ -92,7 +90,8 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
   stfDecryptor.MessageEnd();
   if (ServerOptions::_showKey)
     showKeyIv(iv);
-  data.assign(buffer);
+  data.resize(buffer.size());
+  std::memcpy(data.data(), buffer.data(), buffer.size());
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {

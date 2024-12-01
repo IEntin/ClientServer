@@ -45,7 +45,7 @@ class Crypto {
 public:
   Crypto();
   Crypto(const CryptoPP::SecByteBlock& pubB);
-  ~Crypto() {}
+  ~Crypto() = default;
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }

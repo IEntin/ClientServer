@@ -97,14 +97,15 @@ void decryptDecompress(std::string& buffer,
 		       HEADER& header,
 		       CryptoWeakPtr weak,
 		       std::string& data) {
-  if (auto crypto = weak.lock();crypto)
+  if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
-  std::string_view headerView = std::string_view(data.cbegin(), data.cbegin() + HEADER_SIZE);
-  deserialize(header, headerView.data());
-  data.erase(0, HEADER_SIZE);
-  std::size_t uncomprSize = extractUncompressedSize(header);
-  if (isCompressed(header))
-    compression::uncompress(buffer, data, uncomprSize);
+    std::string_view headerView = std::string_view(data.data(), HEADER_SIZE);
+    deserialize(header, headerView.data());
+    data.erase(0, HEADER_SIZE);
+    std::size_t uncomprSize = extractUncompressedSize(header);
+    if (isCompressed(header))
+      compression::uncompress(buffer, data, uncomprSize);
+  }
 }
 
 } // end of namespace utility

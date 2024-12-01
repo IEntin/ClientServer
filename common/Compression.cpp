@@ -14,7 +14,6 @@ namespace compression {
 
 void compress(std::string& buffer, std::string& data) {
   buffer.erase(buffer.begin(), buffer.end());
-  //LogAlways << "\t### " << buffer.capacity() << '\n';
   std::size_t requiredCapacity = LZ4_compressBound(data.size());
   if (requiredCapacity > buffer.capacity())
     buffer.reserve(requiredCapacity);
@@ -24,12 +23,12 @@ void compress(std::string& buffer, std::string& data) {
 						    buffer.capacity());
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
-  data.assign(buffer.data(), compressedSize);
+  data.resize(compressedSize);
+  std::memcpy(data.data(), buffer.data(), compressedSize);
 }
 
 void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize) {
   buffer.erase(buffer.begin(), buffer.end());
-  //LogAlways << "\t### " << buffer.capacity() << '\n';
   if (uncomprSize > buffer.capacity())
     buffer.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),
@@ -38,7 +37,9 @@ void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize)
 					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  data.assign(buffer.data(), static_cast<size_t>(decomprSize));
+  std::size_t size = static_cast<size_t>(decomprSize);
+  data.resize(size);
+  std::memcpy(data.data(), buffer.data(), size);
 }
 
 } // end of namespace compression
