@@ -5,16 +5,11 @@
 #pragma once
 
 #include <condition_variable>
-#include <deque>
 #include <mutex>
 
 #include "Crypto.h"
 #include "Runnable.h"
 #include "Subtask.h"
-
-enum class STATUS : char;
-
-using Subtasks = std::deque<Subtask>;
 
 class Crypto;
 
@@ -31,8 +26,6 @@ class TaskBuilder final : public Runnable {
   std::mutex _mutex;
   std::condition_variable _condition;
   bool _resume = false;
-  static Subtask _emptySubtask;
-  static Subtasks _emptyTask;
   void run() override;
   bool start() override { return true; }
  public:

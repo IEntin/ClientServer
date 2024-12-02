@@ -6,6 +6,7 @@
 
 #include "Chronometer.h"
 #include "Crypto.h"
+#include "Subtask.h"
 #include "ThreadPoolBase.h"
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
@@ -34,6 +35,7 @@ protected:
   HEADER _header;
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder;
+  Subtasks _task;
   static std::atomic<bool> _closeFlag;
   static thread_local std::string _buffer;
 public:

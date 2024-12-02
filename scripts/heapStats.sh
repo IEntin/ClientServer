@@ -10,6 +10,10 @@
 
 # valgrind --leak-check=full --show-leak-kinds=all
 
+# valgrind --tool=massif ./clientX > /dev/null
+
+# valgrind --tool=massif ./serverX
+
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 echo "SCRIPT_DIR:" $SCRIPT_DIR
 

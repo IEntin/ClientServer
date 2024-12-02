@@ -10,10 +10,6 @@
 #include "IOUtility.h"
 #include "Logger.h"
 
-Subtask TaskBuilder::_emptySubtask;
-
-Subtasks TaskBuilder::_emptyTask;
-
 TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
   _crypto(crypto), _subtasks(1) {
   _aggregate.reserve(ClientOptions::_bufferSize);
@@ -43,6 +39,7 @@ void TaskBuilder::run() {
 }
 
 std::tuple<STATUS, Subtasks&> TaskBuilder::getResult() {
+  static Subtasks emptyTask;
   STATUS state = STATUS::NONE;
   do {
     Subtask& subtask = getSubtask();
@@ -50,20 +47,21 @@ std::tuple<STATUS, Subtasks&> TaskBuilder::getResult() {
     switch (state) {
     case STATUS::ERROR:
       LogError << "TaskBuilder failed." << '\n';
-      return { STATUS::ERROR, _emptyTask };
+      return { STATUS::ERROR, emptyTask };
     case STATUS::SUBTASK_DONE:
     case STATUS::TASK_DONE:
       break;
     default:
-      return { STATUS::ERROR, _emptyTask };
+      return { STATUS::ERROR, emptyTask };
     }
   } while (state == STATUS::SUBTASK_DONE);
   return { STATUS::NONE, _subtasks };
 }
 
 Subtask& TaskBuilder::getSubtask() {
+  static Subtask emptySubtask;
   std::unique_lock lock(_mutex);
-  std::reference_wrapper subtaskRef = _emptySubtask;
+  std::reference_wrapper subtaskRef = emptySubtask;
   _condition.wait(lock, [&] () {
     if (_subtaskIndexConsumed < _subtasks.size()) {
       if (_status == STATUS::ERROR)
@@ -76,7 +74,7 @@ Subtask& TaskBuilder::getSubtask() {
     return false;
   });
   if (_stopped)
-    return _emptySubtask;
+    return emptySubtask;
   _subtaskIndexConsumed.fetch_add(1);
   return subtaskRef.get();
 }
@@ -132,7 +130,8 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   else
     subtaskRef = _subtasks.emplace_back();
   Subtask& subtask = subtaskRef.get();
-  subtask._data.assign(_aggregate);
+  subtask._data.resize(_aggregate.size());
+  std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   _condition.notify_one();
   return subtask._state;
@@ -148,8 +147,7 @@ void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return;
-  for (auto& subtask : _subtasks)
-    subtask._state = STATUS::NONE;
+  Subtask::clearTask(_subtasks);
   _subtaskIndexConsumed = 0;
   _subtaskIndexProduced = 0;
   _resume = true;
