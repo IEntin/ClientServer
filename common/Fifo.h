@@ -40,12 +40,14 @@ public:
     printHeader(header, LOG_LEVEL::INFO);
     std::size_t payload2Size = extractParameter(header);
     std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
-    if (payload1Size > 0)
-      payload1 =
-	{ reinterpret_cast<decltype(payload1.data())>(payload.data()) + HEADER_SIZE, payload1Size };
-    if (payload2Size > 0)
-      payload2 =
-	{ reinterpret_cast<decltype(payload2.data())>(payload.data()) + HEADER_SIZE + payload1Size, payload2Size };
+    if (payload1Size > 0) {
+      payload1.resize(payload1Size);
+      std::memcpy(payload1.data(), payload.data() + HEADER_SIZE, payload1Size);
+    }
+    if (payload2Size > 0) {
+      payload2.resize(payload2Size);
+      std::memcpy(payload2.data(), payload.data() + HEADER_SIZE + payload1Size, payload2Size);
+    }
     return true;
   }
 

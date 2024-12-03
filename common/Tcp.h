@@ -38,14 +38,16 @@ public:
       payload.resize(size);
       if (!readMessage(socket, payload, size))
 	return false;
-      payload1 = { reinterpret_cast<decltype(payload1.data())>(payload.data()), size };
+      payload1.resize(size);
+      std::memcpy(payload1.data(), payload.data(), size);
     }
     size = extractParameter(header);
     if (size != 0) {
       payload.resize(size);
       if (!readMessage(socket, payload, size))
 	return false;
-      payload2 = { reinterpret_cast<decltype(payload2.data())>(payload.data()), size };
+      payload2.resize(size);
+      std::memcpy(payload2.data(), payload.data(), size);
     }
     return true;
   }
