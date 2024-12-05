@@ -21,11 +21,11 @@ wget https://botan.randombit.net/releases/$1
 tar -xJvf $1 $botanBaseName
 mkdir -p /usr/local/lib/botan
 cd $botanBaseName
-./configure.py
+./configure.py --cc=clang
 make -j4
 make check
 make install
-mv /usr/local/lib/libbotan-3.a /usr/local/lib/botan
+mv /usr/local/lib/libbotan-3.a /usr/local/lib/botan/libbotan.a
 mkdir -p /usr/local/include/botan
 mv /usr/local/include/botan-3/botan/*.h /usr/local/include/botan
 make clean

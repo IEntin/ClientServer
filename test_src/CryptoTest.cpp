@@ -2,10 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include <cmath>
-
-#include <boost/asio.hpp>
-
 #include "Crypto.h"
 #include <cryptopp/rsa.h>
 

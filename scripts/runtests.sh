@@ -20,5 +20,4 @@ trap SIGHUP SIGINT SIGTERM
 
 NUMBER_CORES=$(nproc)
 
-make -j$NUMBER_CORES testbin
 $UP_DIR/testbin --gtest_repeat=$1 --gtest_break_on_failure

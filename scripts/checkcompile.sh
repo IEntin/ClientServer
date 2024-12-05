@@ -54,6 +54,17 @@ copyClient
 
 sleep 2
 
+# gcc-14: address sanitizer is fixed; thread sanitizer still buggy.
+
+echo
+echo "*** address + ub + leak sanitizer *****"*
+echo
+make cleanall
+make -j$NUMBER_CORES CMPLR=g++ SANITIZE=aul
+copyClient
+
+sleep 2
+
 echo
 echo "***** clang++ compiler *****"
 
