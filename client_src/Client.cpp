@@ -24,6 +24,30 @@ Client::~Client() {
   Trace << '\n';
 }
 
+bool Client::DHFinish(std::string_view clientIdStr, const CryptoPP::SecByteBlock& pubAreceived) {
+  if (!_crypto->handshake(pubAreceived)) {
+    LogError << "handshake failed";
+    return false;
+  }
+  ioutility::fromChars(clientIdStr, _clientId);
+  assert(!isCompressed(_header) && "expected uncompressed");
+  _status = extractStatus(_header);
+  switch (_status) {
+  case STATUS::NONE:
+    break;
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    displayMaxSessionsOfTypeWarn("fifo");
+    break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    displayMaxTotalSessionsWarn();
+    break;
+  default:
+    return false;
+    break;
+  }
+  return true;
+}
+
 // Allows to read and process the source in parts with sizes
 // determined by the buffer size. This reduces memory footprint.
 // For maximum speed the buffer should be large to read the

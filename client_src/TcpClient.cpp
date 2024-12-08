@@ -13,13 +13,12 @@ namespace tcp {
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(utility::createErrorString());
-  const auto& pubKey = _crypto->getPubKey();
-  std::size_t pubKeySz = pubKey.size();
-  std::string_view serializedRsaKey = _crypto->getSerializedRsaPubKey();
-  std::size_t rsaStrSz = serializedRsaKey.size();
-  HEADER header =
-    { HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, rsaStrSz };
-  Tcp::sendMsg(_socket, header, pubKey, serializedRsaKey);
+  auto lambda = [this] (
+    const HEADER& header, const CryptoPP::SecByteBlock& pubKey, std::string_view serializedRsaKey) {
+    return Tcp::sendMsg(_socket, header, pubKey, serializedRsaKey);
+  };
+  if (!init(lambda))
+    throw std::runtime_error("TcpClient::init failed");
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
@@ -74,30 +73,14 @@ bool TcpClient::receive() {
 }
 
 bool TcpClient::receiveStatus() {
+  if (_status != STATUS::NONE)
+    return false;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
   if (!Tcp::readMsg(_socket, _header, clientIdStr, pubAreceived))
     return false;
-  if (!_crypto->handshake(pubAreceived)) {
-    LogError << "handshake failed";
+  if (!DHFinish(clientIdStr, pubAreceived))
     return false;
-  }
-  ioutility::fromChars(clientIdStr, _clientId);
-  assert(!isCompressed(_header) && "expected uncompressed");
-  _status = extractStatus(_header);
-  switch (_status) {
-  case STATUS::NONE:
-    break;
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn("tcp");
-    break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    displayMaxTotalSessionsWarn();
-    break;
-  default:
-    return false;
-    break;
-  }
   startHeartbeat();
   return true;
 }

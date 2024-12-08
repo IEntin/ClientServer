@@ -10,6 +10,7 @@
 
 #include "Crypto.h"
 #include "Header.h"
+#include "IOUtility.h"
 
 class Server;
 
@@ -29,10 +30,26 @@ protected:
   ServerWeakPtr _server;
   static thread_local std::string _buffer;
 
-  Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB);
+  Session(ServerWeakPtr server,
+	  const CryptoPP::SecByteBlock& pubB,
+	  std::string_view rsaPubBserialized);
   virtual ~Session();
   std::string_view buildReply(std::atomic<STATUS>& status);
   bool processTask();
+
+  template <typename L>
+  void sendStatusToClient(L& lambda, STATUS status) {
+    if (auto server = _server.lock(); server) {
+      std::string clientIdStr;
+      ioutility::toChars(_clientId, clientIdStr);
+      unsigned size = clientIdStr.size();
+      const auto& pubA(_crypto->getPubKey());
+      HEADER header
+	{ HEADERTYPE::DH_HANDSHAKE, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
+      lambda(header, clientIdStr, pubA);
+    }
+  }
+
   void displayCapacityCheck(unsigned totalNumberObjects,
 			    unsigned numberObjects,
 			    unsigned numberRunningByType,

@@ -9,15 +9,18 @@
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
-#include "Utility.h"
 
 thread_local std::string Session::_buffer;
 
-Session::Session(ServerWeakPtr server, const CryptoPP::SecByteBlock& pubB) :
+Session::Session(ServerWeakPtr server,
+		 const CryptoPP::SecByteBlock& pubB,
+		 std::string_view rsaPubBserialized) :
   _crypto(std::make_shared<Crypto>(pubB)),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
+  if (!_crypto->decodeRsaPeerPublicKey(rsaPubBserialized))
+    throw std::runtime_error("rsa key decode failed");
 }
 
 Session::~Session() {

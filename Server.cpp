@@ -15,7 +15,6 @@
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include "TcpSession.h"
-#include "Utility.h"
 
 Server::Server(Policy& policy) :
   _chronometer(ServerOptions::_timing),

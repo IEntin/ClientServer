@@ -6,6 +6,7 @@
 
 #include "Chronometer.h"
 #include "Crypto.h"
+#include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
@@ -28,6 +29,20 @@ protected:
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;
+
+  template <typename L>
+  bool init(L& lambda) {
+    const auto& pubKey = _crypto->getPubKey();
+    std::size_t pubKeySz = pubKey.size();
+    std::string_view serializedRsaKey = _crypto->getSerializedRsaPubKey();
+    std::size_t rsaStrSz = serializedRsaKey.size();
+    HEADER header =
+      { HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, rsaStrSz };
+    return lambda(header, pubKey, serializedRsaKey);
+  }
+
+  bool DHFinish(std::string_view clientIdStr, const CryptoPP::SecByteBlock& pubAreceived);
+
   std::size_t _clientId;
   Chronometer _chronometer;
   ThreadPoolBase _threadPoolClient;

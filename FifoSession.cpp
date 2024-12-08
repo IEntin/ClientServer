@@ -8,7 +8,6 @@
 #include <sys/stat.h>
 
 #include "Fifo.h"
-#include "IOUtility.h"
 #include "Server.h"
 #include "ServerOptions.h"
 
@@ -18,10 +17,7 @@ FifoSession::FifoSession(ServerWeakPtr server,
 			 const CryptoPP::SecByteBlock& pubB,
 			 std::string_view rsaPubBserialized) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, pubB) {
-  if (!_crypto->decodeRsaPeerPublicKey(rsaPubBserialized))
-    throw std::runtime_error("rsa key decode failed");
-}
+  Session(server, pubB, rsaPubBserialized) {}
 
 FifoSession::~FifoSession() {
   try {
@@ -92,15 +88,11 @@ bool FifoSession::sendResponse() {
 }
 
 void FifoSession::sendStatusToClient() {
-  if (auto server = _server.lock(); server) {
-    std::string clientIdStr;
-    ioutility::toChars(_clientId, clientIdStr);
-    unsigned size = clientIdStr.size();
-    const auto& pubA(_crypto->getPubKey());
-    HEADER header
-      { HEADERTYPE::DH_HANDSHAKE, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, pubA.size() };
-    Fifo::sendMsg(ServerOptions::_acceptorName, header, clientIdStr, pubA);
-  }
+  auto lambda = [] (
+    const HEADER& header, std::string_view idStr, const CryptoPP::SecByteBlock& pubA) {
+    Fifo::sendMsg(ServerOptions::_acceptorName, header, idStr, pubA);
+  };
+  Session::sendStatusToClient(lambda, _status);
 }
 
 void FifoSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {

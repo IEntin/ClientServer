@@ -6,7 +6,6 @@
 
 #include <array>
 
-#include "IOUtility.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"
@@ -19,14 +18,11 @@ TcpSession::TcpSession(ServerWeakPtr server,
 		       const CryptoPP::SecByteBlock& pubB,
 		       std::string_view rsaPubBserialized) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, pubB),
+  Session(server, pubB, rsaPubBserialized),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
-  _timeoutTimer(_ioContext) {
-  if (!_crypto->decodeRsaPeerPublicKey(rsaPubBserialized))
-    throw std::runtime_error("rsa key decode failed");
-}
+  _timeoutTimer(_ioContext) {}
 
 TcpSession::~TcpSession() {
   Trace << '\n';
@@ -45,15 +41,11 @@ bool TcpSession::start() {
 }
 
 void TcpSession::sendStatusToClient() {
-  if (auto server = _server.lock(); server) {
-    std::string clientIdStr;
-    ioutility::toChars(_clientId, clientIdStr);
-    unsigned size = clientIdStr.size();
-    const auto& pubA(_crypto->getPubKey());
-    HEADER header
-      { HEADERTYPE::DH_HANDSHAKE, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, pubA.size() };
-    Tcp::sendMsg(_socket, header, clientIdStr, pubA);
-  }
+  auto lambda = [this] (
+    const HEADER& header, std::string_view idStr, const CryptoPP::SecByteBlock& pubA) {
+    Tcp::sendMsg(_socket, header, idStr, pubA);
+  };
+  Session::sendStatusToClient(lambda, _status);
 }
 
 void TcpSession::run() noexcept {

@@ -102,9 +102,10 @@ void decryptDecompress(std::string& buffer,
     std::string_view headerView = std::string_view(data.data(), HEADER_SIZE);
     deserialize(header, headerView.data());
     data.erase(0, HEADER_SIZE);
-    std::size_t uncomprSize = extractUncompressedSize(header);
-    if (isCompressed(header))
+    if (isCompressed(header)) {
+      std::size_t uncomprSize = extractUncompressedSize(header);
       compression::uncompress(buffer, data, uncomprSize);
+    }
   }
 }
 

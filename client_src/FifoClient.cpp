@@ -20,7 +20,7 @@ constexpr int FIFO_CLIENT_POLLING_PERIOD = 250;
 
 namespace fifo {
 
-FifoClient::FifoClient() : _acceptorName(ClientOptions::_acceptorName) {
+FifoClient::FifoClient()  {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, utility::FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   if (!wakeupAcceptor())
@@ -78,13 +78,11 @@ bool FifoClient::receive() {
 }
 
 bool FifoClient::wakeupAcceptor() {
-  const auto& pubKey = _crypto->getPubKey();
-  std::size_t pubKeySz = pubKey.size();
-  std::string_view serializedRsaKey = _crypto->getSerializedRsaPubKey();
-  std::size_t rsaStrSz = serializedRsaKey.size();
-  HEADER header =
-    { HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, rsaStrSz };
-  return Fifo::sendMsg(_acceptorName, header, pubKey, serializedRsaKey);
+  auto lambda = [] (
+    const HEADER& header, const CryptoPP::SecByteBlock& pubKey, std::string_view serializedRsaKey) {
+    return Fifo::sendMsg(ClientOptions::_acceptorName, header, pubKey, serializedRsaKey);
+  };
+  return init(lambda);
 }
 
 bool FifoClient::receiveStatus() {
@@ -92,29 +90,12 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  if (!Fifo::readMsg(_acceptorName, true, _header, clientIdStr, pubAreceived))
+  if (!Fifo::readMsg(ClientOptions::_acceptorName, true, _header, clientIdStr, pubAreceived))
     return false;
-  if (!_crypto->handshake(pubAreceived)) {
-    LogError << "handshake failed";
+  if (!DHFinish(clientIdStr, pubAreceived))
     return false;
-  }
-  ioutility::fromChars(clientIdStr, _clientId);
-  _status = extractStatus(_header);
   _fifoName = ClientOptions::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
-  switch (_status) {
-  case STATUS::NONE:
-    break;
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn("fifo");
-    break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    displayMaxTotalSessionsWarn();
-    break;
-  default:
-    return false;
-    break;
-  }
   startHeartbeat();
   return true;
 }
