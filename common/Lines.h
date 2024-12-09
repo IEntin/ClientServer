@@ -19,13 +19,13 @@ class Lines {
   // backed up by the buffer. Otherwise use a string.
   template <typename S>
   bool getLine(S& line) {
-    std::string_view view;
-    if (!getLineImpl(view))
+    auto [success, lineView] = getLineImpl();
+    if (!success)
       return false;
-    line = view;
+    line = lineView;
     return true;
   }
-  bool getLineImpl(std::string_view& line);
+  std::pair<bool, std::string_view> getLineImpl();
   long _index = -1;
   bool _last = false;
  protected:

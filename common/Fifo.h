@@ -12,6 +12,8 @@
 
 namespace fifo {
 
+static constexpr std::size_t BUFFER_SIZE = 50000;
+
 class Fifo {
   Fifo() = delete;
   ~Fifo() = delete;

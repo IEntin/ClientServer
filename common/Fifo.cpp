@@ -110,7 +110,6 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1)
     return false;
-  static constexpr std::size_t BUFFER_SIZE = 10000;
   char buffer[BUFFER_SIZE] = {};
   while (true) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
@@ -131,7 +130,6 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     return false;
   utility::CloseFileDescriptor cfdr(fd);
   while (true) {
-    static constexpr std::size_t BUFFER_SIZE = 10000;
     char buffer[BUFFER_SIZE] = {};
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1) {
