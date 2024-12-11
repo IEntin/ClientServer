@@ -79,8 +79,8 @@ bool FifoClient::receive() {
 
 bool FifoClient::wakeupAcceptor() {
   auto lambda = [] (
-    const HEADER& header, const CryptoPP::SecByteBlock& pubKey, std::string_view serializedRsaKey) {
-    return Fifo::sendMsg(ClientOptions::_acceptorName, header, pubKey, serializedRsaKey);
+    const HEADER& header, const CryptoPP::SecByteBlock& pubKey, std::string_view signedAuth) {
+    return Fifo::sendMsg(ClientOptions::_acceptorName, header, pubKey, signedAuth);
   };
   return init(lambda);
 }

@@ -27,12 +27,12 @@ protected:
   Response _response;
   TaskPtr _task;
   std::string _responseData;
+  std::string _buffer;
   ServerWeakPtr _server;
-  static thread_local std::string _buffer;
 
   Session(ServerWeakPtr server,
 	  const CryptoPP::SecByteBlock& pubB,
-	  std::string_view rsaPubBserialized);
+	  std::string_view signatureWithPubKey);
   virtual ~Session();
   std::string_view buildReply(std::atomic<STATUS>& status);
   bool processTask();

@@ -99,14 +99,16 @@ bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
 }
 
 void Crypto::signPassword() {
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_peerRsaPubKey);
+  CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
   CryptoPP::StringSource ss(_password.data(),
     true,
     new CryptoPP::SignerFilter(_rng,
       signer,
-      new CryptoPP::StringSink(_signature)
-    )
+      new CryptoPP::StringSink(_signatureWithPubKey))
   );
+  _signatureWithPubKey.insert(_signatureWithPubKey.cend(),
+			      _serializedRsaPubKey.cbegin(),
+			      _serializedRsaPubKey.cend());
 }
 
 std::pair<bool, std::string>
@@ -114,10 +116,10 @@ Crypto::encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey) {
   std::string serialized;
   try {
     CryptoPP::StringSink sink{ serialized };
-    CryptoPP::RSA::PublicKey{ privateKey }.DEREncode(sink);
+    CryptoPP::RSA::PublicKey(privateKey).DEREncode(sink);
     return { true, serialized };
   }
-  catch (const CryptoPP::Exception& e) {
+  catch (const std::exception& e) {
     LogError << e.what() << '\n';
     return { false, "" };
   }
@@ -130,12 +132,23 @@ bool Crypto::decodeRsaPublicKey(std::string_view serializedKey,
     publicKey.Load(pubKeySource);
     return true;
   }
-  catch (const CryptoPP::Exception& e) {
+  catch (const std::exception& e) {
     LogError << e.what() << '\n';
     return false;
   }
 }
 
-bool Crypto::decodeRsaPeerPublicKey(std::string_view serializedKey) {
-  return decodeRsaPublicKey(serializedKey, _peerRsaPubKey);
+void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
+  if (!decodeRsaPublicKey(rsaPubBserialized, _peerRsaPubKey))
+    throw std::runtime_error("rsa key decode failed");
+}
+
+bool Crypto::verifySignature(const std::string& signature) {
+  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
+  bool verified = verifier.VerifyMessage(
+    reinterpret_cast<const CryptoPP::byte*>(_password.data()), _password.length(),
+    reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
+  if (!verified)
+    throw std::runtime_error("Failed to verify signature");
+  return true;
 }

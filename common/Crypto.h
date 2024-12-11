@@ -14,6 +14,7 @@
 
 constexpr std::u8string_view endTag = u8"r2345ufg5432105t";
 constexpr std::size_t rsaKeySize = 2048;
+constexpr std::size_t SIGNATURE_SIZE = 256;
 
 using CryptoPtr = std::shared_ptr<class Crypto>;
 
@@ -27,9 +28,10 @@ class Crypto {
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
   CryptoPP::RSA::PublicKey _rsaPubKey;
-  std::string _serializedRsaPubKey;
   CryptoPP::RSA::PublicKey _peerRsaPubKey;
-  std::string _signature;
+  std::string _serializedRsaPubKey;
+  std::string _signatureWithPubKey;
+  static const CryptoPP::OID _curve;
   // temp
   const std::string_view _password;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
@@ -38,9 +40,6 @@ class Crypto {
     dh.GenerateKeyPair(_rng, priv, pub);
     return true;
   }
-
-  void signPassword();
-
   void showKeyIv(const CryptoPP::SecByteBlock& iv);
 public:
   Crypto();
@@ -49,15 +48,13 @@ public:
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
-  std::string_view getSerializedRsaPubKey() const { return _serializedRsaPubKey; }
-  std::string_view getSignature() const { return _signature; }
+  std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
   bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
-
+  void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
+  void signPassword();
+  bool verifySignature(const std::string& signature);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
-
-  bool decodeRsaPeerPublicKey(std::string_view serializedKey);
-  static const CryptoPP::OID _curve;
 };

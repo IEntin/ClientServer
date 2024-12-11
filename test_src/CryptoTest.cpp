@@ -75,32 +75,34 @@ TEST(AuthenticationTest, 1) {
   privateKey.GenerateRandomWithKeySize(rng, rsaKeySize);
   CryptoPP::RSA::PublicKey publicKey;
   publicKey.AssignFrom(privateKey);
-  // Message to sign
-  std::string message("authenticating...");
-  // Sign the message
+  // Password to sign
+  std::string password("test password");
+  // Sign the password
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
   std::string signature;
-  CryptoPP::StringSource ss(message,
-    true, 
-    new CryptoPP::SignerFilter(rng,
-      signer,
-      new CryptoPP::StringSink(signature)
-    )
-  );
-  // Verify the signature
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(publicKey);
-  bool result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length()
-  );
-  ASSERT_TRUE(result);
-}
-
-TEST(CryptoKeySerializationTest, 1) {
-  auto crypto(std::make_shared<Crypto>());
-  CryptoPP::RSA::PrivateKey privateKey;
-  auto [success, serialized] = crypto->encodeRsaPublicKey(privateKey);
+  CryptoPP::StringSource ss(password, true, new CryptoPP::SignerFilter(
+    rng, signer, new CryptoPP::StringSink(signature)));
+  ASSERT_EQ(signature.size(), SIGNATURE_SIZE);
+  // Transfer the key and the signature
+  // send
+  Crypto crypto;
+  auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
   ASSERT_TRUE(success);
-  CryptoPP::RSA::PublicKey publicKey;
-  ASSERT_TRUE(crypto->decodeRsaPublicKey(serialized, publicKey));
+  serialized.insert(serialized.begin(), signature.cbegin(), signature.cend());
+  // receive
+  std::string receivedSignature(serialized.cbegin(), serialized.cbegin() + SIGNATURE_SIZE);
+  std::string_view serializedRsaPublicKey(serialized.cbegin() + SIGNATURE_SIZE, serialized.cend());
+  CryptoPP::RSA::PublicKey receivedRsaPublicKey;
+  ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
+  // Verify the signature
+  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
+  bool result = verifier.VerifyMessage(
+    reinterpret_cast<const CryptoPP::byte*>(password.data()), password.length(),
+    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
+  ASSERT_TRUE(result);
+  receivedSignature.erase(receivedSignature.cend() -1);
+  result = verifier.VerifyMessage(
+    reinterpret_cast<const CryptoPP::byte*>(password.data()), password.length(),
+    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
+  ASSERT_FALSE(result);
 }

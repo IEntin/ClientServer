@@ -14,8 +14,8 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(utility::createErrorString());
   auto lambda = [this] (
-    const HEADER& header, const CryptoPP::SecByteBlock& pubKey, std::string_view serializedRsaKey) {
-    return Tcp::sendMsg(_socket, header, pubKey, serializedRsaKey);
+    const HEADER& header, const CryptoPP::SecByteBlock& pubKey, std::string_view signedAuth) {
+    return Tcp::sendMsg(_socket, header, pubKey, signedAuth);
   };
   if (!init(lambda))
     throw std::runtime_error("TcpClient::init failed");

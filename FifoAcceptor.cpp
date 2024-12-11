@@ -38,13 +38,13 @@ FifoAcceptor::unblockAcceptor() {
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, pubB, rsaPubB] = unblockAcceptor();
+    auto [type, pubB, signatureWithPubKey] = unblockAcceptor();
     if (_stopped)
       break;
     switch (type) {
     case HEADERTYPE::DH_INIT:
       if (auto server = _server.lock(); server)
-	server->createFifoSession(pubB, rsaPubB);
+	server->createFifoSession(pubB, signatureWithPubKey);
       break;
     default:
       break;

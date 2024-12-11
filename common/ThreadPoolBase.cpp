@@ -11,7 +11,11 @@
 ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
-  assert(_threads.empty());
+  if (!_threads.empty()) {
+    LogError << "_threads are not empty; exiting.\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::exit(1);
+  }
   Trace << '\n';
 }
 

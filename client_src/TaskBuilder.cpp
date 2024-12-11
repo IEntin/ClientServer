@@ -25,7 +25,7 @@ void TaskBuilder::run() {
     try {
       // can be a new or the same source for tests.
       FileLines lines(ClientOptions::_sourceName, '\n', true);
-      while (createSubtask(lines) == STATUS::SUBTASK_DONE) {}
+      while (createSubtask(lines) == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
       _condition.wait(lock, [this] { return _resume || _stopped; });
     }
@@ -38,7 +38,7 @@ void TaskBuilder::run() {
   }
 }
 
-std::tuple<STATUS, Subtasks&> TaskBuilder::getResult() {
+std::pair<STATUS, Subtasks&> TaskBuilder::getTask() {
   static Subtasks emptyTask;
   STATUS state = STATUS::NONE;
   do {

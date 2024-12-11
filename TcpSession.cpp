@@ -16,9 +16,9 @@ namespace tcp {
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
 		       const CryptoPP::SecByteBlock& pubB,
-		       std::string_view rsaPubBserialized) :
+		       std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, pubB, rsaPubBserialized),
+  Session(server, pubB, signatureWithPubKey),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
