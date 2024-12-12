@@ -17,11 +17,12 @@ Session::Session(ServerWeakPtr server,
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  std::string_view signature(signatureWithPubKey.data(), SIGNATURE_SIZE);
+  std::string signature(signatureWithPubKey.data(), SIGNATURE_SIZE);
   std::string_view rsaPubKeySerialized(
     signatureWithPubKey.cbegin() + SIGNATURE_SIZE, signatureWithPubKey.cend());
   _crypto->decodePeerRsaPublicKey(rsaPubKeySerialized);
-  
+  if (!_crypto->verifySignature(signature))
+    throw std::runtime_error("signature verification failed.");
 }
 
 Session::~Session() {

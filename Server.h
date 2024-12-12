@@ -28,6 +28,7 @@ public:
   void createTcpSession(tcp::ConnectionPtr connection,
 			const CryptoPP::SecByteBlock& pubB,
 			std::string_view rsaPubB);
+  static void removeNamedMutex();
 private:
   bool startSession(RunnablePtr runnable, SessionPtr session);
   void stopSessions();

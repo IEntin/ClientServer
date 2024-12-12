@@ -20,7 +20,7 @@ wget https://github.com/weidai11/cryptopp/releases/download/CRYPTOPP_8_9_0/$1
 unzip -aoq $1 -d $cryptoppBaseName
 mkdir -p /usr/local/lib/cryptopp
 cd $cryptoppBaseName
-CXX=clang++ make libcryptopp.a libcryptopp.so cryptest.exe CXXFLAGS="-O3 -fPIC -pipe" -j4
+CXX=clang++ make libcryptopp.a libcryptopp.so cryptest.exe CXXFLAGS="-g -O3 -fPIC -pipe" -j4
 cp -f libcryptopp.a /usr/local/lib/cryptopp
 mkdir -p /usr/local/include/cryptopp
 cp /usr/local/$cryptoppBaseName/*.h /usr/local/include/cryptopp

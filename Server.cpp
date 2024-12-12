@@ -23,7 +23,7 @@ Server::Server(Policy& policy) :
   // leaving mutex locked, run serverX or testbin in this case
   // so that all processes are on the same host rather than
   // rebooting machine:
-  boost::interprocess::named_mutex::remove(utility::FIFO_NAMED_MUTEX);
+  removeNamedMutex();
   policy.set();
 }
 
@@ -92,4 +92,8 @@ void Server::stopSessions() {
   for (auto& pr : _sessions)
     if (auto session = pr.second.lock(); session)
       session->stop();
+}
+
+void Server::removeNamedMutex() {
+  boost::interprocess::named_mutex::remove(utility::FIFO_NAMED_MUTEX);
 }

@@ -13,6 +13,7 @@
 void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
+  atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGINT, signalHandler);
