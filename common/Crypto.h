@@ -33,7 +33,7 @@ class Crypto {
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
   // temp
-  const std::string_view _password;
+  const std::string_view _message;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub) {
@@ -53,7 +53,7 @@ public:
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
-  void signPassword();
+  void signMessage();
   bool verifySignature(const std::string& signature);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);

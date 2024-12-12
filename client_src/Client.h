@@ -34,7 +34,7 @@ protected:
   bool init(L& lambda) {
     const auto& pubKey = _crypto->getPubKey();
     std::size_t pubKeySz = pubKey.size();
-    _crypto->signPassword();
+    _crypto->signMessage();
     std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
      std::size_t signatureDataSz = signatureWithPubKey.size();
     HEADER header =

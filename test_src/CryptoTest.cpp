@@ -75,12 +75,12 @@ TEST(AuthenticationTest, 1) {
   privateKey.GenerateRandomWithKeySize(rng, rsaKeySize);
   CryptoPP::RSA::PublicKey publicKey;
   publicKey.AssignFrom(privateKey);
-  // Password to sign
-  std::string password("test password");
-  // Sign the password
+  // Message to sign
+  std::string message("test message");
+  // Sign the message
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
   std::string signature;
-  CryptoPP::StringSource ss(password, true, new CryptoPP::SignerFilter(
+  CryptoPP::StringSource ss(message, true, new CryptoPP::SignerFilter(
     rng, signer, new CryptoPP::StringSink(signature)));
   ASSERT_EQ(signature.size(), SIGNATURE_SIZE);
   // Transfer the key and the signature
@@ -97,12 +97,12 @@ TEST(AuthenticationTest, 1) {
   // Verify the signature
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
   bool result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(password.data()), password.length(),
+    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
     reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
   ASSERT_TRUE(result);
   receivedSignature.erase(receivedSignature.cend() -1);
   result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(password.data()), password.length(),
+    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
     reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
   ASSERT_FALSE(result);
 }

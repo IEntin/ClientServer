@@ -11,14 +11,14 @@
 #include "ServerOptions.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
-const std::string TEST_PASSWORD("!TEST_PASSWORD!");
+const std::string TEST_MESSAGE("!TEST_MESSAGE!");
 // server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _password(TEST_PASSWORD) {
+  _message(TEST_MESSAGE) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
@@ -32,7 +32,7 @@ Crypto::Crypto() :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _password(TEST_PASSWORD) {
+  _message(TEST_MESSAGE) {
   generateKeyPair(_dh, _privKey, _pubKey);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
@@ -101,9 +101,9 @@ bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   return _dh.Agree(_key, _privKey, pubAreceived);
 }
 
-void Crypto::signPassword() {
+void Crypto::signMessage() {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
-  CryptoPP::StringSource ss(_password.data(),
+  CryptoPP::StringSource ss(_message.data(),
     true,
     new CryptoPP::SignerFilter(_rng,
       signer,
@@ -149,7 +149,7 @@ void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 bool Crypto::verifySignature(const std::string& signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
   bool verified = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(_password.data()), _password.length(),
+    reinterpret_cast<const CryptoPP::byte*>(_message.data()), _message.length(),
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
   if (!verified)
     throw std::runtime_error("Failed to verify signature");
