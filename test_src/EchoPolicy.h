@@ -14,7 +14,7 @@ class EchoPolicy : public Policy {
 
  public:
 
-  EchoPolicy() = default;
+  EchoPolicy() {}
 
-  ~EchoPolicy() override = default;
+  ~EchoPolicy() override {}
 };

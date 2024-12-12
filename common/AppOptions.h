@@ -12,7 +12,7 @@
 class AppOptions : private boost::noncopyable {
  public:
   explicit AppOptions(std::string_view fileName);
-  ~AppOptions() = default;
+  ~AppOptions() {}
 
   template<typename T>
     const T get(const std::string& name, const T& def) const {

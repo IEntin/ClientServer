@@ -13,10 +13,14 @@
 namespace tcp {
 
 bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
-  static const auto ipAdress =
-    boost::asio::ip::address::from_string(ClientOptions::_serverAddress);
-  static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
   boost::system::error_code ec;
+  static const auto ipAdress =
+    boost::asio::ip::make_address(ClientOptions::_serverAddress, ec);
+  if (ec) {
+    LogError << ec.what() << '\n';
+    return false;
+  }
+  static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
   socket.connect(endpoint, ec);
   if (ec) {
     LogError << ec.what() << '\n';

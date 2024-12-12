@@ -12,8 +12,8 @@
 using Subtasks = std::deque<struct Subtask>;
 
 struct Subtask {
-  Subtask() = default;
-  ~Subtask() = default;
+  Subtask() {}
+  ~Subtask() {}
   std::string _data;
   std::atomic<STATUS> _state = STATUS::NONE;
 

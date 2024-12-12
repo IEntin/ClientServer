@@ -157,7 +157,13 @@ void TcpSession::write(std::string_view payload) {
 }
 
 void TcpSession::asyncWait() {
-  _timeoutTimer.expires_from_now(std::chrono::milliseconds(ServerOptions::_tcpTimeout));
+  boost::system::error_code ec;
+  _timeoutTimer.expires_from_now(
+    boost::posix_time::milliseconds(ServerOptions::_tcpTimeout), ec);
+  if (ec) {
+    LogError << ec.what() << '\n';
+    return;
+  }
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
     auto self = weak_from_this().lock();
     if (!self)

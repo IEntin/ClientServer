@@ -33,7 +33,7 @@ struct RequestRow {
 
   RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
 
-  ~RequestRow() = default;
+  ~RequestRow() {}
 
   SIZETUPLE _sizeKey;
   std::string_view _value;

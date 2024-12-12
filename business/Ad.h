@@ -25,7 +25,7 @@ struct AdRow : private boost::noncopyable {
     NUMBEROFFIELDS
   };
   explicit AdRow(std::string_view line);
-
+  ~AdRow() {}
   bool parse();
 
   std::string_view _id;
@@ -39,7 +39,7 @@ struct AdRow : private boost::noncopyable {
 class Ad {
  public:
   explicit Ad(AdRow& row);
-  ~Ad() = default;
+  ~Ad();
   void print(std::string& output) const;
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }

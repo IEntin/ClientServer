@@ -11,7 +11,7 @@
 class FileLines : public Lines {
  public:
   FileLines(std::string_view fileName, char delimiter = '\n', bool keepDelimiter = false);
-  ~FileLines() override = default;
+  ~FileLines() override {}
  private:
   std::size_t getInputPosition() override;
   bool refillBuffer() override;

@@ -6,7 +6,6 @@
 
 #include <lz4.h>
 #include <stdexcept>
-#include <vector>
 
 #include "Logger.h"
 

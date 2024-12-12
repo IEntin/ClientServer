@@ -48,6 +48,8 @@ Ad::Ad(AdRow& row) :
   _defaultBid(row._defaultBid),
   _input(row._input.cbegin(), row._input.cend()) {}
 
+Ad::~Ad() {}
+
 void Ad::clear() {
   _mapBySize.clear();
 }

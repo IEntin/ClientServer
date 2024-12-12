@@ -11,17 +11,16 @@
 #include "ServerOptions.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
-
+const std::string TEST_PASSWORD("!TEST_PASSWORD!");
 // server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _password("Guess!" __DATE__ "u8"  __TIME__ "Guessed?") {
+  _password(TEST_PASSWORD) {
   generateKeyPair(_dh, _privKey, _pubKey);
-  bool rtnA = _dh.Agree(_key, _privKey, pubB);
-  if(!rtnA)
+  if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
@@ -33,7 +32,7 @@ Crypto::Crypto() :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _password("Guess!" __DATE__ "u8"  __TIME__ "Guessed?") {
+  _password(TEST_PASSWORD) {
   generateKeyPair(_dh, _privKey, _pubKey);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
@@ -41,6 +40,10 @@ Crypto::Crypto() :
   if (!success)
     throw std::runtime_error("rsa key encode failed");    
   _serializedRsaPubKey.swap(encodedStr);
+}
+
+Crypto::~Crypto() {
+  Trace << '\n';
 }
 
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {

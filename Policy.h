@@ -4,17 +4,15 @@
 
 #pragma once
 
-#include <memory>
-
 class Policy {
 
 protected:
 
-  Policy() = default;
+  Policy() {}
 
 public:
 
-  virtual ~Policy() = default;
+  virtual ~Policy() {}
 
   virtual void set() = 0;
 
