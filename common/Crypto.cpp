@@ -6,19 +6,22 @@
 
 #include <boost/algorithm/hex.hpp>
 
+#include <cryptopp/hex.h>
+
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
-const std::string TEST_MESSAGE("!TEST_MESSAGE!");
+//std::string TEST_MESSAGE = Crypto::hashMessage();
+
 // server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(TEST_MESSAGE) {
+  _message(Crypto::hashMessage()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
@@ -32,7 +35,7 @@ Crypto::Crypto() :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(TEST_MESSAGE) {
+  _message(Crypto::hashMessage()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
@@ -154,4 +157,19 @@ bool Crypto::verifySignature(const std::string& signature) {
   if (!verified)
     throw std::runtime_error("Failed to verify signature");
   return true;
+}
+
+std::string Crypto::hashMessage() {
+  const std::string message = "This message will be hashed!";
+  CryptoPP::SHA256 hash;
+  std::string digest;
+  hash.Update(reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length());
+  digest.resize(hash.DigestSize());
+  hash.Final(reinterpret_cast<CryptoPP::byte*>(digest.data()));
+  CryptoPP::HexEncoder encoder;
+  std::string output;
+  encoder.Attach(new CryptoPP::StringSink(output));
+  encoder.Put(reinterpret_cast<const CryptoPP::byte*>(digest.data()), digest.size());
+  encoder.MessageEnd();
+  return output;
 }
