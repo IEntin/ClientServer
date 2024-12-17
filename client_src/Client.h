@@ -20,6 +20,7 @@ class Client {
 protected:
   std::string _response;
   CryptoPtr _crypto;
+  CryptoWeakPtr _cryptoWeak;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
@@ -32,14 +33,17 @@ protected:
 
   template <typename L>
   bool init(L& lambda) {
-    const auto& pubKey = _crypto->getPubKey();
-    std::size_t pubKeySz = pubKey.size();
-    _crypto->signMessage();
-    std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
-     std::size_t signatureDataSz = signatureWithPubKey.size();
-    HEADER header =
-      { HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
-    return lambda(header, pubKey, signatureWithPubKey);
+    if (auto crypto = _cryptoWeak.lock(); crypto) {
+      const auto& pubKey = _crypto->getPubKey();
+      std::size_t pubKeySz = pubKey.size();
+      _crypto->signMessage();
+      std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
+      std::size_t signatureDataSz = signatureWithPubKey.size();
+      HEADER header =
+	{ HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
+      return lambda(header, pubKey, signatureWithPubKey);
+    }
+    return false;
   }
 
   bool DHFinish(std::string_view clientIdStr, const CryptoPP::SecByteBlock& pubAreceived);

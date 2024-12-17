@@ -32,9 +32,9 @@ Session::~Session() {
 std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
-  _responseData.erase(_responseData.begin(), _responseData.end());
+  _responseData.erase(_responseData.cbegin(), _responseData.cend());
   for (const auto& entry : _response)
-    _responseData.insert(_responseData.end(), entry.begin(), entry.end());
+    _responseData.insert(_responseData.end(), entry.cbegin(), entry.cend());
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };

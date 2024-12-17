@@ -19,7 +19,7 @@ struct Subtask {
 
   static void clearTask(Subtasks& task) {
     for (auto& subtask : task) {
-      subtask._data.erase(subtask._data.begin(), subtask._data.end());
+      subtask._data.erase(subtask._data.cbegin(), subtask._data.cend());
       subtask._state = STATUS::NONE;
     }
   }

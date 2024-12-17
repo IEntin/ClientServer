@@ -61,7 +61,7 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
 }
 
 void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
-  buffer.erase(buffer.begin(), buffer.end());
+  buffer.erase(buffer.cbegin(), buffer.cend());
   if (!encrypt)
     data.insert(data.cend(), endTag.cbegin(), endTag.cend());
   else {
@@ -81,7 +81,7 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
-  buffer.erase(buffer.begin(), buffer.end());
+  buffer.erase(buffer.cbegin(), buffer.cend());
   if (data.ends_with(reinterpret_cast<const char*>(endTag.data())))
     data.erase(data.size() - endTag.size());
   else {
