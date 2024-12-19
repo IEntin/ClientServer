@@ -57,14 +57,12 @@ public:
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
   bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
   void signMessage();
-  bool verifySignature(std::span<uint8_t> signature);
   bool verifySignature(std::span<uint8_t> signature,
 		       const Botan::RSA_PublicKey& rsaPeerPublicKey);
   std::string hashMessage(const std::string& msg);
   bool encodeRsaPublicKey();
   std::pair<bool, std::vector<uint8_t>>
   encodeRsaPublicKey(Botan::RSA_PublicKey& publicKey);
-  bool decodeRsaPublicKey(std::span<const uint8_t> keyBits);
   std::unique_ptr<Botan::RSA_PublicKey>
   deserializeRsaPublicKey(std::span<const uint8_t> keyBits);
 };

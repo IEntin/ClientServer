@@ -148,20 +148,6 @@ Crypto::encodeRsaPublicKey(Botan::RSA_PublicKey& publicKey) {
    return { true, encoded };
 }
 
-bool Crypto::decodeRsaPublicKey(std::span<const uint8_t> keyBits) {
-  try {
-    Botan::BigInt n;
-    Botan::BigInt e;
-    Botan::BER_Decoder(keyBits).start_sequence().decode(n).decode(e).end_cons();
-    _rsaPeerPublicKey = std::make_unique<Botan::RSA_PublicKey>(std::move(n), std::move(e));
-    return true;
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
-}
-
 std::unique_ptr<Botan::RSA_PublicKey>
 Crypto::deserializeRsaPublicKey(std::span<const uint8_t> keyBits) {
   try {
@@ -174,28 +160,6 @@ Crypto::deserializeRsaPublicKey(std::span<const uint8_t> keyBits) {
     LogError << e.what() << '\n';
     throw std::runtime_error("Failed to decode key");
   }
-}
-
-bool Crypto::verifySignature(std::span<uint8_t> signature) {
-  try {
-    Botan::PK_Verifier verifier(*_rsaPeerPublicKey, "EMSA4(SHA-256)");
-    // Update the verifier with the data
-    verifier.update(_message);
-    // Check the signature
-    if (verifier.check_signature(signature)) {
-      std::cout << "Signature is valid.\n";
-      return true;
-    }
-    else {
-      std::cout << "Signature is invalid.\n";
-      return false;
-    }
-  }
-  catch (const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return false;
-  }
-  return true;
 }
 
 bool Crypto::verifySignature(
