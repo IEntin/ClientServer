@@ -8,12 +8,18 @@
 
 #include <cryptopp/hex.h>
 
+#include <botan/ber_dec.h>
+#include <botan/der_enc.h>
+#include <botan/hash.h>
+#include <botan/hex.h>
+#include <botan/pk_keys.h>
+#include <botan/pubkey.h>
+
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
-//std::string TEST_MESSAGE = Crypto::hashMessage();
 
 // server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
@@ -21,12 +27,12 @@ Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()) {
+  _privRSAkey(_botanRng, RSA_KEY_SIZE),
+  _pubRSAKey(_privRSAkey),
+  _message(Crypto::hashMessage(TEST_MESSAGE)) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
-  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
-  _rsaPubKey.AssignFrom(_rsaPrivKey);
 }
 
 // client
@@ -35,14 +41,12 @@ Crypto::Crypto() :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()) {
+  _privRSAkey(_botanRng, RSA_KEY_SIZE),
+  _pubRSAKey(_privRSAkey),
+  _message(Crypto::hashMessage(TEST_MESSAGE)) {
   generateKeyPair(_dh, _privKey, _pubKey);
-  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
-  _rsaPubKey.AssignFrom(_rsaPrivKey);
-  auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
-  if (!success)
-    throw std::runtime_error("rsa key encode failed");    
-  _serializedRsaPubKey.swap(encodedStr);
+  if (!encodeRsaPublicKey())
+    throw std::runtime_error("rsa key encode failed");
 }
 
 Crypto::~Crypto() {
@@ -104,38 +108,30 @@ bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   return _dh.Agree(_key, _privKey, pubAreceived);
 }
 
+std::string Crypto::hashMessage(const std::string& msg) {
+  const auto hash = Botan::HashFunction::create_or_throw("SHA-256");
+  hash->update(reinterpret_cast<const uint8_t*>(msg.data()), msg.length());
+  return Botan::hex_encode(hash->final());
+}
+
 void Crypto::signMessage() {
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
-  CryptoPP::StringSource ss(_message.data(),
-    true,
-    new CryptoPP::SignerFilter(_rng,
-      signer,
-      new CryptoPP::StringSink(_signatureWithPubKey))
-  );
+  Botan::PK_Signer signer(_privRSAkey, _botanRng, "EMSA4(SHA-256)");
+  signer.update(_message);
+  std::vector<uint8_t> signature = signer.signature(_botanRng);
+  _signatureWithPubKey.insert(_signatureWithPubKey.cend(),
+			      signature.cbegin(),
+			      signature.cend());
   _signatureWithPubKey.insert(_signatureWithPubKey.cend(),
 			      _serializedRsaPubKey.cbegin(),
 			      _serializedRsaPubKey.cend());
 }
 
-std::pair<bool, std::string>
-Crypto::encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey) {
-  std::string serialized;
+bool Crypto::encodeRsaPublicKey() {
   try {
-    CryptoPP::StringSink sink{ serialized };
-    CryptoPP::RSA::PublicKey(privateKey).DEREncode(sink);
-    return { true, serialized };
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return { false, "" };
-  }
-}
-
-bool Crypto::decodeRsaPublicKey(std::string_view serializedKey,
-				CryptoPP::RSA::PublicKey& publicKey) {
-  try {
-    CryptoPP::StringSource pubKeySource({ serializedKey.data(), serializedKey.size() }, true);
-    publicKey.Load(pubKeySource);
+    std::vector<uint8_t> encoded;
+    Botan::DER_Encoder der(encoded);
+    der.start_sequence().encode(_pubRSAKey.get_n()).encode(_pubRSAKey.get_e()).end_cons();
+    _serializedRsaPubKey.insert(_serializedRsaPubKey.cend(), encoded.cbegin(), encoded.cend());
     return true;
   }
   catch (const std::exception& e) {
@@ -144,32 +140,82 @@ bool Crypto::decodeRsaPublicKey(std::string_view serializedKey,
   }
 }
 
-void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
-  if (!decodeRsaPublicKey(rsaPubBserialized, _peerRsaPubKey))
-    throw std::runtime_error("rsa key decode failed");
+std::pair<bool, std::vector<uint8_t>>
+Crypto::encodeRsaPublicKey(Botan::RSA_PublicKey& publicKey) {
+   std::vector<uint8_t> encoded;
+   Botan::DER_Encoder der(encoded);
+   der.start_sequence().encode(publicKey.get_n()).encode(publicKey.get_e()).end_cons();
+   return { true, encoded };
 }
 
-bool Crypto::verifySignature(const std::string& signature) {
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
-  bool verified = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(_message.data()), _message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
-  if (!verified)
-    throw std::runtime_error("Failed to verify signature");
+bool Crypto::decodeRsaPublicKey(std::span<const uint8_t> keyBits) {
+  try {
+    Botan::BigInt n;
+    Botan::BigInt e;
+    Botan::BER_Decoder(keyBits).start_sequence().decode(n).decode(e).end_cons();
+    _rsaPeerPublicKey = std::make_unique<Botan::RSA_PublicKey>(std::move(n), std::move(e));
+    return true;
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+}
+
+std::unique_ptr<Botan::RSA_PublicKey>
+Crypto::deserializeRsaPublicKey(std::span<const uint8_t> keyBits) {
+  try {
+    Botan::BigInt n;
+    Botan::BigInt e;
+    Botan::BER_Decoder(keyBits).start_sequence().decode(n).decode(e).end_cons();
+    return std::make_unique<Botan::RSA_PublicKey>(std::move(n), std::move(e));
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    throw std::runtime_error("Failed to decode key");
+  }
+}
+
+bool Crypto::verifySignature(std::span<uint8_t> signature) {
+  try {
+    Botan::PK_Verifier verifier(*_rsaPeerPublicKey, "EMSA4(SHA-256)");
+    // Update the verifier with the data
+    verifier.update(_message);
+    // Check the signature
+    if (verifier.check_signature(signature)) {
+      std::cout << "Signature is valid.\n";
+      return true;
+    }
+    else {
+      std::cout << "Signature is invalid.\n";
+      return false;
+    }
+  }
+  catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return false;
+  }
   return true;
 }
 
-std::string Crypto::hashMessage() {
-  const std::string message = "This message will be hashed!";
-  CryptoPP::SHA256 hash;
-  std::string digest;
-  hash.Update(reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length());
-  digest.resize(hash.DigestSize());
-  hash.Final(reinterpret_cast<CryptoPP::byte*>(digest.data()));
-  CryptoPP::HexEncoder encoder;
-  std::string output;
-  encoder.Attach(new CryptoPP::StringSink(output));
-  encoder.Put(reinterpret_cast<const CryptoPP::byte*>(digest.data()), digest.size());
-  encoder.MessageEnd();
-  return output;
+bool Crypto::verifySignature(
+     std::span<uint8_t> signature,
+     const Botan::RSA_PublicKey& rsaPeerPublicKey) {
+  try {
+    Botan::PK_Verifier verifier(rsaPeerPublicKey, "EMSA4(SHA-256)");
+    // Update the verifier with the data
+    verifier.update(_message);
+    // Check the signature
+    if (verifier.check_signature(signature))
+      return true;
+    else {
+      std::cout << "Signature is invalid!\n";
+      return false;
+    }
+  }
+  catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return false;
+  }
+  return true;
 }

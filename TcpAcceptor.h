@@ -26,7 +26,7 @@ private:
   void stop() override;
 
   void accept();
-  std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::string>
+  std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::vector<uint8_t>>
   connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 

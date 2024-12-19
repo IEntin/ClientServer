@@ -17,7 +17,7 @@ thread_local std::string Client::_buffer;
 
 Client::Client() :
   _crypto(std::make_shared<Crypto>()),
-  _cryptoWeak(_crypto),
+  _cryptoWeak( _crypto),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {

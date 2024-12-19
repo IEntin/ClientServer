@@ -26,7 +26,7 @@ class FifoSession final : public RunnableT<FifoSession>,
  public:
   FifoSession(ServerWeakPtr server,
 	      const CryptoPP::SecByteBlock& pubB,
-	      std::string_view signatureWithPubKey);
+	      std::span<uint8_t> signatureWithPubKey);
   ~FifoSession() override;
 };
 

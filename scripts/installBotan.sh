@@ -21,7 +21,7 @@ wget https://botan.randombit.net/releases/$1
 tar -xJvf $1 $botanBaseName
 mkdir -p /usr/local/lib/botan
 cd $botanBaseName
-./configure.py --cc=clang
+./configure.py --cc=clang --without-os-feature=threads --disable-modules=locking_allocator
 make -j4
 make check
 make install

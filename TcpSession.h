@@ -22,7 +22,7 @@ public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
 	     const CryptoPP::SecByteBlock& pubB,
-	     std::string_view rsaPubB);
+	     std::span<uint8_t> signatureWithPubKey);
   ~TcpSession() override;
 
 private:

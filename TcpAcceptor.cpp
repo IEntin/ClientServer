@@ -55,10 +55,10 @@ void TcpAcceptor::run() {
   }
 }
 
-std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::string>
+std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::vector<uint8_t>>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   CryptoPP::SecByteBlock pubB;
-  std::string signatureWithPubKey;
+  std::vector<uint8_t> signatureWithPubKey;
   Tcp::readMsg(socket, _header, pubB, signatureWithPubKey);
   assert(!isCompressed(_header) && "Expected uncompressed");
   return { extractHeaderType(_header), pubB, signatureWithPubKey };

@@ -2,9 +2,16 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Crypto.h"
-#include <cryptopp/rsa.h>
+#include <botan/auto_rng.h>
+#include <botan/ber_dec.h>
+#include <botan/der_enc.h>
+//#include <botan/hash.h>
+#include <botan/hex.h>
+#include <botan/pk_keys.h>
+#include <botan/pubkey.h>
+#include <botan/rsa.h>
 
+#include "Crypto.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
 
@@ -66,43 +73,4 @@ TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_LZ4) {
 
 TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_NONE) {
   testCompressEncrypt(false, COMPRESSORS::NONE);
-}
-
-TEST(AuthenticationTest, 1) {
-  // Generate RSA key pair
-  CryptoPP::AutoSeededRandomPool rng;
-  CryptoPP::RSA::PrivateKey privateKey;
-  privateKey.GenerateRandomWithKeySize(rng, rsaKeySize);
-  CryptoPP::RSA::PublicKey publicKey;
-  publicKey.AssignFrom(privateKey);
-  // Message to sign
-  std::string message("test message");
-  // Sign the message
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
-  std::string signature;
-  CryptoPP::StringSource ss(message, true, new CryptoPP::SignerFilter(
-    rng, signer, new CryptoPP::StringSink(signature)));
-  ASSERT_EQ(signature.size(), SIGNATURE_SIZE);
-  // Transfer the key and the signature
-  // send
-  Crypto crypto;
-  auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
-  ASSERT_TRUE(success);
-  serialized.insert(serialized.begin(), signature.cbegin(), signature.cend());
-  // receive
-  std::string receivedSignature(serialized.cbegin(), serialized.cbegin() + SIGNATURE_SIZE);
-  std::string_view serializedRsaPublicKey(serialized.cbegin() + SIGNATURE_SIZE, serialized.cend());
-  CryptoPP::RSA::PublicKey receivedRsaPublicKey;
-  ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
-  // Verify the signature
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
-  bool result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
-  ASSERT_TRUE(result);
-  receivedSignature.erase(receivedSignature.cend() -1);
-  result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
-  ASSERT_FALSE(result);
 }

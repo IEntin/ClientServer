@@ -82,12 +82,12 @@ BUILDDIR := build
 
 vpath %.cpp $(BUSINESSDIR) $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR)
 
-$(PCH) : $(ALLH) $(CRYPTOLIB)
+$(PCH) : $(ALLH) $(CRYPTOLIB) $(BOTANCRYPTOLIB)
 	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
 
 -include $(BUILDDIR)/*.d
 
-$(BUILDDIR)/%.o : %.cpp $(PCH) $(CRYPTOLIB)
+$(BUILDDIR)/%.o : %.cpp $(PCH) $(CRYPTOLIB) $(BOTANCRYPTOLIB)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
 BUSINESSSRC := $(wildcard $(BUSINESSDIR)/*.cpp)

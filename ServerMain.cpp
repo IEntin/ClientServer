@@ -13,6 +13,7 @@
 void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
+  setenv("BOTAN_MLOCK_POOL_SIZE", "0",1);
   atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);
