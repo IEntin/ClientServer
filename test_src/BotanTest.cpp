@@ -22,13 +22,11 @@
 bool encryptAndDecrypt(std::string& input) {
   try {
     Botan::AutoSeeded_RNG rng;
-    Botan::secure_vector<uint8_t> key = rng.random_vec(32);// 256-bit key for AES-256
-    // Choose a cipher mode
+    Botan::SymmetricKey key(rng, 32);// 256-bit key
     std::string cipher_mode = "AES-256/CBC/PKCS7";
     auto enc = Botan::Cipher_Mode::create_or_throw(cipher_mode, Botan::Cipher_Dir::Encryption);
     enc->set_key(key);
-    // Generate a random nonce (IV)
-    Botan::secure_vector<uint8_t> iv = rng.random_vec(enc->default_nonce_length());
+    Botan::InitializationVector iv(rng, 16);// 128-bit IV
     // Encrypt the data
     Botan::secure_vector<uint8_t> cipher(input.cbegin(), input.cend());
     enc->start(iv);
