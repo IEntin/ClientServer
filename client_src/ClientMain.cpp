@@ -17,7 +17,6 @@ void signalHandler(int) {
 }
 
 int main() {
-  setenv("BOTAN_MLOCK_POOL_SIZE", "0",1);
   struct Finally {
     Finally() = default;
     ~Finally() {
