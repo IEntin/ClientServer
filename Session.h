@@ -32,7 +32,7 @@ protected:
 
   Session(ServerWeakPtr server,
 	  const CryptoPP::SecByteBlock& pubB,
-	  std::span<uint8_t> signatureWithPubKey);
+	  std::string_view signatureWithPubKey);
   virtual ~Session();
   std::string_view buildReply(std::atomic<STATUS>& status);
   bool processTask();

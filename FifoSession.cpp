@@ -15,7 +15,7 @@ namespace fifo {
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 const CryptoPP::SecByteBlock& pubB,
-			 std::span<uint8_t> signatureWithPubKey) :
+			 std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),
   Session(server, pubB, signatureWithPubKey) {}
 

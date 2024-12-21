@@ -12,16 +12,16 @@
 
 Session::Session(ServerWeakPtr server,
 		 const CryptoPP::SecByteBlock& pubB,
-		 std::span<uint8_t> signatureWithPubKey) :
+		 std::string_view signatureWithPubKey) :
   _crypto(std::make_shared<Crypto>(pubB)),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  std::span<uint8_t, SIGNATURE_SIZE> signature(signatureWithPubKey);
-  std::span<uint8_t> rsaPubKeySerialized = signatureWithPubKey.subspan(SIGNATURE_SIZE);
-  auto rsaPeerPublicKey = _crypto->deserializeRsaPublicKey(rsaPubKeySerialized);
-  bool verified = _crypto->verifySignature(signature, *rsaPeerPublicKey);
-  if (!verified)
+  std::string signature(signatureWithPubKey.data(), SIGNATURE_SIZE);
+  std::string_view rsaPubKeySerialized(
+    signatureWithPubKey.cbegin() + SIGNATURE_SIZE, signatureWithPubKey.cend());
+  _crypto->decodePeerRsaPublicKey(rsaPubKeySerialized);
+  if (!_crypto->verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
 }
 
@@ -34,7 +34,7 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
     return {};
   _responseData.erase(_responseData.cbegin(), _responseData.cend());
   for (const auto& entry : _response)
-    _responseData.insert(_responseData.end(), entry.begin(), entry.end());
+    _responseData.insert(_responseData.end(), entry.cbegin(), entry.cend());
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };

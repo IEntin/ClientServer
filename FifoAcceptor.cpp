@@ -23,14 +23,14 @@ FifoAcceptor::~FifoAcceptor() {
   Trace << '\n';
 }
 
-std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::vector<uint8_t>>
+std::tuple<HEADERTYPE, CryptoPP::SecByteBlock, std::string>
 FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock(), std::vector<uint8_t>() };
+    return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock(), std::string() };
   HEADER header;
   CryptoPP::SecByteBlock pubB;
-  std::vector<uint8_t> rsaPubB;
+  std::string rsaPubB;
   if (!Fifo::readMsg(_acceptorName, true, header, pubB, rsaPubB))
     return { HEADERTYPE::ERROR, CryptoPP::SecByteBlock(), rsaPubB };
   return { extractHeaderType(header), pubB, rsaPubB };

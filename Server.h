@@ -24,10 +24,10 @@ public:
   bool start();
   void stop();
   void createFifoSession(const CryptoPP::SecByteBlock& pubB,
-			 std::span<uint8_t> rsaPubB);
+			 std::string_view rsaPubB);
   void createTcpSession(tcp::ConnectionPtr connection,
 			const CryptoPP::SecByteBlock& pubB,
-			std::span<uint8_t> rsaPubB);
+			std::string_view rsaPubB);
   static void removeNamedMutex();
 private:
   bool startSession(RunnablePtr runnable, SessionPtr session);
