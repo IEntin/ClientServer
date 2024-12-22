@@ -41,7 +41,9 @@ protected:
       std::size_t signatureDataSz = signatureWithPubKey.size();
       HEADER header =
 	{ HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
-      return lambda(header, pubKey, signatureWithPubKey);
+      bool result = lambda(header, pubKey, signatureWithPubKey);
+      crypto->eraseSensitive();
+      return result;
     }
     return false;
   }

@@ -32,8 +32,7 @@ class Crypto {
   std::string _serializedRsaPubKey;
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
-  // temp
-  const std::string _message;
+  std::string _message;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub) {
@@ -58,4 +57,6 @@ public:
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
   std::string hashMessage();
+  void eraseSensitive();
+  void erasePubPrivKeys();
  };

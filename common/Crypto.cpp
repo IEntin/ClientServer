@@ -7,13 +7,11 @@
 #include <boost/algorithm/hex.hpp>
 
 #include <cryptopp/hex.h>
-
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
-//std::string TEST_MESSAGE = Crypto::hashMessage();
 
 // server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
@@ -101,7 +99,9 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
-  return _dh.Agree(_key, _privKey, pubAreceived);
+  bool result =  _dh.Agree(_key, _privKey, pubAreceived);
+  erasePubPrivKeys();
+  return result;
 }
 
 void Crypto::signMessage() {
@@ -156,6 +156,7 @@ bool Crypto::verifySignature(const std::string& signature) {
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
   if (!verified)
     throw std::runtime_error("Failed to verify signature");
+  eraseSensitive();
   return true;
 }
 
@@ -172,4 +173,17 @@ std::string Crypto::hashMessage() {
   encoder.Put(reinterpret_cast<const CryptoPP::byte*>(digest.data()), digest.size());
   encoder.MessageEnd();
   return output;
+}
+
+void Crypto::eraseSensitive() {
+  _message.erase();
+  _rsaPrivKey = CryptoPP::RSA::PrivateKey();
+  _peerRsaPubKey = CryptoPP::RSA::PublicKey();
+  _serializedRsaPubKey.erase();
+  _signatureWithPubKey.erase();
+}
+
+void Crypto::erasePubPrivKeys() {
+  CryptoPP::SecByteBlock().swap(_privKey);
+  CryptoPP::SecByteBlock().swap(_pubKey);
 }
