@@ -176,11 +176,12 @@ std::string Crypto::hashMessage() {
 }
 
 void Crypto::eraseSensitive() {
-  _message.erase();
+  std::string().swap(_message);
   _rsaPrivKey = CryptoPP::RSA::PrivateKey();
+  _rsaPubKey = CryptoPP::RSA::PublicKey();
   _peerRsaPubKey = CryptoPP::RSA::PublicKey();
-  _serializedRsaPubKey.erase();
-  _signatureWithPubKey.erase();
+  std::string().swap(_serializedRsaPubKey);
+  std::string().swap(_signatureWithPubKey);
 }
 
 void Crypto::erasePubPrivKeys() {
