@@ -41,4 +41,5 @@ struct ClientOptions {
   static std::string _serverAddress;
   static unsigned short _tcpPort;
   static bool _printHeader;
+  static bool _hideEncryptionKey;
 };

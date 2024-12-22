@@ -30,6 +30,7 @@ int ServerOptions::_numberRepeatENXIO;
 bool ServerOptions::_setPipeSize;
 std::size_t ServerOptions::_pipeSize;
 bool ServerOptions::_printHeader;
+bool ServerOptions::_hideEncryptionKey;
 
 void ServerOptions::parse(std::string_view jsonName) {
   _parsed = true;
@@ -53,5 +54,6 @@ void ServerOptions::parse(std::string_view jsonName) {
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
   _printHeader = appOptions.get("PrintHeader", false);
+  _hideEncryptionKey = appOptions.get("HideEncryptionKey", true);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }
