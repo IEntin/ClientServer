@@ -156,7 +156,7 @@ bool Crypto::verifySignature(const std::string& signature) {
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
   if (!verified)
     throw std::runtime_error("Failed to verify signature");
-  eraseSensitive();
+  eraseRSAKeys();
   return true;
 }
 
@@ -175,7 +175,7 @@ std::string Crypto::hashMessage() {
   return output;
 }
 
-void Crypto::eraseSensitive() {
+void Crypto::eraseRSAKeys() {
   std::string().swap(_message);
   _rsaPrivKey = CryptoPP::RSA::PrivateKey();
   _rsaPubKey = CryptoPP::RSA::PublicKey();

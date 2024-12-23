@@ -42,7 +42,7 @@ protected:
       HEADER header =
 	{ HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
       bool result = lambda(header, pubKey, signatureWithPubKey);
-      crypto->eraseSensitive();
+      crypto->eraseRSAKeys();
       return result;
     }
     return false;

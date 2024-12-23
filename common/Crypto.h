@@ -57,6 +57,6 @@ public:
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
   std::string hashMessage();
-  void eraseSensitive();
+  void eraseRSAKeys();
   void erasePubPrivKeys();
  };
