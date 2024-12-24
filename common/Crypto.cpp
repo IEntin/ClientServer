@@ -10,6 +10,7 @@
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
+#include "Utility.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 
@@ -48,6 +49,8 @@ Crypto::~Crypto() {
 }
 
 void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
+  if (!checkAccess())
+    return;
   if (LOG_LEVEL::INFO >= Logger::_threshold) {
     Logger logger(LOG_LEVEL::INFO, std::clog, false);
     logger << "KEY SIZE: " << _key.size() << '\n' << "KEY: 0x";
@@ -59,6 +62,8 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
 }
 
 void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
+  if (!checkAccess())
+    return;
   buffer.erase(buffer.cbegin(), buffer.cend());
   if (!encrypt)
     data.insert(data.cend(), endTag.cbegin(), endTag.cend());
@@ -79,6 +84,8 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
+  if (!checkAccess())
+    return;
   buffer.erase(buffer.cbegin(), buffer.cend());
   if (data.ends_with(reinterpret_cast<const char*>(endTag.data())))
     data.erase(data.size() - endTag.size());
@@ -151,10 +158,10 @@ void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 
 bool Crypto::verifySignature(const std::string& signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
-  bool verified = verifier.VerifyMessage(
+  _verified = verifier.VerifyMessage(
     reinterpret_cast<const CryptoPP::byte*>(_message.data()), _message.length(),
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
-  if (!verified)
+  if (!_verified)
     throw std::runtime_error("Failed to verify signature");
   eraseRSAKeys();
   return true;
@@ -187,4 +194,14 @@ void Crypto::eraseRSAKeys() {
 void Crypto::erasePubPrivKeys() {
   CryptoPP::SecByteBlock().swap(_privKey);
   CryptoPP::SecByteBlock().swap(_pubKey);
+}
+
+bool Crypto::checkAccess() {
+  if (utility::isServerTerminal())
+    return _verified;
+  else if (utility::isClientTerminal())
+    return _signatureSent;
+  else if (utility::isTestbinTerminal())
+    return true;
+  return false;
 }

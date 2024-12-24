@@ -9,10 +9,13 @@
 #include "ServerOptions.h"
 #include "Server.h"
 #include "TransactionPolicy.h"
+#include "Utility.h"
 
 void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
+  std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
+  utility::setServerTerminal(terminal);
   atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);

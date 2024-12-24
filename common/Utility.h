@@ -14,7 +14,7 @@
 namespace utility {
 
 // common constants
-constexpr std::string_view ENDOFMESSAGE("1c70f4cb6a434bacb98c0d0641d8ddba");
+constexpr std::string_view ENDOFMESSAGE("1c70f4cb6a43");
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
 // INPUT can be a string or string_view.
@@ -95,5 +95,12 @@ void decryptDecompress(std::string& buffer,
 		       HEADER& header,
 		       CryptoWeakPtr crypto,
 		       std::string& data);
+void setServerTerminal(std::string_view terminal);
+void setClientTerminal(std::string_view terminal);
+void setTestbinTerminal(std::string_view terminal);
+
+bool isServerTerminal();
+bool isClientTerminal();
+bool isTestbinTerminal();
 
 } // end of namespace utility

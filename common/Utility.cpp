@@ -15,6 +15,10 @@
 
 namespace utility {
 
+std::string serverTerminal;
+std::string testbinTerminal;
+std::string clientTerminal;
+
 CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
 CloseFileDescriptor::~CloseFileDescriptor() {
@@ -107,6 +111,33 @@ void decryptDecompress(std::string& buffer,
       compression::uncompress(buffer, data, uncomprSize);
     }
   }
+}
+
+void setServerTerminal(std::string_view terminal) {
+  serverTerminal = terminal;
+}
+
+void setTestbinTerminal(std::string_view terminal) {
+  testbinTerminal = terminal;
+}
+
+void setClientTerminal(std::string_view terminal) {
+  clientTerminal = terminal;
+}
+
+bool isServerTerminal() {
+  const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
+  return currentTerminal == serverTerminal;
+}
+
+bool isTestbinTerminal() {
+  const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
+  return currentTerminal == testbinTerminal;
+}
+
+bool isClientTerminal() {
+  const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
+  return currentTerminal == clientTerminal;
 }
 
 } // end of namespace utility

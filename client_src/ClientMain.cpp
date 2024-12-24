@@ -17,6 +17,8 @@ void signalHandler(int) {
 }
 
 int main() {
+  std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
+  utility::setClientTerminal(terminal);
   struct Finally {
     Finally() = default;
     ~Finally() {

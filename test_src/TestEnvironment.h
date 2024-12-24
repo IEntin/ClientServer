@@ -27,4 +27,5 @@ public:
   static std::string _outputND;
   static std::string _outputAltFormatD;
   static thread_local std::string _buffer;
+
 };
