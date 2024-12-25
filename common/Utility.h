@@ -102,5 +102,6 @@ void setTestbinTerminal(std::string_view terminal);
 bool isServerTerminal();
 bool isClientTerminal();
 bool isTestbinTerminal();
+void removeAccess();
 
 } // end of namespace utility

@@ -16,8 +16,8 @@
 namespace utility {
 
 std::string serverTerminal;
-std::string testbinTerminal;
 std::string clientTerminal;
+std::string testbinTerminal;
 
 CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
@@ -138,6 +138,11 @@ bool isTestbinTerminal() {
 bool isClientTerminal() {
   const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
   return currentTerminal == clientTerminal;
+}
+
+void removeAccess() {
+  std::string().swap(serverTerminal);
+  std::string().swap(clientTerminal);
 }
 
 } // end of namespace utility

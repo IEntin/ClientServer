@@ -29,6 +29,7 @@ Server::Server(Policy& policy) :
 
 Server::~Server() {
   Ad::clear();
+  utility::removeAccess();
   Trace << '\n';
 }
 
