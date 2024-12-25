@@ -32,4 +32,5 @@ struct ServerOptions {
   static bool _setPipeSize;
   static std::size_t _pipeSize;
   static bool _printHeader;
+  static bool _keyHiding;
 };

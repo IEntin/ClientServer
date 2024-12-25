@@ -14,13 +14,38 @@
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 
+Crypto::KeyStorage::KeyStorage(unsigned keySize) : _obfuscator(keySize) {
+  _rng.GenerateBlock(_obfuscator, keySize);
+}
+
+void Crypto::KeyStorage::put(CryptoPP::SecByteBlock& key) {
+  if (!ServerOptions::_keyHiding)
+    return;
+  if (!_obfuscated) {
+    for (unsigned i = 0; i < key.size(); ++i)
+      key[i] ^= _obfuscator[i];
+    _obfuscated.store(true);
+  }
+}
+
+void Crypto::KeyStorage::get(CryptoPP::SecByteBlock& key) {
+  if (!ServerOptions::_keyHiding)
+    return;
+  if (_obfuscated) {
+    for (unsigned i = 0; i < key.size(); ++i)
+      key[i] ^= _obfuscator[i];
+    _obfuscated.store(false);
+  }
+}
+
 // server
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()) {
+  _message(Crypto::hashMessage()),
+  _keyStorage(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
@@ -34,7 +59,8 @@ Crypto::Crypto() :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()) {
+  _message(Crypto::hashMessage()),
+  _keyStorage(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
@@ -52,12 +78,14 @@ void Crypto::showKeyIv(const CryptoPP::SecByteBlock& iv) {
   if (!checkAccess())
     return;
   if (LOG_LEVEL::INFO >= Logger::_threshold) {
+    _keyStorage.get(_key);
     Logger logger(LOG_LEVEL::INFO, std::clog, false);
     logger << "KEY SIZE: " << _key.size() << '\n' << "KEY: 0x";
     boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream() });
     logger << '\n' << "IV : 0x";
     boost::algorithm::hex(iv, std::ostream_iterator<char> { logger.getStream() });
     logger << '\n';
+    _keyStorage.put(_key);
   }
 }
 
@@ -70,6 +98,7 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
   else {
     CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
     _rng.GenerateBlock(iv, iv.size());
+    _keyStorage.get(_key);
     CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
     CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
@@ -80,6 +109,7 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
       showKeyIv(iv);
     data.resize(buffer.size());
     std::memcpy(data.data(), buffer.data(), buffer.size());
+    _keyStorage.put(_key);
   }
 }
 
@@ -93,6 +123,7 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
     CryptoPP::SecByteBlock
       iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 	 CryptoPP::AES::BLOCKSIZE);
+    _keyStorage.get(_key);
     CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
@@ -102,12 +133,14 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
       showKeyIv(iv);
     data.resize(buffer.size());
     std::memcpy(data.data(), buffer.data(), buffer.size());
+    _keyStorage.put(_key);
   }
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   bool result =  _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
+  _keyStorage.put(_key);
   return result;
 }
 

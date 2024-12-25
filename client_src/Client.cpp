@@ -22,6 +22,7 @@ Client::Client() :
 
 Client::~Client() {
   stop();
+  //utility::setClientTerminal("");
   Trace << '\n';
 }
 

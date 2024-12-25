@@ -17,9 +17,16 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   static const auto ipAdress =
     boost::asio::ip::make_address(ClientOptions::_serverAddress, ec);
   if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
+    switch (ec.value()) {
+    case boost::asio::error::connection_refused:
+      Info << ec.what() << '\n';
+      return false;
+    default:
+      LogError << ec.what() << '\n';
+      return false;
+    }
   }
+
   static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
   socket.connect(endpoint, ec);
   if (ec) {
@@ -28,7 +35,8 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   }
   socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
   if (ec) {
-    LogError << ec.what() << '\n';
+    if (ec.value() == boost::asio::error::connection_reset)
+      Info << ec.what() << '\n';
     return false;
   }
   return true;
@@ -48,6 +56,7 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view pay
   if (ec) {
     switch (ec.value()) {
     case boost::asio::error::eof:
+    case boost::asio::error::connection_refused:
     case boost::asio::error::connection_reset:
     case boost::asio::error::broken_pipe:
       Info << ec.what() << '\n';

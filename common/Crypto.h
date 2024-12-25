@@ -21,6 +21,14 @@ using CryptoPtr = std::shared_ptr<class Crypto>;
 using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
 class Crypto {
+  struct KeyStorage {
+    KeyStorage(unsigned keySize);
+    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
+    CryptoPP::SecByteBlock _obfuscator;
+    void put(CryptoPP::SecByteBlock& key);
+    void get(CryptoPP::SecByteBlock& key);
+    std::atomic<bool> _obfuscated = false;
+  };
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
@@ -33,6 +41,7 @@ class Crypto {
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
   std::string _message;
+  KeyStorage _keyStorage;
   bool _verified = false;
   bool _signatureSent = false;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,

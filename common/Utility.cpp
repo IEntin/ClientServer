@@ -117,12 +117,12 @@ void setServerTerminal(std::string_view terminal) {
   serverTerminal = terminal;
 }
 
-void setTestbinTerminal(std::string_view terminal) {
-  testbinTerminal = terminal;
-}
-
 void setClientTerminal(std::string_view terminal) {
   clientTerminal = terminal;
+}
+
+void setTestbinTerminal(std::string_view terminal) {
+  testbinTerminal = terminal;
 }
 
 bool isServerTerminal() {
@@ -130,14 +130,14 @@ bool isServerTerminal() {
   return currentTerminal == serverTerminal;
 }
 
-bool isTestbinTerminal() {
-  const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
-  return currentTerminal == testbinTerminal;
-}
-
 bool isClientTerminal() {
   const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
   return currentTerminal == clientTerminal;
+}
+
+bool isTestbinTerminal() {
+  const std::string currentTerminal(getenv("GNOME_TERMINAL_SCREEN"));
+  return currentTerminal == testbinTerminal;
 }
 
 void removeAccess() {
