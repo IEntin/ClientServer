@@ -21,6 +21,5 @@
   "PipeSize" : 1000000,
   "_comment": "any of TRACE, DEBUG, INFO, WARN, EXPECTED, ERROR, ALWAYS",
   "LogThreshold" : "INFO",
-  "PrintHeader" : false,
-  "KeyHiding" : true
+  "PrintHeader" : false
 }

@@ -23,6 +23,9 @@ Session::Session(ServerWeakPtr server,
   _crypto->decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!_crypto->verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
+  _crypto->hideSessionKey();
+  if (ServerOptions::_showKey)
+   _crypto->showKey();
 }
 
 Session::~Session() {
@@ -38,13 +41,19 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+  if (ServerOptions::_showKey)
+    _crypto->showKey();
+  _crypto->recoverSessionKey();
   utility::compressEncrypt(_buffer, ServerOptions::_encrypted, header, _crypto, _responseData);
+  _crypto->hideSessionKey();
   return _responseData;
 }
 
 bool Session::processTask() {
+  _crypto->recoverSessionKey();
   utility::decryptDecompress(_buffer, _task->header(), _crypto, _request);
-  if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
+  _crypto->hideSessionKey();
+   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     std::string_view request = _request;
     _task->update(request);
     taskController->processTask(_task);

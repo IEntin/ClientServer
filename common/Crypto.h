@@ -25,8 +25,10 @@ class Crypto {
     KeyStorage(unsigned keySize);
     CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
     CryptoPP::SecByteBlock _obfuscator;
-    void put(CryptoPP::SecByteBlock& key);
-    void get(CryptoPP::SecByteBlock& key);
+    void hideSessionKey(CryptoPP::SecByteBlock& key);
+    void recoverSessionKey(CryptoPP::SecByteBlock& key);
+    void hideClientKey(CryptoPP::SecByteBlock& key);
+    void recoverClientKey(CryptoPP::SecByteBlock& key);
     std::atomic<bool> _obfuscated = false;
   };
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
@@ -55,6 +57,7 @@ public:
   Crypto();
   Crypto(const CryptoPP::SecByteBlock& pubB);
   ~Crypto();
+  void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
@@ -74,4 +77,8 @@ public:
   void eraseRSAKeys();
   void erasePubPrivKeys();
   bool checkAccess();
+  void hideSessionKey();
+  void recoverSessionKey();
+  void hideClientKey();
+  void recoverClientKey();
 };
