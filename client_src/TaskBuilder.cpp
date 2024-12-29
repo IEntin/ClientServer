@@ -61,13 +61,13 @@ std::pair<STATUS, Subtasks&> TaskBuilder::getTask() {
 Subtask& TaskBuilder::getSubtask() {
   static Subtask emptySubtask;
   std::unique_lock lock(_mutex);
-  std::reference_wrapper subtaskRef = emptySubtask;
+  std::optional<std::reference_wrapper<Subtask>> subtaskRef;
   _condition.wait(lock, [&] () {
     if (_subtaskIndexConsumed < _subtasks.size()) {
       if (_status == STATUS::ERROR)
 	return true;
       subtaskRef = _subtasks[_subtaskIndexConsumed];
-      STATUS state = subtaskRef.get()._state;
+      STATUS state = subtaskRef->get()._state;
       if (state == STATUS::SUBTASK_DONE || state == STATUS::TASK_DONE)
 	return true;
     }
@@ -76,7 +76,7 @@ Subtask& TaskBuilder::getSubtask() {
   if (_stopped)
     return emptySubtask;
   _subtaskIndexConsumed.fetch_add(1);
-  return subtaskRef.get();
+  return subtaskRef->get();
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
@@ -123,13 +123,13 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;
-  std::reference_wrapper<Subtask> subtaskRef = _subtasks[0];
+  std::optional<std::reference_wrapper<Subtask>> subtaskRef;
   unsigned index = _subtaskIndexProduced.fetch_add(1);
   if (index < _subtasks.size())
     subtaskRef = _subtasks[index];
   else
     subtaskRef = _subtasks.emplace_back();
-  Subtask& subtask = subtaskRef.get();
+  Subtask& subtask = subtaskRef->get();
   subtask._data.resize(_aggregate.size());
   std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;

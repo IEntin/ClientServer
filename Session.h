@@ -22,6 +22,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session {
 protected:
   std::size_t _clientId;
+  KeyHandler _keyHandler;
   CryptoPtr _crypto;
   std::string _request;
   Response _response;

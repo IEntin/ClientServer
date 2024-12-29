@@ -22,7 +22,6 @@ Client::Client() :
 
 Client::~Client() {
   stop();
-  //utility::setClientTerminal("");
   Trace << '\n';
 }
 
@@ -102,7 +101,6 @@ bool Client::printReply() {
   utility::decryptDecompress(_buffer, _header, _crypto, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
-
   if (_response.empty()) {
     displayStatus(STATUS::ERROR);
     return false;

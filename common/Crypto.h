@@ -13,6 +13,7 @@
 #include <cryptopp/rsa.h>
 
 constexpr std::u8string_view endTag = u8"r2345ufg5432105t";
+constexpr std::size_t ENCRYPTION_KEY_SIZE = 32;
 constexpr std::size_t rsaKeySize = 2048;
 constexpr std::size_t SIGNATURE_SIZE = 256;
 
@@ -20,17 +21,17 @@ using CryptoPtr = std::shared_ptr<class Crypto>;
 
 using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
+struct KeyHandler {
+  KeyHandler();
+  CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
+  CryptoPP::SecByteBlock _obfuscator;
+  void hideKey(CryptoPP::SecByteBlock& key);
+  void recoverKey(CryptoPP::SecByteBlock& key);
+  std::atomic<bool> _obfuscated = false;
+};
+
 class Crypto {
-  struct KeyStorage {
-    KeyStorage(unsigned keySize);
-    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
-    CryptoPP::SecByteBlock _obfuscator;
-    void hideSessionKey(CryptoPP::SecByteBlock& key);
-    void recoverSessionKey(CryptoPP::SecByteBlock& key);
-    void hideClientKey(CryptoPP::SecByteBlock& key);
-    void recoverClientKey(CryptoPP::SecByteBlock& key);
-    std::atomic<bool> _obfuscated = false;
-  };
+  std::optional<std::reference_wrapper<KeyHandler>> _keyHandlerRef;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
@@ -43,7 +44,6 @@ class Crypto {
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
   std::string _message;
-  KeyStorage _keyStorage;
   bool _verified = false;
   bool _signatureSent = false;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
@@ -52,10 +52,9 @@ class Crypto {
     dh.GenerateKeyPair(_rng, priv, pub);
     return true;
   }
-  void showKeyIv(const CryptoPP::SecByteBlock& iv);
 public:
   Crypto();
-  Crypto(const CryptoPP::SecByteBlock& pubB);
+  Crypto(const CryptoPP::SecByteBlock& pubB, KeyHandler& keyHandler);
   ~Crypto();
   void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
@@ -77,8 +76,5 @@ public:
   void eraseRSAKeys();
   void erasePubPrivKeys();
   bool checkAccess();
-  void hideSessionKey();
-  void recoverSessionKey();
-  void hideClientKey();
-  void recoverClientKey();
+  void hideKey();
 };
