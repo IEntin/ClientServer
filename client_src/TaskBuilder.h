@@ -11,8 +11,6 @@
 #include "Runnable.h"
 #include "Subtask.h"
 
-class Crypto;
-
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
@@ -26,6 +24,7 @@ class TaskBuilder final : public Runnable {
   std::mutex _mutex;
   std::condition_variable _condition;
   bool _resume = false;
+  std::string _buffer;
   void run() override;
   bool start() override { return true; }
  public:

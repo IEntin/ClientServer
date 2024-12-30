@@ -12,6 +12,8 @@
 #include "Logger.h"
 #include "TestEnvironment.h"
 
+// for i in {1..10}; do ./testbin --gtest_filter=BotanTest*; done
+
 bool encryptAndDecrypt(std::string& input) {
   try {
     Botan::AutoSeeded_RNG rng;

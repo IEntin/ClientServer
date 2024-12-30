@@ -4,14 +4,14 @@
 
 #include "TaskBuilder.h"
 
-#include "Client.h"
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 #include "Logger.h"
 
 TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
-  _crypto(crypto), _subtasks(1) {
+  _crypto(crypto),
+  _subtasks(1) {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 
@@ -119,7 +119,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     _status,
     0 };
   utility::compressEncrypt(
-    Client::getBuffer(), ClientOptions::_encrypted, header, _crypto, _aggregate);
+    _buffer, ClientOptions::_encrypted, header, _crypto, _aggregate);
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;

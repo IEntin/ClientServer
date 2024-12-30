@@ -19,6 +19,7 @@ class Client {
 
 protected:
   std::string _response;
+  KeyHandler _keyHandler;
   CryptoPtr _crypto;
   CryptoWeakPtr _cryptoWeak;
   Client();
@@ -61,7 +62,7 @@ protected:
   TaskBuilderWeakPtr _taskBuilder;
   Subtasks _task;
   static std::atomic<bool> _closeFlag;
-  static thread_local std::string _buffer;
+  std::string _buffer;
 public:
   virtual ~Client();
 
@@ -70,7 +71,6 @@ public:
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;
 
-  static std::string& getBuffer() { return _buffer; }
   void startHeartbeat();
   void stop();
   static void onSignal();

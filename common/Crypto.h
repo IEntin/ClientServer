@@ -24,6 +24,7 @@ using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 struct KeyHandler {
   KeyHandler();
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
+  CryptoPP::SecByteBlock _key;
   CryptoPP::SecByteBlock _obfuscator;
   void hideKey(CryptoPP::SecByteBlock& key);
   void recoverKey(CryptoPP::SecByteBlock& key);
@@ -32,7 +33,7 @@ struct KeyHandler {
 
 class Crypto {
   std::optional<std::reference_wrapper<KeyHandler>> _keyHandlerRef;
-  CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
+  std::optional<std::reference_wrapper<CryptoPP::AutoSeededX917RNG<CryptoPP::AES>>> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
   CryptoPP::SecByteBlock _pubKey;
@@ -46,15 +47,14 @@ class Crypto {
   std::string _message;
   bool _verified = false;
   bool _signatureSent = false;
+  std::mutex _mutex;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
-		       CryptoPP::SecByteBlock& pub) {
-    dh.GenerateKeyPair(_rng, priv, pub);
-    return true;
-  }
+		       CryptoPP::SecByteBlock& pub);
 public:
-  Crypto();
   Crypto(const CryptoPP::SecByteBlock& pubB, KeyHandler& keyHandler);
+  Crypto(KeyHandler& keyHandler);
+  Crypto(KeyHandler& keyHandler, bool copy);
   ~Crypto();
   void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);

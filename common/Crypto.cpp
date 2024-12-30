@@ -14,28 +14,28 @@
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 
-KeyHandler::KeyHandler() :
-  _obfuscator(ENCRYPTION_KEY_SIZE) {
+KeyHandler::KeyHandler() : _obfuscator(ENCRYPTION_KEY_SIZE) {
   _rng.GenerateBlock(_obfuscator, ENCRYPTION_KEY_SIZE);
 }
 
 void KeyHandler::hideKey(CryptoPP::SecByteBlock& key) {
   if (!_obfuscated) {
     // refresh obfuscator
-    _rng.GenerateBlock(_obfuscator, key.size());
+    _rng.GenerateBlock(_obfuscator, ENCRYPTION_KEY_SIZE);
     for (unsigned i = 0; i < key.size(); ++i)
       key[i] ^= _obfuscator[i];
-    _obfuscated.store(true);
+    _obfuscated = true;
   }
 }
 
 void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
   if (_obfuscated) {
-    for (unsigned i = 0; i < key.size(); ++i)
+    for (unsigned i = 0; i < ENCRYPTION_KEY_SIZE; ++i)
       key[i] ^= _obfuscator[i];
-    _obfuscated.store(false);
+    _obfuscated = false;
   }
 }
+
 // session
 Crypto::Crypto(const CryptoPP::SecByteBlock& pubB, KeyHandler& keyHandler) :
   _keyHandlerRef(keyHandler),
@@ -47,19 +47,26 @@ Crypto::Crypto(const CryptoPP::SecByteBlock& pubB, KeyHandler& keyHandler) :
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
-  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
+  if (_keyHandlerRef) {
+    auto& rng = _keyHandlerRef->get()._rng;
+    _rsaPrivKey.GenerateRandomWithKeySize(rng, rsaKeySize);
+  }
   _rsaPubKey.AssignFrom(_rsaPrivKey);
 }
 
 // client
-Crypto::Crypto() :
+Crypto::Crypto(KeyHandler& keyHandler) :
+  _keyHandlerRef(keyHandler),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _message(Crypto::hashMessage()) {
   generateKeyPair(_dh, _privKey, _pubKey);
-  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
+  if (_keyHandlerRef) {
+    auto& rng = _keyHandlerRef->get()._rng;
+    _rsaPrivKey.GenerateRandomWithKeySize(rng, rsaKeySize);
+  }
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
   if (!success)
@@ -67,15 +74,32 @@ Crypto::Crypto() :
   _serializedRsaPubKey.swap(encodedStr);
 }
 
+// task builder
+Crypto::Crypto(KeyHandler& keyHandler, bool copy[[maybe_unused]]) :
+  _keyHandlerRef(keyHandler),
+  _key(_keyHandlerRef->get()._key) {
+}
+
+
 Crypto::~Crypto() {
   Trace << '\n';
+}
+
+bool Crypto::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
+		             CryptoPP::SecByteBlock& priv,
+		             CryptoPP::SecByteBlock& pub) {
+  if (_keyHandlerRef) {
+    auto& rng = _keyHandlerRef->get()._rng;
+    dh.GenerateKeyPair(rng, priv, pub);
+  }
+  return true;
 }
 
 void Crypto::showKey() {
   if (!checkAccess())
     return;
-  if (LOG_LEVEL::INFO >= Logger::_threshold) {
-    Logger logger(LOG_LEVEL::INFO, std::clog, false);
+  Logger logger(LOG_LEVEL::INFO, std::clog, false);
+  if (logger._level >= Logger::_threshold) {
     logger << "KEY: 0x";
     boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream() });
     logger << '\n';
@@ -83,6 +107,7 @@ void Crypto::showKey() {
 }
 
 void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
+  std::lock_guard lock(_mutex);
   if (!checkAccess())
     return;
   buffer.erase(buffer.cbegin(), buffer.cend());
@@ -90,7 +115,10 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
     data.insert(data.cend(), endTag.cbegin(), endTag.cend());
   else {
     CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-    _rng.GenerateBlock(iv, iv.size());
+    if (_keyHandlerRef) {
+      auto& rng = _keyHandlerRef->get()._rng;
+      rng.GenerateBlock(iv, iv.size());
+    }
     if (_keyHandlerRef)
       _keyHandlerRef->get().recoverKey(_key);
     CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
@@ -107,6 +135,7 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
+  std::lock_guard lock(_mutex);
   if (!checkAccess())
     return;
   buffer.erase(buffer.cbegin(), buffer.cend());
@@ -127,27 +156,31 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
       _keyHandlerRef->get().hideKey(_key);
      data.resize(buffer.size());
     std::memcpy(data.data(), buffer.data(), buffer.size());
+    if (ClientOptions::_showKey)
+      showKey();
   }
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   bool result =  _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
-  //_keyStorage.put(_key);
   return result;
 }
 
 void Crypto::signMessage() {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
-  CryptoPP::StringSource ss(_message.data(),
+  if (_keyHandlerRef) {
+    auto& rng = _keyHandlerRef->get()._rng;
+    CryptoPP::StringSource ss(_message.data(),
     true,
-    new CryptoPP::SignerFilter(_rng,
+    new CryptoPP::SignerFilter(rng,
       signer,
       new CryptoPP::StringSink(_signatureWithPubKey))
   );
   _signatureWithPubKey.insert(_signatureWithPubKey.cend(),
 			      _serializedRsaPubKey.cbegin(),
 			      _serializedRsaPubKey.cend());
+  }
 }
 
 std::pair<bool, std::string>

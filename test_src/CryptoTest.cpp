@@ -13,7 +13,8 @@
 // for i in {1..10}; do ./testbin --gtest_filter=AuthenticationTest*; done
 
 TEST(CryptoTest, 1) {
-  auto crypto(std::make_shared<Crypto>());
+  KeyHandler keyHandler;
+  auto crypto(std::make_shared<Crypto>(keyHandler));
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
@@ -31,7 +32,8 @@ TEST(CryptoTest, 1) {
 
 struct CompressEncryptTest : testing::Test {
   void testCompressEncrypt(bool encrypt, COMPRESSORS compressor) {
-    auto crypto(std::make_shared<Crypto>());
+    KeyHandler keyHandler;
+    auto crypto(std::make_shared<Crypto>(keyHandler));
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(key, key.size());
@@ -85,7 +87,8 @@ TEST(AuthenticationTest, 1) {
   ASSERT_EQ(signature.size(), SIGNATURE_SIZE);
   // Transfer the key and the signature
   // send
-  Crypto crypto;
+  KeyHandler keyHandler;
+  Crypto crypto(keyHandler);
   auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
   ASSERT_TRUE(success);
   serialized.insert(serialized.begin(), signature.cbegin(), signature.cend());
