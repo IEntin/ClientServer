@@ -139,6 +139,7 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   bool result =  _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
+  hideKey();
   return result;
 }
 

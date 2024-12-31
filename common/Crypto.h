@@ -24,7 +24,6 @@ using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 struct KeyHandler {
   KeyHandler();
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
-  CryptoPP::SecByteBlock _key;
   CryptoPP::SecByteBlock _obfuscator;
   void hideKey(CryptoPP::SecByteBlock& key);
   void recoverKey(CryptoPP::SecByteBlock& key);
