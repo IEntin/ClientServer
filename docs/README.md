@@ -22,8 +22,8 @@ clang 19.1.1\
 4GB RAM\
 4 cores
 
-Note: current gcc versions have well documented problems with sanitizers.\
-For this reason all sanitized builds are built by clang++.\
+Note: current gcc versions have well documented problems with thread sanitizer.\
+For this reason all TSAN builds are made by clang++.\
 This limitation will be removed as soon as new versions of gcc/g++ are available.
 
 Any distribution and/or version supporting C++20 is expected to work as well.
@@ -63,7 +63,11 @@ Symmetric encryption is used after the key is set for each session/client.\
 The key is specific for every session/client pair.\
 Unlike simple Diffie-Hellman the protocol in use is resistant to\
 'Man In The Middle' attack types. Headers being sent with the data\
-are encrypted as well.
+are encrypted as well.\
+The time of exposure of the encryption key in the code is drasically\
+shortened by obfuscating the key while not in use with nonce obfuscator.\
+The result can be observed by enabling showKey option for the server\
+and/or client.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\
