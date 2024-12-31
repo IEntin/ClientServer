@@ -19,7 +19,6 @@ class Client {
 
 protected:
   std::string _response;
-  KeyHandler _keyHandler;
   CryptoPtr _crypto;
   CryptoWeakPtr _cryptoWeak;
   Client();

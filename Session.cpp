@@ -13,7 +13,7 @@
 Session::Session(ServerWeakPtr server,
 		 const CryptoPP::SecByteBlock& pubB,
 		 std::string_view signatureWithPubKey) :
-  _crypto(std::make_shared<Crypto>(pubB, _keyHandler)),
+  _crypto(std::make_shared<Crypto>(pubB)),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();

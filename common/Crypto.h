@@ -32,8 +32,8 @@ struct KeyHandler {
 };
 
 class Crypto {
-  std::optional<std::reference_wrapper<KeyHandler>> _keyHandlerRef;
-  std::optional<std::reference_wrapper<CryptoPP::AutoSeededX917RNG<CryptoPP::AES>>> _rng;
+  KeyHandler _keyHandler;
+  CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
   CryptoPP::SecByteBlock _pubKey;
@@ -52,9 +52,8 @@ class Crypto {
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
 public:
-  Crypto(const CryptoPP::SecByteBlock& pubB, KeyHandler& keyHandler);
-  Crypto(KeyHandler& keyHandler);
-  Crypto(KeyHandler& keyHandler, bool copy);
+  Crypto(const CryptoPP::SecByteBlock& pubB);
+  Crypto();
   ~Crypto();
   void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
