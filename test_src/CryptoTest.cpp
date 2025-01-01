@@ -72,7 +72,7 @@ TEST(AuthenticationTest, 1) {
   // Generate RSA key pair
   CryptoPP::AutoSeededRandomPool rng;
   CryptoPP::RSA::PrivateKey privateKey;
-  privateKey.GenerateRandomWithKeySize(rng, rsaKeySize);
+  privateKey.GenerateRandomWithKeySize(rng, RSA_KEY_SIZE);
   CryptoPP::RSA::PublicKey publicKey;
   publicKey.AssignFrom(privateKey);
   // Message to sign
@@ -82,7 +82,7 @@ TEST(AuthenticationTest, 1) {
   std::string signature;
   CryptoPP::StringSource ss(message, true, new CryptoPP::SignerFilter(
     rng, signer, new CryptoPP::StringSink(signature)));
-  ASSERT_EQ(signature.size(), SIGNATURE_SIZE);
+  ASSERT_EQ(signature.size(), (RSA_KEY_SIZE >> 3));
   // Transfer the key and the signature
   // send
   Crypto crypto;
@@ -90,8 +90,8 @@ TEST(AuthenticationTest, 1) {
   ASSERT_TRUE(success);
   serialized.insert(serialized.begin(), signature.cbegin(), signature.cend());
   // receive
-  std::string receivedSignature(serialized.cbegin(), serialized.cbegin() + SIGNATURE_SIZE);
-  std::string_view serializedRsaPublicKey(serialized.cbegin() + SIGNATURE_SIZE, serialized.cend());
+  std::string receivedSignature(serialized.cbegin(), serialized.cbegin() + (RSA_KEY_SIZE >> 3));
+  std::string_view serializedRsaPublicKey(serialized.cbegin() + (RSA_KEY_SIZE >> 3), serialized.cend());
   CryptoPP::RSA::PublicKey receivedRsaPublicKey;
   ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
   // Verify the signature

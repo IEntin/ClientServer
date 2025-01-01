@@ -147,7 +147,6 @@ void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return;
-  Subtask::clearTask(_subtasks);
   _subtaskIndexConsumed = 0;
   _subtaskIndexProduced = 0;
   _resume = true;

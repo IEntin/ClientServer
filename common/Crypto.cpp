@@ -7,6 +7,7 @@
 #include <boost/algorithm/hex.hpp>
 
 #include <cryptopp/hex.h>
+
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "ServerOptions.h"
@@ -14,15 +15,16 @@
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 
-KeyHandler::KeyHandler() : _obfuscator(ENCRYPTION_KEY_SIZE) {
-  _rng.GenerateBlock(_obfuscator, ENCRYPTION_KEY_SIZE);
+KeyHandler::KeyHandler(unsigned size) : _size(size),
+   _obfuscator(_size) {
+  _rng.GenerateBlock(_obfuscator, _size);
 }
 
 void KeyHandler::hideKey(CryptoPP::SecByteBlock& key) {
   if (!_obfuscated) {
     // refresh obfuscator
-    _rng.GenerateBlock(_obfuscator, ENCRYPTION_KEY_SIZE);
-    for (unsigned i = 0; i < key.size(); ++i)
+    _rng.GenerateBlock(_obfuscator, _size);
+    for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
     _obfuscated = true;
   }
@@ -30,7 +32,7 @@ void KeyHandler::hideKey(CryptoPP::SecByteBlock& key) {
 
 void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
   if (_obfuscated) {
-    for (unsigned i = 0; i < ENCRYPTION_KEY_SIZE; ++i)
+    for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
     _obfuscated = false;
   }
@@ -42,11 +44,12 @@ Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()) {
+  _message(Crypto::hashMessage()),
+  _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
-  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
+  _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
 }
 
@@ -56,9 +59,10 @@ Crypto::Crypto() :
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()) {
+  _message(Crypto::hashMessage()),
+  _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
-  _rsaPrivKey.GenerateRandomWithKeySize(_rng, rsaKeySize);
+  _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
   if (!success)

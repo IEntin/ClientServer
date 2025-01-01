@@ -13,16 +13,15 @@
 #include <cryptopp/rsa.h>
 
 constexpr std::u8string_view endTag = u8"r2345ufg5432105t";
-constexpr std::size_t ENCRYPTION_KEY_SIZE = 32;
-constexpr std::size_t rsaKeySize = 2048;
-constexpr std::size_t SIGNATURE_SIZE = 256;
+constexpr std::size_t RSA_KEY_SIZE = 2048;
 
 using CryptoPtr = std::shared_ptr<class Crypto>;
 
 using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
 struct KeyHandler {
-  KeyHandler();
+  KeyHandler(unsigned size);
+  const unsigned _size;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::SecByteBlock _obfuscator;
   void hideKey(CryptoPP::SecByteBlock& key);
@@ -31,7 +30,6 @@ struct KeyHandler {
 };
 
 class Crypto {
-  KeyHandler _keyHandler;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
@@ -44,6 +42,7 @@ class Crypto {
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
   std::string _message;
+  KeyHandler _keyHandler;
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
