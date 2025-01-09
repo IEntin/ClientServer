@@ -11,9 +11,10 @@
 #include "TaskController.h"
 
 Session::Session(ServerWeakPtr server,
+		 unsigned salt,
 		 const CryptoPP::SecByteBlock& pubB,
 		 std::string_view signatureWithPubKey) :
-  _crypto(std::make_shared<Crypto>(pubB)),
+  _crypto(std::make_shared<Crypto>(salt, pubB)),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
@@ -40,7 +41,7 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
     _responseData.insert(_responseData.end(), entry.cbegin(), entry.cend());
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
-    { HEADERTYPE::SESSION, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+    { HEADERTYPE::SESSION, 0, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   if (ServerOptions::_showKey)
     _crypto->showKey();
   utility::compressEncrypt(_buffer, ServerOptions::_encrypted, header, _crypto, _responseData);

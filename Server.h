@@ -23,9 +23,11 @@ public:
   ~Server();
   bool start();
   void stop();
-  void createFifoSession(const CryptoPP::SecByteBlock& pubB,
+  void createFifoSession(unsigned salt,
+			 const CryptoPP::SecByteBlock& pubB,
 			 std::string_view rsaPubB);
   void createTcpSession(tcp::ConnectionPtr connection,
+			unsigned salt,
 			const CryptoPP::SecByteBlock& pubB,
 			std::string_view rsaPubB);
   static void removeNamedMutex();

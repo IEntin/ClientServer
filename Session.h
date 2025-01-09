@@ -31,6 +31,7 @@ protected:
   ServerWeakPtr _server;
 
   Session(ServerWeakPtr server,
+	  unsigned salt,
 	  const CryptoPP::SecByteBlock& pubB,
 	  std::string_view signatureWithPubKey);
   virtual ~Session();
@@ -45,7 +46,7 @@ protected:
       unsigned size = clientIdStr.size();
       const auto& pubA(_crypto->getPubKey());
       HEADER header
-	{ HEADERTYPE::DH_HANDSHAKE, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
+	{ HEADERTYPE::DH_HANDSHAKE, _crypto->getSalt(), size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
       lambda(header, clientIdStr, pubA);
     }
   }

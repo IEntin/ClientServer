@@ -22,6 +22,10 @@ HEADERTYPE extractHeaderType(const HEADER& header) {
   return std::get<HEADERTYPE>(header);
 }
 
+unsigned extractSalt(const HEADER& header) {
+  return std::get<std::to_underlying(HEADER_INDEX::SALTINDEX)>(header);
+}
+
 std::size_t extractUncompressedSize(const HEADER& header) {
   return std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header);
 }
@@ -67,6 +71,8 @@ void serialize(const HEADER& header, char* buffer) {
   std::size_t offset = 0;
   buffer[offset] = std::to_underlying(extractHeaderType(header));
   offset += HEADERTYPE_SIZE;
+  ioutility::toChars(extractSalt(header), buffer + offset, SALT_SIZE);
+  offset += SALT_SIZE;
   ioutility::toChars(extractUncompressedSize(header), buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
   buffer[offset] = std::to_underlying(extractCompressor(header));
@@ -83,6 +89,9 @@ bool deserialize(HEADER& header, const char* buffer) {
   if (!deserializeEnumeration(std::get<HEADERTYPE>(header), buffer[offset]))
     return false;
   offset += HEADERTYPE_SIZE;
+  std::string_view strz(buffer + offset, SALT_SIZE);
+  ioutility::fromChars(strz, std::get<std::to_underlying(HEADER_INDEX::SALTINDEX)>(header));
+  offset += SALT_SIZE;
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
   ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header));
   offset += NUM_FIELD_SIZE;

@@ -9,6 +9,7 @@
 #include <cryptopp/hex.h>
 
 #include "ClientOptions.h"
+#include "IOUtility.h"
 #include "Logger.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -39,12 +40,13 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 }
 
 // session
-Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
+Crypto::Crypto(unsigned salt, const CryptoPP::SecByteBlock& pubB) :
+  _salt(salt),
+  _saltHash(hashMessage(salt)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
@@ -54,12 +56,13 @@ Crypto::Crypto(const CryptoPP::SecByteBlock& pubB) :
 }
 
 // client
-Crypto::Crypto() :
+Crypto::Crypto(unsigned salt) :
+  _salt(salt),
+  _saltHash(hashMessage(salt)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _message(Crypto::hashMessage()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
@@ -149,7 +152,7 @@ bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
 
 void Crypto::signMessage() {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
-  CryptoPP::StringSource ss(_message.data(),
+  CryptoPP::StringSource ss(_saltHash.data(),
   true,
   new CryptoPP::SignerFilter(_rng,
       signer,
@@ -195,7 +198,7 @@ void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 bool Crypto::verifySignature(const std::string& signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
   _verified = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(_message.data()), _message.length(),
+    reinterpret_cast<const CryptoPP::byte*>(_saltHash.data()), _saltHash.length(),
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
   if (!_verified)
     throw std::runtime_error("Failed to verify signature");
@@ -203,11 +206,12 @@ bool Crypto::verifySignature(const std::string& signature) {
   return true;
 }
 
-std::string Crypto::hashMessage() {
-  const std::string message = "This message will be hashed!";
+std::string Crypto::hashMessage(unsigned value) {
+  std::string target;
+  ioutility::toChars(value, target);
   CryptoPP::SHA256 hash;
   std::string digest;
-  hash.Update(reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length());
+  hash.Update(reinterpret_cast<const CryptoPP::byte*>(target.data()), target.length());
   digest.resize(hash.DigestSize());
   hash.Final(reinterpret_cast<CryptoPP::byte*>(digest.data()));
   CryptoPP::HexEncoder encoder;
@@ -219,7 +223,7 @@ std::string Crypto::hashMessage() {
 }
 
 void Crypto::eraseRSAKeys() {
-  std::string().swap(_message);
+  std::string().swap(_saltHash);
   _rsaPrivKey = CryptoPP::RSA::PrivateKey();
   _rsaPubKey = CryptoPP::RSA::PublicKey();
   _peerRsaPubKey = CryptoPP::RSA::PublicKey();

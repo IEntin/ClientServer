@@ -74,6 +74,8 @@ struct CloseFileDescriptor {
 
 std::size_t getUniqueId();
 
+int generateSalt();
+
 void readFile(std::string_view name, std::string& buffer);
 
 bool getLastLine(std::string_view fileName, std::string& lastLine);

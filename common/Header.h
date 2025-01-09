@@ -13,19 +13,21 @@
 enum class LOG_LEVEL;
 
 constexpr int HEADERTYPE_SIZE = 1;
+constexpr int SALT_SIZE = 10;
 constexpr int NUM_FIELD_SIZE = 10;
 constexpr int COMPRESSOR_SIZE = 1;
 constexpr int DIAGNOSTICS_SIZE = 1;
 constexpr int STATUS_SIZE = 1;
-constexpr int PARAMETER_SIZE = NUM_FIELD_SIZE;
+constexpr int PARAMETER_SIZE = 10;
 constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + NUM_FIELD_SIZE + COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
+  HEADERTYPE_SIZE + SALT_SIZE + NUM_FIELD_SIZE + COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
   NONE,
   DH_INIT,
   DH_HANDSHAKE,
+  AUTHENTICATE,
   HEARTBEAT,
   SESSION,
   ERROR,
@@ -71,6 +73,7 @@ enum class STATUS : char {
 
 enum class HEADER_INDEX : char {
   HEADERTYPEINDEX,
+  SALTINDEX,
   UNCOMPRESSEDSIZEINDEX,
   COMPRESSORINDEX,
   DIAGNOSTICSINDEX,
@@ -80,9 +83,11 @@ enum class HEADER_INDEX : char {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, std::size_t, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, unsigned, std::size_t, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
+
+unsigned extractSalt(const HEADER& header);
 
 std::size_t extractUncompressedSize(const HEADER& header);
 

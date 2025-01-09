@@ -120,4 +120,31 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
   return true;
 }
 
+bool Tcp::readMessageE(boost::asio::ip::tcp::socket& socket,
+		       std::string& payload) {
+  boost::system::error_code ec;
+  std::size_t transferred [[maybe_unused]] = boost::asio::read_until(socket,
+    boost::asio::dynamic_buffer(payload), utility::ENDOFMESSAGE, ec);
+  if (ec) {
+    switch (ec.value()) {
+    case boost::asio::error::eof:
+    case boost::asio::error::connection_reset:
+    case boost::asio::error::broken_pipe:
+      Info << utility::createErrorString() << '\n';
+      break;
+    default:
+      Warn << ec.what() << '\n';
+      return false;
+    }
+  }
+  if (payload.ends_with(utility::ENDOFMESSAGE)) {
+    payload.erase(payload.size() - utility::ENDOFMESSAGE.size());     
+    return true;
+  }
+  else {
+    LogError << "ENDOFMESSAGE not found\n";
+    return false;
+  }
+}
+
 } // end of namespace tcp

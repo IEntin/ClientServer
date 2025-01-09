@@ -207,7 +207,7 @@ struct FifoNBDuplex : testing::Test {
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     std::size_t size = payload.size();
     HEADER header =
-      { HEADERTYPE::SESSION, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+      { HEADERTYPE::SESSION, 0, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
     std::string dataIntermed;

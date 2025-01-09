@@ -53,5 +53,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 
 #include <gtest/gtest.h>

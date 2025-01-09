@@ -9,6 +9,9 @@
 #include <fstream>
 #include <regex>
 
+#include <boost/random.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
 #include "Compression.h"
 #include "IOUtility.h"
 #include "Logger.h"
@@ -25,6 +28,16 @@ CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
     LogError << strerror(errno) << '\n';
   _fd = -1;
+}
+
+int generateSalt() {
+  static const auto seed = std::time(0);
+  static thread_local boost::random::mt19937 gen(seed);
+  int min = 1;
+  int max = 10000;
+  boost::random::uniform_int_distribution<> dist(min, max);
+  int random_number = dist(gen);
+  return random_number;
 }
 
 std::size_t getUniqueId() {

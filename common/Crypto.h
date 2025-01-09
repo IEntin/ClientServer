@@ -30,6 +30,8 @@ struct KeyHandler {
 };
 
 class Crypto {
+  const unsigned _salt;
+  std::string _saltHash;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
@@ -41,7 +43,6 @@ class Crypto {
   std::string _serializedRsaPubKey;
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
-  std::string _message;
   KeyHandler _keyHandler;
   bool _verified = false;
   bool _signatureSent = false;
@@ -50,14 +51,16 @@ class Crypto {
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
 public:
-  Crypto(const CryptoPP::SecByteBlock& pubB);
-  Crypto();
+  Crypto(unsigned salt, const CryptoPP::SecByteBlock& pubB);
+  Crypto(unsigned salt);
   ~Crypto();
   void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
+  unsigned getSalt() const { return _salt; }
+  std::string  getSaltHash() const { return _saltHash; }
   bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
@@ -69,7 +72,7 @@ public:
   bool verifySignature(const std::string& signature);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
-  std::string hashMessage();
+  std::string hashMessage(unsigned message);
   void eraseRSAKeys();
   void erasePubPrivKeys();
   bool checkAccess();

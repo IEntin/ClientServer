@@ -15,10 +15,11 @@ namespace tcp {
 
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
+		       unsigned salt,
 		       const CryptoPP::SecByteBlock& pubB,
 		       std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, pubB, signatureWithPubKey),
+  Session(server, salt, pubB, signatureWithPubKey),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
@@ -126,7 +127,8 @@ void TcpSession::readRequest() {
 
 void TcpSession::write(std::string_view payload) {
   HEADER header
-    { HEADERTYPE::SESSION, payload.size(), ServerOptions::_compressor, DIAGNOSTICS::NONE, _status, 0 };
+    { HEADERTYPE::SESSION, 0, payload.size(),
+      ServerOptions::_compressor, DIAGNOSTICS::NONE, _status, 0 };
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(headerBuffer),

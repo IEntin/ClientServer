@@ -14,10 +14,11 @@
 namespace fifo {
 
 FifoSession::FifoSession(ServerWeakPtr server,
+			 unsigned salt,
 			 const CryptoPP::SecByteBlock& pubB,
 			 std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, pubB, signatureWithPubKey) {}
+  Session(server, salt, pubB, signatureWithPubKey) {}
 
 FifoSession::~FifoSession() {
   try {

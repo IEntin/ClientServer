@@ -7,6 +7,7 @@
 #include <boost/asio.hpp>
 
 #include "Header.h"
+#include "Utility.h"
 
 namespace tcp {
 
@@ -52,6 +53,28 @@ public:
     return true;
   }
 
+  template <typename P1, typename P2 = P1>
+  static bool readMsgE(boost::asio::ip::tcp::socket& socket,
+		       HEADER& header,
+		       P1& payload1,
+		       P2&& payload2 = P2()) {
+    static thread_local std::string payload;
+    if (!readMessageE(socket, payload))
+      return false;
+    deserialize(header, payload.data());
+    std::size_t size = extractUncompressedSize(header);
+    if (size != 0) {
+      payload1.resize(size);
+      std::memcpy(payload1.data(), payload.data(), size);
+    }
+    size = extractParameter(header);
+    if (size != 0) {
+      payload2.resize(size);
+      std::memcpy(payload2.data(), payload.data(), size);
+    }
+    return true;
+  }
+
   template <typename P1 = std::vector<char>, typename P2 = P1>
   static bool sendMsg(boost::asio::ip::tcp::socket& socket,
 		      const HEADER& header,
@@ -62,6 +85,26 @@ public:
     std::array<boost::asio::const_buffer, 3> buffers{ boost::asio::buffer(headerBuffer),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2) };
+    boost::system::error_code ec;
+    std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+    if (ec) {
+      LogError << ec.what() << '\n';
+      return false;
+    }
+    return true;
+  }
+
+  template <typename P1 = std::vector<char>, typename P2 = P1>
+  static bool sendMsgE(boost::asio::ip::tcp::socket& socket,
+		       const HEADER& header,
+		       const P1& payload1 = P1(),
+		       const P2& payload2 = P2()) {
+    char headerBuffer[HEADER_SIZE] = {};
+    serialize(header, headerBuffer);
+    std::array<boost::asio::const_buffer, 4> buffers{ boost::asio::buffer(headerBuffer),
+						      boost::asio::buffer(payload1),
+						      boost::asio::buffer(payload2),
+						      boost::asio::buffer(utility::ENDOFMESSAGE) };
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {
@@ -95,6 +138,8 @@ public:
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  std::string& payload,
 			  std::size_t size);
+  static bool readMessageE(boost::asio::ip::tcp::socket& socket,
+			   std::string& payload);
 };
 
 } // end of namespace tcp

@@ -40,10 +40,11 @@ protected:
       std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
       std::size_t signatureDataSz = signatureWithPubKey.size();
       HEADER header =
-	{ HEADERTYPE::DH_INIT, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
+	{ HEADERTYPE::DH_INIT, crypto->getSalt(), pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
       bool result = lambda(header, pubKey, signatureWithPubKey);
-      if (result)
+      if (result) {
 	crypto->signatureSent();
+      }
       crypto->eraseRSAKeys();
       return result;
     }
