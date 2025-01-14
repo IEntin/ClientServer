@@ -69,8 +69,8 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view pay
   return true;
 }
 
-bool Tcp::readMessageE(boost::asio::ip::tcp::socket& socket,
-		       std::string& payload) {
+bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
+		      std::string& payload) {
   boost::system::error_code ec;
   std::size_t transferred [[maybe_unused]] = boost::asio::read_until(socket,
     boost::asio::dynamic_buffer(payload), utility::ENDOFMESSAGE, ec);

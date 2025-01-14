@@ -42,24 +42,24 @@ public:
     printHeader(header, LOG_LEVEL::INFO);
     std::size_t payload2Size = extractParameter(header);
     std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
-    if (payload1Size > 0) {
-      payload1.resize(payload1Size);
-      std::memcpy(payload1.data(), payload.data() + HEADER_SIZE, payload1Size);
-    }
-    if (payload2Size > 0) {
-      payload2.resize(payload2Size);
-      std::memcpy(payload2.data(), payload.data() + HEADER_SIZE + payload1Size, payload2Size);
-    }
+    payload1.resize(payload1Size);
+    payload2.resize(payload2Size);
+    unsigned shift = HEADER_SIZE;
+    if (payload1Size > 0)
+      std::memcpy(payload1.data(), payload.data() + shift, payload1Size);
+    shift += payload1Size;
+    if (payload2Size > 0)
+      std::memcpy(payload2.data(), payload.data() + shift, payload2Size);
     return true;
   }
 
-  template <typename P1, typename P2 = P1, typename P3 = P2>
-  static bool readMsg3(std::string_view name,
-		       bool block,
-		       HEADER& header,
-		       P1& payload1,
-		       P2&& payload2 = P2(),
-		       P3& payload3 = P3()) {
+  template <typename P1, typename P2, typename P3>
+  static bool readMsg(std::string_view name,
+		      bool block,
+		      HEADER& header,
+		      P1& payload1,
+		      P2& payload2,
+		      P3& payload3) {
     static thread_local std::string payload;
     payload.clear();
     if (block) {
@@ -76,21 +76,18 @@ public:
     unsigned payload1Size = extractReservedSz(header);
     unsigned payload2Size = extractUncompressedSize(header);
     unsigned payload3Size = extractParameter(header);
+    payload1.resize(payload1Size);
+    payload2.resize(payload2Size);
+    payload3.resize(payload3Size);
     unsigned shift = HEADER_SIZE;
-    if (payload1Size > 0) {
-      payload1.resize(payload1Size);
+    if (payload1Size > 0)
       std::memcpy(payload1.data(), payload.data() + shift, payload1Size);
-    }
     shift += payload1Size;
-    if (payload2Size > 0) {
-      payload2.resize(payload2Size);
+    if (payload2Size > 0)
       std::memcpy(payload2.data(), payload.data() + shift, payload2Size);
-    }
     shift += payload2Size;
-    if (payload3Size > 0) {
-	payload3.resize(payload3Size);
+    if (payload3Size > 0)
 	std::memcpy(payload3.data(), payload.data() + shift, payload3Size);
-    }
     return true;
   }
 
@@ -131,12 +128,12 @@ public:
     return true;
   }
 
-  template <typename P1, typename P2 = P1, typename P3 = P2>
-  static bool sendMsg3(std::string_view name,
-		       const HEADER& header,
-		       const P1& payload1 = P1(),
-		       const P2& payload2 = P2(),
-		       const P3& payload3 = P3()) {
+  template <typename P1, typename P2, typename P3>
+  static bool sendMsg(std::string_view name,
+		      const HEADER& header,
+		      const P1& payload1 = P1(),
+		      const P2& payload2 = P2(),
+		      const P3& payload3 = P3()) {
     int fdWrite = openWriteNonBlock(name);
     utility::CloseFileDescriptor cfdw(fdWrite);
     if (fdWrite == -1)

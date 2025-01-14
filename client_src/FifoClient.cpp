@@ -83,7 +83,7 @@ bool FifoClient::wakeupAcceptor() {
     const std::string_view msgHash,
     const CryptoPP::SecByteBlock& pubKey,
     std::string_view signedAuth) {
-    return Fifo::sendMsg3(ClientOptions::_acceptorName, header, msgHash, pubKey, signedAuth);
+    return Fifo::sendMsg(ClientOptions::_acceptorName, header, msgHash, pubKey, signedAuth);
   };
   return init(lambda);
 }

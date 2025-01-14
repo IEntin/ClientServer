@@ -100,6 +100,51 @@ void TcpClientHeartbeat::timeoutWait() {
 }
 
 void TcpClientHeartbeat::read() {
+  _heartbeatBuffer.clear();
+  boost::asio::async_read_until(_socket,
+    boost::asio::dynamic_buffer(_heartbeatBuffer),
+      utility::ENDOFMESSAGE,
+      [this] (const boost::system::error_code& ec, std::size_t transferred) {
+	std::size_t ENDOFMESSAGESZ = utility::ENDOFMESSAGE.size();
+	std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
+      if (transferred > ENDOFMESSAGESZ)
+	if (receivedView.ends_with(utility::ENDOFMESSAGE))
+	  _heartbeatBuffer.erase(_heartbeatBuffer.cend() - ENDOFMESSAGESZ);
+      auto self = weak_from_this().lock();
+      if (!self)
+	return;
+      if (ec) {
+	switch (ec.value()) {
+	case boost::asio::error::eof:
+	case boost::asio::error::connection_reset:
+	case boost::asio::error::broken_pipe:
+	case boost::asio::error::connection_refused:
+	  Info << ec.what() << '\n';
+	  break;
+	default:
+	  Warn << ec.what() << '\n';
+	  break;
+	}
+	boost::asio::post(_ioContext, [this] {
+	  stop();
+	});
+	_status = STATUS::HEARTBEAT_PROBLEM;
+	return;
+      }
+      HEADER header;
+      if (!deserialize(header, _heartbeatBuffer.data()))
+	return;
+      if (!isOk(header)) {
+	LogError << "header is invalid." << '\n';
+	return;
+      }
+      Logger logger(LOG_LEVEL::INFO, std::clog, false);
+      logger << '*';
+      heartbeatWait();
+    });
+}
+/*
+void TcpClientHeartbeat::read() {
   // receives interrupt and unblocks read on CtrlC in wait mode
   boost::system::error_code ec;
   _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
@@ -152,7 +197,7 @@ void TcpClientHeartbeat::read() {
       heartbeatWait();
     });
 }
-
+  */
 void TcpClientHeartbeat::write() {
   timeoutWait();
   if (_socket.is_open())

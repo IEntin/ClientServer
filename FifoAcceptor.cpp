@@ -32,7 +32,7 @@ FifoAcceptor::unblockAcceptor() {
   std::string msgHash;
   CryptoPP::SecByteBlock pubB;
   std::string rsaPubB;
-  if (!Fifo::readMsg3(_acceptorName, true, header, msgHash, pubB, rsaPubB))
+  if (!Fifo::readMsg(_acceptorName, true, header, msgHash, pubB, rsaPubB))
     return { HEADERTYPE::ERROR, std::string(), CryptoPP::SecByteBlock(), rsaPubB };
   return { extractHeaderType(header), msgHash, pubB, rsaPubB };
 }

@@ -18,7 +18,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     std::string_view msgHash,
     const CryptoPP::SecByteBlock& pubKey,
     std::string_view signedAuth) {
-    return Tcp::sendMsgE(_socket, header, msgHash, pubKey, signedAuth);
+    return Tcp::sendMsg(_socket, header, msgHash, pubKey, signedAuth);
   };
   if (!init(lambda))
     throw std::runtime_error("TcpClient::init failed");
@@ -63,7 +63,7 @@ bool TcpClient::receive() {
       return false;
     }
     HEADER header;
-    if (!Tcp::readMsgE(_socket, header, _response)) {
+    if (!Tcp::readMsg(_socket, header, _response)) {
       return false;
     }
     _status = STATUS::NONE;
@@ -80,7 +80,7 @@ bool TcpClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  if (!Tcp::readMsgE(_socket, _header, clientIdStr, pubAreceived))
+  if (!Tcp::readMsg(_socket, _header, clientIdStr, pubAreceived))
     return false;
   if (!DHFinish(clientIdStr, pubAreceived))
     return false;
