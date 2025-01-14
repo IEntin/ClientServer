@@ -14,7 +14,7 @@
 namespace utility {
 
 // common constants
-constexpr std::string_view ENDOFMESSAGE("1c70f4cb6a43");
+constexpr std::string_view ENDOFMESSAGE("b7d0d9fc71b943288c99f178ebff6e9d");
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
 // INPUT can be a string or string_view.
