@@ -30,8 +30,7 @@ struct KeyHandler {
 };
 
 class Crypto {
-  const unsigned _salt;
-  std::string _saltHash;
+  std::string _msgHash;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKey;
@@ -51,7 +50,9 @@ class Crypto {
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
 public:
-  Crypto(unsigned salt, const CryptoPP::SecByteBlock& pubB);
+  Crypto(std::string_view msgHash,
+	 const CryptoPP::SecByteBlock& pubB,
+	 std::string_view );
   Crypto(unsigned salt);
   ~Crypto();
   void showKey();
@@ -59,8 +60,7 @@ public:
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
-  unsigned getSalt() const { return _salt; }
-  std::string  getSaltHash() const { return _saltHash; }
+  std::string getMsgHash() const { return _msgHash; }
   bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);

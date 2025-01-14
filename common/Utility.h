@@ -74,7 +74,7 @@ struct CloseFileDescriptor {
 
 std::size_t getUniqueId();
 
-int generateSalt();
+int generateRandomNumber(int min = 1, int max = 10000);
 
 void readFile(std::string_view name, std::string& buffer);
 

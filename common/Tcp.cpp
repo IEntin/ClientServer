@@ -69,73 +69,14 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view pay
   return true;
 }
 
-bool Tcp::readHeader(boost::asio::ip::tcp::socket& socket, HEADER& header) {
-  boost::system::error_code ec;
-  socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-  if (ec) {
-    Warn << ec.what() << '\n';
-    return false;
-  }
-  char buffer[HEADER_SIZE] = {};
-  std::size_t transferred [[maybe_unused]] =
-    boost::asio::read(socket, boost::asio::buffer(buffer), ec);
-  if (ec) {
-    switch (ec.value()) {
-    case boost::asio::error::eof:
-    case boost::asio::error::connection_reset:
-    case boost::asio::error::broken_pipe:
-      Info << ec.what() << '\n';
-      return false;
-    default:
-      Warn << ec.what() << '\n';
-      return false;
-    }
-  }
-  return deserialize(header, buffer);  
-}
-
-bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
-		      std::string& payload,
-		      std::size_t size) {
-  boost::system::error_code ec;
-  socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
-  if (ec) {
-    Warn << ec.what() << '\n';
-    return false;
-  }
-  std::size_t transferred [[maybe_unused]] =
-    boost::asio::read(socket, boost::asio::buffer(payload, size), ec);
-  if (ec) {
-    switch (ec.value()) {
-    case boost::asio::error::eof:
-    case boost::asio::error::connection_reset:
-    case boost::asio::error::broken_pipe:
-      Info << ec.what() << '\n';
-      return false;
-    default:
-      Warn << ec.what() << '\n';
-      return false;
-    }
-  }
-  return true;
-}
-
 bool Tcp::readMessageE(boost::asio::ip::tcp::socket& socket,
 		       std::string& payload) {
   boost::system::error_code ec;
   std::size_t transferred [[maybe_unused]] = boost::asio::read_until(socket,
     boost::asio::dynamic_buffer(payload), utility::ENDOFMESSAGE, ec);
   if (ec) {
-    switch (ec.value()) {
-    case boost::asio::error::eof:
-    case boost::asio::error::connection_reset:
-    case boost::asio::error::broken_pipe:
-      Info << utility::createErrorString() << '\n';
-      break;
-    default:
-      Warn << ec.what() << '\n';
-      return false;
-    }
+    Info << ec.what() << '\n';
+    return false;
   }
   if (payload.ends_with(utility::ENDOFMESSAGE)) {
     payload.erase(payload.size() - utility::ENDOFMESSAGE.size());     

@@ -118,7 +118,7 @@ TEST(HeaderTest, 1) {
   HEADER header{HEADERTYPE::SESSION, 0, uncomprSz, compressor, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   ASSERT_TRUE(deserialize(header, buffer));
-  std::size_t reservedResult = extractSalt(header);
+  std::size_t reservedResult = extractReservedSz(header);
   ASSERT_EQ(reservedResult, reserved);
   std::size_t uncomprSzResult = extractUncompressedSize(header);
   ASSERT_EQ(uncomprSz, uncomprSzResult);

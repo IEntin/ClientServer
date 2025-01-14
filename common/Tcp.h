@@ -26,52 +26,72 @@ public:
 
   static bool setSocket(boost::asio::ip::tcp::socket& socket);
 
-  template <typename P1, typename P2 = P1>
-  static bool readMsg(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      P1& payload1,
-		      P2&& payload2 = P2()) {
-    if (!readHeader(socket, header))
-      return false;
-    static thread_local std::string payload;
-    std::size_t size = extractUncompressedSize(header);
-    if (size != 0) {
-      payload.resize(size);
-      if (!readMessage(socket, payload, size))
-	return false;
-      payload1.resize(size);
-      std::memcpy(payload1.data(), payload.data(), size);
-    }
-    size = extractParameter(header);
-    if (size != 0) {
-      payload.resize(size);
-      if (!readMessage(socket, payload, size))
-	return false;
-      payload2.resize(size);
-      std::memcpy(payload2.data(), payload.data(), size);
-    }
-    return true;
-  }
-
-  template <typename P1, typename P2 = P1>
+  template <typename P1>
   static bool readMsgE(boost::asio::ip::tcp::socket& socket,
 		       HEADER& header,
-		       P1& payload1,
-		       P2&& payload2 = P2()) {
+		       P1& payload1) {
     static thread_local std::string payload;
+    payload.clear();
     if (!readMessageE(socket, payload))
       return false;
     deserialize(header, payload.data());
-    std::size_t size = extractUncompressedSize(header);
-    if (size != 0) {
-      payload1.resize(size);
-      std::memcpy(payload1.data(), payload.data(), size);
-    }
-    size = extractParameter(header);
-    if (size != 0) {
-      payload2.resize(size);
-      std::memcpy(payload2.data(), payload.data(), size);
-    }
+    std::size_t payload1Sz = extractUncompressedSize(header);
+    payload1.resize(payload1Sz);
+    unsigned shift = HEADER_SIZE;
+    if (payload1Sz > 0)
+      std::memcpy(payload1.data(), payload.data() + shift, payload1Sz);
+    return true;
+  }
+
+  template <typename P1, typename P2>
+  static bool readMsgE(boost::asio::ip::tcp::socket& socket,
+		       HEADER& header,
+		       P1& payload1,
+		       P2& payload2) {
+    static thread_local std::string payload;
+    payload.clear();
+    if (!readMessageE(socket, payload))
+      return false;
+    deserialize(header, payload.data());
+    std::size_t payload1Sz = extractUncompressedSize(header);
+    std::size_t payload2Sz = extractParameter(header);
+    payload1.resize(payload1Sz);
+    payload2.resize(payload2Sz);
+    unsigned shift = HEADER_SIZE;
+    if (payload1Sz > 0)
+      std::memcpy(payload1.data(), payload.data() + shift, payload1Sz);
+    shift += payload1Sz;
+    if (payload2Sz > 0)
+      std::memcpy(payload2.data(), payload.data() + shift, payload2Sz);
+    return true;
+  }
+
+  template <typename P1, typename P2, typename P3>
+  static bool readMsgE(boost::asio::ip::tcp::socket& socket,
+		       HEADER& header,
+		       P1& payload1,
+		       P2& payload2,
+		       P3& payload3) {
+    static thread_local std::string payload;
+    payload.clear();
+    if (!readMessageE(socket, payload))
+      return false;
+    deserialize(header, payload.data());
+    std::size_t payload1Sz = extractReservedSz(header);
+    std::size_t payload2Sz = extractUncompressedSize(header);
+    std::size_t payload3Sz = extractParameter(header);
+    payload1.resize(payload1Sz);
+    payload2.resize(payload2Sz);
+    payload3.resize(payload3Sz);
+    unsigned shift = HEADER_SIZE;
+    if (payload1Sz > 0)
+      std::memcpy(payload1.data(), payload.data() + shift, payload1Sz);
+    shift += payload1Sz;
+    if (payload2Sz > 0)
+      std::memcpy(payload2.data(), payload.data() + shift, payload2Sz);
+    shift += payload2Sz;
+    if (payload3Sz > 0)
+      std::memcpy(payload3.data(), payload.data() + shift, payload3Sz);
     return true;
   }
 
@@ -94,16 +114,18 @@ public:
     return true;
   }
 
-  template <typename P1 = std::vector<char>, typename P2 = P1>
+  template <typename P1 = std::vector<char>, typename P2 = P1, typename P3 = P2>
   static bool sendMsgE(boost::asio::ip::tcp::socket& socket,
 		       const HEADER& header,
 		       const P1& payload1 = P1(),
-		       const P2& payload2 = P2()) {
+		       const P2& payload2 = P2(),
+		       const P3& payload3 = P3()) {
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    std::array<boost::asio::const_buffer, 4> buffers{ boost::asio::buffer(headerBuffer),
+    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(headerBuffer),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2),
+						      boost::asio::buffer(payload3),
 						      boost::asio::buffer(utility::ENDOFMESSAGE) };
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);

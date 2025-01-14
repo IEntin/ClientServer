@@ -11,10 +11,10 @@
 #include "TaskController.h"
 
 Session::Session(ServerWeakPtr server,
-		 unsigned salt,
+		 std::string_view msgHash,
 		 const CryptoPP::SecByteBlock& pubB,
 		 std::string_view signatureWithPubKey) :
-  _crypto(std::make_shared<Crypto>(salt, pubB)),
+  _crypto(std::make_shared<Crypto>(msgHash, pubB, signatureWithPubKey)),
   _task(std::make_shared<Task>(_response)),
   _server(server) {
   _clientId = utility::getUniqueId();
@@ -27,6 +27,7 @@ Session::Session(ServerWeakPtr server,
   _crypto->hideKey();
   if (ServerOptions::_showKey)
    _crypto->showKey();
+  _crypto->eraseRSAKeys();
 }
 
 Session::~Session() {

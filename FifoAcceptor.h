@@ -17,7 +17,7 @@ class FifoAcceptor : public Runnable {
   void run() override;
   bool start() override;
   void stop() override;
-  std::tuple<HEADERTYPE, unsigned, CryptoPP::SecByteBlock, std::string>
+  std::tuple<HEADERTYPE, std::string, CryptoPP::SecByteBlock, std::string>
   unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;

@@ -57,21 +57,21 @@ void Server::stop() {
   _threadPoolSession.stop();
   TaskController::destroy();
 }
-void Server::createFifoSession(unsigned salt,
+void Server::createFifoSession(std::string_view msgHash,
 			       const CryptoPP::SecByteBlock& pubB,
 			       std::string_view rsaPubBserialized) {
   std::lock_guard lock(_mutex);
-  auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), salt, pubB, rsaPubBserialized);
+  auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, rsaPubBserialized);
   startSession(session, session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
-			      unsigned salt,
+			      std::string_view msgHash,
 			      const CryptoPP::SecByteBlock& pubB,
 			      std::string_view rsaPubB) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, salt, pubB, rsaPubB);
+    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, rsaPubB);
   startSession(session, session);
 }
 

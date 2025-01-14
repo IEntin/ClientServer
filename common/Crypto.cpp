@@ -40,13 +40,15 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 }
 
 // session
-Crypto::Crypto(unsigned salt, const CryptoPP::SecByteBlock& pubB) :
-  _salt(salt),
-  _saltHash(hashMessage(salt)),
+Crypto::Crypto(std::string_view msgHash,
+	       const CryptoPP::SecByteBlock& pubB,
+	       std::string_view signatureWithPubKey) :
+  _msgHash(msgHash),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
+  _signatureWithPubKey(signatureWithPubKey),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   if(!_dh.Agree(_key, _privKey, pubB))
@@ -56,9 +58,8 @@ Crypto::Crypto(unsigned salt, const CryptoPP::SecByteBlock& pubB) :
 }
 
 // client
-Crypto::Crypto(unsigned salt) :
-  _salt(salt),
-  _saltHash(hashMessage(salt)),
+Crypto::Crypto(unsigned randomNumber) :
+  _msgHash(hashMessage(randomNumber)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
@@ -152,7 +153,7 @@ bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
 
 void Crypto::signMessage() {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
-  CryptoPP::StringSource ss(_saltHash.data(),
+  CryptoPP::StringSource ss(_msgHash.data(),
   true,
   new CryptoPP::SignerFilter(_rng,
       signer,
@@ -198,7 +199,7 @@ void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 bool Crypto::verifySignature(const std::string& signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
   _verified = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(_saltHash.data()), _saltHash.length(),
+    reinterpret_cast<const CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
     reinterpret_cast<const CryptoPP::byte*>(signature.data()), signature.length());
   if (!_verified)
     throw std::runtime_error("Failed to verify signature");
@@ -223,7 +224,7 @@ std::string Crypto::hashMessage(unsigned value) {
 }
 
 void Crypto::eraseRSAKeys() {
-  std::string().swap(_saltHash);
+  std::string().swap(_msgHash);
   _rsaPrivKey = CryptoPP::RSA::PrivateKey();
   _rsaPubKey = CryptoPP::RSA::PublicKey();
   _peerRsaPubKey = CryptoPP::RSA::PublicKey();

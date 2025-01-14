@@ -23,28 +23,29 @@ FifoAcceptor::~FifoAcceptor() {
   Trace << '\n';
 }
 
-std::tuple<HEADERTYPE, unsigned, CryptoPP::SecByteBlock, std::string>
+std::tuple<HEADERTYPE, std::string, CryptoPP::SecByteBlock, std::string>
 FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, 0, CryptoPP::SecByteBlock(), std::string() };
+    return { HEADERTYPE::ERROR, std::string(), CryptoPP::SecByteBlock(), std::string() };
   HEADER header;
+  std::string msgHash;
   CryptoPP::SecByteBlock pubB;
   std::string rsaPubB;
-  if (!Fifo::readMsg(_acceptorName, true, header, pubB, rsaPubB))
-    return { HEADERTYPE::ERROR, 0, CryptoPP::SecByteBlock(), rsaPubB };
-  return { extractHeaderType(header),extractSalt(header), pubB, rsaPubB };
+  if (!Fifo::readMsg3(_acceptorName, true, header, msgHash, pubB, rsaPubB))
+    return { HEADERTYPE::ERROR, std::string(), CryptoPP::SecByteBlock(), rsaPubB };
+  return { extractHeaderType(header), msgHash, pubB, rsaPubB };
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, salt, pubB, signatureWithPubKey] = unblockAcceptor();
+    auto [type, msgHash, pubB, signatureWithPubKey] = unblockAcceptor();
     if (_stopped)
       break;
     switch (type) {
     case HEADERTYPE::DH_INIT:
       if (auto server = _server.lock(); server)
-	server->createFifoSession(salt, pubB, signatureWithPubKey);
+	server->createFifoSession(msgHash, pubB, signatureWithPubKey);
       break;
     default:
       break;

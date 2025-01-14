@@ -21,7 +21,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 
 class Session {
 protected:
-  std::size_t _clientId;
+  std::size_t _clientId = 0;
   CryptoPtr _crypto;
   std::string _request;
   Response _response;
@@ -31,7 +31,7 @@ protected:
   ServerWeakPtr _server;
 
   Session(ServerWeakPtr server,
-	  unsigned salt,
+	  std::string_view msgHash,
 	  const CryptoPP::SecByteBlock& pubB,
 	  std::string_view signatureWithPubKey);
   virtual ~Session();
@@ -46,7 +46,7 @@ protected:
       unsigned size = clientIdStr.size();
       const auto& pubA(_crypto->getPubKey());
       HEADER header
-	{ HEADERTYPE::DH_HANDSHAKE, _crypto->getSalt(), size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
+	{ HEADERTYPE::DH_HANDSHAKE, 0, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
       lambda(header, clientIdStr, pubA);
     }
   }

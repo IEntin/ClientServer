@@ -30,11 +30,9 @@ CloseFileDescriptor::~CloseFileDescriptor() {
   _fd = -1;
 }
 
-int generateSalt() {
+int generateRandomNumber(int min, int max) {
   static const auto seed = std::time(0);
   static thread_local boost::random::mt19937 gen(seed);
-  int min = 1;
-  int max = 10000;
   boost::random::uniform_int_distribution<> dist(min, max);
   int random_number = dist(gen);
   return random_number;

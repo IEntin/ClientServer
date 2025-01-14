@@ -25,7 +25,7 @@ class FifoSession final : public RunnableT<FifoSession>,
   std::string_view getDisplayName() const override{ return "fifo"; }
  public:
   FifoSession(ServerWeakPtr server,
-	      unsigned salt,
+	      std::string_view msgHash,
 	      const CryptoPP::SecByteBlock& pubB,
 	      std::string_view signatureWithPubKey);
   ~FifoSession() override;
