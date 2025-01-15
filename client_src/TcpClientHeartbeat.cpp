@@ -15,10 +15,6 @@ TcpClientHeartbeat::TcpClientHeartbeat() :
   _timeoutTimer(_ioContext),
   _heartbeatBuffer(HEADER_SIZE) {}
 
-TcpClientHeartbeat::~TcpClientHeartbeat() {
-  Trace << '\n';
-}
-
 bool TcpClientHeartbeat::start() {
   boost::asio::post(_ioContext, [this] { write(); });
   return true;
@@ -110,23 +106,22 @@ void TcpClientHeartbeat::read() {
   _heartbeatBuffer.clear();
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_buffer(_heartbeatBuffer),
-      utility::ENDOFMESSAGE,
-      [this] (const boost::system::error_code& ec, std::size_t transferred) {
-	if (_stopped)
-	  return;
-	auto self = weak_from_this().lock();
-	if (!self)
-	  return;
-	std::size_t numberCanceled = _timeoutTimer.cancel();
-	if (numberCanceled == 0) {
-	  Warn << "timeout\n";
-	  _status = STATUS::HEARTBEAT_TIMEOUT;
-	}
-	std::size_t ENDOFMESSAGESZ = utility::ENDOFMESSAGE.size();
-	std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
-      if (transferred > ENDOFMESSAGESZ)
-	if (receivedView.ends_with(utility::ENDOFMESSAGE))
-	  _heartbeatBuffer.erase(_heartbeatBuffer.cend() - ENDOFMESSAGESZ);
+    utility::ENDOFMESSAGE,
+    [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
+      if (_stopped)
+	return;
+      auto self = weak_from_this().lock();
+      if (!self)
+	return;
+      std::size_t numberCanceled = _timeoutTimer.cancel();
+      if (numberCanceled == 0) {
+	Warn << "timeout\n";
+	_status = STATUS::HEARTBEAT_TIMEOUT;
+      }
+      std::size_t ENDOFMESSAGESZ = utility::ENDOFMESSAGE.size();
+      std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
+      if (receivedView.ends_with(utility::ENDOFMESSAGE))
+	_heartbeatBuffer.erase(_heartbeatBuffer.cend() - ENDOFMESSAGESZ);
       if (ec) {
 	switch (ec.value()) {
 	case boost::asio::error::eof:

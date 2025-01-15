@@ -24,7 +24,6 @@ public:
 	     std::string_view msgHash,
 	     const CryptoPP::SecByteBlock& pubB,
 	     std::string_view rsaPubB);
-  ~TcpSession() override;
 
 private:
   bool start() override;

@@ -74,10 +74,6 @@ Crypto::Crypto(unsigned randomNumber) :
   _serializedRsaPubKey.swap(encodedStr);
 }
 
-Crypto::~Crypto() {
-  Trace << '\n';
-}
-
 bool Crypto::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		             CryptoPP::SecByteBlock& priv,
 		             CryptoPP::SecByteBlock& pub) {

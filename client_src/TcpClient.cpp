@@ -27,10 +27,6 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
 }
 
-TcpClient::~TcpClient() {
-  Trace << '\n';
-}
-
 void TcpClient::run() {
   start();
   Client::run();

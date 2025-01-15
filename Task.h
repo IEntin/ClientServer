@@ -33,7 +33,7 @@ struct RequestRow {
 
   RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
 
-  ~RequestRow() {}
+  ~RequestRow() = default;
 
   SIZETUPLE _sizeKey;
   std::string_view _value;
@@ -59,7 +59,7 @@ class Task : private boost::noncopyable {
  public:
   explicit Task(Response& response = _emptyResponse);
 
-  ~Task();
+  ~Task() = default;
 
   void update(std::string_view request);
 

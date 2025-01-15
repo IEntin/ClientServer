@@ -20,7 +20,6 @@ class TcpClient : public Client {
   boost::asio::ip::tcp::socket _socket;
  public:
   TcpClient();
-  ~TcpClient() override;
 
   void run() override;
 };

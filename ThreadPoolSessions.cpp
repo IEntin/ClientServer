@@ -16,10 +16,6 @@ not creating redundant threads.
 ThreadPoolSessions::ThreadPoolSessions(int maxSize) :
   ThreadPoolBase(maxSize) {}
 
-ThreadPoolSessions::~ThreadPoolSessions() {
-  Trace << '\n';
-}
-
 void ThreadPoolSessions::calculateStatus(RunnablePtr runnable) {
   ++_totalNumberObjects;
   // need one more thread ?

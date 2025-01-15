@@ -54,7 +54,7 @@ public:
 	 const CryptoPP::SecByteBlock& pubB,
 	 std::string_view );
   Crypto(unsigned salt);
-  ~Crypto();
+  ~Crypto() = default;
   void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
   void decrypt(std::string& buffer, std::string& data);

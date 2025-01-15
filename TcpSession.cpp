@@ -25,10 +25,6 @@ TcpSession::TcpSession(ServerWeakPtr server,
   _socket(std::move(_connection->_socket)),
   _timeoutTimer(_ioContext) {}
 
-TcpSession::~TcpSession() {
-  Trace << '\n';
-}
-
 bool TcpSession::start() {
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
@@ -87,9 +83,8 @@ void TcpSession::readRequest() {
     boost::asio::dynamic_string_buffer(_request),
     utility::ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
-      if (transferred > utility::ENDOFMESSAGE.size())
-	if (_request.ends_with(utility::ENDOFMESSAGE))
-	  _request.erase(transferred - utility::ENDOFMESSAGE.size());
+      if (_request.ends_with(utility::ENDOFMESSAGE))
+	_request.erase(transferred - utility::ENDOFMESSAGE.size());
       auto self = weak_from_this().lock();
       if (!self)
 	return;

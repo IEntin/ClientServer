@@ -15,10 +15,6 @@ TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 
-TaskBuilder::~TaskBuilder() {
-  Trace << '\n';
-}
-
 void TaskBuilder::run() {
   while (!_stopped) {
     _resume = false;

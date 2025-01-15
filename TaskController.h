@@ -22,7 +22,6 @@ class TaskController {
     TaskControllerWeakPtr _taskController;
   public:
     explicit Worker(TaskControllerWeakPtr taskController);
-    ~Worker() override {}
   };
   using CompletionFunction = void (*) () noexcept;
   bool start();
@@ -42,7 +41,7 @@ class TaskController {
   static Phase _phase;
  public:
   TaskController();
-  ~TaskController();
+  ~TaskController() = default;
   void processTask(TaskPtr task);
   static bool create();
   static void destroy();

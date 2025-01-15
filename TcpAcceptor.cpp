@@ -13,10 +13,6 @@ TcpAcceptor::TcpAcceptor(ServerPtr server) :
   _server(server),
   _acceptor(_ioContext) {}
 
-TcpAcceptor::~TcpAcceptor() {
-  Trace << '\n';
-}
-
 bool TcpAcceptor::start() {
   boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), ServerOptions::_tcpPort);
   boost::system::error_code ec;

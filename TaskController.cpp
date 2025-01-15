@@ -17,10 +17,6 @@ TaskController::TaskController() :
   _task = std::make_shared<Task>();
 }
 
-TaskController::~TaskController() {
-  Trace << '\n';
-}
-
 TaskControllerWeakPtr TaskController::getWeakPtr() {
   return _single;
 }

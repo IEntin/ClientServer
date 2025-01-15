@@ -29,7 +29,6 @@ class TaskBuilder final : public Runnable {
   bool start() override { return true; }
  public:
   TaskBuilder(CryptoWeakPtr crypto);
-  ~TaskBuilder() override;
   void stop() override;
   std::pair<STATUS, Subtasks&> getTask();
   Subtask& getSubtask();

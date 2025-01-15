@@ -22,10 +22,6 @@ RequestRow::RequestRow(std::string_view::const_iterator beg,
 
 Task::Task(Response& response) : _response(response) {}
 
-Task::~Task() {
-  Trace << '\n';
-}
-
 void Task::setProcessFunction(ProcessRequest function) {
   _function = function;
 }
