@@ -20,7 +20,7 @@ TcpClientHeartbeat::~TcpClientHeartbeat() {
 }
 
 bool TcpClientHeartbeat::start() {
-  boost::asio::post(_ioContext, [this] { heartbeatWait(); });
+  boost::asio::post(_ioContext, [this] { write(); });
   return true;
 }
 
