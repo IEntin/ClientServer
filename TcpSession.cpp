@@ -69,10 +69,11 @@ void TcpSession::stop() {
 }
 
 bool TcpSession::sendReply() {
-  std::string_view payload = buildReply(_status);
-  if (payload.empty())
+  auto pair = buildReply(_status);
+  if (pair.second.empty())
     return false;
   asyncWait();
+  std::string_view payload(pair.second);
   boost::asio::post(_ioContext, [this, payload] { write(payload); });
   return true;
 }
@@ -81,10 +82,10 @@ void TcpSession::readRequest() {
   asyncWait();
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_string_buffer(_request),
-    utility::ENDOFMESSAGE,
+    ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
-      if (_request.ends_with(utility::ENDOFMESSAGE))
-	_request.erase(transferred - utility::ENDOFMESSAGE.size());
+      if (_request.ends_with(ENDOFMESSAGE))
+	_request.erase(transferred - ENDOFMESSAGESZ);
       auto self = weak_from_this().lock();
       if (!self)
 	return;
@@ -128,7 +129,7 @@ void TcpSession::write(std::string_view payload) {
   serialize(header, headerBuffer);
   std::array<boost::asio::const_buffer, 3> asioBuffers{ boost::asio::buffer(headerBuffer),
 							boost::asio::buffer(payload),
-							boost::asio::buffer(utility::ENDOFMESSAGE) };
+							boost::asio::buffer(ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
     asioBuffers,
     boost::asio::transfer_all(),

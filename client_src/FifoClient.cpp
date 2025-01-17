@@ -21,7 +21,7 @@ constexpr int FIFO_CLIENT_POLLING_PERIOD = 250;
 namespace fifo {
 
 FifoClient::FifoClient()  {
-  boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, utility::FIFO_NAMED_MUTEX);
+  boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   if (!wakeupAcceptor())
     throw std::runtime_error("FifoClient::wakeupAcceptor failed");
@@ -50,7 +50,8 @@ bool FifoClient::send(Subtask& subtask) {
 	LogError << ec.message() << '\n';
       _status = STATUS::STOPPED;
     }
-    if (Fifo::sendMsg(_fifoName, subtask._data))
+    // if (Fifo::sendMsgE(false, _fifoName, subtask._header, subtask._data))
+    if (Fifo::sendMsg(false, _fifoName, subtask._data))
       return true;
     // waiting client
     // session stopped
@@ -83,7 +84,7 @@ bool FifoClient::wakeupAcceptor() {
     const std::string_view msgHash,
     const CryptoPP::SecByteBlock& pubKey,
     std::string_view signedAuth) {
-    return Fifo::sendMsg(ClientOptions::_acceptorName, header, msgHash, pubKey, signedAuth);
+    return Fifo::sendMsg(false, ClientOptions::_acceptorName, header, msgHash, pubKey, signedAuth);
   };
   return init(lambda);
 }

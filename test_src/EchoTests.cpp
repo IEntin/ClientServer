@@ -118,7 +118,7 @@ struct FifoBlockingTest : testing::Test {
     }
   }
   bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsg(_testFifo, payload);
+    return fifo::Fifo::sendMsg(false, _testFifo, payload);
   }
   void receive(std::string& received) {
     fifo::Fifo::readStringBlock(_testFifo, received);
@@ -188,19 +188,19 @@ struct FifoNBDuplex : testing::Test {
 
   // client send
   bool sendC(const HEADER& header, std::string_view data) {
-    return fifo::Fifo::sendMsg(_testFifo, header, data);
+    return fifo::Fifo::sendMsgEOM(false, _testFifo, header, data);
   }
   // client receive
   bool receiveC(HEADER& header, std::string& data) {
-    return fifo::Fifo::readMsg(_testFifo, false, header, data);
+    return fifo::Fifo::readMsgUntil(_testFifo, false, header, data);
   }
   // server send
   bool sendS(const HEADER& header, std::string_view data) {
-    return fifo::Fifo::sendMsg(_testFifo, header, data);
+    return fifo::Fifo::sendMsgEOM(false, _testFifo, header, data);
   }
   // server receive
   bool receiveS(HEADER& header, std::string& data) {
-    return fifo::Fifo::readMsg(_testFifo, false, header, data);
+    return fifo::Fifo::readMsgUntil(_testFifo, false, header, data);
   }
 
   void testFifoNBDuplex(std::string_view payload) {

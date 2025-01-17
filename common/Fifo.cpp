@@ -11,6 +11,8 @@
 
 namespace fifo {
 
+constexpr std::size_t BUFFER_SIZE = 10000;
+
 short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   int result = poll(&pfd, 1, -1);
@@ -96,30 +98,44 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
-bool Fifo::sendMsg(std::string_view name, std::string_view payload) {
-  int fdWrite = openWriteNonBlock(name);
-  utility::CloseFileDescriptor cfdw(fdWrite);
+bool Fifo::sendMsg(bool block, std::string_view name, std::string_view payload) {
+  int fdWrite = -1;
+  if (block)
+    fdWrite = open(name.data(), O_WRONLY);
+  else
+    fdWrite = openWriteNonBlock(name);
   if (fdWrite == -1)
     return false;
-  writeString(fdWrite, payload);
+  utility::CloseFileDescriptor cfdw(fdWrite);
+  if (!payload.empty())
+    writeString(fdWrite, payload);
   return true;
 }
 
 bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
-  utility::CloseFileDescriptor cfdr(fd);
   if (fd == -1)
     return false;
+  utility::CloseFileDescriptor cfdr(fd);
   char buffer[BUFFER_SIZE] = {};
   while (true) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1)
       throw std::runtime_error(utility::createErrorString());
     else if (result == 0) {
+      if (payload.ends_with(ENDOFMESSAGE)) {
+	payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	return true;
+      }
       break;
     }
-    else
+    else {
       payload.append(buffer, result);
+      if (payload.ends_with(ENDOFMESSAGE)) {
+	payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	return true;
+      }
+    }
   }
   return !payload.empty();
 }
@@ -143,14 +159,52 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       }
     }
     else if (result >= 0) {
-      if (result > 0)
+      if (result > 0) {
 	payload.append(buffer, result);
-      else if (result == 0)
+	if (payload.ends_with(ENDOFMESSAGE)) {
+	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	  return true;
+	}
+      }
+      else if (result == 0) {
+	if (payload.ends_with(ENDOFMESSAGE)) {
+	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	  return true;
+	}
 	if (pollFd(fd, POLLIN) != POLLIN)
 	  break;
+      }
     }
   }
   return !payload.empty();
+}
+
+bool Fifo::readUntil(int fd, std::string& payload) {
+  if (fd == -1)
+    return false;
+  char buffer[BUFFER_SIZE] = {};
+  while (true) {
+    ssize_t result = read(fd, buffer, BUFFER_SIZE);
+    if (result == -1) {
+      switch (errno) {
+      case EAGAIN:
+	continue;
+	break;
+      default:
+	throw std::runtime_error(utility::createErrorString());
+	break;
+      }
+    }
+    else if (result >= 0) {
+      if (result > 0)
+	payload.append(buffer, result);
+      if (payload.ends_with(ENDOFMESSAGE)) {
+	payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	return true;
+      }
+    }
+  }
+  return false;
 }
 
 } // end of namespace fifo

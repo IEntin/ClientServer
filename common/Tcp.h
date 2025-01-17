@@ -107,7 +107,7 @@ public:
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2),
 						      boost::asio::buffer(payload3),
-						      boost::asio::buffer(utility::ENDOFMESSAGE) };
+						      boost::asio::buffer(ENDOFMESSAGE) };
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {

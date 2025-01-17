@@ -130,6 +130,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   subtask._data.resize(_aggregate.size());
   std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
+  subtask._header = header;
   _condition.notify_one();
   return subtask._state;
 }

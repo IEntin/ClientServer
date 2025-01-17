@@ -11,11 +11,12 @@
 #include "Crypto.h"
 #include "Header.h"
 
-namespace utility {
-
 // common constants
 constexpr std::string_view ENDOFMESSAGE("b7d0d9fc71b943288c99f178ebff6e9d");
+static constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
+
+namespace utility {
 
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,

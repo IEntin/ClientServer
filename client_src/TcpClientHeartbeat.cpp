@@ -106,7 +106,7 @@ void TcpClientHeartbeat::read() {
   _heartbeatBuffer.clear();
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_buffer(_heartbeatBuffer),
-    utility::ENDOFMESSAGE,
+    ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
@@ -118,9 +118,9 @@ void TcpClientHeartbeat::read() {
 	Warn << "timeout\n";
 	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
-      std::size_t ENDOFMESSAGESZ = utility::ENDOFMESSAGE.size();
+      std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
       std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
-      if (receivedView.ends_with(utility::ENDOFMESSAGE))
+      if (receivedView.ends_with(ENDOFMESSAGE))
 	_heartbeatBuffer.erase(_heartbeatBuffer.cend() - ENDOFMESSAGESZ);
       if (ec) {
 	switch (ec.value()) {
@@ -169,7 +169,7 @@ void TcpClientHeartbeat::write() {
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, 0 };
   serialize(header, _heartbeatBuffer.data());
   std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(_heartbeatBuffer),
-							boost::asio::buffer(utility::ENDOFMESSAGE) };
+							boost::asio::buffer(ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
     asioBuffers,
     boost::asio::transfer_all(),

@@ -34,7 +34,8 @@ Session::~Session() {
   Trace << '\n';
 }
 
-std::string_view Session::buildReply(std::atomic<STATUS>& status) {
+std::pair<std::string_view, std::string_view>
+Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
   _responseData.erase(_responseData.cbegin(), _responseData.cend());
@@ -43,10 +44,13 @@ std::string_view Session::buildReply(std::atomic<STATUS>& status) {
   std::size_t uncompressedSz = _responseData.size();
   HEADER header =
     { HEADERTYPE::SESSION, 0, uncompressedSz, ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  std::string_view headerView(headerBuffer, HEADER_SIZE);
   if (ServerOptions::_showKey)
     _crypto->showKey();
   utility::compressEncrypt(_buffer, ServerOptions::_encrypted, header, _crypto, _responseData);
-  return _responseData;
+  return { headerView, _responseData };
 }
 
 bool Session::processTask() {

@@ -82,16 +82,16 @@ bool FifoSession::receiveRequest() {
 bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
-  std::string_view payload = buildReply(_status);
-  if (payload.empty())
+  auto pair = buildReply(_status);
+  if (pair.second.empty())
     return false;
-  return Fifo::sendMsg(_fifoName, payload);
+  return Fifo::sendMsg(false, _fifoName, pair.second);
 }
 
 void FifoSession::sendStatusToClient() {
   auto lambda = [] (
     const HEADER& header, std::string_view idStr, const CryptoPP::SecByteBlock& pubA) {
-    Fifo::sendMsg(ServerOptions::_acceptorName, header, idStr, pubA);
+    Fifo::sendMsg(false, ServerOptions::_acceptorName, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);
 }

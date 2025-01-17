@@ -16,6 +16,7 @@ struct Subtask {
   ~Subtask() {}
   std::string _data;
   std::atomic<STATUS> _state = STATUS::NONE;
+  HEADER _header;
 
   static void clearTask(Subtasks& task) {
     for (auto& subtask : task) {

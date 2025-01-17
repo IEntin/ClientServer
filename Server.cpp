@@ -98,5 +98,5 @@ void Server::stopSessions() {
 }
 
 void Server::removeNamedMutex() {
-  boost::interprocess::named_mutex::remove(utility::FIFO_NAMED_MUTEX);
+  boost::interprocess::named_mutex::remove(FIFO_NAMED_MUTEX);
 }

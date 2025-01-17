@@ -45,7 +45,7 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
 bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
   std::array<boost::asio::const_buffer, 2>
     buffers{ boost::asio::buffer(payload),
-	     boost::asio::buffer(utility::ENDOFMESSAGE) };
+	     boost::asio::buffer(ENDOFMESSAGE) };
   boost::system::error_code ec;
   socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
   if (ec) {
@@ -73,13 +73,13 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 		      std::string& payload) {
   boost::system::error_code ec;
   std::size_t transferred [[maybe_unused]] = boost::asio::read_until(socket,
-    boost::asio::dynamic_buffer(payload), utility::ENDOFMESSAGE, ec);
+    boost::asio::dynamic_buffer(payload), ENDOFMESSAGE, ec);
   if (ec) {
     Info << ec.what() << '\n';
     return false;
   }
-  if (payload.ends_with(utility::ENDOFMESSAGE)) {
-    payload.erase(payload.size() - utility::ENDOFMESSAGE.size());     
+  if (payload.ends_with(ENDOFMESSAGE)) {
+    payload.erase(payload.size() - ENDOFMESSAGESZ);     
     return true;
   }
   else {
