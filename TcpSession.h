@@ -33,7 +33,7 @@ private:
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
   std::string_view getDisplayName() const override{ return "tcp"; }
   void readRequest();
-  void write(std::string_view payload);
+  void write(const HEADER& header);
   void asyncWait();
   bool sendReply();
   ConnectionPtr _connection;

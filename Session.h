@@ -35,7 +35,7 @@ protected:
 	  const CryptoPP::SecByteBlock& pubB,
 	  std::string_view signatureWithPubKey);
   virtual ~Session();
-  std::pair<std::string_view, std::string_view>
+  std::pair<HEADER, std::string_view>
   buildReply(std::atomic<STATUS>& status);
   bool processTask();
 

@@ -118,10 +118,19 @@ struct FifoBlockingTest : testing::Test {
     }
   }
   bool send(std::string_view payload) {
-    return fifo::Fifo::sendMsg(false, _testFifo, payload);
+  HEADER header{
+    HEADERTYPE::SESSION,
+    0,
+    payload.size(),
+    COMPRESSORS::NONE,
+    DIAGNOSTICS::NONE,
+    STATUS::NONE,
+    0 };
+  return fifo::Fifo::sendMsgEOM(true, _testFifo, header, payload);
   }
   void receive(std::string& received) {
-    fifo::Fifo::readStringBlock(_testFifo, received);
+    HEADER header;
+    fifo::Fifo::readMsgUntil(_testFifo, true, header, received);
   }
 
   void testBlockingFifo(std::string_view payload) {

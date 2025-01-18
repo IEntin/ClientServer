@@ -82,10 +82,10 @@ bool FifoSession::receiveRequest() {
 bool FifoSession::sendResponse() {
   if (!std::filesystem::exists(_fifoName))
     return false;
-  auto pair = buildReply(_status);
-  if (pair.second.empty())
+  auto [header, payload] = buildReply(_status);
+  if (payload.empty())
     return false;
-  return Fifo::sendMsg(false, _fifoName, pair.second);
+  return Fifo::sendMsgEOM(false, _fifoName, header, payload);
 }
 
 void FifoSession::sendStatusToClient() {

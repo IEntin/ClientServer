@@ -69,12 +69,11 @@ void TcpSession::stop() {
 }
 
 bool TcpSession::sendReply() {
-  auto pair = buildReply(_status);
-  if (pair.second.empty())
+  auto [header, payload] = buildReply(_status);
+  if (payload.empty())
     return false;
   asyncWait();
-  std::string_view payload(pair.second);
-  boost::asio::post(_ioContext, [this, payload] { write(payload); });
+  boost::asio::post(_ioContext, [this, header] { write(header); });
   return true;
 }
 
@@ -121,14 +120,11 @@ void TcpSession::readRequest() {
   }
 }
 
-void TcpSession::write(std::string_view payload) {
-  HEADER header =
-    { HEADERTYPE::SESSION, 0, payload.size(),
-      ServerOptions::_compressor, DIAGNOSTICS::NONE, _status, 0 };
+void TcpSession::write(const HEADER& header) {
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   std::array<boost::asio::const_buffer, 3> asioBuffers{ boost::asio::buffer(headerBuffer),
-							boost::asio::buffer(payload),
+							boost::asio::buffer(_responseData),
 							boost::asio::buffer(ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
     asioBuffers,
