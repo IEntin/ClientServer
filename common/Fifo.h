@@ -35,11 +35,13 @@ public:
       if (!readStringNonBlock(name, payload))
 	return false;
     }
+    if (payload.ends_with(ENDOFMESSAGE))
+      payload.erase(payload.cend() - ENDOFMESSAGESZ);
     if (!deserialize(header, payload.data()))
       return false;
     printHeader(header, LOG_LEVEL::INFO);
+    std::size_t payload1Size = extractUncompressedSize(header);;
     std::size_t payload2Size = extractParameter(header);
-    std::size_t payload1Size = payload.size() - HEADER_SIZE - payload2Size;
     payload1.resize(payload1Size);
     payload2.resize(payload2Size);
     unsigned shift = HEADER_SIZE;
@@ -68,6 +70,8 @@ public:
       if (!readStringNonBlock(name, payload))
 	return false;
     }
+    if (payload.ends_with(ENDOFMESSAGE))
+      payload.erase(payload.cend() - ENDOFMESSAGESZ);
     if (!deserialize(header, payload.data()))
       return false;
     printHeader(header, LOG_LEVEL::INFO);
@@ -94,16 +98,18 @@ public:
 		       bool block,
 		       HEADER& header,
 		       P1& payload1) {
+    int fdRead = -1;
+    if (block)
+      fdRead = open(name.data(), O_RDONLY);
+    else
+      fdRead = open(name.data(), O_RDONLY | O_NONBLOCK);
+    if (fdRead == -1)
+      return false;
+    utility::CloseFileDescriptor cfdw(fdRead);
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (block) {
-      if (!readStringBlock(name, payload))
-	  return false;
-    }
-    else {
-      if (!readStringNonBlock(name, payload))
-	return false;
-    }
+    if (!readUntil(block, fdRead, payload))
+      return false;
     if (payload.ends_with(ENDOFMESSAGE))
       payload.erase(payload.cend() - ENDOFMESSAGESZ);
     if (!deserialize(header, payload.data()))
@@ -131,10 +137,12 @@ public:
     if (fdRead == -1)
       return false;
     utility::CloseFileDescriptor cfdw(fdRead);
-    if (!readUntil(fdRead, payload))
+    if (!readUntil(block, fdRead, payload))
       return false;
     if (!deserialize(header, payload.data()))
       return false;
+    if (payload.ends_with(ENDOFMESSAGE))
+      payload.erase(payload.cend() - ENDOFMESSAGESZ);
     std::size_t payload1Size = extractUncompressedSize(header);
     if (payload1Size > 0) {
       payload1.resize(payload1Size);
@@ -217,8 +225,7 @@ public:
     return true;
   }
 
-  static bool sendMsg(bool block, std::string_view name, std::string_view payload);
-  static bool readUntil(int fd, std::string& payload);
+  static bool readUntil(bool block, int fd, std::string& payload);
   static bool readStringBlock(std::string_view name, std::string& payload);
   static bool readStringNonBlock(std::string_view name, std::string& payload);
   static bool setPipeSize(int fd);

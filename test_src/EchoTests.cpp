@@ -133,7 +133,7 @@ struct FifoBlockingTest : testing::Test {
 
   void receive(std::string& received) {
     HEADER header;
-    fifo::Fifo::readMsg1(_testFifo, true, header, received);
+    fifo::Fifo::readMsgUntil(_testFifo, true, header, received);
   }
 
   void testBlockingFifo(std::string_view payload) {

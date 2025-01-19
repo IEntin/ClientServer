@@ -68,7 +68,7 @@ bool FifoClient::receive() {
     _response.erase(_response.cbegin(), _response.cend());
     _status = STATUS::NONE;
     HEADER header;
-    if (!Fifo::readMsg1(_fifoName, true, header, _response))
+    if (!Fifo::readMsgUntil(_fifoName, true, header, _response))
       return false;
     return printReply();
   }

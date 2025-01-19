@@ -98,20 +98,6 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
-bool Fifo::sendMsg(bool block, std::string_view name, std::string_view payload) {
-  int fdWrite = -1;
-  if (block)
-    fdWrite = open(name.data(), O_WRONLY);
-  else
-    fdWrite = openWriteNonBlock(name);
-  if (fdWrite == -1)
-    return false;
-  utility::CloseFileDescriptor cfdw(fdWrite);
-  if (!payload.empty())
-    writeString(fdWrite, payload);
-  return true;
-}
-
 bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   if (fd == -1)
@@ -179,7 +165,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   return !payload.empty();
 }
 
-bool Fifo::readUntil(int fd, std::string& payload) {
+bool Fifo::readUntil(bool block, int fd, std::string& payload) {
   if (fd == -1)
     return false;
   char buffer[BUFFER_SIZE] = {};
@@ -203,6 +189,8 @@ bool Fifo::readUntil(int fd, std::string& payload) {
 	return true;
       }
       else if (result == 0) {
+	if (block)
+	  return true;
 	if (payload.ends_with(ENDOFMESSAGE)) {
 	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
 	  return true;
