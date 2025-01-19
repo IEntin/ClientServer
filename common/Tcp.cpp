@@ -27,32 +27,8 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
     }
   }
 
-  static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
+static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
   socket.connect(endpoint, ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return false;
-  }
-  socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
-  if (ec) {
-    if (ec.value() == boost::asio::error::connection_reset)
-      Info << ec.what() << '\n';
-    return false;
-  }
-  return true;
-}
-
-bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view payload) {
-  std::array<boost::asio::const_buffer, 2>
-    buffers{ boost::asio::buffer(payload),
-	     boost::asio::buffer(ENDOFMESSAGE) };
-  boost::system::error_code ec;
-  socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);
-  if (ec) {
-    Warn << ec.what() << '\n';
-    return false;
-  }
-  std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
   if (ec) {
     switch (ec.value()) {
     case boost::asio::error::eof:
@@ -65,6 +41,13 @@ bool Tcp::sendMessage(boost::asio::ip::tcp::socket& socket, std::string_view pay
       Warn << ec.what() << '\n';
       return false;
     }
+    return false;
+  }
+  socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
+  if (ec) {
+    if (ec.value() == boost::asio::error::connection_reset)
+      Info << ec.what() << '\n';
+    return false;
   }
   return true;
 }

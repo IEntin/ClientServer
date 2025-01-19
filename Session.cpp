@@ -52,10 +52,9 @@ Session::buildReply(std::atomic<STATUS>& status) {
 }
 
 bool Session::processTask() {
-  utility::decryptDecompress(_buffer, _task->header(), _crypto, _request);
+  utility::decryptDecompress(_buffer, _header, _crypto, _request);
    if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
-    std::string_view request = _request;
-    _task->update(request);
+    _task->update(_header, _request);
     taskController->processTask(_task);
     return true;
   }

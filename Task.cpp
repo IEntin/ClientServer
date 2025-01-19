@@ -26,9 +26,9 @@ void Task::setProcessFunction(ProcessRequest function) {
   _function = function;
 }
 
-void Task::update(std::string_view request) {
+void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
-  _diagnostics = isDiagnosticsEnabled(_header);
+  _diagnostics = isDiagnosticsEnabled(header);
   _rows.clear();
   utility::splitFast(request, _rows);
   _indices.resize(_rows.size());

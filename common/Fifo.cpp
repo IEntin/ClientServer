@@ -202,9 +202,17 @@ bool Fifo::readUntil(int fd, std::string& payload) {
 	payload.erase(payload.cend() - ENDOFMESSAGESZ);
 	return true;
       }
+      else if (result == 0) {
+	if (payload.ends_with(ENDOFMESSAGE)) {
+	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	  return true;
+	}
+	if (pollFd(fd, POLLIN) != POLLIN)
+	  break;
+      }
     }
   }
-  return false;
+  return !payload.empty();
 }
 
 } // end of namespace fifo

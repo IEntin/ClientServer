@@ -50,7 +50,7 @@ bool FifoClient::send(Subtask& subtask) {
 	LogError << ec.message() << '\n';
       _status = STATUS::STOPPED;
     }
-    if (Fifo::sendMsg(false, _fifoName, subtask._data))
+    if (Fifo::sendMsg(false, _fifoName, subtask._header, subtask._data))
       return true;
     // waiting client
     // session stopped
@@ -68,7 +68,7 @@ bool FifoClient::receive() {
     _response.erase(_response.cbegin(), _response.cend());
     _status = STATUS::NONE;
     HEADER header;
-    if (!Fifo::readMsgUntil(_fifoName, true, header, _response))
+    if (!Fifo::readMsg1(_fifoName, true, header, _response))
       return false;
     return printReply();
   }

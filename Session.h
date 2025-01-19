@@ -23,6 +23,7 @@ class Session {
 protected:
   std::size_t _clientId = 0;
   CryptoPtr _crypto;
+  HEADER _header;
   std::string _request;
   Response _response;
   TaskPtr _task;

@@ -80,7 +80,7 @@ bool TcpSession::sendReply() {
 void TcpSession::readRequest() {
   asyncWait();
   boost::asio::async_read_until(_socket,
-    boost::asio::dynamic_string_buffer(_request),
+    boost::asio::dynamic_buffer(_request),
     ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
       if (_request.ends_with(ENDOFMESSAGE))
@@ -105,6 +105,8 @@ void TcpSession::readRequest() {
 	});
 	return;
       }
+       if (deserialize(_header, _request.data()))
+	_request.erase(_request.cbegin(), _request.cbegin() + HEADER_SIZE);
       if (processTask())
 	boost::asio::post(_ioContext, [this] { sendReply(); });
       else {

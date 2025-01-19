@@ -19,6 +19,9 @@
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT; done
 
+static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
+static constexpr std::string_view _testFifo = "TestFifo";
+
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
   void testEchoTcp(COMPRESSORS serverCompressor, COMPRESSORS clientCompressor) {
@@ -104,7 +107,6 @@ TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
 
 struct FifoBlockingTest : testing::Test {
   static constexpr std::string_view _testFifo = "TestFifo";
-  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
   FifoBlockingTest() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
@@ -118,19 +120,20 @@ struct FifoBlockingTest : testing::Test {
     }
   }
   bool send(std::string_view payload) {
-  HEADER header{
-    HEADERTYPE::SESSION,
-    0,
-    payload.size(),
-    COMPRESSORS::NONE,
-    DIAGNOSTICS::NONE,
-    STATUS::NONE,
-    0 };
-  return fifo::Fifo::sendMsgEOM(true, _testFifo, header, payload);
+    HEADER header{
+      HEADERTYPE::SESSION,
+      0,
+      payload.size(),
+      COMPRESSORS::NONE,
+      DIAGNOSTICS::NONE,
+      STATUS::NONE,
+      0 };
+    return fifo::Fifo::sendMsg(true, _testFifo, header, payload);
   }
+
   void receive(std::string& received) {
     HEADER header;
-    fifo::Fifo::readMsgUntil(_testFifo, true, header, received);
+    fifo::Fifo::readMsg1(_testFifo, true, header, received);
   }
 
   void testBlockingFifo(std::string_view payload) {
@@ -176,11 +179,7 @@ TEST_F(FifoBlockingTest, FifoBlockingTestReverse) {
   }
 }
 
-// test close to possible usage
 struct FifoNBDuplex : testing::Test {
-  static constexpr std::string_view _testFifo = "TestFifo";
-  static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-
   FifoNBDuplex() {
     if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
@@ -197,7 +196,7 @@ struct FifoNBDuplex : testing::Test {
 
   // client send
   bool sendC(const HEADER& header, std::string_view data) {
-    return fifo::Fifo::sendMsgEOM(false, _testFifo, header, data);
+    return fifo::Fifo::sendMsg(false, _testFifo, header, data);
   }
   // client receive
   bool receiveC(HEADER& header, std::string& data) {
@@ -205,7 +204,7 @@ struct FifoNBDuplex : testing::Test {
   }
   // server send
   bool sendS(const HEADER& header, std::string_view data) {
-    return fifo::Fifo::sendMsgEOM(false, _testFifo, header, data);
+    return fifo::Fifo::sendMsg(false, _testFifo, header, data);
   }
   // server receive
   bool receiveS(HEADER& header, std::string& data) {
@@ -220,7 +219,8 @@ struct FifoNBDuplex : testing::Test {
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
     std::string dataIntermed;
-    auto fr = std::async(std::launch::async, &FifoNBDuplex::receiveS, this, std::ref(headerIntermed), std::ref(dataIntermed));
+    auto fr = std::async(std::launch::async, &FifoNBDuplex::receiveS,
+			 this, std::ref(headerIntermed), std::ref(dataIntermed));
     fr.wait();
     fs.wait();
     ASSERT_EQ(headerIntermed, header);

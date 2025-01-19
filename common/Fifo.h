@@ -90,10 +90,10 @@ public:
   }
 
   template <typename P1>
-  static bool readMsg(std::string_view name,
-		      bool block,
-		      HEADER& header,
-		      P1& payload1) {
+  static bool readMsg1(std::string_view name,
+		       bool block,
+		       HEADER& header,
+		       P1& payload1) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
     if (block) {
@@ -104,9 +104,10 @@ public:
       if (!readStringNonBlock(name, payload))
 	return false;
     }
+    if (payload.ends_with(ENDOFMESSAGE))
+      payload.erase(payload.cend() - ENDOFMESSAGESZ);
     if (!deserialize(header, payload.data()))
       return false;
-    printHeader(header, LOG_LEVEL::INFO);
     std::size_t payload1Size = payload.size() - HEADER_SIZE;
     payload1.resize(payload1Size);
     unsigned shift = HEADER_SIZE;
@@ -122,18 +123,16 @@ public:
 			   P1& payload1) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (block) {
-      if (!readStringBlock(name, payload))
-	return false;
-    }
-    else {
-      int fdRead = open(name.data(), O_RDONLY | O_NONBLOCK);
-      if (fdRead == -1)
-	return false;
-      utility::CloseFileDescriptor cfdw(fdRead);
-      if (!readUntil(fdRead, payload))
-	return false;
-    }
+    int fdRead = -1;
+    if (block)
+      fdRead = open(name.data(), O_RDONLY);
+    else
+      fdRead = open(name.data(), O_RDONLY | O_NONBLOCK);
+    if (fdRead == -1)
+      return false;
+    utility::CloseFileDescriptor cfdw(fdRead);
+    if (!readUntil(fdRead, payload))
+      return false;
     if (!deserialize(header, payload.data()))
       return false;
     std::size_t payload1Size = extractUncompressedSize(header);
@@ -144,7 +143,7 @@ public:
     }
     return false;
   }
-  
+
   template <typename S>
   static void writeString(int fd, S& str) {
     std::size_t written = 0;
@@ -164,12 +163,12 @@ public:
     }
   }
 
-  template <typename P1, typename P2>
+  template <typename P1, typename P2 = P1>
   static bool sendMsg(bool block,
 		      std::string_view name,
 		      const HEADER& header,
 		      const P1& payload1,
-		      const P2& payload2) {
+		      const P2& payload2 = P2()) {
     int fdWrite = -1;
     if (block)
       fdWrite = open(name.data(), O_WRONLY);
@@ -189,56 +188,13 @@ public:
     return true;
   }
 
-  template <typename P1>
-  static bool sendMsg(bool block,
-		      std::string_view name,
-		      const HEADER& header,
-		      const P1& payload1) {
-    int fdWrite = -1;
-    if (block)
-      fdWrite = open(name.data(), O_WRONLY);
-    else
-      fdWrite = openWriteNonBlock(name);
-    if (fdWrite == -1)
-      return false;
-    utility::CloseFileDescriptor cfdw(fdWrite);
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    std::string_view headerView(headerBuffer, HEADER_SIZE);
-    writeString(fdWrite, headerView);
-    writeString(fdWrite, payload1);
-    return true;
-  }
-
-  template <typename P1>
-  static bool sendMsgEOM(bool block,
-			 std::string_view name,
-			 const HEADER& header,
-			 const P1& payload1) {
-    int fdWrite = -1;
-    if (block)
-      fdWrite = open(name.data(), O_WRONLY);
-    else
-      fdWrite = openWriteNonBlock(name);
-    if (fdWrite == -1)
-      return false;
-    utility::CloseFileDescriptor cfdw(fdWrite);
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    std::string_view headerView(headerBuffer, HEADER_SIZE);
-    writeString(fdWrite, headerView);
-    writeString(fdWrite, payload1);
-    writeString(fdWrite, ENDOFMESSAGE);
-   return true;
-  }
-
   template <typename P1, typename P2, typename P3>
   static bool sendMsg(bool block,
 		      std::string_view name,
 		      const HEADER& header,
 		      const P1& payload1,
-		      const P2& payload2,
-		      const P3& payload3) {
+		      const P2& payload2 = P2(),
+		      const P3& payload3 = P3()) {
     int fdWrite = -1;
     if (block)
       fdWrite = open(name.data(), O_WRONLY);
@@ -257,6 +213,7 @@ public:
       writeString(fdWrite, payload2);
     if (!payload3.empty())
       writeString(fdWrite, payload3);
+    writeString(fdWrite, ENDOFMESSAGE);
     return true;
   }
 
