@@ -165,42 +165,11 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   return !payload.empty();
 }
 
-bool Fifo::readUntil(bool block, int fd, std::string& payload) {
-  if (fd == -1)
-    return false;
-  char buffer[BUFFER_SIZE] = {};
-  while (true) {
-    ssize_t result = read(fd, buffer, BUFFER_SIZE);
-    if (result == -1) {
-      switch (errno) {
-      case EAGAIN:
-	continue;
-	break;
-      default:
-	throw std::runtime_error(utility::createErrorString());
-	break;
-      }
-    }
-    else if (result >= 0) {
-      if (result > 0)
-	payload.append(buffer, result);
-      if (payload.ends_with(ENDOFMESSAGE)) {
-	payload.erase(payload.cend() - ENDOFMESSAGESZ);
-	return true;
-      }
-      else if (result == 0) {
-	if (block)
-	  return true;
-	if (payload.ends_with(ENDOFMESSAGE)) {
-	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
-	  return true;
-	}
-	if (pollFd(fd, POLLIN) != POLLIN)
-	  break;
-      }
-    }
-  }
-  return !payload.empty();
+bool Fifo::readUntil(bool block, std::string_view name, std::string& payload) {
+  if (block)
+    return readStringBlock(name, payload);
+  else
+    return readStringNonBlock(name, payload);      
 }
 
 } // end of namespace fifo
