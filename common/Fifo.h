@@ -189,7 +189,6 @@ public:
     writeString(fdWrite, headerView);
     if (!payload1.empty())
       writeString(fdWrite, payload1);
-    //writeString(fdWrite, ENDOFMESSAGE);
     return true;
   }
 
