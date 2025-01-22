@@ -13,11 +13,6 @@
 namespace fifo {
 
 class Fifo {
-  Fifo() = delete;
-  ~Fifo() = delete;
-
-  static short pollFd(int fd, short expected);
-
 public:
   template <typename P1, typename P2>
   static bool readMsg(std::string_view name,
@@ -27,7 +22,7 @@ public:
 		      P2&& payload2) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(block, name, payload))
+    if (!readUntil(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
       return false;
@@ -54,7 +49,7 @@ public:
 		      P3& payload3) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(block, name, payload))
+    if (!readUntil(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
       return false;
@@ -73,7 +68,7 @@ public:
       std::memcpy(payload2.data(), payload.data() + shift, payload2Size);
     shift += payload2Size;
     if (payload3Size > 0)
-	std::memcpy(payload3.data(), payload.data() + shift, payload3Size);
+      std::memcpy(payload3.data(), payload.data() + shift, payload3Size);
     return true;
   }
 
@@ -84,9 +79,26 @@ public:
 			   P1& payload1) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(block, name, payload))
+    if (!readUntil(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
+      return false;
+    std::size_t payload1Size = payload.size() - HEADER_SIZE;
+    if (payload1Size > 0) {
+      payload1.resize(payload1Size);
+      std::memcpy(payload1.data(), payload.data() + HEADER_SIZE, payload1Size);
+      return true;
+    }
+    return false;
+  }
+
+  template <typename P1>
+  static bool readMsgUntil(std::string_view name,
+			   bool block,
+			   P1& payload1) {
+    static thread_local std::string payload;
+    payload.erase(payload.cbegin(), payload.cend());
+    if (!readUntil(name, block, payload))
       return false;
     std::size_t payload1Size = payload.size() - HEADER_SIZE;
     if (payload1Size > 0) {
@@ -116,32 +128,7 @@ public:
     }
   }
 
-  template <typename P1, typename P2>
-  static bool sendMsg(bool block,
-		      std::string_view name,
-		      const HEADER& header,
-		      const P1& payload1,
-		      const P2& payload2) {
-    int fdWrite = -1;
-    if (block)
-      fdWrite = open(name.data(), O_WRONLY);
-    else
-      fdWrite = openWriteNonBlock(name);
-    if (fdWrite == -1)
-      return false;
-    utility::CloseFileDescriptor cfdw(fdWrite);
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    std::string_view headerView(headerBuffer, HEADER_SIZE);
-    writeString(fdWrite, headerView);
-    if (!payload1.empty())
-      writeString(fdWrite, payload1);
-    if (!payload2.empty())
-      writeString(fdWrite, payload2);
-    return true;
-  }
-
-  template <typename P1, typename P2, typename P3>
+  template <typename P1, typename P2 = P1, typename P3 = P2>
   static bool sendMsg(bool block,
 		      std::string_view name,
 		      const HEADER& header,
@@ -162,43 +149,29 @@ public:
     writeString(fdWrite, headerView);
     if (!payload1.empty())
       writeString(fdWrite, payload1);
-    if (!payload2.empty())
+    if (!payload2.empty()) {
       writeString(fdWrite, payload2);
-    if (!payload3.empty())
+      if (payload3.empty())
+	writeString(fdWrite, ENDOFMESSAGE);
+    }
+    if (!payload3.empty()) {
       writeString(fdWrite, payload3);
-    writeString(fdWrite, ENDOFMESSAGE);
+      writeString(fdWrite, ENDOFMESSAGE);
+    }
     return true;
   }
 
-  template <typename P1>
-  static bool sendMsg(bool block,
-		      std::string_view name,
-		      const HEADER& header,
-		      const P1& payload1) {
-    int fdWrite = -1;
-    if (block)
-      fdWrite = open(name.data(), O_WRONLY);
-    else
-      fdWrite = openWriteNonBlock(name);
-    if (fdWrite == -1)
-      return false;
-    utility::CloseFileDescriptor cfdw(fdWrite);
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    std::string_view headerView(headerBuffer, HEADER_SIZE);
-    writeString(fdWrite, headerView);
-    if (!payload1.empty())
-      writeString(fdWrite, payload1);
-    return true;
-  }
-
-  static bool readUntil(bool block, std::string_view name, std::string& payload);
-  static bool readStringBlock(std::string_view name, std::string& payload);
-  static bool readStringNonBlock(std::string_view name, std::string& payload);
-  static bool setPipeSize(int fd);
+  static bool readUntil(std::string_view name, bool block, std::string& payload);
   static void onExit(std::string_view fifoName);
+private:
+  Fifo() = delete;
+  ~Fifo() = delete;
+  static short pollFd(int fd, short expected);
+  static bool setPipeSize(int fd);
   static int openWriteNonBlock(std::string_view fifoName);
   static int openReadNonBlock(std::string_view fifoName);
+  static bool readStringBlock(std::string_view name, std::string& payload);
+  static bool readStringNonBlock(std::string_view name, std::string& payload);
 };
 
 } // end of namespace fifo

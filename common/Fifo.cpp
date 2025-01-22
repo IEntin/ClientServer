@@ -89,7 +89,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
       }
     }
   } while (fd == -1 && rep++ < numberRepeatENXIO);
-  if (fd != -1)
+  if (fd >= 0)
     setPipeSize(fd);
   return fd;
 }
@@ -108,19 +108,12 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1)
       throw std::runtime_error(utility::createErrorString());
-    else if (result == 0) {
-      if (payload.ends_with(ENDOFMESSAGE)) {
-	payload.erase(payload.cend() - ENDOFMESSAGESZ);
-	return true;
-      }
+    else if (result == 0)
       break;
-    }
-    else {
+    else if (result > 0) {
       payload.append(buffer, result);
-      if (payload.ends_with(ENDOFMESSAGE)) {
-	payload.erase(payload.cend() - ENDOFMESSAGESZ);
+      if (payload.ends_with(ENDOFMESSAGE))
 	return true;
-      }
     }
   }
   return !payload.empty();
@@ -147,16 +140,12 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     else if (result >= 0) {
       if (result > 0) {
 	payload.append(buffer, result);
-	if (payload.ends_with(ENDOFMESSAGE)) {
-	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	if (payload.ends_with(ENDOFMESSAGE))
 	  return true;
-	}
       }
       else if (result == 0) {
-	if (payload.ends_with(ENDOFMESSAGE)) {
-	  payload.erase(payload.cend() - ENDOFMESSAGESZ);
+	if (payload.ends_with(ENDOFMESSAGE))
 	  return true;
-	}
 	if (pollFd(fd, POLLIN) != POLLIN)
 	  break;
       }
@@ -165,11 +154,18 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   return !payload.empty();
 }
 
-bool Fifo::readUntil(bool block, std::string_view name, std::string& payload) {
-  if (block)
-    return readStringBlock(name, payload);
-  else
-    return readStringNonBlock(name, payload);      
+bool Fifo::readUntil(std::string_view name, bool block, std::string& payload) {
+  if (block) {
+    if (!readStringBlock(name, payload))
+      return false;
+  }
+  else {
+    if (!readStringNonBlock(name, payload))
+      return false;
+  }
+  if (payload.ends_with(ENDOFMESSAGE))
+    payload.erase(payload.cend() - ENDOFMESSAGESZ);
+  return true;
 }
 
 } // end of namespace fifo
