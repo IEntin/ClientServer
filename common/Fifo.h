@@ -143,21 +143,26 @@ public:
     if (fdWrite == -1)
       return false;
     utility::CloseFileDescriptor cfdw(fdWrite);
+    static thread_local std::string payload;
+    payload.erase(payload.cbegin(), payload.cend());
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    std::string_view headerView(headerBuffer, HEADER_SIZE);
-    writeString(fdWrite, headerView);
-    if (!payload1.empty())
-      writeString(fdWrite, payload1);
-    if (!payload2.empty()) {
-      writeString(fdWrite, payload2);
-      if (payload3.empty())
-	writeString(fdWrite, ENDOFMESSAGE);
-    }
-    if (!payload3.empty()) {
-      writeString(fdWrite, payload3);
-      writeString(fdWrite, ENDOFMESSAGE);
-    }
+    payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());
+    payload.reserve(payload.size() + ENDOFMESSAGESZ);
+    std::memcpy(payload.data(), headerBuffer, HEADER_SIZE);
+    unsigned shift = HEADER_SIZE;
+    std::memcpy(payload.data() + shift, payload1.data(), payload1.size());
+    shift += payload1.size();
+    if (!payload2.empty())
+      std::memcpy(payload.data() + shift, payload2.data(), payload2.size());
+    else
+      std::memcpy(payload.data() + shift, ENDOFMESSAGE.data(), ENDOFMESSAGESZ); 
+    shift += payload2.size();
+    if (!payload3.empty())
+      std::memcpy(payload.data() + shift, payload3.data(), payload3.size());
+    else
+      std::memcpy(payload.data() + shift, ENDOFMESSAGE.data(), ENDOFMESSAGESZ);
+    writeString(fdWrite, payload);
     return true;
   }
 
