@@ -22,7 +22,7 @@ public:
 		      P2&& payload2) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(name, block, payload))
+    if (!readMessage(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
       return false;
@@ -49,7 +49,7 @@ public:
 		      P3& payload3) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(name, block, payload))
+    if (!readMessage(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
       return false;
@@ -73,32 +73,15 @@ public:
   }
 
   template <typename P1>
-  static bool readMsgUntil(std::string_view name,
-			   bool block,
-			   HEADER& header,
-			   P1& payload1) {
+  static bool readMsg(std::string_view name,
+		      bool block,
+		      HEADER& header,
+		      P1& payload1) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(name, block, payload))
+    if (!readMessage(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
-      return false;
-    std::size_t payload1Size = payload.size() - HEADER_SIZE;
-    if (payload1Size > 0) {
-      payload1.resize(payload1Size);
-      std::memcpy(payload1.data(), payload.data() + HEADER_SIZE, payload1Size);
-      return true;
-    }
-    return false;
-  }
-
-  template <typename P1>
-  static bool readMsgUntil(std::string_view name,
-			   bool block,
-			   P1& payload1) {
-    static thread_local std::string payload;
-    payload.erase(payload.cbegin(), payload.cend());
-    if (!readUntil(name, block, payload))
       return false;
     std::size_t payload1Size = payload.size() - HEADER_SIZE;
     if (payload1Size > 0) {
@@ -148,25 +131,20 @@ public:
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
     payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());
-    payload.reserve(payload.size() + ENDOFMESSAGESZ);
     std::memcpy(payload.data(), headerBuffer, HEADER_SIZE);
     unsigned shift = HEADER_SIZE;
     std::memcpy(payload.data() + shift, payload1.data(), payload1.size());
     shift += payload1.size();
     if (!payload2.empty())
       std::memcpy(payload.data() + shift, payload2.data(), payload2.size());
-    else
-      std::memcpy(payload.data() + shift, ENDOFMESSAGE.data(), ENDOFMESSAGESZ); 
     shift += payload2.size();
     if (!payload3.empty())
       std::memcpy(payload.data() + shift, payload3.data(), payload3.size());
-    else
-      std::memcpy(payload.data() + shift, ENDOFMESSAGE.data(), ENDOFMESSAGESZ);
     writeString(fdWrite, payload);
     return true;
   }
 
-  static bool readUntil(std::string_view name, bool block, std::string& payload);
+  static bool readMessage(std::string_view name, bool block, std::string& payload);
   static void onExit(std::string_view fifoName);
 private:
   Fifo() = delete;

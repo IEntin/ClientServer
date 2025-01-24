@@ -110,11 +110,8 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       throw std::runtime_error(utility::createErrorString());
     else if (result == 0)
       break;
-    else if (result > 0) {
+    else if (result > 0)
       payload.append(buffer, result);
-      if (payload.ends_with(ENDOFMESSAGE))
-	return true;
-    }
   }
   return !payload.empty();
 }
@@ -138,14 +135,9 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       }
     }
     else if (result >= 0) {
-      if (result > 0) {
+      if (result > 0)
 	payload.append(buffer, result);
-	if (payload.ends_with(ENDOFMESSAGE))
-	  return true;
-      }
       else if (result == 0) {
-	if (payload.ends_with(ENDOFMESSAGE))
-	  return true;
 	if (pollFd(fd, POLLIN) != POLLIN)
 	  break;
       }
@@ -154,7 +146,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   return !payload.empty();
 }
 
-bool Fifo::readUntil(std::string_view name, bool block, std::string& payload) {
+bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) {
   if (block) {
     if (!readStringBlock(name, payload))
       return false;
@@ -163,8 +155,6 @@ bool Fifo::readUntil(std::string_view name, bool block, std::string& payload) {
     if (!readStringNonBlock(name, payload))
       return false;
   }
-  if (payload.ends_with(ENDOFMESSAGE))
-    payload.erase(payload.cend() - ENDOFMESSAGESZ);
   return true;
 }
 
