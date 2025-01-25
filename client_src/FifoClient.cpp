@@ -9,9 +9,9 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
-#include "ClientOptions.h"
 #include "Fifo.h"
 #include "IOUtility.h"
+#include "Options.h"
 #include "Subtask.h"
 
 namespace {
@@ -84,7 +84,7 @@ bool FifoClient::wakeupAcceptor() {
     const std::string_view msgHash,
     const CryptoPP::SecByteBlock& pubKey,
     std::string_view signedAuth) {
-    return Fifo::sendMsg(false, ClientOptions::_acceptorName, header, msgHash, pubKey, signedAuth);
+    return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKey, signedAuth);
   };
   return init(lambda);
 }
@@ -94,11 +94,11 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   CryptoPP::SecByteBlock pubAreceived;
-  if (!Fifo::readMsg(ClientOptions::_acceptorName, true, _header, clientIdStr, pubAreceived))
+  if (!Fifo::readMsg(Options::_acceptorName, true, _header, clientIdStr, pubAreceived))
     return false;
   if (!DHFinish(clientIdStr, pubAreceived))
     return false;
-  _fifoName = ClientOptions::_fifoDirectoryName + '/';
+  _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
   startHeartbeat();
   return true;

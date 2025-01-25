@@ -19,7 +19,7 @@ public:
 		      bool block,
 		      HEADER& header,
 		      P1& payload1,
-		      P2&& payload2) {
+		      P2& payload2) {
     static thread_local std::string payload;
     payload.erase(payload.cbegin(), payload.cend());
     if (!readMessage(name, block, payload))

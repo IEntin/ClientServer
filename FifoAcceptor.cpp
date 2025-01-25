@@ -9,13 +9,14 @@
 
 #include "Fifo.h"
 #include "Logger.h"
+#include "Options.h"
 #include "Server.h"
 #include "ServerOptions.h"
 
 namespace fifo {
 
 FifoAcceptor::FifoAcceptor(ServerPtr server) :
-  _acceptorName(ServerOptions::_acceptorName),
+  _acceptorName(Options::_acceptorName),
   _server(server) {}
 
 FifoAcceptor::~FifoAcceptor() {
@@ -69,7 +70,7 @@ void FifoAcceptor::stop() {
 }
 
 void FifoAcceptor::removeFifoFiles() {
-  for(auto const& entry : std::filesystem::directory_iterator(ServerOptions::_fifoDirectoryName))
+  for(auto const& entry : std::filesystem::directory_iterator(Options::_fifoDirectoryName))
     try {
       if (entry.is_fifo())
 	std::filesystem::remove(entry);

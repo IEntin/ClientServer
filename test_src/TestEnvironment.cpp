@@ -20,20 +20,6 @@ thread_local std::string TestEnvironment::_buffer;
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
-  // Server and client in tests run in the same process
-  // and the logic for *common* options always selects
-  // values form ServerOptions unless ClientOptions
-  // is explicitly specified. Extracted default values 
-  // are the same for the server and client.
-  // Tests do not change these values although values 
-  // in json files can be different and arbitrarely changeable in
-  // real apps. The list of affected settings with default values:
-  //
-  // _setPipeBufferSize = true
-  // _pipeSize = 1000000
-  // _numberRepeatENXIO = 50
-  // _ENXIOwait = 10
-  //
   ServerOptions::parse("");
   ClientOptions::parse("", &_oss);
   utility::readFile(ClientOptions::_sourceName, _source);

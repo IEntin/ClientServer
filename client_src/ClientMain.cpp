@@ -29,12 +29,6 @@ int main() {
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
   std::string_view fileName("ClientOptions.json");
-  // The folowing covers setup with the client starting from
-  // the project root rather than prepared client directory.
-  if (!std::filesystem::exists(fileName)) {
-    Expected << fileName << " not found,\n trying client_src/ClientOptions.json.\n";
-    fileName = "client_src/ClientOptions.json";
-  }
   ClientOptions::parse(fileName);
   try {
     if (ClientOptions::_fifoClient) {

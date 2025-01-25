@@ -14,11 +14,8 @@ struct ClientOptions {
   ClientOptions() = delete;
   ~ClientOptions() = delete;
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
-  static bool _parsed;
   static bool _fifoClient;
   static bool _tcpClient;
-  static std::string _fifoDirectoryName;
-  static std::string _acceptorName;
   static COMPRESSORS _compressor;
   static bool _encrypted;
   static bool _showKey;
@@ -35,10 +32,7 @@ struct ClientOptions {
   static bool _runLoop;
   static std::size_t _bufferSize;
   static bool _timing;
-  static int _numberRepeatENXIO;
   static bool _setPipeSize;
   static std::size_t _pipeSize;
-  static std::string _serverAddress;
-  static unsigned short _tcpPort;
   static bool _printHeader;
 };

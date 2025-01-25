@@ -7,7 +7,7 @@
 #include <array>
 #include <cassert>
 
-#include "ClientOptions.h"
+#include "Options.h"
 #include "Utility.h"
 
 namespace tcp {
@@ -15,7 +15,7 @@ namespace tcp {
 bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   boost::system::error_code ec;
   static const auto ipAdress =
-    boost::asio::ip::make_address(ClientOptions::_serverAddress, ec);
+    boost::asio::ip::make_address(Options::_serverAddress, ec);
   if (ec) {
     switch (ec.value()) {
     case boost::asio::error::connection_refused:
@@ -27,7 +27,7 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
     }
   }
 
-static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, ClientOptions::_tcpPort);
+static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, Options::_tcpPort);
   socket.connect(endpoint, ec);
   if (ec) {
     switch (ec.value()) {

@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "ClientOptions.h"
+#include "Options.h"
 #include "ServerOptions.h"
 
 namespace fifo {
@@ -28,35 +29,27 @@ short Fifo::pollFd(int fd, short expected) {
 }
 
 bool Fifo::setPipeSize(int fd) {
-  bool setPipeBufferSize = false;
-  long pipeSize = 0;
-  if (ServerOptions::_parsed) {
-    setPipeBufferSize = ServerOptions::_setPipeSize;
-    pipeSize = ServerOptions::_pipeSize;
-  }
-  else if (ClientOptions::_parsed) {
-    setPipeBufferSize = ClientOptions::_setPipeSize;
-    pipeSize = ClientOptions::_pipeSize;
-  }
-  if (!setPipeBufferSize)
-    return false;
-  long currentSz = fcntl(fd, F_GETPIPE_SZ);
+  if (!Options::_setPipeSize)
+    return false;;
+  ssize_t currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1)
     throw std::runtime_error(utility::createErrorString());
-  if (pipeSize > currentSz) {
-    int ret = fcntl(fd, F_SETPIPE_SZ, pipeSize);
-    if (ret < 0) {
+  unsigned long currentSize = static_cast<unsigned long>(currentSz);
+  if (Options::_pipeSize > currentSize) {
+    ssize_t ret = fcntl(fd, F_SETPIPE_SZ, Options::_pipeSize);
+    if (ret == -1) {
       static auto& printOnce[[maybe_unused]] =
 	Info << strerror(errno) << ":\n"
 	     << "su privileges required, ignore." << '\n';
       return false;
     }
-    long newSz = fcntl(fd, F_GETPIPE_SZ);
+    ssize_t newSz = fcntl(fd, F_GETPIPE_SZ);
     if (newSz == -1) {
       Info << strerror(errno) << '\n';
       return false;
     }
-    return newSz >= pipeSize || pipeSize < currentSz;
+    unsigned long newSize = static_cast<unsigned long>(newSz);
+    return newSize >= Options::_pipeSize || Options::_pipeSize < currentSize;
   }
   return false;
 }
@@ -68,11 +61,6 @@ void Fifo::onExit(std::string_view fifoName) {
 }
 
 int Fifo::openWriteNonBlock(std::string_view fifoName) {
-  int numberRepeatENXIO = 0;
-  if (ServerOptions::_parsed)
-    numberRepeatENXIO = ServerOptions::_numberRepeatENXIO;
-  else if (ClientOptions::_parsed)
-    numberRepeatENXIO = ClientOptions::_numberRepeatENXIO;
   int fd = -1;
   int rep = 0;
   do {
@@ -88,7 +76,7 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 	return fd;
       }
     }
-  } while (fd == -1 && rep++ < numberRepeatENXIO);
+  } while (fd == -1 && rep++ < Options::_numberRepeatENXIO);
   if (fd >= 0)
     setPipeSize(fd);
   return fd;

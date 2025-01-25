@@ -9,12 +9,10 @@
 #include "AppOptions.h"
 #include "Header.h"
 #include "Logger.h"
+#include "Options.h"
 
-bool ClientOptions::_parsed = false;
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
-std::string  ClientOptions::_fifoDirectoryName;
-std::string  ClientOptions::_acceptorName;
 COMPRESSORS ClientOptions::_compressor;
 bool ClientOptions::_encrypted;
 bool ClientOptions::_showKey;
@@ -29,21 +27,16 @@ DIAGNOSTICS ClientOptions::_diagnostics;
 bool ClientOptions::_runLoop;
 std::size_t ClientOptions::_bufferSize;
 bool ClientOptions::_timing;
-int ClientOptions::_numberRepeatENXIO;
 bool ClientOptions::_setPipeSize;
 std::size_t ClientOptions::_pipeSize;
-std::string ClientOptions::_serverAddress;
-unsigned short ClientOptions::_tcpPort;
 bool ClientOptions::_printHeader;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
-  _parsed = true;
+  Options::parse(jsonName);
   AppOptions appOptions(jsonName);
   std::string clientType = appOptions.get("ClientType", std::string(""));
   _fifoClient = clientType == "FIFO";
   _tcpClient = clientType == "TCP";
-  _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
-  _acceptorName = _fifoDirectoryName + '/' + appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
   _encrypted = appOptions.get("Crypto", true);
   _showKey = appOptions.get("ShowKey", false);
@@ -73,11 +66,8 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _runLoop = appOptions.get("RunLoop", false);
   _bufferSize = appOptions.get("BufferSize", 100000);
   _timing = appOptions.get("Timing", false);
-  _numberRepeatENXIO = appOptions.get("NumberRepeatENXIO", 200);
   _setPipeSize = appOptions.get("SetPipeSize", true);
   _pipeSize = appOptions.get("PipeSize", 1000000);
-  _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
-  _tcpPort = appOptions.get("TcpPort", 49151);
   _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

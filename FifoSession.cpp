@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 
 #include "Fifo.h"
+#include "Options.h"
 #include "Server.h"
 #include "ServerOptions.h"
 
@@ -31,7 +32,7 @@ FifoSession::~FifoSession() {
 }
 
 bool FifoSession::start() {
-  _fifoName = ServerOptions::_fifoDirectoryName + '/';
+  _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     LogError << strerror(errno) << '-' << _fifoName << '\n';
@@ -92,7 +93,7 @@ bool FifoSession::sendResponse() {
 void FifoSession::sendStatusToClient() {
   auto lambda = [] (
     const HEADER& header, std::string_view idStr, const CryptoPP::SecByteBlock& pubA) {
-    Fifo::sendMsg(false, ServerOptions::_acceptorName, header, idStr, pubA);
+    Fifo::sendMsg(false, Options::_acceptorName, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);
 }
