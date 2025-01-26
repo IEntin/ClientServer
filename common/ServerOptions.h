@@ -6,10 +6,12 @@
 
 #include <string>
 
+#include "Options.h"
+
 enum class COMPRESSORS : char;
 enum class CRYPTO : char;
 
-struct ServerOptions {
+struct ServerOptions : public Options {
   ServerOptions() = delete;
   ~ServerOptions() = delete;
   static void parse(std::string_view jsonName);
@@ -24,7 +26,5 @@ struct ServerOptions {
   static int _tcpTimeout;
   static bool _sortInput;
   static bool _timing;
-  static bool _setPipeSize;
-  static std::size_t _pipeSize;
   static bool _printHeader;
 };

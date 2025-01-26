@@ -10,7 +10,6 @@
 #include "AppOptions.h"
 #include "Header.h"
 #include "Logger.h"
-#include "Options.h"
 
 std::string ServerOptions::_adsFileName;
 COMPRESSORS ServerOptions::_compressor;

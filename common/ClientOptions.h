@@ -32,7 +32,5 @@ struct ClientOptions {
   static bool _runLoop;
   static std::size_t _bufferSize;
   static bool _timing;
-  static bool _setPipeSize;
-  static std::size_t _pipeSize;
   static bool _printHeader;
 };

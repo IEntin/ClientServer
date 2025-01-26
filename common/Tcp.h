@@ -111,8 +111,17 @@ public:
     boost::system::error_code ec;
     std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
     if (ec) {
-      LogError << ec.what() << '\n';
-      return false;
+      switch (ec.value()) {
+      case boost::asio::error::eof:
+      case boost::asio::error::connection_refused:
+      case boost::asio::error::connection_reset:
+      case boost::asio::error::broken_pipe:
+	Info << ec.what() << '\n';
+	break;
+      default:
+	Warn << ec.what() << '\n';
+	return false;
+      }
     }
     return true;
   }

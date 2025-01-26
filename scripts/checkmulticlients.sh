@@ -46,7 +46,7 @@ export c
 
 for (( c=1; c<=$1; c++ ))
 do
-    rm -f $UP_DIR/Client$c/*
+    rm -rf $UP_DIR/Client$c
 done
 
 # create FIFO directory and client directories at the project root level
