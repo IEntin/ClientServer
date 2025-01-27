@@ -11,8 +11,6 @@ enum class CRYPTO : char;
 enum class DIAGNOSTICS : char;
 
 struct ClientOptions {
-  ClientOptions() = delete;
-  ~ClientOptions() = delete;
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;
@@ -32,5 +30,7 @@ struct ClientOptions {
   static bool _runLoop;
   static std::size_t _bufferSize;
   static bool _timing;
-  static bool _printHeader;
+private:
+  ClientOptions() = delete;
+  ~ClientOptions() = delete;
 };

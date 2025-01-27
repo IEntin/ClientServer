@@ -3,10 +3,9 @@
  */
 
 #include "Header.h"
-#include "ClientOptions.h"
 #include "IOUtility.h"
 #include "Logger.h"
-#include "ServerOptions.h"
+#include "Options.h"
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr) {
   COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
@@ -106,7 +105,7 @@ bool deserialize(HEADER& header, const char* buffer) {
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
   ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
-  if (ServerOptions::_printHeader || ClientOptions::_printHeader)
+  if (Options::_printHeader)
     printHeader(header, LOG_LEVEL::ALWAYS);
   return true;
 }

@@ -22,7 +22,6 @@ int ServerOptions::_maxTotalSessions;
 int ServerOptions::_tcpTimeout;
 bool ServerOptions::_sortInput;
 bool ServerOptions::_timing;
-bool ServerOptions::_printHeader;
 
 void ServerOptions::parse(std::string_view jsonName) {
   Options::parse(jsonName);
@@ -39,6 +38,5 @@ void ServerOptions::parse(std::string_view jsonName) {
   _tcpTimeout = appOptions.get("TcpTimeout", 3000);
   _sortInput = appOptions.get("SortInput", true);
   _timing = appOptions.get("Timing", false);
-  _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

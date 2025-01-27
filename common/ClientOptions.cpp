@@ -27,7 +27,6 @@ DIAGNOSTICS ClientOptions::_diagnostics;
 bool ClientOptions::_runLoop;
 std::size_t ClientOptions::_bufferSize;
 bool ClientOptions::_timing;
-bool ClientOptions::_printHeader;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   Options::parse(jsonName);
@@ -64,6 +63,5 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _runLoop = appOptions.get("RunLoop", false);
   _bufferSize = appOptions.get("BufferSize", 100000);
   _timing = appOptions.get("Timing", false);
-  _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

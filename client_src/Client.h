@@ -35,18 +35,14 @@ protected:
   bool init(L& lambda) {
     if (auto crypto = _cryptoWeak.lock(); crypto) {
       const auto& pubKey = _crypto->getPubKey();
-      std::size_t pubKeySz = pubKey.size();
       const std::string msgHash = _crypto->getMsgHash();
-      std::size_t msgHashSz = msgHash.size();
       _crypto->signMessage();
       std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
-      std::size_t signatureDataSz = signatureWithPubKey.size();
-      HEADER header =
-	{ HEADERTYPE::DH_INIT, msgHashSz, pubKeySz, COMPRESSORS::NONE, DIAGNOSTICS::NONE, _status, signatureDataSz };
+      HEADER header = { HEADERTYPE::DH_INIT, msgHash.size(), pubKey.size(), COMPRESSORS::NONE,
+			DIAGNOSTICS::NONE, _status, signatureWithPubKey.size() };
       bool result = lambda(header, msgHash, pubKey, signatureWithPubKey);
-      if (result) {
+      if (result)
 	crypto->signatureSent();
-      }
       crypto->eraseRSAKeys();
       return result;
     }

@@ -4,11 +4,9 @@
 
 #include "Tcp.h"
 
-#include <array>
 #include <cassert>
 
 #include "Options.h"
-#include "Utility.h"
 
 namespace tcp {
 

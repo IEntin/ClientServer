@@ -10,9 +10,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "Fifo.h"
-#include "IOUtility.h"
 #include "Options.h"
-#include "Subtask.h"
 
 namespace {
 constexpr int FIFO_CLIENT_POLLING_PERIOD = 250;

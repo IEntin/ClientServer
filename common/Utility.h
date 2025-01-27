@@ -77,6 +77,8 @@ std::size_t getUniqueId();
 
 int generateRandomNumber(int min = 1, int max = 10000);
 
+std::u8string generateRawUUID();
+
 void readFile(std::string_view name, std::string& buffer);
 
 bool getLastLine(std::string_view fileName, std::string& lastLine);

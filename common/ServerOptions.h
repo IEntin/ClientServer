@@ -4,16 +4,12 @@
 
 #pragma once
 
-#include <string>
-
 #include "Options.h"
 
 enum class COMPRESSORS : char;
 enum class CRYPTO : char;
 
-struct ServerOptions : public Options {
-  ServerOptions() = delete;
-  ~ServerOptions() = delete;
+struct ServerOptions : protected Options {
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
   static COMPRESSORS _compressor;
@@ -26,5 +22,7 @@ struct ServerOptions : public Options {
   static int _tcpTimeout;
   static bool _sortInput;
   static bool _timing;
-  static bool _printHeader;
+private:
+  ServerOptions() = delete;
+  ~ServerOptions() = delete;
 };

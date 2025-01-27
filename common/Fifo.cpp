@@ -6,9 +6,7 @@
 
 #include <thread>
 
-#include "ClientOptions.h"
 #include "Options.h"
-#include "ServerOptions.h"
 
 namespace fifo {
 

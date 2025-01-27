@@ -11,6 +11,8 @@
 
 #include <boost/random.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #include "Compression.h"
 #include "IOUtility.h"
@@ -28,6 +30,13 @@ CloseFileDescriptor::~CloseFileDescriptor() {
   if (_fd != -1 && close(_fd) == -1)
     LogError << strerror(errno) << '\n';
   _fd = -1;
+}
+
+std::u8string generateRawUUID() {
+  boost::uuids::random_generator_mt19937 gen;
+  boost::uuids::uuid uuid = gen();
+  std::u8string u8str { uuid.begin(), uuid.end() };
+  return { uuid.begin(), uuid.end() };
 }
 
 int generateRandomNumber(int min, int max) {

@@ -3,7 +3,6 @@
  */
 
 #include "Crypto.h"
-#include <cryptopp/rsa.h>
 
 #include "TestEnvironment.h"
 #include "Utility.h"
