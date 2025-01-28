@@ -32,11 +32,11 @@ CloseFileDescriptor::~CloseFileDescriptor() {
   _fd = -1;
 }
 
-std::u8string generateRawUUID() {
+std::string generateRawUUID() {
   boost::uuids::random_generator_mt19937 gen;
   boost::uuids::uuid uuid = gen();
-  std::u8string u8str { uuid.begin(), uuid.end() };
-  return { uuid.begin(), uuid.end() };
+  std::u8string u8Str{ uuid.begin(), uuid.end() };
+  return { reinterpret_cast<const char*>(u8Str.data()), u8Str.size() };
 }
 
 int generateRandomNumber(int min, int max) {

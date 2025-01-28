@@ -58,8 +58,8 @@ Crypto::Crypto(std::string_view msgHash,
 }
 
 // client
-Crypto::Crypto(unsigned randomNumber) :
-  _msgHash(hashMessage(randomNumber)),
+Crypto::Crypto(const std::string& msgHash) :
+  _msgHash(sha256_hash(msgHash)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
@@ -202,19 +202,18 @@ bool Crypto::verifySignature(const std::string& signature) {
   eraseRSAKeys();
   return true;
 }
-
-std::string Crypto::hashMessage(unsigned value) {
-  std::string target;
-  ioutility::toChars(value, target);
+// for tesing message is based on uuid
+// in real usage it may be a combination of user name and/or password
+std::string Crypto::sha256_hash(const std::string& message) {
   CryptoPP::SHA256 hash;
   std::string digest;
-  hash.Update(reinterpret_cast<const CryptoPP::byte*>(target.data()), target.length());
+  hash.Update(reinterpret_cast<const unsigned char*>(message.data()), message.size());
   digest.resize(hash.DigestSize());
-  hash.Final(reinterpret_cast<CryptoPP::byte*>(digest.data()));
+  hash.Final((unsigned char*)&digest[0]);
   CryptoPP::HexEncoder encoder;
   std::string output;
   encoder.Attach(new CryptoPP::StringSink(output));
-  encoder.Put(reinterpret_cast<const CryptoPP::byte*>(digest.data()), digest.size());
+  encoder.Put((unsigned char*)&digest[0], digest.size());
   encoder.MessageEnd();
   return output;
 }

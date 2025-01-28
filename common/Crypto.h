@@ -54,7 +54,7 @@ public:
   Crypto(std::string_view msgHash,
 	 const CryptoPP::SecByteBlock& pubB,
 	 std::string_view );
-  Crypto(unsigned salt);
+  explicit Crypto(const std::string& msgHash);
   ~Crypto() = default;
   void showKey();
   void encrypt(std::string& buffer, bool encrypt, std::string& data);
@@ -73,7 +73,7 @@ public:
   bool verifySignature(const std::string& signature);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
-  std::string hashMessage(unsigned message);
+  std::string sha256_hash(const std::string& message);
   void eraseRSAKeys();
   void erasePubPrivKeys();
   bool checkAccess();
