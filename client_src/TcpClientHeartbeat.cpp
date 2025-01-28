@@ -3,6 +3,7 @@
  */
 
 #include "TcpClientHeartbeat.h"
+
 #include "ClientOptions.h"
 #include "Logger.h"
 #include "Tcp.h"
@@ -118,7 +119,6 @@ void TcpClientHeartbeat::read() {
 	Warn << "timeout\n";
 	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
-      std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
       std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
       if (receivedView.ends_with(ENDOFMESSAGE))
 	_heartbeatBuffer.erase(_heartbeatBuffer.cend() - ENDOFMESSAGESZ);
