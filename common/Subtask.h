@@ -4,18 +4,15 @@
 
 #pragma once
 
-#include <atomic>
-#include <deque>
-
 #include "Header.h"
 
-using Subtasks = std::deque<struct Subtask>;
+using Subtasks = std::vector<struct Subtask>;
 
 struct Subtask {
   Subtask() {}
   ~Subtask() {}
   std::string _data;
-  std::atomic<STATUS> _state = STATUS::NONE;
+  STATUS _state = STATUS::NONE;
   HEADER _header;
 
   static void clearTask(Subtasks& task) {

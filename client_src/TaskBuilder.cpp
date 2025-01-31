@@ -10,8 +10,7 @@
 #include "Logger.h"
 
 TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
-  _crypto(crypto),
-  _subtasks(1) {
+  _crypto(crypto) {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 
@@ -23,56 +22,35 @@ void TaskBuilder::run() {
       FileLines lines(ClientOptions::_sourceName, '\n', true);
       while (createSubtask(lines) == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
-      _condition.wait(lock, [this] { return _resume || _stopped; });
+      _conditionResume.wait(lock, [this] { return _resume || _stopped; });
     }
     catch (const std::exception& e) {
       LogError << e.what() << '\n';
       _status.store(STATUS::ERROR);
-      _condition.notify_one();
       break;
     }
   }
 }
 
-std::pair<STATUS, Subtasks&> TaskBuilder::getTask() {
-  static Subtasks emptyTask;
-  STATUS state = STATUS::NONE;
-  do {
-    Subtask& subtask = getSubtask();
-    state = subtask._state;
-    switch (state) {
-    case STATUS::ERROR:
-      LogError << "TaskBuilder failed." << '\n';
-      return { STATUS::ERROR, emptyTask };
-    case STATUS::SUBTASK_DONE:
-    case STATUS::TASK_DONE:
-      break;
-    default:
-      return { STATUS::ERROR, emptyTask };
-    }
-  } while (state == STATUS::SUBTASK_DONE);
-  return { STATUS::NONE, _subtasks };
-}
-
-Subtask& TaskBuilder::getSubtask() {
-  static Subtask emptySubtask;
+void TaskBuilder::getTask(Subtasks& task) {
   std::unique_lock lock(_mutex);
-  std::optional<std::reference_wrapper<Subtask>> subtaskRef;
-  _condition.wait(lock, [&] () {
-    if (_subtaskIndexConsumed < _subtasks.size()) {
-      if (_status == STATUS::ERROR)
+  _conditionTask.wait(lock, [this, task] {
+    if (_subtasks.empty())
+      return false;
+    if (!_subtasks.empty()) {
+      STATUS status = _subtasks.back()._state;
+      switch (status) {
+      case STATUS::TASK_DONE:
+      case STATUS::ERROR:
+      case STATUS::STOPPED:
 	return true;
-      subtaskRef = _subtasks[_subtaskIndexConsumed];
-      STATUS state = subtaskRef->get()._state;
-      if (state == STATUS::SUBTASK_DONE || state == STATUS::TASK_DONE)
-	return true;
+      default:
+	return false;
+      }
     }
-    return false;
+    return true;
   });
-  if (_stopped)
-    return emptySubtask;
-  _subtaskIndexConsumed.fetch_add(1);
-  return subtaskRef->get();
+  task.swap(_subtasks);
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
@@ -115,38 +93,32 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     ClientOptions::_diagnostics,
     _status,
     0 };
+  std::lock_guard lock(_mutex);
   utility::compressEncrypt(
     _buffer, ClientOptions::_encrypted, header, _crypto, _aggregate);
-  std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;
-  std::optional<std::reference_wrapper<Subtask>> subtaskRef;
-  unsigned index = _subtaskIndexProduced.fetch_add(1);
-  if (index < _subtasks.size())
-    subtaskRef = _subtasks[index];
-  else
-    subtaskRef = _subtasks.emplace_back();
-  Subtask& subtask = subtaskRef->get();
+  Subtask subtask;
   subtask._data.resize(_aggregate.size());
   std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._header = header;
-  _condition.notify_one();
+  _subtasks.emplace_back(subtask);
+  _conditionTask.notify_one();
   return subtask._state;
 }
 
 void TaskBuilder::stop() {
   std::lock_guard lock(_mutex);
   _stopped = true;
-  _condition.notify_one();
+  _conditionResume.notify_one();
 }
 
 void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return;
-  _subtaskIndexConsumed = 0;
-  _subtaskIndexProduced = 0;
+  _subtasks.clear();
   _resume = true;
-  _condition.notify_one();
+  _conditionResume.notify_one();
 }

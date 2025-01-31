@@ -67,7 +67,10 @@ are encrypted as well.\
 The time of exposure of the encryption key in the code is drasically\
 shortened by obfuscating the key while not in use with nonce obfuscator.\
 The result can be observed by enabling showKey option for the server\
-and/or client.
+and/or client.\
+Closing and restarting the client creates a new encryption key used by a\
+client/session pair providing frequent key rotation. Performance impact\
+is not noticible which can be proven by running runShortSessions.sh script.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\

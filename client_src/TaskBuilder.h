@@ -19,10 +19,9 @@ class TaskBuilder final : public Runnable {
   CryptoWeakPtr _crypto;
   std::string _aggregate;
   Subtasks _subtasks;
-  std::atomic<unsigned> _subtaskIndexConsumed = 0;
-  std::atomic<unsigned> _subtaskIndexProduced = 0;
   std::mutex _mutex;
-  std::condition_variable _condition;
+  std::condition_variable _conditionTask;
+  std::condition_variable _conditionResume;
   bool _resume = false;
   std::string _buffer;
   void run() override;
@@ -30,8 +29,7 @@ class TaskBuilder final : public Runnable {
  public:
   TaskBuilder(CryptoWeakPtr crypto);
   void stop() override;
-  std::pair<STATUS, Subtasks&> getTask();
-  Subtask& getSubtask();
+  void getTask(Subtasks& task);
   STATUS createSubtask(class Lines& lines);
   void resume();
 };

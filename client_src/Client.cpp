@@ -56,11 +56,9 @@ bool Client::DHFinish(std::string_view clientIdStr, const CryptoPP::SecByteBlock
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
   if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
     Subtask::clearTask(_task);
-    auto result = taskBuilder->getTask();
-    _task.swap(result.second);
+    taskBuilder->getTask(_task);
+    //_task.swap(task);
     taskBuilder->resume();
-    if (result.first != STATUS::NONE)
-      return false;
     for (auto& subtask : _task) {
       if (!(send(subtask) && receive()))
 	return false;
