@@ -64,7 +64,7 @@ The key is specific for every session/client pair.\
 Unlike simple Diffie-Hellman the protocol in use is resistant to\
 'Man In The Middle' attack types. Headers being sent with the data\
 are encrypted as well.\
-The time of exposure of the encryption key in the code is drasically\
+The time of exposure of the encryption key in the code is drastically\
 shortened by obfuscating the key while not in use with nonce obfuscator.\
 The result can be observed by enabling showKey option for the server\
 and/or client.\
