@@ -9,6 +9,7 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
+#include "ClientOptions.h"
 #include "Fifo.h"
 #include "Options.h"
 
@@ -25,6 +26,7 @@ FifoClient::FifoClient()  {
     throw std::runtime_error("FifoClient::wakeupAcceptor failed");
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
+  _response.resize(ClientOptions::_bufferSize);
 }
 
 FifoClient::~FifoClient() {
@@ -63,7 +65,6 @@ bool FifoClient::send(Subtask& subtask) {
 
 bool FifoClient::receive() {
   try {
-    _response.erase(_response.cbegin(), _response.cend());
     _status = STATUS::NONE;
     HEADER header;
     if (!Fifo::readMsg(_fifoName, true, header, _response))

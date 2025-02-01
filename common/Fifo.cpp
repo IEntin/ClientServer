@@ -89,6 +89,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   if (fd == -1)
     return false;
   utility::CloseFileDescriptor cfdr(fd);
+  std::size_t accumulatedSz = 0;
   char buffer[BUFFER_SIZE] = {};
   while (true) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
@@ -96,9 +97,16 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       throw std::runtime_error(utility::createErrorString());
     else if (result == 0)
       break;
-    else if (result > 0)
-      payload.append(buffer, result);
+    else if (result > 0) {
+      std::size_t transferred = static_cast<std::size_t>(result);
+      std::size_t oldSize = accumulatedSz;
+      accumulatedSz += transferred;
+      if (payload.size() < accumulatedSz)
+	payload.resize(accumulatedSz);
+      std::memcpy(payload.data() + oldSize, buffer, transferred);
+    }
   }
+  payload.resize(accumulatedSz);
   return !payload.empty();
 }
 
@@ -107,6 +115,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   if (fd == -1)
     return false;
   utility::CloseFileDescriptor cfdr(fd);
+  std::size_t accumulatedSz = 0;
   while (true) {
     char buffer[BUFFER_SIZE] = {};
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
@@ -120,15 +129,20 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
 	break;
       }
     }
-    else if (result >= 0) {
-      if (result > 0)
-	payload.append(buffer, result);
-      else if (result == 0) {
-	if (pollFd(fd, POLLIN) != POLLIN)
-	  break;
-      }
+    else if (result > 0) {
+      std::size_t transferred = static_cast<std::size_t>(result);
+      std::size_t oldSize = accumulatedSz;
+      accumulatedSz += transferred;
+      if (payload.size() < accumulatedSz)
+	payload.resize(accumulatedSz);
+      std::memcpy(payload.data() + oldSize, buffer, transferred);
+    }
+    else if (result == 0) {
+      if (pollFd(fd, POLLIN) != POLLIN)
+	break;
     }
   }
+  payload.resize(accumulatedSz);
   return !payload.empty();
 }
 
