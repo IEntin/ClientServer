@@ -6,7 +6,6 @@
 #include "Compression.h"
 #include "FileLines.h"
 #include "IOUtility.h"
-#include "Logger.h"
 #include "StringLines.h"
 #include "TestEnvironment.h"
 

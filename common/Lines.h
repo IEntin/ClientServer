@@ -29,7 +29,7 @@ class Lines {
   long _index = -1;
   bool _last = false;
  protected:
-  Lines(char delimiter = '\n', bool keepDelimiter = false);
+  explicit Lines(char delimiter = '\n', bool keepDelimiter = false);
   virtual ~Lines() {}
   bool removeProcessedLines();
   const char _delimiter;

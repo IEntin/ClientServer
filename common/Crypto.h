@@ -20,7 +20,7 @@ using CryptoPtr = std::shared_ptr<class Crypto>;
 using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
 struct KeyHandler {
-  KeyHandler(unsigned size);
+  explicit KeyHandler(unsigned size);
   ~KeyHandler() = default;
   const unsigned _size;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;

@@ -10,7 +10,7 @@
 
 class FileLines : public Lines {
  public:
-  FileLines(std::string_view fileName, char delimiter = '\n', bool keepDelimiter = false);
+  explicit FileLines(std::string_view fileName, char delimiter = '\n', bool keepDelimiter = false);
   ~FileLines() override {}
  private:
   std::size_t getInputPosition() override;

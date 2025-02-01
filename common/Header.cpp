@@ -4,7 +4,6 @@
 
 #include "Header.h"
 #include "IOUtility.h"
-#include "Logger.h"
 #include "Options.h"
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr) {

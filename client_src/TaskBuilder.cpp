@@ -7,10 +7,9 @@
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
-#include "Logger.h"
 
 TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
-  _crypto(crypto) {
+  _crypto(crypto), _subtaskIndex(0) {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 
@@ -94,17 +93,29 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     _status,
     0 };
   std::lock_guard lock(_mutex);
-  utility::compressEncrypt(
-    _buffer, ClientOptions::_encrypted, header, _crypto, _aggregate);
   if (_stopped)
     return STATUS::STOPPED;
-  Subtask subtask;
+  utility::compressEncrypt(
+    _buffer, ClientOptions::_encrypted, header, _crypto, _aggregate);
+  if (_subtaskIndex >= _subtasks.size())
+    _subtasks.emplace_back();
+  Subtask& subtask = _subtasks[_subtaskIndex];
   subtask._data.resize(_aggregate.size());
   std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
   subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
-  subtask._header = header;
-  _subtasks.emplace_back(subtask);
-  _conditionTask.notify_one();
+  subtask._header.swap(header);
+  switch (subtask._state) {
+  case STATUS::TASK_DONE:
+  case STATUS::ERROR:
+    _subtasks.resize(_subtaskIndex + 1);
+    _conditionTask.notify_one();
+    break;
+  case STATUS::SUBTASK_DONE:
+    ++_subtaskIndex;
+    break;
+  default:
+    break;
+  }
   return subtask._state;
 }
 
@@ -118,7 +129,7 @@ void TaskBuilder::resume() {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return;
-  _subtasks.clear();
+  _subtaskIndex = 0;
   _resume = true;
   _conditionResume.notify_one();
 }
