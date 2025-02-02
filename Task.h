@@ -32,9 +32,14 @@ using ProcessRequest = std::variant<ProcessRequestSort, ProcessRequestNoSort, Pr
 struct RequestRow {
 
   RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
-  RequestRow() {}
+  RequestRow() = default;
 
   ~RequestRow() = default;
+
+  RequestRow& operator=(std::string_view value) {
+    _value = value;
+    return *this;
+  }
 
   SIZETUPLE _sizeKey;
   std::string_view _value;

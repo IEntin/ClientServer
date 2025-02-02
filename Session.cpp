@@ -38,9 +38,15 @@ std::pair<HEADER, std::string_view>
 Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
-  _responseData.erase(_responseData.cbegin(), _responseData.cend());
+  std::size_t dataSize = 0;
   for (const auto& entry : _response)
-    _responseData.insert(_responseData.end(), entry.cbegin(), entry.cend());
+    dataSize += entry.size();
+  _responseData.resize(dataSize);
+  std::size_t shift = 0;
+  for (const auto& entry : _response) {
+    std::memcpy(_responseData.data() + shift, entry.data(), entry.size());
+    shift += entry.size();
+  }
   if (ServerOptions::_showKey)
     _crypto->showKey();
   HEADER header =
@@ -53,7 +59,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
 
 bool Session::processTask() {
   utility::decryptDecompress(_buffer, _header, _crypto, _request);
-   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
+  if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(_header, _request);
     taskController->processTask(_task);
     return true;

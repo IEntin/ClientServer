@@ -56,7 +56,7 @@ void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepD
   }
 }
 
-template <typename INPUT, typename CONTAINER>
+template <typename ELEMENT, typename INPUT, typename CONTAINER>
 void splitReuseMem(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
   unsigned index = 0;
   std::size_t start = 0;
@@ -65,8 +65,9 @@ void splitReuseMem(const INPUT& input, CONTAINER& rows, char delim = '\n', int k
     bool endOfInput = next == INPUT::npos;
     if (index >= rows.size())
       rows.emplace_back();
-    rows[index]._value = { input.cbegin() + start,
-			   endOfInput ? input.cend() : input.cbegin() + next + keepDelim };
+    ELEMENT value = { input.cbegin() + start,
+		      endOfInput ? input.cend() : input.cbegin() + next + keepDelim };
+    rows[index] = value;
     if (endOfInput)
       break;
     ++index;
