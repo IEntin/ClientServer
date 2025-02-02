@@ -32,6 +32,7 @@ using ProcessRequest = std::variant<ProcessRequestSort, ProcessRequestNoSort, Pr
 struct RequestRow {
 
   RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
+  RequestRow() {}
 
   ~RequestRow() = default;
 

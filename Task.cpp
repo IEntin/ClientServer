@@ -28,8 +28,7 @@ void Task::setProcessFunction(ProcessRequest function) {
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
-  _rows.clear();
-  utility::splitFast(request, _rows);
+  utility::splitReuseMem(request, _rows);
   _indices.resize(_rows.size());
   for (unsigned i = 0; i < _indices.size(); ++i) {
     _indices[i] = i;
