@@ -148,7 +148,7 @@ void TcpSession::write(const HEADER& header) {
 	_status = STATUS::TCP_TIMEOUT;
 	return;
       }
-      _request.erase(_request.cbegin(), _request.cend());
+      _request.clear();
       boost::asio::post(_ioContext, [this] { readRequest(); });
     });
 }

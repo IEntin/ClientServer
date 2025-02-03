@@ -20,7 +20,7 @@ public:
 		      P1& payload1,
 		      P2& payload2) {
     static thread_local std::string payload;
-    payload.erase(payload.cbegin(), payload.cend());
+    payload.clear();
     if (!readMessage(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
@@ -47,7 +47,7 @@ public:
 		      P2& payload2,
 		      P3& payload3) {
     static thread_local std::string payload;
-    payload.erase(payload.cbegin(), payload.cend());
+    payload.clear();
     if (!readMessage(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
@@ -77,7 +77,7 @@ public:
 		      HEADER& header,
 		      P1& payload1) {
     static thread_local std::string payload;
-    payload.erase(payload.cbegin(), payload.cend());
+    payload.clear();
     if (!readMessage(name, block, payload))
       return false;
     if (!deserialize(header, payload.data()))
@@ -126,7 +126,7 @@ public:
       return false;
     utility::CloseFileDescriptor cfdw(fdWrite);
     static thread_local std::string payload;
-    payload.erase(payload.cbegin(), payload.cend());
+    payload.clear();
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
     payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());

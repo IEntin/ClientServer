@@ -57,7 +57,7 @@ void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepD
 }
 
 template <typename ELEMENT, typename INPUT, typename CONTAINER>
-void splitReuseMem(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+void splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
   unsigned index = 0;
   std::size_t start = 0;
   while (start < input.size()) {

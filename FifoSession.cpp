@@ -68,7 +68,7 @@ bool FifoSession::receiveRequest() {
     break;
   }
   try {
-    _request.erase(_request.cbegin(), _request.cend());
+    _request.clear();
     HEADER header;
     if (!Fifo::readMsg(_fifoName, true, header, _request))
       return false;

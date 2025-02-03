@@ -192,3 +192,11 @@ TEST(GetStringLineTest, 1) {
     }
   }
 }
+
+TEST(ClearPreservesCapacity, 1) {
+  std::string copy = TestEnvironment::_source;
+  std::size_t orgCapacity = copy.capacity();
+  copy.clear();
+  std::size_t finalCapacity = copy.capacity();
+  ASSERT_EQ(orgCapacity, finalCapacity);
+}

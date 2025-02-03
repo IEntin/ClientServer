@@ -88,7 +88,7 @@ TEST(AuthenticationTest, 1) {
   Crypto crypto((utility::generateRawUUID()));
   auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
   ASSERT_TRUE(success);
-  serialized.insert(serialized.begin(), signature.cbegin(), signature.cend());
+  serialized.insert(0, signature);
   // receive
   std::string receivedSignature(serialized.cbegin(), serialized.cbegin() + (RSA_KEY_SIZE >> 3));
   std::string_view serializedRsaPublicKey(serialized.cbegin() + (RSA_KEY_SIZE >> 3), serialized.cend());

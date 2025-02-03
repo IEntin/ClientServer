@@ -94,9 +94,9 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
   std::lock_guard lock(_mutex);
   if (!checkAccess())
     return;
-  buffer.erase(buffer.cbegin(), buffer.cend());
+  buffer.clear();
   if (!encrypt)
-    data.insert(data.cend(), endTag.cbegin(), endTag.cend());
+    data.append(endTag.cbegin(), endTag.cend());
   else {
     CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
     _rng.GenerateBlock(iv, iv.size());
@@ -107,7 +107,7 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
     stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
     stfEncryptor.MessageEnd();
     _keyHandler.hideKey(_key);
-    buffer.insert(buffer.cend(), iv.begin(), iv.end());
+    buffer.append(iv.begin(), iv.end());
     data.resize(buffer.size());
     std::memcpy(data.data(), buffer.data(), buffer.size());
   }
@@ -117,7 +117,7 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
   std::lock_guard lock(_mutex);
   if (!checkAccess())
     return;
-  buffer.erase(buffer.cbegin(), buffer.cend());
+  buffer.clear();
   if (data.ends_with(reinterpret_cast<const char*>(endTag.data())))
     data.erase(data.size() - endTag.size());
   else {
@@ -153,9 +153,7 @@ void Crypto::signMessage() {
       signer,
       new CryptoPP::StringSink(_signatureWithPubKey))
   );
-  _signatureWithPubKey.insert(_signatureWithPubKey.cend(),
-			      _serializedRsaPubKey.cbegin(),
-			      _serializedRsaPubKey.cend());
+  _signatureWithPubKey.append(_serializedRsaPubKey.cbegin(), _serializedRsaPubKey.cend());
 }
 
 std::pair<bool, std::string>
