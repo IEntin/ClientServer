@@ -56,8 +56,9 @@ void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepD
   }
 }
 
-template <typename ELEMENT, typename INPUT, typename CONTAINER>
+template <typename INPUT, typename CONTAINER>
 void splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+  using ELEMENT = typename CONTAINER::value_type;
   unsigned index = 0;
   std::size_t start = 0;
   while (start < input.size()) {
@@ -65,9 +66,8 @@ void splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', in
     bool endOfInput = next == INPUT::npos;
     if (index >= rows.size())
       rows.emplace_back();
-    ELEMENT value = { input.cbegin() + start,
-		      endOfInput ? input.cend() : input.cbegin() + next + keepDelim };
-    rows[index] = value;
+    rows[index] = ELEMENT(input.cbegin() + start,
+  		          endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
     if (endOfInput)
       break;
     ++index;
