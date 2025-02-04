@@ -8,9 +8,9 @@ Copyright (C) 2021 Ilya Entin.
 
 This code was built and tested on
 
-1. Ubuntu 23.10\
-gcc 13.2.0\
-clang 20.0.0\
+1. Ubuntu 24.10\
+gcc 14.2.0\
+clang 19.1.1\
 8GB RAM\
 4 cores
 
@@ -22,7 +22,7 @@ clang 19.1.1\
 4GB RAM\
 4 cores
 
-Note: current gcc versions have well documented problems with thread sanitizer.\
+Note: current gcc versions have documented problems with thread sanitizer.\
 For this reason all TSAN builds are made by clang++.\
 This limitation will be removed as soon as new versions of gcc/g++ are available.
 
@@ -64,13 +64,13 @@ The key is specific for every session/client pair.\
 Unlike simple Diffie-Hellman the protocol in use is resistant to\
 'Man In The Middle' attack types. Headers being sent with the data\
 are encrypted as well.\
-The time of exposure of the encryption key in the code is drastically\
+The time of exposure of the encryption key in the code is significantly\
 shortened by obfuscating the key while not in use with nonce obfuscator.\
 The result can be observed by enabling showKey option for the server\
 and/or client.\
 Closing and restarting the client creates a new encryption key used by a\
 client/session pair providing frequent key rotation. Performance impact\
-is not noticible which can be proven by running runShortSessions.sh script.
+is not significant which can be proven by running runShortSessions.sh script.
 
 Tcp communication layer is using boost Asio library. Every session is running in its own thread\
 (io_context per session). This approach has its advantages and disadvantages. There is an\
@@ -166,7 +166,7 @@ Business logic, compression, task multithreading, and communication layers are d
 
 Business logic is an example of financial calculations I once worked on. This logic finds keywords in the request from another document and performs financial calculations based on the results of this search. There are 10000 requests in a batch, each of these requests is compared with 1000 entries from another document containing keywords, money amounts and other information. The easy way to understand this logic is to look at the responses with diagnostics turned on. The single feature of this code referred in other parts of the application is a signature of the method taking request string_view as a parameter and returning the response string. Different logic from a different field, not necessarily finance, can be plugged in.
 
-To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GB RAM on Ubuntu 23.10. Printing to the terminal doubles the latency, use ./clientX > /dev/null or write output to the file to exclude/reduce printing latency.
+To measure the performance of the system the same batch is repeated in an infinite loop, but every time it is created anew from a source file. The server is processing these batches from scratch in each iteration. With one client processing one batch takes about 10 milliseconds on desktop with 4 CPU cores, 8GB RAM on Ubuntu 24.10. Printing to the terminal doubles the latency, use ./clientX > /dev/null or write output to the file to exclude/reduce printing latency.
 
 To test the code manually (not using deploy.sh):
 
@@ -288,9 +288,9 @@ The usage is\
 './profile.sh' in the project root. Two directories for clients\
 should exist with necessary files and links.
 
-Scripts longtests.sh and checkstuff.sh run builds and tests with both\
+Scripts longtests.sh and checkcompile.sh run builds and tests with both\
 g++ and clang++, with and without sanitizers.\
-'./longtests.sh -h' and 'scripts/checkstuff -h' show details.
+'./longtests.sh -h' and 'scripts/checkcompile.sh -h' show details.
 
 We run memory and thread sanitizer and performance profiling for every commit.\
 Warnings are considered failures.
