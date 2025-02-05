@@ -12,6 +12,8 @@ namespace fifo {
 
 constexpr std::size_t BUFFER_SIZE = 10000;
 
+thread_local std::string Fifo::_payload;
+
 short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   int result = poll(&pfd, 1, -1);

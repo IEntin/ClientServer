@@ -10,6 +10,8 @@
 
 namespace tcp {
 
+thread_local std::string Tcp::_payload;
+
 bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   boost::system::error_code ec;
   static const auto ipAdress =

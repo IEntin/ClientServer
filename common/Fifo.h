@@ -19,11 +19,10 @@ public:
 		      HEADER& header,
 		      P1& payload1,
 		      P2& payload2) {
-    static thread_local std::string payload;
-    payload.clear();
-    if (!readMessage(name, block, payload))
+    _payload.clear();
+    if (!readMessage(name, block, _payload))
       return false;
-    if (!deserialize(header, payload.data()))
+    if (!deserialize(header, _payload.data()))
       return false;
     printHeader(header, LOG_LEVEL::INFO);
     std::size_t payload1Size = extractUncompressedSize(header);;
@@ -32,10 +31,10 @@ public:
     payload2.resize(payload2Size);
     unsigned shift = HEADER_SIZE;
     if (payload1Size > 0)
-      std::memcpy(payload1.data(), payload.data() + shift, payload1Size);
+      std::memcpy(payload1.data(), _payload.data() + shift, payload1Size);
     shift += payload1Size;
     if (payload2Size > 0)
-      std::memcpy(payload2.data(), payload.data() + shift, payload2Size);
+      std::memcpy(payload2.data(), _payload.data() + shift, payload2Size);
     return true;
   }
 
@@ -46,11 +45,10 @@ public:
 		      P1& payload1,
 		      P2& payload2,
 		      P3& payload3) {
-    static thread_local std::string payload;
-    payload.clear();
-    if (!readMessage(name, block, payload))
+    _payload.clear();
+    if (!readMessage(name, block, _payload))
       return false;
-    if (!deserialize(header, payload.data()))
+    if (!deserialize(header, _payload.data()))
       return false;
     printHeader(header, LOG_LEVEL::INFO);
     unsigned payload1Size = extractReservedSz(header);
@@ -61,13 +59,13 @@ public:
     payload3.resize(payload3Size);
     unsigned shift = HEADER_SIZE;
     if (payload1Size > 0)
-      std::memcpy(payload1.data(), payload.data() + shift, payload1Size);
+      std::memcpy(payload1.data(), _payload.data() + shift, payload1Size);
     shift += payload1Size;
     if (payload2Size > 0)
-      std::memcpy(payload2.data(), payload.data() + shift, payload2Size);
+      std::memcpy(payload2.data(), _payload.data() + shift, payload2Size);
     shift += payload2Size;
     if (payload3Size > 0)
-      std::memcpy(payload3.data(), payload.data() + shift, payload3Size);
+      std::memcpy(payload3.data(), _payload.data() + shift, payload3Size);
     return true;
   }
 
@@ -76,16 +74,15 @@ public:
 		      bool block,
 		      HEADER& header,
 		      P1& payload1) {
-    static thread_local std::string payload;
-    payload.clear();
-    if (!readMessage(name, block, payload))
+    _payload.clear();
+    if (!readMessage(name, block, _payload))
       return false;
-    if (!deserialize(header, payload.data()))
+    if (!deserialize(header, _payload.data()))
       return false;
-    std::size_t payload1Size = payload.size() - HEADER_SIZE;
+    std::size_t payload1Size = _payload.size() - HEADER_SIZE;
     if (payload1Size > 0) {
       payload1.resize(payload1Size);
-      std::memcpy(payload1.data(), payload.data() + HEADER_SIZE, payload1Size);
+      std::memcpy(payload1.data(), _payload.data() + HEADER_SIZE, payload1Size);
       return true;
     }
     return false;
@@ -125,21 +122,20 @@ public:
     if (fdWrite == -1)
       return false;
     utility::CloseFileDescriptor cfdw(fdWrite);
-    static thread_local std::string payload;
-    payload.clear();
+    _payload.clear();
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());
-    std::memcpy(payload.data(), headerBuffer, HEADER_SIZE);
+    _payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());
+    std::memcpy(_payload.data(), headerBuffer, HEADER_SIZE);
     unsigned shift = HEADER_SIZE;
-    std::memcpy(payload.data() + shift, payload1.data(), payload1.size());
+    std::memcpy(_payload.data() + shift, payload1.data(), payload1.size());
     shift += payload1.size();
     if (!payload2.empty())
-      std::memcpy(payload.data() + shift, payload2.data(), payload2.size());
+      std::memcpy(_payload.data() + shift, payload2.data(), payload2.size());
     shift += payload2.size();
     if (!payload3.empty())
-      std::memcpy(payload.data() + shift, payload3.data(), payload3.size());
-    writeString(fdWrite, payload);
+      std::memcpy(_payload.data() + shift, payload3.data(), payload3.size());
+    writeString(fdWrite, _payload);
     return true;
   }
 
@@ -148,6 +144,7 @@ public:
 private:
   Fifo() = delete;
   ~Fifo() = delete;
+  static thread_local std::string _payload;
   static short pollFd(int fd, short expected);
   static bool setPipeSize(int fd);
   static int openWriteNonBlock(std::string_view fifoName);

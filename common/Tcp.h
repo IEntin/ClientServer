@@ -15,6 +15,8 @@ class Tcp {
   Tcp() = delete;
   ~Tcp() = delete;
 
+  static thread_local std::string _payload;
+
 public:
 
   static void shutdownSocket(boost::asio::ip::tcp::socket& socket) {
@@ -30,16 +32,15 @@ public:
   static bool readMsg(boost::asio::ip::tcp::socket& socket,
 		      HEADER& header,
 		      P1& payload1) {
-    static thread_local std::string payload;
-    payload.clear();
-    if (!readMessage(socket, payload))
+    _payload.clear();
+    if (!readMessage(socket, _payload))
       return false;
-    deserialize(header, payload.data());
+    deserialize(header, _payload.data());
     std::size_t payload1Sz = extractUncompressedSize(header);
     payload1.resize(payload1Sz);
     unsigned shift = HEADER_SIZE;
     if (payload1Sz > 0)
-      std::memcpy(payload1.data(), payload.data() + shift, payload1Sz);
+      std::memcpy(payload1.data(), _payload.data() + shift, payload1Sz);
     return true;
   }
 
@@ -48,21 +49,20 @@ public:
 		      HEADER& header,
 		      P1& payload1,
 		      P2& payload2) {
-    static thread_local std::string payload;
-    payload.clear();
-    if (!readMessage(socket, payload))
+    _payload.clear();
+    if (!readMessage(socket, _payload))
       return false;
-    deserialize(header, payload.data());
+    deserialize(header, _payload.data());
     std::size_t payload1Sz = extractUncompressedSize(header);
     std::size_t payload2Sz = extractParameter(header);
     payload1.resize(payload1Sz);
     payload2.resize(payload2Sz);
     unsigned shift = HEADER_SIZE;
     if (payload1Sz > 0)
-      std::memcpy(payload1.data(), payload.data() + shift, payload1Sz);
+      std::memcpy(payload1.data(), _payload.data() + shift, payload1Sz);
     shift += payload1Sz;
     if (payload2Sz > 0)
-      std::memcpy(payload2.data(), payload.data() + shift, payload2Sz);
+      std::memcpy(payload2.data(), _payload.data() + shift, payload2Sz);
     return true;
   }
 
@@ -72,11 +72,10 @@ public:
 		      P1& payload1,
 		      P2& payload2,
 		      P3& payload3) {
-    static thread_local std::string payload;
-    payload.clear();
-    if (!readMessage(socket, payload))
+    _payload.clear();
+    if (!readMessage(socket, _payload))
       return false;
-    deserialize(header, payload.data());
+    deserialize(header, _payload.data());
     std::size_t payload1Sz = extractReservedSz(header);
     std::size_t payload2Sz = extractUncompressedSize(header);
     std::size_t payload3Sz = extractParameter(header);
@@ -85,13 +84,13 @@ public:
     payload3.resize(payload3Sz);
     unsigned shift = HEADER_SIZE;
     if (payload1Sz > 0)
-      std::memcpy(payload1.data(), payload.data() + shift, payload1Sz);
+      std::memcpy(payload1.data(), _payload.data() + shift, payload1Sz);
     shift += payload1Sz;
     if (payload2Sz > 0)
-      std::memcpy(payload2.data(), payload.data() + shift, payload2Sz);
+      std::memcpy(payload2.data(), _payload.data() + shift, payload2Sz);
     shift += payload2Sz;
     if (payload3Sz > 0)
-      std::memcpy(payload3.data(), payload.data() + shift, payload3Sz);
+      std::memcpy(payload3.data(), _payload.data() + shift, payload3Sz);
     return true;
   }
 
