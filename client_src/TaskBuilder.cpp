@@ -33,21 +33,15 @@ void TaskBuilder::run() {
 
 void TaskBuilder::getTask(Subtasks& task) {
   std::unique_lock lock(_mutex);
-  _conditionTask.wait(lock, [this, task] {
-    if (_subtasks.empty())
-      return false;
-    if (!_subtasks.empty()) {
-      STATUS status = _subtasks.back()._state;
-      switch (status) {
+  _conditionTask.wait(lock, [this] {
+    switch (_status) {
       case STATUS::TASK_DONE:
       case STATUS::ERROR:
       case STATUS::STOPPED:
 	return true;
-      default:
-	return false;
-      }
+    default:
+      return false;
     }
-    return true;
   });
   task.swap(_subtasks);
 }
@@ -101,9 +95,9 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   Subtask& subtask = _subtasks[_subtaskIndex];
   subtask._data.resize(_aggregate.size());
   std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
-  subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
+  _status = subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._header.swap(header);
-  switch (subtask._state) {
+  switch (_status) {
   case STATUS::TASK_DONE:
   case STATUS::ERROR:
     _subtasks.resize(_subtaskIndex + 1);
@@ -115,12 +109,13 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   default:
     break;
   }
-  return subtask._state;
+  return _status;
 }
 
 void TaskBuilder::stop() {
   std::lock_guard lock(_mutex);
   _stopped = true;
+  _status = STATUS::STOPPED;
   _conditionResume.notify_one();
 }
 
@@ -129,6 +124,7 @@ void TaskBuilder::resume() {
   if (_stopped)
     return;
   _subtaskIndex = 0;
+  _status = STATUS::NONE;
   _resume = true;
   _conditionResume.notify_one();
 }
