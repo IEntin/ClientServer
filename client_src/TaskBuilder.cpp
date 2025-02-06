@@ -96,7 +96,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   Subtask& subtask = _subtasks[_subtaskIndex];
   subtask._data.resize(_aggregate.size());
   std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
-  _status = subtask._state = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
+  _status = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._header.swap(header);
   switch (_status) {
   case STATUS::TASK_DONE:

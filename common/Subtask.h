@@ -12,6 +12,5 @@ struct Subtask {
   Subtask() = default;
   ~Subtask() = default;
   std::string _data;
-  STATUS _state = STATUS::NONE;
   HEADER _header;
 };
