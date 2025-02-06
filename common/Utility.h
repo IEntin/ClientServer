@@ -57,7 +57,7 @@ void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepD
 }
 
 template <typename INPUT, typename CONTAINER>
-void splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+std::size_t splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
   using ELEMENT = typename CONTAINER::value_type;
   unsigned index = 0;
   std::size_t start = 0;
@@ -73,7 +73,7 @@ void splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', in
     ++index;
     start = next + 1;
   }
-  rows.resize(index);
+  return index;
 }
 
 template <typename INPUT, typename CONTAINER>

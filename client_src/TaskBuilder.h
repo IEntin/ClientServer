@@ -30,7 +30,7 @@ class TaskBuilder final : public Runnable {
  public:
   explicit TaskBuilder(CryptoWeakPtr crypto);
   void stop() override;
-  STATUS getTask(Subtasks& task);
+  std::pair<std::size_t, STATUS> getTask(Subtasks& task);
   STATUS createSubtask(class Lines& lines);
   void resume();
 };

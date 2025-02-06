@@ -31,7 +31,7 @@ void TaskBuilder::run() {
   }
 }
 
-STATUS TaskBuilder::getTask(Subtasks& task) {
+std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
   std::unique_lock lock(_mutex);
   _conditionTask.wait(lock, [this] {
     switch (_status) {
@@ -44,7 +44,7 @@ STATUS TaskBuilder::getTask(Subtasks& task) {
     }
   });
   task.swap(_subtasks);
-  return _status;
+  return { _subtaskIndex + 1, _status };
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
@@ -101,7 +101,6 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   switch (_status) {
   case STATUS::TASK_DONE:
   case STATUS::ERROR:
-    _subtasks.resize(_subtaskIndex + 1);
     _conditionTask.notify_one();
     break;
   case STATUS::SUBTASK_DONE:

@@ -28,24 +28,24 @@ void Task::setProcessFunction(ProcessRequest function) {
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
-  utility::splitReuseVector(request, _rows);
-  _indices.resize(_rows.size());
-  for (unsigned i = 0; i < _indices.size(); ++i) {
+  _size = utility::splitReuseVector(request, _rows);
+  _indices.resize(_size);
+  for (unsigned i = 0; i < _size; ++i) {
     _indices[i] = i;
     _rows[i]._orgIndex = i;
   }
-  _response.resize(_rows.size());
+  _response.resize(_size);
 }
 
 void Task::sortIndices() {
-  std::sort(_indices.begin(), _indices.end(), [this] (int idx1, int idx2) {
+  std::sort(_indices.begin(), _indices.begin() + _size, [this] (int idx1, int idx2) {
 	      return _rows[idx1]._sizeKey < _rows[idx2]._sizeKey;
 	    });
 }
 
 bool Task::preprocessNext() {
   unsigned index = _index.fetch_add(1);
-  if (index < _rows.size()) {
+  if (index < _size) {
     RequestRow& row = _rows[index];
     row._sizeKey = _preprocessRequest(row._value);
     return true;
@@ -55,7 +55,7 @@ bool Task::preprocessNext() {
 
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
-  if (index < _rows.size()) {
+  if (index < _size) {
     RequestRow& row = _rows[_indices[index]];
     std::size_t typeIndex = _function.index();
     switch (typeIndex) {

@@ -53,6 +53,7 @@ class Task : private boost::noncopyable {
     ECHOFUNCTION
   };
   std::vector<RequestRow> _rows;
+  std::size_t _size = 0;
   std::vector<unsigned> _indices;
   Response& _response;
   std::promise<void> _promise;
