@@ -31,7 +31,7 @@ void TaskBuilder::run() {
   }
 }
 
-void TaskBuilder::getTask(Subtasks& task) {
+STATUS TaskBuilder::getTask(Subtasks& task) {
   std::unique_lock lock(_mutex);
   _conditionTask.wait(lock, [this] {
     switch (_status) {
@@ -44,6 +44,7 @@ void TaskBuilder::getTask(Subtasks& task) {
     }
   });
   task.swap(_subtasks);
+  return _status;
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
