@@ -9,8 +9,6 @@
 #include <fstream>
 #include <regex>
 
-#include <boost/random.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
@@ -37,14 +35,6 @@ std::string generateRawUUID() {
   boost::uuids::uuid uuid = gen();
   std::u8string u8Str{ uuid.begin(), uuid.end() };
   return { reinterpret_cast<const char*>(u8Str.data()), u8Str.size() };
-}
-
-int generateRandomNumber(int min, int max) {
-  static const auto seed = std::time(0);
-  static thread_local boost::random::mt19937 gen(seed);
-  boost::random::uniform_int_distribution<> dist(min, max);
-  int random_number = dist(gen);
-  return random_number;
 }
 
 std::size_t getUniqueId() {
