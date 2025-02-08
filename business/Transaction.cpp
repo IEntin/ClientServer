@@ -32,6 +32,7 @@ thread_local std::vector<std::string_view> Transaction::_keywords;
 thread_local std::string Transaction::_output;
 
 Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
+  clear();
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
     LogError << "invalid request, ZERO_SIZE sizeKey" << '\n';
@@ -47,6 +48,7 @@ Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)
 }
 
 Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) : _sizeKey(sizeKey)  {
+  clear();
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
     LogError << "invalid request, ZERO_SIZE sizeKey, input:" << input << '\n';
@@ -61,15 +63,9 @@ Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) : _si
   }
 }
 
-Transaction::~Transaction() {
-  _bids.clear();
-  _keywords.clear();
-}
-
 std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 						 std::string_view request,
 						 bool diagnostics) noexcept {
-  _output.clear();
   Transaction transaction(sizeKey, request);
   if (request.empty()) {
     LogError << "request is empty." << '\n';
@@ -102,7 +98,6 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 
 std::string_view Transaction::processRequestNoSort(std::string_view request,
 						   bool diagnostics) noexcept {
-  _output.clear();
   Transaction transaction(request);
   if (request.empty()) {
     LogError << "request is empty." << '\n';
@@ -307,4 +302,10 @@ void Transaction::printRequestData() const {
     _output.append(keyword);
     _output.push_back('\n');
   }
+}
+
+void Transaction::clear() {
+  _bids.clear();
+  _keywords.clear();
+  _output.clear();
 }

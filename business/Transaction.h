@@ -22,7 +22,7 @@ public:
 
   static std::string_view processRequestNoSort(std::string_view request,
 					       bool diagnostics) noexcept;
-  ~Transaction();
+  ~Transaction() = default;
   static SIZETUPLE createSizeKey(std::string_view request);
 private:
   explicit Transaction(std::string_view input);
@@ -36,13 +36,14 @@ private:
   void printRequestData() const;
   void printMatchingAds() const;
   void printWinningAd() const;
+  void clear();
   std::string_view _id;
   std::string_view _request;
   // Made static to keep the capacity growing as needed.
-  // thread_local makes it thread safe. Transaction destructor
-  // clears this vector, but it keeps capacity for further
-  // usage. Number of matched bids is not exceeding 10,
-  // additional memory is negligible.
+  // thread_local makes it thread safe. Every transaction
+  // clears these vectors, but it keeps capacity for further
+  // usage. Valgrind shows server' number of allocations
+  // reduced by a factor of 10.
   static thread_local std::vector<AdBid> _bids;
   // same here
   static thread_local std::vector<std::string_view> _keywords;
