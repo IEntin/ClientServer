@@ -9,6 +9,7 @@
 class ThreadPoolSessions : public ThreadPoolBase {
 public:
   explicit ThreadPoolSessions(int maxSize);
+  ~ThreadPoolSessions() override = default;
   void calculateStatus(RunnablePtr runnable);
   STATUS push(RunnablePtr runnable) override;
   RunnablePtr get() override;

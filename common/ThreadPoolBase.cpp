@@ -16,7 +16,6 @@ ThreadPoolBase::~ThreadPoolBase() {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     std::exit(1);
   }
-  Trace << '\n';
 }
 
 void ThreadPoolBase::stop() {

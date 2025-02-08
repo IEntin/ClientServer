@@ -8,7 +8,7 @@ class Policy {
 
 protected:
 
-  Policy() {}
+  Policy() = default;
 
 public:
 

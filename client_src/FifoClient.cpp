@@ -32,7 +32,6 @@ FifoClient::FifoClient()  {
 FifoClient::~FifoClient() {
   if (std::filesystem::exists(_fifoName))
     Fifo::onExit(_fifoName);
-  Trace << '\n';
 }
 
 void FifoClient::run() {

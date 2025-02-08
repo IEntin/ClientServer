@@ -19,6 +19,7 @@ class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public Runnable {
  public:
   explicit TcpAcceptor(ServerPtr server);
+  ~TcpAcceptor() override = default;
 private:
   void run() override;
   bool start() override;

@@ -20,9 +20,7 @@ Server::Server(Policy& policy) :
   _chronometer(ServerOptions::_timing),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
   // Unlock computer in case the app crashed during debugging
-  // leaving mutex locked, run serverX or testbin in this case
-  // so that all processes are on the same host rather than
-  // rebooting machine:
+  // leaving mutex locked, run serverX or testbin in this case.
   removeNamedMutex();
   policy.set();
 }
@@ -30,7 +28,6 @@ Server::Server(Policy& policy) :
 Server::~Server() {
   Ad::clear();
   utility::removeAccess();
-  Trace << '\n';
 }
 
 bool Server::start() {

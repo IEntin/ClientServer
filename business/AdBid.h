@@ -8,7 +8,7 @@
 
 struct AdBid {
   AdBid(std::string_view keyword, long money);
-  ~AdBid() {}
+  ~AdBid() = default;
   std::string _keyword;
   long _money = 0;
   const class Ad* _ad = nullptr;

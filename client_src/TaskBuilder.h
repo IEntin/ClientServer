@@ -29,6 +29,7 @@ class TaskBuilder final : public Runnable {
   bool start() override { return true; }
  public:
   explicit TaskBuilder(CryptoWeakPtr crypto);
+  ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
   STATUS createSubtask(class Lines& lines);

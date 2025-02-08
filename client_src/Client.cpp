@@ -21,7 +21,6 @@ Client::Client() :
 
 Client::~Client() {
   stop();
-  Trace << '\n';
 }
 
 bool Client::DHFinish(std::string_view clientIdStr, const CryptoPP::SecByteBlock& pubAreceived) {

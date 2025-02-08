@@ -30,10 +30,6 @@ Session::Session(ServerWeakPtr server,
   _crypto->eraseRSAKeys();
 }
 
-Session::~Session() {
-  Trace << '\n';
-}
-
 std::pair<HEADER, std::string_view>
 Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())

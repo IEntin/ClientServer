@@ -8,7 +8,7 @@
 
 class TransactionPolicy : public Policy {
  public:
-  TransactionPolicy() {}
+  TransactionPolicy() = default;
   
   ~TransactionPolicy() override {}
 

@@ -35,7 +35,7 @@ protected:
 	  std::string_view msgHash,
 	  const CryptoPP::SecByteBlock& pubB,
 	  std::string_view signatureWithPubKey);
-  virtual ~Session();
+  virtual ~Session() = default;
   std::pair<HEADER, std::string_view>
   buildReply(std::atomic<STATUS>& status);
   bool processTask();

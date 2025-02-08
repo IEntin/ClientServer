@@ -20,7 +20,6 @@ FifoAcceptor::FifoAcceptor(ServerPtr server) :
 
 FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
-  Trace << '\n';
 }
 
 std::tuple<HEADERTYPE, std::string, CryptoPP::SecByteBlock, std::string>
