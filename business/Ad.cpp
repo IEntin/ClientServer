@@ -115,28 +115,23 @@ void Ad::load(std::string_view filename) {
 
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD{ "Ad" };
-  output.append(AD);
-  output.append(_id);
+  output << AD << _id;
   static constexpr std::string_view SIZE{ " size=" };
-  output.append(SIZE);
+  output << SIZE;
   ioutility::printSizeKey(_sizeKey, output);
   static constexpr std::string_view DEFAULTBID{ " defaultBid=" };
-  output.append(DEFAULTBID);
+  output << DEFAULTBID;
   ioutility::toChars(_defaultBid, output);
   static constexpr std::string_view DELIMITER{ "\n " };
-  output.append(DELIMITER);
-  output.append(_input);
-  output.push_back('\n');
+  output << DELIMITER << _input << '\n';
   printBids(output);
 }
 
 void Ad::printBids(std::string& output) const {
   for (const AdBid& adBid : _bids) {
     static constexpr std::string_view DELIMITER{ "  " };
-    output.append(DELIMITER);
-    output.append(adBid._keyword);
-    output.push_back(' ');
+    output << DELIMITER << adBid._keyword << ' ';
     ioutility::toChars(adBid._money, output);
-    output.push_back('\n');
+    output << '\n';
   }
 }

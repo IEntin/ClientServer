@@ -16,6 +16,15 @@
 #include "IOUtility.h"
 #include "Logger.h"
 
+std::string& operator << (std::string& buffer, char c) {
+  buffer.push_back(c);
+  return buffer;
+}
+
+std::string& operator << (std::string& buffer, std::string_view str) {
+  return buffer.append(str);
+}
+
 namespace utility {
 
 std::string serverTerminal;
@@ -81,16 +90,16 @@ bool fileEndsWithEOL(std::string_view fileName) {
 std::string createErrorString(std::errc ec,
 			      const boost::source_location& location) {
   std::string msg(std::make_error_code(ec).message());
-  msg.append(1, ':').append(location.file_name()).append(1, ':');
+  msg << ':' << location.file_name() << ':';
   ioutility::toChars(location.line(), msg);
-  return msg.append(1, ' ').append(location.function_name());
+  return msg << ' ' << location.function_name();
 }
 
 std::string createErrorString(const boost::source_location& location) {
   std::string msg(strerror(errno));
-  msg.append(1, ':').append(location.file_name()).append(1, ':');
+  msg << ':' << location.file_name() << ':';
   ioutility::toChars(location.line(), msg);
-  return msg.append(1, ' ').append(location.function_name());
+  return msg << ' ' << location.function_name();
 }
 
 void compressEncrypt(std::string& buffer,

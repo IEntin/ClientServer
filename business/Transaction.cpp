@@ -70,9 +70,7 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
   if (request.empty()) {
     LogError << "request is empty." << '\n';
     transaction._invalid = true;
-    _output.append("[unknown]");
-    _output.append(INVALID_REQUEST);
-    return _output;
+    return _output << "[unknown]" << INVALID_REQUEST;
   }
   static const std::vector<Ad> emptyAdVector;
   static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = emptyAdVector;
@@ -83,11 +81,8 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
   }
   transaction.matchAds(adVector);
   if (!diagnostics) {
-    if (transaction._noMatch) {
-      _output.append(transaction._id);
-      _output.push_back(' ');
-      _output.append(EMPTY_REPLY);
-    }
+    if (transaction._noMatch)
+      _output << transaction._id << ' ' << EMPTY_REPLY;
     else
       transaction.printSummary();
     return _output;
@@ -102,18 +97,13 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
   if (request.empty()) {
     LogError << "request is empty." << '\n';
     transaction._invalid = true;
-    _output.append("[unknown]");
-    _output.append(INVALID_REQUEST);
-    return _output;
+    return _output << "[unknown]" << INVALID_REQUEST;
   }
   const std::vector<Ad>& adVector = Ad::getAdsBySize(transaction._sizeKey);
   transaction.matchAds(adVector);
   if (!diagnostics) {
-    if (transaction._noMatch) {
-      _output.append(transaction._id);
-      _output.push_back(' ');
-      _output.append(EMPTY_REPLY);
-    }
+    if (transaction._noMatch)
+      _output << transaction._id << ' ' << EMPTY_REPLY;
     else
       transaction.printSummary();
     return _output;
@@ -224,18 +214,13 @@ void Transaction::printDiagnostics() const {
   printRequestData();
   printMatchingAds();
   static constexpr std::string_view SUMMARY{ "summary:" };
-  _output.append(SUMMARY);
+  _output << SUMMARY;
   static constexpr std::string_view STARS{ "*****" };
   if (_noMatch) {
-    _output.append(EMPTY_REPLY);
-    _output.append(STARS);
-    _output.push_back('\n');
+    _output << EMPTY_REPLY << STARS << '\n';
   }
-  else if (_invalid) {
-    _output.append(INVALID_REQUEST);
-    _output.append(STARS);
-    _output.push_back('\n');
-  }
+  else if (_invalid)
+    _output << INVALID_REQUEST << STARS << '\n';
   else
     printWinningAd();
 }
@@ -243,28 +228,23 @@ void Transaction::printDiagnostics() const {
 void Transaction::printSummary() const {
   const Ad* const winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
-  _output.append(_id);
-  _output.push_back(' ');
+  _output << _id << ' ';
   std::string_view adId = winningAdPtr->getId();
-  _output.append(adId);
-  _output.push_back(',');
-  _output.push_back(' ');
+  _output << adId << ',' << ' ';
   double money = _winningBid->_money / Ad::_scaler;
   ioutility::toChars(money, _output, 1);
-  _output.push_back('\n');
+  _output << '\n';
 }
 
 void Transaction::printMatchingAds() const {
   static constexpr std::string_view MATCHINGADS{ "matching ads:\n" };
-  _output.append(MATCHINGADS);
+  _output << MATCHINGADS;
   for (const AdBid& adBid : _bids) {
     adBid._ad->print(_output);
     static constexpr std::string_view MATCH{ " match:" };
-    _output.append(MATCH);
-    _output.append(adBid._keyword);
-    _output.push_back(' ');
+    _output << MATCH << adBid._keyword << ' ';
     ioutility::toChars(adBid._money, _output);
-    _output.push_back('\n');
+    _output << '\n';
   }
 }
 
@@ -272,36 +252,30 @@ void Transaction::printWinningAd() const {
   auto winningAdPtr = _winningBid->_ad;
   assert(winningAdPtr && "match is expected");
   std::string_view adId = winningAdPtr->getId();
-  _output.append(adId);
+  _output << adId;
   static constexpr std::string_view DELIMITER(", ");
-  _output.append(DELIMITER);
+  _output << DELIMITER;
   std::string_view winningKeyword = _winningBid->_keyword;
-  _output.append(winningKeyword);
-  _output.append(DELIMITER);
+  _output << winningKeyword << DELIMITER;
   double money = _winningBid->_money / Ad::_scaler;
   ioutility::toChars(money, _output, 1);
   static constexpr std::string_view ENDING{ "\n*****\n" };
-  _output.append(ENDING);
+  _output << ENDING;
 }
 
 void Transaction::printRequestData() const {
-  _output.append(_id);
-  _output.push_back(' ');
+  _output << _id << ' ';
   static constexpr std::string_view TRANSACTIONSIZE{ "Transaction size=" };
-  _output.append(TRANSACTIONSIZE);
+  _output << TRANSACTIONSIZE;
   ioutility::printSizeKey(_sizeKey, _output);
   static constexpr std::string_view MATCHES{ " #matches=" };
-  _output.append(MATCHES);
+  _output << MATCHES;
   ioutility::toChars(_bids.size(), _output);
-  _output.push_back('\n');
-  _output.append(_request);
+  _output << '\n' << _request;
   static constexpr std::string_view REQUESTKEYWORDS{ "\nrequest keywords:\n" };
-  _output.append(REQUESTKEYWORDS);
-  for (std::string_view keyword : _keywords) {
-    _output.push_back(' ');
-    _output.append(keyword);
-    _output.push_back('\n');
-  }
+  _output << REQUESTKEYWORDS;
+  for (std::string_view keyword : _keywords)
+    _output << ' ' << keyword << '\n';
 }
 
 void Transaction::clear() {

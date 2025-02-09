@@ -30,17 +30,11 @@ Logger& Logger::printPrefix(const boost::source_location& location) {
     if (_level < _threshold || !_displayPrefix)
       return *this;
     static thread_local std::string output;
-    output = "[";
+    output << '[';
     std::string_view levelName(levelNames[std::to_underlying(_level)]);
-    output.append(levelName);
-    output.push_back(']');
-    output.push_back(' ');
-    output.append(location.file_name());
-    output.push_back(':');
+    output << levelName << ']' << ' ' << location.file_name() << ':';
     ioutility::toChars(location.line(), output);
-    output.push_back(' ');
-    output.append(location.function_name());
-    output.push_back(' ');
+    output << ' ' << location.function_name() << ' ';
     _stream.write(output.data(), output.size());
     return *this;
   }
