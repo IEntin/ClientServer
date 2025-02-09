@@ -22,28 +22,9 @@ namespace utility {
 // CONTAINER can be a vector or a deque or a list of string,
 // string_view, vector<char> or vector of objects of any
 // class with constructor over the range [first, last)
-// profiler:
-// 4.37%     19.28     1.16 14025138     0.00     0.00  void utility::split<std::basic_string_view<char, std::char_traits<char> >, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > >(std::basic_string_view<char, std::char_traits<char> > const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >&, char, int)
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  auto beg = input.cbegin();
-  while (beg != input.cend()) {
-    auto end = std::find(std::next(beg), input.cend(), delim);
-    bool endOfInput = end == input.cend();
-    rows.emplace_back(beg, endOfInput ? input.cend() : std::next(end, keepDelim));
-    if (endOfInput)
-      break;
-    beg = std::next(end);
-  }
-}
-
-// this version is 3+ times faster.
-// profiler:
-// 1.33%     22.75     0.33 13928674     0.00     0.00  void utility::splitFast<std::basic_string_view<char, std::char_traits<char> >, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > >(std::basic_string_view<char, std::char_traits<char> > const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >&, char, int)
-
-template <typename INPUT, typename CONTAINER>
-void splitFast(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
   std::size_t start = 0;
   while (start < input.size()) {
     std::size_t next = input.find(delim, start);

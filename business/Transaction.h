@@ -39,13 +39,11 @@ private:
   void clear();
   std::string_view _id;
   std::string_view _request;
-  // Made static to keep the capacity growing as needed.
-  // thread_local makes it thread safe. Every transaction
-  // clears these vectors, but it keeps capacity for further
-  // usage. Valgrind shows server' number of allocations
-  // reduced by a factor of 10.
+  // Next 3 made static thread_local to reuse allocated memory.
+  // Every transaction clears these objects, but keeps capacity
+  // for further usage. Valgrind shows server number of
+  // allocations reduced by a factor of 10.
   static thread_local std::vector<AdBid> _bids;
-  // same here
   static thread_local std::vector<std::string_view> _keywords;
   static thread_local std::string _output;
   const SIZETUPLE _sizeKey;
