@@ -12,6 +12,8 @@
 #include "IOUtility.h"
 #include "Logger.h"
 
+using utility::operator<<;
+
 AdRow::AdRow(std::string_view line) : _input(line) {}
 
 bool AdRow::parse() {

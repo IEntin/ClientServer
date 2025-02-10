@@ -16,6 +16,8 @@
 #include "IOUtility.h"
 #include "Logger.h"
 
+namespace utility {
+
 std::string& operator << (std::string& buffer, char c) {
   buffer.push_back(c);
   return buffer;
@@ -24,8 +26,6 @@ std::string& operator << (std::string& buffer, char c) {
 std::string& operator << (std::string& buffer, std::string_view str) {
   return buffer.append(str);
 }
-
-namespace utility {
 
 std::string serverTerminal;
 std::string clientTerminal;

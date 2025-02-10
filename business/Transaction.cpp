@@ -31,6 +31,8 @@ thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 thread_local std::string Transaction::_output;
 
+using utility::operator<<;
+
 Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
   clear();
   if (_sizeKey == ZERO_SIZE) {

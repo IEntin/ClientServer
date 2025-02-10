@@ -16,11 +16,10 @@ constexpr std::string_view ENDOFMESSAGE("b7d0d9fc71b943288c99f178ebff6e9d");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
-std::string& operator << (std::string& buffer, char c);
-
-std::string& operator << (std::string& buffer, std::string_view str);
-
 namespace utility {
+
+std::string& operator << (std::string&, char);
+std::string& operator << (std::string&, std::string_view);
 
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,

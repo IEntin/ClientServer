@@ -6,6 +6,8 @@
 
 #include "IOUtility.h"
 
+using utility::operator<<;
+
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::EXPECTED;
 
 void Logger::translateLogThreshold(std::string_view configName) {
