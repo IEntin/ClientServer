@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <poll.h>
 
+#include "IOUtility.h"
 #include "Utility.h"
 
 namespace fifo {
@@ -98,7 +99,7 @@ public:
 	case EAGAIN:
 	  break;
 	default:
-	  throw std::runtime_error(utility::createErrorString());
+	  throw std::runtime_error(ioutility::createErrorString());
 	  break;
 	}
       }

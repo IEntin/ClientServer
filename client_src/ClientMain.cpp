@@ -11,6 +11,7 @@
 #include "FifoClient.h"
 #include "Metrics.h"
 #include "TcpClient.h"
+#include "Utility.h"
 
 void signalHandler(int) {
   Client::onSignal();

@@ -9,6 +9,7 @@
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
+#include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
 		 std::string_view msgHash,

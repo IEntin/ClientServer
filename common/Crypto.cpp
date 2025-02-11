@@ -10,7 +10,9 @@
 
 #include "ClientOptions.h"
 #include "IOUtility.h"
+#include "Logger.h"
 #include "ServerOptions.h"
+#include "Utility.h"
 
 const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
 

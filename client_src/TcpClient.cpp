@@ -10,7 +10,7 @@ namespace tcp {
 
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
-    throw std::runtime_error(utility::createErrorString());
+    throw std::runtime_error(ioutility::createErrorString());
   auto lambda = [this] (
     const HEADER& header,
     std::string_view msgHash,

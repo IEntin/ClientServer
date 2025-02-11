@@ -18,7 +18,7 @@ short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
   int result = poll(&pfd, 1, -1);
   if (result <= 0 || pfd.revents & POLLERR || pfd.revents & POLLNVAL)
-    throw std::runtime_error(utility::createErrorString());
+    throw std::runtime_error(ioutility::createErrorString());
   else if (pfd.revents & expected)
     return expected;
   else if (pfd.revents & POLLHUP) {
@@ -33,7 +33,7 @@ bool Fifo::setPipeSize(int fd) {
     return false;;
   ssize_t currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1)
-    throw std::runtime_error(utility::createErrorString());
+    throw std::runtime_error(ioutility::createErrorString());
   unsigned long currentSize = static_cast<unsigned long>(currentSz);
   if (Options::_pipeSize > currentSize) {
     ssize_t ret = fcntl(fd, F_SETPIPE_SZ, Options::_pipeSize);
@@ -96,7 +96,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   while (true) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1)
-      throw std::runtime_error(utility::createErrorString());
+      throw std::runtime_error(ioutility::createErrorString());
     else if (result == 0)
       break;
     else if (result > 0) {
@@ -127,7 +127,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
 	continue;
 	break;
       default:
-	throw std::runtime_error(utility::createErrorString());
+	throw std::runtime_error(ioutility::createErrorString());
 	break;
       }
     }

@@ -11,6 +11,8 @@
 #include "Ad.h"
 #include "AdBid.h"
 #include "IOUtility.h"
+#include "Logger.h"
+#include "Utility.h"
 
 namespace {
 constexpr const char* INVALID_REQUEST{ " Invalid request\n" };
@@ -31,7 +33,7 @@ thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
 thread_local std::string Transaction::_output;
 
-using utility::operator<<;
+using ioutility::operator<<;
 
 Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
   clear();
@@ -232,10 +234,8 @@ void Transaction::printSummary() const {
   assert(winningAdPtr && "match is expected");
   _output << _id << ' ';
   std::string_view adId = winningAdPtr->getId();
-  _output << adId << ',' << ' ';
   double money = _winningBid->_money / Ad::_scaler;
-  ioutility::toChars(money, _output, 1);
-  _output << '\n';
+  _output << adId << ',' << ' ' << money << '\n';
 }
 
 void Transaction::printMatchingAds() const {
@@ -244,9 +244,7 @@ void Transaction::printMatchingAds() const {
   for (const AdBid& adBid : _bids) {
     adBid._ad->print(_output);
     static constexpr std::string_view MATCH{ " match:" };
-    _output << MATCH << adBid._keyword << ' ';
-    ioutility::toChars(adBid._money, _output);
-    _output << '\n';
+    _output << MATCH << adBid._keyword << ' ' << adBid._money << '\n';
   }
 }
 
@@ -260,22 +258,17 @@ void Transaction::printWinningAd() const {
   std::string_view winningKeyword = _winningBid->_keyword;
   _output << winningKeyword << DELIMITER;
   double money = _winningBid->_money / Ad::_scaler;
-  ioutility::toChars(money, _output, 1);
   static constexpr std::string_view ENDING{ "\n*****\n" };
-  _output << ENDING;
+  _output << money << ENDING;
 }
 
 void Transaction::printRequestData() const {
   _output << _id << ' ';
   static constexpr std::string_view TRANSACTIONSIZE{ "Transaction size=" };
-  _output << TRANSACTIONSIZE;
-  ioutility::printSizeKey(_sizeKey, _output);
+  _output << TRANSACTIONSIZE << _sizeKey;
   static constexpr std::string_view MATCHES{ " #matches=" };
-  _output << MATCHES;
-  ioutility::toChars(_bids.size(), _output);
-  _output << '\n' << _request;
   static constexpr std::string_view REQUESTKEYWORDS{ "\nrequest keywords:\n" };
-  _output << REQUESTKEYWORDS;
+  _output << MATCHES << _bids.size() << '\n' << _request << REQUESTKEYWORDS;
   for (std::string_view keyword : _keywords)
     _output << ' ' << keyword << '\n';
 }

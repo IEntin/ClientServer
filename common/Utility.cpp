@@ -18,18 +18,11 @@
 
 namespace utility {
 
-std::string& operator << (std::string& buffer, char c) {
-  buffer.push_back(c);
-  return buffer;
-}
-
-std::string& operator << (std::string& buffer, std::string_view str) {
-  return buffer.append(str);
-}
-
 std::string serverTerminal;
 std::string clientTerminal;
 std::string testbinTerminal;
+
+using ioutility::operator<<;
 
 CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
@@ -85,21 +78,6 @@ bool fileEndsWithEOL(std::string_view fileName) {
   stream.seekg(-1, std::ios::end);
   stream.get(ch);
   return ch == '\n';
-}
-
-std::string createErrorString(std::errc ec,
-			      const boost::source_location& location) {
-  std::string msg(std::make_error_code(ec).message());
-  msg << ':' << location.file_name() << ':';
-  ioutility::toChars(location.line(), msg);
-  return msg << ' ' << location.function_name();
-}
-
-std::string createErrorString(const boost::source_location& location) {
-  std::string msg(strerror(errno));
-  msg << ':' << location.file_name() << ':';
-  ioutility::toChars(location.line(), msg);
-  return msg << ' ' << location.function_name();
 }
 
 void compressEncrypt(std::string& buffer,

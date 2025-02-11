@@ -11,8 +11,9 @@
 #include "FileLines.h"
 #include "IOUtility.h"
 #include "Logger.h"
+#include "Utility.h"
 
-using utility::operator<<;
+using ioutility::operator<<;
 
 AdRow::AdRow(std::string_view line) : _input(line) {}
 
@@ -117,23 +118,17 @@ void Ad::load(std::string_view filename) {
 
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD{ "Ad" };
-  output << AD << _id;
   static constexpr std::string_view SIZE{ " size=" };
-  output << SIZE;
-  ioutility::printSizeKey(_sizeKey, output);
   static constexpr std::string_view DEFAULTBID{ " defaultBid=" };
-  output << DEFAULTBID;
-  ioutility::toChars(_defaultBid, output);
   static constexpr std::string_view DELIMITER{ "\n " };
-  output << DELIMITER << _input << '\n';
+  output << AD << _id << SIZE << _sizeKey << DEFAULTBID
+	 << _defaultBid << DELIMITER << _input << '\n';
   printBids(output);
 }
 
 void Ad::printBids(std::string& output) const {
   for (const AdBid& adBid : _bids) {
     static constexpr std::string_view DELIMITER{ "  " };
-    output << DELIMITER << adBid._keyword << ' ';
-    ioutility::toChars(adBid._money, output);
-    output << '\n';
+    output << DELIMITER << adBid._keyword << ' ' << adBid._money << '\n';
   }
 }

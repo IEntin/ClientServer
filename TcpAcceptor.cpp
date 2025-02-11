@@ -4,6 +4,7 @@
 
 #include "TcpAcceptor.h"
 
+#include "IOUtility.h"
 #include "Options.h"
 #include "Server.h"
 #include "Tcp.h"
@@ -58,7 +59,7 @@ TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   CryptoPP::SecByteBlock pubB;
   std::string signatureWithPubKey;
   if (!Tcp::readMsg(socket, _header, msgHash, pubB, signatureWithPubKey))
-    throw std::runtime_error(utility::createErrorString());
+    throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");
   return { extractHeaderType(_header), msgHash, pubB, signatureWithPubKey };
 }

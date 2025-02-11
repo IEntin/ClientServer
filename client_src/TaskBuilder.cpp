@@ -7,6 +7,7 @@
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
+#include "Utility.h"
 
 TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
   _crypto(crypto), _subtaskIndex(0) {

@@ -6,8 +6,6 @@
 
 #include <string>
 
-#include <boost/assert/source_location.hpp>
-
 #include "Crypto.h"
 #include "Header.h"
 
@@ -17,9 +15,6 @@ constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
 namespace utility {
-
-std::string& operator << (std::string&, char);
-std::string& operator << (std::string&, std::string_view);
 
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,
@@ -86,11 +81,6 @@ void readFile(std::string_view name, std::string& buffer);
 bool getLastLine(std::string_view fileName, std::string& lastLine);
 
 bool fileEndsWithEOL(std::string_view fileName);
-
-std::string createErrorString(std::errc ec,
-			      const boost::source_location& location = BOOST_CURRENT_LOCATION);
-
-std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
 void compressEncrypt(std::string& buffer,
 		     bool encrypt,

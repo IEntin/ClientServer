@@ -6,8 +6,10 @@
 #include "Compression.h"
 #include "FileLines.h"
 #include "IOUtility.h"
+#include "Logger.h"
 #include "StringLines.h"
 #include "TestEnvironment.h"
+#include "Utility.h"
 
 // ./testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetFileLineTest*

@@ -6,7 +6,7 @@
 
 #include "IOUtility.h"
 
-using utility::operator<<;
+using ioutility::operator<<;
 
 LOG_LEVEL Logger::_threshold = LOG_LEVEL::EXPECTED;
 
@@ -34,9 +34,8 @@ Logger& Logger::printPrefix(const boost::source_location& location) {
     static thread_local std::string output;
     output << '[';
     std::string_view levelName(levelNames[std::to_underlying(_level)]);
-    output << levelName << ']' << ' ' << location.file_name() << ':';
-    ioutility::toChars(location.line(), output);
-    output << ' ' << location.function_name() << ' ';
+    output << levelName << ']' << ' ' << location.file_name() << ':'
+	   << location.line() << ' ' << location.function_name() << ' ';
     _stream.write(output.data(), output.size());
     return *this;
   }
