@@ -9,8 +9,6 @@
 
 #include "Logger.h"
 
-enum class LOG_LEVEL;
-
 constexpr int HEADERTYPE_SIZE = 1;
 constexpr int RESERVED_SIZE = 10;
 constexpr int NUM_FIELD_SIZE = 10;

@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Crypto.h"
+#include "cryptopp/secblock.h"
+
 #include "Runnable.h"
 
 class Server;

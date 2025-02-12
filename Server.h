@@ -6,9 +6,10 @@
 
 #include <map>
 
+#include "cryptopp/secblock.h"
+
 #include "Chronometer.h"
 #include "Connection.h"
-#include "Crypto.h"
 #include "ThreadPoolSessions.h"
 
 class Server;
