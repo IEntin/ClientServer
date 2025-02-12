@@ -4,6 +4,7 @@
 
 #include "Fifo.h"
 
+#include <poll.h>
 #include <thread>
 
 #include "Options.h"
@@ -13,6 +14,14 @@ namespace fifo {
 constexpr std::size_t BUFFER_SIZE = 10000;
 
 thread_local std::string Fifo::_payload;
+
+CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
+
+CloseFileDescriptor::~CloseFileDescriptor() {
+  if (_fd != -1 && close(_fd) == -1)
+    LogError << strerror(errno) << '\n';
+  _fd = -1;
+}
 
 short Fifo::pollFd(int fd, short expected) {
   pollfd pfd{ fd, expected, 0 };
@@ -57,7 +66,7 @@ bool Fifo::setPipeSize(int fd) {
 // unblock calls to blocking open read by opening opposite end.
 void Fifo::onExit(std::string_view fifoName) {
   int fdWrite = openWriteNonBlock(fifoName);
-  utility::CloseFileDescriptor cfdw(fdWrite);
+  CloseFileDescriptor cfdw(fdWrite);
 }
 
 int Fifo::openWriteNonBlock(std::string_view fifoName) {
@@ -90,7 +99,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   if (fd == -1)
     return false;
-  utility::CloseFileDescriptor cfdr(fd);
+  CloseFileDescriptor cfdr(fd);
   std::size_t accumulatedSz = 0;
   char buffer[BUFFER_SIZE] = {};
   while (true) {
@@ -116,7 +125,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   int fd = openReadNonBlock(name);
   if (fd == -1)
     return false;
-  utility::CloseFileDescriptor cfdr(fd);
+  CloseFileDescriptor cfdr(fd);
   std::size_t accumulatedSz = 0;
   while (true) {
     char buffer[BUFFER_SIZE] = {};

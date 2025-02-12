@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cryptopp/secblock.h>
+
 #include "Runnable.h"
 #include "Session.h"
 

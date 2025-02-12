@@ -6,13 +6,14 @@
 
 #include <string>
 
-#include "Crypto.h"
 #include "Header.h"
 
 // common constants
 constexpr std::string_view ENDOFMESSAGE("b7d0d9fc71b943288c99f178ebff6e9d");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
+
+using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
 namespace utility {
 
@@ -65,12 +66,6 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
     beg = input.find_first_not_of(separators, end + 1);
   }
 }
-
-struct CloseFileDescriptor {
-  CloseFileDescriptor(int& fd);
-  ~CloseFileDescriptor();
-  int& _fd;
-};
 
 std::size_t getUniqueId();
 

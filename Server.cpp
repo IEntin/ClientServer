@@ -7,6 +7,7 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 
 #include "Ad.h"
+#include "Connection.h"
 #include "FifoAcceptor.h"
 #include "FifoSession.h"
 #include "Logger.h"

@@ -4,6 +4,7 @@
 
 #include "TcpAcceptor.h"
 
+#include "Connection.h"
 #include "IOUtility.h"
 #include "Options.h"
 #include "Server.h"

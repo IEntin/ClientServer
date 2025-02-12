@@ -5,12 +5,17 @@
 #pragma once
 
 #include <fcntl.h>
-#include <poll.h>
 
+#include "Header.h"
 #include "IOUtility.h"
-#include "Utility.h"
 
 namespace fifo {
+
+struct CloseFileDescriptor {
+  CloseFileDescriptor(int& fd);
+  ~CloseFileDescriptor();
+  int& _fd;
+};
 
 class Fifo {
 public:
@@ -122,7 +127,7 @@ public:
       fdWrite = openWriteNonBlock(name);
     if (fdWrite == -1)
       return false;
-    utility::CloseFileDescriptor cfdw(fdWrite);
+    CloseFileDescriptor cfdw(fdWrite);
     _payload.clear();
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);

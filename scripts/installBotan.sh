@@ -7,7 +7,7 @@
 if [[ ( $@ == "--help") ||  $@ == "-h" || $# -lt 1 || $# -gt 2 ]]
 then
     echo "Usage: sudo scripts/installBotan.sh <botan release>"
-    echo "current is Botan-3.6.1.tar.xz"
+    echo "current is Botan-3.7.1.tar.xz"
     exit 0
 fi
 cd /usr/local

@@ -20,7 +20,7 @@ TESTSRCDIR := test_src
 # 'sudo scripts/installLZ4.sh'
 CRYPTOPPRELEASE := cryptopp890.zip
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
-BOTANCRYPTORELEASE := Botan-3.6.1.tar.xz
+BOTANCRYPTORELEASE := Botan-3.7.1.tar.xz
 BOTANCRYPTOLIBDIR:=/usr/local/lib/botan
 
 CRYPTOLIB := $(CRYPTOLIBDIR)/libcryptopp.a

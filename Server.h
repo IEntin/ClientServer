@@ -6,12 +6,14 @@
 
 #include <map>
 
-#include "cryptopp/secblock.h"
+#include <cryptopp/secblock.h>
 
 #include "Chronometer.h"
-#include "Connection.h"
 #include "ThreadPoolSessions.h"
 
+namespace tcp {
+  using ConnectionPtr = std::shared_ptr<struct Connection>;
+}
 class Server;
 using ServerPtr = std::shared_ptr<Server>;
 using ServerWeakPtr = std::weak_ptr<Server>;

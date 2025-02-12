@@ -6,7 +6,8 @@
 
 #include <boost/asio.hpp>
 
-#include "Crypto.h"
+#include <cryptopp/secblock.h>
+
 #include "Runnable.h"
 
 class Server;

@@ -8,8 +8,6 @@
 
 namespace tcp {
 
-using ConnectionPtr = std::shared_ptr<struct Connection>;
-
 struct Connection {
 
   boost::asio::io_context _ioContext;

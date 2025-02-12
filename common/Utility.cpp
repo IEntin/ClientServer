@@ -13,6 +13,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 
 #include "Compression.h"
+#include "Crypto.h"
 #include "IOUtility.h"
 #include "Logger.h"
 
@@ -23,14 +24,6 @@ std::string clientTerminal;
 std::string testbinTerminal;
 
 using ioutility::operator<<;
-
-CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
-
-CloseFileDescriptor::~CloseFileDescriptor() {
-  if (_fd != -1 && close(_fd) == -1)
-    LogError << strerror(errno) << '\n';
-  _fd = -1;
-}
 
 std::string generateRawUUID() {
   boost::uuids::random_generator_mt19937 gen;

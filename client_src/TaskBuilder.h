@@ -7,9 +7,10 @@
 #include <condition_variable>
 #include <mutex>
 
-#include "Crypto.h"
 #include "Runnable.h"
 #include "Subtask.h"
+
+using CryptoWeakPtr = std::weak_ptr<class Crypto>;
 
 class TaskBuilder final : public Runnable {
 
