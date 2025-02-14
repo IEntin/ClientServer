@@ -12,7 +12,7 @@ protected:
 
 public:
 
-  virtual ~Policy() {}
+  virtual ~Policy() = default;
 
   virtual void set() = 0;
 

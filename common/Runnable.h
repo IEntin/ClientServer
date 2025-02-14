@@ -19,7 +19,7 @@ class Runnable {
  public:
   explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberRunningByType(maxNumberRunningByType) {}
-  virtual ~Runnable() {}
+  virtual ~Runnable() = default;
   virtual bool start() = 0;
   virtual void run() = 0;
   virtual void stop() = 0;

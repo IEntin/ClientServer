@@ -7,23 +7,18 @@
 #include <atomic>
 #include <filesystem>
 #include <fstream>
-#include <regex>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
 #include "Compression.h"
 #include "Crypto.h"
-#include "IOUtility.h"
-#include "Logger.h"
 
 namespace utility {
 
 std::string serverTerminal;
 std::string clientTerminal;
 std::string testbinTerminal;
-
-using ioutility::operator<<;
 
 std::string generateRawUUID() {
   boost::uuids::random_generator_mt19937 gen;
@@ -93,8 +88,7 @@ void decryptDecompress(std::string& buffer,
 		       std::string& data) {
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
-    std::string_view headerView = std::string_view(data.data(), HEADER_SIZE);
-    deserialize(header, headerView.data());
+    deserialize(header, data.data());
     data.erase(0, HEADER_SIZE);
     if (isCompressed(header)) {
       std::size_t uncomprSize = extractUncompressedSize(header);

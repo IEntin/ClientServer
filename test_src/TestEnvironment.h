@@ -11,9 +11,9 @@
 class TestEnvironment : public ::testing::Environment {
 public:
 
-  TestEnvironment() {}
+  TestEnvironment() = default;
 
-  ~TestEnvironment() override {}
+  ~TestEnvironment() override = default;
 
   void SetUp() override;
 
