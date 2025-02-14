@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -13,6 +14,7 @@
 class Ad;
 struct AdBid;
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
+using AdPtr = std::shared_ptr<class Ad>;
 
 class Transaction : private boost::noncopyable {
 public:
@@ -29,7 +31,7 @@ private:
   Transaction(const SIZETUPLE& sizeKey, std::string_view input);
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
-  void matchAds(const std::vector<Ad>& adVector);
+  void matchAds(const std::vector<AdPtr>& adVector);
   void printSummary() const;
   void printDiagnostics() const;
   const AdBid* findWinningBid() const;

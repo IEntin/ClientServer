@@ -72,8 +72,8 @@ bool Ad::parseArray(std::string_view array) {
   return true;
 }
 
-const std::vector<Ad>& Ad::getAdsBySize(const SIZETUPLE& key) {
-  static const std::vector<Ad> empty;
+const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
+  static const std::vector<AdPtr> empty;
   const auto it = _mapBySize.find(key);
   if (it == _mapBySize.end())
     return empty;
@@ -88,14 +88,15 @@ void Ad::readAds(std::string_view filename) {
     AdRow row(line);
     if (!row.parse()) {
       Expected << "Wrong entry format:\"" << row._input
-	   << "\", skipping.\n";
+	       << "\", skipping.\n";
       continue;
     }
-    std::vector<Ad> empty;
+    std::vector<AdPtr> empty;
     auto [itTuple, inserted] = _mapBySize.emplace(row._sizeKey, empty);
-    itTuple->second.emplace_back(row);
-      Ad& adTuple = itTuple->second.back();
-      if (!adTuple.parseArray(row._array))
+    AdPtr adPtr = std::make_shared<Ad>(row);
+    itTuple->second.emplace_back(adPtr);
+      AdPtr adTuple = itTuple->second.back();
+      if (!adTuple->parseArray(row._array))
 	continue;
   }
 }
@@ -104,10 +105,9 @@ void Ad::load(std::string_view filename) {
   readAds(filename);
   for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
     auto& adVector = itm->second;
-    for (unsigned i = 0; i < adVector.size(); ++i) {
-      Ad* ad = adVector.data() + i;
-      for (auto itb = ad->_bids.begin(); itb != ad->_bids.end(); ++itb)
-	itb->_ad = ad;
+    for (AdPtr adPtr : adVector) {
+      for (auto itb = adPtr->_bids.begin(); itb != adPtr->_bids.end(); ++itb)
+	itb->_ad = adPtr;
     }
   }
 }

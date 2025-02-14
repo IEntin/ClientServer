@@ -76,8 +76,8 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
     transaction._invalid = true;
     return _output << "[unknown]" << INVALID_REQUEST;
   }
-  static const std::vector<Ad> emptyAdVector;
-  static thread_local std::reference_wrapper<const std::vector<Ad>> adVector = emptyAdVector;
+  static const std::vector<AdPtr> emptyAdVector;
+  static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = emptyAdVector;
   static thread_local SIZETUPLE prevKey;
   if (sizeKey != prevKey) {
     prevKey = sizeKey;
@@ -103,7 +103,7 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
     transaction._invalid = true;
     return _output << "[unknown]" << INVALID_REQUEST;
   }
-  const std::vector<Ad>& adVector = Ad::getAdsBySize(transaction._sizeKey);
+  const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._sizeKey);
   transaction.matchAds(adVector);
   if (!diagnostics) {
     if (transaction._noMatch)
@@ -175,9 +175,10 @@ struct Comparator {
   }
 };
 
-void Transaction::matchAds(const std::vector<Ad>& adVector) {
-  for (const Ad& ad : adVector) {
-    std::set_intersection(ad.getBids().cbegin(), ad.getBids().cend(),
+void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
+  for (AdPtr ad : adVector) {
+    const auto& inputBids = ad->getBids();
+    std::set_intersection(inputBids.cbegin(), inputBids.cend(),
 			  _keywords.cbegin(), _keywords.cend(),
 			  std::back_inserter(_bids),
 			  Comparator());
@@ -230,29 +231,28 @@ void Transaction::printDiagnostics() const {
 }
 
 void Transaction::printSummary() const {
-  const Ad* const winningAdPtr = _winningBid->_ad;
-  assert(winningAdPtr && "match is expected");
-  _output << _id << ' ';
-  std::string_view adId = winningAdPtr->getId();
-  double money = _winningBid->_money / Ad::_scaler;
-  _output << adId << ',' << ' ' << money << '\n';
+  if (auto winningAdPtr = _winningBid->_ad.lock(); winningAdPtr) {
+    _output << _id << ' ';
+    std::string_view adId = winningAdPtr->getId();
+    double money = _winningBid->_money / Ad::_scaler;
+    _output << adId << ',' << ' ' << money << '\n';
+  }
 }
 
 void Transaction::printMatchingAds() const {
   static constexpr std::string_view MATCHINGADS{ "matching ads:\n" };
   _output << MATCHINGADS;
   for (const AdBid& adBid : _bids) {
-    adBid._ad->print(_output);
+    if (auto ad = adBid._ad.lock(); ad)
+      ad->print(_output);
     static constexpr std::string_view MATCH{ " match:" };
     _output << MATCH << adBid._keyword << ' ' << adBid._money << '\n';
   }
 }
 
 void Transaction::printWinningAd() const {
-  auto winningAdPtr = _winningBid->_ad;
-  assert(winningAdPtr && "match is expected");
-  std::string_view adId = winningAdPtr->getId();
-  _output << adId;
+  if (auto winningAdPtr = _winningBid->_ad.lock(); winningAdPtr)
+    _output << winningAdPtr->getId();
   static constexpr std::string_view DELIMITER(", ");
   _output << DELIMITER;
   std::string_view winningKeyword = _winningBid->_keyword;
