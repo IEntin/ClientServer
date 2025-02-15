@@ -95,9 +95,9 @@ void Ad::readAds(std::string_view filename) {
     auto [itTuple, inserted] = _mapBySize.emplace(row._sizeKey, empty);
     AdPtr adPtr = std::make_shared<Ad>(row);
     itTuple->second.emplace_back(adPtr);
-      AdPtr adTuple = itTuple->second.back();
-      if (!adTuple->parseArray(row._array))
-	continue;
+    AdPtr adTuple = itTuple->second.back();
+    if (!adTuple->parseArray(row._array))
+      continue;
   }
 }
 
@@ -106,8 +106,8 @@ void Ad::load(std::string_view filename) {
   for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
     auto& adVector = itm->second;
     for (AdPtr adPtr : adVector) {
-      for (auto itb = adPtr->_bids.begin(); itb != adPtr->_bids.end(); ++itb)
-	itb->_ad = adPtr;
+      for (auto& bid : adPtr->_bids)
+	bid._ad = adPtr;
     }
   }
 }

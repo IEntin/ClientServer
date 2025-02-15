@@ -6,8 +6,11 @@
 
 #include <cassert>
 #include <charconv>
+#include <concepts>
 #include <cstdint>
+#include <limits>
 #include <stdexcept>
+#include <type_traits>
 
 #include <boost/assert/source_location.hpp>
 
@@ -30,12 +33,8 @@ constexpr void fromChars (std::string_view str, T& value) {
     throw std::runtime_error(createErrorString(ec));
 }
 
-template <typename T, typename... U>
-concept IsAnyOf = (std::same_as<T, U> || ...);
-
 template <typename T>
-concept Integer = IsAnyOf<T, std::int8_t, std::int16_t, std::int32_t, std::int64_t,
-			  std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>;
+concept Integer = std::numeric_limits<T>::is_integer;
 
 template <typename N>
 concept FloatingPoint = std::is_floating_point_v<N>;
