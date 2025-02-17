@@ -27,6 +27,7 @@ constexpr const char* SIZE_START_ALT{ "ad_width=" };
 constexpr const char* SEPARATOR_ALT{ "&ad_height=" };
 constexpr const char* SIZE_END{ "&" };
 constexpr std::tuple<unsigned, unsigned> ZERO_SIZE;
+constexpr std::string_view DELIMITER(", ");
 }
 
 thread_local std::vector<AdBid> Transaction::_bids;
@@ -84,14 +85,14 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
     adVector = Ad::getAdsBySize(sizeKey);
   }
   transaction.matchAds(adVector);
-  if (!diagnostics) {
+  if (diagnostics)
+    transaction.printDiagnostics();
+  else {
     if (transaction._noMatch)
       _output << transaction._id << ' ' << EMPTY_REPLY;
     else
       transaction.printSummary();
-    return _output;
   }
-  transaction.printDiagnostics();
   return _output;
 }
 
@@ -105,14 +106,14 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
   }
   const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._sizeKey);
   transaction.matchAds(adVector);
-  if (!diagnostics) {
+  if (diagnostics)
+    transaction.printDiagnostics();
+  else {
     if (transaction._noMatch)
       _output << transaction._id << ' ' << EMPTY_REPLY;
     else
       transaction.printSummary();
-    return _output;
   }
-  transaction.printDiagnostics();
   return _output;
 }
 
@@ -211,9 +212,8 @@ bool Transaction::parseKeywords(std::string_view start) {
   return true;
 }
 
-// This code is not using ostream operator<< to prevent
-// unreasonable number of memory allocations and negative
-// performance impact
+// Replacement for ostream operators to reduce number of
+// memory allocations.
 
 void Transaction::printDiagnostics() const {
   printRequestData();
@@ -233,9 +233,8 @@ void Transaction::printDiagnostics() const {
 void Transaction::printSummary() const {
   if (auto winningAdPtr = _winningBid->_ad.lock(); winningAdPtr) {
     _output << _id << ' ';
-    std::string_view adId = winningAdPtr->getId();
     double money = _winningBid->_money / Ad::_scaler;
-    _output << adId << ',' << ' ' << money << '\n';
+    _output << winningAdPtr->getId() << DELIMITER << money << '\n';
   }
 }
 
@@ -252,11 +251,8 @@ void Transaction::printMatchingAds() const {
 
 void Transaction::printWinningAd() const {
   if (auto winningAdPtr = _winningBid->_ad.lock(); winningAdPtr)
-    _output << winningAdPtr->getId();
-  static constexpr std::string_view DELIMITER(", ");
-  _output << DELIMITER;
-  std::string_view winningKeyword = _winningBid->_keyword;
-  _output << winningKeyword << DELIMITER;
+    _output << winningAdPtr->getId() << DELIMITER
+	    << _winningBid->_keyword << DELIMITER;
   double money = _winningBid->_money / Ad::_scaler;
   static constexpr std::string_view ENDING{ "\n*****\n" };
   _output << money << ENDING;

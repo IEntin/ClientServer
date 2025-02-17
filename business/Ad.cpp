@@ -112,9 +112,8 @@ void Ad::load(std::string_view filename) {
   }
 }
 
-// This code is not using  ostream operators to prevent
-// unreasonable number of memory allocations and negative
-// performance impact.
+// Replacement for ostream operators to reduce number of
+// memory allocations.
 
 void Ad::print(std::string& output) const {
   static constexpr std::string_view AD{ "Ad" };
@@ -127,8 +126,8 @@ void Ad::print(std::string& output) const {
 }
 
 void Ad::printBids(std::string& output) const {
+  static constexpr std::string_view SPACES{ "  " };
   for (const AdBid& adBid : _bids) {
-    static constexpr std::string_view DELIMITER{ "  " };
-    output << DELIMITER << adBid._keyword << ' ' << adBid._money << '\n';
+    output << SPACES << adBid._keyword << ' ' << adBid._money << '\n';
   }
 }

@@ -9,7 +9,7 @@
 class StringLines : public Lines {
  public:
   explicit StringLines(std::string_view source, char delimiter = '\n', bool keepDelimiter = false);
-  ~StringLines() override {}
+  ~StringLines() override = default;
  private:
   std::size_t getInputPosition() override;
   bool refillBuffer() override;

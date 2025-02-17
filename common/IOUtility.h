@@ -7,10 +7,7 @@
 #include <cassert>
 #include <charconv>
 #include <concepts>
-#include <cstdint>
-#include <limits>
 #include <stdexcept>
-#include <type_traits>
 
 #include <boost/assert/source_location.hpp>
 
@@ -33,22 +30,22 @@ constexpr void fromChars (std::string_view str, T& value) {
     throw std::runtime_error(createErrorString(ec));
 }
 
-template <typename T>
-concept Integer = std::numeric_limits<T>::is_integer;
+template <typename I>
+concept Integral = std::is_integral_v<I>;
 
-template <typename N>
-concept FloatingPoint = std::is_floating_point_v<N>;
+template <typename F>
+concept Float = std::is_floating_point_v<F>;
 
-template <Integer T>
-int toChars(T value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
+template <Integral I>
+int toChars(I value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
   if (ec != std::errc())
     throw std::runtime_error(createErrorString(ec));
   return ptr - buffer;
 }
 
-template <Integer N>
-void toChars(N value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) {
+template <Integral I>
+void toChars(I value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) {
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
@@ -62,14 +59,14 @@ void toChars(N value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) 
     throw std::runtime_error(createErrorString(ec));
 }
 
-template <Integer N>
-std::string& operator << (std::string& buffer, N number) {
+template <Integral I>
+std::string& operator << (std::string& buffer, I number) {
   toChars(number, buffer);
   return buffer;
 }
 
-template <FloatingPoint N>
-int toChars(N value, char* buffer, int precision, std::size_t size = CONV_BUFFER_SIZE) {
+template <Float F>
+int toChars(F value, char* buffer, int precision, std::size_t size = CONV_BUFFER_SIZE) {
   auto [ptr, ec] = std::to_chars(buffer, buffer + size, value,
 				 std::chars_format::fixed, precision);
   if (ec != std::errc())
@@ -77,8 +74,8 @@ int toChars(N value, char* buffer, int precision, std::size_t size = CONV_BUFFER
   return ptr - buffer;
 }
 
-template <FloatingPoint N>
-void toChars(N value, std::string& target, int precision, std::size_t size = CONV_BUFFER_SIZE) {
+template <Float F>
+void toChars(F value, std::string& target, int precision, std::size_t size = CONV_BUFFER_SIZE) {
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
@@ -91,8 +88,8 @@ void toChars(N value, std::string& target, int precision, std::size_t size = CON
     throw std::runtime_error(createErrorString(ec));
 }
 
-template <FloatingPoint N>
-std::string& operator << (std::string& buffer, N number) {
+template <Float F>
+std::string& operator << (std::string& buffer, F number) {
   toChars(number, buffer, 1);
   return buffer;
 }

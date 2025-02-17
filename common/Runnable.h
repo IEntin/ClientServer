@@ -33,7 +33,7 @@ class Runnable {
   inline static std::atomic<unsigned> _numberRunningTotal = 0;
 };
 
-// Every template instantiation has its own distinct static member.
+// Every template instantiation has a distinct static member.
 // Used here to count objects of the specific type.
 template <class T>
 class RunnableT : public Runnable {
