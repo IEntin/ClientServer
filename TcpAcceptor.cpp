@@ -77,8 +77,7 @@ void TcpAcceptor::accept() {
     [connection, this](const boost::system::error_code& ec) {
       if (_stopped)
 	return;
-      auto self = weak_from_this().lock();
-      if (!self)
+     if (auto self = weak_from_this().lock(); !self)
 	return;
       if (!ec) {
 	auto [type, msgHash, pubB, signatureWithPubKey] = connectionType(connection->_socket);

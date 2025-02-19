@@ -13,7 +13,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
-class TaskController {
+class TaskController : public std::enable_shared_from_this<TaskController> {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   class Worker : public Runnable {
     bool start() override { return true; }
@@ -39,9 +39,12 @@ class TaskController {
   TaskPtr _task;
   static TaskControllerPtr _single;
   static Phase _phase;
+  static std::mutex _mutex;
  public:
   TaskController();
   ~TaskController() = default;
+  TaskController(const TaskController&) = delete;
+  TaskController& operator=(const TaskController&) = delete;
   void processTask(TaskPtr task);
   static bool create();
   static void destroy();

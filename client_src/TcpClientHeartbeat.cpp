@@ -53,8 +53,7 @@ void TcpClientHeartbeat::heartbeatWait() {
   _periodTimer.async_wait([this](const boost::system::error_code& ec) {
     if (_stopped)
       return;
-    auto self = weak_from_this().lock();
-    if (!self)
+    if (auto self = weak_from_this().lock(); !self)
       return;
     if (ec) {
       if (ec != boost::asio::error::operation_aborted)
@@ -74,8 +73,7 @@ void TcpClientHeartbeat::timeoutWait() {
     return;
   }
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
-    auto self = weak_from_this().lock();
-    if (!self)
+    if (auto self = weak_from_this().lock(); !self)
       return;
     if (ec) {
       switch (ec.value()) {
@@ -110,8 +108,7 @@ void TcpClientHeartbeat::read() {
     [this] (const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
       if (_stopped)
 	return;
-      auto self = weak_from_this().lock();
-      if (!self)
+      if (auto self = weak_from_this().lock(); !self)
 	return;
       std::size_t numberCanceled = _timeoutTimer.cancel();
       if (numberCanceled == 0) {
@@ -173,8 +170,7 @@ void TcpClientHeartbeat::write() {
     asioBuffers,
     boost::asio::transfer_all(),
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
-      auto self = weak_from_this().lock();
-      if (!self)
+      if (auto self = weak_from_this().lock(); !self)
 	return;
       if (ec) {
 	LogError << ec.what() << '\n';

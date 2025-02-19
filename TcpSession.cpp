@@ -86,8 +86,7 @@ void TcpSession::readRequest() {
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
       if (_request.ends_with(ENDOFMESSAGE))
 	_request.erase(transferred - ENDOFMESSAGESZ);
-      auto self = weak_from_this().lock();
-      if (!self)
+      if (auto self = weak_from_this().lock(); !self)
 	return;
       if (ec) {
 	switch (ec.value()) {
@@ -133,8 +132,7 @@ void TcpSession::write(const HEADER& header) {
     asioBuffers,
     boost::asio::transfer_all(),
     [this](const boost::system::error_code& ec, std::size_t transferred[[maybe_unused]]) {
-      auto self = weak_from_this().lock();
-      if (!self)
+      if (auto self = weak_from_this().lock(); !self)
 	return;
       if (ec) {
 	LogError << ec.what() << '\n';
@@ -163,8 +161,7 @@ void TcpSession::asyncWait() {
     return;
   }
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
-    auto self = weak_from_this().lock();
-    if (!self)
+    if (auto self = weak_from_this().lock(); !self)
       return;
     if (ec) {
       switch (ec.value()) {

@@ -9,6 +9,7 @@
 
 TaskControllerPtr TaskController::_single;
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
+std::mutex TaskController::_mutex;
 
 TaskController::TaskController() :
   _barrier(ServerOptions::_numberWorkThreads, onTaskCompletion),
@@ -18,7 +19,7 @@ TaskController::TaskController() :
 }
 
 TaskControllerWeakPtr TaskController::getWeakPtr() {
-  return _single;
+  return _single->weak_from_this();
 }
 
 // This method is called by one of the threads
@@ -80,7 +81,9 @@ void TaskController::setNextTask() {
 }
 
 bool TaskController::create() {
-  _single = std::make_shared<TaskController>();
+  std::lock_guard lock(_mutex);
+  if (!_single)
+    _single = std::make_shared<TaskController>();
   return _single->start();
 }
 
