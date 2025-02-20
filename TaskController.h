@@ -37,7 +37,7 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
   TaskPtr _task;
-  static TaskControllerPtr _single;
+  static TaskControllerPtr _instance;
   static Phase _phase;
   static std::mutex _mutex;
  public:

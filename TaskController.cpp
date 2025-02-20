@@ -7,7 +7,7 @@
 #include "ServerOptions.h"
 #include "Task.h"
 
-TaskControllerPtr TaskController::_single;
+TaskControllerPtr TaskController::_instance;
 TaskController::Phase TaskController::_phase = PREPROCESSTASK;
 std::mutex TaskController::_mutex;
 
@@ -19,16 +19,15 @@ TaskController::TaskController() :
 }
 
 TaskControllerWeakPtr TaskController::getWeakPtr() {
-  return _single->weak_from_this();
+  return _instance->weak_from_this();
 }
 
 // This method is called by one of the threads
 // when the current barrier phase completes.
 
 void TaskController::onTaskCompletion() noexcept {
-  auto ptr = _single;
-  if (ptr)
-    ptr->onCompletion();
+  if (_instance)
+    _instance->onCompletion();
 }
 
 void TaskController::onCompletion() {
@@ -53,7 +52,7 @@ void TaskController::onCompletion() {
 
 bool TaskController::start() {
   for (int i = 0; i < ServerOptions::_numberWorkThreads; ++i) {
-    auto worker = std::make_shared<Worker>(_single);
+    auto worker = std::make_shared<Worker>(_instance);
     _threadPool.push(worker);
   }
   return true;
@@ -82,9 +81,9 @@ void TaskController::setNextTask() {
 
 bool TaskController::create() {
   std::lock_guard lock(_mutex);
-  if (!_single)
-    _single = std::make_shared<TaskController>();
-  return _single->start();
+  if (!_instance)
+    _instance = std::make_shared<TaskController>();
+  return _instance->start();
 }
 
 void  TaskController::stop() {
@@ -98,10 +97,10 @@ void  TaskController::stop() {
 }
 
 void TaskController::destroy() {
-  if (_single)
-    _single->stop();
+  if (_instance)
+    _instance->stop();
   // destroy controller
-  TaskControllerPtr().swap(_single);
+  _instance.reset();
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :
