@@ -7,9 +7,11 @@
 #include <array>
 #include <string_view>
 
+#include <boost/core/noncopyable.hpp>
+
 // nonallocating analog of getline
 // this version optionally saves a delimiter in the line
-class Lines {
+class Lines : private boost::noncopyable {
  public:
   virtual std::size_t getInputPosition() = 0;
   virtual bool refillBuffer() = 0;

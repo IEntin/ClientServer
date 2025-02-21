@@ -7,13 +7,16 @@
 #include <barrier>
 #include <queue>
 
+#include <boost/core/noncopyable.hpp>
+
 #include "ThreadPoolBase.h"
 
 using TaskPtr = std::shared_ptr<class Task>;
 using TaskControllerPtr = std::shared_ptr<class TaskController>;
 using TaskControllerWeakPtr = std::weak_ptr<class TaskController>;
 
-class TaskController : public std::enable_shared_from_this<TaskController> {
+class TaskController : public std::enable_shared_from_this<TaskController>,
+		       private boost::noncopyable {
   enum Phase { PREPROCESSTASK, PROCESSTASK };
   class Worker : public Runnable {
     bool start() override { return true; }
@@ -37,10 +40,6 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
   TaskPtr _task;
-  TaskController(const TaskController&) = delete;
-  TaskController& operator=(const TaskController&) = delete;
-  TaskController(TaskController&&) = delete;
-  TaskController& operator=(TaskController&&) = delete;
   static TaskControllerPtr _instance;
   static Phase _phase;
   static std::mutex _mutex;

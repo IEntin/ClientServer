@@ -8,6 +8,8 @@
 
 #include <cryptopp/secblock.h>
 
+#include <boost/core/noncopyable.hpp>
+
 #include "Chronometer.h"
 #include "ThreadPoolSessions.h"
 
@@ -20,7 +22,8 @@ using ServerWeakPtr = std::weak_ptr<Server>;
 using SessionMap = std::map<std::size_t, RunnableWeakPtr>;
 using SessionPtr = std::shared_ptr<class Session>;
 
-class Server : public std::enable_shared_from_this<Server> {
+class Server : public std::enable_shared_from_this<Server>,
+	       private boost::noncopyable {
 public:
   explicit Server(class Policy& policy);
   ~Server();

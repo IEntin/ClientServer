@@ -7,6 +7,8 @@
 #include <atomic>
 #include <memory>
 
+#include <boost/core/noncopyable.hpp>
+
 #include "Header.h"
 
 constexpr int MAX_NUMBER_THREADS_DEFAULT = 1000;
@@ -15,7 +17,7 @@ using RunnablePtr = std::shared_ptr<class Runnable>;
 
 using RunnableWeakPtr = std::weak_ptr<class Runnable>;
 
-class Runnable {
+class Runnable : private boost::noncopyable {
  public:
   explicit Runnable(int maxNumberRunningByType = MAX_NUMBER_THREADS_DEFAULT) :
     _maxNumberRunningByType(maxNumberRunningByType) {}

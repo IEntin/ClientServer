@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/core/noncopyable.hpp>
+
 #include "Crypto.h"
 #include "Header.h"
 #include "IOUtility.h"
@@ -19,7 +21,7 @@ using ServerWeakPtr = std::weak_ptr<Server>;
 using SessionPtr = std::shared_ptr<class Session>;
 using TaskPtr = std::shared_ptr<class Task>;
 
-class Session {
+class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
   CryptoPtr _crypto;

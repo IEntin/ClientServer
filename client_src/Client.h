@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <boost/core/noncopyable.hpp>
+
 #include "Chronometer.h"
 #include "Crypto.h"
 #include "IOUtility.h"
@@ -15,7 +17,7 @@ using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
 class Client;
 
-class Client {
+class Client : private boost::noncopyable {
 
 protected:
   std::string _response;
