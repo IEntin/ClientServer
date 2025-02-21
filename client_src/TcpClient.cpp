@@ -30,7 +30,7 @@ void TcpClient::run() {
   Client::run();
 }
 
-bool TcpClient::send(Subtask& subtask) {
+bool TcpClient::send(const Subtask& subtask) {
   try {
     boost::system::error_code ec;
     _socket.wait(boost::asio::ip::tcp::socket::wait_write, ec);

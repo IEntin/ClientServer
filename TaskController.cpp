@@ -3,6 +3,7 @@
  */
 
 #include "TaskController.h"
+
 #include "Logger.h"
 #include "ServerOptions.h"
 #include "Task.h"
@@ -100,7 +101,7 @@ void TaskController::destroy() {
   if (_instance)
     _instance->stop();
   // destroy controller
-  _instance.reset();
+  std::shared_ptr<TaskController>().swap(_instance);
 }
 
 TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :

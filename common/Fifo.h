@@ -94,25 +94,6 @@ public:
     return false;
   }
 
-  template <typename S>
-  static void writeString(int fd, S& str) {
-    std::size_t written = 0;
-    while (written < str.size()) {
-      ssize_t result = write(fd, str.data() + written, str.size() - written);
-      if (result == -1) {
-	switch (errno) {
-	case EAGAIN:
-	  break;
-	default:
-	  throw std::runtime_error(ioutility::createErrorString());
-	  break;
-	}
-      }
-      else
-	written += result;
-    }
-  }
-
   template <typename P1, typename P2 = P1, typename P3 = P2>
   static bool sendMsg(bool block,
 		      std::string_view name,
@@ -147,6 +128,7 @@ public:
 
   static bool readMessage(std::string_view name, bool block, std::string& payload);
   static void onExit(std::string_view fifoName);
+  static void writeString(int fd, std::string_view str);
 private:
   Fifo() = delete;
   ~Fifo() = delete;

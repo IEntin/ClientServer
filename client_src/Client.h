@@ -64,7 +64,7 @@ protected:
 public:
   virtual ~Client();
 
-  virtual bool send(struct Subtask& subtask) = 0;
+  virtual bool send(const struct Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;

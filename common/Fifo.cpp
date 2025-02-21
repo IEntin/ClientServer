@@ -169,4 +169,22 @@ bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) 
   return true;
 }
 
+void Fifo::writeString(int fd, std::string_view str) {
+  std::size_t written = 0;
+  while (written < str.size()) {
+    ssize_t result = write(fd, str.data() + written, str.size() - written);
+    if (result == -1) {
+      switch (errno) {
+      case EAGAIN:
+	break;
+      default:
+	throw std::runtime_error(ioutility::createErrorString());
+	break;
+      }
+    }
+    else
+      written += result;
+  }
+}
+
 } // end of namespace fifo

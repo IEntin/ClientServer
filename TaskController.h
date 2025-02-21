@@ -37,14 +37,16 @@ class TaskController : public std::enable_shared_from_this<TaskController> {
   std::condition_variable _queueCondition;
   std::queue<TaskPtr> _queue;
   TaskPtr _task;
+  TaskController(const TaskController&) = delete;
+  TaskController& operator=(const TaskController&) = delete;
+  TaskController(TaskController&&) = delete;
+  TaskController& operator=(TaskController&&) = delete;
   static TaskControllerPtr _instance;
   static Phase _phase;
   static std::mutex _mutex;
  public:
   TaskController();
   ~TaskController() = default;
-  TaskController(const TaskController&) = delete;
-  TaskController& operator=(const TaskController&) = delete;
   void processTask(TaskPtr task);
   static bool create();
   static void destroy();

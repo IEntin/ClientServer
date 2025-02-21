@@ -40,7 +40,7 @@ void FifoClient::run() {
   Client::run();
 }
 
-bool FifoClient::send(Subtask& subtask) {
+bool FifoClient::send(const Subtask& subtask) {
   while (true) {
     if (_closeFlag) {
       Fifo::onExit(_fifoName);

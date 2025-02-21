@@ -4,10 +4,9 @@
 
 #include "Compression.h"
 
+#include <cstring>
 #include <lz4.h>
 #include <stdexcept>
-
-#include "Logger.h"
 
 namespace compression {
 

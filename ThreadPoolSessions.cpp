@@ -11,6 +11,7 @@ not creating redundant threads.
 */
 
 #include "ThreadPoolSessions.h"
+
 #include "Logger.h"
 
 ThreadPoolSessions::ThreadPoolSessions(int maxSize) :
