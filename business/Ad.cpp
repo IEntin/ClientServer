@@ -18,27 +18,26 @@ using ioutility::operator<<;
 AdRow::AdRow(std::string_view line) : _input(line) {}
 
 bool AdRow::parse() {
-  auto introEnd = std::find(_input.cbegin(), _input.cend(), '[');
-  if (introEnd == _input.end())
+  static std::vector<std::string_view> parts;
+  parts.clear();
+  utility::split(_input, parts, "[]");
+  if (parts.size() != INPUTNUMBERPARTS)
     return false;
-  std::string_view introStr(_input.cbegin(), introEnd);
-  static std::vector<std::string_view> vect;
-  vect.clear();
-  utility::split(introStr, vect, ", ");
-  if (vect.size() != NUMBEROFFIELDS)
+  static std::vector<std::string_view> adStrVect;
+  adStrVect.clear();
+  utility::split(parts[ADPART], adStrVect, ", ");
+  if (adStrVect.size() != ADNUMBERFIELDS)
     return false;
-  _id = vect[ID];
-
+  _id = adStrVect[ID];
   unsigned widthKey = 0;
-  ioutility::fromChars(vect[WIDTH], widthKey);
+  ioutility::fromChars(adStrVect[WIDTH], widthKey);
   unsigned heightKey = 0;
-  ioutility::fromChars(vect[HEIGHT], heightKey);
+  ioutility::fromChars(adStrVect[HEIGHT], heightKey);
   _sizeKey = { widthKey, heightKey };
-
   double dblMoney = 0;
-  ioutility::fromChars(vect[DEFAULTBID], dblMoney);
+  ioutility::fromChars(adStrVect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
-  _array = { std::next(introEnd), std::prev(_input.cend()) };
+  _array = parts[BIDPART];
   _valid = true;
   return true;
 }
@@ -46,26 +45,26 @@ bool AdRow::parse() {
 SizeMap Ad::_mapBySize;
 
 Ad::Ad(AdRow& row) :
-  _id(row._id.cbegin(), row._id.cend()),
+  _id(row._id),
   _sizeKey(row._sizeKey),
   _defaultBid(row._defaultBid),
-  _input(row._input.cbegin(), row._input.cend()) {}
+  _input(row._input) {}
 
 void Ad::clear() {
   _mapBySize.clear();
 }
 
 bool Ad::parseArray(std::string_view array) {
-  static std::vector<std::string> vect;
-  vect.clear();
-  utility::split(array, vect, "\", ");
-  for (unsigned i = 0; i + 1 < vect.size(); i += 2) {
+  static std::vector<std::string> bidVect;
+  bidVect.clear();
+  utility::split(array, bidVect, "\", ");
+  for (unsigned i = 0; i + 1 < bidVect.size(); i += 2) {
     double dblMoney = 0;
-    ioutility::fromChars(vect[i + 1], dblMoney);
+    ioutility::fromChars(bidVect[i + 1], dblMoney);
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
-    _bids.emplace_back(vect[i], money);
+    _bids.emplace_back(bidVect[i], money);
   }
   std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
     return bid1._keyword < bid2._keyword; });
@@ -92,12 +91,11 @@ void Ad::readAds(std::string_view filename) {
       continue;
     }
     std::vector<AdPtr> empty;
-    auto [itTuple, inserted] = _mapBySize.emplace(row._sizeKey, empty);
+    auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
     AdPtr adPtr = std::make_shared<Ad>(row);
-    itTuple->second.emplace_back(adPtr);
-    AdPtr adTuple = itTuple->second.back();
-    if (!adTuple->parseArray(row._array))
+    if (!adPtr->parseArray(row._array))
       continue;
+    it->second.emplace_back(adPtr);
   }
 }
 

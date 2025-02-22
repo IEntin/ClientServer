@@ -18,12 +18,17 @@ using AdPtr = std::shared_ptr<class Ad>;
 using SizeMap = std::map<SIZETUPLE, std::vector<AdPtr>>;
 
 struct AdRow : private boost::noncopyable {
-  enum Fields {
+  enum INPUTPARTS {
+    ADPART,
+    BIDPART,
+    INPUTNUMBERPARTS
+  };
+  enum ADFIELDS {
     ID,
     WIDTH,
     HEIGHT,
     DEFAULTBID,
-    NUMBEROFFIELDS
+    ADNUMBERFIELDS
   };
   explicit AdRow(std::string_view line);
   ~AdRow() = default;
