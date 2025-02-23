@@ -15,9 +15,15 @@
 
 using ioutility::operator<<;
 
-AdRow::AdRow(std::string_view line) : _input(line) {}
+SizeMap Ad::_mapBySize;
 
-bool AdRow::parse() {
+Ad::Ad(std::string& line) {
+  _input.swap(line);
+  if (!parseAttributes())
+    throw std::runtime_error("Wrong entry format:\"" + _input + '"' + ", skipping.\n");
+}
+
+bool Ad::parseAttributes() {
   static std::vector<std::string_view> parts;
   parts.clear();
   utility::split(_input, parts, "[]");
@@ -38,17 +44,8 @@ bool AdRow::parse() {
   ioutility::fromChars(adStrVect[DEFAULTBID], dblMoney);
   _defaultBid = std::lround(dblMoney * Ad::_scaler);
   _array = parts[BIDPART];
-  _valid = true;
   return true;
 }
-
-SizeMap Ad::_mapBySize;
-
-Ad::Ad(AdRow& row) :
-  _id(row._id),
-  _sizeKey(row._sizeKey),
-  _defaultBid(row._defaultBid),
-  _input(row._input) {}
 
 void Ad::clear() {
   _mapBySize.clear();
@@ -82,27 +79,26 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
 
 void Ad::readAds(std::string_view filename) {
   FileLines lines(filename);
-  std::string_view line;
+  std::string line;
   while (lines.getLine(line)) {
-    AdRow row(line);
-    if (!row.parse()) {
-      Expected << "Wrong entry format:\"" << row._input
-	       << "\", skipping.\n";
-      continue;
-    }
     std::vector<AdPtr> empty;
-    auto [it, inserted] = _mapBySize.emplace(row._sizeKey, empty);
-    AdPtr adPtr = std::make_shared<Ad>(row);
-    if (!adPtr->parseArray(row._array))
-      continue;
-    it->second.emplace_back(adPtr);
+    try {
+      AdPtr adPtr = std::make_shared<Ad>(line);
+      auto [it, inserted] = _mapBySize.emplace(adPtr->_sizeKey, empty);
+      if (!adPtr->parseArray(adPtr->_array))
+	continue;
+      it->second.emplace_back(adPtr);
+    }
+    catch (const std::runtime_error& error) {
+      Expected << error.what() << '\n';
+    }
   }
 }
 
 void Ad::load(std::string_view filename) {
   readAds(filename);
-  for (auto itm = _mapBySize.begin(); itm != _mapBySize.end(); ++itm) {
-    auto& adVector = itm->second;
+  for (const auto& pair : _mapBySize) {
+    auto& adVector = pair.second;
     for (AdPtr adPtr : adVector) {
       for (auto& bid : adPtr->_bids)
 	bid._ad = adPtr;
