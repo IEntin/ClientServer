@@ -31,7 +31,7 @@ class Ad {
     ADNUMBERFIELDS
   };
  public:
-  explicit Ad(std::string& line);
+  explicit Ad(std::string_view line);
   ~Ad() = default;
   void print(std::string& output) const;
   std::string_view getId() const { return _id; }
@@ -50,7 +50,7 @@ class Ad {
   SIZETUPLE _sizeKey;
   std::vector<AdBid> _bids;
   long _defaultBid{ 0 };
-  std::string _input;
-  std::string _array;
+  const std::string _input;
+  std::string_view _array;
   static SizeMap _mapBySize;
 };

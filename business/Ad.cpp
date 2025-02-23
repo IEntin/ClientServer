@@ -17,8 +17,7 @@ using ioutility::operator<<;
 
 SizeMap Ad::_mapBySize;
 
-Ad::Ad(std::string& line) {
-  _input.swap(line);
+Ad::Ad(std::string_view line) : _input(line) {
   if (!parseAttributes())
     throw std::runtime_error("Wrong entry format:\"" + _input + '"' + ", skipping.\n");
 }
@@ -52,7 +51,7 @@ void Ad::clear() {
 }
 
 bool Ad::parseArray(std::string_view array) {
-  static std::vector<std::string> bidVect;
+  static std::vector<std::string_view> bidVect;
   bidVect.clear();
   utility::split(array, bidVect, "\", ");
   for (unsigned i = 0; i + 1 < bidVect.size(); i += 2) {
@@ -79,7 +78,7 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
 
 void Ad::readAds(std::string_view filename) {
   FileLines lines(filename);
-  std::string line;
+  std::string_view line;
   while (lines.getLine(line)) {
     std::vector<AdPtr> empty;
     try {
