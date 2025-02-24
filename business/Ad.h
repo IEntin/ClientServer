@@ -46,10 +46,10 @@ class Ad {
   bool parseArray(std::string_view array);
   void printBids(std::string& output) const;
   static void readAds(std::string_view filename);
-  std::string _id;
+  std::string_view _id;
   SIZETUPLE _sizeKey;
   std::vector<AdBid> _bids;
-  long _defaultBid{ 0 };
+  long _defaultBid = 0;
   const std::string _input;
   std::string_view _array;
   static SizeMap _mapBySize;
