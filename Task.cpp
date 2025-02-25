@@ -27,13 +27,12 @@ void Task::update(const HEADER& header, std::string_view request) {
   _indices.resize(_size);
   for (unsigned i = 0; i < _size; ++i) {
     _indices[i] = i;
-    _requests[i]._orgIndex = i;
   }
   _response.resize(_size);
 }
 
 void Task::sortIndices() {
-  std::sort(_indices.begin(), _indices.begin() + _size, [this] (int idx1, int idx2) {
+  std::sort(_indices.begin(), _indices.end(), [this] (int idx1, int idx2) {
 	      return _requests[idx1]._sizeKey < _requests[idx2]._sizeKey;
 	    });
 }
@@ -53,15 +52,16 @@ bool Task::processNext() {
   if (index < _size) {
     Request& request = _requests[_indices[index]];
     std::size_t typeIndex = _function.index();
+    unsigned orgIndex = _indices[index];
     switch (typeIndex) {
     case SORTFUNCTION:
-      _response[request._orgIndex] = std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);
+      _response[orgIndex] = std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);
       break;
     case NOSORTFUNCTION:
-      _response[request._orgIndex] = std::get<NOSORTFUNCTION>(_function)(request._value, _diagnostics);
+      _response[orgIndex] = std::get<NOSORTFUNCTION>(_function)(request._value, _diagnostics);
       break;
     case ECHOFUNCTION:
-      _response[request._orgIndex] = std::get<ECHOFUNCTION>(_function)(request._value);
+      _response[orgIndex] = std::get<ECHOFUNCTION>(_function)(request._value);
       break;
     default:
       return false;

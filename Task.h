@@ -41,7 +41,6 @@ struct Request {
 
   SIZETUPLE _sizeKey;
   std::string_view _value;
-  unsigned _orgIndex = 0;
 };
 
 class Task : private boost::noncopyable {
