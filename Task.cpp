@@ -14,11 +14,6 @@ ProcessRequest Task::_function;
 
 Response Task::_emptyResponse;
 
-RequestRow::RequestRow(std::string_view::const_iterator beg,
-		       std::string_view::const_iterator end) :
-  _value(beg, end) {}
-
-
 Task::Task(Response& response) : _response(response) {}
 
 void Task::setProcessFunction(ProcessRequest function) {
@@ -28,26 +23,26 @@ void Task::setProcessFunction(ProcessRequest function) {
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
-  _size = utility::splitReuseVector(request, _rows);
+  _size = utility::splitReuseVector(request, _requests);
   _indices.resize(_size);
   for (unsigned i = 0; i < _size; ++i) {
     _indices[i] = i;
-    _rows[i]._orgIndex = i;
+    _requests[i]._orgIndex = i;
   }
   _response.resize(_size);
 }
 
 void Task::sortIndices() {
   std::sort(_indices.begin(), _indices.begin() + _size, [this] (int idx1, int idx2) {
-	      return _rows[idx1]._sizeKey < _rows[idx2]._sizeKey;
+	      return _requests[idx1]._sizeKey < _requests[idx2]._sizeKey;
 	    });
 }
 
 bool Task::preprocessNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    RequestRow& row = _rows[index];
-    row._sizeKey = _preprocessRequest(row._value);
+    Request& request = _requests[index];
+    request._sizeKey = _preprocessRequest(request._value);
     return true;
   }
   return false;
@@ -56,17 +51,17 @@ bool Task::preprocessNext() {
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    RequestRow& row = _rows[_indices[index]];
+    Request& request = _requests[_indices[index]];
     std::size_t typeIndex = _function.index();
     switch (typeIndex) {
     case SORTFUNCTION:
-      _response[row._orgIndex] = std::get<SORTFUNCTION>(_function)(row._sizeKey, row._value, _diagnostics);
+      _response[request._orgIndex] = std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);
       break;
     case NOSORTFUNCTION:
-      _response[row._orgIndex] = std::get<NOSORTFUNCTION>(_function)(row._value, _diagnostics);
+      _response[request._orgIndex] = std::get<NOSORTFUNCTION>(_function)(request._value, _diagnostics);
       break;
     case ECHOFUNCTION:
-      _response[row._orgIndex] = std::get<ECHOFUNCTION>(_function)(row._value);
+      _response[request._orgIndex] = std::get<ECHOFUNCTION>(_function)(request._value);
       break;
     default:
       return false;

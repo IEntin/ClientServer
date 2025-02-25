@@ -29,14 +29,12 @@ using ProcessRequestEcho = std::string_view (*)(std::string_view);
 
 using ProcessRequest = std::variant<ProcessRequestSort, ProcessRequestNoSort, ProcessRequestEcho>;
 
-struct RequestRow {
+struct Request {
 
-  RequestRow(std::string_view::const_iterator beg, std::string_view::const_iterator end);
-  RequestRow() = default;
+  Request() = default;
+  ~Request() = default;
 
-  ~RequestRow() = default;
-
-  RequestRow& operator=(std::string_view value) {
+  Request& operator=(std::string_view value) {
     _value = value;
     return *this;
   }
@@ -52,7 +50,7 @@ class Task : private boost::noncopyable {
     NOSORTFUNCTION,
     ECHOFUNCTION
   };
-  std::vector<RequestRow> _rows;
+  std::vector<Request> _requests;
   std::size_t _size = 0;
   std::vector<unsigned> _indices;
   Response& _response;

@@ -38,7 +38,6 @@ void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim
 
 template <typename INPUT, typename CONTAINER>
 std::size_t splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  using ELEMENT = typename CONTAINER::value_type;
   unsigned index = 0;
   std::size_t start = 0;
   while (start < input.size()) {
@@ -46,8 +45,8 @@ std::size_t splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '
     bool endOfInput = next == INPUT::npos;
     if (index >= rows.size())
       rows.emplace_back();
-    rows[index] = ELEMENT(input.cbegin() + start,
-  		          endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
+    rows[index] = { input.cbegin() + start,
+		    endOfInput ? input.cend() : input.cbegin() + next + keepDelim };
     if (endOfInput)
       break;
     ++index;
