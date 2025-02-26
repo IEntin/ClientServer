@@ -25,9 +25,8 @@ void Task::update(const HEADER& header, std::string_view request) {
   _diagnostics = isDiagnosticsEnabled(header);
   _size = utility::splitReuseVector(request, _requests);
   _indices.resize(_size);
-  for (unsigned i = 0; i < _size; ++i) {
+  for (unsigned i = 0; i < _size; ++i)
     _indices[i] = i;
-  }
   _response.resize(_size);
 }
 
@@ -50,18 +49,29 @@ bool Task::preprocessNext() {
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    Request& request = _requests[_indices[index]];
     std::size_t typeIndex = _function.index();
-    unsigned orgIndex = _indices[index];
     switch (typeIndex) {
     case SORTFUNCTION:
-      _response[orgIndex] = std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);
+      {
+	unsigned orgIndex = _indices[index];
+	Request& request = _requests[orgIndex];
+	_response[orgIndex] =
+	  std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);
+      }
       break;
     case NOSORTFUNCTION:
-      _response[orgIndex] = std::get<NOSORTFUNCTION>(_function)(request._value, _diagnostics);
+      {
+	Request& request = _requests[index];
+	_response[index] =
+	  std::get<NOSORTFUNCTION>(_function)(request._value, _diagnostics);
+      }
       break;
     case ECHOFUNCTION:
-      _response[orgIndex] = std::get<ECHOFUNCTION>(_function)(request._value);
+      {
+	Request& request = _requests[index];
+	_response[index] =
+	  std::get<ECHOFUNCTION>(_function)(request._value);
+      }
       break;
     default:
       return false;
