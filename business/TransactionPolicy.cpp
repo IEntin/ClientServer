@@ -10,7 +10,7 @@
 #include "Transaction.h"
 
 void TransactionPolicy::set() {
-  Ad::load(ServerOptions::_adsFileName);
+  Ad::readAds(ServerOptions::_adsFileName);
   if (!ServerOptions::_sortInput) {
     Task::setPreprocessFunction(nullptr);
     Task::setProcessFunction(Transaction::processRequestNoSort);

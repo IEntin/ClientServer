@@ -50,7 +50,7 @@ void Ad::clear() {
   _mapBySize.clear();
 }
 
-bool Ad::parseArray(std::string_view array) {
+bool Ad::parseArray(AdPtr& adPtr, std::string_view array) {
   static std::vector<std::string_view> bidVect;
   bidVect.clear();
   utility::split(array, bidVect, "\", ");
@@ -60,7 +60,7 @@ bool Ad::parseArray(std::string_view array) {
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
-    _bids.emplace_back(bidVect[i], money);
+    _bids.emplace_back(adPtr, bidVect[i], money);
   }
   std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
     return bid1._keyword < bid2._keyword; });
@@ -84,23 +84,12 @@ void Ad::readAds(std::string_view filename) {
     try {
       AdPtr adPtr = std::make_shared<Ad>(line);
       auto [it, inserted] = _mapBySize.emplace(adPtr->_sizeKey, empty);
-      if (!adPtr->parseArray(adPtr->_array))
+      if (!adPtr->parseArray(adPtr, adPtr->_array))
 	continue;
       it->second.emplace_back(adPtr);
     }
     catch (const std::runtime_error& error) {
       Expected << error.what() << '\n';
-    }
-  }
-}
-
-void Ad::load(std::string_view filename) {
-  readAds(filename);
-  for (const auto& pair : _mapBySize) {
-    auto& adVector = pair.second;
-    for (AdPtr adPtr : adVector) {
-      for (auto& bid : adPtr->_bids)
-	bid._ad = adPtr;
     }
   }
 }

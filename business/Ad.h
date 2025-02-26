@@ -37,15 +37,14 @@ class Ad {
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   std::vector<AdBid>& getBids() { return _bids; }
-  static void load(std::string_view filename);
+  static void readAds(std::string_view filename);
   static void clear();
   static const std::vector<AdPtr>& getAdsBySize(const SIZETUPLE& key);
   static constexpr double _scaler = 100.;
  private:
   bool parseAttributes();
-  bool parseArray(std::string_view array);
+  bool parseArray(AdPtr& adPtr, std::string_view array);
   void printBids(std::string& output) const;
-  static void readAds(std::string_view filename);
   std::string_view _id;
   SIZETUPLE _sizeKey;
   std::vector<AdBid> _bids;
