@@ -24,14 +24,14 @@ void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
   _size = utility::splitReuseVector(request, _requests);
-  _indices.resize(_size);
+  _sortedIndices.resize(_size);
   for (unsigned i = 0; i < _size; ++i)
-    _indices[i] = i;
+    _sortedIndices[i] = i;
   _response.resize(_size);
 }
 
 void Task::sortIndices() {
-  std::sort(_indices.begin(), _indices.end(), [this] (int idx1, int idx2) {
+  std::sort(_sortedIndices.begin(), _sortedIndices.end(), [this] (int idx1, int idx2) {
 	      return _requests[idx1]._sizeKey < _requests[idx2]._sizeKey;
 	    });
 }
@@ -53,7 +53,7 @@ bool Task::processNext() {
     switch (typeIndex) {
     case SORTFUNCTION:
       {
-	unsigned orgIndex = _indices[index];
+	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
 	_response[orgIndex] =
 	  std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);

@@ -43,7 +43,7 @@ class Ad {
   static constexpr double _scaler = 100.;
  private:
   bool parseAttributes();
-  bool parseArray(AdPtr& adPtr, std::string_view array);
+  bool parseArray(std::string_view array);
   void printBids(std::string& output) const;
   std::string_view _id;
   SIZETUPLE _sizeKey;
@@ -51,5 +51,6 @@ class Ad {
   long _defaultBid = 0;
   const std::string _input;
   std::string_view _array;
+  std::string _description;
   static SizeMap _mapBySize;
 };

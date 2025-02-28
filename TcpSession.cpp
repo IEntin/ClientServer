@@ -14,6 +14,8 @@
 
 namespace tcp {
 
+static constexpr std::string_view TYPE{ "tcp" };
+
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
 		       std::string_view msgHash,
@@ -182,7 +184,8 @@ void TcpSession::asyncWait() {
 }
 
 void TcpSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {
-  Session::displayCapacityCheck(totalNumberObjects,
+  Session::displayCapacityCheck(TYPE,
+				totalNumberObjects,
 				getNumberObjects(),
 				getNumberRunningByType(),
 				_maxNumberRunningByType,

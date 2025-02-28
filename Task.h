@@ -51,7 +51,7 @@ class Task : private boost::noncopyable {
   };
   std::vector<Request> _requests;
   std::size_t _size = 0;
-  std::vector<unsigned> _indices;
+  std::vector<unsigned> _sortedIndices;
   Response& _response;
   std::promise<void> _promise;
   std::atomic<unsigned> _index = 0;

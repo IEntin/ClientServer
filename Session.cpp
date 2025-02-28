@@ -64,18 +64,19 @@ bool Session::processTask() {
   return false;
 }
 
-void Session::displayCapacityCheck(unsigned totalNumberObjects,
+void Session::displayCapacityCheck(std::string_view type,
+				   unsigned totalNumberObjects,
 				   unsigned numberObjects,
 				   unsigned numberRunningByType,
 				   unsigned maxNumberRunningByType,
 				   STATUS status) const {
-  Info << "Number " << getDisplayName() << " sessions=" << numberObjects
-       << ", Number running " << getDisplayName() << " sessions=" << numberRunningByType
-       << ", max number " << getDisplayName() << " running=" << maxNumberRunningByType
+  Info << "Number " << type << " sessions=" << numberObjects
+       << ", Number running " << type << " sessions=" << numberRunningByType
+       << ", max number " << type << " running=" << maxNumberRunningByType
        << '\n';
   switch (status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
-    Warn << "\nThe number of " << getDisplayName() << " sessions="
+    Warn << "\nThe number of " << type << " sessions="
 	 << numberObjects << " exceeds thread pool capacity." << '\n';
     break;
   case STATUS::MAX_TOTAL_OBJECTS:

@@ -31,7 +31,6 @@ private:
   void stop() override;
   void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
-  std::string_view getDisplayName() const override{ return "tcp"; }
   void readRequest();
   void write(const HEADER& header);
   void asyncWait();

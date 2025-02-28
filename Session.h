@@ -55,13 +55,13 @@ protected:
     }
   }
 
-  void displayCapacityCheck(unsigned totalNumberObjects,
+  void displayCapacityCheck(std::string_view type,
+			    unsigned totalNumberObjects,
 			    unsigned numberObjects,
 			    unsigned numberRunningByType,
 			    unsigned maxNumberRunningByType,
 			    STATUS status) const;
 public:
   virtual void sendStatusToClient() = 0;
-  virtual std::string_view getDisplayName() const = 0;
   std::size_t getId() const { return _clientId; }
 };

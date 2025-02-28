@@ -231,28 +231,24 @@ void Transaction::printDiagnostics() const {
 }
 
 void Transaction::printSummary() const {
-  if (auto winningAdPtr = _winningBid->_ad.lock(); winningAdPtr) {
-    _output << _id << ' ';
-    double money = _winningBid->_money / Ad::_scaler;
-    _output << winningAdPtr->getId() << DELIMITER << money << '\n';
-  }
+  _output << _id << ' ';
+  double money = _winningBid->_money / Ad::_scaler;
+  _output << _winningBid->_adId << DELIMITER << money << '\n';
 }
 
 void Transaction::printMatchingAds() const {
   static constexpr std::string_view MATCHINGADS{ "matching ads:\n" };
   _output << MATCHINGADS;
   for (const AdBid& adBid : _bids) {
-    if (auto ad = adBid._ad.lock(); ad)
-      ad->print(_output);
+    _output << adBid._description;
     static constexpr std::string_view MATCH{ " match:" };
     _output << MATCH << adBid._keyword << ' ' << adBid._money << '\n';
   }
 }
 
 void Transaction::printWinningAd() const {
-  if (auto winningAdPtr = _winningBid->_ad.lock(); winningAdPtr)
-    _output << winningAdPtr->getId() << DELIMITER
-	    << _winningBid->_keyword << DELIMITER;
+  _output << _winningBid->_adId << DELIMITER
+	  << _winningBid->_keyword << DELIMITER;
   double money = _winningBid->_money / Ad::_scaler;
   static constexpr std::string_view ENDING{ "\n*****\n" };
   _output << money << ENDING;

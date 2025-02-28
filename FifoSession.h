@@ -24,7 +24,6 @@ class FifoSession final : public RunnableT<FifoSession>,
   void stop() override;
   void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
-  std::string_view getDisplayName() const override{ return "fifo"; }
  public:
   FifoSession(ServerWeakPtr server,
 	      std::string_view msgHash,

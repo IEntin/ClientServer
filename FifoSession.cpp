@@ -14,6 +14,8 @@
 
 namespace fifo {
 
+static constexpr std::string_view TYPE{ "fifo" };
+
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view msgHash,
 			 const CryptoPP::SecByteBlock& pubB,
@@ -98,7 +100,8 @@ void FifoSession::sendStatusToClient() {
 }
 
 void FifoSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {
-  Session::displayCapacityCheck(totalNumberObjects,
+  Session::displayCapacityCheck(TYPE,
+				totalNumberObjects,
 				getNumberObjects(),
 				getNumberRunningByType(),
 				_maxNumberRunningByType,

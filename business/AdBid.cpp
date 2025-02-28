@@ -4,5 +4,7 @@
 
 #include "AdBid.h"
 
-AdBid::AdBid(AdPtr& adPtr, std::string_view keyword, long money) :
-  _ad(adPtr), _keyword(keyword), _money(money) {}
+AdBid::AdBid(std::string_view adId,
+	     std::string_view keyword,
+	     long money) :
+  _adId(adId), _keyword(keyword), _money(money) {}
