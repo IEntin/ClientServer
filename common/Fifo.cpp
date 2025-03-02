@@ -77,12 +77,11 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
     if (fd == -1) {
       // wait until read end is open
       switch (errno) {
-      case ENOENT:
       case ENXIO:
 	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	break;
       default:
-	return fd;
+	throw std::runtime_error(ioutility::createErrorString());
       }
     }
   } while (fd == -1 && rep++ < Options::_numberRepeatENXIO);
@@ -137,7 +136,6 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
 	break;
       default:
 	throw std::runtime_error(ioutility::createErrorString());
-	break;
       }
     }
     else if (result > 0) {
@@ -179,7 +177,6 @@ void Fifo::writeString(int fd, std::string_view str) {
 	break;
       default:
 	throw std::runtime_error(ioutility::createErrorString());
-	break;
       }
     }
     else

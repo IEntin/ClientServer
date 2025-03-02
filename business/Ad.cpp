@@ -19,9 +19,8 @@ SizeMap Ad::_mapBySize;
 
 Ad::Ad(std::string_view line) : _input(line) {
   if (!parseAttributes())
-    throw std::runtime_error("Wrong entry format:\"" + _input + '"' + ", skipping.\n");
-  if (!parseArray(_array))
-    throw std::runtime_error("Wrong array format:\"" + _input + '"' + ", skipping.\n");
+    throw std::runtime_error(std::string("Wrong entry format:") +
+			     _input + std::string(", skipping..."));
 }
 
 bool Ad::parseAttributes() {
@@ -52,18 +51,20 @@ void Ad::clear() {
   _mapBySize.clear();
 }
 
-bool Ad::parseArray(std::string_view array) {
+bool Ad::parseArray() {
   static std::vector<std::string_view> bidVect;
   bidVect.clear();
-  utility::split(array, bidVect, "\", ");
+  utility::split(_array, bidVect, "\", ");
   for (unsigned i = 0; i + 1 < bidVect.size(); i += 2) {
     double dblMoney = 0;
     ioutility::fromChars(bidVect[i + 1], dblMoney);
     long money = std::lround(dblMoney * _scaler);
     if (money == 0)
       money = _defaultBid;
-    _bids.emplace_back(bidVect[i], money);
+    _bids.emplace_back(weak_from_this(), bidVect[i], money);
   }
+  if (_bids.empty())
+    Warn << "Wrong entry format:" << _input << ", skipping...\n";
   std::sort(_bids.begin(), _bids.end(), [&] (const AdBid& bid1, const AdBid& bid2) {
     return bid1._keyword < bid2._keyword; });
   return true;
@@ -85,8 +86,8 @@ void Ad::readAds(std::string_view filename) {
     std::vector<AdPtr> empty;
     try {
       AdPtr adPtr = std::make_shared<Ad>(line);
-      for (auto& bid : adPtr->getBids())
-	bid._ad = adPtr;
+      if (!adPtr->parseArray())
+	continue;
       auto [it, inserted] = _mapBySize.emplace(adPtr->_sizeKey, empty);
       it->second.emplace_back(adPtr);
     }

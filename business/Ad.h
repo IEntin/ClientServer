@@ -15,7 +15,7 @@ using SIZETUPLE = std::tuple<unsigned, unsigned>;
 using AdPtr = std::shared_ptr<class Ad>;
 using SizeMap = std::map<SIZETUPLE, std::vector<AdPtr>>;
 
-class Ad {
+class Ad : public std::enable_shared_from_this<Ad> {
   enum INPUTPARTS {
     ADPART,
     BIDPART,
@@ -41,7 +41,7 @@ class Ad {
   static constexpr double _scaler = 100.;
  private:
   bool parseAttributes();
-  bool parseArray(std::string_view array);
+  bool parseArray();
   void printBids(std::string& output) const;
   std::string_view _id;
   SIZETUPLE _sizeKey;
