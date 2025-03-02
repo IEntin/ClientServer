@@ -7,13 +7,16 @@
 #include <memory>
 #include <string>
 
+using AdPtr = std::shared_ptr<class Ad>;
+using AdWeakPtr = std::weak_ptr<Ad>;
+
+class Ad;
+
 struct AdBid {
-  AdBid(std::string_view adId,
-	std::string_view keyword,
+  AdBid(std::string_view keyword,
 	long money);
   ~AdBid() = default;
-  std::string_view _adId;
+  AdWeakPtr _ad;
   std::string_view _keyword;
   long _money = 0;
-  std::string_view _description;
 };

@@ -14,7 +14,7 @@
 class Ad;
 struct AdBid;
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
-using AdPtr = std::shared_ptr<class Ad>;
+using AdPtr = std::shared_ptr<Ad>;
 
 class Transaction : private boost::noncopyable {
 public:

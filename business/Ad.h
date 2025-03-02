@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/core/noncopyable.hpp>
-
 struct AdBid;
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
@@ -51,6 +49,5 @@ class Ad {
   long _defaultBid = 0;
   const std::string _input;
   std::string_view _array;
-  std::string _description;
   static SizeMap _mapBySize;
 };
