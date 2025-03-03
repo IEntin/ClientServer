@@ -89,7 +89,7 @@ void Ad::readAds(std::string_view filename) {
       if (!adPtr->parseArray())
 	continue;
       auto [it, inserted] = _mapBySize.emplace(adPtr->_sizeKey, empty);
-      it->second.emplace_back(adPtr);
+      it->second.push_back(std::move(adPtr));
     }
     catch (const std::runtime_error& error) {
       Expected << error.what() << '\n';
