@@ -27,7 +27,7 @@ Session::Session(ServerWeakPtr server,
     throw std::runtime_error("signature verification failed.");
   _crypto->hideKey();
   if (ServerOptions::_showKey)
-   _crypto->showKey();
+    _crypto->showKey();
   _crypto->eraseRSAKeys();
 }
 
@@ -35,15 +35,9 @@ std::pair<HEADER, std::string_view>
 Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
-  std::size_t dataSize = 0;
+  _responseData.clear();
   for (const auto& entry : _response)
-    dataSize += entry.size();
-  _responseData.resize(dataSize);
-  std::size_t shift = 0;
-  for (const auto& entry : _response) {
-    std::memcpy(_responseData.data() + shift, entry.data(), entry.size());
-    shift += entry.size();
-  }
+    _responseData += std::string_view(entry);
   if (ServerOptions::_showKey)
     _crypto->showKey();
   HEADER header =

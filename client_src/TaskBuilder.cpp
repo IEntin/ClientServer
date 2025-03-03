@@ -49,10 +49,10 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  _aggregate.push_back('[');
+  _aggregate += '[';
   ioutility::toChars(index, _aggregate);
-  _aggregate.push_back(']');
-  _aggregate.append(line);
+  _aggregate += ']';
+  _aggregate += line;
 }
 
 // Read requests from the source, generate id for each.

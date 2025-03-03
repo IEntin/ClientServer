@@ -9,18 +9,17 @@
 namespace ioutility {
 
 std::string& operator << (std::string& buffer, char c) {
-  buffer.push_back(c);
-  return buffer;
+  return buffer += c;
 }
 
 std::string& operator << (std::string& buffer, std::string_view str) {
-  return buffer.append(str);
+  return buffer += str;
 }
 
 std::string& operator << (std::string& buffer, const SIZETUPLE& sizeKey) {
   unsigned width = std::get<0>(sizeKey);
   toChars(width, buffer);
-  buffer.push_back('x');
+  buffer += 'x';
   unsigned height = std::get<1>(sizeKey);
   toChars(height, buffer);
   return buffer;
