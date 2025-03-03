@@ -36,8 +36,8 @@ Session::buildReply(std::atomic<STATUS>& status) {
   if (_response.empty())
     return {};
   _responseData.clear();
-  for (const auto& entry : _response)
-    _responseData += std::string_view(entry);
+  for (std::string_view entry : _response)
+    _responseData += entry;
   if (ServerOptions::_showKey)
     _crypto->showKey();
   HEADER header =
