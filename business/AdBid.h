@@ -13,7 +13,7 @@ using AdWeakPtr = std::weak_ptr<Ad>;
 class Ad;
 
 struct AdBid {
-  AdBid(AdWeakPtr ad, std::string_view keyword, long money);
+  AdBid(const AdWeakPtr& ad, std::string_view keyword, long money);
   ~AdBid() = default;
   AdWeakPtr _ad;
   std::string_view _keyword;

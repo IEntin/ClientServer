@@ -177,7 +177,7 @@ struct Comparator {
 };
 
 void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
-  for (AdPtr ad : adVector) {
+  for (const AdPtr& ad : adVector) {
     const auto& inputBids = ad->getBids();
     std::set_intersection(inputBids.cbegin(), inputBids.cend(),
 			  _keywords.cbegin(), _keywords.cend(),
