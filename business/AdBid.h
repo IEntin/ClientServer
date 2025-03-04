@@ -7,8 +7,7 @@
 #include <memory>
 #include <string>
 
-using AdPtr = std::shared_ptr<class Ad>;
-using AdWeakPtr = std::weak_ptr<Ad>;
+using AdWeakPtr = std::weak_ptr<class Ad>;
 
 class Ad;
 

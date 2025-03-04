@@ -12,7 +12,6 @@
 #include <cryptopp/osrng.h>
 #include <cryptopp/rsa.h>
 
-constexpr std::u8string_view endTag = u8"r2345ufg5432105t";
 constexpr std::size_t RSA_KEY_SIZE = 2048;
 
 using CryptoPtr = std::shared_ptr<class Crypto>;

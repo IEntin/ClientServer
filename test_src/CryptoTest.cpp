@@ -16,16 +16,26 @@ TEST(CryptoTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
-  // must be a copy
-  std::string data = TestEnvironment::_source;
+  HEADER header{ HEADERTYPE::SESSION,
+		 0,
+		 TestEnvironment::_source.size(),
+		 COMPRESSORS::NONE,
+		 DIAGNOSTICS::NONE,
+		 STATUS::NONE,
+		 0 };
+  std::string data(HEADER_SIZE, '\0');
+  serialize(header, data.data());
+  data += TestEnvironment::_source;
+  const std::string dataOrg(data);
   crypto->encrypt(TestEnvironment::_buffer, true, data);
+  ASSERT_TRUE(utility::isEncrypted(data));
   crypto->decrypt(TestEnvironment::_buffer, data);
-  ASSERT_EQ(TestEnvironment::_source, data);
-  // must be a copy
-  data = TestEnvironment::_source;
+  ASSERT_EQ(data, dataOrg);
+  data = dataOrg;
   crypto->encrypt(TestEnvironment::_buffer, false, data);
+  ASSERT_FALSE(utility::isEncrypted(data));
   crypto->decrypt(TestEnvironment::_buffer, data);
-  ASSERT_EQ(TestEnvironment::_source, data);
+  ASSERT_EQ(dataOrg, data);
 }
 
 struct CompressEncryptTest : testing::Test {

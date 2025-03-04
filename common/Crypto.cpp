@@ -97,9 +97,7 @@ void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
   if (!checkAccess())
     return;
   buffer.clear();
-  if (!encrypt)
-    data.append(endTag.cbegin(), endTag.cend());
-  else {
+  if (encrypt) {
     CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
     _rng.GenerateBlock(iv, iv.size());
     _keyHandler.recoverKey(_key);
@@ -120,14 +118,12 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     return;
   buffer.clear();
-  if (data.ends_with(reinterpret_cast<const char*>(endTag.data())))
-    data.erase(data.size() - endTag.size());
-  else {
+  if (utility::isEncrypted(data)) {
     CryptoPP::SecByteBlock
       iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 	 CryptoPP::AES::BLOCKSIZE);
     _keyHandler.recoverKey(_key);
-     CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
+    CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
     stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());

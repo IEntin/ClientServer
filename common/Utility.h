@@ -66,6 +66,8 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
   }
 }
 
+bool isEncrypted(std::string_view data);
+
 std::size_t getUniqueId();
 
 std::string generateRawUUID();
