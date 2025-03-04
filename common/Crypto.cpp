@@ -92,33 +92,31 @@ void Crypto::showKey() {
   }
 }
 
-void Crypto::encrypt(std::string& buffer, bool encrypt, std::string& data) {
+void Crypto::encrypt(std::string& buffer, std::string& data) {
   std::lock_guard lock(_mutex);
   if (!checkAccess())
     return;
   buffer.clear();
-  if (encrypt) {
-    CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-    _rng.GenerateBlock(iv, iv.size());
-    _keyHandler.recoverKey(_key);
-    CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
-    CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
-    CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
-    stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
-    stfEncryptor.MessageEnd();
-    _keyHandler.hideKey(_key);
-    buffer.append(iv.begin(), iv.end());
-    data.resize(buffer.size());
-    std::memcpy(data.data(), buffer.data(), buffer.size());
-  }
+  CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
+  _rng.GenerateBlock(iv, iv.size());
+  _keyHandler.recoverKey(_key);
+  CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
+  CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
+  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
+  stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
+  stfEncryptor.MessageEnd();
+  _keyHandler.hideKey(_key);
+  buffer.append(iv.begin(), iv.end());
+  data.resize(buffer.size());
+  std::memcpy(data.data(), buffer.data(), buffer.size());
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
   std::lock_guard lock(_mutex);
   if (!checkAccess())
     return;
-  buffer.clear();
   if (utility::isEncrypted(data)) {
+    buffer.clear();
     CryptoPP::SecByteBlock
       iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 	 CryptoPP::AES::BLOCKSIZE);

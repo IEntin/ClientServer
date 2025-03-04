@@ -91,8 +91,10 @@ void compressEncrypt(std::string& buffer,
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
-  if (auto crypto = weak.lock();crypto)
-    crypto->encrypt(buffer, encrypt, data);
+  if (encrypt) {
+    if (auto crypto = weak.lock();crypto)
+      crypto->encrypt(buffer, data);
+  }
 }
 
 void decryptDecompress(std::string& buffer,

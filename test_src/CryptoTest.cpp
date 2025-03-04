@@ -27,15 +27,11 @@ TEST(CryptoTest, 1) {
   serialize(header, data.data());
   data += TestEnvironment::_source;
   const std::string dataOrg(data);
-  crypto->encrypt(TestEnvironment::_buffer, true, data);
+  crypto->encrypt(TestEnvironment::_buffer, data);
   ASSERT_TRUE(utility::isEncrypted(data));
   crypto->decrypt(TestEnvironment::_buffer, data);
-  ASSERT_EQ(data, dataOrg);
-  data = dataOrg;
-  crypto->encrypt(TestEnvironment::_buffer, false, data);
   ASSERT_FALSE(utility::isEncrypted(data));
-  crypto->decrypt(TestEnvironment::_buffer, data);
-  ASSERT_EQ(dataOrg, data);
+  ASSERT_EQ(data, dataOrg);
 }
 
 struct CompressEncryptTest : testing::Test {

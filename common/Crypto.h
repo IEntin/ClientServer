@@ -56,7 +56,7 @@ public:
   explicit Crypto(const std::string& msgHash);
   ~Crypto() = default;
   void showKey();
-  void encrypt(std::string& buffer, bool encrypt, std::string& data);
+  void encrypt(std::string& buffer, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
