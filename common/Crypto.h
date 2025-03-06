@@ -49,6 +49,15 @@ class Crypto {
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
+
+  template <typename VARIABLE>
+  void setAESvariable(VARIABLE& var) {
+    std::lock_guard lock(_mutex);
+    _keyHandler.recoverKey(_key);
+    var = VARIABLE(_key.data(), _key.size());
+    _keyHandler.hideKey(_key);
+  }
+
 public:
   Crypto(std::string_view msgHash,
 	 const CryptoPP::SecByteBlock& pubB,

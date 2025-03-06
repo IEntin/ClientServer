@@ -50,7 +50,8 @@ struct CompressEncryptTest : testing::Test {
 		   STATUS::NONE,
 		   0 };
     utility::compressEncrypt(TestEnvironment::_buffer, encrypt, header, crypto, data);
-    HEADER restoredHeader;    
+    ASSERT_EQ(utility::isEncrypted(data), encrypt);
+    HEADER restoredHeader;
     utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(data, TestEnvironment::_source);
