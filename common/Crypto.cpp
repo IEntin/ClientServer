@@ -92,27 +92,39 @@ void Crypto::showKey() {
   }
 }
 
-void Crypto::encrypt(std::string& buffer, std::string& data) {
+CryptoPP::AES::Encryption Crypto::getAESEncryption() {
   std::lock_guard lock(_mutex);
+  _keyHandler.recoverKey(_key);
+  CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
+  _keyHandler.hideKey(_key);
+  return aesEncryption;
+}
+
+void Crypto::encrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     return;
   buffer.clear();
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
-  _keyHandler.recoverKey(_key);
-  CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
+  auto aesEncryption = getAESEncryption();
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  _keyHandler.hideKey(_key);
   buffer.append(iv.begin(), iv.end());
   data.resize(buffer.size());
   std::memcpy(data.data(), buffer.data(), buffer.size());
 }
 
-void Crypto::decrypt(std::string& buffer, std::string& data) {
+CryptoPP::AES::Decryption Crypto::getAESDecryption() {
   std::lock_guard lock(_mutex);
+  _keyHandler.recoverKey(_key);
+  CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
+  _keyHandler.hideKey(_key);
+  return aesDecryption;
+}
+
+void Crypto::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     return;
   if (utility::isEncrypted(data)) {
@@ -120,14 +132,12 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
     CryptoPP::SecByteBlock
       iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 	 CryptoPP::AES::BLOCKSIZE);
-    _keyHandler.recoverKey(_key);
-    CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
+    auto aesDecryption = getAESDecryption();
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
     stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());
     stfDecryptor.MessageEnd();
-    _keyHandler.hideKey(_key);
-     data.resize(buffer.size());
+    data.resize(buffer.size());
     std::memcpy(data.data(), buffer.data(), buffer.size());
     if (ClientOptions::_showKey)
       showKey();

@@ -49,6 +49,8 @@ class Crypto {
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
+  CryptoPP::AES::Encryption getAESEncryption();
+  CryptoPP::AES::Decryption getAESDecryption();
 public:
   Crypto(std::string_view msgHash,
 	 const CryptoPP::SecByteBlock& pubB,
