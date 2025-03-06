@@ -92,21 +92,20 @@ void Crypto::showKey() {
   }
 }
 
-CryptoPP::AES::Encryption Crypto::getAESEncryption() {
-  std::lock_guard lock(_mutex);
-  _keyHandler.recoverKey(_key);
-  CryptoPP::AES::Encryption aesEncryption(_key.data(), _key.size());
-  _keyHandler.hideKey(_key);
-  return aesEncryption;
-}
-
 void Crypto::encrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     return;
   buffer.clear();
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
-  auto aesEncryption = getAESEncryption();
+  CryptoPP::AES::Encryption aesEncryption;
+  auto lambda = [&] (CryptoPP::AES::Encryption& aesEncryption) mutable {
+    std::lock_guard lock(_mutex);
+    _keyHandler.recoverKey(_key);
+    aesEncryption = CryptoPP::AES::Encryption(_key.data(), _key.size());
+    _keyHandler.hideKey(_key);
+  };
+  lambda(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
@@ -114,14 +113,6 @@ void Crypto::encrypt(std::string& buffer, std::string& data) {
   buffer.append(iv.begin(), iv.end());
   data.resize(buffer.size());
   std::memcpy(data.data(), buffer.data(), buffer.size());
-}
-
-CryptoPP::AES::Decryption Crypto::getAESDecryption() {
-  std::lock_guard lock(_mutex);
-  _keyHandler.recoverKey(_key);
-  CryptoPP::AES::Decryption aesDecryption(_key.data(), _key.size());
-  _keyHandler.hideKey(_key);
-  return aesDecryption;
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
@@ -132,7 +123,14 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
     CryptoPP::SecByteBlock
       iv(reinterpret_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 	 CryptoPP::AES::BLOCKSIZE);
-    auto aesDecryption = getAESDecryption();
+    CryptoPP::AES::Decryption aesDecryption;
+    auto lambda = [&] (CryptoPP::AES::Decryption& aesDecryption) mutable {
+      std::lock_guard lock(_mutex);
+      _keyHandler.recoverKey(_key);
+      aesDecryption = CryptoPP::AES::Decryption(_key.data(), _key.size());
+      _keyHandler.hideKey(_key);
+    };
+    lambda(aesDecryption);
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
     stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());
