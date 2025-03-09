@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "ServerOptions.h"
 #include "Utility.h"
 
 PreprocessRequest Task::_preprocessRequest = nullptr;
@@ -24,9 +25,11 @@ void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
   _size = utility::splitReuseVector(request, _requests);
-  _sortedIndices.resize(_size);
-  for (unsigned i = 0; i < _size; ++i)
-    _sortedIndices[i] = i;
+  if (ServerOptions::_sortInput) {
+    _sortedIndices.resize(_size);
+    for (unsigned i = 0; i < _size; ++i)
+      _sortedIndices[i] = i;
+  }
   _response.resize(_size);
 }
 
@@ -60,21 +63,13 @@ bool Task::processNext() {
       }
       break;
     case NOSORTFUNCTION:
-      {
-	Request& request = _requests[index];
-	_response[index] =
-	  std::get<NOSORTFUNCTION>(_function)(request._value, _diagnostics);
-      }
+      _response[index] =
+	std::get<NOSORTFUNCTION>(_function)(_requests[index]._value, _diagnostics);
       break;
     case ECHOFUNCTION:
-      {
-	Request& request = _requests[index];
-	_response[index] =
-	  std::get<ECHOFUNCTION>(_function)(request._value);
-      }
+      _response[index] =
+	std::get<ECHOFUNCTION>(_function)(_requests[index]._value);
       break;
-    default:
-      return false;
     }
     return true;
   }

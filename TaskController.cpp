@@ -46,8 +46,6 @@ void TaskController::onCompletion() {
     _task->resetIndex();
     _phase = PREPROCESSTASK;
     break;
-  default:
-    break;
   }
 }
 

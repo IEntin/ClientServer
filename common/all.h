@@ -59,6 +59,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <boost/regex.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid.hpp>
 

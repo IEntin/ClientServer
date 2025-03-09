@@ -2,6 +2,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <boost/regex.hpp>
+
 #include "ClientOptions.h"
 #include "Compression.h"
 #include "FileLines.h"
@@ -14,6 +16,7 @@
 // ./testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetStringLineTest*
+// for i in {1..10}; do ./testbin --gtest_filter=regex*;done
 
 struct CompressionTest : testing::Test {
   void testCompressionDecompression(std::string& input) {
@@ -201,4 +204,15 @@ TEST(ClearPreservesCapacity, 1) {
   copy.clear();
   std::size_t finalCapacity = copy.capacity();
   ASSERT_EQ(orgCapacity, finalCapacity);
+}
+
+TEST(regex, 1) {
+  std::string request("http://bid.simpli.fi/ck_bid?size=728x90&user_agent\
+=Mozilla/5.0%20(compatible;%20MSIE%209.0;%20Windows%20NT%206.1;%20WOW64;%20Trident/5.0)\
+&kw=discountcomputer+gliclazide&ip_address=67.87.131.40&site_id=95");
+  boost::regex pattern("size=\\d+x\\d+&");
+  boost::smatch match;
+  ASSERT_TRUE(boost::regex_search(request, match, pattern));
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  logger << "\t\tmatch:" << match.str() << '\n';
 }
