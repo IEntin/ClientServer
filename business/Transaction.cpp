@@ -25,7 +25,6 @@ constexpr const char* SIZE_START_REG{ "size=" };
 constexpr const char* SEPARATOR_REG{ "x" };
 constexpr const char* SIZE_START_ALT{ "ad_width=" };
 constexpr const char* SEPARATOR_ALT{ "&ad_height=" };
-constexpr const char* SIZE_END{ "&" };
 constexpr std::tuple<unsigned, unsigned> ZERO_SIZE;
 constexpr std::string_view DELIMITER(", ");
 }
@@ -120,8 +119,7 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   std::string_view SIZE_START;
   std::string_view SEPARATOR;
-  std::size_t begPos = 0;
-  begPos = request.find(SIZE_START_REG);
+  std::size_t begPos = request.find(SIZE_START_REG);
   // size format as in "728x90"
   if (begPos != std::string_view::npos) {
     SIZE_START = SIZE_START_REG;
@@ -135,21 +133,17 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
       SEPARATOR = SEPARATOR_ALT;
     }
     else
-      return { 0, 0 };
+      return ZERO_SIZE;
   }
-  std::size_t sepPos = request.find(SEPARATOR, begPos + SIZE_START.size());
-  if (sepPos == std::string_view::npos)
-    return { 0, 0 };
-  std::string_view widthView =
-    { request.data() + begPos + SIZE_START.size(), sepPos - begPos - SIZE_START.size() };
-  std::size_t endPos = request.find(SIZE_END, sepPos + SEPARATOR.size());
-  std::size_t heightViewSize =
-    (endPos == std::string_view::npos ? request.size() : endPos) - sepPos - SEPARATOR.size();
-  std::string_view heightView = { request.data() + sepPos + SEPARATOR.size(), heightViewSize };
+  begPos += SIZE_START.size();
   unsigned width = 0;
+  auto result = std::from_chars(request.data() + begPos, request.data() + request.size(), width);
+  if (result.ec != std::errc())
+    throw std::runtime_error(ioutility::createErrorString(result.ec));
   unsigned height = 0;
-  ioutility::fromChars(widthView, width);
-  ioutility::fromChars(heightView, height);
+  result = std::from_chars(result.ptr + SEPARATOR.size(), request.data() + request.size(), height);
+  if (result.ec != std::errc())
+    throw std::runtime_error(ioutility::createErrorString(result.ec));
   return { width, height };
 }
 
