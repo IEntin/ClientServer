@@ -4,10 +4,6 @@
 
 #include "Transaction.h"
 
-#include <cassert>
-#include <functional>
-#include <iomanip>
-
 #include "Ad.h"
 #include "AdBid.h"
 #include "IOUtility.h"
@@ -25,7 +21,7 @@ constexpr std::string_view SIZE_START_REG{ "size=" };
 constexpr std::string_view SEPARATOR_REG{ "x" };
 constexpr std::string_view SIZE_START_ALT{ "ad_width=" };
 constexpr std::string_view SEPARATOR_ALT{ "&ad_height=" };
-constexpr std::tuple<unsigned, unsigned> ZERO_SIZE;
+constexpr SIZETUPLE ZERO_SIZE;
 constexpr std::string_view DELIMITER(", ");
 }
 
@@ -36,29 +32,21 @@ thread_local std::string Transaction::_output;
 using ioutility::operator<<;
 
 Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
-  clear();
-  if (_sizeKey == ZERO_SIZE) {
-    _invalid = true;
-    LogError << "invalid request, ZERO_SIZE sizeKey" << '\n';
-    return;
-  }
-  std::size_t pos = input.find(']');
-  if (pos != std::string_view::npos && input[0] == '[') {
-    _id = { input.data(), pos + 1 };
-    _request = { input.data() + pos + 1, input.size() - pos - 1 };
-    if (!parseKeywords(START_KEYWORDS1))
-      parseKeywords(START_KEYWORDS2);
-  }
+  init(input);
 }
 
 Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) : _sizeKey(sizeKey)  {
+  init(input);
+}
+
+void Transaction::init(std::string_view input) {
   clear();
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;
     LogError << "invalid request, ZERO_SIZE sizeKey, input:" << input << '\n';
     return;
   }
-  std::size_t pos = input.find(']');
+  auto pos = input.find(']');
   if (pos != std::string_view::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
     _request = { input.data() + pos + 1, input.size() - pos - 1 };
@@ -185,11 +173,11 @@ void Transaction::breakKeywords(std::string_view kwStr) {
 // format1 - kw=toy+longshoremen+recognize+jesbasementsystems+500loans, & - ending
 // format2 - keywords=cars+mazda, & - ending
 bool Transaction::parseKeywords(std::string_view start) {
-  std::size_t beg = _request.find(start);
+  auto beg = _request.find(start);
   if (beg == std::string_view::npos)
     return false;
   auto keyWordsbeg = std::next(_request.cbegin(), beg + start.size());
-  std::size_t end = _request.find(KEYWORDS_END, beg);
+  auto end = _request.find(KEYWORDS_END, beg);
   auto keyWordsEnd = end == std::string_view::npos ?
     _request.cend() : std::next(_request.cbegin(), end);
   std::string_view kwStr(keyWordsbeg, keyWordsEnd);
