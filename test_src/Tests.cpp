@@ -206,6 +206,7 @@ TEST(ClearPreservesCapacity, 1) {
   ASSERT_EQ(orgCapacity, finalCapacity);
 }
 
+// unfortunately neither boost nor std regex do not work with string_view
 TEST(regex, 1) {
   std::string request("http://bid.simpli.fi/ck_bid?size=728x90&user_agent\
 =Mozilla/5.0%20(compatible;%20MSIE%209.0;%20Windows%20NT%206.1;%20WOW64;%20Trident/5.0)\

@@ -21,10 +21,10 @@ constexpr std::string_view START_KEYWORDS1{ "kw=" };
 constexpr char KEYWORD_SEP = '+';
 constexpr char KEYWORDS_END = '&';
 constexpr const char* START_KEYWORDS2{ "keywords=" };
-constexpr const char* SIZE_START_REG{ "size=" };
-constexpr const char* SEPARATOR_REG{ "x" };
-constexpr const char* SIZE_START_ALT{ "ad_width=" };
-constexpr const char* SEPARATOR_ALT{ "&ad_height=" };
+constexpr std::string_view SIZE_START_REG{ "size=" };
+constexpr std::string_view SEPARATOR_REG{ "x" };
+constexpr std::string_view SIZE_START_ALT{ "ad_width=" };
+constexpr std::string_view SEPARATOR_ALT{ "&ad_height=" };
 constexpr std::tuple<unsigned, unsigned> ZERO_SIZE;
 constexpr std::string_view DELIMITER(", ");
 }
@@ -117,31 +117,22 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
 }
 
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
-  std::string_view SIZE_START;
-  std::string_view SEPARATOR;
-  std::size_t begPos = request.find(SIZE_START_REG);
-  // size format as in "728x90"
-  if (begPos != std::string_view::npos) {
-    SIZE_START = SIZE_START_REG;
-    SEPARATOR = SEPARATOR_REG;
-  }
-  else {
-    // alternative size format as in "ad_width=300&ad_height=250"
-    begPos = request.find(SIZE_START_ALT);
-    if (begPos != std::string_view::npos) {
-      SIZE_START = SIZE_START_ALT;
-      SEPARATOR = SEPARATOR_ALT;
-    }
-    else
+  auto sizeStartSz = SIZE_START_REG.size();
+  auto separatorSz = SEPARATOR_REG.size();
+  auto begPos = request.find(SIZE_START_REG);
+  if (begPos == std::string_view::npos) {
+    if ((begPos = request.find(SIZE_START_ALT)) == std::string_view::npos)
       return ZERO_SIZE;
+    sizeStartSz = SIZE_START_ALT.size();
+    separatorSz = SEPARATOR_ALT.size();
   }
-  begPos += SIZE_START.size();
-  unsigned width = 0;
+  begPos += sizeStartSz;
+  unsigned width;
   auto result = std::from_chars(request.data() + begPos, request.data() + request.size(), width);
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
-  unsigned height = 0;
-  result = std::from_chars(result.ptr + SEPARATOR.size(), request.data() + request.size(), height);
+  unsigned height;
+  result = std::from_chars(result.ptr + separatorSz, request.data() + request.size(), height);
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
   return { width, height };
