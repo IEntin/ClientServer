@@ -83,6 +83,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     HEADERTYPE::SESSION,
     0,
     _aggregate.size(),
+    ClientOptions::_encryption,
     ClientOptions::_compressor,
     ClientOptions::_diagnostics,
     _status,
@@ -91,7 +92,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   utility::compressEncrypt(
-    _buffer, ClientOptions::_encrypted, header, _crypto, _aggregate);
+    _buffer, header, _crypto, _aggregate);
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];

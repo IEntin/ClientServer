@@ -79,7 +79,6 @@ bool getLastLine(std::string_view fileName, std::string& lastLine);
 bool fileEndsWithEOL(std::string_view fileName);
 
 void compressEncrypt(std::string& buffer,
-		     bool encrypt,
 		     const HEADER& header,
 		     CryptoWeakPtr crypto,
 		     std::string& data);

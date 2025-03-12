@@ -41,10 +41,12 @@ Session::buildReply(std::atomic<STATUS>& status) {
   if (ServerOptions::_showKey)
     _crypto->showKey();
   HEADER header =
-    { HEADERTYPE::SESSION, 0,_responseData.size(), ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
-  utility::compressEncrypt(_buffer, ServerOptions::_encrypted, header, _crypto, _responseData);
+    { HEADERTYPE::SESSION, 0,_responseData.size(), ServerOptions::_encryption,
+      ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+  utility::compressEncrypt(_buffer, header, _crypto, _responseData);
   header =
-    { HEADERTYPE::SESSION, 0, _responseData.size(), ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+    { HEADERTYPE::SESSION, 0, _responseData.size(), ServerOptions::_encryption,
+      ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, _responseData };
 }
 

@@ -4,7 +4,7 @@
   "_comment": "0 for hardware_concurrency",
   "NumberWorkThreads" : 0,
   "Compression" : "LZ4",
-  "Crypto" : true,
+  "Crypto" : "CRYPTOPP",
   "_comment": "If true logs crypto key.",
   "ShowKey" : false,
   "Timing" : true,

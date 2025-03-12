@@ -19,6 +19,7 @@ TEST(CryptoTest, 1) {
   HEADER header{ HEADERTYPE::SESSION,
 		 0,
 		 TestEnvironment::_source.size(),
+		 CRYPTO::CRYPTOPP,
 		 COMPRESSORS::NONE,
 		 DIAGNOSTICS::NONE,
 		 STATUS::NONE,
@@ -35,7 +36,7 @@ TEST(CryptoTest, 1) {
 }
 
 struct CompressEncryptTest : testing::Test {
-  void testCompressEncrypt(bool encrypt, COMPRESSORS compressor) {
+  void testCompressEncrypt(bool doEncrypt, COMPRESSORS compressor) {
     auto crypto(std::make_shared<Crypto>(utility::generateRawUUID()));
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::AutoSeededRandomPool prng;
@@ -45,12 +46,14 @@ struct CompressEncryptTest : testing::Test {
     HEADER header{ HEADERTYPE::SESSION,
 		   0,
 		   data.size(),
+		   doEncrypt ? CRYPTO::CRYPTOPP : CRYPTO::NONE,
 		   compressor,
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
 		   0 };
-    utility::compressEncrypt(TestEnvironment::_buffer, encrypt, header, crypto, data);
-    ASSERT_EQ(utility::isEncrypted(data), encrypt);
+    printHeader(header, LOG_LEVEL::ALWAYS);
+    utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
+    ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
     HEADER restoredHeader;
     utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
     ASSERT_EQ(header, restoredHeader);

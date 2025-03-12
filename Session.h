@@ -49,8 +49,8 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       unsigned size = clientIdStr.size();
       const auto& pubA(_crypto->getPubKey());
-      HEADER header
-	{ HEADERTYPE::DH_HANDSHAKE, 0, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
+      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, size, CRYPTO::NONE,
+		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubA.size() };
       lambda(header, clientIdStr, pubA);
     }
   }

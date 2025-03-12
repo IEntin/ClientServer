@@ -72,17 +72,16 @@ bool getLastLine(std::string_view fileName, std::string& lastLine) {
 
 // used in tests
 bool fileEndsWithEOL(std::string_view fileName) {
-  char ch = 'x';
   std::ifstream stream;
   stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   stream.open(fileName.data(), std::ios::binary);
   stream.seekg(-1, std::ios::end);
+  char ch;
   stream.get(ch);
   return ch == '\n';
 }
 
 void compressEncrypt(std::string& buffer,
-		     bool encrypt,
 		     const HEADER& header,
 		     CryptoWeakPtr weak,
 		     std::string& data) {
@@ -91,7 +90,7 @@ void compressEncrypt(std::string& buffer,
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   data.insert(0, headerBuffer, HEADER_SIZE);
-  if (encrypt) {
+  if (doEncrypt(header)) {
     if (auto crypto = weak.lock();crypto)
       crypto->encrypt(buffer, data);
   }

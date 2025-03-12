@@ -40,7 +40,8 @@ protected:
       const std::string msgHash = _crypto->getMsgHash();
       _crypto->signMessage();
       std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
-      HEADER header = { HEADERTYPE::DH_INIT, msgHash.size(), pubKey.size(), COMPRESSORS::NONE,
+      HEADER header = { HEADERTYPE::DH_INIT, msgHash.size(), pubKey.size(),
+			CRYPTO::NONE, COMPRESSORS::NONE,
 			DIAGNOSTICS::NONE, _status, signatureWithPubKey.size() };
       bool result = lambda(header, msgHash, pubKey, signatureWithPubKey);
       if (result)

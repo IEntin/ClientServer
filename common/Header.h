@@ -12,12 +12,14 @@
 constexpr int HEADERTYPE_SIZE = 1;
 constexpr int RESERVED_SIZE = 10;
 constexpr int NUM_FIELD_SIZE = 10;
+constexpr int CRYPTO_SIZE = 1;
 constexpr int COMPRESSOR_SIZE = 1;
 constexpr int DIAGNOSTICS_SIZE = 1;
 constexpr int STATUS_SIZE = 1;
 constexpr int PARAMETER_SIZE = 10;
 constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + RESERVED_SIZE + NUM_FIELD_SIZE + COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
+  HEADERTYPE_SIZE + RESERVED_SIZE + NUM_FIELD_SIZE + CRYPTO_SIZE +
+  COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
@@ -28,6 +30,13 @@ enum class HEADERTYPE : char {
   HEARTBEAT,
   SESSION,
   ERROR,
+  INVALIDHIGH
+};
+
+enum class CRYPTO : char {
+  INVALIDLOW = '@',
+  NONE,
+  CRYPTOPP,
   INVALIDHIGH
 };
 
@@ -72,6 +81,7 @@ enum class HEADER_INDEX : char {
   HEADERTYPEINDEX,
   RESERVEDINDEX,
   UNCOMPRESSEDSIZEINDEX,
+  CRYPTOINDEX,
   COMPRESSORINDEX,
   DIAGNOSTICSINDEX,
   STATUSINDEX,
@@ -80,13 +90,17 @@ enum class HEADER_INDEX : char {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, unsigned, std::size_t, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, unsigned, std::size_t, CRYPTO, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
 unsigned extractReservedSz(const HEADER& header);
 
 std::size_t extractUncompressedSize(const HEADER& header);
+
+CRYPTO extractCrypto(const HEADER& header);
+
+bool doEncrypt(const HEADER& header);
 
 COMPRESSORS extractCompressor(const HEADER& header);
 
@@ -115,6 +129,8 @@ bool deserializeEnumeration(ENUM& element, char code) {
   element = ENUM{ code };
   return true;
 }
+
+CRYPTO translateCryptoString(std::string_view cryptoStr);
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr);
 
