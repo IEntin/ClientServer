@@ -7,6 +7,6 @@
 #include "Task.h"
 
 void EchoPolicy::set() {
-  Task::setPreprocessFunction(nullptr);
-  Task::setProcessFunction(Echo::processRequest);
+  Task::setPreprocessFunctor(nullptr);
+  Task::setProcessFunctor(Echo::processRequest);
 }

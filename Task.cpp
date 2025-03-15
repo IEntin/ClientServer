@@ -9,17 +9,8 @@
 #include "ServerOptions.h"
 #include "Utility.h"
 
-PreprocessRequest Task::_preprocessRequest = nullptr;
-
-ProcessRequest Task::_function;
-
-Response Task::_emptyResponse;
-
-Task::Task(Response& response) : _response(response) {}
-
-void Task::setProcessFunction(ProcessRequest function) {
-  _function = function;
-}
+PreprocessRequest Task::_preprocessRequest;
+ProcessRequest Task::_processRequest;
 
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
@@ -52,23 +43,23 @@ bool Task::preprocessNext() {
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    std::size_t typeIndex = _function.index();
+    std::size_t typeIndex = _processRequest.index();
     switch (typeIndex) {
-    case SORTFUNCTION:
+    case SORTFUNCTOR:
       {
 	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
 	_response[orgIndex] =
-	  std::get<SORTFUNCTION>(_function)(request._sizeKey, request._value, _diagnostics);
+	  std::get<SORTFUNCTOR>(_processRequest)(request._sizeKey, request._value, _diagnostics);
       }
       break;
-    case NOSORTFUNCTION:
+    case NOSORTFUNCTOR:
       _response[index] =
-	std::get<NOSORTFUNCTION>(_function)(_requests[index]._value, _diagnostics);
+	std::get<NOSORTFUNCTOR>(_processRequest)(_requests[index]._value, _diagnostics);
       break;
-    case ECHOFUNCTION:
+    case ECHOFUNCTOR:
       _response[index] =
-	std::get<ECHOFUNCTION>(_function)(_requests[index]._value);
+	std::get<ECHOFUNCTOR>(_processRequest)(_requests[index]._value);
       break;
     }
     return true;

@@ -16,7 +16,6 @@
 
 class Server;
 
-using Response = std::vector<std::string>;
 using ServerWeakPtr = std::weak_ptr<Server>;
 using SessionPtr = std::shared_ptr<class Session>;
 using TaskPtr = std::shared_ptr<class Task>;
@@ -27,7 +26,6 @@ protected:
   CryptoPtr _crypto;
   HEADER _header;
   std::string _request;
-  Response _response;
   TaskPtr _task;
   std::string _responseData;
   std::string _buffer;

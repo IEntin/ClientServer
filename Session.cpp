@@ -16,7 +16,7 @@ Session::Session(ServerWeakPtr server,
 		 const CryptoPP::SecByteBlock& pubB,
 		 std::string_view signatureWithPubKey) :
   _crypto(std::make_shared<Crypto>(msgHash, pubB, signatureWithPubKey)),
-  _task(std::make_shared<Task>(_response)),
+  _task(std::make_shared<Task>()),
   _server(server) {
   _clientId = utility::getUniqueId();
   std::string signature(signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
@@ -33,10 +33,9 @@ Session::Session(ServerWeakPtr server,
 
 std::pair<HEADER, std::string_view>
 Session::buildReply(std::atomic<STATUS>& status) {
-  if (_response.empty())
-    return {};
   _responseData.clear();
-  for (std::string_view entry : _response)
+  const auto& response = _task->getResponse();
+  for (std::string_view entry : response)
     _responseData += entry;
   if (ServerOptions::_showKey)
     _crypto->showKey();
@@ -44,9 +43,8 @@ Session::buildReply(std::atomic<STATUS>& status) {
     { HEADERTYPE::SESSION, 0,_responseData.size(), ServerOptions::_encryption,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   utility::compressEncrypt(_buffer, header, _crypto, _responseData);
-  header =
-    { HEADERTYPE::SESSION, 0, _responseData.size(), ServerOptions::_encryption,
-      ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+  header = { HEADERTYPE::SESSION, 0, _responseData.size(), ServerOptions::_encryption,
+	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, _responseData };
 }
 

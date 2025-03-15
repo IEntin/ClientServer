@@ -44,25 +44,25 @@ struct Request {
 };
 
 class Task : private boost::noncopyable {
-  enum Functions {
-    SORTFUNCTION,
-    NOSORTFUNCTION,
-    ECHOFUNCTION
+  enum Functors {
+    SORTFUNCTOR,
+    NOSORTFUNCTOR,
+    ECHOFUNCTOR
   };
   std::vector<Request> _requests;
   std::size_t _size = 0;
   std::vector<unsigned> _sortedIndices;
-  Response& _response;
+  Response _response;
   std::promise<void> _promise;
   std::atomic<unsigned> _index = 0;
   bool _diagnostics;
-  static ProcessRequest _function;
-  static Response _emptyResponse;
 
  public:
-  explicit Task(Response& response = _emptyResponse);
+  Task() = default;
 
   ~Task() = default;
+
+  const Response& getResponse() const { return _response; }
 
   void update(const HEADER& header, std::string_view request);
 
@@ -78,11 +78,15 @@ class Task : private boost::noncopyable {
 
   void finish();
 
-  static void setProcessFunction(ProcessRequest function);
+  static PreprocessRequest _preprocessRequest;
+  static ProcessRequest _processRequest;
 
-  static void setPreprocessFunction(PreprocessRequest function) {
-    _preprocessRequest = function;
+  static void setProcessFunctor(ProcessRequest processRequest) {
+    _processRequest = processRequest;
   }
 
-  static PreprocessRequest _preprocessRequest;
+  static void setPreprocessFunctor(PreprocessRequest preprocessRequest) {
+    _preprocessRequest = preprocessRequest;
+  }
+
 };
