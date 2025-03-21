@@ -6,8 +6,6 @@
 
 #include <string>
 
-using SIZETUPLE = std::tuple<unsigned, unsigned>;
-
 struct Echo {
   Echo() = delete;
   ~Echo() = delete;
