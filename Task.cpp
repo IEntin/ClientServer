@@ -11,6 +11,7 @@
 
 PreprocessRequest Task::_preprocessRequest;
 ProcessRequest Task::_processRequest;
+thread_local std::string Task::_buffer;
 
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
@@ -59,7 +60,7 @@ bool Task::processNext() {
       break;
     case ECHOFUNCTOR:
       _response[index] =
-	std::get<ECHOFUNCTOR>(_processRequest)(_requests[index]._value);
+	std::get<ECHOFUNCTOR>(_processRequest)(_requests[index]._value, _buffer);
       break;
     }
     return true;

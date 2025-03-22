@@ -56,6 +56,7 @@ void Server::stop() {
   _threadPoolSession.stop();
   TaskController::destroy();
 }
+
 void Server::createFifoSession(std::string_view msgHash,
 			       const CryptoPP::SecByteBlock& pubB,
 			       std::string_view rsaPubBserialized) {

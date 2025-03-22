@@ -25,7 +25,7 @@ using ProcessRequestSort = std::string_view (*)(const SIZETUPLE&, std::string_vi
 
 using ProcessRequestNoSort = std::string_view (*)(std::string_view, bool diagnostics);
 
-using ProcessRequestEcho = std::string_view (*)(std::string_view);
+using ProcessRequestEcho = std::string_view (*)(std::string_view, std::string&);
 
 using ProcessRequest = std::variant<ProcessRequestSort, ProcessRequestNoSort, ProcessRequestEcho>;
 
@@ -56,6 +56,7 @@ class Task : private boost::noncopyable {
   std::promise<void> _promise;
   std::atomic<unsigned> _index = 0;
   bool _diagnostics;
+  static thread_local std::string _buffer;
 
  public:
   Task() = default;
