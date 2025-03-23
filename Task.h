@@ -6,28 +6,16 @@
 
 #include <atomic>
 #include <future>
-#include <variant>
 #include <vector>
 
 #include <boost/core/noncopyable.hpp>
 
 #include "Header.h"
+#include "Policy.h"
 
 using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
-
-using SIZETUPLE = std::tuple<unsigned, unsigned>;
-
-using PreprocessRequest = SIZETUPLE (*)(std::string_view);
-
-using ProcessRequestSort = std::string_view (*)(const SIZETUPLE&, std::string_view, bool diagnostics);
-
-using ProcessRequestNoSort = std::string_view (*)(std::string_view, bool diagnostics);
-
-using ProcessRequestEcho = std::string_view (*)(std::string_view, std::string&);
-
-using ProcessRequest = std::variant<ProcessRequestSort, ProcessRequestNoSort, ProcessRequestEcho>;
 
 struct Request {
 
