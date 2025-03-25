@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Options.h"
+#include "Policy.h"
 
 enum class COMPRESSORS : char;
 enum class CRYPTO : char;
@@ -20,7 +21,7 @@ struct ServerOptions : protected Options {
   static int _maxFifoSessions;
   static int _maxTotalSessions;
   static int _tcpTimeout;
-  static bool _sortInput;
+  static POLICY _policy;
   static bool _timing;
 private:
   ServerOptions() = delete;

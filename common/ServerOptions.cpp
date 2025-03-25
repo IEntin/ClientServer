@@ -20,7 +20,7 @@ int ServerOptions::_maxTcpSessions;
 int ServerOptions::_maxFifoSessions;
 int ServerOptions::_maxTotalSessions;
 int ServerOptions::_tcpTimeout;
-bool ServerOptions::_sortInput;
+POLICY ServerOptions::_policy;
 bool ServerOptions::_timing;
 
 void ServerOptions::parse(std::string_view jsonName) {
@@ -36,7 +36,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
   _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
   _tcpTimeout = appOptions.get("TcpTimeout", 3000);
-  _sortInput = appOptions.get("SortInput", true);
+  _policy = fromString(appOptions.get("Policy", std::string("NOSORTINPUT")));
   _timing = appOptions.get("Timing", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

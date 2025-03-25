@@ -17,6 +17,8 @@ using Response = std::vector<std::string>;
 
 using TaskPtr = std::shared_ptr<class Task>;
 
+using Functor = std::variant<ProcessRequestSort, ProcessRequestNoSort, ProcessRequestEcho>;
+
 struct Request {
 
   Request() = default;
@@ -32,11 +34,6 @@ struct Request {
 };
 
 class Task : private boost::noncopyable {
-  enum Functors {
-    SORTFUNCTOR,
-    NOSORTFUNCTOR,
-    ECHOFUNCTOR
-  };
   std::vector<Request> _requests;
   std::size_t _size = 0;
   std::vector<unsigned> _sortedIndices;
@@ -68,9 +65,9 @@ class Task : private boost::noncopyable {
   void finish();
 
   static PreprocessRequest _preprocessRequest;
-  static ProcessRequest _processRequest;
+  static Functor _processRequest;
 
-  static void setProcessFunctor(ProcessRequest processRequest) {
+  static void setProcessFunctor(Functor processRequest) {
     _processRequest = processRequest;
   }
 

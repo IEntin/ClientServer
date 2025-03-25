@@ -34,9 +34,10 @@ void TaskController::onTaskCompletion() noexcept {
 void TaskController::onCompletion() {
   switch (_phase) {
   case PREPROCESSTASK:
-    if (ServerOptions::_sortInput)
+    if (Task::_preprocessRequest) {
       _task->sortIndices();
-    _task->resetIndex();
+      _task->resetIndex();
+    }
     _phase = PROCESSTASK;
     break;
   case PROCESSTASK:

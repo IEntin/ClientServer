@@ -9,17 +9,13 @@
 #include "Policy.h"
 
 class EchoPolicy : public Policy {
-
- protected:
-
-  void set() override;
-
  public:
-
   EchoPolicy() = default;
 
   ~EchoPolicy() override = default;
 
-  static std::string_view processRequest(std::string_view request,
-					 std::string& buffer) noexcept;
+  void set() override;
+
+  static std::string_view operator() (std::string_view request,
+				      std::string& buffer) noexcept;
 };

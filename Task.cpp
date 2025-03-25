@@ -6,18 +6,17 @@
 
 #include <algorithm>
 
-#include "ServerOptions.h"
 #include "Utility.h"
 
 PreprocessRequest Task::_preprocessRequest;
-ProcessRequest Task::_processRequest;
+Functor Task::_processRequest;
 thread_local std::string Task::_buffer;
 
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
   _size = utility::splitReuseVector(request, _requests);
-  if (ServerOptions::_sortInput) {
+  if (_preprocessRequest) {
     _sortedIndices.resize(_size);
     for (unsigned i = 0; i < _size; ++i)
       _sortedIndices[i] = i;
@@ -46,21 +45,24 @@ bool Task::processNext() {
   if (index < _size) {
     std::size_t typeIndex = _processRequest.index();
     switch (typeIndex) {
-    case SORTFUNCTOR:
+    case std::to_underlying(POLICY::SORTINPUT):
       {
 	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
 	_response[orgIndex] =
-	  std::get<SORTFUNCTOR>(_processRequest)(request._sizeKey, request._value, _diagnostics);
+	  std::get<std::to_underlying(POLICY::SORTINPUT)>(_processRequest)(
+	  request._sizeKey, request._value, _diagnostics);
       }
       break;
-    case NOSORTFUNCTOR:
+    case std::to_underlying(POLICY::NOSORTINPUT):
       _response[index] =
-	std::get<NOSORTFUNCTOR>(_processRequest)(_requests[index]._value, _diagnostics);
+	std::get<std::to_underlying(POLICY::NOSORTINPUT)>(_processRequest)(
+	_requests[index]._value, _diagnostics);
       break;
-    case ECHOFUNCTOR:
+    case std::to_underlying(POLICY::ECHOPOLICY):
       _response[index] =
-	std::get<ECHOFUNCTOR>(_processRequest)(_requests[index]._value, _buffer);
+	std::get<std::to_underlying(POLICY::ECHOPOLICY)>(_processRequest)(
+	_requests[index]._value, _buffer);
       break;
     }
     return true;

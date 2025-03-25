@@ -4,11 +4,12 @@
 
 #include "ClientOptions.h"
 #include "FifoClient.h"
+#include "NoSortInputPolicy.h"
 #include "Server.h"
 #include "ServerOptions.h"
+#include "SortInputPolicy.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
-#include "TransactionPolicy.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_ND;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D;done
@@ -27,7 +28,7 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
-    TransactionPolicy policy;
+    NoSortInputPolicy policy;
     ServerPtr server = std::make_shared<Server>(policy);
     ASSERT_TRUE(server->start());
     // start client
@@ -51,7 +52,7 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
-    TransactionPolicy policy;
+    NoSortInputPolicy policy;
     ServerPtr server = std::make_shared<Server>(policy);
     ASSERT_TRUE(server->start());
     // start client
@@ -148,7 +149,7 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
-    TransactionPolicy policy;
+    NoSortInputPolicy policy;
     ServerPtr server = std::make_shared<Server>(policy);
     ASSERT_TRUE(server->start());
     // start client
@@ -175,9 +176,15 @@ TEST_F(LogicTestAltFormat, Diagnostics) {
 struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
     // start server
-    ServerOptions::_sortInput = sort;
-    TransactionPolicy policy;
-    ServerPtr server = std::make_shared<Server>(policy);
+    ServerPtr server = ServerPtr();
+    if (sort) {
+      SortInputPolicy policy;
+      server = std::make_shared<Server>(policy);
+    }
+    else {
+      NoSortInputPolicy policy;
+      server = std::make_shared<Server>(policy);
+    }
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_diagnostics = DIAGNOSTICS::ENABLED;
