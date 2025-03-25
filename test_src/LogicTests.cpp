@@ -4,10 +4,8 @@
 
 #include "ClientOptions.h"
 #include "FifoClient.h"
-#include "NoSortInputPolicy.h"
 #include "Server.h"
 #include "ServerOptions.h"
-#include "SortInputPolicy.h"
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 
@@ -28,8 +26,8 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
-    NoSortInputPolicy policy;
-    ServerPtr server = std::make_shared<Server>(policy);
+    ServerOptions::_policy = POLICY::NOSORTINPUT;
+     ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
@@ -52,8 +50,8 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
-    NoSortInputPolicy policy;
-    ServerPtr server = std::make_shared<Server>(policy);
+    ServerOptions::_policy = POLICY::NOSORTINPUT;
+    ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
@@ -149,8 +147,8 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
-    NoSortInputPolicy policy;
-    ServerPtr server = std::make_shared<Server>(policy);
+    ServerOptions::_policy = POLICY::NOSORTINPUT;
+    ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_sourceName = "data/requestsDiffFormat.log";
@@ -178,12 +176,12 @@ struct LogicTestSortInput : testing::Test {
     // start server
     ServerPtr server = ServerPtr();
     if (sort) {
-      SortInputPolicy policy;
-      server = std::make_shared<Server>(policy);
+      ServerOptions::_policy = POLICY::SORTINPUT;
+      server = std::make_shared<Server>();
     }
     else {
-      NoSortInputPolicy policy;
-      server = std::make_shared<Server>(policy);
+      ServerOptions::_policy = POLICY::NOSORTINPUT;
+      server = std::make_shared<Server>();
     }
     ASSERT_TRUE(server->start());
     // start client

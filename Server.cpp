@@ -13,7 +13,6 @@
 #include "FifoSession.h"
 #include "Logger.h"
 #include "NoSortInputPolicy.h"
-#include "Policy.h"
 #include "ServerOptions.h"
 #include "SortInputPolicy.h"
 #include "TaskController.h"
@@ -21,13 +20,12 @@
 #include "TcpSession.h"
 #include "Utility.h"
 
-Server::Server(Policy& policy) :
+Server::Server() :
   _chronometer(ServerOptions::_timing),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
   // Unlock computer in case the app crashed during debugging
   // leaving mutex locked, run serverX or testbin in this case.
   removeNamedMutex();
-  policy.set();
 }
 
 Server::~Server() {
@@ -35,7 +33,26 @@ Server::~Server() {
   utility::removeAccess();
 }
 
+void Server::setPolicy() {
+  POLICY policyEnum = ServerOptions::_policy;
+  switch (std::to_underlying(policyEnum)) {
+  case std::to_underlying(POLICY::NOSORTINPUT) :
+    NoSortInputPolicy().set();
+    break;
+  case std::to_underlying(POLICY::SORTINPUT) :
+    SortInputPolicy().set();
+    break;
+  case std::to_underlying(POLICY::ECHOPOLICY) :
+    EchoPolicy().set();
+    break;
+  default:
+    assert(false);
+    break;
+  }
+}
+
 bool Server::start() {
+  setPolicy();
   if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());

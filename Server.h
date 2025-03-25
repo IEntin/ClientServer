@@ -25,7 +25,7 @@ using SessionPtr = std::shared_ptr<class Session>;
 class Server : public std::enable_shared_from_this<Server>,
 	       private boost::noncopyable {
 public:
-  explicit Server(class Policy& policy);
+  Server();
   ~Server();
   bool start();
   void stop();
@@ -38,6 +38,7 @@ public:
 			std::string_view rsaPubB);
   static void removeNamedMutex();
 private:
+  void setPolicy();
   bool startSession(RunnablePtr runnable, SessionPtr session);
   void stopSessions();
   Chronometer _chronometer;
