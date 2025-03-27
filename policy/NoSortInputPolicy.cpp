@@ -4,13 +4,7 @@
 
 #include "NoSortInputPolicy.h"
 
-#include "Ad.h"
-#include "ServerOptions.h"
 #include "Transaction.h"
-
-NoSortInputPolicy::NoSortInputPolicy() {
-  Ad::readAds(ServerOptions::_adsFileName);
-}
 
 std::string_view NoSortInputPolicy::processRequest(const SIZETUPLE& sizeKey[[maybe_unused]],
 						   std::string_view input,

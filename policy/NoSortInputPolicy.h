@@ -8,7 +8,7 @@
 
 class NoSortInputPolicy : public Policy {
  public:
-  NoSortInputPolicy();
+  NoSortInputPolicy() = default;
   
   ~NoSortInputPolicy() override = default;
 

@@ -8,7 +8,7 @@
 
 class SortInputPolicy : public Policy {
  public:
-  SortInputPolicy();
+  SortInputPolicy() = default;
   
   ~SortInputPolicy() override = default;
 

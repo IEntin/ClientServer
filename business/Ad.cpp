@@ -80,8 +80,7 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
 }
 
 void Ad::readAds(std::string_view filename) {
-  if (!_mapBySize.empty())
-    return;
+  assert(_mapBySize.empty() && "must be called once");
   FileLines lines(filename);
   std::string_view line;
   while (lines.getLine(line)) {

@@ -30,7 +30,20 @@ Server::~Server() {
   utility::removeAccess();
 }
 
+void Server::loadAds() {
+  POLICYENUM policyEnum = ServerOptions::_policyEnum;
+  switch (std::to_underlying(policyEnum)) {
+  case std::to_underlying(POLICYENUM::NOSORTINPUT) :
+  case std::to_underlying(POLICYENUM::SORTINPUT) :
+    Ad::readAds(ServerOptions::_adsFileName);
+    break;
+  default:
+    break;
+  }
+}
+
 bool Server::start() {
+  loadAds();
   if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());

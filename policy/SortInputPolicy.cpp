@@ -4,13 +4,7 @@
 
 #include "SortInputPolicy.h"
 
-#include "Ad.h"
-#include "ServerOptions.h"
 #include "Transaction.h"
-
-SortInputPolicy::SortInputPolicy() {
-  Ad::readAds(ServerOptions::_adsFileName);
-}
 
 std::string_view SortInputPolicy::processRequest(const SIZETUPLE& sizeKey,
 						 std::string_view input,

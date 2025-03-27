@@ -37,6 +37,7 @@ public:
 			std::string_view rsaPubB);
   static void removeNamedMutex();
 private:
+  void loadAds();
   bool startSession(RunnablePtr runnable, SessionPtr session);
   void stopSessions();
   Chronometer _chronometer;
