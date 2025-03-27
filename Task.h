@@ -18,6 +18,7 @@ using Response = std::vector<std::string>;
 
 using PolicyPtr = std::unique_ptr<Policy>;
 
+using PreprocessRequest = SIZETUPLE (*)(std::string_view);
 
 struct Request {
 
@@ -67,9 +68,5 @@ class Task : private boost::noncopyable {
   PolicyPtr _policy;
 
   static PreprocessRequest _preprocessRequest;
-
-  static void setPreprocessFunctor(PreprocessRequest preprocessRequest) {
-    _preprocessRequest = preprocessRequest;
-  }
 
 };

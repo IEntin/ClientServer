@@ -6,7 +6,6 @@
 
 #include "Ad.h"
 #include "ServerOptions.h"
-#include "Task.h"
 #include "Transaction.h"
 
 NoSortInputPolicy::NoSortInputPolicy() {

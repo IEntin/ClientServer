@@ -6,8 +6,6 @@
 
 #include <boost/regex.hpp>
 
-#include "Task.h"
-
 // tests transport layer, multithreading, compression, and encryption
 std::string_view EchoPolicy::operator() (std::string_view request,
 					 std::string& buffer) noexcept {

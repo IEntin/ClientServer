@@ -8,7 +8,6 @@
 #include <tuple>
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
-using PreprocessRequest = SIZETUPLE (*)(std::string_view);
 
 enum class POLICYENUM {
   SORTINPUT,
