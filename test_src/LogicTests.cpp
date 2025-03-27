@@ -26,7 +26,7 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
-    ServerOptions::_policy = POLICY::NOSORTINPUT;
+    ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
      ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
@@ -50,7 +50,7 @@ struct LogicTest : testing::Test {
     // start server
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
-    ServerOptions::_policy = POLICY::NOSORTINPUT;
+    ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
     ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
@@ -147,7 +147,7 @@ TEST_F(LogicTest, FIFO_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     // start server
-    ServerOptions::_policy = POLICY::NOSORTINPUT;
+    ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
     ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
@@ -176,11 +176,11 @@ struct LogicTestSortInput : testing::Test {
     // start server
     ServerPtr server = ServerPtr();
     if (sort) {
-      ServerOptions::_policy = POLICY::SORTINPUT;
+      ServerOptions::_policyEnum = POLICYENUM::SORTINPUT;
       server = std::make_shared<Server>();
     }
     else {
-      ServerOptions::_policy = POLICY::NOSORTINPUT;
+      ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
       server = std::make_shared<Server>();
     }
     ASSERT_TRUE(server->start());

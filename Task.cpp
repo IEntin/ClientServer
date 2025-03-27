@@ -14,19 +14,19 @@
 #include "Utility.h"
 
 PreprocessRequest Task::_preprocessRequest =
-  ServerOptions::_policy == POLICY::SORTINPUT ? Transaction::createSizeKey : nullptr;
+  ServerOptions::_policyEnum == POLICYENUM::SORTINPUT ? Transaction::createSizeKey : nullptr;
 thread_local std::string Task::_buffer;
 
 Task::Task () {
-  POLICY policyEnum = ServerOptions::_policy;
+  POLICYENUM policyEnum = ServerOptions::_policyEnum;
   switch (std::to_underlying(policyEnum)) {
-  case std::to_underlying(POLICY::NOSORTINPUT) :
+  case std::to_underlying(POLICYENUM::NOSORTINPUT) :
     _policy = std::make_unique<NoSortInputPolicy>();
     break;
-  case std::to_underlying(POLICY::SORTINPUT) :
+  case std::to_underlying(POLICYENUM::SORTINPUT) :
     _policy = std::make_unique<SortInputPolicy>();
     break;
-  case std::to_underlying(POLICY::ECHOPOLICY) :
+  case std::to_underlying(POLICYENUM::ECHOPOLICY) :
     _policy = std::make_unique<EchoPolicy>();
     break;
   default:
@@ -39,7 +39,7 @@ void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
   _size = utility::splitReuseVector(request, _requests);
-  if (_preprocessRequest) {
+  if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
     _sortedIndices.resize(_size);
     for (unsigned i = 0; i < _size; ++i)
       _sortedIndices[i] = i;
@@ -66,7 +66,7 @@ bool Task::preprocessNext() {
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    if (_preprocessRequest) {
+    if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
       unsigned orgIndex = _sortedIndices[index];
       Request& request = _requests[orgIndex];
       _response[orgIndex] = _policy->processRequest(request._sizeKey,

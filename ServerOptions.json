@@ -1,6 +1,6 @@
 {
   "AdsFileName" : "data/ads.txt",
-  "_comment": "any of SORTINPUT, NOSORTINPUT, ECHOPOLICY",
+  "_comment": "any of SORTINPUT, NOSORTINPUT, ECHO",
   "Policy" : "NOSORTINPUT",
   "_comment": "0 for hardware_concurrency",
   "NumberWorkThreads" : 0,

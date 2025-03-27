@@ -10,30 +10,30 @@
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 using PreprocessRequest = SIZETUPLE (*)(std::string_view);
 
-enum class POLICY {
+enum class POLICYENUM {
   SORTINPUT,
   NOSORTINPUT,
   ECHOPOLICY,
   NONE
 };
 
-static POLICY fromString [[maybe_unused]] (std::string_view name) {
+static POLICYENUM fromString [[maybe_unused]] (std::string_view name) {
   if (name == "SORTINPUT")
-    return POLICY::SORTINPUT;
+    return POLICYENUM::SORTINPUT;
   else if (name == "NOSORTINPUT")
-    return POLICY::NOSORTINPUT;
+    return POLICYENUM::NOSORTINPUT;
   else if (name == "ECHO")
-    return POLICY::ECHOPOLICY;
-  return POLICY::NONE;
+    return POLICYENUM::ECHOPOLICY;
+  return POLICYENUM::NONE;
 }
 
-static std::string_view toString [[maybe_unused]] (POLICY policy) {
+static std::string_view toString [[maybe_unused]] (POLICYENUM policy) {
   switch (policy) {
-  case POLICY::SORTINPUT:
+  case POLICYENUM::SORTINPUT:
     return "SORTINPUT";
-  case POLICY::NOSORTINPUT:
+  case POLICYENUM::NOSORTINPUT:
     return "NOSORTINPUT";
-  case POLICY::ECHOPOLICY:
+  case POLICYENUM::ECHOPOLICY:
     return "ECHO";
   default:
     return "Unknown";

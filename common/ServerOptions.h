@@ -21,7 +21,7 @@ struct ServerOptions : protected Options {
   static int _maxFifoSessions;
   static int _maxTotalSessions;
   static int _tcpTimeout;
-  static POLICY _policy;
+  static POLICYENUM _policyEnum;
   static bool _timing;
 private:
   ServerOptions() = delete;
