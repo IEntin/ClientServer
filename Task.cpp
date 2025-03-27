@@ -6,11 +6,34 @@
 
 #include <algorithm>
 
+#include "EchoPolicy.h"
+#include "NoSortInputPolicy.h"
+#include "ServerOptions.h"
+#include "SortInputPolicy.h"
+#include "Transaction.h"
 #include "Utility.h"
 
-PreprocessRequest Task::_preprocessRequest;
-Functor Task::_processRequest;
+PreprocessRequest Task::_preprocessRequest =
+  ServerOptions::_policy == POLICY::SORTINPUT ? Transaction::createSizeKey : nullptr;
 thread_local std::string Task::_buffer;
+
+Task::Task () {
+  POLICY policyEnum = ServerOptions::_policy;
+  switch (std::to_underlying(policyEnum)) {
+  case std::to_underlying(POLICY::NOSORTINPUT) :
+    _policy = std::make_unique<NoSortInputPolicy>();
+    break;
+  case std::to_underlying(POLICY::SORTINPUT) :
+    _policy = std::make_unique<SortInputPolicy>();
+    break;
+  case std::to_underlying(POLICY::ECHOPOLICY) :
+    _policy = std::make_unique<EchoPolicy>();
+    break;
+  default:
+    assert(false);
+    break;
+  }
+}
 
 void Task::update(const HEADER& header, std::string_view request) {
   _promise = std::promise<void>();
@@ -43,27 +66,20 @@ bool Task::preprocessNext() {
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    std::size_t typeIndex = _processRequest.index();
-    switch (typeIndex) {
-    case std::to_underlying(POLICY::SORTINPUT):
-      {
-	unsigned orgIndex = _sortedIndices[index];
-	Request& request = _requests[orgIndex];
-	_response[orgIndex] =
-	  std::get<std::to_underlying(POLICY::SORTINPUT)>(_processRequest)(
-	  request._sizeKey, request._value, _diagnostics);
-      }
-      break;
-    case std::to_underlying(POLICY::NOSORTINPUT):
-      _response[index] =
-	std::get<std::to_underlying(POLICY::NOSORTINPUT)>(_processRequest)(
-	_requests[index]._value, _diagnostics);
-      break;
-    case std::to_underlying(POLICY::ECHOPOLICY):
-      _response[index] =
-	std::get<std::to_underlying(POLICY::ECHOPOLICY)>(_processRequest)(
-	_requests[index]._value, _buffer);
-      break;
+    if (_preprocessRequest) {
+      unsigned orgIndex = _sortedIndices[index];
+      Request& request = _requests[orgIndex];
+      _response[orgIndex] = _policy->processRequest(request._sizeKey,
+						    request._value,
+						    _diagnostics,
+						    _buffer);
+    }
+    else {
+      SIZETUPLE ZERO_SIZE;
+      _response[index] = _policy->processRequest(ZERO_SIZE,
+						 _requests[index]._value,
+						 _diagnostics,
+						 _buffer);
     }
     return true;
   }

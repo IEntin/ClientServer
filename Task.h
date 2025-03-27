@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <future>
+#include <memory>
 #include <vector>
 
 #include <boost/core/noncopyable.hpp>
@@ -15,9 +16,8 @@
 
 using Response = std::vector<std::string>;
 
-using TaskPtr = std::shared_ptr<class Task>;
+using PolicyPtr = std::unique_ptr<Policy>;
 
-using Functor = std::variant<ProcessRequestSort, ProcessRequestNoSort, ProcessRequestEcho>;
 
 struct Request {
 
@@ -44,7 +44,7 @@ class Task : private boost::noncopyable {
   static thread_local std::string _buffer;
 
  public:
-  Task() = default;
+  Task ();
 
   ~Task() = default;
 
@@ -64,12 +64,9 @@ class Task : private boost::noncopyable {
 
   void finish();
 
-  static PreprocessRequest _preprocessRequest;
-  static Functor _processRequest;
+  PolicyPtr _policy;
 
-  static void setProcessFunctor(Functor processRequest) {
-    _processRequest = processRequest;
-  }
+  static PreprocessRequest _preprocessRequest;
 
   static void setPreprocessFunctor(PreprocessRequest preprocessRequest) {
     _preprocessRequest = preprocessRequest;

@@ -9,8 +9,13 @@
 #include "Task.h"
 #include "Transaction.h"
 
-void NoSortInputPolicy::set() {
+NoSortInputPolicy::NoSortInputPolicy() {
   Ad::readAds(ServerOptions::_adsFileName);
-  Task::setPreprocessFunctor(nullptr);
-  Task::setProcessFunctor(Transaction::processRequestNoSort);
+}
+
+std::string_view NoSortInputPolicy::processRequest(const SIZETUPLE& sizeKey[[maybe_unused]],
+						   std::string_view input,
+						   bool diagnostics,
+						   std::string& buffer[[maybe_unused]]) {
+  return Transaction::processRequestNoSort(input, diagnostics);
 }

@@ -6,17 +6,9 @@
 
 #include <string>
 #include <tuple>
-#include <variant>
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
-
 using PreprocessRequest = SIZETUPLE (*)(std::string_view);
-
-using ProcessRequestSort = std::string_view (*)(const SIZETUPLE&, std::string_view, bool diagnostics);
-
-using ProcessRequestNoSort = std::string_view (*)(std::string_view, bool diagnostics);
-
-using ProcessRequestEcho = std::string_view (*)(std::string_view, std::string&) noexcept;
 
 enum class POLICY {
   SORTINPUT,
@@ -58,6 +50,6 @@ public:
 
   virtual ~Policy() = default;
 
-  virtual void set() = 0;
+  virtual std::string_view processRequest(const SIZETUPLE&, std::string_view, bool, std::string&) = 0;
 
 };

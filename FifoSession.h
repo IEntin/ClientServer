@@ -9,8 +9,7 @@
 #include "Runnable.h"
 #include "Session.h"
 
-class Server;
-using ServerWeakPtr = std::weak_ptr<Server>;
+using ServerWeakPtr = std::weak_ptr<class Server>;
 
 namespace fifo {
 

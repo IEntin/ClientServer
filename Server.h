@@ -16,8 +16,7 @@
 namespace tcp {
   using ConnectionPtr = std::shared_ptr<struct Connection>;
 }
-class Server;
-using ServerPtr = std::shared_ptr<Server>;
+using ServerPtr = std::shared_ptr<class Server>;
 using ServerWeakPtr = std::weak_ptr<Server>;
 using SessionMap = std::map<std::size_t, RunnableWeakPtr>;
 using SessionPtr = std::shared_ptr<class Session>;
@@ -38,7 +37,6 @@ public:
 			std::string_view rsaPubB);
   static void removeNamedMutex();
 private:
-  void setPolicy();
   bool startSession(RunnablePtr runnable, SessionPtr session);
   void stopSessions();
   Chronometer _chronometer;

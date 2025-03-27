@@ -8,8 +8,7 @@
 
 #include "Runnable.h"
 
-class Server;
-using ServerPtr = std::shared_ptr<Server>;
+using ServerPtr = std::shared_ptr<class Server>;
 using ServerWeakPtr = std::weak_ptr<Server>;
 
 namespace fifo {

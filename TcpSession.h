@@ -25,6 +25,8 @@ public:
 	     const CryptoPP::SecByteBlock& pubB,
 	     std::string_view rsaPubB);
 
+  ~TcpSession() override = default;
+
 private:
   bool start() override;
   void run() noexcept override;

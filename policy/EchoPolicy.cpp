@@ -22,7 +22,9 @@ std::string_view EchoPolicy::operator() (std::string_view request,
   return buffer;
 }
 
-void EchoPolicy::set() {
-  Task::setPreprocessFunctor(nullptr);
-  Task::setProcessFunctor(operator());
+std::string_view EchoPolicy::processRequest(const SIZETUPLE& sizeKeyey[[maybe_unused]],
+					    std::string_view input,
+					    bool diagnostics[[maybe_unused]],
+					    std::string& buffer) {
+  return operator() (input, buffer);
 }

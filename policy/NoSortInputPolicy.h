@@ -8,9 +8,9 @@
 
 class NoSortInputPolicy : public Policy {
  public:
-  NoSortInputPolicy() = default;
+  NoSortInputPolicy();
   
   ~NoSortInputPolicy() override = default;
 
-   void set() override;
+  std::string_view processRequest(const SIZETUPLE&, std::string_view, bool, std::string&) override;
 };

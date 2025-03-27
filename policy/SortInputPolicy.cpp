@@ -9,8 +9,13 @@
 #include "Task.h"
 #include "Transaction.h"
 
-void SortInputPolicy::set() {
+SortInputPolicy::SortInputPolicy() {
   Ad::readAds(ServerOptions::_adsFileName);
-  Task::setPreprocessFunctor(Transaction::createSizeKey);
-  Task::setProcessFunctor(Transaction::processRequestSort);
+}
+
+std::string_view SortInputPolicy::processRequest(const SIZETUPLE& sizeKey,
+						 std::string_view input,
+						 bool diagnostics,
+						 std::string& buffer[[maybe_unused]]) {
+  return Transaction::processRequestSort(sizeKey, input, diagnostics);
 }

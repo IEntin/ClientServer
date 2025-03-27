@@ -14,9 +14,7 @@
 #include "Header.h"
 #include "IOUtility.h"
 
-class Server;
-
-using ServerWeakPtr = std::weak_ptr<Server>;
+using ServerWeakPtr = std::weak_ptr<class Server>;
 using SessionPtr = std::shared_ptr<class Session>;
 using TaskPtr = std::shared_ptr<class Task>;
 

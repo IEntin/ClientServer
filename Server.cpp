@@ -8,13 +8,10 @@
 
 #include "Ad.h"
 #include "Connection.h"
-#include "EchoPolicy.h"
 #include "FifoAcceptor.h"
 #include "FifoSession.h"
 #include "Logger.h"
-#include "NoSortInputPolicy.h"
 #include "ServerOptions.h"
-#include "SortInputPolicy.h"
 #include "TaskController.h"
 #include "TcpAcceptor.h"
 #include "TcpSession.h"
@@ -33,26 +30,7 @@ Server::~Server() {
   utility::removeAccess();
 }
 
-void Server::setPolicy() {
-  POLICY policyEnum = ServerOptions::_policy;
-  switch (std::to_underlying(policyEnum)) {
-  case std::to_underlying(POLICY::NOSORTINPUT) :
-    NoSortInputPolicy().set();
-    break;
-  case std::to_underlying(POLICY::SORTINPUT) :
-    SortInputPolicy().set();
-    break;
-  case std::to_underlying(POLICY::ECHOPOLICY) :
-    EchoPolicy().set();
-    break;
-  default:
-    assert(false);
-    break;
-  }
-}
-
 bool Server::start() {
-  setPolicy();
   if (!TaskController::create())
     return false;
   _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());
