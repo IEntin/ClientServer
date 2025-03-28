@@ -7,12 +7,14 @@
 #include <atomic>
 #include <future>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include <boost/core/noncopyable.hpp>
 
 #include "Header.h"
-#include "Policy.h"
+
+using SIZETUPLE = std::tuple<unsigned, unsigned>;
 
 using Response = std::vector<std::string>;
 
@@ -46,7 +48,7 @@ class Task : private boost::noncopyable {
   static thread_local std::string _buffer;
 
  public:
-  Task (ServerWeakPtr server = ServerWeakPtr());
+  explicit Task (ServerWeakPtr server = ServerWeakPtr());
 
   ~Task() = default;
 
