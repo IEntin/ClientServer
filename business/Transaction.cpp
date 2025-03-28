@@ -21,7 +21,6 @@ constexpr std::string_view SIZE_START_REG{ "size=" };
 constexpr std::string_view SEPARATOR_REG{ "x" };
 constexpr std::string_view SIZE_START_ALT{ "ad_width=" };
 constexpr std::string_view SEPARATOR_ALT{ "&ad_height=" };
-constexpr SIZETUPLE ZERO_SIZE;
 constexpr std::string_view DELIMITER(", ");
 }
 

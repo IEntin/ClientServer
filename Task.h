@@ -16,9 +16,9 @@
 
 using Response = std::vector<std::string>;
 
-using PolicyPtr = std::unique_ptr<Policy>;
-
 using PreprocessRequest = SIZETUPLE (*)(std::string_view);
+
+using ServerWeakPtr = std::weak_ptr<class Server>;
 
 struct Request {
 
@@ -42,10 +42,11 @@ class Task : private boost::noncopyable {
   std::promise<void> _promise;
   std::atomic<unsigned> _index = 0;
   bool _diagnostics;
+  ServerWeakPtr _server;
   static thread_local std::string _buffer;
 
  public:
-  Task ();
+  Task (ServerWeakPtr server = ServerWeakPtr());
 
   ~Task() = default;
 
@@ -64,8 +65,6 @@ class Task : private boost::noncopyable {
   bool processNext();
 
   void finish();
-
-  PolicyPtr _policy;
 
   static PreprocessRequest _preprocessRequest;
 

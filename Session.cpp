@@ -16,7 +16,7 @@ Session::Session(ServerWeakPtr server,
 		 const CryptoPP::SecByteBlock& pubB,
 		 std::string_view signatureWithPubKey) :
   _crypto(std::make_shared<Crypto>(msgHash, pubB, signatureWithPubKey)),
-  _task(std::make_shared<Task>()),
+  _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
   std::string signature(signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
