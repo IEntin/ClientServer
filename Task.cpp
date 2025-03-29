@@ -50,6 +50,7 @@ bool Task::processNext() {
   if (index < _size) {
     if (auto server = _server.lock(); server) {
       auto& policy = server->getPolicy();
+      assert(policy);
       if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
 	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
