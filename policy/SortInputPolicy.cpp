@@ -6,9 +6,8 @@
 
 #include "Transaction.h"
 
-std::string_view SortInputPolicy::operator() (const SIZETUPLE& sizeKey,
-					      std::string_view input,
+std::string_view SortInputPolicy::operator() (const Request& request,
 					      bool diagnostics,
 					      std::string& buffer[[maybe_unused]]) {
-  return Transaction::processRequestSort(sizeKey, input, diagnostics);
+  return Transaction::processRequestSort(request._sizeKey, request._value, diagnostics);
 }

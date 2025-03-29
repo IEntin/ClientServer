@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <string>
-
 #include "Policy.h"
 
 class EchoPolicy : public Policy {
@@ -14,5 +12,5 @@ class EchoPolicy : public Policy {
 
   ~EchoPolicy() override = default;
 
-  std::string_view operator() (const SIZETUPLE&, std::string_view, bool, std::string&) override;
+  std::string_view operator() (const Request&, bool, std::string&) override;
 };

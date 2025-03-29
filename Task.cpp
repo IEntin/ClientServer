@@ -54,16 +54,11 @@ bool Task::processNext() {
       if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
 	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
-	_response[orgIndex] = (*policy) (request._sizeKey,
-					 request._value,
-					 _diagnostics,
-					 _buffer);
+	_response[orgIndex] = (*policy) (request, _diagnostics, _buffer);
       }
       else {
-	_response[index] = (*policy) (ZERO_SIZE,
-				      _requests[index]._value,
-				      _diagnostics,
-				      _buffer);
+	Request& request = _requests[index];
+	_response[index] = (*policy) (request, _diagnostics, _buffer);
       }
       return true;
     }

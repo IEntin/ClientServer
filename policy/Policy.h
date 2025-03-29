@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include <string>
-#include <tuple>
-
-using SIZETUPLE = std::tuple<unsigned, unsigned>;
+#include "Task.h"
 
 enum class POLICYENUM {
   SORTINPUT,
@@ -49,6 +46,6 @@ public:
 
   virtual ~Policy() = default;
 
-  virtual std::string_view operator() (const SIZETUPLE&, std::string_view, bool, std::string&) = 0;
+  virtual std::string_view operator() (const Request&, bool, std::string&) = 0;
 
 };

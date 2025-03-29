@@ -6,9 +6,8 @@
 
 #include "Transaction.h"
 
-std::string_view NoSortInputPolicy::operator() (const SIZETUPLE& sizeKey[[maybe_unused]],
-						std::string_view input,
+std::string_view NoSortInputPolicy::operator() (const Request& request,
 						bool diagnostics,
 						std::string& buffer[[maybe_unused]]) {
-  return Transaction::processRequestNoSort(input, diagnostics);
+  return Transaction::processRequestNoSort(request._value, diagnostics);
 }
