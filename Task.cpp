@@ -53,11 +53,11 @@ bool Task::processNext() {
       assert(policy);
       if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
 	unsigned orgIndex = _sortedIndices[index];
-	Request& request = _requests[orgIndex];
+	const Request& request = _requests[orgIndex];
 	_response[orgIndex] = (*policy) (request, _diagnostics, _buffer);
       }
       else {
-	Request& request = _requests[index];
+	const Request& request = _requests[index];
 	_response[index] = (*policy) (request, _diagnostics, _buffer);
       }
       return true;
