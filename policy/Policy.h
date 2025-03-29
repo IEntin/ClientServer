@@ -49,6 +49,6 @@ public:
 
   virtual ~Policy() = default;
 
-  virtual std::string_view processRequest(const SIZETUPLE&, std::string_view, bool, std::string&) = 0;
+  virtual std::string_view operator() (const SIZETUPLE&, std::string_view, bool, std::string&) = 0;
 
 };

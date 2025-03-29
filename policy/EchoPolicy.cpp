@@ -7,10 +7,12 @@
 #include <boost/regex.hpp>
 
 // tests transport layer, multithreading, compression, and encryption
-std::string_view EchoPolicy::operator() (std::string_view request,
-					 std::string& buffer) noexcept {
+std::string_view EchoPolicy::operator() (const SIZETUPLE& sizeKeyey[[maybe_unused]],
+					 std::string_view input,
+					 bool diagnostics[[maybe_unused]],
+					 std::string& buffer) {
   // regex does not work with string_view
-  buffer = request;
+  buffer = input;
   // remove id part, if there is, to run 'diff' with the source file
   boost::regex pattern("^\\[\\d+\\]");
   boost::smatch match;
@@ -18,11 +20,4 @@ std::string_view EchoPolicy::operator() (std::string_view request,
     buffer.erase(0, match.str().size());
   buffer.push_back('\n');
   return buffer;
-}
-
-std::string_view EchoPolicy::processRequest(const SIZETUPLE& sizeKeyey[[maybe_unused]],
-					    std::string_view input,
-					    bool diagnostics[[maybe_unused]],
-					    std::string& buffer) {
-  return operator() (input, buffer);
 }

@@ -12,5 +12,5 @@ class NoSortInputPolicy : public Policy {
   
   ~NoSortInputPolicy() override = default;
 
-  std::string_view processRequest(const SIZETUPLE&, std::string_view, bool, std::string&) override;
+  std::string_view operator() (const SIZETUPLE&, std::string_view, bool, std::string&) override;
 };
