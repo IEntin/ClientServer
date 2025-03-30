@@ -45,7 +45,6 @@ class Task : private boost::noncopyable {
   std::atomic<unsigned> _index = 0;
   bool _diagnostics;
   ServerWeakPtr _server;
-  static thread_local std::string _buffer;
 
  public:
   explicit Task (ServerWeakPtr server = ServerWeakPtr());

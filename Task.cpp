@@ -13,7 +13,6 @@
 
 PreprocessRequest Task::_preprocessRequest =
   ServerOptions::_policyEnum == POLICYENUM::SORTINPUT ? Transaction::createSizeKey : nullptr;
-thread_local std::string Task::_buffer;
 
 Task::Task (ServerWeakPtr server) : _server(server) {}
 
@@ -54,11 +53,11 @@ bool Task::processNext() {
       if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
 	unsigned orgIndex = _sortedIndices[index];
 	const Request& request = _requests[orgIndex];
-	_response[orgIndex] = (*policy) (request, _diagnostics, _buffer);
+	_response[orgIndex] = (*policy) (request, _diagnostics);
       }
       else {
 	const Request& request = _requests[index];
-	_response[index] = (*policy) (request, _diagnostics, _buffer);
+	_response[index] = (*policy) (request, _diagnostics);
       }
       return true;
     }

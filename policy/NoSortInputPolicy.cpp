@@ -7,7 +7,6 @@
 #include "Transaction.h"
 
 std::string_view NoSortInputPolicy::operator() (const Request& request,
-						bool diagnostics,
-						std::string& buffer[[maybe_unused]]) {
+						bool diagnostics) {
   return Transaction::processRequestNoSort(request._value, diagnostics);
 }

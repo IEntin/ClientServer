@@ -12,5 +12,7 @@ class EchoPolicy : public Policy {
 
   ~EchoPolicy() override = default;
 
-  std::string_view operator() (const Request&, bool, std::string&) override;
+  static thread_local std::string _buffer;
+
+  std::string_view operator() (const Request&, bool) override;
 };

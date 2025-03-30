@@ -46,7 +46,7 @@ void Server::setPolicy() {
     _policy = std::make_unique<EchoPolicy>();
     break;
   default:
-    assert(false);
+    throw std::runtime_error("non-existent policy");
     break;
   }
 }

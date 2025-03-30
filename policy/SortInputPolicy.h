@@ -12,5 +12,5 @@ class SortInputPolicy : public Policy {
   
   ~SortInputPolicy() override = default;
 
-  std::string_view operator() (const Request&, bool, std::string&) override;
+  std::string_view operator() (const Request&, bool) override;
 };

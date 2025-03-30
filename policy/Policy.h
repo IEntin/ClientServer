@@ -46,6 +46,6 @@ public:
 
   virtual ~Policy() = default;
 
-  virtual std::string_view operator() (const Request&, bool, std::string&) = 0;
+  virtual std::string_view operator() (const Request&, bool) = 0;
 
 };
