@@ -10,15 +10,14 @@
 
 #include "Runnable.h"
 
-using ServerPtr = std::shared_ptr<class Server>;
-using ServerWeakPtr = std::weak_ptr<Server>;
+using ServerWeakPtr = std::weak_ptr<class Server>;
 
 namespace tcp {
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public Runnable {
  public:
-  explicit TcpAcceptor(ServerPtr server);
+  explicit TcpAcceptor(ServerWeakPtr server);
   ~TcpAcceptor() override = default;
 private:
   void run() override;

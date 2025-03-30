@@ -14,8 +14,8 @@
 #include "Header.h"
 #include "IOUtility.h"
 
+using CryptoPtr = std::shared_ptr<Crypto>;
 using ServerWeakPtr = std::weak_ptr<class Server>;
-using SessionPtr = std::shared_ptr<class Session>;
 using TaskPtr = std::shared_ptr<class Task>;
 
 class Session : private boost::noncopyable {

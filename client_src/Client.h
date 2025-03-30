@@ -12,6 +12,8 @@
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
+using CryptoPtr = std::shared_ptr<Crypto>;
+using CryptoWeakPtr = std::weak_ptr<Crypto>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
@@ -22,7 +24,6 @@ class Client : private boost::noncopyable {
 protected:
   std::string _response;
   CryptoPtr _crypto;
-  CryptoWeakPtr _cryptoWeak;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
@@ -35,7 +36,6 @@ protected:
 
   template <typename L>
   bool init(L& lambda) {
-    if (auto crypto = _cryptoWeak.lock(); crypto) {
       const auto& pubKey = _crypto->getPubKey();
       const std::string msgHash = _crypto->getMsgHash();
       _crypto->signMessage();
@@ -45,10 +45,9 @@ protected:
 			DIAGNOSTICS::NONE, _status, signatureWithPubKey.size() };
       bool result = lambda(header, msgHash, pubKey, signatureWithPubKey);
       if (result)
-	crypto->signatureSent();
-      crypto->eraseRSAKeys();
+	_crypto->signatureSent();
+      _crypto->eraseRSAKeys();
       return result;
-    }
     return false;
   }
 

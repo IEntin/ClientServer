@@ -14,7 +14,7 @@
 
 namespace fifo {
 
-FifoAcceptor::FifoAcceptor(ServerPtr server) :
+FifoAcceptor::FifoAcceptor(ServerWeakPtr server) :
   _acceptorName(Options::_acceptorName),
   _server(server) {}
 

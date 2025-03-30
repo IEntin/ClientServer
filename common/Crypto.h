@@ -14,10 +14,6 @@
 
 constexpr std::size_t RSA_KEY_SIZE = 2048;
 
-using CryptoPtr = std::shared_ptr<class Crypto>;
-
-using CryptoWeakPtr = std::weak_ptr<class Crypto>;
-
 struct KeyHandler {
   explicit KeyHandler(unsigned size);
   ~KeyHandler() = default;

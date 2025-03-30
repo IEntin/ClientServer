@@ -12,7 +12,7 @@
 
 namespace tcp {
 
-TcpAcceptor::TcpAcceptor(ServerPtr server) :
+TcpAcceptor::TcpAcceptor(ServerWeakPtr server) :
   _server(server),
   _acceptor(_ioContext) {}
 

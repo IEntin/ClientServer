@@ -4,7 +4,6 @@
 
 #include "Session.h"
 
-#include "Logger.h"
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Task.h"

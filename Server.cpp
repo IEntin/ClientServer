@@ -7,11 +7,9 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 
 #include "Ad.h"
-#include "Connection.h"
 #include "EchoPolicy.h"
 #include "FifoAcceptor.h"
 #include "FifoSession.h"
-#include "Logger.h"
 #include "NoSortInputPolicy.h"
 #include "ServerOptions.h"
 #include "SortInputPolicy.h"
