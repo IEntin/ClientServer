@@ -30,6 +30,7 @@ FifoSession::~FifoSession() {
   catch (const std::exception& e) {
     Warn << e.what() << '\n';
   }
+  Info << '\n';
 }
 
 bool FifoSession::start() {
