@@ -99,6 +99,7 @@ void TcpSession::readRequest() {
 	case boost::asio::error::connection_reset:
 	case boost::asio::error::broken_pipe:
 	case boost::asio::error::connection_refused:
+	  Debug << ec.what() << '\n';
 	  break;
 	default:
 	  Warn << ec.what() << '\n';
@@ -173,9 +174,8 @@ void TcpSession::asyncWait() {
       case boost::asio::error::connection_reset:
       case boost::asio::error::broken_pipe:
       case boost::asio::error::connection_refused:
-	Info << ec.what() << '\n';
-	break;
       case boost::asio::error::operation_aborted:
+	Debug << ec.what() << '\n';
 	break;
       default:
 	LogError << ec.what() << '\n';

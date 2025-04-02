@@ -87,12 +87,14 @@ void compressEncrypt(std::string& buffer,
 		     std::string& data) {
   if (isCompressed(header))
     compression::compress(buffer, data);
-  char headerBuffer[HEADER_SIZE] = {};
-  serialize(header, headerBuffer);
-  data.insert(0, headerBuffer, HEADER_SIZE);
   if (doEncrypt(header)) {
-    if (auto crypto = weak.lock();crypto)
-      crypto->encrypt(buffer, data);
+    if (auto crypto = weak.lock(); crypto)
+      crypto->encrypt(buffer, header, data);
+  }
+  else {
+    char headerBuffer[HEADER_SIZE] = {};
+    serialize(header, headerBuffer);
+    data.insert(0, headerBuffer, HEADER_SIZE);
   }
 }
 

@@ -24,15 +24,17 @@ TEST(CryptoTest, 1) {
 		 DIAGNOSTICS::NONE,
 		 STATUS::NONE,
 		 0 };
-  std::string data(HEADER_SIZE, '\0');
-  serialize(header, data.data());
-  data += TestEnvironment::_source;
-  const std::string dataOrg(data);
-  crypto->encrypt(TestEnvironment::_buffer, data);
+  // must be a copy
+  std::string data(TestEnvironment::_source);
+  crypto->encrypt(TestEnvironment::_buffer, header, data);
   ASSERT_TRUE(utility::isEncrypted(data));
   crypto->decrypt(TestEnvironment::_buffer, data);
+  HEADER restoredHeader;
+  deserialize(restoredHeader, data.data());
+  ASSERT_EQ(header, restoredHeader);
   ASSERT_FALSE(utility::isEncrypted(data));
-  ASSERT_EQ(data, dataOrg);
+  data.erase(0, HEADER_SIZE);
+  ASSERT_EQ(data, TestEnvironment::_source);
 }
 
 struct CompressEncryptTest : testing::Test {

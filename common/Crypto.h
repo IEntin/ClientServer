@@ -12,6 +12,8 @@
 #include <cryptopp/osrng.h>
 #include <cryptopp/rsa.h>
 
+#include "Header.h"
+
 constexpr std::size_t RSA_KEY_SIZE = 2048;
 
 struct KeyHandler {
@@ -61,7 +63,7 @@ public:
   explicit Crypto(const std::string& msgHash);
   ~Crypto() = default;
   void showKey();
-  void encrypt(std::string& buffer, std::string& data);
+  void encrypt(std::string& buffer, const HEADER& header, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }

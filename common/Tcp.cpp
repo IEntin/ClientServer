@@ -4,8 +4,6 @@
 
 #include "Tcp.h"
 
-#include <cassert>
-
 #include "Options.h"
 
 namespace tcp {

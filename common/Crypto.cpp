@@ -10,7 +10,6 @@
 
 #include "ClientOptions.h"
 #include "IOUtility.h"
-#include "Logger.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
@@ -92,7 +91,7 @@ void Crypto::showKey() {
   }
 }
 
-void Crypto::encrypt(std::string& buffer, std::string& data) {
+void Crypto::encrypt(std::string& buffer, const HEADER& header, std::string& data) {
   if (!checkAccess())
     return;
   buffer.clear();
@@ -102,6 +101,9 @@ void Crypto::encrypt(std::string& buffer, std::string& data) {
   setAESvariable(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
+  static thread_local std::string headerBuffer(HEADER_SIZE, '\0');
+  serialize(header, headerBuffer.data());
+  stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(headerBuffer.data()), HEADER_SIZE);
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.append(iv.begin(), iv.end());

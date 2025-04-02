@@ -117,7 +117,7 @@ void TcpClientHeartbeat::read() {
       }
       std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
       if (receivedView.ends_with(ENDOFMESSAGE))
-	_heartbeatBuffer.erase(_heartbeatBuffer.cend() - ENDOFMESSAGESZ);
+	receivedView.remove_suffix(ENDOFMESSAGESZ);
       if (ec) {
 	switch (ec.value()) {
 	case boost::asio::error::eof:
@@ -137,7 +137,7 @@ void TcpClientHeartbeat::read() {
 	return;
       }
       HEADER header;
-      if (!deserialize(header, _heartbeatBuffer.data()))
+      if (!deserialize(header, receivedView.data()))
 	return;
       if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
