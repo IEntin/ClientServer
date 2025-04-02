@@ -101,9 +101,9 @@ void Crypto::encrypt(std::string& buffer, const HEADER& header, std::string& dat
   setAESvariable(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
-  static thread_local std::string headerBuffer(HEADER_SIZE, '\0');
-  serialize(header, headerBuffer.data());
-  stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(headerBuffer.data()), HEADER_SIZE);
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(headerBuffer), HEADER_SIZE);
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.append(iv.begin(), iv.end());
