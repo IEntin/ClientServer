@@ -100,10 +100,10 @@ TEST(AuthenticationTest, 1) {
   Crypto crypto((utility::generateRawUUID()));
   auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
   ASSERT_TRUE(success);
-  serialized.insert(0, signature);
+  signature += serialized;
   // receive
-  std::string receivedSignature(serialized.cbegin(), serialized.cbegin() + (RSA_KEY_SIZE >> 3));
-  std::string_view serializedRsaPublicKey(serialized.cbegin() + (RSA_KEY_SIZE >> 3), serialized.cend());
+  std::string receivedSignature(signature.cbegin(), signature.cbegin() + (RSA_KEY_SIZE >> 3));
+  std::string_view serializedRsaPublicKey(signature.cbegin() + (RSA_KEY_SIZE >> 3), signature.cend());
   CryptoPP::RSA::PublicKey receivedRsaPublicKey;
   ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
   // Verify the signature

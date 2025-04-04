@@ -4,8 +4,6 @@
 
 #include "ThreadPoolBase.h"
 
-#include "Logger.h"
-
 ThreadPoolBase::ThreadPoolBase(int maxSize) : _maxSize(maxSize) {}
 
 ThreadPoolBase::~ThreadPoolBase() {
