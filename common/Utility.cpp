@@ -81,21 +81,22 @@ bool fileEndsWithEOL(std::string_view fileName) {
   return ch == '\n';
 }
 
-void compressEncrypt(std::string& buffer,
-		     const HEADER& header,
-		     CryptoWeakPtr weak,
-		     std::string& data) {
+std::string_view compressEncrypt(std::string& buffer,
+				 const HEADER& header,
+				 CryptoWeakPtr weak,
+				 std::string& data) {
   if (isCompressed(header))
     compression::compress(buffer, data);
   if (doEncrypt(header)) {
     if (auto crypto = weak.lock(); crypto)
-      crypto->encrypt(buffer, header, data);
+      return crypto->encrypt(buffer, header, data);
   }
   else {
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
     data.insert(0, headerBuffer, HEADER_SIZE);
   }
+  return data;
 }
 
 void decryptDecompress(std::string& buffer,

@@ -26,8 +26,10 @@ TEST(CryptoTest, 1) {
 		 0 };
   // must be a copy
   std::string data(TestEnvironment::_source);
-  crypto->encrypt(TestEnvironment::_buffer, header, data);
-  ASSERT_TRUE(utility::isEncrypted(data));
+  std::string_view dataView =
+    crypto->encrypt(TestEnvironment::_buffer, header, data);
+  ASSERT_TRUE(utility::isEncrypted(dataView));
+  data = dataView;
   crypto->decrypt(TestEnvironment::_buffer, data);
   HEADER restoredHeader;
   deserialize(restoredHeader, data.data());
@@ -54,9 +56,11 @@ struct CompressEncryptTest : testing::Test {
 		   STATUS::NONE,
 		   0 };
     printHeader(header, LOG_LEVEL::ALWAYS);
-    utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
-    ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
+    std::string_view dataView =
+      utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
+    ASSERT_EQ(utility::isEncrypted(dataView), doEncrypt);
     HEADER restoredHeader;
+    data = dataView;
     utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(data, TestEnvironment::_source);

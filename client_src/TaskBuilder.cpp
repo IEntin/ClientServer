@@ -91,13 +91,12 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;
-  utility::compressEncrypt(
-    _buffer, header, _crypto, _aggregate);
+  std::string_view dataView =
+    utility::compressEncrypt(_buffer, header, _crypto, _aggregate);
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];
-  subtask._data.resize(_aggregate.size());
-  std::memcpy(subtask._data.data(), _aggregate.data(), _aggregate.size());
+  subtask._data = dataView;
   _status = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._header.swap(header);
   switch (_status) {

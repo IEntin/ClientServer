@@ -37,7 +37,7 @@ protected:
   template <typename L>
   bool init(L& lambda) {
       const auto& pubKey = _crypto->getPubKey();
-      const std::string msgHash = _crypto->getMsgHash();
+      std::string_view msgHash = _crypto->getMsgHash();
       _crypto->signMessage();
       std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
       HEADER header = { HEADERTYPE::DH_INIT, msgHash.size(), pubKey.size(),

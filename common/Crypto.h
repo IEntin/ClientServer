@@ -63,11 +63,11 @@ public:
   explicit Crypto(const std::string& msgHash);
   ~Crypto() = default;
   void showKey();
-  void encrypt(std::string& buffer, const HEADER& header, std::string& data);
+  std::string_view encrypt(std::string& buffer, const HEADER& header, std::string& data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
-  std::string getMsgHash() const { return _msgHash; }
+  std::string_view getMsgHash() const { return _msgHash; }
   bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);

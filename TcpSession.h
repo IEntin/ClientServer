@@ -34,7 +34,7 @@ private:
   void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
   void readRequest();
-  void write(const HEADER& header);
+  void write(const HEADER& header, std::string_view payload);
   void asyncWait();
   bool sendReply();
   ConnectionPtr _connection;

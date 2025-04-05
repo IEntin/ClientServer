@@ -91,9 +91,9 @@ void Crypto::showKey() {
   }
 }
 
-void Crypto::encrypt(std::string& buffer, const HEADER& header, std::string& data) {
+std::string_view Crypto::encrypt(std::string& buffer, const HEADER& header, std::string& data) {
   if (!checkAccess())
-    return;
+    return data;
   buffer.clear();
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
@@ -107,8 +107,7 @@ void Crypto::encrypt(std::string& buffer, const HEADER& header, std::string& dat
   stfEncryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.append(iv.begin(), iv.end());
-  data.resize(buffer.size());
-  std::memcpy(data.data(), buffer.data(), buffer.size());
+  return buffer;
 }
 
 void Crypto::decrypt(std::string& buffer, std::string& data) {
