@@ -12,7 +12,7 @@ Lines::Lines(char delimiter, bool keepDelimiter) :
   _delimiter(delimiter), _keepDelimiter(keepDelimiter) {}
 
 std::pair<bool, std::string_view> Lines::getLineImpl() {
-  static constexpr std::string_view emptyStringView = std::string_view();
+  static constexpr std::string_view emptyStringView;
   auto itBeg = _buffer.begin() + _processed;
   auto itEnd = std::find(itBeg, _buffer.begin() + _sizeInUse, _delimiter);
   if (itEnd == _buffer.end() && getInputPosition() < _inputSize) {

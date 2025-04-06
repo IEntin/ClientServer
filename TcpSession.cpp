@@ -111,7 +111,7 @@ void TcpSession::readRequest() {
 	return;
       }
        if (deserialize(_header, _request.data()))
-	_request.erase(_request.cbegin(), _request.cbegin() + HEADER_SIZE);
+	 _request.erase(0, HEADER_SIZE);
       if (processTask())
 	boost::asio::post(_ioContext, [this] { sendReply(); });
       else {

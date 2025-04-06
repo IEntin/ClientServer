@@ -132,7 +132,7 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
-  bool result =  _dh.Agree(_key, _privKey, pubAreceived);
+  bool result = _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
   hideKey();
   return result;
@@ -146,7 +146,7 @@ void Crypto::signMessage() {
       signer,
       new CryptoPP::StringSink(_signatureWithPubKey))
   );
-  _signatureWithPubKey.append(_serializedRsaPubKey.cbegin(), _serializedRsaPubKey.cend());
+  _signatureWithPubKey.append(_serializedRsaPubKey);
 }
 
 std::pair<bool, std::string>

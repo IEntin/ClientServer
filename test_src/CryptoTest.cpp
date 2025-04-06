@@ -98,7 +98,7 @@ TEST(AuthenticationTest, 1) {
   std::string signature;
   CryptoPP::StringSource ss(message, true, new CryptoPP::SignerFilter(
     rng, signer, new CryptoPP::StringSink(signature)));
-  ASSERT_EQ(signature.size(), (RSA_KEY_SIZE >> 3));
+  ASSERT_EQ(signature.size(), RSA_KEY_SIZE >> 3);
   // Transfer the key and the signature
   // send
   Crypto crypto((utility::generateRawUUID()));
@@ -106,7 +106,7 @@ TEST(AuthenticationTest, 1) {
   ASSERT_TRUE(success);
   signature += serialized;
   // receive
-  std::string receivedSignature(signature.cbegin(), signature.cbegin() + (RSA_KEY_SIZE >> 3));
+  std::string receivedSignature(signature, 0, RSA_KEY_SIZE >> 3);
   std::string_view serializedRsaPublicKey(signature.cbegin() + (RSA_KEY_SIZE >> 3), signature.cend());
   CryptoPP::RSA::PublicKey receivedRsaPublicKey;
   ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
@@ -114,11 +114,11 @@ TEST(AuthenticationTest, 1) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
   bool result = verifier.VerifyMessage(
     reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
+    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
   ASSERT_TRUE(result);
   receivedSignature.erase(receivedSignature.cend() -1);
   result = verifier.VerifyMessage(
     reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.length());
+    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
   ASSERT_FALSE(result);
 }

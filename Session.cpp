@@ -19,8 +19,7 @@ Session::Session(ServerWeakPtr server,
   _server(server) {
   _clientId = utility::getUniqueId();
   std::string signature(signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
-  std::string_view rsaPubKeySerialized(
-    signatureWithPubKey.cbegin() + (RSA_KEY_SIZE >> 3), signatureWithPubKey.cend());
+  std::string_view rsaPubKeySerialized = signatureWithPubKey.substr(RSA_KEY_SIZE >> 3);
   _crypto->decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!_crypto->verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
