@@ -57,7 +57,7 @@ Crypto::Crypto(std::string_view msgHash,
 }
 
 // client
-Crypto::Crypto(const std::string& msgHash) :
+Crypto::Crypto(std::string_view msgHash) :
   _msgHash(sha256_hash(msgHash)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
@@ -91,7 +91,7 @@ void Crypto::showKey() {
   }
 }
 
-std::string_view Crypto::encrypt(std::string& buffer, const HEADER& header, std::string& data) {
+std::string_view Crypto::encrypt(std::string& buffer, const HEADER& header, std::string_view data) {
   if (!checkAccess())
     return data;
   buffer.clear();
@@ -181,7 +181,7 @@ void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
     throw std::runtime_error("rsa key decode failed");
 }
 
-bool Crypto::verifySignature(const std::string& signature) {
+bool Crypto::verifySignature(std::string_view signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
   _verified = verifier.VerifyMessage(
     reinterpret_cast<const CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
@@ -193,7 +193,7 @@ bool Crypto::verifySignature(const std::string& signature) {
 }
 // for tesing message is based on uuid
 // in real usage it may be a combination of user name and/or password
-std::string Crypto::sha256_hash(const std::string& message) {
+std::string Crypto::sha256_hash(std::string_view message) {
   CryptoPP::SHA256 hash;
   std::string digest;
   hash.Update(reinterpret_cast<const unsigned char*>(message.data()), message.size());

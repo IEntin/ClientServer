@@ -59,11 +59,11 @@ class Crypto {
 public:
   Crypto(std::string_view msgHash,
 	 const CryptoPP::SecByteBlock& pubB,
-	 std::string_view );
-  explicit Crypto(const std::string& msgHash);
+	 std::string_view signatureWithPubKey);
+  explicit Crypto(std::string_view msgHash);
   ~Crypto() = default;
   void showKey();
-  std::string_view encrypt(std::string& buffer, const HEADER& header, std::string& data);
+  std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
@@ -76,10 +76,10 @@ public:
   void signatureSent() {
     _signatureSent = true;
   }
-  bool verifySignature(const std::string& signature);
+  bool verifySignature(std::string_view signature);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
-  std::string sha256_hash(const std::string& message);
+  std::string sha256_hash(std::string_view message);
   void eraseRSAKeys();
   void erasePubPrivKeys();
   bool checkAccess();
