@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace compression {
+namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data);
 

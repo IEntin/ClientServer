@@ -31,6 +31,7 @@
 #include <poll.h>
 #include <queue>
 #include <regex>
+#include <snappy.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>

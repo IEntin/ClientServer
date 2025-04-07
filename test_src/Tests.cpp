@@ -2,10 +2,13 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <snappy.h>
+
 #include <boost/regex.hpp>
 
 #include "ClientOptions.h"
-#include "Compression.h"
+#include "CompressionLZ4.h"
+#include "CompressionSnappy.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 #include "StringLines.h"
@@ -17,13 +20,13 @@
 // gdb --args testbin --gtest_filter=GetStringLineTest*
 // for i in {1..10}; do ./testbin --gtest_filter=regex*;done
 
-struct CompressionTest : testing::Test {
+struct CompressionTestLZ4 : testing::Test {
   void testCompressionDecompression(std::string& input) {
     // must be a copy
     std::string original = input;
-    compression::compress(TestEnvironment::_buffer, input);
+    compressionLZ4::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
-    compression::uncompress(TestEnvironment::_buffer, input, original.size());
+    compressionLZ4::uncompress(TestEnvironment::_buffer, input, original.size());
     Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
     static auto& printOnce [[maybe_unused]] = logger
       << "\n\tinput.size()=" << input.size()
@@ -33,13 +36,41 @@ struct CompressionTest : testing::Test {
   }
 };
 
-TEST_F(CompressionTest, 1_SOURCE) {
+TEST_F(CompressionTestLZ4, 1_SOURCE) {
   // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
-TEST_F(CompressionTest, 1_OUTPUTD) {
+TEST_F(CompressionTestLZ4, 1_OUTPUTD) {
+  // must be a copy
+  std::string input = TestEnvironment::_outputD;
+  testCompressionDecompression(TestEnvironment::_outputD);
+}
+
+struct CompressionTestSnappy : testing::Test {
+  void testCompressionDecompression(std::string& input) {
+    // must be a copy
+    std::string original = input;
+    compressionSnappy::compress(TestEnvironment::_buffer, input);
+    std::size_t compressedSz = input.size();
+    compressionSnappy::uncompress(TestEnvironment::_buffer, input);
+    Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+    static auto& printOnce [[maybe_unused]] = logger
+      << "\n\tinput.size()=" << input.size()
+      << " compressedSize=" << compressedSz << " restored to original:"
+      << std::boolalpha << (original == input) << '\n' << '\n';
+    ASSERT_EQ(original, input);
+  }
+};
+
+TEST_F(CompressionTestSnappy, 1_SOURCE) {
+  // must be a copy
+  std::string input = TestEnvironment::_source;
+  testCompressionDecompression(input);
+}
+
+TEST_F(CompressionTestSnappy, 1_OUTPUTD) {
   // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);

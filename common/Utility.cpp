@@ -11,7 +11,8 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "Compression.h"
+#include "CompressionLZ4.h"
+#include "CompressionSnappy.h"
 #include "Crypto.h"
 
 namespace utility {
@@ -85,8 +86,13 @@ std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
 				 CryptoWeakPtr weak,
 				 std::string& data) {
-  if (isCompressed(header))
-    compression::compress(buffer, data);
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    if (compressor == COMPRESSORS::LZ4)
+      compressionLZ4::compress(buffer, data);
+    else if (compressor == COMPRESSORS::SNAPPY)
+      compressionSnappy::compress(buffer, data);
+  }
   if (doEncrypt(header)) {
     if (auto crypto = weak.lock(); crypto)
       return crypto->encrypt(buffer, header, data);
@@ -108,8 +114,13 @@ void decryptDecompress(std::string& buffer,
     deserialize(header, data.data());
     data.erase(0, HEADER_SIZE);
     if (isCompressed(header)) {
-      std::size_t uncomprSize = extractUncompressedSize(header);
-      compression::uncompress(buffer, data, uncomprSize);
+      COMPRESSORS compressor = extractCompressor(header);
+      if (compressor == COMPRESSORS::LZ4) {
+	std::size_t uncomprSize = extractUncompressedSize(header);
+	compressionLZ4::uncompress(buffer, data, uncomprSize);
+      }
+      else if (compressor == COMPRESSORS::SNAPPY)
+	compressionSnappy::uncompress(buffer, data);
     }
   }
 }

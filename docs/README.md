@@ -22,6 +22,11 @@ clang 19.1.1\
 4GB RAM\
 4 cores
 
+Note:
+google snappy must be installed:\
+current version 1.2.2\
+'sudo apt-get install libsnappy-dev'
+
 Note: current gcc versions have documented problems with thread sanitizer.\
 For this reason all TSAN builds are made by clang++.\
 This limitation will be removed as soon as new versions of gcc/g++ are available.
@@ -32,6 +37,10 @@ Header only boost libraries, currently boost 1_87, must be installed.
 
 lz4 dev version must be installed:\
 'sudo scripts/installLZ4.sh'
+
+google snappy dev must be installed:\
+current version 1.2.2\
+'sudo apt-get install libsnappy-dev'
 
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
@@ -157,7 +166,9 @@ Memory reuse: server and clients almost do not allocate after short warmup perio
 Tuning the memory buffer size allows to reduce memory footprint of the software,\
 especially of the client, which can in turn reduce hardware requirements.
 
-Builtin LZ4 compression.
+Option to use LZ4 or SNAPPY compression.\
+Preliminary results show that LZ4 gives better elapsed, compression ratio, and using less memory.\
+SNAPPY is simpler to use because it does not require to save uncompressed size.
 
 Server allows multi phase request processing. The preprocessor phase in the current code\
 is generation of the specific key and sorting requests by this key.
@@ -250,7 +261,7 @@ TRACE, DEBUG, INFO, WARN, ERROR, ALWAYS, e.g. with setting
 log statements with level INFO and higher will be printed.
 
 Compression\
-"Compression" : "LZ4"\
+"Compression" : "LZ4" or "SNAPPY"\
 If the value is empty or different the compression is disabled.
 
 "Timing" prints elapsed times between selected lines of the code. Currently it shows client latency\

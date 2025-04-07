@@ -13,8 +13,12 @@ CRYPTO translateCryptoString(std::string_view cryptoStr) {
 }
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr) {
-  COMPRESSORS compressor = compressorStr == "LZ4" ? COMPRESSORS::LZ4 : COMPRESSORS::NONE;
-  return compressor;
+  if (compressorStr == "LZ4")
+    return COMPRESSORS::LZ4;
+  else if (compressorStr == "SNAPPY")
+    return COMPRESSORS::SNAPPY;
+  else
+    return COMPRESSORS::NONE;
 }
 
 DIAGNOSTICS translateDiagnosticsString(std::string_view diagnosticsStr) {
@@ -47,7 +51,8 @@ bool doEncrypt(const HEADER& header) {
 }
 
 bool isCompressed(const HEADER& header) {
-  return extractCompressor(header) == COMPRESSORS::LZ4;
+  COMPRESSORS compressor = extractCompressor(header);
+  return compressor == COMPRESSORS::LZ4 || compressor == COMPRESSORS::SNAPPY;
 }
 
 DIAGNOSTICS extractDiagnostics(const HEADER& header) {

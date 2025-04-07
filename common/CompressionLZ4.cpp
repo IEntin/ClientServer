@@ -2,13 +2,13 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Compression.h"
+#include "CompressionLZ4.h"
 
 #include <cstring>
 #include <lz4.h>
 #include <stdexcept>
 
-namespace compression {
+namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data) {
   std::size_t requiredCapacity = LZ4_compressBound(data.size());

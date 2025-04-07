@@ -19,6 +19,10 @@ COMMONDIR := common
 TESTSRCDIR := test_src
 # lz4 must be installed with
 # 'sudo scripts/installLZ4.sh'
+# google snappy must be installed
+# 'sudo apt-get install libsnappy-dev'
+# /usr/include/snappy.h
+# /usr/lib/x86_64-linux-gnu/libsnappy.a
 CRYPTOPPRELEASE := cryptopp890.zip
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
 BOTANCRYPTORELEASE := Botan-3.7.1.tar.xz
@@ -106,21 +110,21 @@ SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 serverX : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVEROBJ) $(CRYPTOLIB) $(BOTANCRYPTOLIB)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) \
-$(CPPFLAGS) -pthread $(CRYPTOLIB) $(BOTANCRYPTOLIB) -llz4
+$(CPPFLAGS) -pthread $(CRYPTOLIB) $(BOTANCRYPTOLIB) -llz4 -lsnappy
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ) $(CRYPTOLIB) $(BOTANCRYPTOLIB)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(BOTANCRYPTOLIB) -llz4
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(BOTANCRYPTOLIB) -llz4 -lsnappy
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ) $(CRYPTOLIB) $(BOTANCRYPTOLIB)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(BOTANCRYPTOLIB) -llz4
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(CRYPTOLIB) $(BOTANCRYPTOLIB) -llz4 -lsnappy
 
 RUNTESTSPSEUDOTARGET := runtests
 

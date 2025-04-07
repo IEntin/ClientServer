@@ -44,6 +44,7 @@ enum class COMPRESSORS : char {
   INVALIDLOW = '@',
   NONE,
   LZ4,
+  SNAPPY,
   INVALIDHIGH
 };
 
