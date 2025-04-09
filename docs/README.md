@@ -27,6 +27,9 @@ google snappy must be installed:\
 current version 1.2.2\
 'sudo apt-get install libsnappy-dev'
 
+zstd must be installed:\
+'sudo apt install -y libzstd-dev'
+
 Note: current gcc versions have documented problems with thread sanitizer.\
 For this reason all TSAN builds are made by clang++.\
 This limitation will be removed as soon as new versions of gcc/g++ are available.

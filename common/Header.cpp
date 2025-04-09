@@ -17,6 +17,8 @@ COMPRESSORS translateCompressorString(std::string_view compressorStr) {
     return COMPRESSORS::LZ4;
   else if (compressorStr == "SNAPPY")
     return COMPRESSORS::SNAPPY;
+  else if (compressorStr == "ZSTD")
+    return COMPRESSORS::ZSTD;
   else
     return COMPRESSORS::NONE;
 }

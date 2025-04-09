@@ -47,6 +47,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <zstd.h>
 
 #include <boost/algorithm/hex.hpp>
 #include <boost/assert/source_location.hpp>

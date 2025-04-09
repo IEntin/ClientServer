@@ -9,6 +9,7 @@
 #include "ClientOptions.h"
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
+#include "CompressionZSTD.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 #include "StringLines.h"
@@ -28,10 +29,9 @@ struct CompressionTestLZ4 : testing::Test {
     std::size_t compressedSz = input.size();
     compressionLZ4::uncompress(TestEnvironment::_buffer, input, original.size());
     Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-    static auto& printOnce [[maybe_unused]] = logger
-      << "\n\tinput.size()=" << input.size()
-      << " compressedSize=" << compressedSz << " restored to original:"
-      << std::boolalpha << (original == input) << '\n' << '\n';
+    logger << "\n\tinput.size()=" << input.size()
+	   << " compressedSize=" << compressedSz << " restored to original:"
+	   << std::boolalpha << (original == input) << '\n' << '\n';
     ASSERT_EQ(original, input);
   }
 };
@@ -56,10 +56,9 @@ struct CompressionTestSnappy : testing::Test {
     std::size_t compressedSz = input.size();
     compressionSnappy::uncompress(TestEnvironment::_buffer, input);
     Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-    static auto& printOnce [[maybe_unused]] = logger
-      << "\n\tinput.size()=" << input.size()
-      << " compressedSize=" << compressedSz << " restored to original:"
-      << std::boolalpha << (original == input) << '\n' << '\n';
+    logger << "\n\tinput.size()=" << input.size()
+	   << " compressedSize=" << compressedSz << " restored to original:"
+	   << std::boolalpha << (original == input) << '\n' << '\n';
     ASSERT_EQ(original, input);
   }
 };
@@ -71,6 +70,33 @@ TEST_F(CompressionTestSnappy, 1_SOURCE) {
 }
 
 TEST_F(CompressionTestSnappy, 1_OUTPUTD) {
+  // must be a copy
+  std::string input = TestEnvironment::_outputD;
+  testCompressionDecompression(TestEnvironment::_outputD);
+}
+
+struct CompressionTestZSTD : testing::Test {
+  void testCompressionDecompression(std::string& input) {
+    // must be a copy
+    std::string original = input;
+    compressionZSTD::compress(TestEnvironment::_buffer, input);
+    std::size_t compressedSz = input.size();
+    compressionZSTD::uncompress(TestEnvironment::_buffer, input);
+    Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+    logger << "\n\tinput.size()=" << input.size()
+	   << " compressedSize=" << compressedSz << " restored to original:"
+	   << std::boolalpha << (original == input) << '\n' << '\n';
+    ASSERT_EQ(original, input);
+  }
+};
+
+TEST_F(CompressionTestZSTD, 1_SOURCE) {
+  // must be a copy
+  std::string input = TestEnvironment::_source;
+  testCompressionDecompression(input);
+}
+
+TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
   // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);

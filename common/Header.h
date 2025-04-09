@@ -45,6 +45,7 @@ enum class COMPRESSORS : char {
   NONE,
   LZ4,
   SNAPPY,
+  ZSTD,
   INVALIDHIGH
 };
 

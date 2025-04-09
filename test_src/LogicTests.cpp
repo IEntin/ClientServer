@@ -13,6 +13,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_NONE_NONE_100000_ENCRYPT_ENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest, FIFO_LZ4_SNAPPY_10000_ENCRYPT_ENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTestAltFormat*;done
 // gdb --args testbin --gtest_filter=LogicTest.TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_ND
 
@@ -27,7 +28,7 @@ struct LogicTest : testing::Test {
     ServerOptions::_compressor = serverCompressor;
     ServerOptions::_encryption = serverEncrypt;
     ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
-     ServerPtr server = std::make_shared<Server>();
+    ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
@@ -36,7 +37,8 @@ struct LogicTest : testing::Test {
     ClientOptions::_diagnostics = diagnostics;
     tcp::TcpClient client;
     client.run();
-    std::string_view calibratedOutput = diagnostics == DIAGNOSTICS::ENABLED ? TestEnvironment::_outputD : TestEnvironment::_outputND;
+    std::string_view calibratedOutput = diagnostics == DIAGNOSTICS::ENABLED ?
+      TestEnvironment::_outputD : TestEnvironment::_outputND;
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     server->stop();
   }
@@ -91,6 +93,18 @@ TEST_F(LogicTest, TCP_LZ4_LZ4_3000000_ENCRYPT_ENCRYPT_D) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP, 3000000, DIAGNOSTICS::ENABLED);
 }
 
+TEST_F(LogicTest, TCP_LZ4_SNAPPY_3000000_ENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::SNAPPY, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP, 3000000, DIAGNOSTICS::ENABLED);
+}
+
+TEST_F(LogicTest, TCP_SNAPPY_LZ4_3000000_ENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::SNAPPY, COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP, 3000000, DIAGNOSTICS::ENABLED);
+}
+
+TEST_F(LogicTest, TCP_SNAPPY_SNAPPY_3000000_ENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::SNAPPY, COMPRESSORS::SNAPPY, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP, 3000000, DIAGNOSTICS::ENABLED);
+}
+
 TEST_F(LogicTest, TCP_LZ4_LZ4_20000_NOTENCRYPT__ENCRYPT_D) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, CRYPTO::NONE, CRYPTO::CRYPTOPP, 20000, DIAGNOSTICS::ENABLED);
 }
@@ -106,7 +120,6 @@ TEST_F(LogicTest, TCP_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 TEST_F(LogicTest, TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_D) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::NONE, CRYPTO::CRYPTOPP, CRYPTO::NONE, 3600000, DIAGNOSTICS::ENABLED);
 }
-
 
 TEST_F(LogicTest, FIFO_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, CRYPTO::NONE, CRYPTO::NONE, 3600000, DIAGNOSTICS::ENABLED);
@@ -130,6 +143,18 @@ TEST_F(LogicTest, FIFO_LZ4_LZ4_543_NOTENCRYPT_NOTENCRYPT_D) {
 
 TEST_F(LogicTest, FIFO_LZ4_LZ4_10000_ENCRYPT_ENCRYPT_ND) {
   testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP,  10000, DIAGNOSTICS::NONE);
+}
+
+TEST_F(LogicTest, FIFO_SNAPPY_SNAPPY_10000_ENCRYPT_ENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::SNAPPY, COMPRESSORS::SNAPPY, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP,  10000, DIAGNOSTICS::ENABLED);
+}
+
+TEST_F(LogicTest, FIFO_LZ4_SNAPPY_10000_ENCRYPT_ENCRYPT_D) {
+  testLogicFifo(COMPRESSORS::LZ4, COMPRESSORS::SNAPPY, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP,  10000, DIAGNOSTICS::ENABLED);
+}
+
+TEST_F(LogicTest, FIFO_SNAPPY_LZ4_10000_ENCRYPT_ENCRYPT_ND) {
+  testLogicFifo(COMPRESSORS::SNAPPY, COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP,  10000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, FIFO_LZ4_LZ4_10000000_ENCRYPT_NOTENCRYPT_D) {
