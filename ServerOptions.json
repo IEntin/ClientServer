@@ -4,7 +4,7 @@
   "Policy" : "NOSORTINPUT",
   "_comment": "0 for hardware_concurrency",
   "NumberWorkThreads" : 0,
-  "_comment" : "LZ4, SNAPPY or anything for disabled",
+  "_comment" : "LZ4, SNAPPY, ZSTD or anything for disabled",
   "Compression" : "LZ4",
   "Crypto" : "CRYPTOPP",
   "_comment": "If true logs crypto key.",

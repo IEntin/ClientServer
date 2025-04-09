@@ -13,6 +13,7 @@
 
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
+#include "CompressionZSTD.h"
 #include "Crypto.h"
 
 namespace utility {
@@ -92,6 +93,8 @@ std::string_view compressEncrypt(std::string& buffer,
       compressionLZ4::compress(buffer, data);
     else if (compressor == COMPRESSORS::SNAPPY)
       compressionSnappy::compress(buffer, data);
+    else if (compressor == COMPRESSORS::ZSTD)
+      compressionZSTD::compress(buffer, data);
   }
   if (doEncrypt(header)) {
     if (auto crypto = weak.lock(); crypto)
@@ -121,6 +124,8 @@ void decryptDecompress(std::string& buffer,
       }
       else if (compressor == COMPRESSORS::SNAPPY)
 	compressionSnappy::uncompress(buffer, data);
+      else if (compressor == COMPRESSORS::ZSTD)
+	compressionZSTD::uncompress(buffer, data);
     }
   }
 }

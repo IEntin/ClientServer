@@ -76,6 +76,10 @@ TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_SNAPPY) {
   testCompressEncrypt(true, COMPRESSORS::SNAPPY);
 }
 
+TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_ZSTD) {
+  testCompressEncrypt(true, COMPRESSORS::ZSTD);
+}
+
 TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_NONE) {
   testCompressEncrypt(true, COMPRESSORS::NONE);
 }
@@ -86,6 +90,10 @@ TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_LZ4) {
 
 TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_SNAPPY) {
   testCompressEncrypt(false, COMPRESSORS::SNAPPY);
+}
+
+TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_ZSTD) {
+  testCompressEncrypt(false, COMPRESSORS::ZSTD);
 }
 
 TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_NONE) {
