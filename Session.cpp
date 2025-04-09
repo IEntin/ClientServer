@@ -41,7 +41,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
     { HEADERTYPE::SESSION, 0,_responseData.size(), ServerOptions::_encryption,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
-    utility::compressEncrypt(_buffer, header, _crypto, _responseData);
+    utility::compressEncrypt(_buffer, header, _crypto, _responseData, ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, 0, dataView.size(), ServerOptions::_encryption,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, dataView };

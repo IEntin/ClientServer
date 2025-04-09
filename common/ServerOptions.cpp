@@ -13,6 +13,7 @@
 
 std::string ServerOptions::_adsFileName;
 COMPRESSORS ServerOptions::_compressor;
+int ServerOptions::_compressionLevel;
 CRYPTO ServerOptions::_encryption;
 bool ServerOptions::_showKey;
 int ServerOptions::_numberWorkThreads;
@@ -28,6 +29,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
   _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
+  _compressionLevel = appOptions.get("CompressionLevel", 3);
   _encryption = translateCryptoString(appOptions.get("Crypto", std::string("CRYPTOPP")));
   _showKey = appOptions.get("ShowKey", false);
   int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);

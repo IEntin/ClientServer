@@ -86,7 +86,8 @@ bool fileEndsWithEOL(std::string_view fileName) {
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
 				 CryptoWeakPtr weak,
-				 std::string& data) {
+				 std::string& data,
+				 int compressionLevel) {
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
     if (compressor == COMPRESSORS::LZ4)
@@ -94,7 +95,7 @@ std::string_view compressEncrypt(std::string& buffer,
     else if (compressor == COMPRESSORS::SNAPPY)
       compressionSnappy::compress(buffer, data);
     else if (compressor == COMPRESSORS::ZSTD)
-      compressionZSTD::compress(buffer, data);
+      compressionZSTD::compress(buffer, data, compressionLevel);
   }
   if (doEncrypt(header)) {
     if (auto crypto = weak.lock(); crypto)

@@ -81,7 +81,8 @@ bool fileEndsWithEOL(std::string_view fileName);
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
 				 CryptoWeakPtr crypto,
-				 std::string& data);
+				 std::string& data,
+				 int compressionLevel = 3);
 
 void decryptDecompress(std::string& buffer,
 		       HEADER& header,

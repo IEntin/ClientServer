@@ -14,6 +14,7 @@ struct ServerOptions : protected Options {
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
   static COMPRESSORS _compressor;
+  static int _compressionLevel;
   static CRYPTO _encryption;
   static bool _showKey;
   static int _numberWorkThreads;

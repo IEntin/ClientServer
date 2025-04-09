@@ -15,6 +15,7 @@ struct ClientOptions {
   static bool _fifoClient;
   static bool _tcpClient;
   static COMPRESSORS _compressor;
+  static int _compressionLevel;
   static CRYPTO _encryption;
   static bool _showKey;
   static std::string _sourceName;

@@ -92,7 +92,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    utility::compressEncrypt(_buffer, header, _crypto, _aggregate);
+    utility::compressEncrypt(_buffer, header, _crypto, _aggregate, ClientOptions::_compressionLevel);
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];

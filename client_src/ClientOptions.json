@@ -9,6 +9,8 @@
   "InstrumentationFn" : "",
   "_comment" : "LZ4, SNAPPY, ZSTD or anything for disabled",
   "Compression" : "LZ4",
+  "_comment" : "Next is only for ZSTD",
+  "CompressionLevel" : 3,
   "Crypto" : "CRYPTOPP",
   "_comment": "If true logs crypto key",
   "ShowKey" : false,
