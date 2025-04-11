@@ -7,13 +7,13 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
-#include "Crypto.h"
+#include "CryptoP.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
-using CryptoPtr = std::shared_ptr<Crypto>;
-using CryptoWeakPtr = std::weak_ptr<Crypto>;
+using CryptoPtr = std::shared_ptr<CryptoP>;
+using CryptoWeakPtr = std::weak_ptr<CryptoP>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 

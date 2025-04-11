@@ -14,7 +14,7 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
-#include "Crypto.h"
+#include "CryptoP.h"
 
 namespace utility {
 

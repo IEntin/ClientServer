@@ -9,11 +9,11 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "Crypto.h"
+#include "CryptoP.h"
 #include "Header.h"
 #include "IOUtility.h"
 
-using CryptoPtr = std::shared_ptr<Crypto>;
+using CryptoPtr = std::shared_ptr<CryptoP>;
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
 

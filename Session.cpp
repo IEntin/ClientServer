@@ -14,7 +14,7 @@ Session::Session(ServerWeakPtr server,
 		 std::string_view msgHash,
 		 const CryptoPP::SecByteBlock& pubB,
 		 std::string_view signatureWithPubKey) :
-  _crypto(std::make_shared<Crypto>(msgHash, pubB, signatureWithPubKey)),
+  _crypto(std::make_shared<CryptoP>(msgHash, pubB, signatureWithPubKey)),
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();

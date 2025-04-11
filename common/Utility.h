@@ -13,7 +13,7 @@ constexpr std::string_view ENDOFMESSAGE("94db2297686d43a2b470f7a62d78efa7");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
-using CryptoWeakPtr = std::weak_ptr<class Crypto>;
+using CryptoWeakPtr = std::weak_ptr<class CryptoP>;
 
 namespace utility {
 

@@ -10,7 +10,7 @@
 #include "Runnable.h"
 #include "Subtask.h"
 
-using CryptoWeakPtr = std::weak_ptr<class Crypto>;
+using CryptoWeakPtr = std::weak_ptr<class CryptoP>;
 
 class TaskBuilder final : public Runnable {
 

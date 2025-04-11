@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "Crypto.h"
+#include "CryptoP.h"
 
 #include <boost/algorithm/hex.hpp>
 
@@ -13,7 +13,7 @@
 #include "ServerOptions.h"
 #include "Utility.h"
 
-const CryptoPP::OID Crypto::_curve = CryptoPP::ASN1::secp256r1();
+const CryptoPP::OID CryptoP::_curve = CryptoPP::ASN1::secp256r1();
 
 KeyHandler::KeyHandler(unsigned size) : _size(size),
    _obfuscator(_size) {
@@ -39,9 +39,9 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 }
 
 // session
-Crypto::Crypto(std::string_view msgHash,
-	       const CryptoPP::SecByteBlock& pubB,
-	       std::string_view signatureWithPubKey) :
+CryptoP::CryptoP(std::string_view msgHash,
+		 const CryptoPP::SecByteBlock& pubB,
+		 std::string_view signatureWithPubKey) :
   _msgHash(msgHash),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
@@ -57,7 +57,7 @@ Crypto::Crypto(std::string_view msgHash,
 }
 
 // client
-Crypto::Crypto(std::string_view msgHash) :
+CryptoP::CryptoP(std::string_view msgHash) :
   _msgHash(sha256_hash(msgHash)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
@@ -73,14 +73,14 @@ Crypto::Crypto(std::string_view msgHash) :
   _serializedRsaPubKey.swap(encodedStr);
 }
 
-bool Crypto::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
-		             CryptoPP::SecByteBlock& priv,
-		             CryptoPP::SecByteBlock& pub) {
+bool CryptoP::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
+			      CryptoPP::SecByteBlock& priv,
+			      CryptoPP::SecByteBlock& pub) {
   dh.GenerateKeyPair(_rng, priv, pub);
   return true;
 }
 
-void Crypto::showKey() {
+void CryptoP::showKey() {
   if (!checkAccess())
     return;
   Logger logger(LOG_LEVEL::INFO, std::clog, false);
@@ -91,7 +91,9 @@ void Crypto::showKey() {
   }
 }
 
-std::string_view Crypto::encrypt(std::string& buffer, const HEADER& header, std::string_view data) {
+std::string_view CryptoP::encrypt(std::string& buffer,
+				  const HEADER& header,
+				  std::string_view data) {
   if (!checkAccess())
     return data;
   buffer.clear();
@@ -110,7 +112,7 @@ std::string_view Crypto::encrypt(std::string& buffer, const HEADER& header, std:
   return buffer;
 }
 
-void Crypto::decrypt(std::string& buffer, std::string& data) {
+void CryptoP::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     return;
   if (utility::isEncrypted(data)) {
@@ -131,14 +133,14 @@ void Crypto::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool Crypto::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
+bool CryptoP::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
   bool result = _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
   hideKey();
   return result;
 }
 
-void Crypto::signMessage() {
+void CryptoP::signMessage() {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(_rsaPrivKey);
   CryptoPP::StringSource ss(_msgHash.data(),
   true,
@@ -150,7 +152,7 @@ void Crypto::signMessage() {
 }
 
 std::pair<bool, std::string>
-Crypto::encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey) {
+CryptoP::encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey) {
   std::string serialized;
   try {
     CryptoPP::StringSink sink{ serialized };
@@ -163,8 +165,8 @@ Crypto::encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey) {
   }
 }
 
-bool Crypto::decodeRsaPublicKey(std::string_view serializedKey,
-				CryptoPP::RSA::PublicKey& publicKey) {
+bool CryptoP::decodeRsaPublicKey(std::string_view serializedKey,
+				 CryptoPP::RSA::PublicKey& publicKey) {
   try {
     CryptoPP::StringSource pubKeySource({ serializedKey.data(), serializedKey.size() }, true);
     publicKey.Load(pubKeySource);
@@ -176,12 +178,12 @@ bool Crypto::decodeRsaPublicKey(std::string_view serializedKey,
   }
 }
 
-void Crypto::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
+void CryptoP::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
   if (!decodeRsaPublicKey(rsaPubBserialized, _peerRsaPubKey))
     throw std::runtime_error("rsa key decode failed");
 }
 
-bool Crypto::verifySignature(std::string_view signature) {
+bool CryptoP::verifySignature(std::string_view signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
   _verified = verifier.VerifyMessage(
     reinterpret_cast<const CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
@@ -193,7 +195,7 @@ bool Crypto::verifySignature(std::string_view signature) {
 }
 // for tesing message is based on uuid
 // in real usage it may be a combination of user name and/or password
-std::string Crypto::sha256_hash(std::string_view message) {
+std::string CryptoP::sha256_hash(std::string_view message) {
   CryptoPP::SHA256 hash;
   std::string digest;
   hash.Update(reinterpret_cast<const unsigned char*>(message.data()), message.size());
@@ -207,7 +209,7 @@ std::string Crypto::sha256_hash(std::string_view message) {
   return output;
 }
 
-void Crypto::eraseRSAKeys() {
+void CryptoP::eraseRSAKeys() {
   std::string().swap(_msgHash);
   _rsaPrivKey = CryptoPP::RSA::PrivateKey();
   _rsaPubKey = CryptoPP::RSA::PublicKey();
@@ -216,12 +218,12 @@ void Crypto::eraseRSAKeys() {
   std::string().swap(_signatureWithPubKey);
 }
 
-void Crypto::erasePubPrivKeys() {
+void CryptoP::erasePubPrivKeys() {
   CryptoPP::SecByteBlock().swap(_privKey);
   CryptoPP::SecByteBlock().swap(_pubKey);
 }
 
-bool Crypto::checkAccess() {
+bool CryptoP::checkAccess() {
   if (utility::isServerTerminal())
     return _verified;
   else if (utility::isClientTerminal())
@@ -231,6 +233,6 @@ bool Crypto::checkAccess() {
   return false;
 }
 
-void Crypto::hideKey() {
+void CryptoP::hideKey() {
   _keyHandler.hideKey(_key);
 }
