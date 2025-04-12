@@ -174,10 +174,15 @@ Preliminary results show that LZ4 gives better elapsed, compression ratio, and u
 SNAPPY is simpler to use, it does not require to save uncompressed size.\
 ZSTD shows the same elapsed as SNAPPY, ~15% slower than LZ4, and high compression ratio as expected.\
 High compression ratio might be good for encryption and security.\
-ZSTD does not require saving of uncompressed size as well.
+ZSTD does not require saving of uncompressed size as well.\
+Software allows mixing different compression algorithms, for instance,\
+server can be configured to compress data using LZ4, but the client usually sending much longer input\
+messages will compress data using ZSTD. Headers accompanying sent data contain necessary information, so that\
+receiving end applies correct decompression algorithm. Some tests in LogicTests.cpp verify this possibility.
 
 Server allows multi phase request processing. The preprocessor phase in the current code\
-is generation of the specific key and sorting requests by this key.
+is generation of the specific key and sorting requests by this key. This can be useful if\
+processing requires data from another source and sorting by the key reduces the number of queries.
 
 Business logic, compression, task multithreading, and communication layers are decoupled.
 

@@ -27,7 +27,8 @@ struct KeyHandler {
   std::atomic<bool> _obfuscated = false;
 };
 
-class CryptoP {
+// version using Crypto++ library
+class CryptoPlPl {
   std::string _msgHash;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
@@ -57,11 +58,11 @@ class CryptoP {
   }
 
 public:
-  CryptoP(std::string_view msgHash,
-	  const CryptoPP::SecByteBlock& pubB,
-	  std::string_view signatureWithPubKey);
-  explicit CryptoP(std::string_view msgHash);
-  ~CryptoP() = default;
+  CryptoPlPl(std::string_view msgHash,
+	     const CryptoPP::SecByteBlock& pubB,
+	     std::string_view signatureWithPubKey);
+  explicit CryptoPlPl(std::string_view msgHash);
+  ~CryptoPlPl() = default;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);

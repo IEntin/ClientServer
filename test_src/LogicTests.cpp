@@ -13,7 +13,9 @@
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_LZ4_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_NONE_NONE_100000_ENCRYPT_ENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest, FIFO_LZ4_SNAPPY_10000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_SNAPPY_LZ4_3000000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_ZSTD_3000000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_LZ4_SNAPPY_10000_ENCRYPT_ENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTestAltFormat*;done
 // gdb --args testbin --gtest_filter=LogicTest.TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_ND
 
@@ -91,6 +93,10 @@ TEST_F(LogicTest, TCP_LZ4_NONE_3600000_ENCRYPT_NOTENCRYPT_ND) {
 
 TEST_F(LogicTest, TCP_LZ4_LZ4_3000000_ENCRYPT_ENCRYPT_D) {
   testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP, 3000000, DIAGNOSTICS::ENABLED);
+}
+
+TEST_F(LogicTest, TCP_LZ4_ZSTD_3000000_ENCRYPT_ENCRYPT_D) {
+  testLogicTcp(COMPRESSORS::LZ4, COMPRESSORS::ZSTD, CRYPTO::CRYPTOPP, CRYPTO::CRYPTOPP, 3000000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, TCP_LZ4_SNAPPY_3000000_ENCRYPT_ENCRYPT_D) {

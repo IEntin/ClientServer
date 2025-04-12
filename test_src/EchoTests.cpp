@@ -17,6 +17,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=FifoBlockingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_SNAPPY_LZ4_ENCRYPT_ENCRYPT; done
 
 static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
 static constexpr std::string_view _testFifo = "TestFifo";
