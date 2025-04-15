@@ -45,6 +45,9 @@ google snappy dev must be installed:\
 current version 1.2.2\
 'sudo apt-get install libsnappy-dev'
 
+libsodium-dev must be installed:\
+'sudo apt install libsodium-dev'
+
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
 
