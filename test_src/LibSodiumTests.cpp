@@ -15,59 +15,8 @@
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.encryption; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
 
-std::vector<unsigned char> encrypt_aes256gcm(const std::vector<unsigned char>& message,
-					     const std::vector<unsigned char>& key) {
-  if (key.size() != crypto_aead_aes256gcm_KEYBYTES)
-    throw std::invalid_argument("Key must be 32 bytes");
-  std::vector<unsigned char> nonce(crypto_aead_aes256gcm_NPUBBYTES);
-  randombytes_buf(nonce.data(), nonce.size());
-  std::vector<unsigned char> ciphertext(message.size() + crypto_aead_aes256gcm_ABYTES);
-  unsigned long long ciphertext_len;
-  if (crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len, message.data(), message.size(),
-				    nullptr, 0, nullptr, nonce.data(), key.data()) != 0)
-    throw std::runtime_error("Encryption failed");
-  std::vector<unsigned char> result;
-  result.insert(result.end(), nonce.begin(), nonce.end());
-  result.insert(result.end(), ciphertext.begin(), ciphertext.begin() + ciphertext_len);
-  return result;
-}
-
-std::vector<unsigned char> decrypt_aes256gcm(const std::vector<unsigned char>& ciphertext_with_nonce,
-					     const std::vector<unsigned char>& key) {
-  if (key.size() != crypto_aead_aes256gcm_KEYBYTES)
-    throw std::invalid_argument("Key must be 32 bytes");
-  if (ciphertext_with_nonce.size() < crypto_aead_aes256gcm_NPUBBYTES + crypto_aead_aes256gcm_ABYTES)
-    throw std::invalid_argument("Ciphertext is too short");
-  std::vector<unsigned char> nonce(ciphertext_with_nonce.begin(),
-				   ciphertext_with_nonce.begin() + crypto_aead_aes256gcm_NPUBBYTES);
-  std::vector<unsigned char> ciphertext(ciphertext_with_nonce.begin() +
-					crypto_aead_aes256gcm_NPUBBYTES, ciphertext_with_nonce.end());
-  std::vector<unsigned char> decrypted(ciphertext.size() - crypto_aead_aes256gcm_ABYTES);
-  unsigned long long decrypted_len;
-  if (crypto_aead_aes256gcm_decrypt(decrypted.data(), &decrypted_len, nullptr,
-				    ciphertext.data(), ciphertext.size(), nullptr, 0,
-				    nonce.data(), key.data()) != 0)
-    throw std::runtime_error("Decryption failed: invalid ciphertext or key");
-  return decrypted;
-}
-
-TEST(LibSodiumTest, encryption) {
-  if (sodium_init() < 0) {
-    ASSERT_TRUE(false);
-  }
-  std::vector<unsigned char> key(crypto_aead_aes256gcm_KEYBYTES);
-  randombytes_buf(key.data(), key.size());
-  std::vector<unsigned char> message(TestEnvironment::_source.begin(), TestEnvironment::_source.end());
-  std::vector<unsigned char> encrypted = encrypt_aes256gcm(message, key);
-  std::vector<unsigned char> decrypted = decrypt_aes256gcm(encrypted, key);
-  ASSERT_EQ(message, decrypted);
-}
-
 TEST(LibSodiumTest, authentication) {
-  if (sodium_init() < 0) {
-    std::cerr << "Failed to initialize libsodium" << std::endl;
-    ASSERT_TRUE(false);
-  }
+  ASSERT_FALSE(sodium_init() < 0);
   constexpr const unsigned char MESSAGE[] = "This is a message to sign";
   constexpr unsigned MESSAGE_LEN = sizeof(MESSAGE);
   unsigned char pk[crypto_sign_PUBLICKEYBYTES];
@@ -84,10 +33,7 @@ TEST(LibSodiumTest, authentication) {
 }
 
 TEST(LibSodiumTest, hashing) {
-  if (sodium_init() < 0) {
-    std::cerr << "Failed to initialize libsodium" << std::endl;
-    ASSERT_TRUE(false);
-  }
+  ASSERT_FALSE(sodium_init() < 0);
   std::u8string message(u8"This is a message to hash");
   const unsigned char* input = reinterpret_cast<const unsigned char*>(message.data());
   unsigned char hash[crypto_generichash_BYTES];
@@ -120,10 +66,7 @@ std::vector<unsigned char> base64_decode(const std::string& input) {
 }
 
 TEST(LibSodiumTest, base64EncodePublicKey) {
-  if (sodium_init() < 0) {
-    std::cerr << "Failed to initialize libsodium" << std::endl;
-    ASSERT_TRUE(false);
-  }
+  ASSERT_FALSE(sodium_init() < 0);
   unsigned char public_key[crypto_box_PUBLICKEYBYTES];
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(public_key, secret_key);
@@ -134,8 +77,7 @@ TEST(LibSodiumTest, base64EncodePublicKey) {
 }
 
 TEST(LibSodiumTest, DHkeyExchange) {
-  if (sodium_init() < 0)
-    throw std::runtime_error("Failed to initialize libsodium");
+  ASSERT_FALSE(sodium_init() < 0);
   unsigned char client_pk[crypto_kx_PUBLICKEYBYTES];
   unsigned char client_sk[crypto_kx_SECRETKEYBYTES];
   unsigned char server_pk[crypto_kx_PUBLICKEYBYTES];
@@ -154,4 +96,28 @@ TEST(LibSodiumTest, DHkeyExchange) {
   // Verify that the shared secrets match
   ASSERT_TRUE(sodium_memcmp(client_rx, server_tx, crypto_kx_SESSIONKEYBYTES) == 0);
   ASSERT_TRUE(sodium_memcmp(client_tx, server_rx, crypto_kx_SESSIONKEYBYTES) == 0);
+}
+
+TEST(LibSodiumTest, encryption) {
+  ASSERT_FALSE(sodium_init() < 0);
+  unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
+  crypto_aead_aes256gcm_keygen(key);
+  unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+  randombytes_buf(nonce, sizeof nonce);
+  std::string message = TestEnvironment::_source;
+  size_t message_len = message.size();
+  std::vector<unsigned char> ciphertext(message_len + crypto_aead_aes256gcm_ABYTES);
+  unsigned long long ciphertext_len;
+  ASSERT_TRUE(crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len,
+					    reinterpret_cast<unsigned char*>(message.data()), message_len,
+					    nullptr, 0,
+					    nullptr, nonce, key) == 0);
+  std::string decrypted(message_len, '\0');
+  unsigned long long decrypted_len;
+  ASSERT_TRUE(crypto_aead_aes256gcm_decrypt(reinterpret_cast<unsigned char*>(decrypted.data()), &decrypted_len,
+					    nullptr,
+					    ciphertext.data(), ciphertext_len,
+					    nullptr, 0,
+					    nonce, key) == 0);
+  ASSERT_TRUE(decrypted == message);
 }
