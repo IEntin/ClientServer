@@ -27,6 +27,7 @@ CRYPTOPPRELEASE := cryptopp890.zip
 CRYPTOLIBDIR:=/usr/local/lib/cryptopp
 BOTANCRYPTORELEASE := Botan-3.7.1.tar.xz
 BOTANCRYPTOLIBDIR:=/usr/local/lib/botan
+# sudo apt install libsodium-dev
 CRYPTOSODIUMDIR:=/usr/lib/x86_64-linux-gnu
 CRYPTOSODIUMLIB:=$(CRYPTOSODIUMDIR)/libsodium.a
 

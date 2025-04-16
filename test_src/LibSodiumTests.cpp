@@ -12,6 +12,9 @@
 #include "Logger.h"
 #include "TestEnvironment.h"
 
+// for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.encryption; done
+// for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
+
 std::vector<unsigned char> encrypt_aes256gcm(const std::vector<unsigned char>& message,
 					     const std::vector<unsigned char>& key) {
   if (key.size() != crypto_aead_aes256gcm_KEYBYTES)
@@ -85,7 +88,7 @@ TEST(LibSodiumTest, hashing) {
     std::cerr << "Failed to initialize libsodium" << std::endl;
     ASSERT_TRUE(false);
   }
-  std::string message("This is a message to hash");
+  std::u8string message(u8"This is a message to hash");
   const unsigned char* input = reinterpret_cast<const unsigned char*>(message.data());
   unsigned char hash[crypto_generichash_BYTES];
   crypto_generichash(hash, sizeof(hash), input, message.size(), nullptr, 0);
@@ -99,7 +102,8 @@ TEST(LibSodiumTest, hashing) {
 std::string base64_encode(const std::vector<unsigned char>& input) {
   size_t encoded_length = sodium_base64_ENCODED_LEN(input.size(), sodium_base64_VARIANT_ORIGINAL);
   std::string encoded_string(encoded_length, '\0');
-  if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), input.size(), sodium_base64_VARIANT_ORIGINAL) == nullptr)
+  if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), input.size(),
+			sodium_base64_VARIANT_ORIGINAL) == nullptr)
     return {};
   encoded_string.resize(encoded_length - 1);
   return encoded_string;
