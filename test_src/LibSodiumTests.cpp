@@ -3,13 +3,14 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <iomanip>
 #include <iostream>
+#include <numeric>
 #include <stdexcept>
 #include <vector>
 
 #include <sodium.h>
 
-#include "Logger.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.encryption; done
@@ -65,12 +66,11 @@ std::vector<unsigned char> base64_decode(const std::string& input) {
   return decoded_data;
 }
 
-TEST(LibSodiumTest, base64EncodePublicKey) {
+TEST(LibSodiumTest, base64Encode) {
   ASSERT_FALSE(sodium_init() < 0);
-  unsigned char public_key[crypto_box_PUBLICKEYBYTES];
-  unsigned char secret_key[crypto_box_SECRETKEYBYTES];
-  crypto_box_keypair(public_key, secret_key);
-  std::vector<unsigned char> original_data(public_key, public_key + crypto_box_PUBLICKEYBYTES);
+  constexpr int N = 1234;
+  std::vector<unsigned char> original_data(N);
+  std::iota(original_data.begin(), original_data.end(), 1);
   std::string encoded = base64_encode(original_data);
   std::vector<unsigned char> decoded_data = base64_decode(encoded);
   ASSERT_EQ(original_data, decoded_data);
@@ -105,7 +105,7 @@ TEST(LibSodiumTest, encryption) {
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
   randombytes_buf(nonce, sizeof nonce);
   std::string message = TestEnvironment::_source;
-  size_t message_len = message.size();
+  std::size_t message_len = message.size();
   std::vector<unsigned char> ciphertext(message_len + crypto_aead_aes256gcm_ABYTES);
   unsigned long long ciphertext_len;
   ASSERT_TRUE(crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len,
@@ -120,4 +120,73 @@ TEST(LibSodiumTest, encryption) {
 					    nullptr, 0,
 					    nonce, key) == 0);
   ASSERT_TRUE(decrypted == message);
+}
+
+std::vector<unsigned char> encodeLength(size_t length) {
+  std::vector<unsigned char> encodedLength;
+  if (length < 128) {
+    encodedLength.push_back(static_cast<unsigned char>(length));
+  }
+  else {
+    size_t numBytes = 0;
+    size_t tempLength = length;
+    while (tempLength > 0) {
+      numBytes++;
+      tempLength >>= 8;
+    }
+    encodedLength.push_back(static_cast<unsigned char>(0x80 | numBytes));
+    for (size_t i = numBytes; i > 0; --i) {
+      encodedLength.push_back(static_cast<unsigned char>((length >> (8 * (i - 1))) & 0xFF));
+    }
+  }
+  return encodedLength;
+}
+
+std::vector<unsigned char> ber_encode_string(const std::string& str) {
+  std::vector<unsigned char> berEncoded;
+  // Add tag for OCTET STRING (0x04)
+  berEncoded.push_back(0x04);
+  // Encode and add length
+  std::vector<unsigned char> encodedLength = encodeLength(str.length());
+  berEncoded.insert(berEncoded.end(), encodedLength.begin(), encodedLength.end());
+  // Add string bytes
+  for (char c : str) {
+    berEncoded.push_back(static_cast<unsigned char>(c));
+  }
+  return berEncoded;
+}
+
+std::string ber_decode_string(const std::vector<unsigned char>& encoded) {
+  if (encoded.empty() || encoded[0] != 0x04) {
+    return "";
+  }
+  size_t length = 0;
+  size_t data_start_index = 2;
+  if ((encoded[1] & 0x80) == 0) {
+    // Short form length
+    length = encoded[1];
+  }
+  else {
+    int length_bytes = encoded[1] & 0x7F;
+    if(length_bytes == 1){
+      length = encoded[2];
+      data_start_index = 3;
+    }
+    else{
+      return "";
+    }
+  }
+  if (encoded.size() < data_start_index + length)
+    return "";
+  return std::string(encoded.begin() + data_start_index, encoded.begin() + data_start_index + length);
+}
+
+TEST(LibSodiumTest, publicKeyBerEncoding) {
+  unsigned char pk[crypto_sign_PUBLICKEYBYTES];
+  unsigned char sk[crypto_sign_SECRETKEYBYTES];
+  crypto_sign_keypair(pk, sk);
+  std::string original(pk, pk + crypto_sign_PUBLICKEYBYTES);
+  std::vector<unsigned char> encoded = ber_encode_string(original);
+  std::string decoded = ber_decode_string(encoded);
+  ASSERT_TRUE(original == decoded);
 }

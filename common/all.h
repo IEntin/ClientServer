@@ -28,6 +28,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <numeric>
 #include <poll.h>
 #include <queue>
 #include <regex>
