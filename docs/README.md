@@ -53,6 +53,9 @@ google tests must be installed:\
 
 sudo apt-get install binutils
 
+libcrypto++-dev must beinstalled:\
+'sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils'
+
 ### Building and Testing
 
 #### Notice:
@@ -61,9 +64,6 @@ Simple Diffie-Hellman protocol is replaced with Elliptic-curve Diffie–Hellman 
 
 Renamed binaries server -> serverX and client -> clientX to\
 avoid collision in scripts.
-
-libcryptopp.a is now recreated by make if necessary.\
-No need to run installCryptopp.sh manually.
 
 ...
 
