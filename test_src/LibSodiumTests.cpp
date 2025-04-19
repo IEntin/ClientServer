@@ -104,22 +104,21 @@ TEST(LibSodiumTest, encryption) {
 					    nullptr, 0,
 					    nullptr, nonce, key) == 0);
   ciphertext.insert(ciphertext.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
-  std::string_view encrypted(reinterpret_cast<const char*>(ciphertext.data()), ciphertext.size());
+  std::string_view encrypted(reinterpret_cast<const char*>(ciphertext.data()), ciphertext_len);
   ASSERT_TRUE(utility::isEncrypted(encrypted));
   unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES];
   std::copy(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES, ciphertext.end(), recoveredNonce);
   ciphertext.erase(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES);
   ASSERT_TRUE(sizeof(recoveredNonce) == sizeof(nonce));
   ASSERT_TRUE(std::memcmp(nonce, recoveredNonce, crypto_aead_aes256gcm_NPUBBYTES) == 0);
-  unsigned long long decryptedSz = ciphertext.size() - crypto_secretbox_MACBYTES;
-  std::string decrypted(decryptedSz, '\0');
+  std::string decrypted(ciphertext_len, '\0');
   unsigned long long decrypted_len;
   ASSERT_TRUE(crypto_aead_aes256gcm_decrypt(reinterpret_cast<unsigned char*>(decrypted.data()), &decrypted_len,
 					    nullptr,
 					    ciphertext.data(), ciphertext_len,
 					    nullptr, 0,
 					    recoveredNonce, key) == 0);
-  ASSERT_TRUE(decryptedSz > decrypted_len);
+  ASSERT_TRUE(ciphertext_len > decrypted_len);
   ASSERT_TRUE(message_len == decrypted_len);
   decrypted.resize(decrypted_len);
   ASSERT_FALSE(utility::isEncrypted(decrypted));
