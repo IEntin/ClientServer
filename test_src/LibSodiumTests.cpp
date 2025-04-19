@@ -84,6 +84,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
 }
 
 TEST(LibSodiumTest, encryption) {
+  ASSERT_TRUE(crypto_aead_aes256gcm_is_available());
   ASSERT_FALSE(sodium_init() < 0);
   unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
   crypto_aead_aes256gcm_keygen(key);
@@ -122,6 +123,9 @@ TEST(LibSodiumTest, encryption) {
   ASSERT_TRUE(message_len == decrypted_len);
   decrypted.resize(decrypted_len);
   ASSERT_FALSE(utility::isEncrypted(decrypted));
+  HEADER recoveredHeader;
+  deserialize(recoveredHeader, decrypted.data());
+  ASSERT_EQ(header, recoveredHeader);
   ASSERT_TRUE(decrypted == TestEnvironment::_buffer);
 }
 

@@ -48,7 +48,6 @@ class CryptoPlPl {
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
-
   template <typename VARIABLE>
   void setAESvariable(VARIABLE& var) {
     std::lock_guard lock(_mutex);
@@ -85,4 +84,5 @@ public:
   void erasePubPrivKeys();
   bool checkAccess();
   void hideKey();
+  void setTestAesKey(const CryptoPP::SecByteBlock& key);
 };

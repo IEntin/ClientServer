@@ -236,3 +236,8 @@ bool CryptoPlPl::checkAccess() {
 void CryptoPlPl::hideKey() {
   _keyHandler.hideKey(_key);
 }
+
+void CryptoPlPl::setTestAesKey(const CryptoPP::SecByteBlock& key) {
+  _key = key;
+  hideKey();
+}

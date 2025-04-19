@@ -16,6 +16,7 @@ TEST(CryptoTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
+  crypto->setTestAesKey(key);
   HEADER header{ HEADERTYPE::SESSION,
 		 0,
 		 TestEnvironment::_source.size(),
@@ -45,6 +46,7 @@ struct CompressEncryptTest : testing::Test {
     CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
     CryptoPP::AutoSeededRandomPool prng;
     prng.GenerateBlock(key, key.size());
+    crypto->setTestAesKey(key);
     // must be a copy
     std::string data = TestEnvironment::_source;
     HEADER header{ HEADERTYPE::SESSION,

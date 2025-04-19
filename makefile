@@ -25,7 +25,9 @@ TESTSRCDIR := test_src
 # /usr/lib/x86_64-linux-gnu/libsnappy.a
 BOTANCRYPTORELEASE := Botan-3.7.1.tar.xz
 BOTANCRYPTOLIBDIR:=/usr/local/lib/botan
+# libcrypto++-dev must be installed
 # sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
+# libsodium-dev must be installed
 # sudo apt install libsodium-dev
 
 BOTANCRYPTOLIB := $(BOTANCRYPTOLIBDIR)/libbotan.a
@@ -86,12 +88,12 @@ BUILDDIR := build
 
 vpath %.cpp $(BUSINESSDIR) $(POLICYDIR) $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR)
 
-$(PCH) : $(ALLH) $(BOTANCRYPTOLIB)
+$(PCH) : $(ALLH)
 	$(CXX) -g -x c++-header $(CPPFLAGS) -I$(BOOST_INCLUDES) $(ALLH) -o $@
 
 -include $(BUILDDIR)/*.d
 
-$(BUILDDIR)/%.o : %.cpp $(PCH) $(BOTANCRYPTOLIB)
+$(BUILDDIR)/%.o : %.cpp $(PCH)
 	$(CXX) -c -o $@ $< $(CPPFLAGS) $(INCLUDES)
 
 BUSINESSSRC := $(wildcard $(BUSINESSDIR)/*.cpp)
@@ -107,16 +109,16 @@ SERVERSRC := $(wildcard *.cpp)
 SERVEROBJ := $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SERVERSRC))
 SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
-serverX : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVEROBJ) $(BOTANCRYPTOLIB)
+serverX : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVEROBJ)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) \
-$(CPPFLAGS) -pthread $(BOTANCRYPTOLIB) -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+$(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
-$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ) $(BOTANCRYPTOLIB)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ)  $(BOTANCRYPTOLIB) $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+$(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ)  $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
