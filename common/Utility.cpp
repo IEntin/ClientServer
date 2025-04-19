@@ -42,6 +42,12 @@ std::string generateRawUUID() {
   return { reinterpret_cast<const char*>(u8Str.data()), u8Str.size() };
 }
 
+std::u8string generateRawUUIDu8() {
+  boost::uuids::random_generator_mt19937 gen;
+  boost::uuids::uuid uuid = gen();
+  return { uuid.begin(), uuid.end() };
+}
+
 std::size_t getUniqueId() {
   static std::atomic<size_t> uniqueInteger;
   return uniqueInteger.fetch_add(1);

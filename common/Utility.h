@@ -72,6 +72,8 @@ std::size_t getUniqueId();
 
 std::string generateRawUUID();
 
+std::u8string generateRawUUIDu8();
+
 void readFile(std::string_view name, std::string& buffer);
 
 bool getLastLine(std::string_view fileName, std::string& lastLine);
