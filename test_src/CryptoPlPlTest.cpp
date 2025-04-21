@@ -29,7 +29,7 @@ TEST(CryptoTest, 1) {
   std::string data(TestEnvironment::_source);
   std::string_view dataView =
     crypto->encrypt(TestEnvironment::_buffer, header, data);
-  ASSERT_TRUE(utility::isEncrypted(dataView));
+  ASSERT_TRUE(utility::isEncrypted(data));
   data = dataView;
   crypto->decrypt(TestEnvironment::_buffer, data);
   HEADER restoredHeader;
@@ -60,7 +60,7 @@ struct CompressEncryptTest : testing::Test {
     printHeader(header, LOG_LEVEL::ALWAYS);
     std::string_view dataView =
       utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
-    ASSERT_EQ(utility::isEncrypted(dataView), doEncrypt);
+    ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
     HEADER restoredHeader;
     data = dataView;
     utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
@@ -131,12 +131,12 @@ TEST(AuthenticationTest, 1) {
   // Verify the signature
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
   bool result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
+    std::bit_cast<const CryptoPP::byte*>(message.data()), message.length(),
+    std::bit_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
   ASSERT_TRUE(result);
   receivedSignature.erase(receivedSignature.cend() -1);
   result = verifier.VerifyMessage(
-    reinterpret_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    reinterpret_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
+    std::bit_cast<const CryptoPP::byte*>(message.data()), message.length(),
+    std::bit_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
   ASSERT_FALSE(result);
 }

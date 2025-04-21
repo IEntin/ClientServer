@@ -22,24 +22,11 @@ std::string serverTerminal;
 std::string clientTerminal;
 std::string testbinTerminal;
 
-// expected message starts with a header
-bool isEncrypted(std::string_view data) {
-  HEADER header;
-  try {
-    if (deserialize(header, data.data()))
-      return false;
-    return true;
-  }
-  catch (const std::runtime_error& error) {
-    return true;
-  }
-}
-
 std::string generateRawUUID() {
   boost::uuids::random_generator_mt19937 gen;
   boost::uuids::uuid uuid = gen();
   std::u8string u8Str{ uuid.begin(), uuid.end() };
-  return { reinterpret_cast<const char*>(u8Str.data()), u8Str.size() };
+  return { std::bit_cast<const char*>(u8Str.data()), u8Str.size() };
 }
 
 std::u8string generateRawUUIDu8() {

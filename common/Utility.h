@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <bit>
 #include <string>
 
 #include "Header.h"
@@ -66,7 +67,20 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
   }
 }
 
-bool isEncrypted(std::string_view data);
+// expected message starts with a header
+template <typename T>
+bool isEncrypted(const T& data) {
+  assert(data.size() >= HEADER_SIZE && "too short");
+  HEADER header;
+  try {
+    if (deserialize(header, std::bit_cast<const char*>(data.data())))
+      return false;
+    return true;
+  }
+  catch (const std::runtime_error& error) {
+    return true;
+  }
+}
 
 std::size_t getUniqueId();
 

@@ -6,6 +6,7 @@
 #include <array>
 #include <atomic>
 #include <barrier>
+#include <bit>
 #include <cassert>
 #include <charconv>
 #include <chrono>

@@ -29,14 +29,14 @@ bool encryptAndDecrypt(std::string& input) {
     enc->start(iv);
     enc->finish(cipher);
     // look at cipher
-    std::string cipherString(reinterpret_cast<const char*>(cipher.data()), cipher.size());
+    std::string cipherString(std::bit_cast<const char*>(cipher.data()), cipher.size());
     Botan::secure_vector<uint8_t> decrypted(cipher.cbegin(), cipher.cend());
     // Create the cipher object for decryption
     auto dec = Botan::Cipher_Mode::create_or_throw(cipher_mode, Botan::Cipher_Dir::Decryption);
     dec->set_key(key);
     dec->start(iv);
     dec->finish(decrypted);
-    std::string decryptedString(reinterpret_cast<const char*>(decrypted.data()), decrypted.size());
+    std::string decryptedString(std::bit_cast<const char*>(decrypted.data()), decrypted.size());
     return decryptedString == input;
   }
   catch (const Botan::Exception& e) {

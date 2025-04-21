@@ -59,7 +59,7 @@ bool CryptoSodium::encrypt(std::string& input,
   unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
   setAESKey(key);
   bool success = crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len,
-					       reinterpret_cast<unsigned char*>(input.data()), message_len,
+					       std::bit_cast<unsigned char*>(input.data()), message_len,
 					       nullptr, 0,
 					       nullptr, nonce, key) == 0;
   ciphertext.insert(ciphertext.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
@@ -70,22 +70,25 @@ bool CryptoSodium::decrypt(std::vector<unsigned char> ciphertext,
 			   std::string& decrypted) {
   if (!checkAccess())
     return false;
-  unsigned long long ciphertext_len = ciphertext.size() - crypto_aead_aes256gcm_NPUBBYTES;
-  unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES];
-  std::copy(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES, ciphertext.end(), recoveredNonce);
-  ciphertext.erase(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES);
-  decrypted.resize(ciphertext_len);
-  unsigned long long decrypted_len;
-  unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
-  setAESKey(key);
-  bool success = crypto_aead_aes256gcm_decrypt(reinterpret_cast<unsigned char*>(decrypted.data()),
-					       &decrypted_len,
-					       nullptr,
-					       ciphertext.data(), ciphertext_len,
-					       nullptr, 0,
-					       recoveredNonce, key) == 0;
-  decrypted.resize(decrypted_len);
-  return success;
+  if (utility::isEncrypted(ciphertext)) {
+    unsigned long long ciphertext_len = ciphertext.size() - crypto_aead_aes256gcm_NPUBBYTES;
+    unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES];
+    std::copy(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES, ciphertext.end(), recoveredNonce);
+    ciphertext.erase(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES);
+    decrypted.resize(ciphertext_len);
+    unsigned long long decrypted_len;
+    unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
+    setAESKey(key);
+    bool success = crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(decrypted.data()),
+						 &decrypted_len,
+						 nullptr,
+						 ciphertext.data(), ciphertext_len,
+						 nullptr, 0,
+						 recoveredNonce, key) == 0;
+    decrypted.resize(decrypted_len);
+    return success;
+  }
+  return false;
 }
 
 std::vector<unsigned char> CryptoSodium::encodeLength(size_t length) {

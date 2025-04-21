@@ -46,7 +46,7 @@ TEST(LibSodiumTest, hashing) {
   CryptoSodium crypto;
   std::u8string message = utility::generateRawUUIDu8();
   unsigned char hash[crypto_hash_sha256_BYTES];
-  crypto_hash_sha256(hash, reinterpret_cast<const unsigned char*>(message.data()), message.size());
+  crypto_hash_sha256(hash, std::bit_cast<const unsigned char*>(message.data()), message.size());
   std::cout << "SHA-256 hash:";
   for (unsigned i = 0; i < crypto_hash_sha256_BYTES; ++i) {
     std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
@@ -104,8 +104,7 @@ TEST(LibSodiumTest, encryption) {
   input.insert(input.end(), TestEnvironment::_source.cbegin(), TestEnvironment::_source.cend());
   unsigned long long ciphertext_len;
   crypto.encrypt(input, header, ciphertext, ciphertext_len);
-  std::string_view encrypted(reinterpret_cast<const char*>(ciphertext.data()), ciphertext_len);
-  ASSERT_TRUE(utility::isEncrypted(encrypted));
+  ASSERT_TRUE(utility::isEncrypted(ciphertext));
   std::string decrypted;
   ASSERT_TRUE(crypto.decrypt(ciphertext, decrypted));
   ASSERT_FALSE(utility::isEncrypted(decrypted));
