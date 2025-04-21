@@ -4,30 +4,30 @@
 
 #include "CryptoSodium.h"
 
-#include<stdexcept>
+#include <cstring>
+#include <stdexcept>
 
 #include "Utility.h"
 
 HandleKey::HandleKey() :
   _size(crypto_aead_aes256gcm_KEYBYTES),
-  _obfuscator(_size),
   _obfuscated(false) {
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
-  randombytes_buf(_obfuscator.data(), _size);
+  randombytes_buf(_obfuscator, _size);
 }
 
-void HandleKey::hideKey(std::vector<unsigned char>& key) {
+void HandleKey::hideKey(unsigned char* key) {
   if (!_obfuscated) {
     // refresh obfuscator
-    randombytes(_obfuscator.data(), _size);
+    randombytes(_obfuscator, _size);
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
     _obfuscated = true;
   }
 }
 
-void HandleKey::recoverKey(std::vector<unsigned char>& key) {
+void HandleKey::recoverKey(unsigned char* key) {
   if (_obfuscated) {
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
@@ -40,13 +40,52 @@ CryptoSodium::CryptoSodium() {
     throw std::runtime_error("sodium_init failed");
 }
 
-std::string_view CryptoSodium::encrypt(std::string&,
-				       const HEADER&,
-				       std::string_view) {
-  return "";
+void CryptoSodium::setTestAesKey(unsigned char* key) {
+  std::copy(key, key + crypto_aead_aes256gcm_KEYBYTES, _key);
+  _keyHandler.hideKey(_key);
 }
 
-void CryptoSodium::decrypt(std::string&, std::string&) {
+bool CryptoSodium::encrypt(std::string& input,
+			   const HEADER& header,
+			   std::vector<unsigned char>& ciphertext,
+			   unsigned long long &ciphertext_len) {
+  if (!checkAccess())
+    return false;
+  serialize(header, input.data());
+  unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+  randombytes_buf(nonce, sizeof nonce);
+  std::size_t message_len = input.size();
+  ciphertext.resize(message_len + crypto_aead_aes256gcm_ABYTES);
+  unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
+  setAESKey(key);
+  bool success = crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len,
+					       reinterpret_cast<unsigned char*>(input.data()), message_len,
+					       nullptr, 0,
+					       nullptr, nonce, key) == 0;
+  ciphertext.insert(ciphertext.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
+  return success;
+}
+
+bool CryptoSodium::decrypt(std::vector<unsigned char> ciphertext,
+			   std::string& decrypted) {
+  if (!checkAccess())
+    return false;
+  unsigned long long ciphertext_len = ciphertext.size() - crypto_aead_aes256gcm_NPUBBYTES;
+  unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES];
+  std::copy(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES, ciphertext.end(), recoveredNonce);
+  ciphertext.erase(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES);
+  decrypted.resize(ciphertext_len);
+  unsigned long long decrypted_len;
+  unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
+  setAESKey(key);
+  bool success = crypto_aead_aes256gcm_decrypt(reinterpret_cast<unsigned char*>(decrypted.data()),
+					       &decrypted_len,
+					       nullptr,
+					       ciphertext.data(), ciphertext_len,
+					       nullptr, 0,
+					       recoveredNonce, key) == 0;
+  decrypted.resize(decrypted_len);
+  return success;
 }
 
 std::vector<unsigned char> CryptoSodium::encodeLength(size_t length) {
@@ -126,4 +165,17 @@ std::vector<unsigned char> CryptoSodium::base64Decode(const std::string& input) 
     return {};
   decoded_data.resize(decoded_length);
   return decoded_data;
+}
+
+bool CryptoSodium::checkAccess() {
+  /* temp
+  if (utility::isServerTerminal())
+    return _verified;
+  else if (utility::isClientTerminal())
+    return _signatureSent;
+  else if (utility::isTestbinTerminal())
+    return true;
+  return false;
+  */
+  return true;
 }

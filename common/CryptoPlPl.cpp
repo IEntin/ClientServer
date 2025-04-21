@@ -126,8 +126,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
     stfDecryptor.Put(reinterpret_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());
     stfDecryptor.MessageEnd();
-    data.resize(buffer.size());
-    std::memcpy(data.data(), buffer.data(), buffer.size());
+    data = buffer;
     if (ClientOptions::_showKey)
       showKey();
   }

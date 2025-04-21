@@ -3,6 +3,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -40,6 +42,7 @@ TEST(LibSodiumTest, authentication) {
 }
 
 TEST(LibSodiumTest, hashing) {
+  ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto;
   std::u8string message = utility::generateRawUUIDu8();
   unsigned char hash[crypto_hash_sha256_BYTES];
@@ -52,6 +55,7 @@ TEST(LibSodiumTest, hashing) {
 }
 
 TEST(LibSodiumTest, base64Encode) {
+  ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto;
   constexpr int N = 1234;
   std::vector<unsigned char> original_data(N);
@@ -84,52 +88,35 @@ TEST(LibSodiumTest, DHkeyExchange) {
 }
 
 TEST(LibSodiumTest, encryption) {
+  ASSERT_FALSE(sodium_init() < 0);
   ASSERT_TRUE(crypto_aead_aes256gcm_is_available());
   ASSERT_FALSE(sodium_init() < 0);
-  unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
-  crypto_aead_aes256gcm_keygen(key);
-  unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
-  randombytes_buf(nonce, sizeof nonce);
   HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), ClientOptions::_encryption,
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
-  TestEnvironment::_buffer.clear();
+  CryptoSodium crypto;
+  unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
+  crypto_aead_aes256gcm_keygen(key);
+  crypto.setTestAesKey(key);
+  std::vector<unsigned char> ciphertext;
+  std::string input;
   char headerBuffer[HEADER_SIZE] = {};
-  serialize(header, headerBuffer);
-  TestEnvironment::_buffer.append(headerBuffer, HEADER_SIZE);
-  TestEnvironment::_buffer.insert(TestEnvironment::_buffer.end(),  TestEnvironment::_source.cbegin(), TestEnvironment::_source.cend());
-  std::size_t message_len = TestEnvironment::_buffer.size();
-  std::vector<unsigned char> ciphertext(message_len + crypto_aead_aes256gcm_ABYTES);
+  input.append(headerBuffer, HEADER_SIZE);
+  input.insert(input.end(), TestEnvironment::_source.cbegin(), TestEnvironment::_source.cend());
   unsigned long long ciphertext_len;
-  ASSERT_TRUE(crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len,
-					    reinterpret_cast<unsigned char*>(TestEnvironment::_buffer.data()), message_len,
-					    nullptr, 0,
-					    nullptr, nonce, key) == 0);
-  ciphertext.insert(ciphertext.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
+  crypto.encrypt(input, header, ciphertext, ciphertext_len);
   std::string_view encrypted(reinterpret_cast<const char*>(ciphertext.data()), ciphertext_len);
   ASSERT_TRUE(utility::isEncrypted(encrypted));
-  unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES];
-  std::copy(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES, ciphertext.end(), recoveredNonce);
-  ciphertext.erase(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES);
-  ASSERT_TRUE(sizeof(recoveredNonce) == sizeof(nonce));
-  ASSERT_TRUE(std::memcmp(nonce, recoveredNonce, crypto_aead_aes256gcm_NPUBBYTES) == 0);
-  std::string decrypted(ciphertext_len, '\0');
-  unsigned long long decrypted_len;
-  ASSERT_TRUE(crypto_aead_aes256gcm_decrypt(reinterpret_cast<unsigned char*>(decrypted.data()), &decrypted_len,
-					    nullptr,
-					    ciphertext.data(), ciphertext_len,
-					    nullptr, 0,
-					    recoveredNonce, key) == 0);
-  ASSERT_TRUE(ciphertext_len > decrypted_len);
-  ASSERT_TRUE(message_len == decrypted_len);
-  decrypted.resize(decrypted_len);
+  std::string decrypted;
+  ASSERT_TRUE(crypto.decrypt(ciphertext, decrypted));
   ASSERT_FALSE(utility::isEncrypted(decrypted));
   HEADER recoveredHeader;
   deserialize(recoveredHeader, decrypted.data());
   ASSERT_EQ(header, recoveredHeader);
-  ASSERT_TRUE(decrypted == TestEnvironment::_buffer);
+  ASSERT_TRUE(decrypted == input);
 }
 
 TEST(LibSodiumTest, publicKeyBerEncoding) {
+  ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto;
   unsigned char pk[crypto_sign_PUBLICKEYBYTES];
   unsigned char sk[crypto_sign_SECRETKEYBYTES];
