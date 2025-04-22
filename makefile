@@ -22,14 +22,12 @@ TESTSRCDIR := test_src
 # google snappy must be installed
 # 'sudo apt-get install libsnappy-dev'
 # /usr/include/snappy.h
-# /usr/lib/x86_64-linux-gnu/libsnappy.a
 BOTANCRYPTORELEASE := Botan-3.7.1.tar.xz
 BOTANCRYPTOLIBDIR:=/usr/local/lib/botan
 # libcrypto++-dev must be installed
 # sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 # libsodium-dev must be installed
 # sudo apt install libsodium-dev
-
 BOTANCRYPTOLIB := $(BOTANCRYPTOLIBDIR)/libbotan.a
 
 DATADIR := data

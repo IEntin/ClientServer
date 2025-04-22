@@ -26,6 +26,8 @@ class CryptoSodium {
   std::vector<unsigned char> encodeLength(size_t length);
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
+  bool _verified = false;
+  bool _signatureSent = false;
   std::mutex _mutex;
 public:
   CryptoSodium();
@@ -36,10 +38,6 @@ public:
 	       unsigned long long &ciphertext_len);
   bool decrypt(std::vector<unsigned char> ciphertext,
 	       std::string& decrypted);
-  std::vector<unsigned char> berEncode(const std::string& str);
-  std::string berDecode(const std::vector<unsigned char>& encoded);
-  std::string base64Encode(const std::vector<unsigned char>& input);
-  std::vector<unsigned char> base64Decode(const std::string& input);
   void setTestAesKey(unsigned char* key);
   bool checkAccess();
   void setAESKey(unsigned char* key) {
@@ -48,4 +46,7 @@ public:
     std::copy(_key, _key + crypto_aead_aes256gcm_KEYBYTES, key);
     _keyHandler.hideKey(_key);
   }
+  std::string base64_encode(const std::vector<unsigned char>& input);
+  std::vector<unsigned char> base64_decode(const std::string& input);
+  std::vector<unsigned char> hashMessage(std::u8string_view message);
 };

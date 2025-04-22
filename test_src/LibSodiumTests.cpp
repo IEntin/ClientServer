@@ -8,14 +8,10 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <numeric>
 #include <stdexcept>
 #include <vector>
 
-#include <boost/uuid/uuid.hpp>
-
 #include <sodium.h>
-#include <sodium/crypto_hash_sha256.h>
 
 #include "ClientOptions.h"
 #include "CryptoSodium.h"
@@ -28,7 +24,8 @@
 
 TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
-  constexpr unsigned MESSAGE_LEN = sizeof(boost::uuids::uuid);
+  // any not less than possible length
+  constexpr unsigned MESSAGE_LEN = 23;
   unsigned char MESSAGE[MESSAGE_LEN];
   std::u8string message = utility::generateRawUUIDu8();
   std::copy(message.cbegin(), message.cend(), MESSAGE);
@@ -49,24 +46,13 @@ TEST(LibSodiumTest, hashing) {
   ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto;
   std::u8string message = utility::generateRawUUIDu8();
-  unsigned char hash[crypto_hash_sha256_BYTES];
-  crypto_hash_sha256(hash, std::bit_cast<const unsigned char*>(message.data()), message.size());
-  std::cout << "SHA-256 hash:";
-  for (unsigned i = 0; i < crypto_hash_sha256_BYTES; ++i) {
-    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
+  std::vector<unsigned char> hashed = crypto.hashMessage(message);
+  ASSERT_EQ(hashed.size(), crypto_generichash_BYTES);
+  std::cout << "generichash:";
+  for (auto element : hashed) {
+    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(element);
   }
   std::cout << '\n';
-}
-
-TEST(LibSodiumTest, base64Encode) {
-  ASSERT_FALSE(sodium_init() < 0);
-  CryptoSodium crypto;
-  constexpr int N = 1234;
-  std::vector<unsigned char> original_data(N);
-  std::iota(original_data.begin(), original_data.end(), 1);
-  std::string encoded = crypto.base64Encode(original_data);
-  std::vector<unsigned char> decoded_data = crypto.base64Decode(encoded);
-  ASSERT_EQ(original_data, decoded_data);
 }
 
 TEST(LibSodiumTest, DHkeyExchange) {
@@ -118,14 +104,14 @@ TEST(LibSodiumTest, encryption) {
   ASSERT_TRUE(decrypted == input);
 }
 
-TEST(LibSodiumTest, publicKeyBerEncoding) {
+TEST(LibSodiumTest, publicKeyEncoding) {
   ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto;
-  unsigned char pk[crypto_sign_PUBLICKEYBYTES];
-  unsigned char sk[crypto_sign_SECRETKEYBYTES];
-  crypto_sign_keypair(pk, sk);
-  std::string original(pk, pk + crypto_sign_PUBLICKEYBYTES);
-  std::vector<unsigned char> encoded = crypto.berEncode(original);
-  std::string decoded = crypto.berDecode(encoded);
-  ASSERT_TRUE(original == decoded);
+  unsigned char public_key[crypto_box_PUBLICKEYBYTES];
+  unsigned char secret_key[crypto_box_SECRETKEYBYTES];
+  crypto_box_keypair(public_key, secret_key);
+  std::vector<unsigned char> original_data(public_key, public_key + crypto_box_PUBLICKEYBYTES);
+  std::string encoded = crypto.base64_encode(original_data);
+  std::vector<unsigned char> decoded_data = crypto.base64_decode(encoded);
+  ASSERT_EQ(original_data, decoded_data);
 }
