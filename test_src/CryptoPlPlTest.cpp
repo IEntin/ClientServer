@@ -110,7 +110,7 @@ TEST(AuthenticationTest, 1) {
   CryptoPP::RSA::PublicKey publicKey;
   publicKey.AssignFrom(privateKey);
   // Message to sign
-  std::string message("test message");
+  std::string message(utility::generateRawUUID());
   // Sign the message
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
   std::string signature;

@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include <boost/uuid/uuid.hpp>
+
 #include <sodium.h>
 #include <sodium/crypto_hash_sha256.h>
 
@@ -26,8 +28,10 @@
 
 TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
-  constexpr const unsigned char MESSAGE[] = "This is a message to sign";
-  constexpr unsigned MESSAGE_LEN = sizeof(MESSAGE);
+  constexpr unsigned MESSAGE_LEN = sizeof(boost::uuids::uuid);
+  unsigned char MESSAGE[MESSAGE_LEN];
+  std::u8string message = utility::generateRawUUIDu8();
+  std::copy(message.cbegin(), message.cend(), MESSAGE);
   unsigned char pk[crypto_sign_PUBLICKEYBYTES];
   unsigned char sk[crypto_sign_SECRETKEYBYTES];
   crypto_sign_keypair(pk, sk);

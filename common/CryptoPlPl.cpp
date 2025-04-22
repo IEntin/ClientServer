@@ -57,8 +57,8 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 }
 
 // client
-CryptoPlPl::CryptoPlPl(std::string_view msgHash) :
-  _msgHash(sha256_hash(msgHash)),
+CryptoPlPl::CryptoPlPl(std::string_view msg) :
+  _msgHash(sha256_hash(msg)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),

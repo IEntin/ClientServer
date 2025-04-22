@@ -60,7 +60,7 @@ public:
   CryptoPlPl(std::string_view msgHash,
 	     const CryptoPP::SecByteBlock& pubB,
 	     std::string_view signatureWithPubKey);
-  explicit CryptoPlPl(std::string_view msgHash);
+  explicit CryptoPlPl(std::string_view msg);
   ~CryptoPlPl() = default;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
