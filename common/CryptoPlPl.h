@@ -11,6 +11,7 @@
 #include <cryptopp/oids.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/rsa.h>
+#include <cryptopp/secblock.h>
 
 #include "Header.h"
 
@@ -48,11 +49,11 @@ class CryptoPlPl {
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
-  template <typename VARIABLE>
-  void setAESvariable(VARIABLE& var) {
+  template <typename INSTANCE>
+  void setAESmodule(INSTANCE& instance) {
     std::lock_guard lock(_mutex);
     _keyHandler.recoverKey(_key);
-    var = VARIABLE(_key.data(), _key.size());
+    instance = INSTANCE(_key.data(), _key.size());
     _keyHandler.hideKey(_key);
   }
 

@@ -6,11 +6,10 @@
 
 #include <map>
 
-#include <cryptopp/secblock.h>
-
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
+#include "CryptoPlPl.h"
 #include "ThreadPoolSessions.h"
 
 namespace tcp {

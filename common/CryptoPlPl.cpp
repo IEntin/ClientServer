@@ -100,7 +100,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
   CryptoPP::AES::Encryption aesEncryption;
-  setAESvariable(aesEncryption);
+  setAESmodule(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
   char headerBuffer[HEADER_SIZE] = {};
@@ -121,7 +121,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
       iv(std::bit_cast<const CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
 	 CryptoPP::AES::BLOCKSIZE);
     CryptoPP::AES::Decryption aesDecryption;
-    setAESvariable(aesDecryption);
+    setAESmodule(aesDecryption);
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
     stfDecryptor.Put(std::bit_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());

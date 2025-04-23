@@ -44,9 +44,8 @@ TEST(LibSodiumTest, authentication) {
 
 TEST(LibSodiumTest, hashing) {
   ASSERT_FALSE(sodium_init() < 0);
-  CryptoSodium crypto;
-  std::u8string message = utility::generateRawUUIDu8();
-  std::vector<unsigned char> hashed = crypto.hashMessage(message);
+  CryptoSodium crypto(utility::generateRawUUIDu8());
+  const std::vector<unsigned char>& hashed = crypto.getMsgHash();
   ASSERT_EQ(hashed.size(), crypto_generichash_BYTES);
   std::cout << "generichash:";
   for (auto element : hashed) {
@@ -83,7 +82,7 @@ TEST(LibSodiumTest, encryption) {
   ASSERT_FALSE(sodium_init() < 0);
   HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), ClientOptions::_encryption,
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
-  CryptoSodium crypto;
+  CryptoSodium crypto(utility::generateRawUUIDu8());
   unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
   crypto_aead_aes256gcm_keygen(key);
   crypto.setTestAesKey(key);
@@ -106,7 +105,7 @@ TEST(LibSodiumTest, encryption) {
 
 TEST(LibSodiumTest, publicKeyEncoding) {
   ASSERT_FALSE(sodium_init() < 0);
-  CryptoSodium crypto;
+  CryptoSodium crypto(utility::generateRawUUIDu8());
   unsigned char public_key[crypto_box_PUBLICKEYBYTES];
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(public_key, secret_key);

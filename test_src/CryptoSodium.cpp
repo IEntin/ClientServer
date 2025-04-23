@@ -35,7 +35,8 @@ void HandleKey::recoverKey(unsigned char* key) {
   }
 }
 
-CryptoSodium::CryptoSodium() {
+CryptoSodium::CryptoSodium(std::u8string_view msg) :
+  _msgHash(hashMessage(msg)) {
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
 }

@@ -23,14 +23,16 @@ struct HandleKey {
 
 class CryptoSodium {
 
+  std::vector<unsigned char> hashMessage(std::u8string_view message);
   std::vector<unsigned char> encodeLength(size_t length);
+  std::vector<unsigned char> _msgHash;
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
 public:
-  CryptoSodium();
+  explicit CryptoSodium(std::u8string_view msg);
   ~CryptoSodium() = default;
   bool encrypt(std::string& input,
 	       const HEADER& header,
@@ -48,5 +50,5 @@ public:
   }
   std::string base64_encode(const std::vector<unsigned char>& input);
   std::vector<unsigned char> base64_decode(const std::string& input);
-  std::vector<unsigned char> hashMessage(std::u8string_view message);
+  const std::vector<unsigned char>& getMsgHash() const { return _msgHash; }
 };
