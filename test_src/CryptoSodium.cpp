@@ -114,18 +114,19 @@ std::vector<unsigned char> CryptoSodium::base64_decode(const std::string& input)
   return decoded_data;
 }
 
-std::vector<unsigned char> CryptoSodium::hashMessage(std::u8string_view message) {
+std::array<unsigned char, crypto_generichash_BYTES>
+CryptoSodium::hashMessage(std::u8string_view message) {
   constexpr int MESSAGE_LEN = 22;
   unsigned char MESSAGE[crypto_generichash_BYTES];
   std::copy(message.cbegin(), message.cend(), MESSAGE);
-  unsigned char hash[crypto_generichash_BYTES];
+  std::array<unsigned char, crypto_generichash_BYTES> hash;
   unsigned char key[crypto_generichash_KEYBYTES];
   randombytes_buf(key, sizeof key);
-  crypto_generichash(hash, sizeof hash,
+  crypto_generichash(&hash[0], sizeof hash,
 		     MESSAGE, MESSAGE_LEN,
 		     key, sizeof key);
   assert(MESSAGE_LEN > message.size());
-  return { hash, hash + crypto_generichash_BYTES };
+  return hash;
 }
 
 bool CryptoSodium::checkAccess() {

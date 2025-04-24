@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <vector>
 
@@ -23,9 +24,10 @@ struct HandleKey {
 
 class CryptoSodium {
 
-  std::vector<unsigned char> hashMessage(std::u8string_view message);
+  std::array<unsigned char, crypto_generichash_BYTES>
+  hashMessage(std::u8string_view message);
   std::vector<unsigned char> encodeLength(size_t length);
-  std::vector<unsigned char> _msgHash;
+  const std::array<unsigned char, crypto_generichash_BYTES> _msgHash;
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
   bool _verified = false;
@@ -50,5 +52,6 @@ public:
   }
   std::string base64_encode(const std::vector<unsigned char>& input);
   std::vector<unsigned char> base64_decode(const std::string& input);
-  const std::vector<unsigned char>& getMsgHash() const { return _msgHash; }
+  const std::array<unsigned char, crypto_generichash_BYTES>&
+  getMsgHash() const { return _msgHash; }
 };

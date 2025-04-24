@@ -45,12 +45,12 @@ TEST(LibSodiumTest, authentication) {
 TEST(LibSodiumTest, hashing) {
   ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto(utility::generateRawUUIDu8());
-  const std::vector<unsigned char>& hashed = crypto.getMsgHash();
+  const auto& hashed(crypto.getMsgHash());
   ASSERT_EQ(hashed.size(), crypto_generichash_BYTES);
   std::cout << "generichash:";
-  for (auto element : hashed) {
-    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(element);
-  }
+  for (auto element : hashed)
+    std::cout << std::hex << std::setw(2) << std::setfill('0')
+	      << static_cast<int>(element);
   std::cout << '\n';
 }
 
