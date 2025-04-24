@@ -39,7 +39,7 @@ short Fifo::pollFd(int fd, short expected) {
 
 bool Fifo::setPipeSize(int fd) {
   if (!Options::_setPipeSize)
-    return false;;
+    return false;
   ssize_t currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1)
     throw std::runtime_error(ioutility::createErrorString());

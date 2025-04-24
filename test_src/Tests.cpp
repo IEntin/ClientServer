@@ -268,7 +268,7 @@ TEST(regex, 1) {
   std::string request("http://bid.simpli.fi/ck_bid?size=728x90&user_agent\
 =Mozilla/5.0%20(compatible;%20MSIE%209.0;%20Windows%20NT%206.1;%20WOW64;%20Trident/5.0)\
 &kw=discountcomputer+gliclazide&ip_address=67.87.131.40&site_id=95");
-  boost::regex pattern("size=\\d+x\\d+&");
+  static const boost::regex pattern("size=\\d+x\\d+&");
   boost::smatch match;
   ASSERT_TRUE(boost::regex_search(request, match, pattern));
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);

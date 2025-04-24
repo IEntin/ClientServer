@@ -13,7 +13,7 @@
 
 namespace tcp {
 
-static constexpr std::string_view TYPE{ "tcp" };
+static auto  TYPE{ "tcp" };
 
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,

@@ -19,8 +19,8 @@
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_SNAPPY_LZ4_ENCRYPT_ENCRYPT; done
 
-static constexpr std::string_view _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-static constexpr std::string_view _testFifo = "TestFifo";
+static constexpr auto _smallPayload = "abcdefghijklmnopqr0123456789876543210";
+static constexpr auto _testFifo = "TestFifo";
 
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
@@ -118,9 +118,8 @@ TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
 }
 
 struct FifoBlockingTest : testing::Test {
-  static constexpr std::string_view _testFifo = "TestFifo";
   FifoBlockingTest() {
-    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
+    if (mkfifo(_testFifo, 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
   }
   ~FifoBlockingTest() {
@@ -194,7 +193,7 @@ TEST_F(FifoBlockingTest, FifoBlockingTestReverse) {
 
 struct FifoNBDuplex : testing::Test {
   FifoNBDuplex() {
-    if (mkfifo(_testFifo.data(), 0666) == -1 && errno != EEXIST)
+    if (mkfifo(_testFifo, 0666) == -1 && errno != EEXIST)
       LogError << strerror(errno) << '\n';
   }
 

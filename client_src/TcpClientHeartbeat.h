@@ -16,7 +16,7 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
   public Runnable {
  public:
   TcpClientHeartbeat();
-  ~TcpClientHeartbeat() override = default;;
+  ~TcpClientHeartbeat() override = default;
  private:
   void run() override;
   bool start() override;

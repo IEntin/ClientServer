@@ -102,17 +102,17 @@ void Ad::readAds(std::string_view filename) {
 // memory allocations.
 
 void Ad::print(std::string& output) const {
-  static constexpr std::string_view AD{ "Ad" };
-  static constexpr std::string_view SIZE{ " size=" };
-  static constexpr std::string_view DEFAULTBID{ " defaultBid=" };
-  static constexpr std::string_view DELIMITER{ "\n " };
+  static constexpr auto AD{ "Ad" };
+  static constexpr auto SIZE{ " size=" };
+  static constexpr auto DEFAULTBID{ " defaultBid=" };
+  static constexpr auto DELIMITER{ "\n " };
   output << AD << _id << SIZE << _sizeKey << DEFAULTBID
 	 << _defaultBid << DELIMITER << _input << '\n';
   printBids(output);
 }
 
 void Ad::printBids(std::string& output) const {
-  static constexpr std::string_view SPACES{ "  " };
+  static constexpr auto SPACES{ "  " };
   for (const AdBid& adBid : _bids) {
     output << SPACES << adBid._keyword << ' ' << adBid._money << '\n';
   }

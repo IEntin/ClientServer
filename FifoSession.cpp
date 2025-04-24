@@ -13,7 +13,7 @@
 
 namespace fifo {
 
-static constexpr std::string_view TYPE{ "fifo" };
+static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view msgHash,

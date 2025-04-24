@@ -31,7 +31,7 @@ public:
     if (!deserialize(header, _payload.data()))
       return false;
     printHeader(header, LOG_LEVEL::INFO);
-    std::size_t payload1Size = extractUncompressedSize(header);;
+    std::size_t payload1Size = extractUncompressedSize(header);
     std::size_t payload2Size = extractParameter(header);
     payload1.resize(payload1Size);
     payload2.resize(payload2Size);

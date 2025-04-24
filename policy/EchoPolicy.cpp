@@ -8,14 +8,18 @@
 
 thread_local std::string EchoPolicy::_buffer;
 
+namespace {
+
+// remove id part, if there is one, to run 'diff' with the source file
+static const boost::regex pattern("^\\[\\d+\\]");
+
+} // end of anonimous namespace
+
 // tests transport layer, multithreading, compression, and encryption
 std::string_view EchoPolicy::operator() (const Request& request,
 					 bool diagnostics[[maybe_unused]]) {
-  // regex does not work with string_view
   _buffer = request._value;
   _buffer.push_back('\n');
-  // remove id part, if there is, to run 'diff' with the source file
-  boost::regex pattern("^\\[\\d+\\]");
   boost::smatch match;
   // string::erase is expensive
   std::string_view result = _buffer;
