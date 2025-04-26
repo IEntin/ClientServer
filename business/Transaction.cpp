@@ -4,10 +4,14 @@
 
 #include "Transaction.h"
 
+#include <boost/charconv.hpp>
+#include <boost/regex.hpp>
+
 #include "Ad.h"
 #include "AdBid.h"
 #include "IOUtility.h"
 #include "Logger.h"
+#include "ServerOptions.h"
 #include "Utility.h"
 
 namespace {
@@ -106,6 +110,8 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
 }
 
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
+  if (ServerOptions::_useRegex)
+    return createSizeKeyRegExpr(request);
   auto sizeStartSz = std::strlen(SIZE_START_REG);
   auto separatorSz = std::strlen(SEPARATOR_REG);
   auto begPos = request.find(SIZE_START_REG);
@@ -125,6 +131,58 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
   return { width, height };
+}
+
+SIZETUPLE Transaction::createSizeKeyRegExpr(std::string_view request) {
+  std::string matched;
+  std::size_t MAX_SIZE = 50;
+  std::size_t SEPARATOR_SIZE = 0;
+  // find the start to make regex faster
+  if (auto beg = request.find(SIZE_START_REG); beg != std::string_view::npos) {
+    // shift to make it faster
+    static const auto shift(strlen(SIZE_START_REG));
+    beg += shift;
+    static const boost::regex regex("\\d+x\\d+");
+    request.remove_prefix(beg);
+    if (request.size() > MAX_SIZE)
+      request.remove_suffix(request.size() - MAX_SIZE);
+    std::string strToSearch(request);
+    boost::smatch match;
+    if (boost::regex_search(strToSearch, match, regex)) {
+      matched = match.str();
+      SEPARATOR_SIZE = std::strlen(SEPARATOR_REG);
+    }
+    else
+      return ZERO_SIZE;
+  }
+  else if (auto beg = request.find(SIZE_START_ALT); beg != std::string_view::npos) {
+    static const auto shift(strlen(SIZE_START_ALT));
+    beg += shift;
+    static const boost::regex regex("\\d+&ad_height=\\d+");
+    request.remove_prefix(beg);
+    if (request.size() > MAX_SIZE)
+      request.remove_suffix(request.size() - MAX_SIZE);
+    std::string strToSearch(request);
+    boost::smatch match;
+    if (boost::regex_search(strToSearch, match, regex)) {
+      matched = match.str();
+      SEPARATOR_SIZE = std::strlen(SEPARATOR_ALT);
+    }
+    else
+      return ZERO_SIZE;
+      
+  }
+  //if (matched.empty())
+  //  return ZERO_SIZE;
+  unsigned width;
+  auto result = std::from_chars(matched.data(), matched.data() + matched.size(), width);
+  if (result.ec != std::errc())
+    throw std::runtime_error(ioutility::createErrorString(result.ec));
+  unsigned height;
+  result = std::from_chars(result.ptr + SEPARATOR_SIZE, matched.data() + matched.size(), height);
+  if (result.ec != std::errc())
+    throw std::runtime_error(ioutility::createErrorString(result.ec));
+  return { width, height };    
 }
 
 const AdBid* Transaction::findWinningBid() const {

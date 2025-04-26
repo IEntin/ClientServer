@@ -31,6 +31,7 @@ private:
   explicit Transaction(std::string_view input);
   Transaction(const SIZETUPLE& sizeKey, std::string_view input);
   void init(std::string_view input);
+  static SIZETUPLE createSizeKeyRegExpr(std::string_view request);
   void breakKeywords(std::string_view kwStr);
   bool parseKeywords(std::string_view start);
   void matchAds(const std::vector<AdPtr>& adVector);

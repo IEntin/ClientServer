@@ -23,6 +23,8 @@
   "TcpPort" : 49150,
   "_comment": "Timeout in milliseconds",
   "TcpTimeout" : 3000,
+  "_comment": "Using regex for some operations",
+  "UseRegex" : false,
   "NumberRepeatENXIO" : 200,
   "SetPipeSize" : true,
   "PipeSize" : 1000000,

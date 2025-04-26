@@ -22,6 +22,7 @@ struct ServerOptions : protected Options {
   static int _maxFifoSessions;
   static int _maxTotalSessions;
   static int _tcpTimeout;
+  static bool _useRegex;
   static POLICYENUM _policyEnum;
   static bool _timing;
 private:

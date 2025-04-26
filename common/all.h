@@ -55,6 +55,7 @@
 #include <boost/assert/source_location.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert/source_location.hpp>
+#include <boost/charconv.hpp>
 #include <boost/core/demangle.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
