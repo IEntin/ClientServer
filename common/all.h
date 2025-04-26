@@ -16,6 +16,7 @@
 #include <csignal>
 #include <cstdint>
 #include <cstring>
+#include <cctype>
 #include <deque>
 #include <fcntl.h>
 #include <filesystem>

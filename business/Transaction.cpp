@@ -4,6 +4,8 @@
 
 #include "Transaction.h"
 
+#include <cctype>
+
 #include <boost/charconv.hpp>
 #include <boost/regex.hpp>
 
@@ -135,51 +137,33 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
 
 SIZETUPLE Transaction::createSizeKeyRegExpr(std::string_view request) {
   std::string matched;
-  std::size_t MAX_SIZE = 50;
-  std::size_t SEPARATOR_SIZE = 0;
-  // find the start to make regex faster
-  if (auto beg = request.find(SIZE_START_REG); beg != std::string_view::npos) {
-    // shift to make it faster
-    static const auto shift(strlen(SIZE_START_REG));
-    beg += shift;
-    static const boost::regex regex("\\d+x\\d+");
-    request.remove_prefix(beg);
-    if (request.size() > MAX_SIZE)
-      request.remove_suffix(request.size() - MAX_SIZE);
-    std::string strToSearch(request);
-    boost::smatch match;
-    if (boost::regex_search(strToSearch, match, regex)) {
-      matched = match.str();
-      SEPARATOR_SIZE = std::strlen(SEPARATOR_REG);
+  auto removeNonDigits = [&] (std::string_view& view) mutable {
+    int shift = 0;
+    for (char ch :view) {
+      if (!isdigit(ch))
+	++shift;
+      else
+	break;
     }
-    else
-      return ZERO_SIZE;
-  }
-  else if (auto beg = request.find(SIZE_START_ALT); beg != std::string_view::npos) {
-    static const auto shift(strlen(SIZE_START_ALT));
-    beg += shift;
-    static const boost::regex regex("\\d+&ad_height=\\d+");
-    request.remove_prefix(beg);
-    if (request.size() > MAX_SIZE)
-      request.remove_suffix(request.size() - MAX_SIZE);
-    std::string strToSearch(request);
-    boost::smatch match;
-    if (boost::regex_search(strToSearch, match, regex)) {
-      matched = match.str();
-      SEPARATOR_SIZE = std::strlen(SEPARATOR_ALT);
-    }
-    else
-      return ZERO_SIZE;
-      
-  }
-  //if (matched.empty())
-  //  return ZERO_SIZE;
+    view.remove_prefix(shift);
+  };
+  static const boost::regex regexReg("size=\\d+x\\d+");
+  static const boost::regex regexAlt("ad_width=\\d+&ad_height=\\d+");
+  std::string strToSearch(request);
+  if (boost::smatch match; boost::regex_search(strToSearch, match, regexReg))
+    matched = match.str();
+  else if (boost::smatch match; boost::regex_search(strToSearch, match, regexAlt))
+    matched = match.str();
+  std::string_view view = matched;
+  removeNonDigits(view);
   unsigned width;
-  auto result = std::from_chars(matched.data(), matched.data() + matched.size(), width);
+  auto result = std::from_chars(view.data(), view.data() + view.size(), width);
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
+  view.remove_prefix(result.ptr - view.data());
+  removeNonDigits(view);
   unsigned height;
-  result = std::from_chars(result.ptr + SEPARATOR_SIZE, matched.data() + matched.size(), height);
+  result = std::from_chars(view.data(), view.data() + view.size(), height);
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
   return { width, height };    
