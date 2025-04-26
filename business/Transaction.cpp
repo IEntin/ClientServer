@@ -25,12 +25,12 @@ constexpr char KEYWORD_SEP = '+';
 constexpr char KEYWORDS_END = '&';
 constexpr const char* START_KEYWORDS2{ "keywords=" };
 constexpr auto SIZE_START_REG{ "size=" };
-constexpr auto SEPARATOR_REG{ "x" };
 constexpr auto SIZE_START_ALT{ "ad_width=" };
-constexpr auto SEPARATOR_ALT{ "&ad_height=" };
 constexpr auto DELIMITER(", ");
 
 } // end of anonymous namespace
+
+using ioutility::removeNonDigits;
 
 thread_local std::vector<AdBid> Transaction::_bids;
 thread_local std::vector<std::string_view> Transaction::_keywords;
@@ -114,22 +114,21 @@ std::string_view Transaction::processRequestNoSort(std::string_view request,
 SIZETUPLE Transaction::createSizeKey(std::string_view request) {
   if (ServerOptions::_useRegex)
     return createSizeKeyRegExpr(request);
-  auto sizeStartSz = std::strlen(SIZE_START_REG);
-  auto separatorSz = std::strlen(SEPARATOR_REG);
   auto begPos = request.find(SIZE_START_REG);
   if (begPos == std::string_view::npos) {
     if ((begPos = request.find(SIZE_START_ALT)) == std::string_view::npos)
       return ZERO_SIZE;
-    sizeStartSz = std::strlen(SIZE_START_ALT);
-    separatorSz = std::strlen(SEPARATOR_ALT);
   }
-  begPos += sizeStartSz;
+  request.remove_prefix(begPos);
+  removeNonDigits(request);
   unsigned width;
-  auto result = std::from_chars(request.data() + begPos, request.data() + request.size(), width);
+  auto result = std::from_chars(request.data(), request.data() + request.size(), width);
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
   unsigned height;
-  result = std::from_chars(result.ptr + separatorSz, request.data() + request.size(), height);
+  request.remove_prefix(result.ptr - request.data());
+  removeNonDigits(request);
+  result = std::from_chars(request.data(), request.data() + request.size(), height);
   if (result.ec != std::errc())
     throw std::runtime_error(ioutility::createErrorString(result.ec));
   return { width, height };
@@ -137,16 +136,6 @@ SIZETUPLE Transaction::createSizeKey(std::string_view request) {
 
 SIZETUPLE Transaction::createSizeKeyRegExpr(std::string_view request) {
   std::string matched;
-  auto removeNonDigits = [&] (std::string_view& view) mutable {
-    int shift = 0;
-    for (char ch :view) {
-      if (!isdigit(ch))
-	++shift;
-      else
-	break;
-    }
-    view.remove_prefix(shift);
-  };
   static const boost::regex regexReg("size=\\d+x\\d+");
   static const boost::regex regexAlt("ad_width=\\d+&ad_height=\\d+");
   std::string strToSearch(request);

@@ -15,6 +15,17 @@ namespace ioutility {
 
 constexpr int CONV_BUFFER_SIZE = 10;
 
+inline auto removeNonDigits = [] (std::string_view& view) mutable {
+  int shift = 0;
+  for (char ch : view) {
+    if (!isdigit(ch))
+      ++shift;
+    else
+      break;
+  }
+  view.remove_prefix(shift);
+};
+
 std::string& operator << (std::string&, char);
 std::string& operator << (std::string&, std::string_view);
 
