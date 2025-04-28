@@ -44,8 +44,9 @@ bool TcpSession::start() {
 }
 
 void TcpSession::sendStatusToClient() {
-  auto lambda = [this] (
-    const HEADER& header, std::string_view idStr, const CryptoPP::SecByteBlock& pubA) {
+  auto lambda = [this] (const HEADER& header,
+			std::string_view idStr,
+			const std::vector<unsigned char>& pubA) {
     Tcp::sendMsg(_socket, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);

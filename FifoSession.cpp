@@ -93,7 +93,9 @@ bool FifoSession::sendResponse() {
 
 void FifoSession::sendStatusToClient() {
   auto lambda = [] (
-    const HEADER& header, std::string_view idStr, const CryptoPP::SecByteBlock& pubA) {
+    const HEADER& header,
+    std::string_view idStr,
+    const std::vector<unsigned char>& pubA) {
     Fifo::sendMsg(false, Options::_acceptorName, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);

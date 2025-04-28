@@ -66,10 +66,10 @@ public:
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  const CryptoPP::SecByteBlock& getPubKey() const { return _pubKey; }
+  void getPubKey(std::vector<unsigned char>& pubKeyVector) const;
   std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
   std::string_view getMsgHash() const { return _msgHash; }
-  bool handshake(const CryptoPP::SecByteBlock& pubAreceived);
+  bool handshake(const std::vector<unsigned char>& pubAvector);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);

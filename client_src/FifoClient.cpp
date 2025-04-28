@@ -81,9 +81,9 @@ bool FifoClient::wakeupAcceptor() {
   auto lambda = [] (
     const HEADER& header,
     const std::string_view msgHash,
-    const CryptoPP::SecByteBlock& pubKey,
+    const std::vector<unsigned char> pubKeyVector,
     std::string_view signedAuth) {
-    return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKey, signedAuth);
+    return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKeyVector, signedAuth);
   };
   return init(lambda);
 }
@@ -92,7 +92,7 @@ bool FifoClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
   std::string clientIdStr;
-  CryptoPP::SecByteBlock pubAreceived;
+  std::vector<unsigned char> pubAreceived;
   if (!Fifo::readMsg(Options::_acceptorName, true, _header, clientIdStr, pubAreceived))
     return false;
   if (!DHFinish(clientIdStr, pubAreceived))

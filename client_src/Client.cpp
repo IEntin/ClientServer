@@ -22,7 +22,7 @@ Client::~Client() {
   stop();
 }
 
-bool Client::DHFinish(std::string_view clientIdStr, const CryptoPP::SecByteBlock& pubAreceived) {
+bool Client::DHFinish(std::string_view clientIdStr, const std::vector<unsigned char>& pubAreceived) {
   if (!_crypto->handshake(pubAreceived)) {
     LogError << "handshake failed";
     return false;

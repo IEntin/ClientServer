@@ -14,9 +14,9 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   auto lambda = [this] (
     const HEADER& header,
     std::string_view msgHash,
-    const CryptoPP::SecByteBlock& pubKey,
+    const std::vector<unsigned char>& pubKeyVector,
     std::string_view signedAuth) {
-    return Tcp::sendMsg(_socket, header, msgHash, pubKey, signedAuth);
+    return Tcp::sendMsg(_socket, header, msgHash, pubKeyVector, signedAuth);
   };
   if (!init(lambda))
     throw std::runtime_error("TcpClient::init failed");
@@ -72,10 +72,10 @@ bool TcpClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
   std::string clientIdStr;
-  CryptoPP::SecByteBlock pubAreceived;
-  if (!Tcp::readMsg(_socket, _header, clientIdStr, pubAreceived))
+  std::vector<unsigned char> pubAvector;
+  if (!Tcp::readMsg(_socket, _header, clientIdStr, pubAvector))
     return false;
-  if (!DHFinish(clientIdStr, pubAreceived))
+  if (!DHFinish(clientIdStr, pubAvector))
     return false;
   startHeartbeat();
   return true;

@@ -142,7 +142,9 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool CryptoPlPl::handshake(const CryptoPP::SecByteBlock& pubAreceived) {
+bool CryptoPlPl::handshake(const std::vector<unsigned char>& pubAvector) {
+  // const reference from rvalue
+  const CryptoPP::SecByteBlock& pubAreceived { pubAvector.data(), pubAvector.size() };
   bool result = _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
   hideKey();
@@ -240,6 +242,11 @@ bool CryptoPlPl::checkAccess() {
   else if (utility::isTestbinTerminal())
     return true;
   return false;
+}
+
+
+void CryptoPlPl::getPubKey(std::vector<unsigned char>& pubKeyVector) const {
+  pubKeyVector = { _pubKey.begin(), _pubKey.end() };
 }
 
 void CryptoPlPl::hideKey() {
