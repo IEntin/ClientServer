@@ -18,10 +18,10 @@ static auto  TYPE{ "tcp" };
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
 		       std::string_view msgHash,
-		       const CryptoPP::SecByteBlock& pubB,
+		       const std::vector<unsigned char> pubBvector,
 		       std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, msgHash, pubB, signatureWithPubKey),
+  Session(server, msgHash, pubBvector, signatureWithPubKey),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),

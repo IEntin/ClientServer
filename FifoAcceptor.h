@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "CryptoPlPl.h"
 #include "Runnable.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
@@ -15,7 +14,7 @@ class FifoAcceptor : public Runnable {
   void run() override;
   bool start() override;
   void stop() override;
-  std::tuple<HEADERTYPE, std::string, CryptoPP::SecByteBlock, std::string>
+  std::tuple<HEADERTYPE, std::string, std::vector<unsigned char>, std::string>
   unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;

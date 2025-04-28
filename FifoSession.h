@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "CryptoPlPl.h"
 #include "Runnable.h"
 #include "Session.h"
 
@@ -25,7 +24,7 @@ class FifoSession final : public RunnableT<FifoSession>,
  public:
   FifoSession(ServerWeakPtr server,
 	      std::string_view msgHash,
-	      const CryptoPP::SecByteBlock& pubB,
+	      const std::vector<unsigned char> pubBvector,
 	      std::string_view signatureWithPubKey);
   ~FifoSession() override;
 };

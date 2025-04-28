@@ -17,10 +17,10 @@ static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view msgHash,
-			 const CryptoPP::SecByteBlock& pubB,
+			 const std::vector<unsigned char> pubBvector,
 			 std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, msgHash, pubB, signatureWithPubKey) {}
+  Session(server, msgHash, pubBvector, signatureWithPubKey) {}
 
 FifoSession::~FifoSession() {
   try {

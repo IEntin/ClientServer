@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 
-#include "CryptoPlPl.h"
 #include "Runnable.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
@@ -24,7 +23,7 @@ private:
   void stop() override;
 
   void accept();
-  std::tuple<HEADERTYPE, std::string, CryptoPP::SecByteBlock, std::string>
+  std::tuple<HEADERTYPE, std::string, std::vector<unsigned char>, std::string>
   connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 

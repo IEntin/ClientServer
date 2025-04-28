@@ -12,21 +12,12 @@
 
 Session::Session(ServerWeakPtr server,
 		 std::string_view msgHash,
-		 const CryptoPP::SecByteBlock& pubB,
+		 const std::vector<unsigned char> pubBvector,
 		 std::string_view signatureWithPubKey) :
-  _crypto(std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey)),
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  std::string signature(signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
-  std::string_view rsaPubKeySerialized = signatureWithPubKey.substr(RSA_KEY_SIZE >> 3);
-  _crypto->decodePeerRsaPublicKey(rsaPubKeySerialized);
-  if (!_crypto->verifySignature(signature))
-    throw std::runtime_error("signature verification failed.");
-  _crypto->hideKey();
-  if (ServerOptions::_showKey)
-    _crypto->showKey();
-  _crypto->eraseRSAKeys();
+  _crypto = std::make_shared<CryptoPlPl>(msgHash, pubBvector, signatureWithPubKey);
 }
 
 std::pair<HEADER, std::string_view>

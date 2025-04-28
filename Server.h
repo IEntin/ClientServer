@@ -9,7 +9,6 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
-#include "CryptoPlPl.h"
 #include "ThreadPoolSessions.h"
 
 namespace tcp {
@@ -29,11 +28,11 @@ public:
   bool start();
   void stop();
   void createFifoSession(std::string_view msgHash,
-			 const CryptoPP::SecByteBlock& pubB,
+			 const std::vector<unsigned char>& pubBvector,
 			 std::string_view rsaPubB);
   void createTcpSession(tcp::ConnectionPtr connection,
 			std::string_view msgHash,
-			const CryptoPP::SecByteBlock& pubB,
+			const std::vector<unsigned char>& pubBvector,
 			std::string_view rsaPubB);
   const PolicyPtr& getPolicy() const { return _policy; }
   static void removeNamedMutex();

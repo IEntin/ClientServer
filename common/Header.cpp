@@ -8,8 +8,12 @@
 #include "Options.h"
 
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
-  CRYPTO crypto = cryptoStr == "CRYPTOPP" ? CRYPTO::CRYPTOPP : CRYPTO::NONE;
-  return crypto;
+  if (cryptoStr == "CRYPTOPP")
+    return CRYPTO::CRYPTOPP;
+  else if (cryptoStr == "CRYPTOSODIUM")
+    return CRYPTO::CRYPTOSODIUM;
+  else
+    return CRYPTO::NONE;
 }
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr) {

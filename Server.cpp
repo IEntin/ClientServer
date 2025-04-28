@@ -78,20 +78,20 @@ void Server::stop() {
 }
 
 void Server::createFifoSession(std::string_view msgHash,
-			       const CryptoPP::SecByteBlock& pubB,
+			       const std::vector<unsigned char>& pubBvector,
 			       std::string_view rsaPubBserialized) {
   std::lock_guard lock(_mutex);
-  auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, rsaPubBserialized);
+  auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubBvector, rsaPubBserialized);
   startSession(session, session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
 			      std::string_view msgHash,
-			      const CryptoPP::SecByteBlock& pubB,
+			      const std::vector<unsigned char>& pubBvector,
 			      std::string_view rsaPubB) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, rsaPubB);
+    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubBvector, rsaPubB);
   startSession(session, session);
 }
 

@@ -22,7 +22,8 @@ public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
 	     std::string_view msgHash,
-	     const CryptoPP::SecByteBlock& pubB,
+	     //const CryptoPP::SecByteBlock& pubB,
+	     const std::vector<unsigned char> pubBvector,
 	     std::string_view rsaPubB);
 
   ~TcpSession() override;

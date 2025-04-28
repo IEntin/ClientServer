@@ -59,7 +59,7 @@ class CryptoPlPl {
 
 public:
   CryptoPlPl(std::string_view msgHash,
-	     const CryptoPP::SecByteBlock& pubB,
+	     const std::vector<unsigned char>& pubBvector,
 	     std::string_view signatureWithPubKey);
   explicit CryptoPlPl(std::string_view msg);
   ~CryptoPlPl() = default;

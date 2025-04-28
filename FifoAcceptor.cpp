@@ -22,29 +22,29 @@ FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
 }
 
-std::tuple<HEADERTYPE, std::string, CryptoPP::SecByteBlock, std::string>
+std::tuple<HEADERTYPE, std::string, std::vector<unsigned char>, std::string>
 FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, std::string(), CryptoPP::SecByteBlock(), std::string() };
+    return { HEADERTYPE::ERROR, std::string(), std::vector<unsigned char>(), std::string() };
   HEADER header;
   std::string msgHash;
-  CryptoPP::SecByteBlock pubB;
+  std::vector<unsigned char> pubBvector;
   std::string rsaPubB;
-  if (!Fifo::readMsg(_acceptorName, true, header, msgHash, pubB, rsaPubB))
-    return { HEADERTYPE::ERROR, std::string(), CryptoPP::SecByteBlock(), rsaPubB };
-  return { extractHeaderType(header), msgHash, pubB, rsaPubB };
+  if (!Fifo::readMsg(_acceptorName, true, header, msgHash, pubBvector, rsaPubB))
+    return { HEADERTYPE::ERROR, std::string(), std::vector<unsigned char>(), rsaPubB };
+  return { extractHeaderType(header), msgHash, pubBvector, rsaPubB };
 }
 
 void FifoAcceptor::run() {
   while (!_stopped) {
-    auto [type, msgHash, pubB, signatureWithPubKey] = unblockAcceptor();
+    auto [type, msgHash, pubBvector, signatureWithPubKey] = unblockAcceptor();
     if (_stopped)
       break;
     switch (type) {
     case HEADERTYPE::DH_INIT:
       if (auto server = _server.lock(); server)
-	server->createFifoSession(msgHash, pubB, signatureWithPubKey);
+	server->createFifoSession(msgHash, pubBvector, signatureWithPubKey);
       break;
     default:
       break;

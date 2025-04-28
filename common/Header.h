@@ -37,6 +37,7 @@ enum class CRYPTO : char {
   INVALIDLOW = '@',
   NONE,
   CRYPTOPP,
+  CRYPTOSODIUM,
   INVALIDHIGH
 };
 
