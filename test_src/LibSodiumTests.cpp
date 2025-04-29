@@ -86,21 +86,17 @@ TEST(LibSodiumTest, encryption) {
   unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
   crypto_aead_aes256gcm_keygen(key);
   crypto.setTestAesKey(key);
-  std::vector<unsigned char> ciphertext;
-  std::string input;
-  char headerBuffer[HEADER_SIZE] = {};
-  input.append(headerBuffer, HEADER_SIZE);
-  input.insert(input.end(), TestEnvironment::_source.cbegin(), TestEnvironment::_source.cend());
-  unsigned long long ciphertext_len;
-  crypto.encrypt(input, header, ciphertext, ciphertext_len);
-  ASSERT_TRUE(utility::isEncrypted(ciphertext));
-  std::string decrypted;
-  ASSERT_TRUE(crypto.decrypt(ciphertext, decrypted));
-  ASSERT_FALSE(utility::isEncrypted(decrypted));
+  std::string_view encrypted = crypto.encrypt(TestEnvironment::_buffer,
+					      header,
+					      TestEnvironment::_source);
+  ASSERT_TRUE(utility::isEncrypted(encrypted));
+  std::string data(encrypted);
+  crypto.decrypt(TestEnvironment::_buffer, data);
+  ASSERT_FALSE(utility::isEncrypted(data));
   HEADER recoveredHeader;
-  deserialize(recoveredHeader, decrypted.data());
+  deserialize(recoveredHeader, data.data());
   ASSERT_EQ(header, recoveredHeader);
-  ASSERT_TRUE(decrypted == input);
+  ASSERT_TRUE(data.erase(0, HEADER_SIZE) == TestEnvironment::_source);
 }
 
 TEST(LibSodiumTest, publicKeyEncoding) {

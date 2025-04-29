@@ -7,6 +7,8 @@
 #include <cstring>
 #include <stdexcept>
 
+#include "ClientOptions.h"
+#include "ServerOptions.h"
 #include "Utility.h"
 
 HandleKey::HandleKey() :
@@ -46,50 +48,64 @@ void CryptoSodium::setTestAesKey(unsigned char* key) {
   _keyHandler.hideKey(_key);
 }
 
-bool CryptoSodium::encrypt(std::string& input,
-			   const HEADER& header,
-			   std::vector<unsigned char>& ciphertext,
-			   unsigned long long &ciphertext_len) {
+std::string_view CryptoSodium::encrypt(std::string& buffer,
+				       const HEADER& header,
+				       std::string_view data) {
   if (!checkAccess())
-    return false;
+    return "";
+  if (sodium_init() < 0)
+    throw std::runtime_error("sodium_init failed");
+  buffer.clear();
+  std::string input;
+  char headerBuffer[HEADER_SIZE] = {};
+  input.append(headerBuffer, HEADER_SIZE);
+  input.insert(input.end(), data.cbegin(), data.cend());
+  unsigned long long ciphertext_len;
   serialize(header, input.data());
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
   randombytes_buf(nonce, sizeof nonce);
   std::size_t message_len = input.size();
-  ciphertext.resize(message_len + crypto_aead_aes256gcm_ABYTES);
+  buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
   unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
   setAESKey(key);
-  bool success = crypto_aead_aes256gcm_encrypt(ciphertext.data(), &ciphertext_len,
-					       std::bit_cast<unsigned char*>(input.data()), message_len,
-					       nullptr, 0,
-					       nullptr, nonce, key) == 0;
-  ciphertext.insert(ciphertext.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
-  return success;
+  if (!(crypto_aead_aes256gcm_encrypt(std::bit_cast<unsigned char*>(buffer.data()),
+				      &ciphertext_len,
+				      std::bit_cast<unsigned char*>(input.data()),
+				      message_len, nullptr, 0,
+				      nullptr, nonce, key) == 0))
+    return "";
+  buffer.insert(buffer.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
+  return buffer;
 }
 
-bool CryptoSodium::decrypt(std::vector<unsigned char> ciphertext,
-			   std::string& decrypted) {
+void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
-    return false;
-  if (utility::isEncrypted(ciphertext)) {
-    unsigned long long ciphertext_len = ciphertext.size() - crypto_aead_aes256gcm_NPUBBYTES;
+    return;
+  if (sodium_init() < 0)
+    throw std::runtime_error("sodium_init failed");
+  buffer.clear();
+  if (utility::isEncrypted(data)) {
+    unsigned long long ciphertext_len = data.size() - crypto_aead_aes256gcm_NPUBBYTES;
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES];
-    std::copy(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES, ciphertext.end(), recoveredNonce);
-    ciphertext.erase(ciphertext.end() - crypto_aead_aes256gcm_NPUBBYTES);
-    decrypted.resize(ciphertext_len);
+    std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);
+    data.erase(data.end() - crypto_aead_aes256gcm_NPUBBYTES);
+    buffer.resize(ciphertext_len);
     unsigned long long decrypted_len;
     unsigned char key[crypto_aead_aes256gcm_KEYBYTES] = {};
     setAESKey(key);
-    bool success = crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(decrypted.data()),
+    bool success = crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(buffer.data()),
 						 &decrypted_len,
 						 nullptr,
-						 ciphertext.data(), ciphertext_len,
+						 std::bit_cast<unsigned char*>(data.data()), ciphertext_len,
 						 nullptr, 0,
 						 recoveredNonce, key) == 0;
-    decrypted.resize(decrypted_len);
-    return success;
+    if (!success)
+      return;
+    buffer.resize(decrypted_len);
+    data = buffer;
+    if (ClientOptions::_showKey)
+      showKey();
   }
-  return false;
 }
 
 std::string CryptoSodium::base64_encode(const std::vector<unsigned char>& input) {
@@ -127,6 +143,17 @@ CryptoSodium::hashMessage(std::u8string_view message) {
 		     key, sizeof key);
   assert(MESSAGE_LEN > message.size());
   return hash;
+}
+
+void CryptoSodium::showKey() {
+  if (!checkAccess())
+    return;
+  Logger logger(LOG_LEVEL::INFO, std::clog, false);
+  if (logger._level >= Logger::_threshold) {
+    logger << "KEY: 0x";
+    boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream() });
+    logger << '\n';
+  }
 }
 
 bool CryptoSodium::checkAccess() {

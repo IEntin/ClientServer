@@ -30,18 +30,17 @@ class CryptoSodium {
   const std::array<unsigned char, crypto_generichash_BYTES> _msgHash;
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
+  void showKey();
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
 public:
   explicit CryptoSodium(std::u8string_view msg);
   ~CryptoSodium() = default;
-  bool encrypt(std::string& input,
-	       const HEADER& header,
-	       std::vector<unsigned char>& ciphertext,
-	       unsigned long long &ciphertext_len);
-  bool decrypt(std::vector<unsigned char> ciphertext,
-	       std::string& decrypted);
+  std::string_view encrypt(std::string& buffer,
+			   const HEADER& header,
+			   std::string_view data);
+  void decrypt(std::string& buffer, std::string& data);
   void setTestAesKey(unsigned char* key);
   bool checkAccess();
   void setAESKey(unsigned char* key) {
