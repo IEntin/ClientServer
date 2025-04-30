@@ -56,34 +56,46 @@ class CryptoPlPl {
     instance = INSTANCE(_key.data(), _key.size());
     _keyHandler.hideKey(_key);
   }
+  bool checkAccess();
+  void hideKey();
+  void eraseRSAKeys();
+  void signatureSent() {
+    _signatureSent = true;
+  }
+  void signMessage();
+  std::string sha256_hash(std::u8string_view message);
+  void erasePubPrivKeys();
+  bool verifySignature(std::string_view signature);
+  void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
 public:
-  CryptoPlPl(std::string_view msgHash,
+  CryptoPlPl(std::u8string_view msgHash,
 	     const std::vector<unsigned char>& pubBvector,
 	     std::string_view signatureWithPubKey);
-  explicit CryptoPlPl(std::string_view msg);
+  explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   void getPubKey(std::vector<unsigned char>& pubKeyVector) const;
-  std::string_view getSignatureWithPubKey() const { return _signatureWithPubKey; }
-  std::string_view getMsgHash() const { return _msgHash; }
   bool handshake(const std::vector<unsigned char>& pubAvector);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
-  void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
-  void signMessage();
-  void signatureSent() {
-    _signatureSent = true;
-  }
-  bool verifySignature(std::string_view signature);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
-  std::string sha256_hash(std::string_view message);
-  void eraseRSAKeys();
-  void erasePubPrivKeys();
-  bool checkAccess();
-  void hideKey();
-  void setTestAesKey(const CryptoPP::SecByteBlock& key);
+  void setDummyAesKey();
+  template <typename L>
+  bool init(L& lambda, STATUS status) {
+    std::vector<unsigned char> pubKey;
+    getPubKey(pubKey);
+    signMessage();
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), pubKey.size(),
+		      CRYPTO::NONE, COMPRESSORS::NONE,
+		      DIAGNOSTICS::NONE, status, _signatureWithPubKey.size() };
+    bool result = lambda(header, _msgHash, pubKey, _signatureWithPubKey);
+    if (result)
+      signatureSent();
+    eraseRSAKeys();
+    return result;
+  }
 };

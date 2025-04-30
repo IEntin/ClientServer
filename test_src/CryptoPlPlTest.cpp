@@ -13,10 +13,7 @@
 
 TEST(CryptoTest, 1) {
   auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
-  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
-  CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(key, key.size());
-  crypto->setTestAesKey(key);
+  crypto->setDummyAesKey();
   HEADER header{ HEADERTYPE::SESSION,
 		 0,
 		 TestEnvironment::_source.size(),
@@ -43,10 +40,7 @@ TEST(CryptoTest, 1) {
 struct CompressEncryptTest : testing::Test {
   void testCompressEncrypt(bool doEncrypt, COMPRESSORS compressor) {
     auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
-    CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
-    CryptoPP::AutoSeededRandomPool prng;
-    prng.GenerateBlock(key, key.size());
-    crypto->setTestAesKey(key);
+    crypto->setDummyAesKey();
     // must be a copy
     std::string data = TestEnvironment::_source;
     HEADER header{ HEADERTYPE::SESSION,
@@ -110,11 +104,12 @@ TEST(AuthenticationTest, 1) {
   CryptoPP::RSA::PublicKey publicKey;
   publicKey.AssignFrom(privateKey);
   // Message to sign
-  std::string message(utility::generateRawUUID());
+  std::u8string message(utility::generateRawUUID());
   // Sign the message
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
   std::string signature;
-  CryptoPP::StringSource ss(message, true, new CryptoPP::SignerFilter(
+  CryptoPP::StringSource ss( { std::bit_cast<const char*>(message.data()), message.size() },
+			     true, new CryptoPP::SignerFilter(
     rng, signer, new CryptoPP::StringSink(signature)));
   ASSERT_EQ(signature.size(), RSA_KEY_SIZE >> 3);
   // Transfer the key and the signature

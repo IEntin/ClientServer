@@ -77,7 +77,7 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-void Server::createFifoSession(std::string_view msgHash,
+void Server::createFifoSession(std::u8string_view msgHash,
 			       const std::vector<unsigned char>& pubBvector,
 			       std::string_view rsaPubBserialized) {
   std::lock_guard lock(_mutex);
@@ -86,7 +86,7 @@ void Server::createFifoSession(std::string_view msgHash,
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
-			      std::string_view msgHash,
+			      std::u8string_view msgHash,
 			      const std::vector<unsigned char>& pubBvector,
 			      std::string_view rsaPubB) {
   std::lock_guard lock(_mutex);

@@ -43,7 +43,9 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
     throw std::runtime_error("sodium_init failed");
 }
 
-void CryptoSodium::setTestAesKey(unsigned char* key) {
+void CryptoSodium::setDummyAesKey() {
+  unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
+  crypto_aead_aes256gcm_keygen(key);
   std::copy(key, key + crypto_aead_aes256gcm_KEYBYTES, _key);
   _keyHandler.hideKey(_key);
 }

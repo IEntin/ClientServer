@@ -27,7 +27,7 @@ TEST(LibSodiumTest, authentication) {
   // any not less than possible length
   constexpr unsigned MESSAGE_LEN = 23;
   unsigned char MESSAGE[MESSAGE_LEN];
-  std::u8string message = utility::generateRawUUIDu8();
+  std::u8string message = utility::generateRawUUID();
   std::copy(message.cbegin(), message.cend(), MESSAGE);
   unsigned char pk[crypto_sign_PUBLICKEYBYTES];
   unsigned char sk[crypto_sign_SECRETKEYBYTES];
@@ -44,7 +44,7 @@ TEST(LibSodiumTest, authentication) {
 
 TEST(LibSodiumTest, hashing) {
   ASSERT_FALSE(sodium_init() < 0);
-  CryptoSodium crypto(utility::generateRawUUIDu8());
+  CryptoSodium crypto(utility::generateRawUUID());
   const auto& hashed(crypto.getMsgHash());
   ASSERT_EQ(hashed.size(), crypto_generichash_BYTES);
   std::cout << "generichash:";
@@ -82,10 +82,8 @@ TEST(LibSodiumTest, encryption) {
   ASSERT_FALSE(sodium_init() < 0);
   HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), ClientOptions::_encryption,
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
-  CryptoSodium crypto(utility::generateRawUUIDu8());
-  unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
-  crypto_aead_aes256gcm_keygen(key);
-  crypto.setTestAesKey(key);
+  CryptoSodium crypto(utility::generateRawUUID());
+  crypto.setDummyAesKey();
   std::string_view encrypted = crypto.encrypt(TestEnvironment::_buffer,
 					      header,
 					      TestEnvironment::_source);
@@ -101,7 +99,7 @@ TEST(LibSodiumTest, encryption) {
 
 TEST(LibSodiumTest, publicKeyEncoding) {
   ASSERT_FALSE(sodium_init() < 0);
-  CryptoSodium crypto(utility::generateRawUUIDu8());
+  CryptoSodium crypto(utility::generateRawUUID());
   unsigned char public_key[crypto_box_PUBLICKEYBYTES];
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(public_key, secret_key);
@@ -110,3 +108,33 @@ TEST(LibSodiumTest, publicKeyEncoding) {
   std::vector<unsigned char> decoded_data = crypto.base64_decode(encoded);
   ASSERT_EQ(original_data, decoded_data);
 }
+
+struct CompressEncryptSodiumTest : testing::Test {
+  void testCompressEncrypt(bool doEncrypt, COMPRESSORS compressor) {
+    auto crypto(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
+    crypto->setDummyAesKey();
+    // must be a copy
+    std::string data = TestEnvironment::_source;
+    HEADER header{ HEADERTYPE::SESSION,
+		   0,
+		   data.size(),
+		   doEncrypt ? CRYPTO::CRYPTOSODIUM : CRYPTO::NONE,
+		   compressor,
+		   DIAGNOSTICS::NONE,
+		   STATUS::NONE,
+		   0 };
+    printHeader(header, LOG_LEVEL::ALWAYS);
+    /*
+    std::string_view dataView =
+      utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
+    ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
+    HEADER restoredHeader;
+    data = dataView;
+    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
+    ASSERT_EQ(header, restoredHeader);
+    ASSERT_EQ(data, TestEnvironment::_source);
+  }
+  void TearDown() {}
+    */
+  }
+};

@@ -22,17 +22,17 @@ FifoAcceptor::~FifoAcceptor() {
   removeFifoFiles();
 }
 
-std::tuple<HEADERTYPE, std::string, std::vector<unsigned char>, std::string>
+std::tuple<HEADERTYPE, std::u8string, std::vector<unsigned char>, std::string>
 FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
-    return { HEADERTYPE::ERROR, std::string(), std::vector<unsigned char>(), std::string() };
+    return { HEADERTYPE::ERROR, std::u8string(), std::vector<unsigned char>(), std::string() };
   HEADER header;
-  std::string msgHash;
+  std::u8string msgHash;
   std::vector<unsigned char> pubBvector;
   std::string rsaPubB;
   if (!Fifo::readMsg(_acceptorName, true, header, msgHash, pubBvector, rsaPubB))
-    return { HEADERTYPE::ERROR, std::string(), std::vector<unsigned char>(), rsaPubB };
+    return { HEADERTYPE::ERROR, std::u8string(), std::vector<unsigned char>(), rsaPubB };
   return { extractHeaderType(header), msgHash, pubBvector, rsaPubB };
 }
 

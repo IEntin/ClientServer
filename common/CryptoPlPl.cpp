@@ -39,10 +39,10 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 }
 
 // session
-CryptoPlPl::CryptoPlPl(std::string_view msgHash,
+CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
 		       const std::vector<unsigned char>& pubBvector,
 		       std::string_view signatureWithPubKey) :
-  _msgHash(msgHash),
+  _msgHash({ std::bit_cast<const char*>(msgHash.data()), msgHash.size() }),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
@@ -67,7 +67,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 }
 
 // client
-CryptoPlPl::CryptoPlPl(std::string_view msg) :
+CryptoPlPl::CryptoPlPl(std::u8string_view msg) :
   _msgHash(sha256_hash(msg)),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
@@ -206,7 +206,7 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
 }
 // for tesing message is based on uuid
 // in real usage it may be a combination of user name and/or password
-std::string CryptoPlPl::sha256_hash(std::string_view message) {
+std::string CryptoPlPl::sha256_hash(std::u8string_view message) {
   CryptoPP::SHA256 hash;
   std::string digest;
   hash.Update(std::bit_cast<const unsigned char*>(message.data()), message.size());
@@ -253,7 +253,10 @@ void CryptoPlPl::hideKey() {
   _keyHandler.hideKey(_key);
 }
 
-void CryptoPlPl::setTestAesKey(const CryptoPP::SecByteBlock& key) {
+void CryptoPlPl::setDummyAesKey() {
+  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
+  CryptoPP::AutoSeededRandomPool prng;
+  prng.GenerateBlock(key, key.size());
   _key = key;
   hideKey();
 }

@@ -33,24 +33,6 @@ protected:
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;
-
-  template <typename L>
-  bool init(L& lambda) {
-    std::vector<unsigned char> pubKey;
-    _crypto->getPubKey(pubKey);
-    std::string_view msgHash = _crypto->getMsgHash();
-    _crypto->signMessage();
-    std::string_view signatureWithPubKey = _crypto->getSignatureWithPubKey();
-    HEADER header = { HEADERTYPE::DH_INIT, msgHash.size(), pubKey.size(),
-		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, _status, signatureWithPubKey.size() };
-    bool result = lambda(header, msgHash, pubKey, signatureWithPubKey);
-    if (result)
-      _crypto->signatureSent();
-    _crypto->eraseRSAKeys();
-    return result;
-  }
-
   bool DHFinish(std::string_view clientIdStr, const std::vector<unsigned char>& pubAreceived);
 
   std::size_t _clientId = 0;

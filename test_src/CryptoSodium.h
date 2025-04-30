@@ -31,6 +31,13 @@ class CryptoSodium {
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
   void showKey();
+  bool checkAccess();
+  void setAESKey(unsigned char* key) {
+    std::lock_guard lock(_mutex);
+    _keyHandler.recoverKey(_key);
+    std::copy(_key, _key + crypto_aead_aes256gcm_KEYBYTES, key);
+    _keyHandler.hideKey(_key);
+  }
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
@@ -41,14 +48,7 @@ public:
 			   const HEADER& header,
 			   std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  void setTestAesKey(unsigned char* key);
-  bool checkAccess();
-  void setAESKey(unsigned char* key) {
-    std::lock_guard lock(_mutex);
-    _keyHandler.recoverKey(_key);
-    std::copy(_key, _key + crypto_aead_aes256gcm_KEYBYTES, key);
-    _keyHandler.hideKey(_key);
-  }
+  void setDummyAesKey();
   std::string base64_encode(const std::vector<unsigned char>& input);
   std::vector<unsigned char> base64_decode(const std::string& input);
   const std::array<unsigned char, crypto_generichash_BYTES>&
