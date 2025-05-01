@@ -19,7 +19,12 @@ Client::Client() :
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {
-  stop();
+  try {
+    stop();
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+  }
 }
 
 bool Client::DHFinish(std::string_view clientIdStr, const std::vector<unsigned char>& pubAreceived) {
@@ -93,7 +98,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  utility::decryptDecompress(_buffer, _header, _crypto, _response);
+  utility::decryptDecompress(_buffer, _header, std::weak_ptr(_crypto), _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {

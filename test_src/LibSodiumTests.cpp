@@ -124,17 +124,46 @@ struct CompressEncryptSodiumTest : testing::Test {
 		   STATUS::NONE,
 		   0 };
     printHeader(header, LOG_LEVEL::ALWAYS);
-    /*
     std::string_view dataView =
-      utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
+      utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(crypto), data);
     ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
     HEADER restoredHeader;
     data = dataView;
-    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
+    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(crypto), data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(data, TestEnvironment::_source);
   }
   void TearDown() {}
-    */
-  }
 };
+
+TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_LZ4) {
+  testCompressEncrypt(true, COMPRESSORS::LZ4);
+}
+
+TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_SNAPPY) {
+  testCompressEncrypt(true, COMPRESSORS::SNAPPY);
+}
+
+TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_ZSTD) {
+  testCompressEncrypt(true, COMPRESSORS::ZSTD);
+}
+
+TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_NONE) {
+  testCompressEncrypt(true, COMPRESSORS::NONE);
+}
+
+TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_LZ4) {
+  testCompressEncrypt(false, COMPRESSORS::LZ4);
+}
+
+TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_SNAPPY) {
+  testCompressEncrypt(false, COMPRESSORS::SNAPPY);
+}
+
+TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_ZSTD) {
+  testCompressEncrypt(false, COMPRESSORS::ZSTD);
+}
+
+TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_NONE) {
+  testCompressEncrypt(false, COMPRESSORS::NONE);
+}

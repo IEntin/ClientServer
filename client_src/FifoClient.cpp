@@ -31,8 +31,13 @@ FifoClient::FifoClient()  {
 }
 
 FifoClient::~FifoClient() {
+  try {
   if (std::filesystem::exists(_fifoName))
     Fifo::onExit(_fifoName);
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+  }
 }
 
 void FifoClient::run() {

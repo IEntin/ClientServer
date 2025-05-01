@@ -53,11 +53,11 @@ struct CompressEncryptTest : testing::Test {
 		   0 };
     printHeader(header, LOG_LEVEL::ALWAYS);
     std::string_view dataView =
-      utility::compressEncrypt(TestEnvironment::_buffer, header, crypto, data);
+      utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(crypto), data);
     ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
     HEADER restoredHeader;
     data = dataView;
-    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, crypto, data);
+    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(crypto), data);
     ASSERT_EQ(header, restoredHeader);
     ASSERT_EQ(data, TestEnvironment::_source);
   }
@@ -113,14 +113,15 @@ TEST(AuthenticationTest, 1) {
     rng, signer, new CryptoPP::StringSink(signature)));
   ASSERT_EQ(signature.size(), RSA_KEY_SIZE >> 3);
   // Transfer the key and the signature
-  // send
   CryptoPlPl crypto((utility::generateRawUUID()));
   auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
   ASSERT_TRUE(success);
-  signature += serialized;
-  // receive
-  std::string receivedSignature(signature, 0, RSA_KEY_SIZE >> 3);
-  std::string_view serializedRsaPublicKey(signature.cbegin() + (RSA_KEY_SIZE >> 3), signature.cend());
+  std::string allReceived;
+  allReceived.swap(signature);
+  allReceived += serialized;
+
+  std::string receivedSignature(allReceived, 0, RSA_KEY_SIZE >> 3);
+  std::string_view serializedRsaPublicKey(allReceived.cbegin() + (RSA_KEY_SIZE >> 3), allReceived.cend());
   CryptoPP::RSA::PublicKey receivedRsaPublicKey;
   ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
   // Verify the signature

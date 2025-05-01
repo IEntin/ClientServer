@@ -59,9 +59,6 @@ class CryptoPlPl {
   bool checkAccess();
   void hideKey();
   void eraseRSAKeys();
-  void signatureSent() {
-    _signatureSent = true;
-  }
   void signMessage();
   std::string sha256_hash(std::u8string_view message);
   void erasePubPrivKeys();
@@ -94,7 +91,7 @@ public:
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKey.size() };
     bool result = lambda(header, _msgHash, pubKey, _signatureWithPubKey);
     if (result)
-      signatureSent();
+      _signatureSent = true;
     eraseRSAKeys();
     return result;
   }

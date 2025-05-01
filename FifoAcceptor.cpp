@@ -19,7 +19,12 @@ FifoAcceptor::FifoAcceptor(ServerWeakPtr server) :
   _server(server) {}
 
 FifoAcceptor::~FifoAcceptor() {
-  removeFifoFiles();
+  try {
+    removeFifoFiles();
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+  }
 }
 
 std::tuple<HEADERTYPE, std::u8string, std::vector<unsigned char>, std::string>

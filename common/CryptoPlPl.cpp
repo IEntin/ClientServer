@@ -211,11 +211,11 @@ std::string CryptoPlPl::sha256_hash(std::u8string_view message) {
   std::string digest;
   hash.Update(std::bit_cast<const unsigned char*>(message.data()), message.size());
   digest.resize(hash.DigestSize());
-  hash.Final((unsigned char*)&digest[0]);
+  hash.Final(std::bit_cast<unsigned char*>(digest.data()));
   CryptoPP::HexEncoder encoder;
   std::string output;
   encoder.Attach(new CryptoPP::StringSink(output));
-  encoder.Put((unsigned char*)&digest[0], digest.size());
+  encoder.Put(std::bit_cast<unsigned char*>(digest.data()), digest.size());
   encoder.MessageEnd();
   return output;
 }

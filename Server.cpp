@@ -27,8 +27,13 @@ Server::Server() :
 }
 
 Server::~Server() {
-  Ad::clear();
-  utility::removeAccess();
+  try {
+    Ad::clear();
+    utility::removeAccess();
+  }
+  catch (const std::exception& e) {
+    Warn << e.what() << '\n';
+  }
 }
 
 void Server::setPolicy() {

@@ -11,11 +11,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "CompressionLZ4.h"
-#include "CompressionSnappy.h"
-#include "CompressionZSTD.h"
-#include "CryptoPlPl.h"
-
 namespace utility {
 
 std::string serverTerminal;
@@ -67,54 +62,6 @@ bool fileEndsWithEOL(std::string_view fileName) {
   char ch;
   stream.get(ch);
   return ch == '\n';
-}
-
-std::string_view compressEncrypt(std::string& buffer,
-				 const HEADER& header,
-				 CryptoWeakPtr weak,
-				 std::string& data,
-				 int compressionLevel) {
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    if (compressor == COMPRESSORS::LZ4)
-      compressionLZ4::compress(buffer, data);
-    else if (compressor == COMPRESSORS::SNAPPY)
-      compressionSnappy::compress(buffer, data);
-    else if (compressor == COMPRESSORS::ZSTD)
-      compressionZSTD::compress(buffer, data, compressionLevel);
-  }
-  if (doEncrypt(header)) {
-    if (auto crypto = weak.lock(); crypto)
-      return crypto->encrypt(buffer, header, data);
-  }
-  else {
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    data.insert(0, headerBuffer, HEADER_SIZE);
-  }
-  return data;
-}
-
-void decryptDecompress(std::string& buffer,
-		       HEADER& header,
-		       CryptoWeakPtr weak,
-		       std::string& data) {
-  if (auto crypto = weak.lock();crypto) {
-    crypto->decrypt(buffer, data);
-    deserialize(header, data.data());
-    data.erase(0, HEADER_SIZE);
-    if (isCompressed(header)) {
-      COMPRESSORS compressor = extractCompressor(header);
-      if (compressor == COMPRESSORS::LZ4) {
-	std::size_t uncomprSize = extractUncompressedSize(header);
-	compressionLZ4::uncompress(buffer, data, uncomprSize);
-      }
-      else if (compressor == COMPRESSORS::SNAPPY)
-	compressionSnappy::uncompress(buffer, data);
-      else if (compressor == COMPRESSORS::ZSTD)
-	compressionZSTD::uncompress(buffer, data);
-    }
-  }
 }
 
 void setServerTerminal(std::string_view terminal) {

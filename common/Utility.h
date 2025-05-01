@@ -7,6 +7,11 @@
 #include <bit>
 #include <string>
 
+#include "CompressionLZ4.h"
+#include "CompressionSnappy.h"
+#include "CompressionZSTD.h"
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 #include "Header.h"
 
 // common constants
@@ -92,16 +97,56 @@ bool getLastLine(std::string_view fileName, std::string& lastLine);
 
 bool fileEndsWithEOL(std::string_view fileName);
 
+template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
-				 CryptoWeakPtr crypto,
+				 std::weak_ptr<Crypto> weak,
 				 std::string& data,
-				 int compressionLevel = 3);
+				 int compressionLevel = 3) {
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    if (compressor == COMPRESSORS::LZ4)
+      compressionLZ4::compress(buffer, data);
+    else if (compressor == COMPRESSORS::SNAPPY)
+      compressionSnappy::compress(buffer, data);
+    else if (compressor == COMPRESSORS::ZSTD)
+      compressionZSTD::compress(buffer, data, compressionLevel);
+  }
+  if (doEncrypt(header)) {
+    if (auto crypto = weak.lock(); crypto)
+      return crypto->encrypt(buffer, header, data);
+  }
+  else {
+    char headerBuffer[HEADER_SIZE] = {};
+    serialize(header, headerBuffer);
+    data.insert(0, headerBuffer, HEADER_SIZE);
+  }
+  return data;
+}
 
+template <typename Crypto>
 void decryptDecompress(std::string& buffer,
 		       HEADER& header,
-		       CryptoWeakPtr crypto,
-		       std::string& data);
+		       std::weak_ptr<Crypto> weak,
+		       std::string& data) {
+  if (auto crypto = weak.lock();crypto) {
+    crypto->decrypt(buffer, data);
+    deserialize(header, data.data());
+    data.erase(0, HEADER_SIZE);
+    if (isCompressed(header)) {
+      COMPRESSORS compressor = extractCompressor(header);
+      if (compressor == COMPRESSORS::LZ4) {
+	std::size_t uncomprSize = extractUncompressedSize(header);
+	compressionLZ4::uncompress(buffer, data, uncomprSize);
+      }
+      else if (compressor == COMPRESSORS::SNAPPY)
+	compressionSnappy::uncompress(buffer, data);
+      else if (compressor == COMPRESSORS::ZSTD)
+	compressionZSTD::uncompress(buffer, data);
+    }
+  }
+}
+
 void setServerTerminal(std::string_view terminal);
 void setClientTerminal(std::string_view terminal);
 void setTestbinTerminal(std::string_view terminal);

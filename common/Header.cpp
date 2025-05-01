@@ -53,7 +53,9 @@ COMPRESSORS extractCompressor(const HEADER& header) {
 }
 
 bool doEncrypt(const HEADER& header) {
-  return std::get<CRYPTO>(header) == CRYPTO::CRYPTOPP;
+  CRYPTO crypto = std::get<CRYPTO>(header);
+  return crypto == CRYPTO::CRYPTOPP ||
+    crypto == CRYPTO::CRYPTOSODIUM;
 }
 
 bool isCompressed(const HEADER& header) {
