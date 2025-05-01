@@ -21,6 +21,7 @@
 
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.encryption; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
+// for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptSodiumTest*; done
 
 TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
@@ -110,7 +111,7 @@ TEST(LibSodiumTest, publicKeyEncoding) {
 }
 
 struct CompressEncryptSodiumTest : testing::Test {
-  void testCompressEncrypt(bool doEncrypt, COMPRESSORS compressor) {
+  void testCompressEncrypt(CRYPTO cryptoType, COMPRESSORS compressor) {
     auto crypto(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     crypto->setDummyAesKey();
     // must be a copy
@@ -118,7 +119,7 @@ struct CompressEncryptSodiumTest : testing::Test {
     HEADER header{ HEADERTYPE::SESSION,
 		   0,
 		   data.size(),
-		   doEncrypt ? CRYPTO::CRYPTOSODIUM : CRYPTO::NONE,
+		   cryptoType,
 		   compressor,
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
@@ -126,7 +127,7 @@ struct CompressEncryptSodiumTest : testing::Test {
     printHeader(header, LOG_LEVEL::ALWAYS);
     std::string_view dataView =
       utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(crypto), data);
-    ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
+    ASSERT_EQ(utility::isEncrypted(data), doEncrypt(header));
     HEADER restoredHeader;
     data = dataView;
     utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(crypto), data);
@@ -137,33 +138,33 @@ struct CompressEncryptSodiumTest : testing::Test {
 };
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_LZ4) {
-  testCompressEncrypt(true, COMPRESSORS::LZ4);
+  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4);
 }
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_SNAPPY) {
-  testCompressEncrypt(true, COMPRESSORS::SNAPPY);
+  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY);
 }
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_ZSTD) {
-  testCompressEncrypt(true, COMPRESSORS::ZSTD);
+  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD);
 }
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_NONE) {
-  testCompressEncrypt(true, COMPRESSORS::NONE);
+  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE);
 }
 
 TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_LZ4) {
-  testCompressEncrypt(false, COMPRESSORS::LZ4);
+  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::LZ4);
 }
 
 TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_SNAPPY) {
-  testCompressEncrypt(false, COMPRESSORS::SNAPPY);
+  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::SNAPPY);
 }
 
 TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_ZSTD) {
-  testCompressEncrypt(false, COMPRESSORS::ZSTD);
+  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::ZSTD);
 }
 
 TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_NONE) {
-  testCompressEncrypt(false, COMPRESSORS::NONE);
+  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::NONE);
 }

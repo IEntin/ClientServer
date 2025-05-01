@@ -4,6 +4,7 @@
 
 #include "Fifo.h"
 
+#include <cstring>
 #include <poll.h>
 #include <thread>
 
@@ -81,7 +82,8 @@ int Fifo::openWriteNonBlock(std::string_view fifoName) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	break;
       default:
-	throw std::runtime_error(ioutility::createErrorString());
+	LogError << strerror(errno) << '\n';
+	return fd;
       }
     }
   } while (fd == -1 && rep++ < Options::_numberRepeatENXIO);
