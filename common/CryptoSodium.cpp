@@ -41,6 +41,14 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
   _msgHash(hashMessage(msg)) {
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
+  unsigned char publicKeySign[crypto_sign_PUBLICKEYBYTES];
+  crypto_sign_keypair(publicKeySign, _secretKeySign);
+  _publicKeySign = std::to_array(publicKeySign);
+  unsigned char message[crypto_generichash_BYTES];
+  std::copy(_msgHash.cbegin(), _msgHash.cend(), message);
+  unsigned char signature[crypto_sign_BYTES];
+  crypto_sign_detached(signature, nullptr, message, _msgHash.size(), _secretKeySign);
+  _signature = std::to_array(signature);
 }
 
 void CryptoSodium::setDummyAesKey() {

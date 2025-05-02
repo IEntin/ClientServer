@@ -8,12 +8,11 @@
 
 #include "Chronometer.h"
 #include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
-using CryptoPtr = std::shared_ptr<CryptoPlPl>;
-using CryptoWeakPtr = std::weak_ptr<CryptoPlPl>;
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
@@ -23,7 +22,7 @@ class Client : private boost::noncopyable {
 
 protected:
   std::string _response;
-  CryptoPtr _crypto;
+  CryptoPlPlPtr _crypto;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);

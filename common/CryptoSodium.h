@@ -12,6 +12,9 @@
 
 #include "Header.h"
 
+using CryptoSodiumPtr = std::shared_ptr<class CryptoSodium>;
+using CryptoWeakSodiumPtr = std::weak_ptr<class CryptoSodium>;
+
 struct HandleKey {
   explicit HandleKey();
   ~HandleKey() = default;
@@ -27,7 +30,10 @@ class CryptoSodium {
   std::array<unsigned char, crypto_generichash_BYTES>
   hashMessage(std::u8string_view message);
   std::vector<unsigned char> encodeLength(size_t length);
+  std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
+  unsigned char _secretKeySign[crypto_sign_SECRETKEYBYTES];
   const std::array<unsigned char, crypto_generichash_BYTES> _msgHash;
+  std::array<unsigned char, crypto_sign_BYTES> _signature;
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
   void showKey();
@@ -53,4 +59,10 @@ public:
   std::vector<unsigned char> base64_decode(const std::string& input);
   const std::array<unsigned char, crypto_generichash_BYTES>&
   getMsgHash() const { return _msgHash; }
+
+  const std::array<unsigned char, crypto_sign_PUBLICKEYBYTES>&
+  getPublicKeySign() const { return _publicKeySign; }
+
+  const std::array<unsigned char, crypto_sign_BYTES>&
+  getSignature() const { return _signature; }
 };

@@ -25,22 +25,17 @@
 
 TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
-  // any not less than possible length
-  constexpr unsigned MESSAGE_LEN = 23;
-  unsigned char MESSAGE[MESSAGE_LEN];
-  std::u8string message = utility::generateRawUUID();
-  std::copy(message.cbegin(), message.cend(), MESSAGE);
-  unsigned char pk[crypto_sign_PUBLICKEYBYTES];
-  unsigned char sk[crypto_sign_SECRETKEYBYTES];
-  crypto_sign_keypair(pk, sk);
-  unsigned char signed_message[crypto_sign_BYTES + MESSAGE_LEN];
-  unsigned long long signed_message_len;
-  crypto_sign(signed_message, &signed_message_len,
-	      MESSAGE, MESSAGE_LEN, sk);
-  unsigned char unsigned_message[MESSAGE_LEN];
-  unsigned long long unsigned_message_len;
-  ASSERT_TRUE(crypto_sign_open(unsigned_message, &unsigned_message_len,
-			       signed_message, signed_message_len, pk) == 0);
+  CryptoSodium crypto(utility::generateRawUUID());
+  const auto& hashed = crypto.getMsgHash();
+  unsigned char message[crypto_generichash_BYTES];
+  std::copy(hashed.cbegin(), hashed.cend(), message);
+  const auto& pubcicKeySign = crypto.getPublicKeySign();
+  unsigned char publicKey[crypto_sign_PUBLICKEYBYTES];
+  std::copy(pubcicKeySign.cbegin(), pubcicKeySign.cend(), publicKey);
+  const auto& signatureObj = crypto.getSignature();
+  unsigned char signature[crypto_sign_BYTES];
+  std::copy(signatureObj.cbegin(), signatureObj.cend(), signature);
+  ASSERT_TRUE(crypto_sign_verify_detached(signature, message, hashed.size(), publicKey) == 0);
 }
 
 TEST(LibSodiumTest, hashing) {
