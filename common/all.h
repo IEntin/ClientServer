@@ -35,6 +35,7 @@
 #include <queue>
 #include <regex>
 #include <snappy.h>
+#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>

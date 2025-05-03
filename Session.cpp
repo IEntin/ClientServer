@@ -12,7 +12,7 @@
 
 Session::Session(ServerWeakPtr server,
 		 std::u8string_view msgHash,
-		 const std::vector<unsigned char> pubBvector,
+		 const std::vector<unsigned char>& pubBvector,
 		 std::string_view signatureWithPubKey) :
   _task(std::make_shared<Task>(server)),
   _server(server) {

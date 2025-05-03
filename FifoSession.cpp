@@ -17,7 +17,7 @@ static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::u8string_view msgHash,
-			 const std::vector<unsigned char> pubBvector,
+			 const std::vector<unsigned char>& pubBvector,
 			 std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),
   Session(server, msgHash, pubBvector, signatureWithPubKey) {}
