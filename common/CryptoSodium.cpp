@@ -44,10 +44,8 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
   unsigned char publicKeySign[crypto_sign_PUBLICKEYBYTES];
   crypto_sign_keypair(publicKeySign, _secretKeySign);
   _publicKeySign = std::to_array(publicKeySign);
-  unsigned char message[crypto_generichash_BYTES];
-  std::copy(_msgHash.cbegin(), _msgHash.cend(), message);
   unsigned char signature[crypto_sign_BYTES];
-  crypto_sign_detached(signature, nullptr, message, _msgHash.size(), _secretKeySign);
+  crypto_sign_detached(signature, nullptr, _msgHash.data(), _msgHash.size(), _secretKeySign);
   _signature = std::to_array(signature);
 }
 
@@ -142,16 +140,14 @@ std::vector<unsigned char> CryptoSodium::base64_decode(const std::string& input)
 
 std::array<unsigned char, crypto_generichash_BYTES>
 CryptoSodium::hashMessage(std::u8string_view message) {
-  constexpr int MESSAGE_LEN = 22;
   unsigned char MESSAGE[crypto_generichash_BYTES];
   std::copy(message.cbegin(), message.cend(), MESSAGE);
   std::array<unsigned char, crypto_generichash_BYTES> hash;
   unsigned char key[crypto_generichash_KEYBYTES];
   randombytes_buf(key, sizeof key);
-  crypto_generichash(&hash[0], sizeof hash,
-		     MESSAGE, MESSAGE_LEN,
+  crypto_generichash(hash.data(), hash.size(),
+		     MESSAGE, crypto_generichash_BYTES,
 		     key, sizeof key);
-  assert(MESSAGE_LEN > message.size());
   return hash;
 }
 
