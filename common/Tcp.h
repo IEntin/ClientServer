@@ -94,7 +94,7 @@ public:
     return true;
   }
 
-  template <typename P1 = std::vector<char>, typename P2 = P1, typename P3 = P2>
+  template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P2>
   static bool sendMsg(boost::asio::ip::tcp::socket& socket,
 		      const HEADER& header,
 		      const P1& payload1 = P1(),

@@ -40,7 +40,7 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 
 // session
 CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
-		       const std::vector<unsigned char>& pubBvector,
+		       std::span<const unsigned char> pubBvector,
 		       std::string_view signatureWithPubKey) :
   _msgHash({ std::bit_cast<const char*>(msgHash.data()), msgHash.size() }),
   _dh(_curve),
@@ -142,9 +142,9 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool CryptoPlPl::handshake(const std::vector<unsigned char>& pubAvector) {
+bool CryptoPlPl::handshake(std::span<const unsigned char> pubA) {
   // const reference from rvalue
-  const CryptoPP::SecByteBlock& pubAreceived { pubAvector.data(), pubAvector.size() };
+  const CryptoPP::SecByteBlock& pubAreceived { pubA.data(), pubA.size() };
   bool result = _dh.Agree(_key, _privKey, pubAreceived);
   erasePubPrivKeys();
   hideKey();

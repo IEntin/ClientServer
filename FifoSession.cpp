@@ -17,10 +17,10 @@ static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::u8string_view msgHash,
-			 const std::vector<unsigned char>& pubBvector,
+			 std::span<const unsigned char> pubB,
 			 std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, msgHash, pubBvector, signatureWithPubKey) {}
+  Session(server, msgHash, pubB, signatureWithPubKey) {}
 
 FifoSession::~FifoSession() {
   try {
@@ -95,7 +95,7 @@ void FifoSession::sendStatusToClient() {
   auto lambda = [] (
     const HEADER& header,
     std::string_view idStr,
-    const std::vector<unsigned char>& pubA) {
+    std::span<const unsigned char> pubA) {
     Fifo::sendMsg(false, Options::_acceptorName, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);

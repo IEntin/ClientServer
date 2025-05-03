@@ -22,7 +22,7 @@ public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
 	     std::u8string_view msgHash,
-	     const std::vector<unsigned char>& pubBvector,
+	     std::span<const unsigned char> pubB,
 	     std::string_view rsaPubB);
 
   ~TcpSession() override;

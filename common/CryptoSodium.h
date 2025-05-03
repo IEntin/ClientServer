@@ -55,7 +55,7 @@ public:
 			   std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   void setDummyAesKey();
-  std::string base64_encode(const std::vector<unsigned char>& input);
+  std::string base64_encode(std::span<const unsigned char> input);
   std::vector<unsigned char> base64_decode(const std::string& input);
   const std::array<unsigned char, crypto_generichash_BYTES>&
   getMsgHash() const { return _msgHash; }

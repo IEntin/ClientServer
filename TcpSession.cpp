@@ -18,10 +18,10 @@ static auto  TYPE{ "tcp" };
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
 		       std::u8string_view msgHash,
-		       const std::vector<unsigned char>& pubBvector,
+		       std::span<const unsigned char> pubB,
 		       std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, msgHash, pubBvector, signatureWithPubKey),
+  Session(server, msgHash, pubB, signatureWithPubKey),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
@@ -46,7 +46,7 @@ bool TcpSession::start() {
 void TcpSession::sendStatusToClient() {
   auto lambda = [this] (const HEADER& header,
 			std::string_view idStr,
-			const std::vector<unsigned char>& pubA) {
+			std::span<const unsigned char> pubA) {
     Tcp::sendMsg(_socket, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);

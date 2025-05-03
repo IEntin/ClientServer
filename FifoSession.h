@@ -24,7 +24,7 @@ class FifoSession final : public RunnableT<FifoSession>,
  public:
   FifoSession(ServerWeakPtr server,
 	      std::u8string_view msgHash,
-	      const std::vector<unsigned char>& pubBvector,
+	      std::span<const unsigned char> pubB,
 	      std::string_view signatureWithPubKey);
   ~FifoSession() override;
 };

@@ -116,7 +116,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-std::string CryptoSodium::base64_encode(const std::vector<unsigned char>& input) {
+std::string CryptoSodium::base64_encode(std::span<const unsigned char> input) {
   size_t encoded_length = sodium_base64_ENCODED_LEN(input.size(), sodium_base64_VARIANT_ORIGINAL);
   std::string encoded_string(encoded_length, '\0');
   if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), input.size(),

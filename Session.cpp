@@ -12,12 +12,12 @@
 
 Session::Session(ServerWeakPtr server,
 		 std::u8string_view msgHash,
-		 const std::vector<unsigned char>& pubBvector,
+		 std::span<const unsigned char> pubB,
 		 std::string_view signatureWithPubKey) :
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  _crypto = std::make_shared<CryptoPlPl>(msgHash, pubBvector, signatureWithPubKey);
+  _crypto = std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
 }
 
 std::pair<HEADER, std::string_view>

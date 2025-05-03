@@ -70,7 +70,7 @@ class CryptoPlPl {
 
 public:
   CryptoPlPl(std::u8string_view msgHash,
-	     const std::vector<unsigned char>& pubBvector,
+	     std::span<const unsigned char> pubB,
 	     std::string_view signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
@@ -78,7 +78,7 @@ public:
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   void getPubKey(std::vector<unsigned char>& pubKeyVector) const;
-  bool handshake(const std::vector<unsigned char>& pubAvector);
+  bool handshake(std::span<const unsigned char> pubA);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,
