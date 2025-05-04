@@ -31,7 +31,7 @@ protected:
   Session(ServerWeakPtr server,
 	  std::u8string_view msgHash,
 	  std::span<const unsigned char> pubB,
-	  std::string_view signatureWithPubKey);
+	  std::u8string_view signatureWithPubKey);
   virtual ~Session() = default;
   std::pair<HEADER, std::string_view>
   buildReply(std::atomic<STATUS>& status);

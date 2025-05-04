@@ -41,13 +41,14 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 // session
 CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
 		       std::span<const unsigned char> pubBvector,
-		       std::string_view signatureWithPubKey) :
+		       std::u8string_view signatureWithPubKey) :
   _msgHash({ std::bit_cast<const char*>(msgHash.data()), msgHash.size() }),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _signatureWithPubKey(signatureWithPubKey),
+  _u8SignatureWithPubKey(signatureWithPubKey),
+  _signatureWithPubKey(std::bit_cast<const char*>(_u8SignatureWithPubKey.data()), _u8SignatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   const CryptoPP::SecByteBlock& pubB { pubBvector.data(), pubBvector.size() };
@@ -55,8 +56,8 @@ CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
-  std::string signature(signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
-  std::string_view rsaPubKeySerialized = signatureWithPubKey.substr(RSA_KEY_SIZE >> 3);
+  std::string signature(_signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
+  std::string rsaPubKeySerialized = _signatureWithPubKey.substr(RSA_KEY_SIZE >> 3);
   decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
@@ -204,7 +205,7 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
   eraseRSAKeys();
   return true;
 }
-// for tesing message is based on uuid
+// for testing message is based on uuid
 // in real usage it may be a combination of user name and/or password
 std::string CryptoPlPl::sha256_hash(std::u8string_view message) {
   CryptoPP::SHA256 hash;

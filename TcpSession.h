@@ -23,7 +23,7 @@ public:
 	     ConnectionPtr connection,
 	     std::u8string_view msgHash,
 	     std::span<const unsigned char> pubB,
-	     std::string_view rsaPubB);
+	     std::u8string_view rsaPubB);
 
   ~TcpSession() override;
 
