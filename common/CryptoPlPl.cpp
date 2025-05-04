@@ -228,6 +228,7 @@ void CryptoPlPl::eraseRSAKeys() {
   _peerRsaPubKey = CryptoPP::RSA::PublicKey();
   std::string().swap(_serializedRsaPubKey);
   std::string().swap(_signatureWithPubKey);
+  std::u8string().swap(_u8SignatureWithPubKey);
 }
 
 void CryptoPlPl::erasePubPrivKeys() {
