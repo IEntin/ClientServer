@@ -43,7 +43,6 @@ class CryptoPlPl {
   CryptoPP::RSA::PublicKey _rsaPubKey;
   CryptoPP::RSA::PublicKey _peerRsaPubKey;
   std::string _serializedRsaPubKey;
-  std::u8string _u8SignatureWithPubKey;
   std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
   KeyHandler _keyHandler;

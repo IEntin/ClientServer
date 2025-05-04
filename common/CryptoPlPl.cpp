@@ -47,8 +47,8 @@ CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
   _privKey(_dh.PrivateKeyLength()),
   _pubKey(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _u8SignatureWithPubKey(signatureWithPubKey),
-  _signatureWithPubKey(std::bit_cast<const char*>(_u8SignatureWithPubKey.data()), _u8SignatureWithPubKey.size()),
+  _signatureWithPubKey(std::bit_cast<const char*>(signatureWithPubKey.data()),
+		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
   const CryptoPP::SecByteBlock& pubB { pubBvector.data(), pubBvector.size() };
@@ -228,7 +228,6 @@ void CryptoPlPl::eraseRSAKeys() {
   _peerRsaPubKey = CryptoPP::RSA::PublicKey();
   std::string().swap(_serializedRsaPubKey);
   std::string().swap(_signatureWithPubKey);
-  std::u8string().swap(_u8SignatureWithPubKey);
 }
 
 void CryptoPlPl::erasePubPrivKeys() {
