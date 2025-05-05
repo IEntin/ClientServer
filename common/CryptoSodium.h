@@ -53,9 +53,9 @@ class CryptoSodium {
   std::mutex _mutex;
 public:
   explicit CryptoSodium(std::u8string_view msg);
-  CryptoSodium(std::u8string_view msgHash,
+  CryptoSodium(std::span<const unsigned char> msgHash,
 	       std::span<const unsigned char> pubB,
-	       std::u8string_view signatureWithPubKey);
+	       std::span<const unsigned char> signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
@@ -75,7 +75,8 @@ public:
 
   std::span<const unsigned char>
   getPublicKeySign() const { return _publicKeySign; }
-
+  // used in tests:
   std::span<const unsigned char>
   getSignature() const { return _signature; }
+  bool isVerified() const { return _verified; }
 };

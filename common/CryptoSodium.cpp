@@ -52,13 +52,20 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
 	    _signatureWithPubKeySign.begin() + _signature.size());
 }
 
-CryptoSodium::CryptoSodium(std::u8string_view msgHash,
+CryptoSodium::CryptoSodium(std::span<const unsigned char> msgHash,
 			   std::span<const unsigned char> pubB,
-			   std::u8string_view signatureWithPubKey) :
-  _msgHash(msgHash.cbegin(), msgHash.cend()),
-  _signatureWithPubKeySign(signatureWithPubKey.cbegin(), signatureWithPubKey.cend()) {
-  
+			   std::span<const unsigned char> signatureWithPubKey) {
   std::vector<unsigned char> peerPubKey(pubB.cbegin(), pubB.cend());
+  if (sodium_init() < 0)
+    throw std::runtime_error("sodium_init failed");
+  std::span<const unsigned char>
+    signature(signatureWithPubKey.data(), crypto_sign_BYTES);
+  std::span<const unsigned char>
+    peerPubcicKeySign(signatureWithPubKey.data() + crypto_sign_BYTES, crypto_sign_PUBLICKEYBYTES);
+  _verified = crypto_sign_verify_detached(
+    signature.data(), msgHash.data(), msgHash.size(), peerPubcicKeySign.data()) == 0;
+  if (!_verified)
+    throw std::runtime_error("authentication failed");
 }
 
 void CryptoSodium::setDummyAesKey() {
