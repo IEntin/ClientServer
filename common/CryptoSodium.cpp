@@ -38,15 +38,27 @@ void HandleKey::recoverKey(unsigned char* key) {
 }
 
 CryptoSodium::CryptoSodium(std::u8string_view msg) :
-  _msgHash(hashMessage(msg)) {
+  _msgHash(hashMessage(msg)),
+  _signatureWithPubKeySign(crypto_sign_BYTES + crypto_sign_PUBLICKEYBYTES) {
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
-  unsigned char publicKeySign[crypto_sign_PUBLICKEYBYTES];
-  crypto_sign_keypair(publicKeySign, _secretKeySign);
-  _publicKeySign = std::to_array(publicKeySign);
-  unsigned char signature[crypto_sign_BYTES];
-  crypto_sign_detached(signature, nullptr, _msgHash.data(), _msgHash.size(), _secretKeySign);
-  _signature = std::to_array(signature);
+  crypto_kx_keypair(_publicKey.data(), _secretKey);
+  crypto_sign_keypair(_publicKeySign.data(), _secretKeySign);
+  crypto_sign_detached(_signature.data(), nullptr, _msgHash.data(),
+		       _msgHash.size(), _secretKeySign);
+  
+  std::copy(_signature.cbegin(), _signature.cend(), _signatureWithPubKeySign.begin());
+  std::copy(_publicKeySign.cbegin(), _publicKeySign.cend(),
+	    _signatureWithPubKeySign.begin() + _signature.size());
+}
+
+CryptoSodium::CryptoSodium(std::u8string_view msgHash,
+			   std::span<const unsigned char> pubB,
+			   std::u8string_view signatureWithPubKey) :
+  _msgHash(msgHash.cbegin(), msgHash.cend()),
+  _signatureWithPubKeySign(signatureWithPubKey.cbegin(), signatureWithPubKey.cend()) {
+  
+  std::vector<unsigned char> peerPubKey(pubB.cbegin(), pubB.cend());
 }
 
 void CryptoSodium::setDummyAesKey() {
@@ -138,14 +150,14 @@ std::vector<unsigned char> CryptoSodium::base64_decode(const std::string& input)
   return decoded_data;
 }
 
-std::array<unsigned char, crypto_generichash_BYTES>
+std::vector<unsigned char>
 CryptoSodium::hashMessage(std::u8string_view message) {
   unsigned char MESSAGE[crypto_generichash_BYTES];
   std::copy(message.cbegin(), message.cend(), MESSAGE);
-  std::array<unsigned char, crypto_generichash_BYTES> hash;
+  std::vector<unsigned char> hash(crypto_generichash_BYTES);
   unsigned char key[crypto_generichash_KEYBYTES];
   randombytes_buf(key, sizeof key);
-  crypto_generichash(hash.data(), hash.size(),
+  crypto_generichash(hash.data(), crypto_generichash_BYTES,
 		     MESSAGE, crypto_generichash_BYTES,
 		     key, sizeof key);
   return hash;

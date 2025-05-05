@@ -25,10 +25,13 @@
 
 TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
-  CryptoSodium crypto(utility::generateRawUUID());
-  const auto& hashed = crypto.getMsgHash();
-  const auto& pubcicKeySign = crypto.getPublicKeySign();
-  const auto& signature = crypto.getSignature();
+  CryptoSodium cryptoC(utility::generateRawUUID());
+  std::span<const unsigned char> hashed = cryptoC.getMsgHash();
+  std::span<const unsigned char> pubcicKeySign = cryptoC.getPublicKeySign();
+  std::span<const unsigned char> signature = cryptoC.getSignature();
+  //std::span<const unsigned char> signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
+  //std::span<const unsigned char> pubB = cryptoC.getPublicKey();
+  //CryptoSodium cryptoS(hashed, pubB, signatureWithPubKey);
   ASSERT_TRUE(crypto_sign_verify_detached(signature.data(), hashed.data(), hashed.size(), pubcicKeySign.data()) == 0);
 }
 

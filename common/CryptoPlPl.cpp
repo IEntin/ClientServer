@@ -40,7 +40,7 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 
 // session
 CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
-		       std::span<const unsigned char> pubBvector,
+		       std::span<const unsigned char> pubBspan,
 		       std::u8string_view signatureWithPubKey) :
   _msgHash({ std::bit_cast<const char*>(msgHash.data()), msgHash.size() }),
   _dh(_curve),
@@ -51,7 +51,7 @@ CryptoPlPl::CryptoPlPl(std::u8string_view msgHash,
 		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKey, _pubKey);
-  const CryptoPP::SecByteBlock& pubB { pubBvector.data(), pubBvector.size() };
+  const CryptoPP::SecByteBlock& pubB { pubBspan.data(), pubBspan.size() };
   if(!_dh.Agree(_key, _privKey, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);

@@ -27,13 +27,17 @@ struct HandleKey {
 
 class CryptoSodium {
 
-  std::array<unsigned char, crypto_generichash_BYTES>
+  std::vector<unsigned char>
   hashMessage(std::u8string_view message);
   std::vector<unsigned char> encodeLength(size_t length);
-  std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
+  unsigned char _secretKey[crypto_kx_SECRETKEYBYTES];
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKey;
   unsigned char _secretKeySign[crypto_sign_SECRETKEYBYTES];
-  const std::array<unsigned char, crypto_generichash_BYTES> _msgHash;
+  std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
+  const std::vector<unsigned char> _msgHash;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
+  std::vector<unsigned char> _signatureWithPubKeySign;
+  std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _peerSignPubKey;
   HandleKey _keyHandler; 
   unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
   void showKey();
@@ -49,6 +53,9 @@ class CryptoSodium {
   std::mutex _mutex;
 public:
   explicit CryptoSodium(std::u8string_view msg);
+  CryptoSodium(std::u8string_view msgHash,
+	       std::span<const unsigned char> pubB,
+	       std::u8string_view signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
@@ -57,12 +64,18 @@ public:
   void setDummyAesKey();
   std::string base64_encode(std::span<const unsigned char> input);
   std::vector<unsigned char> base64_decode(const std::string& input);
-  const std::array<unsigned char, crypto_generichash_BYTES>&
-  getMsgHash() const { return _msgHash; }
+  // used in tests:
+  std::span<const unsigned char>
+  getSignatureWithPubKeySign() const { return _signatureWithPubKeySign; }
+  // used in tests:
+  std::span<const unsigned char> getMsgHash() const { return _msgHash; }
+  // used in tests:
+  std::span<const unsigned char>
+  getPublicKey() const { return _publicKey; }
 
-  const std::array<unsigned char, crypto_sign_PUBLICKEYBYTES>&
+  std::span<const unsigned char>
   getPublicKeySign() const { return _publicKeySign; }
 
-  const std::array<unsigned char, crypto_sign_BYTES>&
+  std::span<const unsigned char>
   getSignature() const { return _signature; }
 };
