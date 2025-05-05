@@ -19,7 +19,7 @@ TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
 		       std::span<const unsigned char> msgHash,
 		       std::span<const unsigned char> pubB,
-		       std::u8string_view signatureWithPubKey) :
+		       std::span<const unsigned char> signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),
   Session(server, msgHash, pubB, signatureWithPubKey),
   _connection(std::move(connection)),

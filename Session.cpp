@@ -13,7 +13,7 @@
 Session::Session(ServerWeakPtr server,
 		 std::span<const unsigned char> msgHash,
 		 std::span<const unsigned char> pubB,
-		 std::u8string_view signatureWithPubKey) :
+		 std::span<const unsigned char> signatureWithPubKey) :
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();

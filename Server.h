@@ -29,11 +29,11 @@ public:
   void stop();
   void createFifoSession(std::span<const unsigned char> msgHash,
 			 std::span<const unsigned char> pubB,
-			 std::u8string_view rsaPubB);
+			 std::span<const unsigned char> rsaPubB);
   void createTcpSession(tcp::ConnectionPtr connection,
 			std::span<const unsigned char> msgHash,
 			std::span<const unsigned char> pubB,
-			std::u8string_view rsaPubB);
+			std::span<const unsigned char> rsaPubB);
   const PolicyPtr& getPolicy() const { return _policy; }
   static void removeNamedMutex();
 private:

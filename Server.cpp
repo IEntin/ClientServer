@@ -84,7 +84,7 @@ void Server::stop() {
 
 void Server::createFifoSession(std::span<const unsigned char> msgHash,
 			       std::span<const unsigned char> pubB,
-			       std::u8string_view rsaPubBserialized) {
+			       std::span<const unsigned char> rsaPubBserialized) {
   std::lock_guard lock(_mutex);
   auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, rsaPubBserialized);
   startSession(session, session);
@@ -93,7 +93,7 @@ void Server::createFifoSession(std::span<const unsigned char> msgHash,
 void Server::createTcpSession(tcp::ConnectionPtr connection,
 			      std::span<const unsigned char> msgHash,
 			      std::span<const unsigned char> pubB,
-			      std::u8string_view rsaPubB) {
+			      std::span<const unsigned char> rsaPubB) {
   std::lock_guard lock(_mutex);
   auto session =
     std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, rsaPubB);

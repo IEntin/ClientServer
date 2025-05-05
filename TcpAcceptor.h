@@ -23,7 +23,8 @@ private:
   void stop() override;
 
   void accept();
-  std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>, std::u8string>
+  std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>,
+	     std::vector<unsigned char>>
   connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 

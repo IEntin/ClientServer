@@ -71,7 +71,7 @@ class CryptoPlPl {
 public:
   CryptoPlPl(std::span<const unsigned char> msgHash,
 	     std::span<const unsigned char> pubB,
-	     std::u8string_view signatureWithPubKey);
+	     std::span<const unsigned char> signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
   void showKey();

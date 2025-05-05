@@ -41,7 +41,7 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 // session
 CryptoPlPl::CryptoPlPl(std::span<const unsigned char> msgHash,
 		       std::span<const unsigned char> pubBspan,
-		       std::u8string_view signatureWithPubKey) :
+		       std::span<const unsigned char> signatureWithPubKey) :
   _msgHash({ std::bit_cast<const char*>(msgHash.data()), msgHash.size() }),
   _dh(_curve),
   _privKey(_dh.PrivateKeyLength()),
