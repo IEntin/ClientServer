@@ -54,9 +54,9 @@ void TcpAcceptor::run() {
   }
 }
 
-std::tuple<HEADERTYPE, std::u8string, std::vector<unsigned char>, std::u8string>
+std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>, std::u8string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
-  std::u8string msgHash;
+  std::vector<unsigned char> msgHash;
   std::vector<unsigned char> pubBvector;
   std::u8string signatureWithPubKey;
   if (!Tcp::readMsg(socket, _header, msgHash, pubBvector, signatureWithPubKey))

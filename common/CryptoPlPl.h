@@ -69,7 +69,7 @@ class CryptoPlPl {
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
 public:
-  CryptoPlPl(std::u8string_view msgHash,
+  CryptoPlPl(std::span<const unsigned char> msgHash,
 	     std::span<const unsigned char> pubB,
 	     std::u8string_view signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);

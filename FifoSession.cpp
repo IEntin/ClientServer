@@ -16,7 +16,7 @@ namespace fifo {
 static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
-			 std::u8string_view msgHash,
+			 std::span<const unsigned char> msgHash,
 			 std::span<const unsigned char> pubB,
 			 std::u8string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),

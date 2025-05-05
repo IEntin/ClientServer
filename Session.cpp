@@ -11,7 +11,7 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
-		 std::u8string_view msgHash,
+		 std::span<const unsigned char> msgHash,
 		 std::span<const unsigned char> pubB,
 		 std::u8string_view signatureWithPubKey) :
   _task(std::make_shared<Task>(server)),

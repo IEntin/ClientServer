@@ -29,7 +29,7 @@ protected:
   ServerWeakPtr _server;
 
   Session(ServerWeakPtr server,
-	  std::u8string_view msgHash,
+	  std::span<const unsigned char> msgHash,
 	  std::span<const unsigned char> pubB,
 	  std::u8string_view signatureWithPubKey);
   virtual ~Session() = default;
