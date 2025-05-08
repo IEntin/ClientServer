@@ -22,6 +22,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.encryption; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
 // for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptSodiumTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.DHkeyExchange; done
 
 TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
@@ -29,9 +30,9 @@ TEST(LibSodiumTest, authentication) {
   CryptoSodium cryptoC(utility::generateRawUUID());
   std::span<const unsigned char> hashed = cryptoC.getMsgHash();
   std::span<const unsigned char> signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
-  std::span<const unsigned char> pubB = cryptoC.getPublicKey();
+  std::span<const unsigned char> pubKeyAesClient = cryptoC.getPublicKeyAes();
   // server
-  CryptoSodium cryptoS(hashed, pubB, signatureWithPubKey);
+  CryptoSodium cryptoS(hashed, pubKeyAesClient, signatureWithPubKey);
   ASSERT_TRUE(cryptoS.isVerified());
 }
 
@@ -49,24 +50,37 @@ TEST(LibSodiumTest, hashing) {
 
 TEST(LibSodiumTest, DHkeyExchange) {
   ASSERT_FALSE(sodium_init() < 0);
-  unsigned char client_pk[crypto_kx_PUBLICKEYBYTES];
-  unsigned char client_sk[crypto_kx_SECRETKEYBYTES];
-  unsigned char server_pk[crypto_kx_PUBLICKEYBYTES];
-  unsigned char server_sk[crypto_kx_SECRETKEYBYTES];
-  unsigned char client_rx[crypto_kx_SESSIONKEYBYTES];
-  unsigned char client_tx[crypto_kx_SESSIONKEYBYTES];
-  unsigned char server_rx[crypto_kx_SESSIONKEYBYTES];
-  unsigned char server_tx[crypto_kx_SESSIONKEYBYTES];
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> client_pk;
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> client_sk;
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> server_pk;
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> server_sk;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
   // Generate key pairs for client and server
-  crypto_kx_keypair(client_pk, client_sk);
-  crypto_kx_keypair(server_pk, server_sk);
+  crypto_kx_keypair(client_pk.data(), client_sk.data());
+  crypto_kx_keypair(server_pk.data(), server_sk.data());
   // Client-side key exchange
-  ASSERT_TRUE(crypto_kx_client_session_keys(client_rx, client_tx, client_pk, client_sk, server_pk) == 0);
+  ASSERT_TRUE(crypto_kx_client_session_keys(client_rx.data(), nullptr, client_pk.data(), client_sk.data(), server_pk.data()) == 0);
   // Server-side key exchange
-  ASSERT_TRUE(crypto_kx_server_session_keys(server_rx, server_tx, server_pk, server_sk, client_pk) == 0);
+  ASSERT_TRUE(crypto_kx_server_session_keys(nullptr, server_tx.data(), server_pk.data(), server_sk.data(), client_pk.data()) == 0);
   // Verify that the shared secrets match
-  ASSERT_TRUE(sodium_memcmp(client_rx, server_tx, crypto_kx_SESSIONKEYBYTES) == 0);
-  ASSERT_TRUE(sodium_memcmp(client_tx, server_rx, crypto_kx_SESSIONKEYBYTES) == 0);
+  ASSERT_TRUE(client_rx == server_tx);
+  // in the app code:
+  try {
+    // client
+    CryptoSodium cryptoC(utility::generateRawUUID());
+    std::span<const unsigned char> hashed = cryptoC.getMsgHash();
+    std::span<const unsigned char> signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
+    std::span<const unsigned char> pubKeyAesClient = cryptoC.getPublicKeyAes();
+    // server
+    CryptoSodium cryptoS(hashed, pubKeyAesClient, signatureWithPubKey);
+    std::span<const unsigned char> pubKeyAesServer = cryptoS.getPublicKeyAes();
+    cryptoC.clientKeyExchange(pubKeyAesServer);
+    ASSERT_TRUE(true);
+  }
+  catch (...) {
+    ASSERT_TRUE(false);
+  }
 }
 
 TEST(LibSodiumTest, encryption) {
