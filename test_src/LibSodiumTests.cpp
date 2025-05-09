@@ -65,7 +65,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
   ASSERT_TRUE(crypto_kx_server_session_keys(nullptr, server_tx.data(), server_pk.data(), server_sk.data(), client_pk.data()) == 0);
   // Verify that the shared secrets match
   ASSERT_TRUE(client_rx == server_tx);
-  // in the app code:
+  // in the application code:
   try {
     // client
     CryptoSodium cryptoC(utility::generateRawUUID());
@@ -76,9 +76,13 @@ TEST(LibSodiumTest, DHkeyExchange) {
     CryptoSodium cryptoS(hashed, pubKeyAesClient, signatureWithPubKey);
     std::span<const unsigned char> pubKeyAesServer = cryptoS.getPublicKeyAes();
     cryptoC.clientKeyExchange(pubKeyAesServer);
-    ASSERT_TRUE(true);
+    std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> clientKey = cryptoC.getAesKey();
+    std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> serverKey = cryptoS.getAesKey();
+    // must match
+    ASSERT_EQ(clientKey, serverKey);
   }
   catch (...) {
+    // should be no exceptions
     ASSERT_TRUE(false);
   }
 }

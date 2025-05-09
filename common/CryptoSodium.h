@@ -19,9 +19,9 @@ struct HandleKey {
   explicit HandleKey();
   ~HandleKey() = default;
   std::size_t _size;
-  unsigned char _obfuscator[crypto_aead_aes256gcm_KEYBYTES];
-  void hideKey(unsigned char* key);
-  void recoverKey(unsigned char* key);
+  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> _obfuscator;
+  void hideKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key);
+  void recoverKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key);
   std::atomic<bool> _obfuscated;
 };
 
@@ -30,21 +30,21 @@ class CryptoSodium {
   std::vector<unsigned char>
   hashMessage(std::u8string_view message);
   std::vector<unsigned char> encodeLength(size_t length);
-  unsigned char _secretKeyAes[crypto_kx_SECRETKEYBYTES];
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
-  unsigned char _secretKeySign[crypto_sign_SECRETKEYBYTES];
+  std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
   std::vector<unsigned char> _msgHash;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
   std::vector<unsigned char> _signatureWithPubKeySign;
   HandleKey _keyHandler; 
-  unsigned char _key[crypto_aead_aes256gcm_KEYBYTES];
+  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> _key;
   void showKey();
   bool checkAccess();
-  void setAESKey(unsigned char* key) {
+  void setAESKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key) {
     std::lock_guard lock(_mutex);
     _keyHandler.recoverKey(_key);
-    std::copy(_key, _key + crypto_aead_aes256gcm_KEYBYTES, key);
+    key = _key;
     _keyHandler.hideKey(_key);
   }
   void eraseUsedData();
@@ -80,4 +80,7 @@ public:
   std::span<const unsigned char>
   getSignature() const { return _signature; }
   bool isVerified() const { return _verified; }
+  // used in tests:
+  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> getAesKey();
+  
 }; 
