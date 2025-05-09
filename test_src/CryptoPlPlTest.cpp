@@ -108,7 +108,7 @@ TEST(AuthenticationTest, 1) {
   // Sign the message
   CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
   std::string signature;
-  CryptoPP::StringSource ss( { std::bit_cast<const char*>(message.data()), message.size() },
+  CryptoPP::StringSource ss( { static_cast<const char*>(static_cast<const void*>(message.data())), message.size() },
 			     true, new CryptoPP::SignerFilter(
     rng, signer, new CryptoPP::StringSink(signature)));
   ASSERT_EQ(signature.size(), RSA_KEY_SIZE >> 3);
@@ -127,12 +127,12 @@ TEST(AuthenticationTest, 1) {
   // Verify the signature
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
   bool result = verifier.VerifyMessage(
-    std::bit_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    std::bit_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
+    static_cast<const CryptoPP::byte*>(static_cast<const void*>(message.data())), message.length(),
+    static_cast<const CryptoPP::byte*>(static_cast<const void*>(receivedSignature.data())), receivedSignature.size());
   ASSERT_TRUE(result);
   receivedSignature.erase(receivedSignature.cend() -1);
   result = verifier.VerifyMessage(
-    std::bit_cast<const CryptoPP::byte*>(message.data()), message.length(),
-    std::bit_cast<const CryptoPP::byte*>(receivedSignature.data()), receivedSignature.size());
+    static_cast<const CryptoPP::byte*>(static_cast<const void*>(message.data())), message.length(),
+    static_cast<const CryptoPP::byte*>(static_cast<const void*>(receivedSignature.data())), receivedSignature.size());
   ASSERT_FALSE(result);
 }

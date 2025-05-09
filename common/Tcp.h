@@ -40,7 +40,7 @@ public:
     payload1.resize(payload1Sz);
     unsigned shift = HEADER_SIZE;
     if (payload1Sz > 0)
-      std::memcpy(payload1.data(), _payload.data() + shift, payload1Sz);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
     return true;
   }
 
@@ -59,10 +59,10 @@ public:
     payload2.resize(payload2Sz);
     unsigned shift = HEADER_SIZE;
     if (payload1Sz > 0)
-      std::memcpy(payload1.data(), _payload.data() + shift, payload1Sz);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
     shift += payload1Sz;
     if (payload2Sz > 0)
-      std::memcpy(payload2.data(), _payload.data() + shift, payload2Sz);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
     return true;
   }
 
@@ -84,13 +84,13 @@ public:
     payload3.resize(payload3Sz);
     unsigned shift = HEADER_SIZE;
     if (payload1Sz > 0)
-      std::memcpy(payload1.data(), _payload.data() + shift, payload1Sz);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
     shift += payload1Sz;
     if (payload2Sz > 0)
-      std::memcpy(payload2.data(), _payload.data() + shift, payload2Sz);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
     shift += payload2Sz;
     if (payload3Sz > 0)
-      std::memcpy(payload3.data(), _payload.data() + shift, payload3Sz);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz, payload3.begin());
     return true;
   }
 

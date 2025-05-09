@@ -88,7 +88,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
 				       const HEADER& header,
 				       std::string_view data) {
   if (!checkAccess())
-    return "";
+    throw std::runtime_error("access denied");
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
   buffer.clear();
@@ -104,19 +104,19 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
   std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> key;
   setAESKey(key);
-  if (!(crypto_aead_aes256gcm_encrypt(std::bit_cast<unsigned char*>(buffer.data()),
+  if (!(crypto_aead_aes256gcm_encrypt(static_cast<unsigned char*>(static_cast<void*>(buffer.data())),
 				      &ciphertext_len,
-				      std::bit_cast<unsigned char*>(input.data()),
+				      static_cast<unsigned char*>(static_cast<void*>(input.data())),
 				      message_len, nullptr, 0,
 				      nullptr, nonce, key.data()) == 0))
-    return "";
+    throw std::runtime_error("encrypt failed");
   buffer.insert(buffer.end(), nonce, nonce + crypto_aead_aes256gcm_NPUBBYTES);
   return buffer;
 }
 
 void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
-    return;
+    throw std::runtime_error("access denied");
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
   buffer.clear();
@@ -129,14 +129,15 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned long long decrypted_len;
     std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> key;
     setAESKey(key);
-    bool success = crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(buffer.data()),
+    bool success = crypto_aead_aes256gcm_decrypt(static_cast<unsigned char*>(static_cast<void*>(buffer.data())),
 						 &decrypted_len,
 						 nullptr,
-						 std::bit_cast<unsigned char*>(data.data()), ciphertext_len,
+						 static_cast<unsigned char*>(static_cast<void*>(data.data())),
+						 ciphertext_len,
 						 nullptr, 0,
 						 recoveredNonce, key.data()) == 0;
     if (!success)
-      return;
+      throw std::runtime_error("decrypt failed");
     buffer.resize(decrypted_len);
     data = buffer;
     if (ClientOptions::_showKey)

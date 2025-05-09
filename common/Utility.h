@@ -72,11 +72,12 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
 
 // expected message starts with a header
 template <typename T>
-bool isEncrypted(const T& data) {
-  assert(data.size() >= HEADER_SIZE && "too short");
+bool isEncrypted(const T& input) {
+  assert(input.size() >= HEADER_SIZE && "too short");
   HEADER header;
+  const char* inputPtr = static_cast<const char*>(static_cast<const void*>(input.data()));
   try {
-    if (deserialize(header, std::bit_cast<const char*>(data.data())))
+    if (deserialize(header, inputPtr))
       return false;
     return true;
   }
