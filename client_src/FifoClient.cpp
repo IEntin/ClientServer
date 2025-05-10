@@ -86,11 +86,11 @@ bool FifoClient::wakeupAcceptor() {
   auto lambda = [] (
     const HEADER& header,
     const std::string_view msgHash,
-    const std::vector<unsigned char> pubKeyVector,
+    const std::span<const unsigned char> pubKeyAes,
     std::string_view signedAuth) {
-    return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKeyVector, signedAuth);
+    return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKeyAes, signedAuth);
   };
-  return _crypto->init(lambda, _status);
+  return _crypto->sendSignature(lambda, _status);
 }
 
 bool FifoClient::receiveStatus() {

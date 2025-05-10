@@ -36,8 +36,8 @@ class CryptoPlPl {
   std::string _msgHash;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
-  CryptoPP::SecByteBlock _privKey;
-  CryptoPP::SecByteBlock _pubKey;
+  CryptoPP::SecByteBlock _privKeyAes;
+  CryptoPP::SecByteBlock _pubKeyAes;
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
   CryptoPP::RSA::PublicKey _rsaPubKey;
@@ -77,22 +77,22 @@ public:
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  void getPubKey(std::vector<unsigned char>& pubKeyVector) const;
   bool clientKeyExchange(std::span<const unsigned char> peerPublicKeyAes);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
+
+  std::span<const unsigned char>
+  getPublicKeyAes() const { return _pubKeyAes; }
   void setDummyAesKey();
   template <typename L>
-  bool init(L& lambda, STATUS status) {
-    std::vector<unsigned char> pubKey;
-    getPubKey(pubKey);
-    signMessage();
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), pubKey.size(),
+  bool sendSignature(L& lambda, STATUS status) {
+    auto pubKeyAes = getPublicKeyAes();
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), pubKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKey.size() };
-    bool result = lambda(header, _msgHash, pubKey, _signatureWithPubKey);
+    bool result = lambda(header, _msgHash, pubKeyAes, _signatureWithPubKey);
     if (result)
       _signatureSent = true;
     eraseRSAKeys();

@@ -43,11 +43,10 @@ protected:
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
       unsigned size = clientIdStr.size();
-      std::vector<unsigned char> pubAvector;
-      _crypto->getPubKey(pubAvector);
+      auto pubKey = _crypto->getPublicKeyAes();
       HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, size, CRYPTO::NONE,
-		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubAvector.size() };
-      lambda(header, clientIdStr, pubAvector);
+		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubKey.size() };
+      lambda(header, clientIdStr, pubKey);
     }
   }
 

@@ -14,11 +14,11 @@ TcpClient::TcpClient() : _socket(_ioContext) {
   auto lambda = [this] (
     const HEADER& header,
     std::string_view msgHash,
-    std::span<const unsigned char> pubKey,
+    std::span<const unsigned char> pubKeyAes,
     std::string_view signedAuth) {
-    return Tcp::sendMsg(_socket, header, msgHash, pubKey, signedAuth);
+    return Tcp::sendMsg(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
-  if (!_crypto->init(lambda, _status))
+  if (!_crypto->sendSignature(lambda, _status))
     throw std::runtime_error("TcpClient::init failed");
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");

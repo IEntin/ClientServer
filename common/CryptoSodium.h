@@ -76,11 +76,21 @@ public:
 
   std::span<const unsigned char>
   getPublicKeySign() const { return _publicKeySign; }
-  // used in tests:
-  std::span<const unsigned char>
-  getSignature() const { return _signature; }
   bool isVerified() const { return _verified; }
   // used in tests:
   std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> getAesKey();
-  
+
+  template <typename L>
+  bool sendSignature(L& lambda, STATUS status) {
+    auto pubKeyAes = getPublicKeyAes();
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), pubKeyAes.size(),
+		      CRYPTO::NONE, COMPRESSORS::NONE,
+		      DIAGNOSTICS::NONE, status, _signatureWithPubKeySign.size() };
+    bool result = lambda(header, _msgHash, pubKeyAes, _signatureWithPubKeySign);
+    if (result)
+      _signatureSent = true;
+    eraseUsedData();
+    return result;
+  }
+
 }; 

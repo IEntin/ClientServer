@@ -44,15 +44,15 @@ CryptoPlPl::CryptoPlPl(std::span<const unsigned char> msgHash,
 		       std::span<const unsigned char> signatureWithPubKey) :
   _msgHash({ static_cast<const char*>(static_cast<const void*>(msgHash.data())), msgHash.size() }),
   _dh(_curve),
-  _privKey(_dh.PrivateKeyLength()),
-  _pubKey(_dh.PublicKeyLength()),
+  _privKeyAes(_dh.PrivateKeyLength()),
+  _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _signatureWithPubKey(static_cast<const char*>(static_cast<const void*>(signatureWithPubKey.data())),
 		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
-  generateKeyPair(_dh, _privKey, _pubKey);
+  generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   const CryptoPP::SecByteBlock& pubB { pubBspan.data(), pubBspan.size() };
-  if(!_dh.Agree(_key, _privKey, pubB))
+  if(!_dh.Agree(_key, _privKeyAes, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
@@ -71,17 +71,18 @@ CryptoPlPl::CryptoPlPl(std::span<const unsigned char> msgHash,
 CryptoPlPl::CryptoPlPl(std::u8string_view msg) :
   _msgHash(sha256_hash(msg)),
   _dh(_curve),
-  _privKey(_dh.PrivateKeyLength()),
-  _pubKey(_dh.PublicKeyLength()),
+  _privKeyAes(_dh.PrivateKeyLength()),
+  _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()) {
-  generateKeyPair(_dh, _privKey, _pubKey);
+  generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
   if (!success)
     throw std::runtime_error("rsa key encode failed");    
   _serializedRsaPubKey.swap(encodedStr);
+  signMessage();
 }
 
 bool CryptoPlPl::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
@@ -146,7 +147,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 bool CryptoPlPl::clientKeyExchange(std::span<const unsigned char> peerPublicKeyAes) {
   // const reference from rvalue
   const CryptoPP::SecByteBlock& pubAreceived { peerPublicKeyAes.data(), peerPublicKeyAes.size() };
-  bool result = _dh.Agree(_key, _privKey, pubAreceived);
+  bool result = _dh.Agree(_key, _privKeyAes, pubAreceived);
   erasePubPrivKeys();
   hideKey();
   return result;
@@ -231,8 +232,8 @@ void CryptoPlPl::eraseRSAKeys() {
 }
 
 void CryptoPlPl::erasePubPrivKeys() {
-  CryptoPP::SecByteBlock().swap(_privKey);
-  CryptoPP::SecByteBlock().swap(_pubKey);
+  CryptoPP::SecByteBlock().swap(_privKeyAes);
+  CryptoPP::SecByteBlock().swap(_pubKeyAes);
 }
 
 bool CryptoPlPl::checkAccess() {
@@ -243,11 +244,6 @@ bool CryptoPlPl::checkAccess() {
   else if (utility::isTestbinTerminal())
     return true;
   return false;
-}
-
-
-void CryptoPlPl::getPubKey(std::vector<unsigned char>& pubKeyVector) const {
-  pubKeyVector = { _pubKey.begin(), _pubKey.end() };
 }
 
 void CryptoPlPl::hideKey() {
