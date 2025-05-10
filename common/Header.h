@@ -36,8 +36,8 @@ enum class HEADERTYPE : char {
 enum class CRYPTO : char {
   INVALIDLOW = '@',
   NONE,
-  CRYPTOPP,
-  CRYPTOSODIUM,
+  ENCRYPT,
+  ERROR,
   INVALIDHIGH
 };
 

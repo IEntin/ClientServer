@@ -6,6 +6,16 @@
 
 #include <string>
 
+enum class CRYPTOIMPL : char {
+  INVALIDLOW = '@',
+  CRYPTOPP,
+  SODIUM,
+  ERROR,
+  INVALIDHIGH
+};
+
+CRYPTOIMPL translateCryptoImplString(std::string_view cryptoStr);
+
 struct Options {
 public:
   static void parse(std::string_view jsonName);
@@ -17,6 +27,7 @@ public:
   static std::size_t _pipeSize;
   static std::string _serverAddress;
   static unsigned short _tcpPort;
+  static CRYPTOIMPL _cryptoImpl;
   static bool _printHeader;
 private:
   Options() = delete;

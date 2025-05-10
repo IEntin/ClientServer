@@ -148,19 +148,19 @@ struct CompressEncryptSodiumTest : testing::Test {
 };
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_LZ4) {
-  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::LZ4);
 }
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_SNAPPY) {
-  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::SNAPPY);
 }
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_ZSTD) {
-  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::ZSTD);
 }
 
 TEST_F(CompressEncryptSodiumTest, ENCRYPT_COMPRESSORS_NONE) {
-  testCompressEncrypt(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::NONE);
 }
 
 TEST_F(CompressEncryptSodiumTest, NOTENCRYPT_COMPRESSORS_LZ4) {

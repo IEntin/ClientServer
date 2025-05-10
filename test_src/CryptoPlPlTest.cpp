@@ -17,7 +17,7 @@ TEST(CryptoTest, 1) {
   HEADER header{ HEADERTYPE::SESSION,
 		 0,
 		 TestEnvironment::_source.size(),
-		 CRYPTO::CRYPTOPP,
+		 CRYPTO::ENCRYPT,
 		 COMPRESSORS::NONE,
 		 DIAGNOSTICS::NONE,
 		 STATUS::NONE,
@@ -38,7 +38,7 @@ TEST(CryptoTest, 1) {
 }
 
 struct CompressEncryptTest : testing::Test {
-  void testCompressEncrypt(CRYPTO cryptoType, COMPRESSORS compressor) {
+  void testCompressEncrypt(CRYPTO encrypt, COMPRESSORS compressor) {
     auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
     crypto->setDummyAesKey();
     // must be a copy
@@ -46,7 +46,7 @@ struct CompressEncryptTest : testing::Test {
     HEADER header{ HEADERTYPE::SESSION,
 		   0,
 		   data.size(),
-		   cryptoType,
+		   encrypt,
 		   compressor,
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
@@ -65,19 +65,19 @@ struct CompressEncryptTest : testing::Test {
 };
 
 TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_LZ4) {
-  testCompressEncrypt(CRYPTO::CRYPTOPP, COMPRESSORS::LZ4);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::LZ4);
 }
 
 TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_SNAPPY) {
-  testCompressEncrypt(CRYPTO::CRYPTOPP, COMPRESSORS::SNAPPY);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::SNAPPY);
 }
 
 TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_ZSTD) {
-  testCompressEncrypt(CRYPTO::CRYPTOPP, COMPRESSORS::ZSTD);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::ZSTD);
 }
 
 TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_NONE) {
-  testCompressEncrypt(CRYPTO::CRYPTOPP, COMPRESSORS::NONE);
+  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::NONE);
 }
 
 TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_LZ4) {

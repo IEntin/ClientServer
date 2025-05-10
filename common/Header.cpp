@@ -8,12 +8,12 @@
 #include "Options.h"
 
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
-  if (cryptoStr == "CRYPTOPP")
-    return CRYPTO::CRYPTOPP;
-  else if (cryptoStr == "CRYPTOSODIUM")
-    return CRYPTO::CRYPTOSODIUM;
-  else
+  if (cryptoStr == "ENCRYPT")
+    return CRYPTO::ENCRYPT;
+  else if (cryptoStr == "NONE")
     return CRYPTO::NONE;
+  else
+    return CRYPTO::ERROR;
 }
 
 COMPRESSORS translateCompressorString(std::string_view compressorStr) {
@@ -54,8 +54,9 @@ COMPRESSORS extractCompressor(const HEADER& header) {
 
 bool doEncrypt(const HEADER& header) {
   CRYPTO crypto = std::get<CRYPTO>(header);
-  return crypto == CRYPTO::CRYPTOPP ||
-    crypto == CRYPTO::CRYPTOSODIUM;
+  if (crypto == CRYPTO::ERROR)
+    throw std::runtime_error("Wrong crypto configuration");
+  return crypto == CRYPTO::ENCRYPT;
 }
 
 bool isCompressed(const HEADER& header) {

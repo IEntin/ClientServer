@@ -37,7 +37,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _tcpClient = clientType == "TCP";
   _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
   _compressionLevel = appOptions.get("CompressionLevel", 3);
-  _encryption = translateCryptoString(appOptions.get("Crypto", std::string("CRYPTOPP")));
+  _encryption = translateCryptoString(appOptions.get("Crypto", std::string("ENCRYPT")));
   _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)
