@@ -6,12 +6,10 @@
 
 #include <string>
 
-enum class CRYPTOIMPL : char {
-  INVALIDLOW = '@',
+enum class CRYPTOIMPL : int {
   CRYPTOPP,
   SODIUM,
   ERROR,
-  INVALIDHIGH
 };
 
 CRYPTOIMPL translateCryptoImplString(std::string_view cryptoStr);

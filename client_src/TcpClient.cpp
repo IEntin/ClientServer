@@ -13,7 +13,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     throw std::runtime_error(ioutility::createErrorString());
   auto lambda = [this] (
     const HEADER& header,
-    std::string_view msgHash,
+    std::span<unsigned char> msgHash,
     std::span<const unsigned char> pubKeyAes,
     std::string_view signedAuth) {
     return Tcp::sendMsg(_socket, header, msgHash, pubKeyAes, signedAuth);

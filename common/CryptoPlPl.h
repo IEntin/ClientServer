@@ -89,10 +89,12 @@ public:
   template <typename L>
   bool sendSignature(L& lambda, STATUS status) {
     auto pubKeyAes = getPublicKeyAes();
+    std::span<unsigned char> msgHash = {
+      static_cast<unsigned char*>(static_cast<void*>(_msgHash.data())), _msgHash.size() };
     HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), pubKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKey.size() };
-    bool result = lambda(header, _msgHash, pubKeyAes, _signatureWithPubKey);
+    bool result = lambda(header, msgHash, pubKeyAes, _signatureWithPubKey);
     if (result)
       _signatureSent = true;
     eraseRSAKeys();

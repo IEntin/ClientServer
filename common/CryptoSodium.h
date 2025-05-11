@@ -39,7 +39,6 @@ class CryptoSodium {
   std::vector<unsigned char> _signatureWithPubKeySign;
   HandleKey _keyHandler; 
   std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> _key;
-  void showKey();
   bool checkAccess();
   void setAESKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key) {
     std::lock_guard lock(_mutex);
@@ -65,6 +64,7 @@ public:
   std::string base64_encode(std::span<const unsigned char> input);
   std::vector<unsigned char> base64_decode(const std::string& input);
   bool clientKeyExchange(std::span<const unsigned char> peerPublicKeyAes);
+  void showKey();
   // used in tests:
   std::span<const unsigned char>
   getSignatureWithPubKeySign() const { return _signatureWithPubKeySign; }

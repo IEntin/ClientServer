@@ -85,7 +85,7 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   auto lambda = [] (
     const HEADER& header,
-    const std::string_view msgHash,
+    const std::span<unsigned char> msgHash,
     const std::span<const unsigned char> pubKeyAes,
     std::string_view signedAuth) {
     return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKeyAes, signedAuth);
