@@ -42,9 +42,8 @@ protected:
     if (auto server = _server.lock(); server) {
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
-      unsigned size = clientIdStr.size();
       auto pubKey = _crypto->getPublicKeyAes();
-      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, size, CRYPTO::NONE,
+      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, clientIdStr.size(), CRYPTO::NONE,
 		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubKey.size() };
       lambda(header, clientIdStr, pubKey);
     }

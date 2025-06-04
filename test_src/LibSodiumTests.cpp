@@ -55,16 +55,21 @@ TEST(LibSodiumTest, DHkeyExchange) {
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> server_pk;
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> server_sk;
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_tx;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_rx;
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
   // Generate key pairs for client and server
   crypto_kx_keypair(client_pk.data(), client_sk.data());
   crypto_kx_keypair(server_pk.data(), server_sk.data());
   // Client-side key exchange
-  ASSERT_TRUE(crypto_kx_client_session_keys(client_rx.data(), nullptr, client_pk.data(), client_sk.data(), server_pk.data()) == 0);
+  ASSERT_TRUE(crypto_kx_client_session_keys(client_rx.data(), client_tx.data(), client_pk.data(), client_sk.data(), server_pk.data()) == 0);
   // Server-side key exchange
-  ASSERT_TRUE(crypto_kx_server_session_keys(nullptr, server_tx.data(), server_pk.data(), server_sk.data(), client_pk.data()) == 0);
+  ASSERT_TRUE(crypto_kx_server_session_keys(server_rx.data(), server_tx.data(), server_pk.data(), server_sk.data(), client_pk.data()) == 0);
   // Verify that the shared secrets match
   ASSERT_TRUE(client_rx == server_tx);
+  ASSERT_TRUE(client_tx == server_rx);
+  ASSERT_TRUE(client_tx != client_rx);
+  ASSERT_TRUE(server_tx != server_rx);
   // in the application code:
   try {
     // client

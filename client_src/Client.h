@@ -32,7 +32,7 @@ protected:
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;
-  bool DHFinish(std::string_view clientIdStr, std::span<const unsigned char> pubAreceived);
+  bool DHFinish(std::string_view clientIdStr, std::span<unsigned char> pubAreceived);
 
   std::size_t _clientId = 0;
   Chronometer _chronometer;

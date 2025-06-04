@@ -55,10 +55,10 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
 CryptoSodium::CryptoSodium(std::span<const unsigned char> msgHash,
 			   std::span<const unsigned char> pubKeyAesClient,
 			   std::span<const unsigned char> signatureWithPubKey) {
-  unsigned char peerPublicKeyAes[crypto_kx_PUBLICKEYBYTES] = {};
-  std::copy(pubKeyAesClient.cbegin(), pubKeyAesClient.cend(), peerPublicKeyAes);
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
+  unsigned char peerPublicKeyAes[crypto_kx_PUBLICKEYBYTES] = {};
+  std::copy(pubKeyAesClient.cbegin(), pubKeyAesClient.cend(), peerPublicKeyAes);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
   std::span<const unsigned char>
     signature(signatureWithPubKey.data(), crypto_sign_BYTES);
