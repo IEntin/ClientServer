@@ -19,12 +19,11 @@ struct CloseFileDescriptor {
 
 class Fifo {
 public:
-  template <typename P1, typename P2>
   static bool readMsg(std::string_view name,
 		      bool block,
 		      HEADER& header,
-		      P1& payload1,
-		      P2& payload2) {
+		      std::string& payload1,
+		      std::vector<unsigned char>& payload2) {
     _payload.clear();
     if (!readMessage(name, block, _payload))
       return false;
@@ -37,49 +36,17 @@ public:
     payload2.resize(payload2Size);
     unsigned shift = HEADER_SIZE;
     if (payload1Size > 0)
-      std::memcpy(payload1.data(), _payload.data() + shift, payload1Size);
+      std::copy(_payload.begin() + shift, _payload.begin() + shift + payload1Size, payload1.begin());
     shift += payload1Size;
     if (payload2Size > 0)
-      std::memcpy(payload2.data(), _payload.data() + shift, payload2Size);
+      std::copy(_payload.begin() + shift, _payload.begin() + shift + payload2Size, payload2.begin());
     return true;
   }
 
-  template <typename P1, typename P2, typename P3>
   static bool readMsg(std::string_view name,
 		      bool block,
 		      HEADER& header,
-		      P1& payload1,
-		      P2& payload2,
-		      P3& payload3) {
-    _payload.clear();
-    if (!readMessage(name, block, _payload))
-      return false;
-    if (!deserialize(header, _payload.data()))
-      return false;
-    printHeader(header, LOG_LEVEL::INFO);
-    unsigned payload1Size = extractReservedSz(header);
-    unsigned payload2Size = extractUncompressedSize(header);
-    unsigned payload3Size = extractParameter(header);
-    payload1.resize(payload1Size);
-    payload2.resize(payload2Size);
-    payload3.resize(payload3Size);
-    unsigned shift = HEADER_SIZE;
-    if (payload1Size > 0)
-      std::memcpy(payload1.data(), _payload.data() + shift, payload1Size);
-    shift += payload1Size;
-    if (payload2Size > 0)
-      std::memcpy(payload2.data(), _payload.data() + shift, payload2Size);
-    shift += payload2Size;
-    if (payload3Size > 0)
-      std::memcpy(payload3.data(), _payload.data() + shift, payload3Size);
-    return true;
-  }
-
-  template <typename P1>
-  static bool readMsg(std::string_view name,
-		      bool block,
-		      HEADER& header,
-		      P1& payload1) {
+		      std::string& payload1) {
     _payload.clear();
     if (!readMessage(name, block, _payload))
       return false;
@@ -88,7 +55,7 @@ public:
     std::size_t payload1Size = _payload.size() - HEADER_SIZE;
     if (payload1Size > 0) {
       payload1.resize(payload1Size);
-      std::memcpy(payload1.data(), _payload.data() + HEADER_SIZE, payload1Size);
+      std::copy(_payload.begin() + HEADER_SIZE, _payload.begin() + HEADER_SIZE + payload1Size, payload1.begin());
       return true;
     }
     return false;
@@ -113,20 +80,26 @@ public:
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
     _payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());
-    std::memcpy(_payload.data(), headerBuffer, HEADER_SIZE);
+    std::copy(std::begin(headerBuffer), std::end(headerBuffer), _payload.begin());
     unsigned shift = HEADER_SIZE;
-    std::memcpy(_payload.data() + shift, payload1.data(), payload1.size());
+    std::copy(payload1.cbegin(), payload1.cend(), _payload.begin() + shift);
     shift += payload1.size();
     if (!payload2.empty())
-      std::memcpy(_payload.data() + shift, payload2.data(), payload2.size());
+      std::copy(payload2.cbegin(), payload2.cend(), _payload.begin() + shift);
     shift += payload2.size();
     if (!payload3.empty())
-      std::memcpy(_payload.data() + shift, payload3.data(), payload3.size());
+      std::copy(payload3.cbegin(), payload3.cend(), _payload.begin() + shift);
     writeString(fdWrite, _payload);
     return true;
   }
 
   static bool readMessage(std::string_view name, bool block, std::string& payload);
+  static bool readMessage(std::string_view name,
+		      bool block,
+		      HEADER& header,
+		      std::vector<unsigned char>& payload1,
+		      std::vector<unsigned char>& payload2,
+		      std::vector<unsigned char>& payload3);
   static void onExit(std::string_view fifoName);
   static void writeString(int fd, std::string_view str);
 private:

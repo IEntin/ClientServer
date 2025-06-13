@@ -38,7 +38,7 @@ FifoAcceptor::unblockAcceptor() {
   std::vector<unsigned char> msgHash;
   std::vector<unsigned char> pubBvector;
   std::vector<unsigned char> rsaPubB;
-  if (!Fifo::readMsg(_acceptorName, true, header, msgHash, pubBvector, rsaPubB))
+  if (!Fifo::readMessage(_acceptorName, true, header, msgHash, pubBvector, rsaPubB))
     return { HEADERTYPE::ERROR, std::vector<unsigned char>(), std::vector<unsigned char>(), rsaPubB };
   return { extractHeaderType(header), msgHash, pubBvector, rsaPubB };
 }

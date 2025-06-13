@@ -111,11 +111,10 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       break;
     else if (result > 0) {
       std::size_t transferred = static_cast<std::size_t>(result);
-      std::size_t oldSize = accumulatedSz;
+      std::size_t prevSize = accumulatedSz;
       accumulatedSz += transferred;
-      if (payload.size() < accumulatedSz)
-	payload.resize(accumulatedSz);
-      std::memcpy(payload.data() + oldSize, buffer, transferred);
+      payload.resize(accumulatedSz);
+      std::copy(std::begin(buffer), std::begin(buffer) + transferred, payload.begin() + prevSize);
     }
   }
   payload.resize(accumulatedSz);
@@ -142,11 +141,10 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     }
     else if (result > 0) {
       std::size_t transferred = static_cast<std::size_t>(result);
-      std::size_t oldSize = accumulatedSz;
+      std::size_t prevSize = accumulatedSz;
       accumulatedSz += transferred;
-      if (payload.size() < accumulatedSz)
-	payload.resize(accumulatedSz);
-      std::memcpy(payload.data() + oldSize, buffer, transferred);
+      payload.resize(accumulatedSz);
+      std::copy(std::begin(buffer), std::begin(buffer) + transferred, payload.begin() + prevSize);
     }
     else if (result == 0) {
       if (pollFd(fd, POLLIN) != POLLIN)
@@ -168,6 +166,37 @@ bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) 
   }
   return true;
 }
+
+
+bool Fifo::readMessage(std::string_view name,
+		       bool block,
+		       HEADER& header,
+		       std::vector<unsigned char>& payload1,
+		       std::vector<unsigned char>& payload2,
+		       std::vector<unsigned char>& payload3) {
+    _payload.clear();
+    if (!readMessage(name, block, _payload))
+      return false;
+    if (!deserialize(header, _payload.data()))
+      return false;
+    printHeader(header, LOG_LEVEL::INFO);
+    unsigned payload1Size = extractReservedSz(header);
+    unsigned payload2Size = extractUncompressedSize(header);
+    unsigned payload3Size = extractParameter(header);
+    payload1.resize(payload1Size);
+    payload2.resize(payload2Size);
+    payload3.resize(payload3Size);
+    unsigned shift = HEADER_SIZE;
+    if (payload1Size > 0)
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Size, payload1.begin());
+    shift += payload1Size;
+    if (payload2Size > 0)
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Size, payload2.begin());
+    shift += payload2Size;
+    if (payload3Size > 0)
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Size, payload3.begin());
+    return true;
+  }
 
 void Fifo::writeString(int fd, std::string_view str) {
   std::size_t written = 0;

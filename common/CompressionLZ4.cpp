@@ -21,7 +21,7 @@ void compress(std::string& buffer, std::string& data) {
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
   data.resize(compressedSize);
-  std::memcpy(data.data(), buffer.data(), compressedSize);
+  std::copy(buffer.cbegin(), buffer.cbegin() + compressedSize, data.begin());
 }
 
 void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize) {
@@ -35,7 +35,7 @@ void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize)
     throw std::runtime_error("uncompress failed");
   std::size_t size = static_cast<size_t>(decomprSize);
   data.resize(size);
-  std::memcpy(data.data(), buffer.data(), size);
+  std::copy(buffer.cbegin(), buffer.cbegin() + size, data.begin());
 }
 
 } // end of namespace compression

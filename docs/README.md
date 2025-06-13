@@ -175,7 +175,8 @@ especially of the client, which can in turn reduce hardware requirements.
 Option to use LZ4, SNAPPY, or ZSTD compression.\
 Preliminary results show that LZ4 gives better elapsed, compression ratio, and using less memory than SNAPPY.\
 SNAPPY is simpler to use, it does not require to save uncompressed size.\
-ZSTD shows the same elapsed as SNAPPY, ~15% slower than LZ4, and high compression ratio as expected.\
+ZSTD shows the same elapsed as SNAPPY, ~15% slower than LZ4 (ZSTD multithreading was not enabled in these tests),\
+and high compression ratio as expected.\
 High compression ratio might be good for encryption and security.\
 ZSTD does not require saving of uncompressed size as well.\
 Software allows mixing different compression algorithms, for instance,\
