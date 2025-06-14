@@ -56,7 +56,7 @@ bool TcpClient::receive() {
       return false;
     }
     HEADER header;
-    if (!Tcp::readMsg(_socket, header, _response)) {
+    if (!Tcp::readMessage(_socket, header, _response)) {
       return false;
     }
     _status = STATUS::NONE;
@@ -73,7 +73,7 @@ bool TcpClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::vector<unsigned char> pubAreceived;
-  if (!Tcp::readMsg(_socket, _header, clientIdStr, pubAreceived))
+  if (!Tcp::readMessage(_socket, _header, clientIdStr, pubAreceived))
     return false;
   if (!DHFinish(clientIdStr, pubAreceived))
     return false;

@@ -8,6 +8,7 @@
 
 namespace tcp {
 
+std::vector<unsigned char> Tcp::_defaultParameter;
 thread_local std::string Tcp::_payload;
 
 bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
@@ -73,6 +74,27 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
     LogError << "ENDOFMESSAGE not found\n";
     return false;
   }
+}
+
+bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
+		      HEADER& header,
+		      std::string& payload1,
+		      std::vector<unsigned char>& payload2) {
+  _payload.clear();
+  if (!readMessage(socket, _payload))
+    return false;
+  deserialize(header, _payload.data());
+  std::size_t payload1Sz = extractUncompressedSize(header);
+  std::size_t payload2Sz = extractParameter(header);
+  payload1.resize(payload1Sz);
+  payload2.resize(payload2Sz);
+  unsigned shift = HEADER_SIZE;
+  if (payload1Sz > 0)
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
+  shift += payload1Sz;
+  if (payload2Sz > 0)
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
+  return true;
 }
 
 } // end of namespace tcp

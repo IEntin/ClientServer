@@ -15,6 +15,7 @@ class Tcp {
   Tcp() = delete;
   ~Tcp() = delete;
 
+  static std::vector<unsigned char> _defaultParameter;
   static thread_local std::string _payload;
 
 public:
@@ -23,50 +24,17 @@ public:
 
   static bool setSocket(boost::asio::ip::tcp::socket& socket);
 
-  template <typename P1>
-  static bool readMsg(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      P1& payload1) {
-    _payload.clear();
-    if (!readMessage(socket, _payload))
-      return false;
-    deserialize(header, _payload.data());
-    std::size_t payload1Sz = extractUncompressedSize(header);
-    payload1.resize(payload1Sz);
-    unsigned shift = HEADER_SIZE;
-    if (payload1Sz > 0)
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
-    return true;
-  }
-
-  template <typename P1, typename P2>
-  static bool readMsg(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      P1& payload1,
-		      P2& payload2) {
-    _payload.clear();
-    if (!readMessage(socket, _payload))
-      return false;
-    deserialize(header, _payload.data());
-    std::size_t payload1Sz = extractUncompressedSize(header);
-    std::size_t payload2Sz = extractParameter(header);
-    payload1.resize(payload1Sz);
-    payload2.resize(payload2Sz);
-    unsigned shift = HEADER_SIZE;
-    if (payload1Sz > 0)
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
-    shift += payload1Sz;
-    if (payload2Sz > 0)
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
-    return true;
-  }
+  static bool readMessage(boost::asio::ip::tcp::socket& socket,
+			  HEADER& header,
+			  std::string& payload1,
+			  std::vector<unsigned char>& payload2 = Tcp::_defaultParameter);
 
   template <typename P1, typename P2, typename P3>
-  static bool readMsg(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      P1& payload1,
-		      P2& payload2,
-		      P3& payload3) {
+  static bool readMessage(boost::asio::ip::tcp::socket& socket,
+			  HEADER& header,
+			  P1& payload1,
+			  P2& payload2,
+			  P3& payload3) {
     _payload.clear();
     if (!readMessage(socket, _payload))
       return false;
@@ -121,7 +89,7 @@ public:
   }
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
-			  std::string& payload);
+  			  std::string& payload);
 };
 
 } // end of namespace tcp
