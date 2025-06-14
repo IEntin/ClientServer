@@ -19,12 +19,7 @@ class Tcp {
 
 public:
 
-  static void shutdownSocket(boost::asio::ip::tcp::socket& socket) {
-    boost::system::error_code ec;
-    socket.shutdown(boost::asio::socket_base::shutdown_both, ec);
-    if (!ec)
-      socket.close(ec);
-  }
+  static void shutdownSocket(boost::asio::ip::tcp::socket& socket);
 
   static bool setSocket(boost::asio::ip::tcp::socket& socket);
 

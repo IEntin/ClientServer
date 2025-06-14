@@ -24,8 +24,7 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
       return false;
     }
   }
-
-static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, Options::_tcpPort);
+  static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, Options::_tcpPort);
   socket.connect(endpoint, ec);
   if (ec) {
     switch (ec.value()) {
@@ -48,6 +47,13 @@ static const boost::asio::ip::tcp::endpoint endpoint(ipAdress, Options::_tcpPort
     return false;
   }
   return true;
+}
+
+void Tcp::shutdownSocket(boost::asio::ip::tcp::socket& socket) {
+  boost::system::error_code ec;
+  socket.shutdown(boost::asio::socket_base::shutdown_both, ec);
+  if (!ec)
+    socket.close(ec);
 }
 
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
