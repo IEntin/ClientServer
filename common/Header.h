@@ -9,15 +9,15 @@
 
 #include "Logger.h"
 
-constexpr int HEADERTYPE_SIZE = 1;
-constexpr int RESERVED_SIZE = 10;
-constexpr int NUM_FIELD_SIZE = 10;
-constexpr int CRYPTO_SIZE = 1;
-constexpr int COMPRESSOR_SIZE = 1;
-constexpr int DIAGNOSTICS_SIZE = 1;
-constexpr int STATUS_SIZE = 1;
-constexpr int PARAMETER_SIZE = 10;
-constexpr int HEADER_SIZE =
+inline constexpr int HEADERTYPE_SIZE = 1;
+inline constexpr int RESERVED_SIZE = 10;
+inline constexpr int NUM_FIELD_SIZE = 10;
+inline constexpr int CRYPTO_SIZE = 1;
+inline constexpr int COMPRESSOR_SIZE = 1;
+inline constexpr int DIAGNOSTICS_SIZE = 1;
+inline constexpr int STATUS_SIZE = 1;
+inline constexpr int PARAMETER_SIZE = 10;
+inline constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + RESERVED_SIZE + NUM_FIELD_SIZE + CRYPTO_SIZE +
   COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 

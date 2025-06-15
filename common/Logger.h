@@ -6,7 +6,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <string_view>
 #include <syncstream>
 #include <utility>
 
@@ -14,13 +13,13 @@
 #include <boost/assert/source_location.hpp>
 #include <boost/core/noncopyable.hpp>
 
-#define LogAlways Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix()
-#define LogError Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix()
-#define Expected Logger(LOG_LEVEL::EXPECTED, std::clog).printPrefix()
-#define Warn Logger(LOG_LEVEL::WARN, std::cerr).printPrefix()
-#define Info Logger(LOG_LEVEL::INFO, std::clog).printPrefix()
-#define Debug Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix()
-#define Trace Logger(LOG_LEVEL::TRACE, std::clog).printPrefix()
+#define LogAlways (Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix())
+#define LogError (Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix())
+#define Expected (Logger(LOG_LEVEL::EXPECTED, std::clog).printPrefix())
+#define Warn (Logger(LOG_LEVEL::WARN, std::cerr).printPrefix())
+#define Info (Logger(LOG_LEVEL::INFO, std::clog).printPrefix())
+#define Debug (Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix())
+#define Trace (Logger(LOG_LEVEL::TRACE, std::clog).printPrefix())
 
 enum class LOG_LEVEL : int {
   TRACE,
@@ -33,7 +32,7 @@ enum class LOG_LEVEL : int {
   INVALID
 };
 
-constexpr std::string_view levelNames[] {
+inline constexpr std::string_view levelNames[] {
   "TRACE",
   "DEBUG",
   "INFO",
