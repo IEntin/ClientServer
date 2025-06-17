@@ -39,6 +39,6 @@ class Lines : private boost::noncopyable {
   std::size_t _processed = 0;
   std::size_t _sizeInUse = 0;
   std::size_t _inputSize = 0;
-  static constexpr unsigned ARRAY_SIZE = 65536;
+  static constexpr unsigned ARRAY_SIZE = 262144;
   std::array<char, ARRAY_SIZE> _buffer;
 };
