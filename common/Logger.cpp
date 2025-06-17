@@ -27,9 +27,9 @@ void Logger::translateLogThreshold(std::string_view configName) {
     _threshold = LOG_LEVEL::ALWAYS;
 }
 
-Logger& Logger::printPrefix(const boost::source_location& location) {
+Logger& Logger::printLocation(const boost::source_location& location) {
   try {
-    if (_level < _threshold || !_displayPrefix)
+    if (_level < _threshold || !_displayLocation)
       return *this;
     static thread_local std::string output;
     output << '[';

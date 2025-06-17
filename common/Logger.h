@@ -4,22 +4,20 @@
 
 #pragma once
 
-#include <iomanip>
 #include <iostream>
 #include <syncstream>
-#include <utility>
 
 #include <boost/algorithm/hex.hpp>
 #include <boost/assert/source_location.hpp>
 #include <boost/core/noncopyable.hpp>
 
-#define LogAlways (Logger(LOG_LEVEL::ALWAYS, std::clog).printPrefix())
-#define LogError (Logger(LOG_LEVEL::ERROR, std::cerr).printPrefix())
-#define Expected (Logger(LOG_LEVEL::EXPECTED, std::clog).printPrefix())
-#define Warn (Logger(LOG_LEVEL::WARN, std::cerr).printPrefix())
-#define Info (Logger(LOG_LEVEL::INFO, std::clog).printPrefix())
-#define Debug (Logger(LOG_LEVEL::DEBUG, std::clog).printPrefix())
-#define Trace (Logger(LOG_LEVEL::TRACE, std::clog).printPrefix())
+#define LogAlways (Logger(LOG_LEVEL::ALWAYS).printLocation(BOOST_CURRENT_LOCATION))
+#define LogError (Logger(LOG_LEVEL::ERROR, std::cerr).printLocation(BOOST_CURRENT_LOCATION))
+#define Expected (Logger(LOG_LEVEL::EXPECTED).printLocation(BOOST_CURRENT_LOCATION))
+#define Warn (Logger(LOG_LEVEL::WARN, std::cerr).printLocation(BOOST_CURRENT_LOCATION))
+#define Info (Logger(LOG_LEVEL::INFO).printLocation(BOOST_CURRENT_LOCATION))
+#define Debug (Logger(LOG_LEVEL::DEBUG).printLocation(BOOST_CURRENT_LOCATION))
+#define Trace (Logger(LOG_LEVEL::TRACE).printLocation(BOOST_CURRENT_LOCATION))
 
 enum class LOG_LEVEL : int {
   TRACE,
@@ -44,10 +42,10 @@ inline constexpr std::string_view levelNames[] {
 };
 
 struct Logger : private boost::noncopyable {
-  explicit Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayPrefix = true) :
+  explicit Logger(LOG_LEVEL level, std::ostream& stream = std::clog, bool displayLocation = true) :
     _level(level),
     _stream(stream),
-    _displayPrefix(displayPrefix) {
+    _displayLocation(displayLocation) {
     _stream << std::boolalpha;
   }
   
@@ -55,11 +53,11 @@ struct Logger : private boost::noncopyable {
     _stream.flush();
   }
 
-  Logger& printPrefix(const boost::source_location& location = BOOST_CURRENT_LOCATION);
+  Logger& printLocation(const boost::source_location& location);
 
   const LOG_LEVEL _level;
   std::osyncstream _stream;
-  const bool _displayPrefix;
+  const bool _displayLocation;
 
   std::osyncstream& getStream() { return _stream; }
 
