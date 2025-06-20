@@ -97,4 +97,31 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
   return true;
 }
 
+bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
+		      HEADER& header,
+		      std::vector<unsigned char>& payload1,
+		      std::vector<unsigned char>& payload2,
+		      std::vector<unsigned char>& payload3) {
+  _payload.clear();
+  if (!readMessage(socket, _payload))
+    return false;
+  deserialize(header, _payload.data());
+  std::size_t payload1Sz = extractReservedSz(header);
+  std::size_t payload2Sz = extractUncompressedSize(header);
+  std::size_t payload3Sz = extractParameter(header);
+  payload1.resize(payload1Sz);
+  payload2.resize(payload2Sz);
+  payload3.resize(payload3Sz);
+  unsigned shift = HEADER_SIZE;
+  if (payload1Sz > 0)
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
+  shift += payload1Sz;
+  if (payload2Sz > 0)
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
+  shift += payload2Sz;
+  if (payload3Sz > 0)
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz, payload3.begin());
+  return true;
+}
+
 } // end of namespace tcp

@@ -25,7 +25,7 @@ public:
 	     std::span<const unsigned char> pubB,
 	     std::span<const unsigned char> rsaPubB);
 
-  ~TcpSession() override;
+  ~TcpSession() override = default;
 
 private:
   bool start() override;

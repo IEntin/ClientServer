@@ -27,10 +27,6 @@ TcpSession::TcpSession(ServerWeakPtr server,
   _socket(std::move(_connection->_socket)),
   _timeoutTimer(_ioContext) {}
 
-TcpSession::~TcpSession() {
-  Info << '\n';
-}
-
 bool TcpSession::start() {
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);

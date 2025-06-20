@@ -29,33 +29,11 @@ public:
 			  std::string& payload1,
 			  std::vector<unsigned char>& payload2 = Tcp::_defaultParameter);
 
-  template <typename P1, typename P2, typename P3>
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
-			  P1& payload1,
-			  P2& payload2,
-			  P3& payload3) {
-    _payload.clear();
-    if (!readMessage(socket, _payload))
-      return false;
-    deserialize(header, _payload.data());
-    std::size_t payload1Sz = extractReservedSz(header);
-    std::size_t payload2Sz = extractUncompressedSize(header);
-    std::size_t payload3Sz = extractParameter(header);
-    payload1.resize(payload1Sz);
-    payload2.resize(payload2Sz);
-    payload3.resize(payload3Sz);
-    unsigned shift = HEADER_SIZE;
-    if (payload1Sz > 0)
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
-    shift += payload1Sz;
-    if (payload2Sz > 0)
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
-    shift += payload2Sz;
-    if (payload3Sz > 0)
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz, payload3.begin());
-    return true;
-  }
+			  std::vector<unsigned char>& payload1,
+			  std::vector<unsigned char>& payload2,
+			  std::vector<unsigned char>& payload3);
 
   template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P2>
   static bool sendMsg(boost::asio::ip::tcp::socket& socket,
