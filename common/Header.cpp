@@ -61,7 +61,14 @@ bool doEncrypt(const HEADER& header) {
 
 bool isCompressed(const HEADER& header) {
   COMPRESSORS compressor = extractCompressor(header);
-  return compressor == COMPRESSORS::LZ4 || compressor == COMPRESSORS::SNAPPY || compressor == COMPRESSORS::ZSTD;
+  switch (compressor) {
+  case COMPRESSORS::LZ4:
+  case COMPRESSORS::SNAPPY:
+  case COMPRESSORS::ZSTD:
+    return true;
+  default:
+    return false;
+  }
 }
 
 DIAGNOSTICS extractDiagnostics(const HEADER& header) {
