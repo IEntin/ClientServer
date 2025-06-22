@@ -127,14 +127,16 @@ bool Fifo::readMsg(std::string_view name,
   printHeader(header, LOG_LEVEL::INFO);
   std::size_t payload1Size = extractUncompressedSize(header);
   std::size_t payload2Size = extractParameter(header);
-  payload1.resize(payload1Size);
-  payload2.resize(payload2Size);
   unsigned shift = HEADER_SIZE;
-  if (payload1Size > 0)
+  if (payload1Size > 0) {
+    payload1.resize(payload1Size);
     std::copy(_payload.begin() + shift, _payload.begin() + shift + payload1Size, payload1.begin());
+  }
   shift += payload1Size;
-  if (payload2Size > 0)
+  if (payload2Size > 0) {
+    payload2.resize(payload2Size);
     std::copy(_payload.begin() + shift, _payload.begin() + shift + payload2Size, payload2.begin());
+  }
   return true;
 }
 

@@ -61,7 +61,8 @@ bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
     auto [size, status] = taskBuilder->getTask(_task);
     if (status == STATUS::ERROR)
       return false;
-    taskBuilder->resume();
+    if (ClientOptions::_runLoop)
+      taskBuilder->resume();
     for (unsigned i = 0; i < size; ++i) {
       if (!(send(_task[i]) && receive()))
 	return false;

@@ -27,7 +27,7 @@ public:
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
 			  std::string& payload1,
-			  std::vector<unsigned char>& payload2 = Tcp::_defaultParameter);
+			  std::vector<unsigned char>& payload2 = _defaultParameter);
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
