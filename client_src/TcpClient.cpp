@@ -16,7 +16,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     std::span<unsigned char> msgHash,
     std::span<const unsigned char> pubKeyAes,
     std::string_view signedAuth) {
-    return Tcp::sendMsg(_socket, header, msgHash, pubKeyAes, signedAuth);
+    return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
   if (!_crypto->sendSignature(lambda, _status))
     throw std::runtime_error("TcpClient::init failed");
@@ -38,7 +38,7 @@ bool TcpClient::send(const Subtask& subtask) {
       Warn << ec.what() << '\n';
       return false;
     }
-    Tcp::sendMsg(_socket, subtask._header, subtask._data);
+    Tcp::sendMessage(_socket, subtask._header, subtask._data);
     return true;
   }
   catch (const std::exception& e) {

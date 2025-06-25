@@ -55,7 +55,7 @@ bool FifoClient::send(const Subtask& subtask) {
 	LogError << ec.message() << '\n';
       _status = STATUS::STOPPED;
     }
-    if (Fifo::sendMsg(false, _fifoName, subtask._header, subtask._data))
+    if (Fifo::sendMessage(false, _fifoName, subtask._header, subtask._data))
       return true;
     // waiting client
     // session stopped
@@ -72,7 +72,7 @@ bool FifoClient::receive() {
   try {
     _status = STATUS::NONE;
     HEADER header;
-    if (!Fifo::readMsg(_fifoName, true, header, _response))
+    if (!Fifo::readMessage(_fifoName, true, header, _response))
       return false;
     return printReply();
   }
@@ -88,7 +88,7 @@ bool FifoClient::wakeupAcceptor() {
     const std::span<unsigned char> msgHash,
     const std::span<const unsigned char> pubKeyAes,
     std::string_view signedAuth) {
-    return Fifo::sendMsg(false, Options::_acceptorName, header, msgHash, pubKeyAes, signedAuth);
+    return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAes, signedAuth);
   };
   return _crypto->sendSignature(lambda, _status);
 }
@@ -98,7 +98,7 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::vector<unsigned char> pubAreceived;
-  if (!Fifo::readMsg(Options::_acceptorName, true, _header, clientIdStr, pubAreceived))
+  if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, pubAreceived))
     return false;
   if (!DHFinish(clientIdStr, pubAreceived))
     return false;

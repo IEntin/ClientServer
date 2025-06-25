@@ -18,6 +18,8 @@
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_LZ4; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT; done
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_SNAPPY_LZ4_ENCRYPT_ENCRYPT; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_NONE_NONE_ENCRYPT_ENCRYPT; done
+// gdb --args testbin --gtest_filter=EchoTest.FIFO_NONE_NONE_ENCRYPT_ENCRYPT
 
 static constexpr auto _smallPayload = "abcdefghijklmnopqr0123456789876543210";
 static constexpr auto _testFifo = "TestFifo";
@@ -140,12 +142,12 @@ struct FifoBlockingTest : testing::Test {
       DIAGNOSTICS::NONE,
       STATUS::NONE,
       0 };
-    return fifo::Fifo::sendMsg(true, _testFifo, header, payload);
+    return fifo::Fifo::sendMessage(true, _testFifo, header, payload);
   }
 
   void receive(std::string& received) {
     HEADER header;
-    fifo::Fifo::readMsg(_testFifo, true, header, received);
+    fifo::Fifo::readMessage(_testFifo, true, header, received);
   }
 
   void testBlockingFifo(std::string_view payload) {
@@ -174,7 +176,9 @@ struct FifoBlockingTest : testing::Test {
 
   void SetUp() {}
 
-  void TearDown() {}
+  void TearDown() {
+    TestEnvironment::reset();
+  }
 };
 
 TEST_F(FifoBlockingTest, FifoBlockingTestD) {
@@ -208,19 +212,19 @@ struct FifoNBDuplex : testing::Test {
 
   // client send
   bool sendC(const HEADER& header, std::string_view data) {
-    return fifo::Fifo::sendMsg(false, _testFifo, header, data);
+    return fifo::Fifo::sendMessage(false, _testFifo, header, data);
   }
   // client receive
   bool receiveC(HEADER& header, std::string& data) {
-    return fifo::Fifo::readMsg(_testFifo, false, header, data);
+    return fifo::Fifo::readMessage(_testFifo, false, header, data);
   }
   // server send
   bool sendS(const HEADER& header, std::string_view data) {
-    return fifo::Fifo::sendMsg(false, _testFifo, header, data);
+    return fifo::Fifo::sendMessage(false, _testFifo, header, data);
   }
   // server receive
   bool receiveS(HEADER& header, std::string& data) {
-    return fifo::Fifo::readMsg(_testFifo, false, header, data);
+    return fifo::Fifo::readMessage(_testFifo, false, header, data);
   }
 
   void testFifoNBDuplex(std::string_view payload) {
@@ -249,7 +253,9 @@ struct FifoNBDuplex : testing::Test {
 
   void SetUp() {}
 
-  void TearDown() {}
+  void TearDown() {
+    TestEnvironment::reset();
+  }
 };
 
 TEST_F(FifoNBDuplex, FifoNBDuplex) {

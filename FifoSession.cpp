@@ -71,7 +71,7 @@ bool FifoSession::receiveRequest() {
   try {
     _request.clear();
     HEADER header;
-    if (!Fifo::readMsg(_fifoName, true, header, _request))
+    if (!Fifo::readMessage(_fifoName, true, header, _request))
       return false;
     if (processTask())
       return sendResponse();
@@ -88,7 +88,7 @@ bool FifoSession::sendResponse() {
   auto [header, payload] = buildReply(_status);
   if (payload.empty())
     return false;
-  return Fifo::sendMsg(false, _fifoName, header, payload);
+  return Fifo::sendMessage(false, _fifoName, header, payload);
 }
 
 void FifoSession::sendStatusToClient() {
@@ -96,7 +96,7 @@ void FifoSession::sendStatusToClient() {
     const HEADER& header,
     std::string_view idStr,
     std::span<const unsigned char> pubA) {
-    Fifo::sendMsg(false, Options::_acceptorName, header, idStr, pubA);
+    Fifo::sendMessage(false, Options::_acceptorName, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);
 }

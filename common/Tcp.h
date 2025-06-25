@@ -35,12 +35,12 @@ public:
 			  std::vector<unsigned char>& payload2,
 			  std::vector<unsigned char>& payload3);
 
-  template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P2>
-  static bool sendMsg(boost::asio::ip::tcp::socket& socket,
-		      const HEADER& header,
-		      const P1& payload1 = P1(),
-		      const P2& payload2 = P2(),
-		      const P3& payload3 = P3()) {
+  template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1>
+  static bool sendMessage(boost::asio::ip::tcp::socket& socket,
+			  const HEADER& header,
+			  const P1& payload1 = P1(),
+			  const P2& payload2 = P2(),
+			  const P3& payload3 = P3()) {
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
     std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(headerBuffer),

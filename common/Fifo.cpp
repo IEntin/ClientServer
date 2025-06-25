@@ -96,29 +96,29 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
-bool Fifo::readMsg(std::string_view name,
-		   bool block,
-		   HEADER& header,
-		   std::string& payload1) {
+bool Fifo::readMessage(std::string_view name,
+		       bool block,
+		       HEADER& header,
+		       std::string& payload) {
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
-  std::size_t payload1Size = _payload.size() - HEADER_SIZE;
-  if (payload1Size > 0) {
-    payload1.resize(payload1Size);
-    std::copy(_payload.begin() + HEADER_SIZE, _payload.begin() + HEADER_SIZE + payload1Size, payload1.begin());
+  std::size_t payloadSize = _payload.size() - HEADER_SIZE;
+  if (payloadSize > 0) {
+    payload.resize(payloadSize);
+    std::copy(_payload.begin() + HEADER_SIZE, _payload.begin() + HEADER_SIZE + payloadSize, payload.begin());
     return true;
   }
   return false;
 }
 
-bool Fifo::readMsg(std::string_view name,
-		   bool block,
-		   HEADER& header,
-		   std::string& payload1,
-		   std::vector<unsigned char>& payload2) {
+bool Fifo::readMessage(std::string_view name,
+		       bool block,
+		       HEADER& header,
+		       std::string& payload1,
+		       std::vector<unsigned char>& payload2) {
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
