@@ -15,7 +15,6 @@ class Tcp {
   Tcp() = delete;
   ~Tcp() = delete;
 
-  static std::vector<unsigned char> _defaultParameter;
   static thread_local std::string _payload;
 
 public:
@@ -26,8 +25,12 @@ public:
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
+			  std::string& payload);
+
+  static bool readMessage(boost::asio::ip::tcp::socket& socket,
+			  HEADER& header,
 			  std::string& payload1,
-			  std::vector<unsigned char>& payload2 = _defaultParameter);
+			  std::vector<unsigned char>& payload2);
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,

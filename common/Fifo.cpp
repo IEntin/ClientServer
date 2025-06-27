@@ -124,6 +124,7 @@ bool Fifo::readMessage(std::string_view name,
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
+  assert(!isCompressed(header) && "not compressed");
   printHeader(header, LOG_LEVEL::INFO);
   std::size_t payload1Size = extractUncompressedSize(header);
   std::size_t payload2Size = extractParameter(header);
@@ -223,6 +224,7 @@ bool Fifo::readMessage(std::string_view name,
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
+  assert(!isCompressed(header) && "must not be compressed");
   printHeader(header, LOG_LEVEL::INFO);
   unsigned payload1Size = extractReservedSz(header);
   unsigned payload2Size = extractUncompressedSize(header);
