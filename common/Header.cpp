@@ -36,7 +36,7 @@ HEADERTYPE extractHeaderType(const HEADER& header) {
   return std::get<HEADERTYPE>(header);
 }
 
-unsigned extractReservedSz(const HEADER& header) {
+std::size_t extractReservedSz(const HEADER& header) {
   return std::get<std::to_underlying(HEADER_INDEX::RESERVEDINDEX)>(header);
 }
 

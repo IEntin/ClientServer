@@ -93,11 +93,11 @@ enum class HEADER_INDEX : char {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, unsigned, std::size_t, CRYPTO, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, std::size_t, std::size_t, CRYPTO, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
-unsigned extractReservedSz(const HEADER& header);
+std::size_t extractReservedSz(const HEADER& header);
 
 std::size_t extractUncompressedSize(const HEADER& header);
 

@@ -123,7 +123,7 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
   if (!readMessage(socket, _payload))
     return false;
   deserialize(header, _payload.data());
-  assert(!isCompressed(header) && "must not be compressed");
+  assert(!isCompressed(header) && "not compressed");
   std::size_t payload1Sz = extractReservedSz(header);
   std::size_t payload2Sz = extractUncompressedSize(header);
   std::size_t payload3Sz = extractParameter(header);
