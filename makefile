@@ -22,13 +22,12 @@ TESTSRCDIR := test_src
 # google snappy must be installed
 # 'sudo apt-get install libsnappy-dev'
 # /usr/include/snappy.h
-BOTANCRYPTORELEASE := Botan-3.7.1.tar.xz
-BOTANCRYPTOLIBDIR:=/usr/local/lib/botan
+# botan must be installed
+# 'sudo apt install libbotan-2-dev'
 # libcrypto++-dev must be installed
 # sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 # libsodium-dev must be installed
 # sudo apt install libsodium-dev
-BOTANCRYPTOLIB := $(BOTANCRYPTOLIBDIR)/libbotan.a
 
 DATADIR := data
 
@@ -121,18 +120,15 @@ $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
-$(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ) $(BOTANCRYPTOLIB)
+$(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread $(BOTANCRYPTOLIB) -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -lbotan-3 -lcryptopp -lsodium -llz4 -lsnappy -lzstd
 
 RUNTESTSPSEUDOTARGET := runtests
 
 $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 	./$(TESTBIN)
 	@touch $(RUNTESTSPSEUDOTARGET)
-
-$(BOTANCRYPTOLIB) : scripts/installBotan.sh
-	sudo scripts/installBotan.sh $(BOTANCRYPTORELEASE)
 
 .PHONY: clean cleanall
 

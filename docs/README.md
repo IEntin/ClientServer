@@ -45,16 +45,19 @@ google snappy dev must be installed:\
 current version 1.2.2\
 'sudo apt-get install libsnappy-dev'
 
-libsodium-dev must be installed:\
-'sudo apt install libsodium-dev'
-
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
 
 sudo apt-get install binutils
 
-libcrypto++-dev must beinstalled:\
+libcrypto++-dev must be installed:\
 'sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils'
+
+libsodium-dev must be installed:\
+'sudo apt install libsodium-dev'
+
+libbotan must be installed:\
+'sudo apt install libbotan-2-dev'
 
 ### Building and Testing
 
