@@ -338,4 +338,4 @@ Tuning the memory buffer size allows to reduce memory footprint of the software,
 especially of the client, which can in turn reduce hardware requirements.
 
 Business logic is an example of financial calculations. It can be replaced with any other\
-batch processing from a different field, not necessarily financial.
+batch processing in a different field, not necessarily financial.
