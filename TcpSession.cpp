@@ -40,9 +40,10 @@ bool TcpSession::start() {
 }
 
 void TcpSession::sendStatusToClient() {
-  auto lambda = [this] (const HEADER& header,
-			std::string_view idStr,
-			std::span<const unsigned char> pubA) {
+  auto lambda = [this]<typename T> (
+    const HEADER& header,
+    std::string_view idStr,
+    const T& pubA) {
     Tcp::sendMessage(_socket, header, idStr, pubA);
   };
   Session::sendStatusToClient(lambda, _status);
