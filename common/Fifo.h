@@ -51,10 +51,10 @@ public:
     _payload.resize(HEADER_SIZE + payload1.size() + payload2.size() + payload3.size());
     std::copy(std::begin(headerBuffer), std::end(headerBuffer), _payload.begin());
     unsigned shift = HEADER_SIZE;
-    std::copy(payload1.cbegin(), payload1.cend(), _payload.begin() + shift);
+    std::copy(payload1.begin(), payload1.end(), _payload.begin() + shift);
     shift += payload1.size();
     if (!payload2.empty())
-      std::copy(payload2.cbegin(), payload2.cend(), _payload.begin() + shift);
+      std::copy(payload2.begin(), payload2.end(), _payload.begin() + shift);
     shift += payload2.size();
     if (!payload3.empty())
       std::copy(payload3.cbegin(), payload3.cend(), _payload.begin() + shift);

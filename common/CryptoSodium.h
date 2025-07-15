@@ -29,7 +29,6 @@ class CryptoSodium {
 
   std::vector<unsigned char>
   hashMessage(std::u8string_view message);
-  std::vector<unsigned char> encodeLength(size_t length);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
@@ -82,11 +81,10 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda, STATUS status) {
-    auto pubKeyAes = getPublicKeyAes();
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), pubKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _publicKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _msgHash, pubKeyAes, _signatureWithPubKeySign);
+    bool result = lambda(header, _msgHash, _publicKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();

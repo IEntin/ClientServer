@@ -11,11 +11,11 @@ namespace tcp {
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(ioutility::createErrorString());
-  auto lambda = [this] (
+  auto lambda = [this]<typename T1, typename T2, typename T3> (
     const HEADER& header,
-    std::span<unsigned char> msgHash,
-    std::span<const unsigned char> pubKeyAes,
-    std::string_view signedAuth) {
+    const T1& msgHash,
+    const T2& pubKeyAes,
+    const T3& signedAuth) {
     return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
   if (!_crypto->sendSignature(lambda, _status))
