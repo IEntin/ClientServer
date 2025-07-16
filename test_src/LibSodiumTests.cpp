@@ -28,9 +28,9 @@ TEST(LibSodiumTest, authentication) {
   ASSERT_FALSE(sodium_init() < 0);
   // client
   CryptoSodium cryptoC(utility::generateRawUUID());
-  std::span<const unsigned char> hashed = cryptoC.getMsgHash();
-  std::span<const unsigned char> signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
-  std::span<const unsigned char> pubKeyAesClient = cryptoC.getPublicKeyAes();
+  const auto& hashed = cryptoC.getMsgHash();
+  const auto& signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
+  const auto&  pubKeyAesClient = cryptoC.getPublicKeyAes();
   // server
   CryptoSodium cryptoS(hashed, pubKeyAesClient, signatureWithPubKey);
   ASSERT_TRUE(cryptoS.isVerified());
@@ -74,15 +74,16 @@ TEST(LibSodiumTest, DHkeyExchange) {
   try {
     // client
     CryptoSodium cryptoC(utility::generateRawUUID());
-    std::span<const unsigned char> hashed = cryptoC.getMsgHash();
-    std::span<const unsigned char> signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
-    std::span<const unsigned char> pubKeyAesClient = cryptoC.getPublicKeyAes();
+    const auto& hashed = cryptoC.getMsgHash();
+    const auto& pubKeyAesClient = cryptoC.getPublicKeyAes();
+    const auto& signatureWithPubKey = cryptoC.getSignatureWithPubKeySign();
     // server
     CryptoSodium cryptoS(hashed, pubKeyAesClient, signatureWithPubKey);
-    std::span<const unsigned char> pubKeyAesServer = cryptoS.getPublicKeyAes();
+    ASSERT_TRUE(cryptoS.isVerified());
+    const auto& pubKeyAesServer = cryptoS.getPublicKeyAes();
     cryptoC.clientKeyExchange(pubKeyAesServer);
-    std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> clientKey = cryptoC.getAesKey();
-    std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> serverKey = cryptoS.getAesKey();
+    const auto& clientKey = cryptoC.getAesKey();
+    const auto& serverKey = cryptoS.getAesKey();
     // must match
     ASSERT_EQ(clientKey, serverKey);
   }
