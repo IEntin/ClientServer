@@ -102,13 +102,11 @@ constexpr void printTuple(const TUPLE& tuple, Logger& logger) {
 }
 
 template <typename T>
-void logBinaryData([[maybe_unused]] LOG_LEVEL level, [[maybe_unused]] std::string_view name, [[maybe_unused]] const T& data) {
+void logBinaryData([[maybe_unused]] std::string_view name, [[maybe_unused]] const T& data) {
 #ifdef _DEBUG
-  Logger logger(level, std::clog, false);
-  if (logger._level >= Logger::_threshold) {
-    logger << name << " 0x";
-    boost::algorithm::hex(data, std::ostream_iterator<char> { logger.getStream() });
-    logger << '\n';
-  }
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog);
+  logger << name << " 0x";
+  boost::algorithm::hex(data, std::ostream_iterator<char> { logger.getStream() });
+  logger << '\n';
 #endif
 }

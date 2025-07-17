@@ -85,7 +85,7 @@ public:
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKeySign.size() };
     bool result = lambda(header, _msgHash, _publicKeyAes, _signatureWithPubKeySign);
-    logBinaryData(LOG_LEVEL::ALWAYS, "_publicKeyAes in sendSignature", _publicKeyAes);
+    logBinaryData("_publicKeyAes in sendSignature", _publicKeyAes);
     if (result)
       _signatureSent = true;
     eraseUsedData();

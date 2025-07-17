@@ -43,7 +43,7 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
-  logBinaryData(LOG_LEVEL::ALWAYS, "_publicKeyAes in client constructor  ", _publicKeyAes);
+  logBinaryData("_publicKeyAes in client constructor  ", _publicKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
   crypto_sign_detached(_signature.data(), nullptr, _msgHash.data(),
 		       _msgHash.size(), _secretKeySign.data());
@@ -58,9 +58,9 @@ CryptoSodium::CryptoSodium(std::span<const unsigned char> msgHash,
 			   std::span<const unsigned char> signatureWithPubKey) {
   if (sodium_init() < 0)
     throw std::runtime_error("sodium_init failed");
-  logBinaryData(LOG_LEVEL::ALWAYS, "pubKeyAesClient in server constructor", pubKeyAesClient);
+  logBinaryData("pubKeyAesClient in server constructor", pubKeyAesClient);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
-  logBinaryData(LOG_LEVEL::ALWAYS,  "_publicKeyAes in server constructor  ", _publicKeyAes);
+  logBinaryData("_publicKeyAes in server constructor  ", _publicKeyAes);
   std::span<const unsigned char>
     signature(signatureWithPubKey.data(), crypto_sign_BYTES);
   std::span<const unsigned char>
@@ -70,9 +70,10 @@ CryptoSodium::CryptoSodium(std::span<const unsigned char> msgHash,
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
-  logBinaryData(LOG_LEVEL::ALWAYS, "pubKeyAesClient in serverKeyExchange ", pubKeyAesClient);
+  logBinaryData("pubKeyAesClient in serverKeyExchange ", pubKeyAesClient);
   if (crypto_kx_server_session_keys(_key.data(), nullptr, _publicKeyAes.data(), _secretKeyAes.data(), pubKeyAesClient.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
+  logBinaryData("_key in server ", _key);
   _keyHandler.hideKey(_key);
   if (ServerOptions::_showKey)
     showKey();
@@ -148,9 +149,10 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoSodium::clientKeyExchange(std::span<const unsigned char> pubKeyAesServer) {
-  logBinaryData(LOG_LEVEL::ALWAYS, "pubKeyAesServer in clientKeyExchange ", pubKeyAesServer);
+  logBinaryData("pubKeyAesServer in clientKeyExchange ", pubKeyAesServer);
   if (crypto_kx_client_session_keys(nullptr, _key.data(), _publicKeyAes.data(), _secretKeyAes.data(), pubKeyAesServer.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
+  logBinaryData("_key in client ", _key);
   _keyHandler.hideKey(_key);
   eraseUsedData();
   return true;

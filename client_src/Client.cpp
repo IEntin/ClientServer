@@ -28,7 +28,6 @@ Client::~Client() {
 }
 
 bool Client::DHFinish(std::string_view clientIdStr, std::span<unsigned char> pubKeyAesServer) {
-  logBinaryData(LOG_LEVEL::ALWAYS, "pubKeyAesServer in Client::DHFinish  ", pubKeyAesServer);
   if (!_crypto->clientKeyExchange(pubKeyAesServer)) {
     LogError << "handshake failed";
     return false;

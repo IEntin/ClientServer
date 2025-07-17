@@ -77,6 +77,7 @@ BOOST_INCLUDES := /usr/local/boost_1_88_0
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(POLICYDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
 -I$(TESTSRCDIR)
 
+# to enable debug mode insert -D_DEBUG
 CPPFLAGS := -g -D_DEBUG $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
  -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD)
