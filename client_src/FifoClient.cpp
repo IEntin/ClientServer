@@ -86,9 +86,9 @@ bool FifoClient::wakeupAcceptor() {
   auto lambda = []<typename T1, typename T2, typename T3> (
     const HEADER& header,
     const T1& msgHash,
-    const T2& pubKeyAes,
+    const T2& pubKeyAesServer,
     const T3& signedAuth) {
-    return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAes, signedAuth);
+    return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAesServer, signedAuth);
   };
   return _crypto->sendSignature(lambda, _status);
 }
@@ -97,10 +97,10 @@ bool FifoClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
   std::string clientIdStr;
-  std::vector<unsigned char> pubAreceived;
-  if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, pubAreceived))
+  std::vector<unsigned char> pubKeyAesServer;
+  if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, pubKeyAesServer))
     return false;
-  if (!DHFinish(clientIdStr, pubAreceived))
+  if (!DHFinish(clientIdStr, pubKeyAesServer))
     return false;
   _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);

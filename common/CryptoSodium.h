@@ -62,7 +62,7 @@ public:
   void setDummyAesKey();
   std::string base64_encode(std::span<const unsigned char> input);
   std::vector<unsigned char> base64_decode(const std::string& input);
-  bool clientKeyExchange(std::span<const unsigned char> peerPublicKeyAes);
+  bool clientKeyExchange(std::span<const unsigned char> pubKeyAesServer);
   void showKey();
   // used in tests:
   std::span<const unsigned char>
@@ -85,6 +85,7 @@ public:
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKeySign.size() };
     bool result = lambda(header, _msgHash, _publicKeyAes, _signatureWithPubKeySign);
+    logBinaryData(LOG_LEVEL::ALWAYS, "_publicKeyAes in sendSignature", _publicKeyAes);
     if (result)
       _signatureSent = true;
     eraseUsedData();
