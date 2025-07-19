@@ -9,10 +9,10 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
+#include "CryptoDefinitions.h"
 #include "Header.h"
 #include "IOUtility.h"
+#include "ServerOptions.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
@@ -20,7 +20,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
-  CryptoPlPlPtr _crypto;
+  CryptoPtr _crypto;
   HEADER _header;
   std::string _request;
   TaskPtr _task;

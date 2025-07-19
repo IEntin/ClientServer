@@ -41,6 +41,12 @@ enum class CRYPTO : char {
   INVALIDHIGH
 };
 
+enum class CRYPTOIMPL : int {
+  CRYPTOPP,
+  SODIUM,
+  ERROR,
+};
+
 enum class COMPRESSORS : char {
   INVALIDLOW = '@',
   NONE,

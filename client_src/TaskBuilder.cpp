@@ -9,7 +9,7 @@
 #include "IOUtility.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(CryptoWeakPlPlPtr crypto) :
+TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
   _crypto(crypto), _subtaskIndex(0) {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }

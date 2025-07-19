@@ -17,7 +17,7 @@ Session::Session(ServerWeakPtr server,
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  _crypto = std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
+  _crypto = createCrypto(msgHash, pubB, signatureWithPubKey);
 }
 
 std::pair<HEADER, std::string_view>

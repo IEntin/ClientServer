@@ -10,8 +10,7 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
+#include "CryptoDefinitions.h"
 #include "Header.h"
 
 // common constants

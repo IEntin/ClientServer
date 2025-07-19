@@ -6,11 +6,7 @@
 
 #include <string>
 
-enum class CRYPTOIMPL : int {
-  CRYPTOPP,
-  SODIUM,
-  ERROR,
-};
+#include "Header.h"
 
 CRYPTOIMPL translateCryptoImplString(std::string_view cryptoStr);
 

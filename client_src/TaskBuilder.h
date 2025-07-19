@@ -7,17 +7,16 @@
 #include <condition_variable>
 #include <mutex>
 
+#include "CryptoDefinitions.h"
 #include "Runnable.h"
 #include "Subtask.h"
-
-using CryptoWeakPlPlPtr = std::weak_ptr<class CryptoPlPl>;
 
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
 
-  CryptoWeakPlPlPtr _crypto;
+  CryptoWeakPtr _crypto;
   std::string _aggregate;
   Subtasks _subtasks;
   unsigned _subtaskIndex;
@@ -29,7 +28,7 @@ class TaskBuilder final : public Runnable {
   void run() override;
   bool start() override { return true; }
  public:
-  explicit TaskBuilder(CryptoWeakPlPlPtr crypto);
+  explicit TaskBuilder(CryptoWeakPtr crypto);
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
