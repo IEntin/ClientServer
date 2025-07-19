@@ -135,7 +135,7 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 
 clean:
 	$(RM) build/* $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
-gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ */*.d
+gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ */*.d debugData.txt
 
 cleanall : clean
 	$(RM) *.gch */*.gch *.pch */*.pch

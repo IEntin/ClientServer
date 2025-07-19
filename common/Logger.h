@@ -100,13 +100,3 @@ constexpr void printTuple(const TUPLE& tuple, Logger& logger) {
   else
     throw std::runtime_error("Out of bounds");
 }
-
-template <typename T>
-void logBinaryData([[maybe_unused]] std::string_view name, [[maybe_unused]] const T& data) {
-#ifdef _DEBUG
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog);
-  logger << name << " 0x";
-  boost::algorithm::hex(data, std::ostream_iterator<char> { logger.getStream() });
-  logger << '\n';
-#endif
-}

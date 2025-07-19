@@ -15,6 +15,7 @@
 
 #include "ClientOptions.h"
 #include "CryptoSodium.h"
+#include "DebugLog.h"
 #include "Header.h"
 #include "TestEnvironment.h"
 #include "Utility.h"
@@ -25,7 +26,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.DHkeyExchange; done
 
 TEST(LibSodiumTest, authentication) {
-  ASSERT_FALSE(sodium_init() < 0);
+  DebugLog::setTitle("LibSodiumTest, authentication");
   // client
   CryptoSodium cryptoC(utility::generateRawUUID());
   const auto& hashed = cryptoC.getMsgHash();
@@ -37,7 +38,6 @@ TEST(LibSodiumTest, authentication) {
 }
 
 TEST(LibSodiumTest, hashing) {
-  ASSERT_FALSE(sodium_init() < 0);
   CryptoSodium crypto(utility::generateRawUUID());
   const auto& hashed(crypto.getMsgHash());
   ASSERT_EQ(hashed.size(), crypto_generichash_BYTES);
@@ -49,28 +49,7 @@ TEST(LibSodiumTest, hashing) {
 }
 
 TEST(LibSodiumTest, DHkeyExchange) {
-  ASSERT_FALSE(sodium_init() < 0);
-  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> client_pk;
-  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> client_sk;
-  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> server_pk;
-  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> server_sk;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_tx;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_rx;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
-  // Generate key pairs for client and server
-  crypto_kx_keypair(client_pk.data(), client_sk.data());
-  crypto_kx_keypair(server_pk.data(), server_sk.data());
-  // Client-side key exchange
-  ASSERT_TRUE(crypto_kx_client_session_keys(client_rx.data(), client_tx.data(), client_pk.data(), client_sk.data(), server_pk.data()) == 0);
-  // Server-side key exchange
-  ASSERT_TRUE(crypto_kx_server_session_keys(server_rx.data(), server_tx.data(), server_pk.data(), server_sk.data(), client_pk.data()) == 0);
-  // Verify that the shared secrets match
-  ASSERT_TRUE(client_rx == server_tx);
-  ASSERT_TRUE(client_tx == server_rx);
-  ASSERT_TRUE(client_tx != client_rx);
-  ASSERT_TRUE(server_tx != server_rx);
-  // in the application code:
+  DebugLog::setTitle("LibSodiumTest, DHkeyExchange");
   try {
     // client
     CryptoSodium cryptoC(utility::generateRawUUID());
@@ -94,9 +73,8 @@ TEST(LibSodiumTest, DHkeyExchange) {
 }
 
 TEST(LibSodiumTest, encryption) {
-  ASSERT_FALSE(sodium_init() < 0);
+  DebugLog::setTitle("LibSodiumTest, encryption");
   ASSERT_TRUE(crypto_aead_aes256gcm_is_available());
-  ASSERT_FALSE(sodium_init() < 0);
   HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), ClientOptions::_encryption,
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   CryptoSodium crypto(utility::generateRawUUID());
@@ -115,7 +93,7 @@ TEST(LibSodiumTest, encryption) {
 }
 
 TEST(LibSodiumTest, publicKeyEncoding) {
-  ASSERT_FALSE(sodium_init() < 0);
+  DebugLog::setTitle("LibSodiumTest, publicKeyEncoding");
   CryptoSodium crypto(utility::generateRawUUID());
   unsigned char public_key[crypto_box_PUBLICKEYBYTES];
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];

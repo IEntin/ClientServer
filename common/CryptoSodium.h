@@ -10,6 +10,7 @@
 
 #include <sodium.h>
 
+#include "DebugLog.h"
 #include "Header.h"
 
 using CryptoSodiumPtr = std::shared_ptr<class CryptoSodium>;
@@ -85,7 +86,7 @@ public:
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, status, _signatureWithPubKeySign.size() };
     bool result = lambda(header, _msgHash, _publicKeyAes, _signatureWithPubKeySign);
-    logBinaryData("_publicKeyAes in sendSignature", _publicKeyAes);
+    DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
     if (result)
       _signatureSent = true;
     eraseUsedData();
