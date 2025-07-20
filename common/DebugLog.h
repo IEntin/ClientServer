@@ -20,7 +20,7 @@ class DebugLog {
   DebugLog() = delete;
   ~DebugLog() = delete;
  public:
-  static void setDebugLog([[maybe_unused]] APPTYPE type);
+  static void setDebugLog(APPTYPE type);
 
   template <typename T>
   static void logBinaryData([[maybe_unused]] const boost::source_location& loc,

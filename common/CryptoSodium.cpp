@@ -17,7 +17,7 @@ HandleKey::HandleKey() :
   randombytes_buf(_obfuscator.data(), _size);
 }
 
-void HandleKey::hideKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key) {
+void HandleKey::hideKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
   if (!_obfuscated) {
     // refresh obfuscator
     randombytes(_obfuscator.data(), _size);
@@ -27,7 +27,7 @@ void HandleKey::hideKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES
   }
 }
 
-void HandleKey::recoverKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key) {
+void HandleKey::recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
   if (_obfuscated) {
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
@@ -77,9 +77,9 @@ CryptoSodium::CryptoSodium(std::span<const unsigned char> msgHash,
 }
 
 void CryptoSodium::setDummyAesKey() {
-  unsigned char key[crypto_aead_aes256gcm_KEYBYTES];
+  unsigned char key[crypto_kx_SESSIONKEYBYTES];
   crypto_aead_aes256gcm_keygen(key);
-  std::copy(key, key + crypto_aead_aes256gcm_KEYBYTES, _key.data());
+  std::copy(key, key + crypto_kx_SESSIONKEYBYTES, _key.data());
   _keyHandler.hideKey(_key);
 }
 
@@ -99,7 +99,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   randombytes_buf(nonce, sizeof nonce);
   std::size_t message_len = input.size();
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
-  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> key;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
   setAESKey(key);
   if (!(crypto_aead_aes256gcm_encrypt(static_cast<unsigned char*>(static_cast<void*>(buffer.data())),
 				      &ciphertext_len,
@@ -122,7 +122,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     data.erase(data.end() - crypto_aead_aes256gcm_NPUBBYTES);
     buffer.resize(ciphertext_len);
     unsigned long long decrypted_len;
-    std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> key;
+    std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
     setAESKey(key);
     bool success = crypto_aead_aes256gcm_decrypt(static_cast<unsigned char*>(static_cast<void*>(buffer.data())),
 						 &decrypted_len,
@@ -208,9 +208,9 @@ bool CryptoSodium::checkAccess() {
   return false;
 }
 
-std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> CryptoSodium::getAesKey() {
+std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> CryptoSodium::getAesKey() {
   assert(utility::isTestbinTerminal() && "Only in tests");
-  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> key;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
   _keyHandler.recoverKey(_key);
   key = _key;
   _keyHandler.hideKey(_key);

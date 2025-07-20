@@ -20,9 +20,9 @@ struct HandleKey {
   explicit HandleKey();
   ~HandleKey() = default;
   std::size_t _size;
-  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> _obfuscator;
-  void hideKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key);
-  void recoverKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key);
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _obfuscator;
+  void hideKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key);
+  void recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key);
   std::atomic<bool> _obfuscated;
 };
 
@@ -38,9 +38,9 @@ class CryptoSodium {
   std::array<unsigned char, crypto_sign_BYTES> _signature;
   std::vector<unsigned char> _signatureWithPubKeySign;
   HandleKey _keyHandler; 
-  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> _key;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _key;
   bool checkAccess();
-  void setAESKey(std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES>& key) {
+  void setAESKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
     std::lock_guard lock(_mutex);
     _keyHandler.recoverKey(_key);
     key = _key;
@@ -78,7 +78,7 @@ public:
   getPublicKeySign() const { return _publicKeySign; }
   bool isVerified() const { return _verified; }
   // used in tests:
-  std::array<unsigned char, crypto_aead_aes256gcm_KEYBYTES> getAesKey();
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> getAesKey();
 
   template <typename L>
   bool sendSignature(L& lambda, STATUS status) {
