@@ -8,6 +8,7 @@
 
 #include "Client.h"
 #include "ClientOptions.h"
+#include "DebugLog.h"
 #include "FifoClient.h"
 #include "Metrics.h"
 #include "TcpClient.h"
@@ -18,6 +19,7 @@ void signalHandler(int) {
 }
 
 int main() {
+  DebugLog::setDebugLog(APPTYPE::CLIENT);
   if (sodium_init() < 0) {
     LogError << "sodium_init failure\n";
     return 1;

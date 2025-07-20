@@ -77,8 +77,8 @@ BOOST_INCLUDES := /usr/local/boost_1_88_0
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(POLICYDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
 -I$(TESTSRCDIR)
 
-# to enable debug mode insert -D_DEBUG
-CPPFLAGS := -g -D_DEBUG $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
+# to disable debug mode remove -D_DEBUG
+CPPFLAGS := -g -D_DEBUG -D_CRYPTOPP $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
  -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD)
 
@@ -135,7 +135,8 @@ $(RUNTESTSPSEUDOTARGET) : $(TESTBIN)
 
 clean:
 	$(RM) build/* $(SERVERBIN) $(CLIENTBIN) $(TESTBIN) \
-gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ */*.d debugData.txt
+gmon.out */gmon.out *.gcov *.gcno *.gcda *~ */*~ */*.d
 
 cleanall : clean
-	$(RM) *.gch */*.gch *.pch */*.pch
+	$(RM) *.gch */*.gch *.pch */*.pch \
+debugTests.txt debugServer.txt debugClient.txt

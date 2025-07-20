@@ -5,6 +5,7 @@
 #include <cassert>
 #include <csignal>
 
+#include "DebugLog.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Server.h"
@@ -13,6 +14,7 @@
 void signalHandler([[maybe_unused]] int signal) {}
 
 int main() {
+  DebugLog::setDebugLog(APPTYPE::SERVER);
   if (sodium_init() < 0) {
     LogError << "sodium_init failure\n";
     return 1;

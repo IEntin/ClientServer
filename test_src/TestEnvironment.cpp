@@ -7,6 +7,7 @@
 #include <filesystem>
 
 #include "ClientOptions.h"
+#include "DebugLog.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -26,6 +27,7 @@ void TestEnvironment::SetUp() {
   utility::readFile("data/outputD.txt", _outputD);
   utility::readFile("data/outputND.txt", _outputND);
   utility::readFile("data/outputAltFormatD.txt", _outputAltFormatD);
+  DebugLog::setDebugLog(APPTYPE::TESTS);
 }
 
 void TestEnvironment::TearDown() {

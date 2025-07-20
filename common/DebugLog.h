@@ -7,6 +7,12 @@
 #include <fstream>
 #include <boost/algorithm/hex.hpp>
 
+enum class APPTYPE : int {
+  TESTS,
+  SERVER,
+  CLIENT
+};
+
 class DebugLog {
 
   static std::ofstream _file;
@@ -14,6 +20,7 @@ class DebugLog {
   DebugLog() = delete;
   ~DebugLog() = delete;
  public:
+  static void setDebugLog([[maybe_unused]] APPTYPE type);
 
   template <typename T>
   static void logBinaryData([[maybe_unused]] const boost::source_location& loc,
@@ -24,13 +31,14 @@ class DebugLog {
     _file << name << " 0x";
     boost::algorithm::hex(variable, std::ostream_iterator<char> { _file });
     _file << '\n';
+    _file.flush();
 #endif
 }
 
+  static void setTitle([[maybe_unused]] std::string_view title) {
 #ifdef _DEBUG
-  static void setTitle(std::string_view title) {
     _file << "\n**\n" << title << "\n**";
-  }
 #endif
+  }
 
 };
