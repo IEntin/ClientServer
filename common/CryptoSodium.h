@@ -77,8 +77,6 @@ public:
   std::span<const unsigned char>
   getPublicKeySign() const { return _publicKeySign; }
   bool isVerified() const { return _verified; }
-  // used in tests:
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> getAesKey();
 
   template <typename L>
   bool sendSignature(L& lambda, STATUS status) {

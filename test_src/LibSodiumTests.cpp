@@ -6,10 +6,11 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+
+#include <boost/algorithm/hex.hpp>
 
 #include <sodium.h>
 
@@ -20,7 +21,6 @@
 #include "TestEnvironment.h"
 #include "Utility.h"
 
-// for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.encryption; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
 // for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptSodiumTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.DHkeyExchange; done
@@ -41,11 +41,9 @@ TEST(LibSodiumTest, hashing) {
   CryptoSodium crypto(utility::generateRawUUID());
   const auto& hashed(crypto.getMsgHash());
   ASSERT_EQ(hashed.size(), crypto_generichash_BYTES);
-  std::cout << "generichash:";
-  for (auto element : hashed)
-    std::cout << std::hex << std::setw(2) << std::setfill('0')
-	      << static_cast<int>(element);
-  std::cout << '\n';
+  std::clog << "generichash:0x";
+  boost::algorithm::hex(hashed, std::ostream_iterator<char> { std::clog });
+  std::clog << '\n';
 }
 
 TEST(LibSodiumTest, DHkeyExchange) {
@@ -61,35 +59,25 @@ TEST(LibSodiumTest, DHkeyExchange) {
     ASSERT_TRUE(cryptoS.isVerified());
     const auto& pubKeyAesServer = cryptoS.getPublicKeyAes();
     cryptoC.clientKeyExchange(pubKeyAesServer);
-    const auto& clientKey = cryptoC.getAesKey();
-    const auto& serverKey = cryptoS.getAesKey();
-    // must match
-    ASSERT_EQ(clientKey, serverKey);
+    // test encrypt - decrypt
+    HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), ClientOptions::_encryption,
+		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+    std::string_view encrypted = cryptoC.encrypt(TestEnvironment::_buffer,
+						 header,
+						 TestEnvironment::_source);
+    ASSERT_TRUE(utility::isEncrypted(encrypted));
+    std::string data(encrypted);
+    cryptoS.decrypt(TestEnvironment::_buffer, data);
+    ASSERT_FALSE(utility::isEncrypted(data));
+    HEADER recoveredHeader;
+    deserialize(recoveredHeader, data.data());
+    ASSERT_EQ(header, recoveredHeader);
+    ASSERT_TRUE(data.erase(0, HEADER_SIZE) == TestEnvironment::_source);
   }
   catch (...) {
-    // should be no exceptions
+    // no exceptions
     ASSERT_TRUE(false);
   }
-}
-
-TEST(LibSodiumTest, encryption) {
-  DebugLog::setTitle("LibSodiumTest, encryption");
-  ASSERT_TRUE(crypto_aead_aes256gcm_is_available());
-  HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), ClientOptions::_encryption,
-		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
-  CryptoSodium crypto(utility::generateRawUUID());
-  crypto.setDummyAesKey();
-  std::string_view encrypted = crypto.encrypt(TestEnvironment::_buffer,
-					      header,
-					      TestEnvironment::_source);
-  ASSERT_TRUE(utility::isEncrypted(encrypted));
-  std::string data(encrypted);
-  crypto.decrypt(TestEnvironment::_buffer, data);
-  ASSERT_FALSE(utility::isEncrypted(data));
-  HEADER recoveredHeader;
-  deserialize(recoveredHeader, data.data());
-  ASSERT_EQ(header, recoveredHeader);
-  ASSERT_TRUE(data.erase(0, HEADER_SIZE) == TestEnvironment::_source);
 }
 
 TEST(LibSodiumTest, publicKeyEncoding) {

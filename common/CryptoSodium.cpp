@@ -208,15 +208,6 @@ bool CryptoSodium::checkAccess() {
   return false;
 }
 
-std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> CryptoSodium::getAesKey() {
-  assert(utility::isTestbinTerminal() && "Only in tests");
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
-  _keyHandler.recoverKey(_key);
-  key = _key;
-  _keyHandler.hideKey(_key);
-  return key;
-}
-
 void CryptoSodium::eraseUsedData() {
   std::vector<unsigned char>().swap(_msgHash);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES>().swap(_secretKeyAes);
