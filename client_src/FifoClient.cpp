@@ -90,7 +90,7 @@ bool FifoClient::wakeupAcceptor() {
     const T3& signedAuth) {
     return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAesServer, signedAuth);
   };
-  return _crypto->sendSignature(lambda, _status);
+  return _crypto->sendSignature(lambda);
 }
 
 bool FifoClient::receiveStatus() {

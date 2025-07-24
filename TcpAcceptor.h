@@ -14,16 +14,15 @@ namespace tcp {
 
 class TcpAcceptor : public std::enable_shared_from_this<TcpAcceptor>,
   public Runnable {
- public:
-  explicit TcpAcceptor(ServerWeakPtr server);
-  ~TcpAcceptor() override = default;
 private:
   void run() override;
   bool start() override;
   void stop() override;
 
   void accept();
-  std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>,
+  std::tuple<HEADERTYPE,
+	     std::vector<unsigned char>,
+	     std::vector<unsigned char>,
 	     std::vector<unsigned char>>
   connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
@@ -32,6 +31,9 @@ private:
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::acceptor _acceptor;
   HEADER _header;
+ public:
+  explicit TcpAcceptor(ServerWeakPtr server);
+  ~TcpAcceptor() override = default;
 };
 
 } // end of namespace tcp

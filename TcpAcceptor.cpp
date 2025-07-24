@@ -54,7 +54,9 @@ void TcpAcceptor::run() {
   }
 }
 
-std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>,
+std::tuple<HEADERTYPE,
+	   std::vector<unsigned char>,
+	   std::vector<unsigned char>,
 	   std::vector<unsigned char>>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::vector<unsigned char> msgHash;

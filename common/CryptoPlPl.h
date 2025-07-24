@@ -69,28 +69,28 @@ class CryptoPlPl {
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
 public:
-  CryptoPlPl(std::span<const unsigned char> msgHash,
-	     std::span<const unsigned char> pubB,
-	     std::span<const unsigned char> signatureWithPubKey);
+  CryptoPlPl(std::span<unsigned char> msgHash,
+	     std::span<unsigned char> pubB,
+	     std::span<unsigned char> signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  bool clientKeyExchange(std::span<const unsigned char> peerPublicKeyAes);
+  bool clientKeyExchange(std::span<unsigned char> peerPublicKeyAes);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
 
-  std::span<const unsigned char>
-  getPublicKeyAes() const { return _pubKeyAes; }
+  std::span<unsigned char>
+  getPublicKeyAes() { return _pubKeyAes; }
   void setDummyAesKey();
   template <typename L>
-  bool sendSignature(L& lambda, STATUS status) {
+  bool sendSignature(L& lambda) {
    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _pubKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, status, _signatureWithPubKey.size() };
+		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKey.size() };
     bool result = lambda(header, _msgHash, _pubKeyAes, _signatureWithPubKey);
     if (result)
       _signatureSent = true;

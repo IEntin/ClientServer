@@ -39,9 +39,9 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 }
 
 // session
-CryptoPlPl::CryptoPlPl(std::span<const unsigned char> msgHash,
-		       std::span<const unsigned char> pubBspan,
-		       std::span<const unsigned char> signatureWithPubKey) :
+CryptoPlPl::CryptoPlPl(std::span<unsigned char> msgHash,
+		       std::span<unsigned char> pubBspan,
+		       std::span<unsigned char> signatureWithPubKey) :
   _msgHash({ static_cast<const char*>(static_cast<const void*>(msgHash.data())), msgHash.size() }),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
@@ -144,7 +144,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool CryptoPlPl::clientKeyExchange(std::span<const unsigned char> peerPublicKeyAes) {
+bool CryptoPlPl::clientKeyExchange(std::span<unsigned char> peerPublicKeyAes) {
   // const reference from rvalue
   const CryptoPP::SecByteBlock& pubAreceived { peerPublicKeyAes.data(), peerPublicKeyAes.size() };
   bool result = _dh.Agree(_key, _privKeyAes, pubAreceived);
@@ -206,7 +206,7 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
   eraseRSAKeys();
   return true;
 }
-// for testing message is based on uuid
+// The message is based on uuid for testing purposes,
 // in real usage it may be a combination of user name and/or password
 std::string CryptoPlPl::sha256_hash(std::u8string_view message) {
   CryptoPP::SHA256 hash;

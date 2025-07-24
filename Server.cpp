@@ -82,34 +82,23 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-void Server::createFifoSession(std::span<const unsigned char> msgHash,
-			       std::span<const unsigned char> pubB,
-			       std::span<const unsigned char> rsaPubBserialized) {
+void Server::createFifoSession(std::span<unsigned char> msgHash,
+			       std::span<unsigned char> pubB,
+			       std::span<unsigned char> rsaPubBserialized) {
   std::lock_guard lock(_mutex);
-  auto session = std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, rsaPubBserialized);
-  startSession(session, session);
+  auto session =
+    std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, rsaPubBserialized);
+  startSession(session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
-			      std::span<const unsigned char> msgHash,
-			      std::span<const unsigned char> pubB,
-			      std::span<const unsigned char> rsaPubB) {
+			      std::span<unsigned char> msgHash,
+			      std::span<unsigned char> pubB,
+			      std::span<unsigned char> rsaPubB) {
   std::lock_guard lock(_mutex);
   auto session =
     std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, rsaPubB);
-  startSession(session, session);
-}
-
-bool Server::startSession(RunnablePtr runnable, SessionPtr session) {
-  runnable->start();
-  std::size_t clientId = session->getId();
-  auto [it, inserted] = _sessions.emplace(clientId, runnable);
-  if (!inserted)
-    return false;
-  _threadPoolSession.calculateStatus(runnable);
-  session->sendStatusToClient();
-  _threadPoolSession.push(runnable);
-  return true;
+  startSession(session);
 }
 
 void Server::stopSessions() {

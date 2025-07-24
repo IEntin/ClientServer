@@ -16,17 +16,18 @@ class FifoSession final : public RunnableT<FifoSession>,
   std::string _fifoName;
   bool receiveRequest();
   bool sendResponse();
-  bool start() override;
   void run() override;
   void stop() override;
-  void sendStatusToClient() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
  public:
   FifoSession(ServerWeakPtr server,
-	      std::span<const unsigned char> msgHash,
-	      std::span<const unsigned char> pubB,
-	      std::span<const unsigned char> signatureWithPubKey);
+	      std::span<unsigned char> msgHash,
+	      std::span<unsigned char> pubB,
+	      std::span<unsigned char> signatureWithPubKey);
   ~FifoSession() override;
+  bool start() override;
+  void sendStatusToClient() override;
 };
 
 } // end of namespace fifo
+

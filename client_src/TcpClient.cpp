@@ -18,7 +18,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     const T3& signedAuth) {
     return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
-  if (!_crypto->sendSignature(lambda, _status))
+  if (!_crypto->sendSignature(lambda))
     throw std::runtime_error("TcpClient::init failed");
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");

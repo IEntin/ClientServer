@@ -14,12 +14,15 @@ class FifoAcceptor : public Runnable {
   void run() override;
   bool start() override;
   void stop() override;
-  std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>,
+  std::tuple<HEADERTYPE,
+	     std::vector<unsigned char>,
+	     std::vector<unsigned char>,
 	     std::vector<unsigned char>>
   unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;
   ServerWeakPtr _server;
+  HEADER _header;
  public:
   explicit FifoAcceptor(ServerWeakPtr server);
   ~FifoAcceptor() override;

@@ -21,17 +21,16 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
-	     std::span<const unsigned char> msgHash,
-	     std::span<const unsigned char> pubB,
-	     std::span<const unsigned char> rsaPubB);
+	     std::span<unsigned char> msgHash,
+	     std::span<unsigned char> pubB,
+	     std::span<unsigned char> rsaPubB);
 
   ~TcpSession() override = default;
-
-private:
   bool start() override;
-  void run() noexcept override;
-  void stop() override;
   void sendStatusToClient() override;
+private:
+ void run() noexcept override;
+  void stop() override;
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
   void readRequest();
   void write(const HEADER& header, std::string_view payload);

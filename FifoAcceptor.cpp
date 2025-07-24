@@ -10,7 +10,6 @@
 #include "Fifo.h"
 #include "Options.h"
 #include "Server.h"
-#include "ServerOptions.h"
 
 namespace fifo {
 
@@ -27,20 +26,21 @@ FifoAcceptor::~FifoAcceptor() {
   }
 }
 
-std::tuple<HEADERTYPE, std::vector<unsigned char>, std::vector<unsigned char>,
-  std::vector<unsigned char>>
+std::tuple<HEADERTYPE,
+	   std::vector<unsigned char>,
+	   std::vector<unsigned char>,
+	   std::vector<unsigned char>>
 FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
     return { HEADERTYPE::ERROR, std::vector<unsigned char>(),
 	     std::vector<unsigned char>(), std::vector<unsigned char>() };
-  HEADER header;
   std::vector<unsigned char> msgHash;
   std::vector<unsigned char> pubBvector;
   std::vector<unsigned char> rsaPubB;
-  if (!Fifo::readMessage(_acceptorName, true, header, msgHash, pubBvector, rsaPubB))
+  if (!Fifo::readMessage(_acceptorName, true, _header, msgHash, pubBvector, rsaPubB))
     return { HEADERTYPE::ERROR, std::vector<unsigned char>(), std::vector<unsigned char>(), rsaPubB };
-  return { extractHeaderType(header), msgHash, pubBvector, rsaPubB };
+  return { extractHeaderType(_header), msgHash, pubBvector, rsaPubB };
 }
 
 void FifoAcceptor::run() {

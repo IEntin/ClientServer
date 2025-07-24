@@ -28,7 +28,7 @@ class DebugLog {
 			    [[maybe_unused]] const T& variable) {
 #ifdef _DEBUG
     _file << '\n' << loc.file_name() << ':' << loc.line() << '-' << loc.function_name() << '\n';
-    _file << name << " 0x";
+    _file << name << ",size=" << variable.size() << "\n0x";
     boost::algorithm::hex(variable, std::ostream_iterator<char> { _file });
     _file << '\n';
     _file.flush();

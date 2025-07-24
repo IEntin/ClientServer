@@ -52,37 +52,29 @@ class CryptoSodium {
   std::mutex _mutex;
 public:
   explicit CryptoSodium(std::u8string_view msg);
-  CryptoSodium(std::span<const unsigned char> msgHash,
-	       std::span<const unsigned char> pubKeyAesClient,
-	       std::span<const unsigned char> signatureWithPubKey);
+  CryptoSodium(std::span<unsigned char> msgHash,
+	       std::span<unsigned char> pubKeyAesClient,
+	       std::span<unsigned char> signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
 			   std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  void setDummyAesKey();
-  std::string base64_encode(std::span<const unsigned char> input);
+  std::string base64_encode(std::span<unsigned char> input);
   std::vector<unsigned char> base64_decode(const std::string& input);
-  bool clientKeyExchange(std::span<const unsigned char> pubKeyAesServer);
+  bool clientKeyExchange(std::span<unsigned char> pubKeyAesServer);
   void showKey();
   // used in tests:
-  std::span<const unsigned char>
-  getSignatureWithPubKeySign() const { return _signatureWithPubKeySign; }
+  CryptoSodiumPtr createSodiumServer();
   // used in tests:
-  std::span<const unsigned char> getMsgHash() const { return _msgHash; }
-  // used in tests:
-  std::span<const unsigned char>
-  getPublicKeyAes() const { return _publicKeyAes; }
-
-  std::span<const unsigned char>
-  getPublicKeySign() const { return _publicKeySign; }
-  bool isVerified() const { return _verified; }
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES>&
+  getPublicKeyAes() { return _publicKeyAes; }
 
   template <typename L>
-  bool sendSignature(L& lambda, STATUS status) {
+  bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _publicKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, status, _signatureWithPubKeySign.size() };
+		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
     bool result = lambda(header, _msgHash, _publicKeyAes, _signatureWithPubKeySign);
     DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
     if (result)

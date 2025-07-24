@@ -27,18 +27,30 @@ public:
   ~Server();
   bool start();
   void stop();
-  void createFifoSession(std::span<const unsigned char> msgHash,
-			 std::span<const unsigned char> pubB,
-			 std::span<const unsigned char> rsaPubB);
+  void createFifoSession(std::span<unsigned char> msgHash,
+			 std::span<unsigned char> pubB,
+			 std::span<unsigned char> rsaPubB);
   void createTcpSession(tcp::ConnectionPtr connection,
-			std::span<const unsigned char> msgHash,
-			std::span<const unsigned char> pubB,
-			std::span<const unsigned char> rsaPubB);
+			std::span<unsigned char> msgHash,
+			std::span<unsigned char> pubB,
+			std::span<unsigned char> rsaPubB);
   const PolicyPtr& getPolicy() const { return _policy; }
   static void removeNamedMutex();
 private:
   void setPolicy();
-  bool startSession(RunnablePtr runnable, SessionPtr session);
+
+  template <typename SESSION>
+  bool startSession(SESSION session) {
+    session->start();
+    std::size_t clientId = session->getId();
+    auto [it, inserted] = _sessions.emplace(clientId, session);
+    if (!inserted)
+      return false;
+    _threadPoolSession.calculateStatus(session);
+    session->sendStatusToClient();
+    _threadPoolSession.push(session);
+    return true;
+  }
   void stopSessions();
   Chronometer _chronometer;
   SessionMap _sessions;
