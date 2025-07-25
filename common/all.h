@@ -25,6 +25,7 @@
 #include <future>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <lz4.h>
 #include <map>
@@ -33,6 +34,7 @@
 #include <numeric>
 #include <poll.h>
 #include <queue>
+#include <ranges>
 #include <regex>
 #include <snappy.h>
 #include <span>

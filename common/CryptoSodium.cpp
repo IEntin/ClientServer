@@ -162,9 +162,10 @@ std::string CryptoSodium::base64_encode(std::span<unsigned char> input) {
   std::string encoded_string(encoded_length, '\0');
   if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), input.size(),
 			sodium_base64_VARIANT_ORIGINAL) == nullptr)
-    return "";
-  //The sodium_bin2base64 function adds a null terminator, but it is not part of the base64 string itself.
-  encoded_string.resize(encoded_length - 1);
+    throw std::runtime_error("sodium_bin2base64 failed");
+  //The sodium_bin2base64 function might add a null terminator.
+  if (encoded_string.back() == '\0')
+    encoded_string.pop_back();
   return encoded_string;
 }
 
@@ -174,7 +175,7 @@ std::vector<unsigned char> CryptoSodium::base64_decode(const std::string& input)
   if (sodium_base642bin(decoded_data.data(), decoded_length,
 			input.data(), input.size(),
 			nullptr, &decoded_length, nullptr, sodium_base64_VARIANT_ORIGINAL) != 0)
-    return {};
+    throw std::runtime_error("sodium_base642bin failed");
   decoded_data.resize(decoded_length);
   return decoded_data;
 }

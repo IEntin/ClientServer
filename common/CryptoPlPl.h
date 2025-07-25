@@ -88,7 +88,7 @@ public:
   void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {
-   HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _pubKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _pubKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKey.size() };
     bool result = lambda(header, _msgHash, _pubKeyAes, _signatureWithPubKey);
