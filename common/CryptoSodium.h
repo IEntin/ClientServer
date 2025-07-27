@@ -28,13 +28,15 @@ struct HandleKey {
 
 class CryptoSodium {
 
-  std::vector<unsigned char>
+  std::string
   hashMessage(std::u8string_view message);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
+  std::string _serializedPeerPubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
-  std::vector<unsigned char> _msgHash;
+  std::string _msgHash;
+  std::string _serializedPubKey;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
   std::vector<unsigned char> _signatureWithPubKeySign;
   HandleKey _keyHandler; 
@@ -60,23 +62,20 @@ public:
 			   const HEADER& header,
 			   std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  std::string base64_encode(std::span<unsigned char> input);
-  std::vector<unsigned char> base64_decode(const std::string& input);
+  static std::string base64_encode(std::span<unsigned char> input);
+  static std::vector<unsigned char> base64_decode(std::string_view encoded);
   bool clientKeyExchange(std::span<unsigned char> pubKeyAesServer);
   void showKey();
   // used in tests:
   CryptoSodiumPtr createSodiumServer();
-  // used in tests:
-  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES>&
-  getPublicKeyAes() { return _publicKeyAes; }
+  const std::string& getSerializedPubKey() const { return _serializedPubKey; }
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _publicKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_serializedPubKey),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _msgHash, _publicKeyAes, _signatureWithPubKeySign);
-    DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
+		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySign) };
+    bool result = lambda(header, _msgHash, _serializedPubKey, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();

@@ -36,7 +36,7 @@ Logger& Logger::printLocation(const boost::source_location& location) {
     std::string_view levelName(levelNames[std::to_underlying(_level)]);
     output << levelName << ']' << ' ' << location.file_name() << ':'
 	   << location.line() << ' ' << location.function_name() << ' ';
-    _stream.write(output.data(), output.size());
+    _stream.write(output.data(), std::ssize(output));
     return *this;
   }
   catch (const std::exception& e) {

@@ -86,7 +86,7 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
   std::size_t payloadSize = _payload.size() - HEADER_SIZE;
   if (payloadSize > 0) {
     payload.resize(payloadSize);
-    std::copy(_payload.begin() + HEADER_SIZE, _payload.begin() + HEADER_SIZE + payloadSize, payload.begin());
+    std::copy(_payload.cbegin() + HEADER_SIZE, _payload.cbegin() + HEADER_SIZE + payloadSize, payload.begin());
     return true;
   }
   return false;

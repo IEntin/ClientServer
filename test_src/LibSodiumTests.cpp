@@ -40,10 +40,12 @@ TEST(LibSodiumTest, DHkeyExchange) {
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
     CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
-    auto& pubKeyAesServer = cryptoS->getPublicKeyAes();
+    const std::string& serializedPubKey = cryptoS->getSerializedPubKey();
+    ASSERT_FALSE(serializedPubKey.back() == '\0');
+    auto pubKeyAesServer = CryptoSodium::base64_decode(serializedPubKey);
     cryptoC->clientKeyExchange(pubKeyAesServer);
     // test encrypt - decrypt
-    HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + TestEnvironment::_source.size(), CRYPTO::ENCRYPT,
+    HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + std::ssize(TestEnvironment::_source), CRYPTO::ENCRYPT,
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
 						  header,
@@ -65,14 +67,12 @@ TEST(LibSodiumTest, DHkeyExchange) {
 
 TEST(LibSodiumTest, publicKeyEncoding) {
   DebugLog::setTitle("LibSodiumTest, publicKeyEncoding");
-  CryptoSodium crypto(utility::generateRawUUID());
-  std::array<unsigned char, crypto_box_PUBLICKEYBYTES> public_key;
-  std::array<unsigned char, crypto_box_SECRETKEYBYTES> secret_key;
-  crypto_box_keypair(public_key.data(), secret_key.data());
-  std::vector<unsigned char> original_data = { public_key.cbegin(), public_key.cend() };
-  std::string encoded = crypto.base64_encode(original_data);
-  std::vector<unsigned char> decoded_data = crypto.base64_decode(encoded);
-  ASSERT_EQ(original_data, decoded_data);
+  unsigned char public_key[crypto_box_PUBLICKEYBYTES];
+  unsigned char secret_key[crypto_box_SECRETKEYBYTES];
+  crypto_box_keypair(public_key, secret_key);
+  std::vector<unsigned char> original_data = { std::cbegin(public_key), std::cend(public_key) };
+  std::string encoded = CryptoSodium::base64_encode(original_data);
+  ASSERT_EQ(original_data, CryptoSodium::base64_decode(encoded));
 }
 
 struct CompressEncryptSodiumTest : testing::Test {
@@ -81,13 +81,16 @@ struct CompressEncryptSodiumTest : testing::Test {
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
     CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
-    auto& pubKeyAesServer = cryptoS->getPublicKeyAes();
+    const std::string& serializedPubKey = cryptoS->getSerializedPubKey();
+    ASSERT_FALSE(serializedPubKey.back() == '\0');
+    auto pubKeyAesServer = CryptoSodium::base64_decode(serializedPubKey);
     cryptoC->clientKeyExchange(pubKeyAesServer);
+    
      // must be a copy
     std::string data = TestEnvironment::_source;
     HEADER header{ HEADERTYPE::SESSION,
 		   0,
-		   data.size(),
+		   std::ssize(data),
 		   cryptoType,
 		   compressor,
 		   DIAGNOSTICS::NONE,

@@ -41,37 +41,47 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
   _signatureWithPubKeySign(crypto_sign_BYTES + crypto_sign_PUBLICKEYBYTES) {
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
+  _serializedPubKey = base64_encode(_publicKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
-  crypto_sign_detached(_signature.data(), nullptr, _msgHash.data(),
-		       _msgHash.size(), _secretKeySign.data());
+  crypto_sign_detached(_signature.data(), nullptr,
+		       static_cast<unsigned char*>(static_cast<void*>(_msgHash.data())),
+		       std::ssize(_msgHash), _secretKeySign.data());
   
   std::copy(_signature.cbegin(), _signature.cend(), _signatureWithPubKeySign.begin());
   std::copy(_publicKeySign.cbegin(), _publicKeySign.cend(),
-	    _signatureWithPubKeySign.begin() + _signature.size());
+	    _signatureWithPubKeySign.begin() + std::ssize(_signature));
 }
 // server
 CryptoSodium::CryptoSodium(std::span<unsigned char> msgHash,
-			   std::span<unsigned char> pubKeyAesClient,
-			   std::span<unsigned char> signatureWithPubKey) {
+			   std::span<unsigned char> serializedPubKeyAesClient,
+			   std::span<unsigned char> signatureWithPubKey) :
+  _serializedPeerPubKeyAes(static_cast<const char*>(static_cast<void*>(serializedPubKeyAesClient.data())), serializedPubKeyAesClient.size()),
+  _msgHash(static_cast<const char*>(static_cast<void*>(msgHash.data())), msgHash.size())
+{
+  auto pubKeyAesClient = CryptoSodium::base64_decode(_serializedPeerPubKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient", pubKeyAesClient);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
+  _serializedPubKey = base64_encode(_publicKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
   std::span<unsigned char>
     signature(signatureWithPubKey.data(), crypto_sign_BYTES);
   std::span<unsigned char>
     peerPubcicKeySign(signatureWithPubKey.data() + crypto_sign_BYTES, crypto_sign_PUBLICKEYBYTES);
   _verified = crypto_sign_verify_detached(
-    signature.data(), msgHash.data(), msgHash.size(), peerPubcicKeySign.data()) == 0;
+    signature.data(), static_cast<unsigned char*>(static_cast<void*>(msgHash.data())),
+    std::ssize(msgHash),
+    peerPubcicKeySign.data()) == 0;
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_rx;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
-  if (crypto_kx_server_session_keys(server_rx.data(), server_tx.data(), _publicKeyAes.data(), _secretKeyAes.data(), pubKeyAesClient.data()) != 0)
+  unsigned char server_rx[crypto_kx_SESSIONKEYBYTES];
+  unsigned char server_tx[crypto_kx_SESSIONKEYBYTES];
+  
+  if (crypto_kx_server_session_keys(server_rx, server_tx, _publicKeyAes.data(), _secretKeyAes.data(), pubKeyAesClient.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "server_rx", server_rx);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "server_tx", server_tx);
-  std::swap(_key, server_tx);
+  std::copy(std::cbegin(server_tx), std::cend(server_tx), _key.begin());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   _keyHandler.hideKey(_key);
   if (ServerOptions::_showKey)
@@ -80,7 +90,11 @@ CryptoSodium::CryptoSodium(std::span<unsigned char> msgHash,
 }
 
 CryptoSodiumPtr CryptoSodium::createSodiumServer() {
-  return std::make_shared<CryptoSodium>(_msgHash, _publicKeyAes, _signatureWithPubKeySign);
+  std::vector<unsigned char> msgHash(_msgHash.size());
+  std::memcpy(msgHash.data(), _msgHash.data(), _msgHash.size());
+  std::vector<unsigned char> serializedPubKey(_serializedPubKey.size());
+  std::memcpy(serializedPubKey.data(), _serializedPubKey.data(), _serializedPubKey.size());
+  return std::make_shared<CryptoSodium>(msgHash, serializedPubKey, _signatureWithPubKeySign);
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
@@ -96,9 +110,9 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   unsigned long long ciphertext_len;
   serialize(header, input.data());
   std::array<unsigned char, crypto_aead_aes256gcm_NPUBBYTES> nonce;
-  randombytes_buf(nonce.data(), nonce.size());
+  randombytes_buf(nonce.data(), std::ssize(nonce));
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "nonce", nonce);
-  std::size_t message_len = input.size();
+  std::size_t message_len = std::ssize(input);
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
   setAESKey(key);
@@ -117,7 +131,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     throw std::runtime_error("access denied");
   buffer.clear();
   if (utility::isEncrypted(data)) {
-    unsigned long long ciphertext_len = data.size() - crypto_aead_aes256gcm_NPUBBYTES;
+    unsigned long long ciphertext_len = std::ssize(data) - crypto_aead_aes256gcm_NPUBBYTES;
     std::array<unsigned char, crypto_aead_aes256gcm_NPUBBYTES> recoveredNonce;
     std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce.data());
     DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "recoveredNonce", recoveredNonce);
@@ -144,13 +158,13 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
 
 bool CryptoSodium::clientKeyExchange(std::span<unsigned char> pubKeyAesServer) {
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer", pubKeyAesServer);
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_tx;
-  if (crypto_kx_client_session_keys(client_rx.data(), client_tx.data(), _publicKeyAes.data(), _secretKeyAes.data(), pubKeyAesServer.data()) != 0)
+  unsigned char client_rx[crypto_kx_SESSIONKEYBYTES];
+  unsigned char client_tx[crypto_kx_SESSIONKEYBYTES];
+  if (crypto_kx_client_session_keys(client_rx, client_tx, _publicKeyAes.data(), _secretKeyAes.data(), pubKeyAesServer.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "client_rx", client_rx);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "client_tx", client_tx);
-  std::swap(_key, client_rx);
+  std::copy(std::cbegin(client_rx), std::cend(client_rx), _key.begin());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   _keyHandler.hideKey(_key);
   eraseUsedData();
@@ -158,9 +172,9 @@ bool CryptoSodium::clientKeyExchange(std::span<unsigned char> pubKeyAesServer) {
 }
 
 std::string CryptoSodium::base64_encode(std::span<unsigned char> input) {
-  size_t encoded_length = sodium_base64_ENCODED_LEN(input.size(), sodium_base64_VARIANT_ORIGINAL);
+  size_t encoded_length = sodium_base64_ENCODED_LEN(std::ssize(input), sodium_base64_VARIANT_ORIGINAL);
   std::string encoded_string(encoded_length, '\0');
-  if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), input.size(),
+  if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), std::ssize(input),
 			sodium_base64_VARIANT_ORIGINAL) == nullptr)
     throw std::runtime_error("sodium_bin2base64 failed");
   //The sodium_bin2base64 function might add a null terminator.
@@ -169,28 +183,28 @@ std::string CryptoSodium::base64_encode(std::span<unsigned char> input) {
   return encoded_string;
 }
 
-std::vector<unsigned char> CryptoSodium::base64_decode(const std::string& input) {
-  std::size_t decoded_length = input.size(); // Maximum possible decoded length
+std::vector<unsigned char> CryptoSodium::base64_decode(std::string_view encoded) {
+  std::size_t decoded_length = std::ssize(encoded); // Maximum possible decoded length
   std::vector<unsigned char> decoded_data(decoded_length);  
   if (sodium_base642bin(decoded_data.data(), decoded_length,
-			input.data(), input.size(),
+			encoded.data(), std::ssize(encoded),
 			nullptr, &decoded_length, nullptr, sodium_base64_VARIANT_ORIGINAL) != 0)
     throw std::runtime_error("sodium_base642bin failed");
   decoded_data.resize(decoded_length);
   return decoded_data;
 }
 
-std::vector<unsigned char>
+std::string
 CryptoSodium::hashMessage(std::u8string_view message) {
   unsigned char MESSAGE[crypto_generichash_BYTES];
   std::copy(message.cbegin(), message.cend(), MESSAGE);
   std::vector<unsigned char> hash(crypto_generichash_BYTES);
   unsigned char key[crypto_generichash_KEYBYTES];
-  randombytes_buf(key, sizeof key);
+  randombytes_buf(key, std::ssize(key));
   crypto_generichash(hash.data(), crypto_generichash_BYTES,
 		     MESSAGE, crypto_generichash_BYTES,
-		     key, sizeof key);
-  return hash;
+		     key, std::ssize(key));
+  return { static_cast<const char*>(static_cast<void*>(hash.data())), hash.size() };
 }
 
 void CryptoSodium::showKey() {
@@ -215,6 +229,6 @@ bool CryptoSodium::checkAccess() {
 }
 
 void CryptoSodium::eraseUsedData() {
-  std::vector<unsigned char>().swap(_msgHash);
+  std::string().swap(_msgHash);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES>().swap(_secretKeyAes);
 }

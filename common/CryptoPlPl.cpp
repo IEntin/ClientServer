@@ -145,7 +145,6 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoPlPl::clientKeyExchange(std::span<unsigned char> peerPublicKeyAes) {
-  // const reference from rvalue
   const CryptoPP::SecByteBlock& pubAreceived { peerPublicKeyAes.data(), peerPublicKeyAes.size() };
   bool result = _dh.Agree(_key, _privKeyAes, pubAreceived);
   erasePubPrivKeys();

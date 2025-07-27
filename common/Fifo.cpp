@@ -105,10 +105,10 @@ bool Fifo::readMessage(std::string_view name,
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
-  std::size_t payloadSize = _payload.size() - HEADER_SIZE;
+  std::size_t payloadSize = std::ssize(_payload) - HEADER_SIZE;
   if (payloadSize > 0) {
     payload.resize(payloadSize);
-    std::copy(_payload.begin() + HEADER_SIZE, _payload.begin() + HEADER_SIZE + payloadSize, payload.begin());
+    std::copy(_payload.cbegin() + HEADER_SIZE, _payload.cbegin() + HEADER_SIZE + payloadSize, payload.begin());
     return true;
   }
   return false;
@@ -131,12 +131,12 @@ bool Fifo::readMessage(std::string_view name,
   unsigned shift = HEADER_SIZE;
   if (payload1Size > 0) {
     payload1.resize(payload1Size);
-    std::copy(_payload.begin() + shift, _payload.begin() + shift + payload1Size, payload1.begin());
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Size, payload1.begin());
   }
   shift += payload1Size;
   if (payload2Size > 0) {
     payload2.resize(payload2Size);
-    std::copy(_payload.begin() + shift, _payload.begin() + shift + payload2Size, payload2.begin());
+    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Size, payload2.begin());
   }
   return true;
 }
@@ -159,7 +159,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       std::size_t prevSize = accumulatedSz;
       accumulatedSz += transferred;
       payload.resize(accumulatedSz);
-      std::copy(std::begin(buffer), std::begin(buffer) + transferred, payload.begin() + prevSize);
+      std::copy(std::cbegin(buffer), std::cbegin(buffer) + transferred, payload.begin() + prevSize);
     }
   }
   payload.resize(accumulatedSz);
@@ -189,7 +189,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       std::size_t prevSize = accumulatedSz;
       accumulatedSz += transferred;
       payload.resize(accumulatedSz);
-      std::copy(std::begin(buffer), std::begin(buffer) + transferred, payload.begin() + prevSize);
+      std::copy(std::cbegin(buffer), std::cbegin(buffer) + transferred, payload.begin() + prevSize);
     }
     else if (result == 0) {
       if (pollFd(fd, POLLIN) != POLLIN)

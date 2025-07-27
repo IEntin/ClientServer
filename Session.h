@@ -43,8 +43,8 @@ protected:
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
       auto pubKey = _crypto->getPublicKeyAes();
-      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, clientIdStr.size(), CRYPTO::NONE,
-		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, pubKey.size() };
+      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, std::ssize(clientIdStr), CRYPTO::NONE,
+	COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, std::ssize(pubKey) };
       lambda(header, clientIdStr, pubKey);
     }
   }
