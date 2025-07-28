@@ -17,7 +17,7 @@ static auto  TYPE{ "tcp" };
 
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
-		       std::span<unsigned char> msgHash,
+		       std::string_view msgHash,
 		       std::span<unsigned char> pubB,
 		       std::span<unsigned char> signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),

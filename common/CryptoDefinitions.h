@@ -16,7 +16,7 @@ inline CryptoPtr createCrypto(std::u8string_view  msg) {
   return std::make_shared<CryptoPlPl>(msg);
 }
 
-inline CryptoPtr createCrypto(std::span<unsigned char> msgHash,
+inline CryptoPtr createCrypto(std::string_view msgHash,
 			      std::span<unsigned char> pubB,
 			      std::span<unsigned char> signatureWithPubKey) {
   return std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
@@ -32,7 +32,7 @@ inline CryptoPtr createCrypto(std::u8string_view  msg) {
   return std::make_shared<CryptoSodium>(msg);
 }
 
-inline CryptoPtr createCrypto(std::span<unsigned char> msgHash,
+inline CryptoPtr createCrypto(std::string_view msgHash,
 			      std::span<unsigned char> pubB,
 			      std::span<unsigned char> signatureWithPubKey) {
   return std::make_shared<CryptoSodium>(msgHash, pubB, signatureWithPubKey);

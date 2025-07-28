@@ -216,7 +216,7 @@ bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) 
 bool Fifo::readMessage(std::string_view name,
 		       bool block,
 		       HEADER& header,
-		       std::vector<unsigned char>& payload1,
+		       std::string& payload1,
 		       std::vector<unsigned char>& payload2,
 		       std::vector<unsigned char>& payload3) {
   _payload.clear();

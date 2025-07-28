@@ -136,3 +136,13 @@ TEST(AuthenticationTest, 1) {
     static_cast<const CryptoPP::byte*>(static_cast<const void*>(receivedSignature.data())), receivedSignature.size());
   ASSERT_FALSE(result);
 }
+
+TEST(Base64EncodingTest, 1) {
+  auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
+  std::span<unsigned char> pubKeyAes = crypto->getPublicKeyAes();
+  CryptoPP::SecByteBlock original(pubKeyAes.data(), pubKeyAes.size());
+  std::string encoded = CryptoPlPl::binary2string(pubKeyAes);
+  std::vector<unsigned char> vect = CryptoPlPl::string2binary(encoded);
+  CryptoPP::SecByteBlock recovered(vect.data(), vect.size());
+  ASSERT_EQ(original, recovered);
+}

@@ -38,6 +38,7 @@ class CryptoPlPl {
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
   CryptoPP::SecByteBlock _pubKeyAes;
+  std::string _encodedPeerPubKeyAes;
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
   CryptoPP::RSA::PublicKey _rsaPubKey;
@@ -69,7 +70,7 @@ class CryptoPlPl {
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
 public:
-  CryptoPlPl(std::span<unsigned char> msgHash,
+  CryptoPlPl(std::string_view msgHash,
 	     std::span<unsigned char> pubB,
 	     std::span<unsigned char> signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
@@ -83,6 +84,8 @@ public:
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
 
+  static std::string binary2string(std::span<unsigned char> binary);
+  static std::vector<unsigned char> string2binary(const std::string& encoded);
   std::span<unsigned char>
   getPublicKeyAes() { return _pubKeyAes; }
   void setDummyAesKey();

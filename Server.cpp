@@ -82,22 +82,22 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-void Server::createFifoSession(std::span<unsigned char> msgHash,
+void Server::createFifoSession(std::string_view msgHash,
 			       std::span<unsigned char> pubB,
-			       std::span<unsigned char> rsaPubBserialized) {
+			       std::span<unsigned char> signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, rsaPubBserialized);
+    std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, signatureWithPubKey);
   startSession(session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
-			      std::span<unsigned char> msgHash,
+			      std::string_view msgHash,
 			      std::span<unsigned char> pubB,
-			      std::span<unsigned char> rsaPubB) {
+			      std::span<unsigned char> signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, rsaPubB);
+    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, signatureWithPubKey);
   startSession(session);
 }
 

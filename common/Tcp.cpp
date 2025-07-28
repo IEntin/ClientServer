@@ -116,7 +116,7 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 		      HEADER& header,
-		      std::vector<unsigned char>& payload1,
+		      std::string& payload1,
 		      std::vector<unsigned char>& payload2,
 		      std::vector<unsigned char>& payload3) {
   _payload.clear();

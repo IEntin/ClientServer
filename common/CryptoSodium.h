@@ -32,11 +32,11 @@ class CryptoSodium {
   hashMessage(std::u8string_view message);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
-  std::string _serializedPeerPubKeyAes;
+  std::string _encodedPeerPubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
   std::string _msgHash;
-  std::string _serializedPubKey;
+  std::string _encodedPubKey;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
   std::vector<unsigned char> _signatureWithPubKeySign;
   HandleKey _keyHandler; 
@@ -54,7 +54,7 @@ class CryptoSodium {
   std::mutex _mutex;
 public:
   explicit CryptoSodium(std::u8string_view msg);
-  CryptoSodium(std::span<unsigned char> msgHash,
+  CryptoSodium(std::string_view msgHash,
 	       std::span<unsigned char> pubKeyAesClient,
 	       std::span<unsigned char> signatureWithPubKey);
   ~CryptoSodium() = default;
@@ -68,14 +68,14 @@ public:
   void showKey();
   // used in tests:
   CryptoSodiumPtr createSodiumServer();
-  const std::string& getSerializedPubKey() const { return _serializedPubKey; }
+  const std::string& getEncodedPubKey() const { return _encodedPubKey; }
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_serializedPubKey),
+    HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_encodedPubKey),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySign) };
-    bool result = lambda(header, _msgHash, _serializedPubKey, _signatureWithPubKeySign);
+    bool result = lambda(header, _msgHash, _encodedPubKey, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();

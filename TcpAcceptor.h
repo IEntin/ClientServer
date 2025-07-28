@@ -21,7 +21,7 @@ private:
 
   void accept();
   std::tuple<HEADERTYPE,
-	     std::vector<unsigned char>,
+	     std::string,
 	     std::vector<unsigned char>,
 	     std::vector<unsigned char>>
   connectionType(boost::asio::ip::tcp::socket& socket);

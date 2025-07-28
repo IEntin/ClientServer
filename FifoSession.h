@@ -21,7 +21,7 @@ class FifoSession final : public RunnableT<FifoSession>,
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
  public:
   FifoSession(ServerWeakPtr server,
-	      std::span<unsigned char> msgHash,
+	      std::string_view msgHash,
 	      std::span<unsigned char> pubB,
 	      std::span<unsigned char> signatureWithPubKey);
   ~FifoSession() override;
@@ -30,4 +30,3 @@ class FifoSession final : public RunnableT<FifoSession>,
 };
 
 } // end of namespace fifo
-

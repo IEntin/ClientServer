@@ -15,7 +15,7 @@ class FifoAcceptor : public Runnable {
   bool start() override;
   void stop() override;
   std::tuple<HEADERTYPE,
-	     std::vector<unsigned char>,
+	     std::string,
 	     std::vector<unsigned char>,
 	     std::vector<unsigned char>>
   unblockAcceptor();

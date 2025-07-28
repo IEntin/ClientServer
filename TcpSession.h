@@ -21,9 +21,9 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
-	     std::span<unsigned char> msgHash,
+	     std::string_view msgHash,
 	     std::span<unsigned char> pubB,
-	     std::span<unsigned char> rsaPubB);
+	     std::span<unsigned char> signatureWithPubKey);
 
   ~TcpSession() override = default;
   bool start() override;

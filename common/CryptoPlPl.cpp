@@ -6,6 +6,7 @@
 
 #include <boost/algorithm/hex.hpp>
 
+#include <cryptopp/base64.h>
 #include <cryptopp/hex.h>
 
 #include "ClientOptions.h"
@@ -39,10 +40,10 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 }
 
 // session
-CryptoPlPl::CryptoPlPl(std::span<unsigned char> msgHash,
+CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 		       std::span<unsigned char> pubBspan,
 		       std::span<unsigned char> signatureWithPubKey) :
-  _msgHash({ static_cast<const char*>(static_cast<const void*>(msgHash.data())), msgHash.size() }),
+  _msgHash({ msgHash.data(), msgHash.size() }),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
@@ -247,6 +248,37 @@ bool CryptoPlPl::checkAccess() {
 
 void CryptoPlPl::hideKey() {
   _keyHandler.hideKey(_key);
+}
+
+std::string CryptoPlPl::binary2string(std::span<unsigned char> binary) {
+  std::string encoded;
+  try {
+    CryptoPP::StringSource ss(
+      binary.data(),
+      std::ssize(binary),
+      true,
+      new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encoded)));
+    if (encoded.back() == '\0')
+      encoded.pop_back();
+    return encoded;
+  }
+  catch (const std::exception& e) {
+    throw std::runtime_error(e.what());
+  }
+}
+
+std::vector<unsigned char> CryptoPlPl::string2binary(const std::string& encoded) {
+  std::vector<unsigned char> decoded;
+  try {
+    CryptoPP::Base64Decoder decoder;
+    decoder.Attach(new CryptoPP::VectorSink(decoded));
+    decoder.Put(reinterpret_cast<const CryptoPP::byte*>(encoded.data()), encoded.size());
+    decoder.MessageEnd();
+  }
+  catch (const CryptoPP::Exception& e) {
+    throw std::runtime_error(e.what());
+  }
+  return decoded;
 }
 
 void CryptoPlPl::setDummyAesKey() {
