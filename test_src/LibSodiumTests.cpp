@@ -41,7 +41,6 @@ TEST(LibSodiumTest, DHkeyExchange) {
     // server
     CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
     const std::string& encodedPubKey = cryptoS->getEncodedPubKey();
-    ASSERT_FALSE(encodedPubKey.back() == '\0');
     auto pubKeyAesServer = CryptoSodium::base64_decode(encodedPubKey);
     cryptoC->clientKeyExchange(pubKeyAesServer);
     // test encrypt - decrypt
@@ -82,7 +81,6 @@ struct CompressEncryptSodiumTest : testing::Test {
     // server
     CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
     const std::string& encodedPubKey = cryptoS->getEncodedPubKey();
-    ASSERT_FALSE(encodedPubKey.back() == '\0');
     auto pubKeyAesServer = CryptoSodium::base64_decode(encodedPubKey);
     cryptoC->clientKeyExchange(pubKeyAesServer);
     

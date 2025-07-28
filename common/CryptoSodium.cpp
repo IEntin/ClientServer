@@ -175,9 +175,7 @@ std::string CryptoSodium::base64_encode(std::span<unsigned char> input) {
   if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), std::ssize(input),
 			sodium_base64_VARIANT_ORIGINAL) == nullptr)
     throw std::runtime_error("sodium_bin2base64 failed");
-  //The sodium_bin2base64 function might add a null terminator.
-  if (encoded_string.back() == '\0')
-    encoded_string.pop_back();
+  encoded_string.resize(strlen(encoded_string.data()));
   return encoded_string;
 }
 
