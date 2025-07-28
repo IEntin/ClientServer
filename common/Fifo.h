@@ -23,7 +23,7 @@ public:
 			  bool block,
 			  HEADER& header,
 			  std::string& payload1,
-			  std::vector<unsigned char>& payload2);
+			  std::string& payload2);
 
   static bool readMessage(std::string_view name,
 			  bool block,

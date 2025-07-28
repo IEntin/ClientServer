@@ -92,11 +92,11 @@ bool FifoSession::sendResponse() {
 }
 
 void FifoSession::sendStatusToClient() {
-  auto lambda = []<typename T> (
+  auto lambda = [] (
     const HEADER& header,
     std::string_view idStr,
-    const T& pubA) {
-    Fifo::sendMessage(false, Options::_acceptorName, header, idStr, pubA);
+    std::string_view pubKey) {
+    Fifo::sendMessage(false, Options::_acceptorName, header, idStr, pubKey);
   };
   Session::sendStatusToClient(lambda, _status);
 }

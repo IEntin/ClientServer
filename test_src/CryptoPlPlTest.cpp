@@ -10,6 +10,7 @@
 // for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=AuthenticationTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=Base64EncodingTest*; done
 
 TEST(CryptoTest, 1) {
   auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
@@ -138,11 +139,11 @@ TEST(AuthenticationTest, 1) {
 }
 
 TEST(Base64EncodingTest, 1) {
-  auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
-  std::span<unsigned char> pubKeyAes = crypto->getPublicKeyAes();
-  CryptoPP::SecByteBlock original(pubKeyAes.data(), pubKeyAes.size());
-  std::string encoded = CryptoPlPl::binary2string(pubKeyAes);
+  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
+  CryptoPP::AutoSeededRandomPool prng;
+  prng.GenerateBlock(key, key.size());
+  std::string encoded = CryptoPlPl::binary2string(key);
   std::vector<unsigned char> vect = CryptoPlPl::string2binary(encoded);
   CryptoPP::SecByteBlock recovered(vect.data(), vect.size());
-  ASSERT_EQ(original, recovered);
+  ASSERT_EQ(key, recovered);
 }

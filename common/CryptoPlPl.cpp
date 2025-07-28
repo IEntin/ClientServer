@@ -52,6 +52,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
+  _encodedPubKeyAes = binary2string(_pubKeyAes);
   const CryptoPP::SecByteBlock& pubB { pubBspan.data(), pubBspan.size() };
   if(!_dh.Agree(_key, _privKeyAes, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
@@ -77,6 +78,7 @@ CryptoPlPl::CryptoPlPl(std::u8string_view msg) :
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
+  _encodedPubKeyAes = binary2string(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
@@ -145,8 +147,9 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool CryptoPlPl::clientKeyExchange(std::span<unsigned char> peerPublicKeyAes) {
-  const CryptoPP::SecByteBlock& pubAreceived { peerPublicKeyAes.data(), peerPublicKeyAes.size() };
+bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
+  std::vector<unsigned char> vect = string2binary(encodedPeerPubKeyAes);
+  const CryptoPP::SecByteBlock& pubAreceived { vect.data(), vect.size() };
   bool result = _dh.Agree(_key, _privKeyAes, pubAreceived);
   erasePubPrivKeys();
   hideKey();
@@ -258,16 +261,14 @@ std::string CryptoPlPl::binary2string(std::span<unsigned char> binary) {
       std::ssize(binary),
       true,
       new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encoded)));
-    if (encoded.back() == '\0')
-      encoded.pop_back();
-    return encoded;
+   return encoded;
   }
   catch (const std::exception& e) {
     throw std::runtime_error(e.what());
   }
 }
 
-std::vector<unsigned char> CryptoPlPl::string2binary(const std::string& encoded) {
+std::vector<unsigned char> CryptoPlPl::string2binary(std::string_view encoded) {
   std::vector<unsigned char> decoded;
   try {
     CryptoPP::Base64Decoder decoder;

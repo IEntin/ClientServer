@@ -72,10 +72,10 @@ bool TcpClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
   std::string clientIdStr;
-  std::vector<unsigned char> pubKeyAesServer;
-  if (!Tcp::readMessage(_socket, _header, clientIdStr, pubKeyAesServer))
+  std::string encodedPubKeyAesServer;
+  if (!Tcp::readMessage(_socket, _header, clientIdStr, encodedPubKeyAesServer))
     return false;
-  if (!DHFinish(clientIdStr, pubKeyAesServer))
+  if (!DHFinish(clientIdStr, encodedPubKeyAesServer))
     return false;
   startHeartbeat();
   return true;

@@ -38,7 +38,7 @@ class CryptoPlPl {
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
   CryptoPP::SecByteBlock _pubKeyAes;
-  std::string _encodedPeerPubKeyAes;
+  std::string _encodedPubKeyAes;
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
   CryptoPP::RSA::PublicKey _rsaPubKey;
@@ -78,16 +78,15 @@ public:
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  bool clientKeyExchange(std::span<unsigned char> peerPublicKeyAes);
+  bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
 
   static std::string binary2string(std::span<unsigned char> binary);
-  static std::vector<unsigned char> string2binary(const std::string& encoded);
-  std::span<unsigned char>
-  getPublicKeyAes() { return _pubKeyAes; }
+  static std::vector<unsigned char> string2binary(std::string_view encoded);
+  std::string getEncodedPublicKeyAes() { return _encodedPubKeyAes; }
   void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {

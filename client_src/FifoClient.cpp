@@ -97,10 +97,10 @@ bool FifoClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
   std::string clientIdStr;
-  std::vector<unsigned char> pubKeyAesServer;
-  if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, pubKeyAesServer))
+  std::string encodedPubKeyAesServer;
+  if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, encodedPubKeyAesServer))
     return false;
-  if (!DHFinish(clientIdStr, pubKeyAesServer))
+  if (!DHFinish(clientIdStr, encodedPubKeyAesServer))
     return false;
   _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
