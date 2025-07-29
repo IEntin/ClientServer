@@ -67,7 +67,7 @@ public:
 		      bool block,
 		      HEADER& header,
 		      std::string& payload1,
-		      std::vector<unsigned char>& payload2,
+		      std::string& payload2,
 		      std::vector<unsigned char>& payload3);
   static void onExit(std::string_view fifoName);
   static void writeString(int fd, std::string_view str);

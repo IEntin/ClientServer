@@ -41,19 +41,21 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 
 // session
 CryptoPlPl::CryptoPlPl(std::string_view msgHash,
-		       std::span<unsigned char> pubBspan,
+		       std::string_view encodedPubKeyAesClient,
 		       std::span<unsigned char> signatureWithPubKey) :
   _msgHash({ msgHash.data(), msgHash.size() }),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
+  _encodedPeerPubKeyAes(encodedPubKeyAesClient.data(), encodedPubKeyAesClient.size()),
   _key(_dh.AgreedValueLength()),
   _signatureWithPubKey(static_cast<const char*>(static_cast<const void*>(signatureWithPubKey.data())),
 		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = binary2string(_pubKeyAes);
-  const CryptoPP::SecByteBlock& pubB { pubBspan.data(), pubBspan.size() };
+  std::vector<unsigned char> pubBDecoded = string2binary(_encodedPeerPubKeyAes);
+  const CryptoPP::SecByteBlock& pubB { pubBDecoded.data(), pubBDecoded.size() };
   if(!_dh.Agree(_key, _privKeyAes, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);

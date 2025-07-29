@@ -35,7 +35,7 @@ public:
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
 			  std::string& payload1,
-			  std::vector<unsigned char>& payload2,
+			  std::string& payload2,
 			  std::vector<unsigned char>& payload3);
 
   template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1>

@@ -38,6 +38,7 @@ class CryptoPlPl {
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
   CryptoPP::SecByteBlock _pubKeyAes;
+  std::string _encodedPeerPubKeyAes;
   std::string _encodedPubKeyAes;
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
@@ -71,7 +72,7 @@ class CryptoPlPl {
 
 public:
   CryptoPlPl(std::string_view msgHash,
-	     std::span<unsigned char> pubB,
+	     std::string_view pubB,
 	     std::span<unsigned char> signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
@@ -90,10 +91,10 @@ public:
   void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _pubKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKey.size() };
-    bool result = lambda(header, _msgHash, _pubKeyAes, _signatureWithPubKey);
+    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKey);
     if (result)
       _signatureSent = true;
     eraseRSAKeys();

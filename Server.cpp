@@ -83,7 +83,7 @@ void Server::stop() {
 }
 
 void Server::createFifoSession(std::string_view msgHash,
-			       std::span<unsigned char> pubB,
+			       std::string_view pubB,
 			       std::span<unsigned char> signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
@@ -93,7 +93,7 @@ void Server::createFifoSession(std::string_view msgHash,
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
 			      std::string_view msgHash,
-			      std::span<unsigned char> pubB,
+			      std::string_view pubB,
 			      std::span<unsigned char> signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =

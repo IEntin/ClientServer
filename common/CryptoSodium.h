@@ -55,7 +55,7 @@ class CryptoSodium {
 public:
   explicit CryptoSodium(std::u8string_view msg);
   CryptoSodium(std::string_view msgHash,
-	       std::span<unsigned char> pubKeyAesClient,
+	       std::string_view pubKeyAesClient,
 	       std::span<unsigned char> signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,

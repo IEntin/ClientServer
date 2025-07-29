@@ -22,7 +22,7 @@ private:
   void accept();
   std::tuple<HEADERTYPE,
 	     std::string,
-	     std::vector<unsigned char>,
+	     std::string,
 	     std::vector<unsigned char>>
   connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);

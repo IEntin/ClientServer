@@ -53,12 +53,12 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
 }
 // server
 CryptoSodium::CryptoSodium(std::string_view msgHash,
-			   std::span<unsigned char> encodedPubKeyAesClient,
+			   std::string_view encodedPubKeyAesClient,
 			   std::span<unsigned char> signatureWithPubKey) :
-  _encodedPeerPubKeyAes(static_cast<const char*>(static_cast<void*>(encodedPubKeyAesClient.data())), encodedPubKeyAesClient.size()),
+  _encodedPeerPubKeyAes(encodedPubKeyAesClient.data(), encodedPubKeyAesClient.size()),
   _msgHash(msgHash.data(), msgHash.size())
 {
-  auto pubKeyAesClient = CryptoSodium::base64_decode(_encodedPeerPubKeyAes);
+  auto pubKeyAesClient = base64_decode(_encodedPeerPubKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient", pubKeyAesClient);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
   _encodedPubKey = base64_encode(_publicKeyAes);
@@ -90,9 +90,7 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
 }
 
 CryptoSodiumPtr CryptoSodium::createSodiumServer() {
-  std::vector<unsigned char> encodedPubKey(_encodedPubKey.size());
-  std::memcpy(encodedPubKey.data(), _encodedPubKey.data(), _encodedPubKey.size());
-  return std::make_shared<CryptoSodium>(_msgHash, encodedPubKey, _signatureWithPubKeySign);
+  return std::make_shared<CryptoSodium>(_msgHash, _encodedPubKey, _signatureWithPubKeySign);
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
