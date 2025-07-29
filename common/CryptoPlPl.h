@@ -87,7 +87,7 @@ public:
 
   static std::string binary2string(std::span<unsigned char> binary);
   static std::vector<unsigned char> string2binary(std::string_view encoded);
-  std::string getEncodedPublicKeyAes() { return _encodedPubKeyAes; }
+  const std::string& getEncodedPublicKeyAes() const { return _encodedPubKeyAes; }
   void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {

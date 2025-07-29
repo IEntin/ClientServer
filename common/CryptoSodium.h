@@ -64,7 +64,7 @@ public:
   void decrypt(std::string& buffer, std::string& data);
   static std::string base64_encode(std::span<unsigned char> input);
   static std::vector<unsigned char> base64_decode(std::string_view encoded);
-  bool clientKeyExchange(std::span<unsigned char> pubKeyAesServer);
+  bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   void showKey();
   // used in tests:
   CryptoSodiumPtr createSodiumServer();

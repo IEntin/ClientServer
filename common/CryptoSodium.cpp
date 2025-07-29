@@ -152,7 +152,8 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool CryptoSodium::clientKeyExchange(std::span<unsigned char> pubKeyAesServer) {
+bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
+  auto pubKeyAesServer = base64_decode(encodedPeerPubKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer", pubKeyAesServer);
   unsigned char client_rx[crypto_kx_SESSIONKEYBYTES];
   unsigned char client_tx[crypto_kx_SESSIONKEYBYTES];

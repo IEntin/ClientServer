@@ -41,8 +41,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     // server
     CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
     const std::string& encodedPubKey = cryptoS->getEncodedPubKey();
-    auto pubKeyAesServer = CryptoSodium::base64_decode(encodedPubKey);
-    cryptoC->clientKeyExchange(pubKeyAesServer);
+    cryptoC->clientKeyExchange(encodedPubKey);
     // test encrypt - decrypt
     HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + std::ssize(TestEnvironment::_source), CRYPTO::ENCRYPT,
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
@@ -81,8 +80,7 @@ struct CompressEncryptSodiumTest : testing::Test {
     // server
     CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
     const std::string& encodedPubKey = cryptoS->getEncodedPubKey();
-    auto pubKeyAesServer = CryptoSodium::base64_decode(encodedPubKey);
-    cryptoC->clientKeyExchange(pubKeyAesServer);
+    cryptoC->clientKeyExchange(encodedPubKey);
     
      // must be a copy
     std::string data = TestEnvironment::_source;
