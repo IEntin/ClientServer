@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <ranges>
+#include <syncstream>
 
 #include <boost/algorithm/hex.hpp>
 
@@ -29,11 +30,12 @@ class DebugLog {
 			    [[maybe_unused]] std::string_view name,
 			    [[maybe_unused]] const T& variable) {
 #ifdef _DEBUG
-    _file << '\n' << loc.file_name() << ':' << loc.line() << '-' << loc.function_name() << '\n';
-    _file << name << ",size=" << std::ranges::ssize(variable) << "\n0x";
-    boost::algorithm::hex(std::cbegin(variable), std::cend(variable), std::ostream_iterator<char> { _file });
-    _file << '\n';
-    _file.flush();
+    static std::osyncstream stream(_file);
+    stream << '\n' << loc.file_name() << ':' << loc.line() << '-' << loc.function_name() << '\n';
+    stream << name << ",size=" << std::ranges::ssize(variable) << "\n0x";
+    boost::algorithm::hex(std::cbegin(variable), std::cend(variable), std::ostream_iterator<char> { stream });
+    stream << '\n';
+    stream.flush();
 #endif
 }
 
