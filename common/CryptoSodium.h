@@ -68,7 +68,7 @@ public:
   void showKey();
   // used in tests:
   CryptoSodiumPtr createSodiumServer();
-  const std::string& getEncodedPubKey() const { return _encodedPubKey; }
+  const std::string& getEncodedPublicKeyAes() const { return _encodedPubKey; }
 
   template <typename L>
   bool sendSignature(L& lambda) {
