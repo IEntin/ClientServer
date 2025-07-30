@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "ClientOptions.h"
+#include "DebugLog.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
@@ -41,7 +42,7 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
   _signatureWithPubKeySign(crypto_sign_BYTES + crypto_sign_PUBLICKEYBYTES) {
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
-  _encodedPubKey = base64_encode(_publicKeyAes);
+  _encodedPubKeyAes = base64_encode(_publicKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
   crypto_sign_detached(_signature.data(), nullptr,
 		       static_cast<unsigned char*>(static_cast<void*>(_msgHash.data())),
@@ -61,7 +62,7 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   auto pubKeyAesClient = base64_decode(_encodedPeerPubKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient", pubKeyAesClient);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
-  _encodedPubKey = base64_encode(_publicKeyAes);
+  _encodedPubKeyAes = base64_encode(_publicKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_publicKeyAes", _publicKeyAes);
   std::span<unsigned char>
     signature(signatureWithPubKey.data(), crypto_sign_BYTES);
@@ -90,7 +91,7 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
 }
 
 CryptoSodiumPtr CryptoSodium::createSodiumServer() {
-  return std::make_shared<CryptoSodium>(_msgHash, _encodedPubKey, _signatureWithPubKeySign);
+  return std::make_shared<CryptoSodium>(_msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,

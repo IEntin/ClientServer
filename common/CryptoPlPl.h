@@ -72,7 +72,7 @@ class CryptoPlPl {
 
 public:
   CryptoPlPl(std::string_view msgHash,
-	     std::string_view pubB,
+	     std::string_view pubKeyAesClient,
 	     std::span<unsigned char> signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
@@ -87,7 +87,7 @@ public:
 
   static std::string binary2string(std::span<unsigned char> binary);
   static std::vector<unsigned char> string2binary(std::string_view encoded);
-  const std::string& getEncodedPublicKeyAes() const { return _encodedPubKeyAes; }
+  const std::string& getEncodedPubKeyAes() const { return _encodedPubKeyAes; }
   void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {
