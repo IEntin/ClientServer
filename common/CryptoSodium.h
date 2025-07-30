@@ -33,6 +33,8 @@ class CryptoSodium {
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _server_rx;
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _client_tx;
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
