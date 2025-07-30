@@ -12,7 +12,6 @@
 #include "CryptoDefinitions.h"
 #include "Header.h"
 #include "IOUtility.h"
-#include "ServerOptions.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;

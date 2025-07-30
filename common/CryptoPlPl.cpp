@@ -47,14 +47,13 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
-  _encodedPeerPubKeyAes(encodedPubKeyAesClient.data(), encodedPubKeyAesClient.size()),
   _key(_dh.AgreedValueLength()),
   _signatureWithPubKey(static_cast<const char*>(static_cast<const void*>(signatureWithPubKey.data())),
 		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = binary2string(_pubKeyAes);
-  std::vector<unsigned char> pubBDecoded = string2binary(_encodedPeerPubKeyAes);
+  std::vector<unsigned char> pubBDecoded = string2binary(encodedPubKeyAesClient);
   const CryptoPP::SecByteBlock& pubB { pubBDecoded.data(), pubBDecoded.size() };
   if(!_dh.Agree(_key, _privKeyAes, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");

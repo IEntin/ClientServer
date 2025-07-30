@@ -56,10 +56,8 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
 CryptoSodium::CryptoSodium(std::string_view msgHash,
 			   std::string_view encodedPubKeyAesClient,
 			   std::span<unsigned char> signatureWithPubKey) :
-  _encodedPeerPubKeyAes(encodedPubKeyAesClient.data(), encodedPubKeyAesClient.size()),
-  _msgHash(msgHash.data(), msgHash.size())
-{
-  auto pubKeyAesClient = base64_decode(_encodedPeerPubKeyAes);
+  _msgHash(msgHash.data(), msgHash.size()) {
+  auto pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient", pubKeyAesClient);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
   _encodedPubKeyAes = base64_encode(_publicKeyAes);

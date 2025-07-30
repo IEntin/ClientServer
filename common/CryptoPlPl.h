@@ -38,7 +38,6 @@ class CryptoPlPl {
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
   CryptoPP::SecByteBlock _pubKeyAes;
-  std::string _encodedPeerPubKeyAes;
   std::string _encodedPubKeyAes;
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
