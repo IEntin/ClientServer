@@ -142,8 +142,9 @@ TEST(Base64EncodingTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
-  std::string encoded = CryptoPlPl::binary2string(key);
-  std::vector<unsigned char> vect = CryptoPlPl::string2binary(encoded);
+  CryptoPlPl crypto(utility::generateRawUUID());
+  std::string encoded = crypto.base64_encode(key);
+  std::vector<unsigned char> vect = crypto.base64_decode(encoded);
   CryptoPP::SecByteBlock recovered(vect.data(), vect.size());
   ASSERT_EQ(key, recovered);
 }

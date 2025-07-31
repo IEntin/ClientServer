@@ -52,8 +52,8 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 		       signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
-  _encodedPubKeyAes = binary2string(_pubKeyAes);
-  std::vector<unsigned char> pubBDecoded = string2binary(encodedPubKeyAesClient);
+  _encodedPubKeyAes = base64_encode(_pubKeyAes);
+  std::vector<unsigned char> pubBDecoded = base64_decode(encodedPubKeyAesClient);
   const CryptoPP::SecByteBlock& pubB { pubBDecoded.data(), pubBDecoded.size() };
   if(!_dh.Agree(_key, _privKeyAes, pubB))
     throw std::runtime_error("Failed to reach shared secret (A)");
@@ -79,12 +79,12 @@ CryptoPlPl::CryptoPlPl(std::u8string_view msg) :
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
-  _encodedPubKeyAes = binary2string(_pubKeyAes);
+  _encodedPubKeyAes = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
   if (!success)
-    throw std::runtime_error("rsa key encode failed");    
+    throw std::runtime_error("rsa key encode failed");   
   _serializedRsaPubKey.swap(encodedStr);
   signMessage();
 }
@@ -149,7 +149,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
-  std::vector<unsigned char> vect = string2binary(encodedPeerPubKeyAes);
+  std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
   const CryptoPP::SecByteBlock& pubAreceived { vect.data(), vect.size() };
   bool result = _dh.Agree(_key, _privKeyAes, pubAreceived);
   erasePubPrivKeys();
@@ -254,7 +254,7 @@ void CryptoPlPl::hideKey() {
   _keyHandler.hideKey(_key);
 }
 
-std::string CryptoPlPl::binary2string(std::span<unsigned char> binary) {
+std::string CryptoPlPl::base64_encode(std::span<unsigned char> binary) {
   std::string encoded;
   try {
     CryptoPP::StringSource ss(
@@ -269,7 +269,7 @@ std::string CryptoPlPl::binary2string(std::span<unsigned char> binary) {
   }
 }
 
-std::vector<unsigned char> CryptoPlPl::string2binary(std::string_view encoded) {
+std::vector<unsigned char> CryptoPlPl::base64_decode(std::string_view encoded) {
   std::vector<unsigned char> decoded;
   try {
     CryptoPP::Base64Decoder decoder;

@@ -84,8 +84,8 @@ public:
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
 
-  static std::string binary2string(std::span<unsigned char> binary);
-  static std::vector<unsigned char> string2binary(std::string_view encoded);
+  std::string base64_encode(std::span<unsigned char> binary);
+  std::vector<unsigned char> base64_decode(std::string_view encoded);
   std::string_view getEncodedPubKeyAes() const { return _encodedPubKeyAes; }
   void setDummyAesKey();
   template <typename L>

@@ -57,7 +57,7 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
 			   std::string_view encodedPubKeyAesClient,
 			   std::span<unsigned char> signatureWithPubKey) :
   _msgHash(msgHash.data(), msgHash.size()) {
-  auto pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
+  std::vector<unsigned char> pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient", pubKeyAesClient);
   crypto_kx_keypair(_publicKeyAes.data(), _secretKeyAes.data());
   _encodedPubKeyAes = base64_encode(_publicKeyAes);
@@ -73,15 +73,12 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
-  
-  if (crypto_kx_server_session_keys(_server_rx.data(),
+  if (crypto_kx_server_session_keys(_key.data(),
 				    nullptr,
 				    _publicKeyAes.data(),
 				    _secretKeyAes.data(),
 				    pubKeyAesClient.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_server_rx", _server_rx);
-  std::copy(_server_rx.cbegin(), _server_rx.cend(), _key.begin());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   _keyHandler.hideKey(_key);
   if (ServerOptions::_showKey)
@@ -153,16 +150,14 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
-  auto pubKeyAesServer = base64_decode(encodedPeerPubKeyAes);
+  std::vector<unsigned char> pubKeyAesServer = base64_decode(encodedPeerPubKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer", pubKeyAesServer);
   if (crypto_kx_client_session_keys(nullptr,
-				    _client_tx.data(),
+				    _key.data(),
 				    _publicKeyAes.data(),
 				    _secretKeyAes.data(),
 				    pubKeyAesServer.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_client_tx", _client_tx);
-  std::copy(_client_tx.cbegin(), _client_tx.cend(), _key.begin());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   _keyHandler.hideKey(_key);
   eraseUsedData();

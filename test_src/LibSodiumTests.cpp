@@ -70,8 +70,9 @@ TEST(LibSodiumTest, publicKeyEncoding) {
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(public_key, secret_key);
   std::vector<unsigned char> original_data = { std::cbegin(public_key), std::cend(public_key) };
-  std::string encoded = CryptoSodium::base64_encode(original_data);
-  ASSERT_EQ(original_data, CryptoSodium::base64_decode(encoded));
+  CryptoSodium crypto(utility::generateRawUUID());
+  std::string encoded = crypto.base64_encode(original_data);
+  ASSERT_EQ(original_data, crypto.base64_decode(encoded));
 }
 
 struct CompressEncryptSodiumTest : testing::Test {

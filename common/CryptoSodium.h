@@ -33,8 +33,6 @@ class CryptoSodium {
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _server_rx;
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _client_tx;
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
@@ -62,8 +60,8 @@ public:
 			   const HEADER& header,
 			   std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  static std::string base64_encode(std::span<unsigned char> input);
-  static std::vector<unsigned char> base64_decode(std::string_view encoded);
+  std::string base64_encode(std::span<unsigned char> input);
+  std::vector<unsigned char> base64_decode(std::string_view encoded);
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   void showKey();
   // used in tests:
