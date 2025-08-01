@@ -30,7 +30,7 @@ class CryptoSodium {
   std::string
   hashMessage(std::u8string_view message);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
-  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _publicKeyAes;
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _pubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
   std::string _msgHash;

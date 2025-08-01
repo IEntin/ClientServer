@@ -92,6 +92,11 @@ enum class HEADER_INDEX : char {
   INVALIDHIGH
 };
 
+enum class CLIENT_TYPE : int {
+  TCPCLIENT,
+  FIFOCLIENT
+};
+
 using HEADER =
   std::tuple<HEADERTYPE, std::size_t, std::size_t, CRYPTO, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
 
