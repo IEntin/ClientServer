@@ -17,7 +17,7 @@ class FifoAcceptor : public Runnable {
   std::tuple<HEADERTYPE,
 	     std::string,
 	     std::string,
-	     std::vector<unsigned char>>
+	     std::string>
   unblockAcceptor();
   void removeFifoFiles();
   std::string_view _acceptorName;

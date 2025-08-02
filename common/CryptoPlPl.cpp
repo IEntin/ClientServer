@@ -42,14 +42,13 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 // session
 CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 		       std::string_view encodedPubKeyAesClient,
-		       std::span<unsigned char> signatureWithPubKey) :
+		       std::string_view signatureWithPubKey) :
   _msgHash({ msgHash.data(), msgHash.size() }),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _signatureWithPubKey(static_cast<const char*>(static_cast<const void*>(signatureWithPubKey.data())),
-		       signatureWithPubKey.size()),
+  _signatureWithPubKey(signatureWithPubKey.data(), signatureWithPubKey.size()),
   _keyHandler(_key.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);

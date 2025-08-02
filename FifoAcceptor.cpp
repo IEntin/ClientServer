@@ -29,15 +29,15 @@ FifoAcceptor::~FifoAcceptor() {
 std::tuple<HEADERTYPE,
 	   std::string,
 	   std::string,
-	   std::vector<unsigned char>>
+	   std::string>
 FifoAcceptor::unblockAcceptor() {
   // blocks until the client opens writing end
   if (_stopped)
     return { HEADERTYPE::ERROR, std::string(),
-	     std::string(), std::vector<unsigned char>() };
+	     std::string(), std::string() };
   std::string msgHash;
   std::string pubBvector;
-  std::vector<unsigned char> rsaPubB;
+  std::string rsaPubB;
   if (!Fifo::readMessage(_acceptorName, true, _header, msgHash, pubBvector, rsaPubB))
     return { HEADERTYPE::ERROR, std::string(), std::string(), rsaPubB };
   return { extractHeaderType(_header), msgHash, pubBvector, rsaPubB };

@@ -26,7 +26,7 @@ TEST(LibSodiumTest, authentication) {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
-    CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
+    CryptoSodiumPtr cryptoS = cryptoC->createServer();
   }
   catch (...) {
     // no exceptions
@@ -40,7 +40,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
-    CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
+    CryptoSodiumPtr cryptoS = cryptoC->createServer();
     std::string_view encodedPubKey = cryptoS->getEncodedPubKeyAes();
     cryptoC->clientKeyExchange(encodedPubKey);
     // test encrypt - decrypt
@@ -80,7 +80,7 @@ struct CompressEncryptSodiumTest : testing::Test {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
-    CryptoSodiumPtr cryptoS = cryptoC->createSodiumServer();
+    CryptoSodiumPtr cryptoS = cryptoC->createServer();
     std::string_view encodedPubKey = cryptoS->getEncodedPubKeyAes();
     cryptoC->clientKeyExchange(encodedPubKey);
     

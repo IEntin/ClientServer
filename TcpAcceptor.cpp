@@ -57,11 +57,11 @@ void TcpAcceptor::run() {
 std::tuple<HEADERTYPE,
 	   std::string,
 	   std::string,
-	   std::vector<unsigned char>>
+	   std::string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::string msgHash;
   std::string pubBvector;
-  std::vector<unsigned char> signatureWithPubKey;
+  std::string signatureWithPubKey;
   if (!Tcp::readMessage(socket, _header, msgHash, pubBvector, signatureWithPubKey))
     throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");

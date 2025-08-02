@@ -23,7 +23,7 @@ public:
 	     ConnectionPtr connection,
 	     std::string_view msgHash,
 	     std::string_view pubB,
-	     std::span<unsigned char> signatureWithPubKey);
+	     std::string_view signatureWithPubKey);
 
   ~TcpSession() override = default;
   bool start() override;

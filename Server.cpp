@@ -84,7 +84,7 @@ void Server::stop() {
 
 void Server::createFifoSession(std::string_view msgHash,
 			       std::string_view pubB,
-			       std::span<unsigned char> signatureWithPubKey) {
+			       std::string_view signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
     std::make_shared<fifo::FifoSession>(weak_from_this(), msgHash, pubB, signatureWithPubKey);
@@ -94,7 +94,7 @@ void Server::createFifoSession(std::string_view msgHash,
 void Server::createTcpSession(tcp::ConnectionPtr connection,
 			      std::string_view msgHash,
 			      std::string_view pubB,
-			      std::span<unsigned char> signatureWithPubKey) {
+			      std::string_view signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
     std::make_shared<tcp::TcpSession>(weak_from_this(), connection, msgHash, pubB, signatureWithPubKey);

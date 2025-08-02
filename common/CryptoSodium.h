@@ -54,7 +54,7 @@ public:
   explicit CryptoSodium(std::u8string_view msg);
   CryptoSodium(std::string_view msgHash,
 	       std::string_view encodedPubKeyAesClient,
-	       std::span<unsigned char> signatureWithPubKey);
+	       std::string_view signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
@@ -65,7 +65,7 @@ public:
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   void showKey();
   // used in tests:
-  CryptoSodiumPtr createSodiumServer();
+  CryptoSodiumPtr createServer();
   std::string_view getEncodedPubKeyAes() const { return _encodedPubKeyAes; }
 
   template <typename L>
@@ -79,5 +79,9 @@ public:
     eraseUsedData();
     return result;
   }
+
+  CryptoSodium(std::string_view msgHash,
+	       std::string_view encodedPubKeyAesClient,
+	       std::span<unsigned char> signatureWithPubKey);
 
 }; 

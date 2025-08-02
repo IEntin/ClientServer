@@ -23,7 +23,7 @@ private:
   std::tuple<HEADERTYPE,
 	     std::string,
 	     std::string,
-	     std::vector<unsigned char>>
+	     std::string>
   connectionType(boost::asio::ip::tcp::socket& socket);
   void replyHeartbeat(boost::asio::ip::tcp::socket& socket);
 

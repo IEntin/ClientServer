@@ -55,6 +55,40 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
 // server
 CryptoSodium::CryptoSodium(std::string_view msgHash,
 			   std::string_view encodedPubKeyAesClient,
+			   std::string_view signatureWithPubKey) :
+  _msgHash(msgHash.data(), msgHash.size()) {
+  std::vector<unsigned char> pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient in server", pubKeyAesClient);
+  crypto_kx_keypair(_pubKeyAes.data(), _secretKeyAes.data());
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer in server ", _pubKeyAes);
+  _encodedPubKeyAes = base64_encode(_pubKeyAes);
+  std::vector<unsigned char> signature;
+  std::copy(signatureWithPubKey.cbegin(), signatureWithPubKey.cbegin() + crypto_sign_BYTES, signature.begin());
+  
+  std::vector<unsigned char> peerPubcicKeySign(crypto_sign_PUBLICKEYBYTES);
+  std::memcpy(peerPubcicKeySign.data(), signatureWithPubKey.data() + crypto_sign_BYTES, crypto_sign_PUBLICKEYBYTES);
+  _verified = crypto_sign_verify_detached(
+    signature.data(), static_cast<const unsigned char*>(static_cast<const void*>(msgHash.data())),
+    std::ssize(msgHash),
+    peerPubcicKeySign.data()) == 0;
+  if (!_verified)
+    throw std::runtime_error("authentication failed");
+  // Server-side key exchange
+  if (crypto_kx_server_session_keys(_key.data(),
+				    nullptr,
+				    _pubKeyAes.data(),
+				    _secretKeyAes.data(),
+				    pubKeyAesClient.data()) != 0)
+    throw std::runtime_error("Server-side key exchange failed");
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyServer", _key);
+  _keyHandler.hideKey(_key);
+  if (ServerOptions::_showKey)
+    showKey();
+  eraseUsedData();
+}
+// tests
+CryptoSodium::CryptoSodium(std::string_view msgHash,
+			   std::string_view encodedPubKeyAesClient,
 			   std::span<unsigned char> signatureWithPubKey) :
   _msgHash(msgHash.data(), msgHash.size()) {
   std::vector<unsigned char> pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
@@ -86,7 +120,7 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   eraseUsedData();
 }
 
-CryptoSodiumPtr CryptoSodium::createSodiumServer() {
+CryptoSodiumPtr CryptoSodium::createServer() {
   return std::make_shared<CryptoSodium>(_msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
 }
 

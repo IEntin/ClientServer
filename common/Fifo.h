@@ -68,7 +68,7 @@ public:
 		      HEADER& header,
 		      std::string& payload1,
 		      std::string& payload2,
-		      std::vector<unsigned char>& payload3);
+		      std::string& payload3);
   static void onExit(std::string_view fifoName);
   static void writeString(int fd, std::string_view str);
 private:

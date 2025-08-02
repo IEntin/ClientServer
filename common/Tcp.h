@@ -36,7 +36,7 @@ public:
 			  HEADER& header,
 			  std::string& payload1,
 			  std::string& payload2,
-			  std::vector<unsigned char>& payload3);
+			  std::string& payload3);
 
   template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1>
   static bool sendMessage(boost::asio::ip::tcp::socket& socket,

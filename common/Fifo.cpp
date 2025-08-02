@@ -218,7 +218,7 @@ bool Fifo::readMessage(std::string_view name,
 		       HEADER& header,
 		       std::string& payload1,
 		       std::string& payload2,
-		       std::vector<unsigned char>& payload3) {
+		       std::string& payload3) {
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
