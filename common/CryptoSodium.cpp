@@ -44,9 +44,10 @@ CryptoSodium::CryptoSodium(std::u8string_view msg) :
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAesClient in client", _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
+  std::vector<unsigned char> msgHashVector(_msgHash.cbegin(), _msgHash.cend());
   crypto_sign_detached(_signature.data(), nullptr,
-		       static_cast<unsigned char*>(static_cast<void*>(_msgHash.data())),
-		       std::ssize(_msgHash), _secretKeySign.data());
+		       msgHashVector.data(),
+		       std::ssize(msgHashVector), _secretKeySign.data());
   
   std::copy(_signature.cbegin(), _signature.cend(), _signatureWithPubKeySign.begin());
   std::copy(_publicKeySign.cbegin(), _publicKeySign.cend(),
@@ -62,15 +63,14 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   crypto_kx_keypair(_pubKeyAes.data(), _secretKeyAes.data());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer in server ", _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
-  std::vector<unsigned char> signature;
-  std::copy(signatureWithPubKey.cbegin(), signatureWithPubKey.cbegin() + crypto_sign_BYTES, signature.begin());
-  
-  std::vector<unsigned char> peerPubcicKeySign(crypto_sign_PUBLICKEYBYTES);
-  std::memcpy(peerPubcicKeySign.data(), signatureWithPubKey.data() + crypto_sign_BYTES, crypto_sign_PUBLICKEYBYTES);
+  std::vector<unsigned char> signature(signatureWithPubKey.cbegin(), signatureWithPubKey.cbegin() + crypto_sign_BYTES);
+  std::vector<unsigned char> peerPublicKeySign(signatureWithPubKey.cbegin(), signatureWithPubKey.cbegin() + crypto_sign_PUBLICKEYBYTES);
+  std::vector<unsigned char> msgHashVector(_msgHash.cbegin(), _msgHash.cend());
   _verified = crypto_sign_verify_detached(
-    signature.data(), static_cast<const unsigned char*>(static_cast<const void*>(msgHash.data())),
+    signature.data(),
+    msgHashVector.data(),
     std::ssize(msgHash),
-    peerPubcicKeySign.data()) == 0;
+    peerPublicKeySign.data()) == 0;
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
@@ -100,9 +100,10 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
     signature(signatureWithPubKey.data(), crypto_sign_BYTES);
   std::span<unsigned char>
     peerPubcicKeySign(signatureWithPubKey.data() + crypto_sign_BYTES, crypto_sign_PUBLICKEYBYTES);
+  std::vector<unsigned char> msgHashVector(_msgHash.cbegin(), _msgHash.cend());
   _verified = crypto_sign_verify_detached(
-    signature.data(), static_cast<const unsigned char*>(static_cast<const void*>(msgHash.data())),
-    std::ssize(msgHash),
+    signature.data(), msgHashVector.data(),
+    std::ssize(msgHashVector),
     peerPubcicKeySign.data()) == 0;
   if (!_verified)
     throw std::runtime_error("authentication failed");
@@ -118,10 +119,6 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   if (ServerOptions::_showKey)
     showKey();
   eraseUsedData();
-}
-
-CryptoSodiumPtr CryptoSodium::createServer() {
-  return std::make_shared<CryptoSodium>(_msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
@@ -229,7 +226,7 @@ CryptoSodium::hashMessage(std::u8string_view message) {
   crypto_generichash(hash.data(), crypto_generichash_BYTES,
 		     MESSAGE, crypto_generichash_BYTES,
 		     key, std::ssize(key));
-  return { static_cast<const char*>(static_cast<void*>(hash.data())), hash.size() };
+  return { hash.cbegin(), hash.cend() };
 }
 
 void CryptoSodium::showKey() {

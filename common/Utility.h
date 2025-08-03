@@ -74,9 +74,9 @@ template <typename T>
 bool isEncrypted(const T& input) {
   assert(input.size() >= HEADER_SIZE && "too short");
   HEADER header;
-  const char* inputPtr = static_cast<const char*>(static_cast<const void*>(input.data()));
+  std::string inputStr(input.cbegin(), input.cbegin() + HEADER_SIZE);
   try {
-    if (deserialize(header, inputPtr))
+    if (deserialize(header, inputStr.data()))
       return false;
     return true;
   }

@@ -38,63 +38,36 @@ TEST(CryptoTest, 1) {
   ASSERT_EQ(data, TestEnvironment::_source);
 }
 
-struct CompressEncryptTest : testing::Test {
-  void testCompressEncrypt(CRYPTO encrypt, COMPRESSORS compressor) {
-    auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
-    crypto->setDummyAesKey();
-    // must be a copy
-    std::string data = TestEnvironment::_source;
-    HEADER header{ HEADERTYPE::SESSION,
-		   0,
-		   data.size(),
-		   encrypt,
-		   compressor,
-		   DIAGNOSTICS::NONE,
-		   STATUS::NONE,
-		   0 };
-    printHeader(header, LOG_LEVEL::ALWAYS);
-    std::string_view dataView =
-      utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(crypto), data);
-    ASSERT_EQ(utility::isEncrypted(data), doEncrypt(header));
-    HEADER restoredHeader;
-    data = dataView;
-    utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(crypto), data);
-    ASSERT_EQ(header, restoredHeader);
-    ASSERT_EQ(data, TestEnvironment::_source);
-  }
-  void TearDown() {}
-};
-
-TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_LZ4) {
-  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::LZ4);
+TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::LZ4);
 }
 
-TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_SNAPPY) {
-  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::SNAPPY);
+TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::SNAPPY);
 }
 
-TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_ZSTD) {
-  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::ZSTD);
+TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::ZSTD);
 }
 
-TEST_F(CompressEncryptTest, ENCRYPT_COMPRESSORS_NONE) {
-  testCompressEncrypt(CRYPTO::ENCRYPT, COMPRESSORS::NONE);
+TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::NONE);
 }
 
-TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_LZ4) {
-  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::LZ4);
+TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::LZ4);
 }
 
-TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_SNAPPY) {
-  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::SNAPPY);
+TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::SNAPPY);
 }
 
-TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_ZSTD) {
-  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::ZSTD);
+TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::ZSTD);
 }
 
-TEST_F(CompressEncryptTest, NOTENCRYPT_COMPRESSORS_NONE) {
-  testCompressEncrypt(CRYPTO::NONE, COMPRESSORS::NONE);
+TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::NONE);
 }
 
 TEST(AuthenticationTest, 1) {

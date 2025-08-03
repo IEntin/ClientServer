@@ -33,18 +33,15 @@ struct KeyHandler {
 
 // version using Crypto++ library
 class CryptoPlPl {
-  std::string _msgHash;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
   CryptoPP::SecByteBlock _pubKeyAes;
-  std::string _encodedPubKeyAes;
   CryptoPP::SecByteBlock _key;
   CryptoPP::RSA::PrivateKey _rsaPrivKey;
   CryptoPP::RSA::PublicKey _rsaPubKey;
   CryptoPP::RSA::PublicKey _peerRsaPubKey;
   std::string _serializedRsaPubKey;
-  std::string _signatureWithPubKey;
   static const CryptoPP::OID _curve;
   KeyHandler _keyHandler;
   bool _verified = false;
@@ -75,6 +72,9 @@ public:
 	     std::string_view signatureWithPubKey);
   explicit CryptoPlPl(std::u8string_view msg);
   ~CryptoPlPl() = default;
+  std::string _msgHash;
+  std::string _encodedPubKeyAes;
+  std::string _signatureWithPubKey;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);

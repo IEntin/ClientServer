@@ -10,7 +10,6 @@
 #include "DebugLog.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
-#include "Utility.h"
 
 std::ostringstream TestEnvironment::_oss;
 std::string TestEnvironment::_source;

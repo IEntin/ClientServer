@@ -8,6 +8,10 @@
 
 #include <gtest/gtest.h>
 
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
+#include "Utility.h"
+
 class TestEnvironment : public ::testing::Environment {
 public:
 
@@ -28,4 +32,44 @@ public:
   static std::string _outputAltFormatD;
   static thread_local std::string _buffer;
 
-};
+  };
+
+  static CryptoSodiumPtr createServer(CryptoSodiumPtr cryptoC) {
+    return std::make_shared<CryptoSodium>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, cryptoC->_signatureWithPubKeySign);
+  }
+
+  static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
+    return std::make_shared<CryptoPlPl>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, cryptoC->_signatureWithPubKey);
+  }
+
+  struct TestCompressEncrypt : testing::Test {
+    template <typename CryptoType, typename COMPRESSORS>
+    void testCompressEncrypt(CRYPTO cryptoType, COMPRESSORS compressor) {
+      // client
+      auto cryptoC(std::make_shared<CryptoType>(utility::generateRawUUID()));
+      // server
+      auto cryptoS = createServer(cryptoC);
+      cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
+
+      // must be a copy
+      std::string data = TestEnvironment::_source;
+      HEADER header{ HEADERTYPE::SESSION,
+		     0,
+		     std::ssize(data),
+		     cryptoType,
+		     compressor,
+		     DIAGNOSTICS::NONE,
+		     STATUS::NONE,
+		     0 };
+      printHeader(header, LOG_LEVEL::ALWAYS);
+      std::string_view dataView =
+	utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(cryptoC), data);
+      ASSERT_EQ(utility::isEncrypted(data), doEncrypt(header));
+      HEADER restoredHeader;
+      data = dataView;
+      utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
+      ASSERT_EQ(header, restoredHeader);
+      ASSERT_EQ(data, TestEnvironment::_source);
+    }
+    void TearDown() {}
+  };

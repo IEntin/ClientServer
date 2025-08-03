@@ -33,10 +33,7 @@ class CryptoSodium {
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _pubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
-  std::string _msgHash;
-  std::string _encodedPubKeyAes;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
-  std::vector<unsigned char> _signatureWithPubKeySign;
   HandleKey _keyHandler; 
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _key;
   bool checkAccess();
@@ -64,9 +61,9 @@ public:
   std::vector<unsigned char> base64_decode(std::string_view encoded);
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   void showKey();
-  // used in tests:
-  CryptoSodiumPtr createServer();
-  std::string_view getEncodedPubKeyAes() const { return _encodedPubKeyAes; }
+  std::string _msgHash;
+  std::string _encodedPubKeyAes;
+  std::vector<unsigned char> _signatureWithPubKeySign;
 
   template <typename L>
   bool sendSignature(L& lambda) {

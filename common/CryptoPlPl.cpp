@@ -43,13 +43,13 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 		       std::string_view encodedPubKeyAesClient,
 		       std::string_view signatureWithPubKey) :
-  _msgHash({ msgHash.data(), msgHash.size() }),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _signatureWithPubKey(signatureWithPubKey.data(), signatureWithPubKey.size()),
-  _keyHandler(_key.size()) {
+  _keyHandler(_key.size()),
+  _msgHash({ msgHash.data(), msgHash.size() }),
+  _signatureWithPubKey(signatureWithPubKey.data(), signatureWithPubKey.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   std::vector<unsigned char> pubBDecoded = base64_decode(encodedPubKeyAesClient);
@@ -71,12 +71,12 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 
 // client
 CryptoPlPl::CryptoPlPl(std::u8string_view msg) :
-  _msgHash(sha256_hash(msg)),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _keyHandler(_key.size()) {
+  _keyHandler(_key.size()),
+  _msgHash(sha256_hash(msg)) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
@@ -214,6 +214,7 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
 std::string CryptoPlPl::sha256_hash(std::u8string_view message) {
   CryptoPP::SHA256 hash;
   std::string digest;
+  //std::vector<unsigned char> messageVector(message.cbegin(), message.cend());
   hash.Update(static_cast<const unsigned char*>(static_cast<const void*>(message.data())), message.size());
   digest.resize(hash.DigestSize());
   hash.Final(static_cast<unsigned char*>(static_cast<void*>(digest.data())));
