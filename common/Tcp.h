@@ -25,19 +25,8 @@ public:
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
-			  std::string& payload);
-
-  static bool readMessage(boost::asio::ip::tcp::socket& socket,
-			  HEADER& header,
-			  std::string& payload1,
-			  std::string& payload2);
-
-  static bool readMessage(boost::asio::ip::tcp::socket& socket,
-			  HEADER& header,
-			  std::string& payload1,
-			  std::string& payload2,
-			  std::string& payload3);
-
+			  std::span<std::reference_wrapper<std::string>> array);
+  
   template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1>
   static bool sendMessage(boost::asio::ip::tcp::socket& socket,
 			  const HEADER& header,

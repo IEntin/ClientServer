@@ -49,7 +49,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
   _msgHash({ msgHash.data(), msgHash.size() }),
-  _signatureWithPubKey(signatureWithPubKey.data(), signatureWithPubKey.size()) {
+  _signatureWithPubKeySign(signatureWithPubKey.data(), signatureWithPubKey.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   std::vector<unsigned char> pubBDecoded = base64_decode(encodedPubKeyAesClient);
@@ -58,8 +58,8 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
     throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
-  std::string signature(_signatureWithPubKey.data(), RSA_KEY_SIZE >> 3);
-  std::string rsaPubKeySerialized = _signatureWithPubKey.substr(RSA_KEY_SIZE >> 3);
+  std::string signature(_signatureWithPubKeySign.data(), RSA_KEY_SIZE >> 3);
+  std::string rsaPubKeySerialized = _signatureWithPubKeySign.substr(RSA_KEY_SIZE >> 3);
   decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
@@ -162,9 +162,9 @@ void CryptoPlPl::signMessage() {
   true,
   new CryptoPP::SignerFilter(_rng,
       signer,
-      new CryptoPP::StringSink(_signatureWithPubKey))
+      new CryptoPP::StringSink(_signatureWithPubKeySign))
   );
-  _signatureWithPubKey.append(_serializedRsaPubKey);
+  _signatureWithPubKeySign.append(_serializedRsaPubKey);
 }
 
 std::pair<bool, std::string>
@@ -232,7 +232,7 @@ void CryptoPlPl::eraseRSAKeys() {
   _rsaPubKey = CryptoPP::RSA::PublicKey();
   _peerRsaPubKey = CryptoPP::RSA::PublicKey();
   std::string().swap(_serializedRsaPubKey);
-  std::string().swap(_signatureWithPubKey);
+  std::string().swap(_signatureWithPubKeySign);
 }
 
 void CryptoPlPl::erasePubPrivKeys() {

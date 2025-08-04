@@ -77,68 +77,29 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 		      HEADER& header,
-		      std::string& payload) {
+		      std::span<std::reference_wrapper<std::string>> array) {
   _payload.clear();
   if (!readMessage(socket, _payload))
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
-  std::size_t payloadSize = _payload.size() - HEADER_SIZE;
-  if (payloadSize > 0) {
-    payload.resize(payloadSize);
-    std::copy(_payload.cbegin() + HEADER_SIZE, _payload.cbegin() + HEADER_SIZE + payloadSize, payload.begin());
-    return true;
+  std::size_t sizes[] { extractReservedSz(header), extractUncompressedSize(header), extractParameter(header) };
+  if (array.size() == 1) {
+    sizes[0] = _payload.size() - HEADER_SIZE;
+    sizes[1] = sizes[2] = 0;
   }
-  return false;
-}
-
-bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      std::string& payload1,
-		      std::string& payload2) {
-  _payload.clear();
-  if (!readMessage(socket, _payload))
-    return false;
-  deserialize(header, _payload.data());
-  assert(!isCompressed(header) && "not compressed");
-  std::size_t payload1Sz = extractUncompressedSize(header);
-  std::size_t payload2Sz = extractParameter(header);
-  payload1.resize(payload1Sz);
-  payload2.resize(payload2Sz);
+  if (array.size() == 1) {
+    sizes[0] = _payload.size() - HEADER_SIZE;
+    sizes[1] = sizes[2] = 0;
+  }
   unsigned shift = HEADER_SIZE;
-  if (payload1Sz > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
-  shift += payload1Sz;
-  if (payload2Sz > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
-  return true;
-}
-
-bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
-		      HEADER& header,
-		      std::string& payload1,
-		      std::string& payload2,
-		      std::string& payload3) {
-  _payload.clear();
-  if (!readMessage(socket, _payload))
-    return false;
-  deserialize(header, _payload.data());
-  assert(!isCompressed(header) && "not compressed");
-  std::size_t payload1Sz = extractReservedSz(header);
-  std::size_t payload2Sz = extractUncompressedSize(header);
-  std::size_t payload3Sz = extractParameter(header);
-  payload1.resize(payload1Sz);
-  payload2.resize(payload2Sz);
-  payload3.resize(payload3Sz);
-  unsigned shift = HEADER_SIZE;
-  if (payload1Sz > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz, payload1.begin());
-  shift += payload1Sz;
-  if (payload2Sz > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz, payload2.begin());
-  shift += payload2Sz;
-  if (payload3Sz > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz, payload3.begin());
+  for (unsigned i = 0; i < array.size(); ++i) {
+    if (sizes[i] > 0) {
+      array[i].get().resize(sizes[i]);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i], array[i].get().begin());
+      shift += sizes[i];
+    }
+  }
   return true;
 }
 

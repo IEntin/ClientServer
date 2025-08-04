@@ -19,16 +19,6 @@ struct CloseFileDescriptor {
 
 class Fifo {
 public:
-  static bool readMessage(std::string_view name,
-			  bool block,
-			  HEADER& header,
-			  std::string& payload1,
-			  std::string& payload2);
-
-  static bool readMessage(std::string_view name,
-			  bool block,
-			  HEADER& header,
-			  std::string& payload);
 
   template <typename P1, typename P2 = P1, typename P3 = P1>
   static bool sendMessage(bool block,
@@ -63,12 +53,12 @@ public:
   }
 
   static bool readMessage(std::string_view name, bool block, std::string& payload);
+
   static bool readMessage(std::string_view name,
-		      bool block,
-		      HEADER& header,
-		      std::string& payload1,
-		      std::string& payload2,
-		      std::string& payload3);
+			  bool block,
+			  HEADER& header,
+			  std::span<std::reference_wrapper<std::string>> array);
+
   static void onExit(std::string_view fifoName);
   static void writeString(int fd, std::string_view str);
 private:

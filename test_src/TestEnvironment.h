@@ -39,7 +39,7 @@ public:
   }
 
   static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
-    return std::make_shared<CryptoPlPl>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, cryptoC->_signatureWithPubKey);
+    return std::make_shared<CryptoPlPl>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, cryptoC->_signatureWithPubKeySign);
   }
 
   struct TestCompressEncrypt : testing::Test {

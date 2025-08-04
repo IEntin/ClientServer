@@ -56,9 +56,9 @@ bool TcpClient::receive() {
       return false;
     }
     HEADER header;
-    if (!Tcp::readMessage(_socket, header, _response)) {
+    std::array<std::reference_wrapper<std::string>, 1> array = { std::ref(_response) };
+    if (!Tcp::readMessage(_socket, header, array))
       return false;
-    }
     _status = STATUS::NONE;
     return printReply();
   }
@@ -73,7 +73,9 @@ bool TcpClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string encodedPubKeyAesServer;
-  if (!Tcp::readMessage(_socket, _header, clientIdStr, encodedPubKeyAesServer))
+  std::string dummy;
+  std::array<std::reference_wrapper<std::string>, 3> array = { dummy, std::ref(clientIdStr), std::ref(encodedPubKeyAesServer) };
+  if (!Tcp::readMessage(_socket, _header, array))
     return false;
   if (!DHFinish(clientIdStr, encodedPubKeyAesServer))
     return false;

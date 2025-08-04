@@ -71,7 +71,8 @@ bool FifoSession::receiveRequest() {
   try {
     _request.clear();
     HEADER header;
-    if (!Fifo::readMessage(_fifoName, true, header, _request))
+    std::array<std::reference_wrapper<std::string>, 1> array{std::ref(_request)};
+    if (!Fifo::readMessage(_fifoName, true, header, array))
       return false;
     if (processTask())
       return sendResponse();

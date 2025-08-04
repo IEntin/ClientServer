@@ -74,7 +74,7 @@ public:
   ~CryptoPlPl() = default;
   std::string _msgHash;
   std::string _encodedPubKeyAes;
-  std::string _signatureWithPubKey;
+  std::string _signatureWithPubKeySign;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
@@ -86,14 +86,13 @@ public:
 
   std::string base64_encode(std::span<unsigned char> binary);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
-  std::string_view getEncodedPubKeyAes() const { return _encodedPubKeyAes; }
   void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKey.size() };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKey);
+		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
+    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseRSAKeys();

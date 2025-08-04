@@ -96,51 +96,6 @@ int Fifo::openReadNonBlock(std::string_view fifoName) {
   return open(fifoName.data(), O_RDONLY | O_NONBLOCK);
 }
 
-bool Fifo::readMessage(std::string_view name,
-		       bool block,
-		       HEADER& header,
-		       std::string& payload) {
-  _payload.clear();
-  if (!readMessage(name, block, _payload))
-    return false;
-  if (!deserialize(header, _payload.data()))
-    return false;
-  std::size_t payloadSize = std::ssize(_payload) - HEADER_SIZE;
-  if (payloadSize > 0) {
-    payload.resize(payloadSize);
-    std::copy(_payload.cbegin() + HEADER_SIZE, _payload.cbegin() + HEADER_SIZE + payloadSize, payload.begin());
-    return true;
-  }
-  return false;
-}
-
-bool Fifo::readMessage(std::string_view name,
-		       bool block,
-		       HEADER& header,
-		       std::string& payload1,
-		       std::string& payload2) {
-  _payload.clear();
-  if (!readMessage(name, block, _payload))
-    return false;
-  if (!deserialize(header, _payload.data()))
-    return false;
-  assert(!isCompressed(header) && "not compressed");
-  printHeader(header, LOG_LEVEL::INFO);
-  std::size_t payload1Size = extractUncompressedSize(header);
-  std::size_t payload2Size = extractParameter(header);
-  unsigned shift = HEADER_SIZE;
-  if (payload1Size > 0) {
-    payload1.resize(payload1Size);
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Size, payload1.begin());
-  }
-  shift += payload1Size;
-  if (payload2Size > 0) {
-    payload2.resize(payload2Size);
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Size, payload2.begin());
-  }
-  return true;
-}
-
 bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   int fd = open(name.data(), O_RDONLY);
   if (fd == -1)
@@ -212,35 +167,29 @@ bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) 
   return true;
 }
 
-
 bool Fifo::readMessage(std::string_view name,
 		       bool block,
 		       HEADER& header,
-		       std::string& payload1,
-		       std::string& payload2,
-		       std::string& payload3) {
+		       std::span<std::reference_wrapper<std::string>> array) {
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
-  assert(!isCompressed(header) && "not compressed");
   printHeader(header, LOG_LEVEL::INFO);
-  unsigned payload1Size = extractReservedSz(header);
-  unsigned payload2Size = extractUncompressedSize(header);
-  unsigned payload3Size = extractParameter(header);
-  payload1.resize(payload1Size);
-  payload2.resize(payload2Size);
-  payload3.resize(payload3Size);
+  std::size_t sizes[3] = { extractReservedSz(header), extractUncompressedSize(header), extractParameter(header) };
+  if (array.size() == 1) {
+    sizes[0] = _payload.size() - HEADER_SIZE;
+    sizes[1] = sizes[2] = 0;
+  }
   unsigned shift = HEADER_SIZE;
-  if (payload1Size > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Size, payload1.begin());
-  shift += payload1Size;
-  if (payload2Size > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Size, payload2.begin());
-  shift += payload2Size;
-  if (payload3Size > 0)
-    std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Size, payload3.begin());
+  for (unsigned i = 0; i < array.size(); ++i) {
+    if (sizes[i] > 0) {
+      array[i].get().resize(sizes[i]);
+      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i], array[i].get().begin());
+      shift += sizes[i];
+    }
+  }
   return true;
 }
 
