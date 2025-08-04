@@ -282,11 +282,3 @@ std::vector<unsigned char> CryptoPlPl::base64_decode(std::string_view encoded) {
   }
   return decoded;
 }
-
-void CryptoPlPl::setDummyAesKey() {
-  CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
-  CryptoPP::AutoSeededRandomPool prng;
-  prng.GenerateBlock(key, key.size());
-  _key = key;
-  hideKey();
-}

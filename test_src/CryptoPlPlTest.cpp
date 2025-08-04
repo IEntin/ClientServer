@@ -13,8 +13,11 @@
 // for i in {1..10}; do ./testbin --gtest_filter=Base64EncodingTest*; done
 
 TEST(CryptoTest, 1) {
-  auto crypto(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
-  crypto->setDummyAesKey();
+  // client
+  auto cryptoC(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
+  // server
+  auto cryptoS = createServer(cryptoC);
+  cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
   HEADER header{ HEADERTYPE::SESSION,
 		 0,
 		 TestEnvironment::_source.size(),
@@ -26,10 +29,10 @@ TEST(CryptoTest, 1) {
   // must be a copy
   std::string data(TestEnvironment::_source);
   std::string_view dataView =
-    crypto->encrypt(TestEnvironment::_buffer, header, data);
+    cryptoC->encrypt(TestEnvironment::_buffer, header, data);
   ASSERT_TRUE(utility::isEncrypted(data));
   data = dataView;
-  crypto->decrypt(TestEnvironment::_buffer, data);
+  cryptoS->decrypt(TestEnvironment::_buffer, data);
   HEADER restoredHeader;
   deserialize(restoredHeader, data.data());
   ASSERT_EQ(header, restoredHeader);

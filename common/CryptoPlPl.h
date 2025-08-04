@@ -86,7 +86,6 @@ public:
 
   std::string base64_encode(std::span<unsigned char> binary);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
-  void setDummyAesKey();
   template <typename L>
   bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
