@@ -70,7 +70,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 }
 
 // client
-CryptoPlPl::CryptoPlPl(std::u8string_view msg) :
+CryptoPlPl::CryptoPlPl(std::string_view msg) :
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
@@ -120,8 +120,8 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
-  stfEncryptor.Put(static_cast<const CryptoPP::byte*>(static_cast<const void*>(&headerBuffer[0])), HEADER_SIZE);
-  stfEncryptor.Put(static_cast<const CryptoPP::byte*>(static_cast<const void*>(data.data())), data.size());
+  stfEncryptor.Put(std::bit_cast<const CryptoPP::byte*>(&headerBuffer[0]), HEADER_SIZE);
+  stfEncryptor.Put(std::bit_cast<const CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.append(iv.begin(), iv.end());
   return buffer;
@@ -139,7 +139,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
     setAESmodule(aesDecryption);
     CryptoPP::CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, iv.data());
     CryptoPP::StreamTransformationFilter stfDecryptor(cbcDecryption, new CryptoPP::StringSink(buffer));
-    stfDecryptor.Put(static_cast<const CryptoPP::byte*>(static_cast<const void*>(data.data())), data.size() - iv.size());
+    stfDecryptor.Put(std::bit_cast<const CryptoPP::byte*>(data.data()), data.size() - iv.size());
     stfDecryptor.MessageEnd();
     data = buffer;
     if (ClientOptions::_showKey)
@@ -201,9 +201,8 @@ void CryptoPlPl::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 
 bool CryptoPlPl::verifySignature(std::string_view signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
-  _verified = verifier.VerifyMessage(
-    static_cast<const CryptoPP::byte*>(static_cast<const void*>(_msgHash.data())), _msgHash.length(),
-    static_cast<const CryptoPP::byte*>(static_cast<const void*>(signature.data())), signature.length());
+  _verified = verifier.VerifyMessage(std::bit_cast<const CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
+				     std::bit_cast<const CryptoPP::byte*>(signature.data()), signature.length());
   if (!_verified)
     throw std::runtime_error("Failed to verify signature");
   eraseRSAKeys();
@@ -211,17 +210,16 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
 }
 // The message is based on uuid for testing purposes,
 // in real usage it may be a combination of user name and/or password
-std::string CryptoPlPl::sha256_hash(std::u8string_view message) {
+std::string CryptoPlPl::sha256_hash(std::string_view message) {
   CryptoPP::SHA256 hash;
   std::string digest;
-  //std::vector<unsigned char> messageVector(message.cbegin(), message.cend());
-  hash.Update(static_cast<const unsigned char*>(static_cast<const void*>(message.data())), message.size());
+  hash.Update(std::bit_cast<const unsigned char*>(message.data()), message.size());
   digest.resize(hash.DigestSize());
-  hash.Final(static_cast<unsigned char*>(static_cast<void*>(digest.data())));
+  hash.Final(std::bit_cast<unsigned char*>(digest.data()));
   CryptoPP::HexEncoder encoder;
   std::string output;
   encoder.Attach(new CryptoPP::StringSink(output));
-  encoder.Put(static_cast<unsigned char*>(static_cast<void*>(digest.data())), digest.size());
+  encoder.Put(std::bit_cast<unsigned char*>(digest.data()), digest.size());
   encoder.MessageEnd();
   return output;
 }

@@ -87,7 +87,7 @@ bool isEncrypted(const T& input) {
 
 std::size_t getUniqueId();
 
-std::u8string generateRawUUID();
+std::string generateRawUUID();
 
 void readFile(std::string_view name, std::string& buffer);
 

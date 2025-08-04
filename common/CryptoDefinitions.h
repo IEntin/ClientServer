@@ -12,7 +12,7 @@
 using CryptoPtr = CryptoPlPlPtr;
 using CryptoWeakPtr = CryptoWeakPlPlPtr;
 
-inline CryptoPtr createCrypto(std::u8string_view  msg) {
+inline CryptoPtr createCrypto(std::string_view  msg) {
   return std::make_shared<CryptoPlPl>(msg);
 }
 
@@ -28,7 +28,7 @@ using CryptoPtr = CryptoSodiumPtr;
 using CryptoWeakPtr = CryptoWeakSodiumPtr;
 
 
-inline CryptoPtr createCrypto(std::u8string_view  msg) {
+inline CryptoPtr createCrypto(std::string_view  msg) {
   return std::make_shared<CryptoSodium>(msg);
 }
 

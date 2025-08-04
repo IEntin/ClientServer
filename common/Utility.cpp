@@ -17,7 +17,7 @@ std::string serverTerminal;
 std::string clientTerminal;
 std::string testbinTerminal;
 
-std::u8string generateRawUUID() {
+std::string generateRawUUID() {
   boost::uuids::random_generator_mt19937 gen;
   boost::uuids::uuid uuid = gen();
   return { uuid.begin(), uuid.end() };

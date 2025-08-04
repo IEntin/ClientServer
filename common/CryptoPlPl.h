@@ -61,7 +61,7 @@ class CryptoPlPl {
   void hideKey();
   void eraseRSAKeys();
   void signMessage();
-  std::string sha256_hash(std::u8string_view message);
+  std::string sha256_hash(std::string_view message);
   void erasePubPrivKeys();
   bool verifySignature(std::string_view signature);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
@@ -70,7 +70,7 @@ public:
   CryptoPlPl(std::string_view msgHash,
 	     std::string_view pubKeyAesClient,
 	     std::string_view signatureWithPubKey);
-  explicit CryptoPlPl(std::u8string_view msg);
+  explicit CryptoPlPl(std::string_view msg);
   ~CryptoPlPl() = default;
   std::string _msgHash;
   std::string _encodedPubKeyAes;

@@ -37,7 +37,7 @@ void HandleKey::recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>&
 }
 
 // client
-CryptoSodium::CryptoSodium(std::u8string_view msg) :
+CryptoSodium::CryptoSodium(std::string_view msg) :
   _msgHash(hashMessage(msg)),
   _signatureWithPubKeySign(crypto_sign_BYTES + crypto_sign_PUBLICKEYBYTES) {
   crypto_kx_keypair(_pubKeyAes.data(), _secretKeyAes.data());
@@ -140,9 +140,9 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
   setAESKey(key);
-  if (!(crypto_aead_aes256gcm_encrypt(static_cast<unsigned char*>(static_cast<void*>(buffer.data())),
+  if (!(crypto_aead_aes256gcm_encrypt(std::bit_cast<unsigned char*>(buffer.data()),
 				      &ciphertext_len,
-				      static_cast<unsigned char*>(static_cast<void*>(input.data())),
+				      std::bit_cast<unsigned char*>(input.data()),
 				      message_len, nullptr, 0,
 				      nullptr, nonce.data(), key.data()) == 0))
     throw std::runtime_error("encrypt failed");
@@ -164,10 +164,10 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned long long decrypted_len;
     std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
     setAESKey(key);
-    bool success = crypto_aead_aes256gcm_decrypt(static_cast<unsigned char*>(static_cast<void*>(buffer.data())),
+    bool success = crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(buffer.data()),
 						 &decrypted_len,
 						 nullptr,
-						 static_cast<unsigned char*>(static_cast<void*>(data.data())),
+						 std::bit_cast<unsigned char*>(data.data()),
 						 ciphertext_len,
 						 nullptr, 0,
 						 recoveredNonce.data(), key.data()) == 0;
@@ -217,7 +217,7 @@ std::vector<unsigned char> CryptoSodium::base64_decode(std::string_view encoded)
 }
 
 std::string
-CryptoSodium::hashMessage(std::u8string_view message) {
+CryptoSodium::hashMessage(std::string_view message) {
   unsigned char MESSAGE[crypto_generichash_BYTES];
   std::copy(message.cbegin(), message.cend(), MESSAGE);
   std::vector<unsigned char> hash(crypto_generichash_BYTES);

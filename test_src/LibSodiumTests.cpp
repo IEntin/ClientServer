@@ -9,15 +9,12 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <sodium.h>
-
 #include "CryptoSodium.h"
 #include "DebugLog.h"
 #include "TestEnvironment.h"
-#include "Utility.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
-// for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptSodiumTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=TestCompressEncrypt*; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.DHkeyExchange; done
 
 TEST(LibSodiumTest, authentication) {
@@ -26,6 +23,7 @@ TEST(LibSodiumTest, authentication) {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
+    // server ctor throws on authentication failure
     CryptoSodiumPtr cryptoS = createServer(cryptoC);
   }
   catch (...) {

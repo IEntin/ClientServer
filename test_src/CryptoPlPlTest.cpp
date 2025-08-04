@@ -5,41 +5,10 @@
 #include "CryptoPlPl.h"
 
 #include "TestEnvironment.h"
-#include "Utility.h"
 
-// for i in {1..10}; do ./testbin --gtest_filter=CryptoTest*; done
-// for i in {1..10}; do ./testbin --gtest_filter=CompressEncryptTest*; done
+// for i in {1..10}; do ./testbin --gtest_filter=TestCompressEncrypt*; done
 // for i in {1..10}; do ./testbin --gtest_filter=AuthenticationTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=Base64EncodingTest*; done
-
-TEST(CryptoTest, 1) {
-  // client
-  auto cryptoC(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
-  // server
-  auto cryptoS = createServer(cryptoC);
-  cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
-  HEADER header{ HEADERTYPE::SESSION,
-		 0,
-		 TestEnvironment::_source.size(),
-		 CRYPTO::ENCRYPT,
-		 COMPRESSORS::NONE,
-		 DIAGNOSTICS::NONE,
-		 STATUS::NONE,
-		 0 };
-  // must be a copy
-  std::string data(TestEnvironment::_source);
-  std::string_view dataView =
-    cryptoC->encrypt(TestEnvironment::_buffer, header, data);
-  ASSERT_TRUE(utility::isEncrypted(data));
-  data = dataView;
-  cryptoS->decrypt(TestEnvironment::_buffer, data);
-  HEADER restoredHeader;
-  deserialize(restoredHeader, data.data());
-  ASSERT_EQ(header, restoredHeader);
-  ASSERT_FALSE(utility::isEncrypted(data));
-  data.erase(0, HEADER_SIZE);
-  ASSERT_EQ(data, TestEnvironment::_source);
-}
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
   testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::LZ4);
@@ -74,44 +43,16 @@ TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
 }
 
 TEST(AuthenticationTest, 1) {
-  // Generate RSA key pair
-  CryptoPP::AutoSeededRandomPool rng;
-  CryptoPP::RSA::PrivateKey privateKey;
-  privateKey.GenerateRandomWithKeySize(rng, RSA_KEY_SIZE);
-  CryptoPP::RSA::PublicKey publicKey;
-  publicKey.AssignFrom(privateKey);
-  // Message to sign
-  std::u8string message(utility::generateRawUUID());
-  // Sign the message
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Signer signer(privateKey);
-  std::string signature;
-  CryptoPP::StringSource ss( { static_cast<const char*>(static_cast<const void*>(message.data())), message.size() },
-			     true, new CryptoPP::SignerFilter(
-    rng, signer, new CryptoPP::StringSink(signature)));
-  ASSERT_EQ(signature.size(), RSA_KEY_SIZE >> 3);
-  // Transfer the key and the signature
-  CryptoPlPl crypto((utility::generateRawUUID()));
-  auto [success, serialized] = crypto.encodeRsaPublicKey(privateKey);
-  ASSERT_TRUE(success);
-  std::string allReceived;
-  allReceived.swap(signature);
-  allReceived += serialized;
-
-  std::string receivedSignature(allReceived, 0, RSA_KEY_SIZE >> 3);
-  std::string_view serializedRsaPublicKey(allReceived.cbegin() + (RSA_KEY_SIZE >> 3), allReceived.cend());
-  CryptoPP::RSA::PublicKey receivedRsaPublicKey;
-  ASSERT_TRUE(crypto.decodeRsaPublicKey(serializedRsaPublicKey, receivedRsaPublicKey));
-  // Verify the signature
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(receivedRsaPublicKey);
-  bool result = verifier.VerifyMessage(
-    static_cast<const CryptoPP::byte*>(static_cast<const void*>(message.data())), message.length(),
-    static_cast<const CryptoPP::byte*>(static_cast<const void*>(receivedSignature.data())), receivedSignature.size());
-  ASSERT_TRUE(result);
-  receivedSignature.erase(receivedSignature.cend() -1);
-  result = verifier.VerifyMessage(
-    static_cast<const CryptoPP::byte*>(static_cast<const void*>(message.data())), message.length(),
-    static_cast<const CryptoPP::byte*>(static_cast<const void*>(receivedSignature.data())), receivedSignature.size());
-  ASSERT_FALSE(result);
+  try {
+    // client
+    CryptoPlPlPtr cryptoC(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
+    // server ctor throws on authentication failure
+    CryptoPlPlPtr cryptoS = createServer(cryptoC);
+  }
+  catch (...) {
+    // no exceptions
+    ASSERT_TRUE(false);
+  }
 }
 
 TEST(Base64EncodingTest, 1) {

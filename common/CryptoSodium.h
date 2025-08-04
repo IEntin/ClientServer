@@ -28,7 +28,7 @@ struct HandleKey {
 class CryptoSodium {
 
   std::string
-  hashMessage(std::u8string_view message);
+  hashMessage(std::string_view message);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _pubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
@@ -48,7 +48,7 @@ class CryptoSodium {
   bool _signatureSent = false;
   std::mutex _mutex;
 public:
-  explicit CryptoSodium(std::u8string_view msg);
+  explicit CryptoSodium(std::string_view msg);
   CryptoSodium(std::string_view msgHash,
 	       std::string_view encodedPubKeyAesClient,
 	       std::string_view signatureWithPubKey);
