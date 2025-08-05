@@ -37,12 +37,7 @@ class CryptoSodium {
   HandleKey _keyHandler; 
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _key;
   bool checkAccess();
-  void setAESKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
-    std::lock_guard lock(_mutex);
-    _keyHandler.recoverKey(_key);
-    key = _key;
-    _keyHandler.hideKey(_key);
-  }
+  void setAESKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key);
   void eraseUsedData();
   bool _verified = false;
   bool _signatureSent = false;

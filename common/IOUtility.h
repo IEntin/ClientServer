@@ -11,6 +11,8 @@
 
 #include <boost/assert/source_location.hpp>
 
+#include "Header.h"
+
 namespace ioutility {
 
 inline constexpr int CONV_BUFFER_SIZE = 10;
@@ -104,6 +106,10 @@ std::string& operator << (std::string& buffer, F number) {
   toChars(number, buffer, 1);
   return buffer;
 }
+
+bool readMessage(std::string_view payload,
+		 HEADER& header,
+		 std::span<std::reference_wrapper<std::string>> array);
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 std::string& operator << (std::string&, const SIZETUPLE&);

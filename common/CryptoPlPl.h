@@ -54,7 +54,7 @@ class CryptoPlPl {
   void setAESmodule(INSTANCE& instance) {
     std::lock_guard lock(_mutex);
     _keyHandler.recoverKey(_key);
-    instance = INSTANCE(_key.data(), _key.size());
+    instance = INSTANCE(_key);
     _keyHandler.hideKey(_key);
   }
   bool checkAccess();

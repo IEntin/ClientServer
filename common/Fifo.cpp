@@ -174,21 +174,7 @@ bool Fifo::readMessage(std::string_view name,
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
-  if (!deserialize(header, _payload.data()))
-    return false;
-  std::size_t sizes[3] = { extractReservedSz(header), extractUncompressedSize(header), extractParameter(header) };
-  if (array.size() == 1) {
-    sizes[0] = _payload.size() - HEADER_SIZE;
-    sizes[1] = sizes[2] = 0;
-  }
-  unsigned shift = HEADER_SIZE;
-  for (unsigned i = 0; i < array.size(); ++i) {
-    if (sizes[i] > 0) {
-      array[i].get().assign(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i]);
-      shift += sizes[i];
-    }
-  }
-  return true;
+  return ioutility::readMessage(_payload, header, array);
 }
 
 void Fifo::writeString(int fd, std::string_view str) {
