@@ -33,7 +33,7 @@ void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize)
 					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  std::size_t size = static_cast<size_t>(decomprSize);
+  std::size_t size = std::bit_cast<size_t>(decomprSize);
   data.resize(size);
   std::copy(buffer.cbegin(), buffer.cbegin() + size, data.begin());
 }

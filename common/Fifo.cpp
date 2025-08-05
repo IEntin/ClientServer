@@ -44,7 +44,7 @@ bool Fifo::setPipeSize(int fd) {
   ssize_t currentSz = fcntl(fd, F_GETPIPE_SZ);
   if (currentSz == -1)
     throw std::runtime_error(ioutility::createErrorString());
-  unsigned long currentSize = static_cast<unsigned long>(currentSz);
+  unsigned long currentSize = std::bit_cast<unsigned long>(currentSz);
   if (Options::_pipeSize > currentSize) {
     ssize_t ret = fcntl(fd, F_SETPIPE_SZ, Options::_pipeSize);
     if (ret == -1) {
@@ -58,7 +58,7 @@ bool Fifo::setPipeSize(int fd) {
       Info << strerror(errno) << '\n';
       return false;
     }
-    unsigned long newSize = static_cast<unsigned long>(newSz);
+    unsigned long newSize = std::bit_cast<unsigned long>(newSz);
     return newSize >= Options::_pipeSize || Options::_pipeSize < currentSize;
   }
   return false;
@@ -110,7 +110,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
     else if (result == 0)
       break;
     else if (result > 0) {
-      std::size_t transferred = static_cast<std::size_t>(result);
+      std::size_t transferred = std::bit_cast<std::size_t>(result);
       std::size_t prevSize = accumulatedSz;
       accumulatedSz += transferred;
       payload.resize(accumulatedSz);
@@ -140,7 +140,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       }
     }
     else if (result > 0) {
-      std::size_t transferred = static_cast<std::size_t>(result);
+      std::size_t transferred = std::bit_cast<std::size_t>(result);
       std::size_t prevSize = accumulatedSz;
       accumulatedSz += transferred;
       payload.resize(accumulatedSz);
