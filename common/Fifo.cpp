@@ -176,7 +176,6 @@ bool Fifo::readMessage(std::string_view name,
     return false;
   if (!deserialize(header, _payload.data()))
     return false;
-  printHeader(header, LOG_LEVEL::INFO);
   std::size_t sizes[3] = { extractReservedSz(header), extractUncompressedSize(header), extractParameter(header) };
   if (array.size() == 1) {
     sizes[0] = _payload.size() - HEADER_SIZE;
