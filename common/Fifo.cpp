@@ -185,8 +185,7 @@ bool Fifo::readMessage(std::string_view name,
   unsigned shift = HEADER_SIZE;
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
-      array[i].get().resize(sizes[i]);
-      std::copy(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i], array[i].get().begin());
+      array[i].get().assign(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i]);
       shift += sizes[i];
     }
   }

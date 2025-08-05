@@ -49,7 +49,7 @@ CryptoSodium::CryptoSodium(std::string_view msg) :
 		       msgHashVector.data(),
 		       std::ssize(msgHashVector), _secretKeySign.data());
   
-  std::copy(_signature.cbegin(), _signature.cend(), _signatureWithPubKeySign.begin());
+  _signatureWithPubKeySign.assign(_signature.cbegin(), _signature.cend());
   std::copy(_publicKeySign.cbegin(), _publicKeySign.cend(),
 	    _signatureWithPubKeySign.begin() + std::ssize(_signature));
 }

@@ -16,8 +16,7 @@ bool compress(std::string& buffer, std::string& data, int compressionLevel) {
   std::size_t compressedSize = ZSTD_compress(buffer.data(), dstSize, data.data(), data.size(), compressionLevel);
   if (ZSTD_isError(compressedSize))
     throw std::runtime_error(ZSTD_getErrorName(compressedSize));
-  data.resize(compressedSize);
-  std::copy(buffer.begin(), buffer.begin() + compressedSize, data.begin());
+  data.assign(buffer.begin(), buffer.begin() + compressedSize);
   return true;
 }
 
@@ -27,8 +26,7 @@ bool uncompress(std::string& buffer, std::string& data) {
     throw std::runtime_error(ZSTD_getErrorName(decompressedSize));
   buffer.resize(decompressedSize);
   ZSTD_decompress(buffer.data(), decompressedSize, data.data(), data.size());
-  data.resize(decompressedSize);
-  std::copy(buffer.cbegin(), buffer.cend(), data.begin());
+  data.assign(buffer);
   return true;
 }
 
