@@ -60,40 +60,7 @@ CryptoSodium::CryptoSodium(std::string_view msg) :
   std::copy(_publicKeySign.cbegin(), _publicKeySign.cend(),
 	    _signatureWithPubKeySign.begin() + std::ssize(_signature));
 }
-// server
-CryptoSodium::CryptoSodium(std::string_view msgHash,
-			   std::string_view encodedPubKeyAesClient,
-			   std::string_view signatureWithPubKey) :
-  _msgHash(msgHash.data(), msgHash.size()) {
-  std::vector<unsigned char> pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient in server", pubKeyAesClient);
-  crypto_kx_keypair(_pubKeyAes.data(), _secretKeyAes.data());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer in server ", _pubKeyAes);
-  _encodedPubKeyAes = base64_encode(_pubKeyAes);
-  std::vector<unsigned char> signature(signatureWithPubKey.cbegin(), signatureWithPubKey.cbegin() + crypto_sign_BYTES);
-  std::vector<unsigned char> peerPublicKeySign(signatureWithPubKey.cbegin(), signatureWithPubKey.cbegin() + crypto_sign_PUBLICKEYBYTES);
-  std::vector<unsigned char> msgHashVector(_msgHash.cbegin(), _msgHash.cend());
-  _verified = crypto_sign_verify_detached(
-    signature.data(),
-    msgHashVector.data(),
-    std::ssize(msgHash),
-    peerPublicKeySign.data()) == 0;
-  if (!_verified)
-    throw std::runtime_error("authentication failed");
-  // Server-side key exchange
-  if (crypto_kx_server_session_keys(_key.data(),
-				    nullptr,
-				    _pubKeyAes.data(),
-				    _secretKeyAes.data(),
-				    pubKeyAesClient.data()) != 0)
-    throw std::runtime_error("Server-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyServer", _key);
-  _keyHandler.hideKey(_key);
-  if (ServerOptions::_showKey)
-    showKey();
-  eraseUsedData();
-}
-// tests
+
 CryptoSodium::CryptoSodium(std::string_view msgHash,
 			   std::string_view encodedPubKeyAesClient,
 			   std::span<unsigned char> signatureWithPubKey) :

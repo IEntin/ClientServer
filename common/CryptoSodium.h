@@ -46,7 +46,7 @@ public:
   explicit CryptoSodium(std::string_view msg);
   CryptoSodium(std::string_view msgHash,
 	       std::string_view encodedPubKeyAesClient,
-	       std::string_view signatureWithPubKey);
+	       std::span<unsigned char> signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
@@ -71,9 +71,5 @@ public:
     eraseUsedData();
     return result;
   }
-
-  CryptoSodium(std::string_view msgHash,
-	       std::string_view encodedPubKeyAesClient,
-	       std::span<unsigned char> signatureWithPubKey);
 
 }; 
