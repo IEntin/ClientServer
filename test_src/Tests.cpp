@@ -273,3 +273,19 @@ TEST(regex, 1) {
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
   logger << "\t\tmatch:" << match.str() << '\n';
 }
+
+TEST(stringToVector, 1) {
+  std::string string1("Y+\0012345\0678987654\0321X3\0");
+  std::vector<unsigned char> vector1(string1.cbegin(), string1.cend());
+  std::string string2(vector1.cbegin(), vector1.cend());
+  std::string_view stringSV(string2);
+  std::vector<unsigned char> vector2(string2.cbegin(), string2.cend());
+  std::vector<unsigned char> vector3(stringSV.cbegin(), stringSV.cend());
+  ASSERT_EQ(vector1, vector2);
+  ASSERT_EQ(vector2, vector3);
+  std::span<unsigned char> span2(vector2);
+  std::span<unsigned char> span3(vector3);
+  std::vector<unsigned char> vector4(span2.cbegin(), span2.cend());
+  std::vector<unsigned char> vector5(span3.cbegin(), span3.cend());
+  ASSERT_EQ(vector4, vector5);
+}

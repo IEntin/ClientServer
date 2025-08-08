@@ -7,6 +7,8 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 
+#define _CRYPTOPP
+
 #ifdef _CRYPTOPP
 
 using CryptoPtr = CryptoPlPlPtr;
@@ -22,7 +24,9 @@ inline CryptoPtr createCrypto(std::string_view msgHash,
   return std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
 }
 
-#elif _SODIUM
+#endif
+
+#ifdef _SODIUM
 
 using CryptoPtr = CryptoSodiumPtr;
 using CryptoWeakPtr = CryptoWeakSodiumPtr;
@@ -34,8 +38,9 @@ inline CryptoPtr createCrypto(std::string_view  msg) {
 
 inline CryptoPtr createCrypto(std::string_view msgHash,
 			      std::string_view pubB,
-			      std::span<unsigned char> signatureWithPubKey) {
-  return std::make_shared<CryptoSodium>(msgHash, pubB, signatureWithPubKey);
+			      std::string_view signatureWithPubKey) {
+  std::vector<unsigned char> signatureWithPubKeyVect(signatureWithPubKey.cbegin(), signatureWithPubKey.cend());
+  return std::make_shared<CryptoSodium>(msgHash, pubB, signatureWithPubKeyVect);
 }
 
 #endif

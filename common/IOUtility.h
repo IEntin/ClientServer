@@ -38,7 +38,7 @@ std::string createErrorString(const boost::source_location& location = BOOST_CUR
 
 template <typename T>
 constexpr void fromChars (std::string_view str, T& value) {
-  if (auto [p, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
+  if (auto [p, ec] = std::from_chars(str.cbegin(), str.cend(), value);
       ec != std::errc())
     throw std::runtime_error(createErrorString(ec));
 }

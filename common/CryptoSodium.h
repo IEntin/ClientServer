@@ -58,14 +58,15 @@ public:
   void showKey();
   std::string _msgHash;
   std::string _encodedPubKeyAes;
+  std::string _signatureWithPubKeySignString;
   std::vector<unsigned char> _signatureWithPubKeySign;
 
   template <typename L>
   bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_encodedPubKeyAes),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySign) };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
+		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySignString) };
+    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySignString);
     if (result)
       _signatureSent = true;
     eraseUsedData();

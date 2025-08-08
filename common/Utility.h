@@ -64,7 +64,7 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
   while (beg != INPUT::npos) {
     std::size_t pos = input.find_first_of(separators, beg + 1);
     std::size_t end = pos == INPUT::npos ? input.size() : pos;
-    rows.emplace_back(input.data() + beg, input.data() + end);
+    rows.emplace_back(input.cbegin() + beg, input.cbegin() + end);
     beg = input.find_first_not_of(separators, end + 1);
   }
 }

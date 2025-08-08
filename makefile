@@ -78,7 +78,7 @@ INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(POLICYDIR) -I$(BOOST_INCLUDE
 -I$(TESTSRCDIR)
 
 # to disable debug mode remove -D_DEBUG
-CPPFLAGS := -g -D_DEBUG -D_CRYPTOPP $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
+CPPFLAGS := -g -D_DEBUG $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
  -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD)
 

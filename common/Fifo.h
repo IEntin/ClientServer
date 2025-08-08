@@ -38,16 +38,12 @@ public:
     _payload.clear();
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    _payload.resize(HEADER_SIZE + std::ssize(payload1) + std::ssize(payload2) + std::ssize(payload3));
-    std::copy(std::cbegin(headerBuffer), std::cend(headerBuffer), _payload.begin());
-    unsigned shift = HEADER_SIZE;
-    std::copy(payload1.cbegin(), payload1.cend(), _payload.begin() + shift);
-    shift += std::ssize(payload1);
+    _payload.insert(_payload.end(), std::cbegin(headerBuffer), std::cend(headerBuffer));
+    _payload.insert(_payload.end(), payload1.cbegin(), payload1.cend());
     if (!payload2.empty())
-      std::copy(payload2.begin(), payload2.end(), _payload.begin() + shift);
-    shift += std::ssize(payload2);
+      _payload.insert(_payload.end(), payload2.begin(), payload2.end());
     if (!payload3.empty())
-      std::copy(payload3.cbegin(), payload3.cend(), _payload.begin() + shift);
+      _payload.insert(_payload.end(), payload3.cbegin(), payload3.cend());
     writeString(fdWrite, _payload);
     return true;
   }
