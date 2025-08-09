@@ -46,7 +46,7 @@ public:
   explicit CryptoSodium(std::string_view msg);
   CryptoSodium(std::string_view msgHash,
 	       std::string_view encodedPubKeyAesClient,
-	       std::span<unsigned char> signatureWithPubKey);
+	       std::string_view signatureWithPubKey);
   ~CryptoSodium() = default;
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
@@ -58,15 +58,14 @@ public:
   void showKey();
   std::string _msgHash;
   std::string _encodedPubKeyAes;
-  std::string _signatureWithPubKeySignString;
   std::vector<unsigned char> _signatureWithPubKeySign;
 
   template <typename L>
   bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_encodedPubKeyAes),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySignString) };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySignString);
+		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySign) };
+    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();

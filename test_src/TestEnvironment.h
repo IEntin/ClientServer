@@ -35,7 +35,8 @@ public:
   };
 
   static CryptoSodiumPtr createServer(CryptoSodiumPtr cryptoC) {
-    return std::make_shared<CryptoSodium>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, cryptoC->_signatureWithPubKeySign);
+    std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()), cryptoC->_signatureWithPubKeySign.size());
+    return std::make_shared<CryptoSodium>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, signatureWithPubKeySign);
   }
 
   static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
