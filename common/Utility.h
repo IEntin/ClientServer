@@ -12,6 +12,7 @@
 #include "CompressionZSTD.h"
 #include "CryptoDefinitions.h"
 #include "Header.h"
+#include "Options.h"
 
 // common constants
 constexpr std::string_view ENDOFMESSAGE("7254a31c8f784bbc8b81124080469024");
@@ -103,14 +104,21 @@ std::string_view compressEncrypt(std::string& buffer,
 				 int compressionLevel = 3) {
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
-    if (compressor == COMPRESSORS::LZ4)
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
       compressionLZ4::compress(buffer, data);
-    else if (compressor == COMPRESSORS::SNAPPY)
+      break;
+    case COMPRESSORS::SNAPPY:
       compressionSnappy::compress(buffer, data);
-    else if (compressor == COMPRESSORS::ZSTD)
+      break;
+    case COMPRESSORS::ZSTD:
       compressionZSTD::compress(buffer, data, compressionLevel);
+      break;
+    default:
+      break;
+    }
   }
-  if (doEncrypt(header)) {
+  if (Options::_doEncrypt) {
     if (auto crypto = weak.lock(); crypto)
       return crypto->encrypt(buffer, header, data);
   }
@@ -133,14 +141,19 @@ void decryptDecompress(std::string& buffer,
     data.erase(0, HEADER_SIZE);
     if (isCompressed(header)) {
       COMPRESSORS compressor = extractCompressor(header);
-      if (compressor == COMPRESSORS::LZ4) {
-	std::size_t uncomprSize = extractUncompressedSize(header);
-	compressionLZ4::uncompress(buffer, data, uncomprSize);
-      }
-      else if (compressor == COMPRESSORS::SNAPPY)
+      switch (compressor) {
+      case COMPRESSORS::LZ4:
+	compressionLZ4::uncompress(buffer, data, extractUncompressedSize(header));
+	break;
+      case COMPRESSORS::SNAPPY:
 	compressionSnappy::uncompress(buffer, data);
-      else if (compressor == COMPRESSORS::ZSTD)
+	break;
+      case COMPRESSORS::ZSTD:
 	compressionZSTD::uncompress(buffer, data);
+	break;
+      default:
+	break;
+      }
     }
   }
 }

@@ -171,7 +171,7 @@ TEST(HeaderTest, 1) {
   char buffer[HEADER_SIZE] = {};
   unsigned reserved = 0;
   unsigned uncomprSz = 123456;
-  CRYPTO crypto = CRYPTO::ENCRYPT;
+  CRYPTO crypto = CRYPTO::CRYPTOPP;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
   HEADER header{HEADERTYPE::SESSION, 0, uncomprSz, crypto, compressor, diagnostics, STATUS::NONE, 0};

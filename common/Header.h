@@ -36,7 +36,8 @@ enum class HEADERTYPE : char {
 enum class CRYPTO : char {
   INVALIDLOW = '@',
   NONE,
-  ENCRYPT,
+  CRYPTOPP,
+  CRYPTOSODIUM,
   ERROR,
   INVALIDHIGH
 };
@@ -107,8 +108,6 @@ std::size_t extractReservedSz(const HEADER& header);
 std::size_t extractUncompressedSize(const HEADER& header);
 
 CRYPTO extractCrypto(const HEADER& header);
-
-bool doEncrypt(const HEADER& header);
 
 COMPRESSORS extractCompressor(const HEADER& header);
 

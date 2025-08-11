@@ -35,7 +35,8 @@ public:
   };
 
   static CryptoSodiumPtr createServer(CryptoSodiumPtr cryptoC) {
-    std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()), cryptoC->_signatureWithPubKeySign.size());
+    std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()),
+					     cryptoC->_signatureWithPubKeySign.size());
     return std::make_shared<CryptoSodium>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, signatureWithPubKeySign);
   }
 
@@ -65,12 +66,14 @@ public:
       printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
 	utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(cryptoC), data);
-      ASSERT_EQ(utility::isEncrypted(data), doEncrypt(header));
       HEADER restoredHeader;
       data = dataView;
+      ASSERT_EQ(utility::isEncrypted(data), Options::_doEncrypt);
       utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }
-    void TearDown() {}
+    void TearDown() {
+      TestEnvironment::reset();
+    }
   };

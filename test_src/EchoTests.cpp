@@ -28,18 +28,14 @@ struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
   void testEcho(CLIENT_TYPE type,
 		COMPRESSORS serverCompressor,
-		COMPRESSORS clientCompressor,
-		CRYPTO serverEncrypt = CRYPTO::ENCRYPT,
-		CRYPTO clientEncrypt = CRYPTO::ENCRYPT) {
+		COMPRESSORS clientCompressor) {
     // start server
     ServerOptions::_compressor = serverCompressor;
-    ServerOptions::_encryption = serverEncrypt;
     ServerOptions::_policyEnum = POLICYENUM::ECHOPOLICY;
     ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
     ClientOptions::_compressor = clientCompressor;
-    ClientOptions::_encryption = clientEncrypt;
     switch (type) {
     case CLIENT_TYPE::TCPCLIENT:
       {
@@ -108,15 +104,17 @@ TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_ENCRYPT) {
 }
 
 TEST_F(EchoTest, FIFO_NONE_LZ4_NOTENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4, CRYPTO::NONE);
+  Options::_doEncrypt = false;
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4);
 }
 
 TEST_F(EchoTest, FIFO_NONE_LZ4_NOTENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4, CRYPTO::NONE, CRYPTO::NONE);
+  Options::_doEncrypt = false;
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4);
 }
 
 TEST_F(EchoTest, FIFO_NONE_LZ4_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4, CRYPTO::ENCRYPT, CRYPTO::NONE);
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4);
 }
 
 struct FifoBlockingTest : testing::Test {
@@ -137,7 +135,7 @@ struct FifoBlockingTest : testing::Test {
       HEADERTYPE::SESSION,
       0,
       payload.size(),
-      CRYPTO::NONE,
+      CRYPTO::CRYPTOPP,
       COMPRESSORS::NONE,
       DIAGNOSTICS::NONE,
       STATUS::NONE,
@@ -234,7 +232,7 @@ struct FifoNBDuplex : testing::Test {
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     std::size_t size = payload.size();
     HEADER header =
-      { HEADERTYPE::SESSION, 0, size, CRYPTO::NONE, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+      { HEADERTYPE::SESSION, 0, size, CRYPTO::CRYPTOPP, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
     std::string dataIntermed;

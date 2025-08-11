@@ -7,6 +7,7 @@
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
+#include "Options.h"
 #include "Utility.h"
 
 TaskBuilder::TaskBuilder(CryptoWeakPtr crypto) :
@@ -83,7 +84,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     HEADERTYPE::SESSION,
     0,
     _aggregate.size(),
-    ClientOptions::_encryption,
+    Options::_encryption,
     ClientOptions::_compressor,
     ClientOptions::_diagnostics,
     _status,
@@ -92,7 +93,9 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    utility::compressEncrypt(_buffer, header, _crypto, _aggregate, ClientOptions::_compressionLevel);
+    utility::compressEncrypt(_buffer, header, _crypto,
+			     _aggregate,
+			     ClientOptions::_compressionLevel);
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];

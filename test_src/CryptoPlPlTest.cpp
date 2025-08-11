@@ -11,35 +11,39 @@
 // for i in {1..10}; do ./testbin --gtest_filter=Base64EncodingTest*; done
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::LZ4);
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::LZ4);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::SNAPPY);
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::SNAPPY);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::ZSTD);
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::ZSTD);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::ENCRYPT, COMPRESSORS::NONE);
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::NONE);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::LZ4);
+  Options::_doEncrypt = false;
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::LZ4);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::SNAPPY);
+  Options::_doEncrypt = false;
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::SNAPPY);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::ZSTD);
+  Options::_doEncrypt = false;
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::ZSTD);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::NONE, COMPRESSORS::NONE);
+  Options::_doEncrypt = false;
+  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::NONE);
 }
 
 TEST(AuthenticationTest, 1) {

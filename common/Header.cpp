@@ -8,8 +8,10 @@
 #include "Options.h"
 
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
-  if (cryptoStr == "ENCRYPT")
-    return CRYPTO::ENCRYPT;
+  if (cryptoStr == "CRYPTOPP")
+    return CRYPTO::CRYPTOPP;
+  else if (cryptoStr == "CRYPTOSODIUM")
+    return CRYPTO::CRYPTOSODIUM;
   else if (cryptoStr == "NONE")
     return CRYPTO::NONE;
   else
@@ -50,13 +52,6 @@ CRYPTO extractCrypto(const HEADER& header) {
 
 COMPRESSORS extractCompressor(const HEADER& header) {
   return std::get<COMPRESSORS>(header);
-}
-
-bool doEncrypt(const HEADER& header) {
-  CRYPTO crypto = std::get<CRYPTO>(header);
-  if (crypto == CRYPTO::ERROR)
-    throw std::runtime_error("Wrong crypto configuration");
-  return crypto == CRYPTO::ENCRYPT;
 }
 
 bool isCompressed(const HEADER& header) {
