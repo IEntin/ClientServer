@@ -9,7 +9,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "CryptoSodium.h"
 #include "DebugLog.h"
 #include "TestEnvironment.h"
 

@@ -110,8 +110,15 @@ bool Client::printReply() {
   return true;
 }
 
+std::string_view Client::compressEncrypt(std::string& buffer,
+					 const HEADER& header,
+					 std::string& data,
+					 int compressionLevel) {
+  return utility::compressEncrypt(buffer, header, std::weak_ptr(_crypto), data, compressionLevel);
+}
+
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(_crypto);
+  auto taskBuilder = std::make_shared<TaskBuilder>(*this);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

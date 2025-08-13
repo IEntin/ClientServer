@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include "Options.h"
+
 enum class COMPRESSORS : char;
 enum class CRYPTO : char;
 enum class DIAGNOSTICS : char;

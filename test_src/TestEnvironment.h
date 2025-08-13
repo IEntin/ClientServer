@@ -8,8 +8,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
 #include "Utility.h"
 
 class TestEnvironment : public ::testing::Environment {

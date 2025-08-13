@@ -10,7 +10,8 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
-#include "CryptoDefinitions.h"
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 #include "Header.h"
 #include "Options.h"
 
@@ -96,6 +97,72 @@ bool getLastLine(std::string_view fileName, std::string& lastLine);
 
 bool fileEndsWithEOL(std::string_view fileName);
 
+inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
+createCrypto(std::string_view  msg) {
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
+  switch(Options::_encryption) {
+  case CRYPTO::CRYPTOPP:
+    result = std::make_shared<CryptoPlPl>(msg);
+    break;
+  case CRYPTO::CRYPTOSODIUM:
+    result = std::make_shared<CryptoSodium>(msg);
+    break;
+  default:
+    break;
+  }
+  return result;
+}
+
+inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
+createCrypto(std::string_view msgHash,
+	     std::string_view pubB,
+	     std::string_view signatureWithPubKey) {
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
+  switch(Options::_encryption) {
+  case CRYPTO::CRYPTOPP:
+    result = std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
+    break;
+  case CRYPTO::CRYPTOSODIUM:
+    result = std::make_shared<CryptoSodium>(msgHash, pubB, signatureWithPubKey);
+    break;
+  default:
+    break;
+  }
+  return result;
+}
+
+inline auto encryptor = [](std::string& buffer,
+			   const HEADER& header,
+			   auto weak,
+			   std::string& data,
+			   int compressionLevel = 3) {
+  return compressEncrypt(buffer, header, weak, data, compressionLevel);
+ };
+
+inline auto decryptor = [](std::string& buffer,
+		    const HEADER& header,
+		    auto weak,
+		    std::string& data) {
+  return decryptDecompress(buffer, header, weak, data);
+ };
+
+inline auto showkey = [](auto weak) {
+  return showKey(weak);
+ };
+
+inline auto clientkeyexchange = [](std::string_view encodedPeerPubKeyAes,
+			    auto weak) {
+  return clientKeyExchange(encodedPeerPubKeyAes, weak);
+ };
+
+inline auto sendsignature = [](const HEADER& header,
+			       std::string_view msgHash,
+			       std::string_view pubKeyAesServer,
+			       std::string_view signedAuthauto,
+			       auto weak) {
+  return sendSignature(header, msgHash, pubKeyAesServer, signedAuthauto, weak);
+ };
+
 template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
@@ -166,5 +233,38 @@ bool isServerTerminal();
 bool isClientTerminal();
 bool isTestbinTerminal();
 void removeAccess();
+
+struct CryptoVisitorencrypt {
+  template <typename L>
+  std::string_view operator()(L&& encryptor(std::string& buffer,
+					    const HEADER& header,
+					    std::string& data,
+					    int compressionLevel));
+};
+
+struct CryptoVisitordecrypt {
+  template <typename L>
+  void operator()(L&& decryptor(std::string& buffer,
+				const HEADER& header,
+				std::string& data));
+};
+
+struct CryptoVisitorshowkey {
+  template <typename L>
+  void operator()(L&& showkey());
+};
+
+struct CryptoVisitorclientkeyexchange {
+  template <typename L>
+  bool operator()(L&& clientkeyexchange(std::string_view encodedPeerPubKeyAes));
+};
+
+struct CryptoVisitorsendSignature {
+  template <typename L>
+  bool operator()(L&& sendsignature(const HEADER& header,
+				    std::string_view msgHash,
+				    std::string_view pubKeyAesServer,
+				    std::string_view signedAuthauto));
+};
 
 } // end of namespace utility
