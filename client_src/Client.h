@@ -7,10 +7,10 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
-#include "CryptoDefinitions.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
+#include "Utility.h"
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
@@ -21,7 +21,7 @@ class Client : private boost::noncopyable {
 
 protected:
   std::string _response;
-  CryptoPtr _crypto;
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _crypto;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);

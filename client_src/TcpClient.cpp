@@ -18,7 +18,9 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     std::string_view signedAuth) {
     return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
-  if (!_crypto->sendSignature(lambda))
+  constexpr unsigned long index = utility::getEncryptionIndex();
+  auto crypto = std::get<index>(_crypto);
+  if (!crypto->sendSignature(lambda))
     throw std::runtime_error("TcpClient::init failed");
   if (!receiveStatus())
     throw std::runtime_error("TcpClient::receiveStatus failed");

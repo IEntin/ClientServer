@@ -151,6 +151,38 @@ createCrypto(std::string_view msgHash,
   return result;
 }
 
+inline auto encryptor = [](std::string& buffer,
+			   const HEADER& header,
+			   auto weak,
+			   std::string& data,
+			   int compressionLevel = 3) {
+  return compressEncrypt(buffer, header, weak, data, compressionLevel);
+ };
+
+inline auto decryptor = [](std::string& buffer,
+		    const HEADER& header,
+		    auto weak,
+		    std::string& data) {
+  return decryptDecompress(buffer, header, weak, data);
+ };
+
+inline auto showkey = [](auto weak) {
+  return showKey(weak);
+ };
+
+inline auto clientkeyexchange = [](std::string_view encodedPeerPubKeyAes,
+			    auto weak) {
+  return clientKeyExchange(encodedPeerPubKeyAes, weak);
+ };
+
+inline auto sendsignature = [](const HEADER& header,
+			       std::string_view msgHash,
+			       std::string_view pubKeyAesServer,
+			       std::string_view signedAuthauto,
+			       auto weak) {
+  return sendSignature(header, msgHash, pubKeyAesServer, signedAuthauto, weak);
+ };
+
 template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
@@ -225,5 +257,38 @@ bool isServerTerminal();
 bool isClientTerminal();
 bool isTestbinTerminal();
 void removeAccess();
+
+struct CryptoVisitorencrypt {
+  template <typename L>
+  std::string_view operator()(L&& encryptor(std::string& buffer,
+					    const HEADER& header,
+					    std::string& data,
+					    int compressionLevel));
+};
+
+struct CryptoVisitordecrypt {
+  template <typename L>
+  void operator()(L&& decryptor(std::string& buffer,
+				const HEADER& header,
+				std::string& data));
+};
+
+struct CryptoVisitorshowkey {
+  template <typename L>
+  void operator()(L&& showkey());
+};
+
+struct CryptoVisitorclientkeyexchange {
+  template <typename L>
+  bool operator()(L&& clientkeyexchange(std::string_view encodedPeerPubKeyAes));
+};
+
+struct CryptoVisitorsendSignature {
+  template <typename L>
+  bool operator()(L&& sendsignature(const HEADER& header,
+				    std::string_view msgHash,
+				    std::string_view pubKeyAesServer,
+				    std::string_view signedAuthauto));
+};
 
 } // end of namespace utility

@@ -15,7 +15,7 @@
 std::atomic<bool> Client::_closeFlag = false;
 
 Client::Client() :
-  _crypto(createCrypto(utility::generateRawUUID())),
+  _crypto(utility::createCrypto(utility::generateRawUUID())),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {
@@ -28,7 +28,9 @@ Client::~Client() {
 }
 
 bool Client::DHFinish(std::string_view clientIdStr, std::string_view encodedPubKeyAesServer) {
-  if (!_crypto->clientKeyExchange(encodedPubKeyAesServer)) {
+  constexpr unsigned long index = utility::getEncryptionIndex();
+  auto crypto = std::get<index>(_crypto);
+  if (!crypto->clientKeyExchange(encodedPubKeyAesServer)) {
     LogError << "handshake failed";
     return false;
   }
@@ -99,7 +101,9 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  utility::decryptDecompress(_buffer, _header, std::weak_ptr(_crypto), _response);
+  constexpr unsigned long index = utility::getEncryptionIndex();
+  auto crypto = std::get<index>(_crypto);
+  utility::decryptDecompress(_buffer, _header, std::weak_ptr(crypto), _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -114,7 +118,9 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 const HEADER& header,
 					 std::string& data,
 					 int compressionLevel) {
-  return utility::compressEncrypt(buffer, header, std::weak_ptr(_crypto), data, compressionLevel);
+  constexpr unsigned long index = utility::getEncryptionIndex();
+  auto crypto = std::get<index>(_crypto);
+  return utility::compressEncrypt(buffer, header, std::weak_ptr(crypto), data, compressionLevel);
 }
 
 void Client::start() {
