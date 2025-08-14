@@ -22,6 +22,26 @@ constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
 namespace utility {
 
+constexpr CRYPTO encryption = CRYPTO::CRYPTOPP;
+
+static consteval unsigned long getEncryptionIndex() {
+  if (encryption == CRYPTO::CRYPTOPP)
+    return 0;
+  else if (encryption == CRYPTO::CRYPTOSODIUM)
+    return 1;
+  else
+    return 11;
+}
+
+static consteval unsigned long getEncryptionIndex(const CRYPTO crypto) {
+  if (crypto == CRYPTO::CRYPTOPP)
+    return 0;
+  else if (crypto == CRYPTO::CRYPTOSODIUM)
+    return 1;
+  else
+    return 11;
+}
+
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,
 // string_view, vector<char> or vector of objects of any
@@ -185,9 +205,13 @@ std::string_view compressEncrypt(std::string& buffer,
       break;
     }
   }
+  std::string_view encrypted;
   if (Options::_doEncrypt) {
-    if (auto crypto = weak.lock(); crypto)
-      return crypto->encrypt(buffer, header, data);
+    if (auto crypto = weak.lock(); crypto) {
+      encrypted = crypto->encrypt(buffer, header, data);
+      assert(isEncrypted(encrypted));
+    }
+    return encrypted;;
   }
   else {
     char headerBuffer[HEADER_SIZE] = {};

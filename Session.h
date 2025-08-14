@@ -9,9 +9,9 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "CryptoDefinitions.h"
 #include "Header.h"
 #include "IOUtility.h"
+#include "Utility.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
@@ -19,7 +19,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
-  CryptoPtr _crypto;
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _crypto;
   HEADER _header;
   std::string _request;
   TaskPtr _task;
@@ -41,9 +41,11 @@ protected:
     if (auto server = _server.lock(); server) {
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
+      constexpr unsigned long index = utility::getEncryptionIndex();
+      auto crypto = std::get<index>(_crypto);
       HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, std::ssize(clientIdStr), CRYPTO::NONE,
-	COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, std::ssize(_crypto->_encodedPubKeyAes) };
-      lambda(header, clientIdStr, _crypto->_encodedPubKeyAes);
+	COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, std::ssize(crypto->_encodedPubKeyAes) };
+      lambda(header, clientIdStr, crypto->_encodedPubKeyAes);
     }
   }
 

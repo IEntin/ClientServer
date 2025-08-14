@@ -8,7 +8,6 @@
 #include "Policy.h"
 
 enum class COMPRESSORS : char;
-enum class CRYPTO : char;
 
 struct ServerOptions : Options {
   static void parse(std::string_view jsonName);

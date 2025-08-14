@@ -70,20 +70,19 @@ TEST(Base64EncodingTest, 1) {
 }
 
 TEST(VariantCrypto, 1) {
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant1 = utility::createCrypto(utility::generateRawUUID());
-  std::size_t index1 = cryptoVariant1.index();
-  ASSERT_EQ(index1, 0);
-  if (index1 == 0)
-    auto held = std::get<0>(cryptoVariant1);
-  else
-    auto held = std::get<1>(cryptoVariant1);
+  Options::_encryption = CRYPTO::CRYPTOPP;
+  constexpr unsigned long expected1 = utility::getEncryptionIndex(CRYPTO::CRYPTOPP);
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant = utility::createCrypto(utility::generateRawUUID());
+  std::size_t index = cryptoVariant.index();
+  ASSERT_EQ(index, expected1);
+  auto held1 = std::get<expected1>(cryptoVariant);
+  static_assert(std::is_same_v<decltype(held1), CryptoPlPlPtr> == true );
   Options::_encryption = CRYPTO::CRYPTOSODIUM;
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant2 = utility::createCrypto(utility::generateRawUUID());
-  std::size_t index2 = cryptoVariant2.index();
-  ASSERT_EQ(index2, 1);
-  if (index2 == 1)
-    auto held = std::get<1>(cryptoVariant2);
-  else
-    auto held = std::get<0>(cryptoVariant2);
+  constexpr unsigned long expected2 = utility::getEncryptionIndex(CRYPTO::CRYPTOSODIUM);
+  cryptoVariant = utility::createCrypto(utility::generateRawUUID());
+  index = cryptoVariant.index();
+  ASSERT_EQ(index, expected2);
+  auto held2 = std::get<expected2>(cryptoVariant);
+  static_assert(std::is_same_v<decltype(held2), CryptoSodiumPtr> == true );
   TestEnvironment::reset();
 }
