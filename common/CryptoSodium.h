@@ -65,7 +65,9 @@ public:
     HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_encodedPubKeyAes),
 		      CRYPTO::NONE, COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySign) };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
+    std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(_signatureWithPubKeySign.data()),
+					     _signatureWithPubKeySign.size());
+    bool result = lambda(header, _msgHash, _encodedPubKeyAes, signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();
