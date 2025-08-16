@@ -117,10 +117,16 @@ bool Client::printReply() {
 std::string_view Client::compressEncrypt(std::string& buffer,
 					 const HEADER& header,
 					 std::string& data,
+					 bool doEncrypt,
 					 int compressionLevel) {
   constexpr unsigned long index = utility::getEncryptionIndex();
   auto crypto = std::get<index>(_crypto);
-  return utility::compressEncrypt(buffer, header, std::weak_ptr(crypto), data, compressionLevel);
+  return utility::compressEncrypt(buffer,
+				  header,
+				  doEncrypt,
+				  std::weak_ptr(crypto),
+				  data,
+				  compressionLevel);
 }
 
 void Client::start() {

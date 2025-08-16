@@ -19,8 +19,8 @@ public:
   static std::size_t _pipeSize;
   static std::string _serverAddress;
   static unsigned short _tcpPort;
+  static COMPRESSORS _compressor;
   static CRYPTO _encryption;
-  static bool _doEncrypt;
   static bool _printHeader;
 private:
   Options() = delete;

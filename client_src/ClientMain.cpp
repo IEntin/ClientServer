@@ -3,8 +3,9 @@
  */
 
 #include <csignal>
-
 #include <filesystem>
+
+#include <boost/stacktrace.hpp>
 
 #include "Client.h"
 #include "ClientOptions.h"
@@ -48,6 +49,7 @@ int main() {
     }
   }
   catch (const std::exception& e) {
+    LogError << boost::stacktrace::stacktrace() << '\n';
     LogError << e.what() << '\n';
     return 3;
   }

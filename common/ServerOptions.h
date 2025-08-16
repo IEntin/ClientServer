@@ -14,6 +14,7 @@ struct ServerOptions : Options {
   static std::string _adsFileName;
   static COMPRESSORS _compressor;
   static int _compressionLevel;
+  static bool _doEncrypt;
   static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;

@@ -6,6 +6,8 @@
 
 #include <array>
 
+#include <boost/stacktrace.hpp>
+
 #include "Connection.h"
 #include "Server.h"
 #include "ServerOptions.h"
@@ -63,6 +65,7 @@ void TcpSession::run() noexcept {
     _ioContext.run();
   }
   catch (const std::exception& e) {
+    LogError << boost::stacktrace::stacktrace() << '\n';
     LogError << e.what() << '\n';
   }
 }

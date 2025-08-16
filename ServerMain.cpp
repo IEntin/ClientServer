@@ -5,6 +5,8 @@
 #include <cassert>
 #include <csignal>
 
+#include <boost/stacktrace.hpp>
+
 #include "DebugLog.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
@@ -47,6 +49,7 @@ int main() {
     return 0;
   }
   catch (const std::exception& e) {
+    LogError << boost::stacktrace::stacktrace() << '\n';
     LogError << e.what() << '\n';
     return 5;
   }

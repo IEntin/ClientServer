@@ -72,37 +72,33 @@ TEST(LibSodiumTest, publicKeyEncoding) {
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE, true);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_S) {
-  Options::_doEncrypt = false;
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_S) {
-  Options::_doEncrypt = false;
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_S) {
-  Options::_doEncrypt = false;
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_S) {
-  Options::_doEncrypt = false;
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE);
+  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE, false);
 }

@@ -2,6 +2,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <boost/stacktrace.hpp>
+
 #include "TcpAcceptor.h"
 
 #include "Connection.h"
@@ -50,6 +52,7 @@ void TcpAcceptor::run() {
     _ioContext.run();
   }
   catch (const std::exception& e) {
+    LogError << boost::stacktrace::stacktrace() << '\n';
     LogError << e.what() << '\n';
   }
 }

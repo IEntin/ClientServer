@@ -8,6 +8,7 @@
   "Compression" : "LZ4",
   "_comment" : "Next is only for ZSTD",
   "CompressionLevel" : 3,
+  "doEncrypt" : true,
   "_comment" : "next one must match client settings",
   "Crypto" : "CRYPTOPP",
   "doEncrypt" : true,

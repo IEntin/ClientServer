@@ -152,8 +152,31 @@ createCrypto(std::string_view msgHash,
 }
 
 template <typename Crypto>
+std::string_view encrypt(bool doEncrypt,
+			 std::string& buffer,
+			 const HEADER& header,
+			 std::weak_ptr<Crypto> weak,
+			 std::string& data) {
+  std::string_view encrypted;
+  if (doEncrypt) {
+    if (auto crypto = weak.lock(); crypto) {
+      encrypted = crypto->encrypt(buffer, header, data);
+      assert(isEncrypted(encrypted));
+    }
+    return encrypted;;
+  }
+  else {
+    char headerBuffer[HEADER_SIZE] = {};
+    data.insert(0, headerBuffer, HEADER_SIZE);
+    serialize(header, data.data());
+  }
+  return data;
+}
+
+template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
+				 bool doEncrypt,
 				 std::weak_ptr<Crypto> weak,
 				 std::string& data,
 				 int compressionLevel = 3) {
@@ -173,20 +196,11 @@ std::string_view compressEncrypt(std::string& buffer,
       break;
     }
   }
-  std::string_view encrypted;
-  if (Options::_doEncrypt) {
-    if (auto crypto = weak.lock(); crypto) {
-      encrypted = crypto->encrypt(buffer, header, data);
-      assert(isEncrypted(encrypted));
-    }
-    return encrypted;;
-  }
-  else {
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    data.insert(0, headerBuffer, HEADER_SIZE);
-  }
-  return data;
+  return encrypt(doEncrypt,
+		 buffer,
+		 header,
+		 weak,
+		 data);
 }
 
 template <typename Crypto>

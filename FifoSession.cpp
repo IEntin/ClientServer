@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <sys/stat.h>
 
+#include <boost/stacktrace.hpp>
+
 #include "Fifo.h"
 #include "Server.h"
 #include "ServerOptions.h"
@@ -78,6 +80,7 @@ bool FifoSession::receiveRequest() {
       return sendResponse();
   }
   catch (const std::exception& e) {
+    Warn << boost::stacktrace::stacktrace() << '\n';
     Warn << e.what() << '\n';
   }
   return false;

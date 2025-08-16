@@ -100,14 +100,12 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
-  std::string input;
-  char headerBuffer[HEADER_SIZE] = {};
-  input.append(headerBuffer, HEADER_SIZE);
-  input.insert(input.end(), data.cbegin(), data.cend());
-  unsigned long long ciphertext_len;
+  std::string input(HEADER_SIZE, '\0');
   serialize(header, input.data());
+  input.append(data.cbegin(), data.cend());
+  unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
-  randombytes_buf(nonce, crypto_aead_aes256gcm_NPUBBYTES);
+  randombytes_buf(nonce, std::ssize(nonce));
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "nonceEncrypt", nonce);
   std::size_t message_len = std::ssize(input);
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);

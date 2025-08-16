@@ -35,16 +35,20 @@ public:
   static CryptoSodiumPtr createServer(CryptoSodiumPtr cryptoC) {
     std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()),
 					     cryptoC->_signatureWithPubKeySign.size());
-    return std::make_shared<CryptoSodium>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, signatureWithPubKeySign);
+    return std::make_shared<CryptoSodium>(cryptoC->_msgHash,
+					  cryptoC->_encodedPubKeyAes,
+					  signatureWithPubKeySign);
   }
 
   static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
-    return std::make_shared<CryptoPlPl>(cryptoC->_msgHash, cryptoC->_encodedPubKeyAes, cryptoC->_signatureWithPubKeySign);
+    return std::make_shared<CryptoPlPl>(cryptoC->_msgHash,
+					cryptoC->_encodedPubKeyAes,
+					cryptoC->_signatureWithPubKeySign);
   }
 
   struct TestCompressEncrypt : testing::Test {
     template <typename CryptoType, typename COMPRESSORS>
-    void testCompressEncrypt(CRYPTO cryptoType, COMPRESSORS compressor) {
+    void testCompressEncrypt(CRYPTO cryptoType, COMPRESSORS compressor, bool doEncrypt) {
       // client
       auto cryptoC(std::make_shared<CryptoType>(utility::generateRawUUID()));
       // server
@@ -63,10 +67,10 @@ public:
 		     0 };
       printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	utility::compressEncrypt(TestEnvironment::_buffer, header, std::weak_ptr(cryptoC), data);
+	utility::compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
       HEADER restoredHeader;
       data = dataView;
-      ASSERT_EQ(utility::isEncrypted(data), Options::_doEncrypt);
+      ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
       utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);

@@ -49,6 +49,7 @@ public:
   std::string_view compressEncrypt(std::string& buffer,
 				   const HEADER& header,
 				   std::string& data,
+				   bool doEncrypt,
 				   int compressionLevel = 3);
   virtual bool send(const struct Subtask& subtask) = 0;
   virtual bool receive() = 0;
