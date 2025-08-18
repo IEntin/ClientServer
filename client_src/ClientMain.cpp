@@ -3,7 +3,6 @@
  */
 
 #include <csignal>
-#include <filesystem>
 
 #include <boost/stacktrace.hpp>
 

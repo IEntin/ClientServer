@@ -63,6 +63,7 @@ TEST_F(LogicTest, TCP_LZ4_3600000_ENCRYPT_ENCRYPT_D) {
 }
 TEST_F(LogicTest, TCP_NONE_3600000_NOTENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = false;
+  ClientOptions::_doEncrypt = true;
   testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, 3600000, DIAGNOSTICS::ENABLED);
 }
 
@@ -79,6 +80,8 @@ TEST_F(LogicTest, TCP_LZ4_3600000_ENCRYPT_NOTENCRYPT_ND) {
 }
 
 TEST_F(LogicTest, TCP_LZ4_3000000_ENCRYPT_ENCRYPT_D) {
+  ServerOptions::_doEncrypt = true;
+  ClientOptions::_doEncrypt = true;
   testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 3000000, DIAGNOSTICS::ENABLED);
 }
 
@@ -95,10 +98,14 @@ TEST_F(LogicTest, TCP_SNAPPY_3000000_ENCRYPT_ENCRYPT_D) {
 }
 
 TEST_F(LogicTest, TCP_ZSTD_3000000_ENCRYPT_ENCRYPT_ND) {
+  ServerOptions::_doEncrypt = true;
+  ClientOptions::_doEncrypt = true;  
   testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, 3000000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, TCP_SNAPPY_3000000_ENCRYPT_ENCRYPT_ND) {
+  ServerOptions::_doEncrypt = true;
+  ClientOptions::_doEncrypt = true;  
   testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::SNAPPY, 3000000, DIAGNOSTICS::NONE);
 }
 
@@ -175,7 +182,7 @@ TEST_F(LogicTest, FIFO_SNAPPY_10000_ENCRYPT_ENCRYPT_ND) {
 
 TEST_F(LogicTest, FIFO_SNAPPY_10000_ENCRYPT_NOTENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
-  ClientOptions::_doEncrypt = true;
+  ClientOptions::_doEncrypt = false;
   testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, 10000, DIAGNOSTICS::NONE);
 }
 
@@ -211,6 +218,9 @@ TEST_F(LogicTest, FIFO_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
+    Options::_compressor = COMPRESSORS::ZSTD;
+    ServerOptions::_doEncrypt = true;
+    ClientOptions::_doEncrypt = true;
     // start server
     ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
     ServerPtr server = std::make_shared<Server>();
@@ -238,6 +248,9 @@ TEST_F(LogicTestAltFormat, Diagnostics) {
 
 struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
+    Options::_compressor = COMPRESSORS::SNAPPY;
+    ServerOptions::_doEncrypt = true;
+    ClientOptions::_doEncrypt = true;
     // start server
     ServerPtr server = ServerPtr();
     if (sort) {

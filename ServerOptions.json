@@ -6,7 +6,7 @@
   "NumberWorkThreads" : 0,
   "_comment" : "LZ4, SNAPPY, ZSTD or anything for disabled",
   "Compression" : "LZ4",
-  "_comment" : "Next is only for ZSTD",
+  "_comment" : "Next is for ZSTD, can differ for client and server",
   "CompressionLevel" : 3,
   "doEncrypt" : true,
   "_comment" : "next one must match client settings",

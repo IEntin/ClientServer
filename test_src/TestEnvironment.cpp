@@ -4,8 +4,6 @@
 
 #include "TestEnvironment.h"
 
-#include <filesystem>
-
 #include "ClientOptions.h"
 #include "DebugLog.h"
 #include "Metrics.h"

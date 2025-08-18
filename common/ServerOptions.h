@@ -12,7 +12,6 @@ enum class COMPRESSORS : char;
 struct ServerOptions : Options {
   static void parse(std::string_view jsonName);
   static std::string _adsFileName;
-  static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
   static bool _showKey;

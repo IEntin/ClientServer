@@ -4,6 +4,8 @@
 
 #include "Server.h"
 
+#include <filesystem>
+
 #include <boost/interprocess/sync/named_mutex.hpp>
 
 #include "Ad.h"
@@ -21,9 +23,16 @@
 Server::Server() :
   _chronometer(ServerOptions::_timing),
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
-  // Unlock computer in case the app crashed during debugging
-  // leaving mutex locked, run serverX or testbin in this case.
-  removeNamedMutex();
+  try {
+    // create if was removed
+    std::filesystem::create_directory(Options::_fifoDirectoryName);
+    // Unlock computer in case the app crashed during debugging
+    // leaving mutex locked, run serverX or testbin in this case.
+    removeNamedMutex();
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+  }
 }
 
 Server::~Server() {

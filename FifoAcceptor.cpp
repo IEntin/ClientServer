@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <sys/stat.h>
 
+#include <boost/stacktrace.hpp>
+
 #include "Fifo.h"
 #include "Options.h"
 #include "Server.h"
@@ -46,19 +48,25 @@ FifoAcceptor::unblockAcceptor() {
 }
 
 void FifoAcceptor::run() {
-  while (!_stopped) {
-    auto [type, msgHash, pubBvector, signatureWithPubKey] = unblockAcceptor();
-    if (_stopped)
-      break;
-    switch (type) {
-    case HEADERTYPE::DH_INIT:
-      if (auto server = _server.lock(); server)
-	server->createFifoSession(msgHash, pubBvector, signatureWithPubKey);
-      break;
-    default:
-      break;
+  try {
+    while (!_stopped) {
+      auto [type, msgHash, pubBvector, signatureWithPubKey] = unblockAcceptor();
+      if (_stopped)
+	break;
+      switch (type) {
+      case HEADERTYPE::DH_INIT:
+	if (auto server = _server.lock(); server)
+	  server->createFifoSession(msgHash, pubBvector, signatureWithPubKey);
+	break;
+      default:
+	break;
+      }
     }
   }
+  catch (const std::exception& e) {
+    LogError << boost::stacktrace::stacktrace() << '\n';
+    LogError << e.what() << '\n';
+  }  
 }
 
 bool FifoAcceptor::start() {
