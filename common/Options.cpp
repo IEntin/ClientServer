@@ -17,7 +17,6 @@ std::size_t Options::_pipeSize;
 std::string Options::_serverAddress;
 unsigned short Options::_tcpPort;
 COMPRESSORS Options::_compressor;
-bool Options::_printHeader;
 
 void Options::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
@@ -30,5 +29,4 @@ void Options::parse(std::string_view jsonName) {
   _serverAddress = appOptions.get("ServerAddress", std::string("127.0.0.1"));
   _tcpPort = appOptions.get("TcpPort", 49151);
   _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
-  _printHeader = appOptions.get("PrintHeader", false);
 }

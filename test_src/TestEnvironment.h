@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 
+#include "ServerOptions.h"
 #include "Utility.h"
 
 class TestEnvironment : public ::testing::Environment {
@@ -64,7 +65,8 @@ public:
 		     DIAGNOSTICS::NONE,
 		     STATUS::NONE,
 		     0 };
-      printHeader(header, LOG_LEVEL::ALWAYS);
+      if (ServerOptions::_printHeader)
+	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
 	utility::compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
       HEADER restoredHeader;

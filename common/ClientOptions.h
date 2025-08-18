@@ -31,6 +31,7 @@ struct ClientOptions {
   static bool _runLoop;
   static std::size_t _bufferSize;
   static bool _timing;
+  static bool _printHeader;
 private:
   ClientOptions() = delete;
   ~ClientOptions() = delete;

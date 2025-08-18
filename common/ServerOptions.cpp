@@ -23,6 +23,7 @@ int ServerOptions::_tcpTimeout;
 bool ServerOptions::_useRegex;
 POLICYENUM ServerOptions::_policyEnum;
 bool ServerOptions::_timing;
+bool ServerOptions::_printHeader;
 
 void ServerOptions::parse(std::string_view jsonName) {
   Options::parse(jsonName);
@@ -40,5 +41,6 @@ void ServerOptions::parse(std::string_view jsonName) {
   _useRegex = appOptions.get("UseRegex", true);
   _policyEnum = fromString(appOptions.get("Policy", std::string("NOSORTINPUT")));
   _timing = appOptions.get("Timing", false);
+  _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
 }

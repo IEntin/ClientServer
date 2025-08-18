@@ -20,7 +20,6 @@ public:
   static std::string _serverAddress;
   static unsigned short _tcpPort;
   static COMPRESSORS _compressor;
-  static bool _printHeader;
 private:
   Options() = delete;
   ~Options() = delete;

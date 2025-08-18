@@ -23,6 +23,7 @@ struct ServerOptions : Options {
   static bool _useRegex;
   static POLICYENUM _policyEnum;
   static bool _timing;
+  static bool _printHeader;
 private:
   ServerOptions() = delete;
   ~ServerOptions() = delete;

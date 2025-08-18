@@ -5,7 +5,7 @@
 #include "Header.h"
 
 #include "IOUtility.h"
-#include "Options.h"
+#include "ServerOptions.h"
 
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
   if (cryptoStr == "CRYPTOPP")
@@ -130,7 +130,7 @@ bool deserialize(HEADER& header, const char* buffer) {
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, PARAMETER_SIZE);
   ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
-  if (Options::_printHeader)
+  if (ServerOptions::_printHeader)
     printHeader(header, LOG_LEVEL::ALWAYS);
   return true;
 }
