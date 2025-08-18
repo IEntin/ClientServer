@@ -63,7 +63,7 @@ public:
   template <typename L>
   bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, std::ssize(_msgHash), std::ssize(_encodedPubKeyAes),
-		      CRYPTO::NONE, COMPRESSORS::NONE,
+		      COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, std::ssize(_signatureWithPubKeySign) };
     std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(_signatureWithPubKeySign.data()),
 					     _signatureWithPubKeySign.size());

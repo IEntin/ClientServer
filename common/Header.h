@@ -12,13 +12,12 @@
 inline constexpr int HEADERTYPE_SIZE = 1;
 inline constexpr int RESERVED_SIZE = 10;
 inline constexpr int NUM_FIELD_SIZE = 10;
-inline constexpr int CRYPTO_SIZE = 1;
 inline constexpr int COMPRESSOR_SIZE = 1;
 inline constexpr int DIAGNOSTICS_SIZE = 1;
 inline constexpr int STATUS_SIZE = 1;
 inline constexpr int PARAMETER_SIZE = 10;
 inline constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + RESERVED_SIZE + NUM_FIELD_SIZE + CRYPTO_SIZE +
+  HEADERTYPE_SIZE + RESERVED_SIZE + NUM_FIELD_SIZE +
   COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
 
 enum class HEADERTYPE : char {
@@ -85,7 +84,6 @@ enum class HEADER_INDEX : char {
   HEADERTYPEINDEX,
   RESERVEDINDEX,
   UNCOMPRESSEDSIZEINDEX,
-  CRYPTOINDEX,
   COMPRESSORINDEX,
   DIAGNOSTICSINDEX,
   STATUSINDEX,
@@ -99,15 +97,13 @@ enum class CLIENT_TYPE : int {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, std::size_t, std::size_t, CRYPTO, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
 std::size_t extractReservedSz(const HEADER& header);
 
 std::size_t extractUncompressedSize(const HEADER& header);
-
-CRYPTO extractCrypto(const HEADER& header);
 
 COMPRESSORS extractCompressor(const HEADER& header);
 

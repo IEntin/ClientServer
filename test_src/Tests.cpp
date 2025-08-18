@@ -171,10 +171,9 @@ TEST(HeaderTest, 1) {
   char buffer[HEADER_SIZE] = {};
   unsigned reserved = 0;
   unsigned uncomprSz = 123456;
-  CRYPTO crypto = CRYPTO::CRYPTOPP;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
-  HEADER header{HEADERTYPE::SESSION, 0, uncomprSz, crypto, compressor, diagnostics, STATUS::NONE, 0};
+  HEADER header{HEADERTYPE::SESSION, 0, uncomprSz, compressor, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   ASSERT_TRUE(deserialize(header, buffer));
   std::size_t reservedResult = extractReservedSz(header);
@@ -186,7 +185,7 @@ TEST(HeaderTest, 1) {
   DIAGNOSTICS diagnosticsResult = extractDiagnostics(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
-  header = {HEADERTYPE::SESSION, reserved, uncomprSz, crypto, compressor, diagnostics, STATUS::NONE, 0};
+  header = {HEADERTYPE::SESSION, reserved, uncomprSz, compressor, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   ASSERT_TRUE(deserialize(header, buffer));
   compressorResult = extractCompressor(header);

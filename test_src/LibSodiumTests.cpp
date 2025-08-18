@@ -40,7 +40,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     CryptoSodiumPtr cryptoS = createServer(cryptoC);
     cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
-    HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + std::ssize(TestEnvironment::_source), CRYPTO::CRYPTOSODIUM,
+    HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + std::ssize(TestEnvironment::_source),
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
 						  header,
@@ -72,33 +72,33 @@ TEST(LibSodiumTest, publicKeyEncoding) {
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4, true);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::LZ4, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY, true);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::SNAPPY, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD, true);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::ZSTD, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE, true);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::NONE, true);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::LZ4, false);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::LZ4, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::SNAPPY, false);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::SNAPPY, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::ZSTD, false);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::ZSTD, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_S) {
-  testCompressEncrypt<CryptoSodium>(CRYPTO::CRYPTOSODIUM, COMPRESSORS::NONE, false);
+  testCompressEncrypt<CryptoSodium>(COMPRESSORS::NONE, false);
 }

@@ -120,7 +120,7 @@ bool fileEndsWithEOL(std::string_view fileName);
 inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
 createCrypto(std::string_view  msg) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(Options::_encryption) {
+  switch(encryption) {
   case CRYPTO::CRYPTOPP:
     result = std::make_shared<CryptoPlPl>(msg);
     break;
@@ -134,11 +134,28 @@ createCrypto(std::string_view  msg) {
 }
 
 inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(std::string_view msgHash,
+createCrypto(CRYPTO encryption, std::string_view  msg) {
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
+  switch(encryption) {
+  case CRYPTO::CRYPTOPP:
+    result = std::make_shared<CryptoPlPl>(msg);
+    break;
+  case CRYPTO::CRYPTOSODIUM:
+    result = std::make_shared<CryptoSodium>(msg);
+    break;
+  default:
+    break;
+  }
+  return result;
+}
+
+inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
+createCrypto(CRYPTO encryption,
+	     std::string_view msgHash,
 	     std::string_view pubB,
 	     std::string_view signatureWithPubKey) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(Options::_encryption) {
+  switch(encryption) {
   case CRYPTO::CRYPTOPP:
     result = std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
     break;

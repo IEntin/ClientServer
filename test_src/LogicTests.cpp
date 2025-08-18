@@ -25,7 +25,6 @@ struct LogicTest : testing::Test {
 		 std::size_t bufferSize,
 		 DIAGNOSTICS diagnostics) {
     Options::_compressor = compressor;
-    Options::_encryption = CRYPTO::CRYPTOPP;
     // start server
     ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
     ServerPtr server = std::make_shared<Server>();

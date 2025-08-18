@@ -10,8 +10,6 @@
   "_comment" : "Next is for ZSTD, can differ for client and server",
   "CompressionLevel" : 3,
   "doEncrypt" : true,
-  "_comment" : "next one must match server settings",
-  "Crypto" : "CRYPTOPP",
   "_comment": "If true logs crypto key",
   "ShowKey" : false,
   "BufferSize" : 3000000,

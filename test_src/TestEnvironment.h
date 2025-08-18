@@ -48,7 +48,7 @@ public:
 
   struct TestCompressEncrypt : testing::Test {
     template <typename CryptoType, typename COMPRESSORS>
-    void testCompressEncrypt(CRYPTO cryptoType, COMPRESSORS compressor, bool doEncrypt) {
+    void testCompressEncrypt(COMPRESSORS compressor, bool doEncrypt) {
       // client
       auto cryptoC(std::make_shared<CryptoType>(utility::generateRawUUID()));
       // server
@@ -60,7 +60,6 @@ public:
       HEADER header{ HEADERTYPE::SESSION,
 		     0,
 		     std::ssize(data),
-		     cryptoType,
 		     compressor,
 		     DIAGNOSTICS::NONE,
 		     STATUS::NONE,

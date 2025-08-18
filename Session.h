@@ -43,7 +43,7 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       constexpr unsigned long index = utility::getEncryptionIndex();
       auto crypto = std::get<index>(_crypto);
-      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, std::ssize(clientIdStr), CRYPTO::NONE,
+      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, std::ssize(clientIdStr),
 	COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, std::ssize(crypto->_encodedPubKeyAes) };
       lambda(header, clientIdStr, crypto->_encodedPubKeyAes);
     }

@@ -46,10 +46,6 @@ std::size_t extractUncompressedSize(const HEADER& header) {
   return std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header);
 }
 
-CRYPTO extractCrypto(const HEADER& header) {
-  return std::get<CRYPTO>(header);
-}
-
 COMPRESSORS extractCompressor(const HEADER& header) {
   return std::get<COMPRESSORS>(header);
 }
@@ -103,8 +99,6 @@ void serialize(const HEADER& header, char* buffer) {
   offset += RESERVED_SIZE;
   ioutility::toChars(extractUncompressedSize(header), buffer + offset, NUM_FIELD_SIZE);
   offset += NUM_FIELD_SIZE;
-  buffer[offset] = std::to_underlying(extractCrypto(header));
-  offset += CRYPTO_SIZE;
   buffer[offset] = std::to_underlying(extractCompressor(header));
   offset += COMPRESSOR_SIZE;
   buffer[offset] = std::to_underlying(extractDiagnostics(header));
@@ -125,9 +119,6 @@ bool deserialize(HEADER& header, const char* buffer) {
   std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
   ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header));
   offset += NUM_FIELD_SIZE;
-  if (!deserializeEnumeration(std::get<CRYPTO>(header), buffer[offset]))
-    return false;
-  offset += CRYPTO_SIZE;
   if (!deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]))
     return false;
   offset += COMPRESSOR_SIZE;

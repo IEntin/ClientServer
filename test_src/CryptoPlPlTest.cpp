@@ -10,35 +10,35 @@
 // for i in {1..10}; do ./testbin --gtest_filter=VariantCrypto*; done
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::LZ4, true);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::SNAPPY, true);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::ZSTD, true);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::NONE, true);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, true);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::LZ4, false);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::SNAPPY, false);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::ZSTD, false);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
-  testCompressEncrypt<CryptoPlPl>(CRYPTO::CRYPTOPP, COMPRESSORS::NONE, false);
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, false);
 }
 
 TEST(AuthenticationTest, 1) {
@@ -66,19 +66,16 @@ TEST(Base64EncodingTest, 1) {
 }
 
 TEST(VariantCrypto, 1) {
-  Options::_encryption = CRYPTO::CRYPTOPP;
-  constexpr unsigned long expected1 = utility::getEncryptionIndex(CRYPTO::CRYPTOPP);
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant = utility::createCrypto(utility::generateRawUUID());
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant =
+    utility::createCrypto(CRYPTO::CRYPTOPP, utility::generateRawUUID());
   std::size_t index = cryptoVariant.index();
-  ASSERT_EQ(index, expected1);
-  auto held1 = std::get<expected1>(cryptoVariant);
-  static_assert(std::is_same_v<decltype(held1), CryptoPlPlPtr> == true );
-  Options::_encryption = CRYPTO::CRYPTOSODIUM;
-  constexpr unsigned long expected2 = utility::getEncryptionIndex(CRYPTO::CRYPTOSODIUM);
-  cryptoVariant = utility::createCrypto(utility::generateRawUUID());
+  ASSERT_EQ(index, 0);
+  auto active1 = std::get<0>(cryptoVariant);
+  static_assert(std::is_same_v<decltype(active1), CryptoPlPlPtr> == true );
+  cryptoVariant = utility::createCrypto(CRYPTO::CRYPTOSODIUM, utility::generateRawUUID());
   index = cryptoVariant.index();
-  ASSERT_EQ(index, expected2);
-  auto held2 = std::get<expected2>(cryptoVariant);
-  static_assert(std::is_same_v<decltype(held2), CryptoSodiumPtr> == true );
+  ASSERT_EQ(index, 1);
+  auto active2 = std::get<1>(cryptoVariant);
+  static_assert(std::is_same_v<decltype(active2), CryptoSodiumPtr> == true );
   TestEnvironment::reset();
 }

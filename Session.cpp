@@ -16,7 +16,7 @@ Session::Session(ServerWeakPtr server,
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  _crypto = utility::createCrypto(msgHash, pubB, signatureWithPubKey);
+  _crypto = utility::createCrypto(utility::encryption, msgHash, pubB, signatureWithPubKey);
 }
 
 std::pair<HEADER, std::string_view>
@@ -30,12 +30,12 @@ Session::buildReply(std::atomic<STATUS>& status) {
   if (ServerOptions::_showKey)
       crypto-> showKey();
   HEADER header =
-    { HEADERTYPE::SESSION, 0,std::ssize(_responseData), Options::_encryption,
+    { HEADERTYPE::SESSION, 0,std::ssize(_responseData),
       Options::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
     utility::compressEncrypt(_buffer, header, ServerOptions::_doEncrypt, std::weak_ptr(crypto),
 			     _responseData, ServerOptions::_compressionLevel);
-  header = { HEADERTYPE::SESSION, 0, std::ssize(dataView), Options::_encryption,
+  header = { HEADERTYPE::SESSION, 0, std::ssize(dataView),
 	     Options::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, dataView };
 }
