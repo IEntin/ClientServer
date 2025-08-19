@@ -12,6 +12,7 @@
 #include "Logger.h"
 
 std::string ServerOptions::_adsFileName;
+COMPRESSORS ServerOptions::_compressor;
 int ServerOptions::_compressionLevel;
 bool ServerOptions::_doEncrypt;
 bool ServerOptions::_showKey;
@@ -29,6 +30,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   Options::parse(jsonName);
   AppOptions appOptions(jsonName);
   _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
+  _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
   _compressionLevel = appOptions.get("CompressionLevel", 3);
   _doEncrypt = appOptions.get("doEncrypt", true);
   _showKey = appOptions.get("ShowKey", false);

@@ -39,6 +39,7 @@
 #include <snappy.h>
 #include <span>
 #include <sstream>
+#include <stacktrace>
 #include <stdexcept>
 #include <string>
 #include <string_view>

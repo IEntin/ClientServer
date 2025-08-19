@@ -23,13 +23,15 @@ struct LogicTest : testing::Test {
   void testLogic(CLIENT_TYPE type,
 		 COMPRESSORS compressor,
 		 std::size_t bufferSize,
-		 DIAGNOSTICS diagnostics) {
-    Options::_compressor = compressor;
+		 DIAGNOSTICS diagnostics,
+		 COMPRESSORS clientCompressor = COMPRESSORS::SNAPPY) {
+    ServerOptions::_compressor = compressor;
     // start server
     ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
     ServerPtr server = std::make_shared<Server>();
     ASSERT_TRUE(server->start());
     // start client
+    ClientOptions::_compressor = clientCompressor;
     ClientOptions::_bufferSize = bufferSize;
     ClientOptions::_diagnostics = diagnostics;
     switch (type) {
@@ -217,7 +219,7 @@ TEST_F(LogicTest, FIFO_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
 
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
-    Options::_compressor = COMPRESSORS::ZSTD;
+    ServerOptions::_compressor = COMPRESSORS::ZSTD;
     ServerOptions::_doEncrypt = true;
     ClientOptions::_doEncrypt = true;
     // start server
@@ -247,7 +249,7 @@ TEST_F(LogicTestAltFormat, Diagnostics) {
 
 struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {
-    Options::_compressor = COMPRESSORS::SNAPPY;
+    ServerOptions::_compressor = COMPRESSORS::SNAPPY;
     ServerOptions::_doEncrypt = true;
     ClientOptions::_doEncrypt = true;
     // start server

@@ -29,10 +29,12 @@ struct EchoTest : testing::Test {
   void testEcho(CLIENT_TYPE type,
 		COMPRESSORS compressor,
 		bool doEncryptServer,
-		bool doEncryptClient) {
-    Options::_compressor = compressor;
+		bool doEncryptClient,
+		COMPRESSORS clientCompressor = COMPRESSORS::ZSTD) {
+    ServerOptions::_compressor = compressor;
     ServerOptions::_doEncrypt = doEncryptServer;
     ClientOptions::_doEncrypt = doEncryptClient;
+    ClientOptions::_compressor = clientCompressor;
     // start server
     ServerOptions::_policyEnum = POLICYENUM::ECHOPOLICY;
     ServerPtr server = std::make_shared<Server>();

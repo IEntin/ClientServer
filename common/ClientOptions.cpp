@@ -13,6 +13,7 @@
 
 bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
+COMPRESSORS ClientOptions::_compressor;
 int ClientOptions::_compressionLevel;
 bool ClientOptions::_doEncrypt;
 bool ClientOptions::_showKey;
@@ -35,6 +36,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   std::string clientType = appOptions.get("ClientType", std::string(""));
   _fifoClient = clientType == "FIFO";
   _tcpClient = clientType == "TCP";
+  _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
   _compressionLevel = appOptions.get("CompressionLevel", 3);
   _doEncrypt = appOptions.get("doEncrypt", true);
   _showKey = appOptions.get("ShowKey", false);

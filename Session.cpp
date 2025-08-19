@@ -31,12 +31,12 @@ Session::buildReply(std::atomic<STATUS>& status) {
       crypto-> showKey();
   HEADER header =
     { HEADERTYPE::SESSION, 0,std::ssize(_responseData),
-      Options::_compressor, DIAGNOSTICS::NONE, status, 0 };
+      ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
     utility::compressEncrypt(_buffer, header, ServerOptions::_doEncrypt, std::weak_ptr(crypto),
 			     _responseData, ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, 0, std::ssize(dataView),
-	     Options::_compressor, DIAGNOSTICS::NONE, status, 0 };
+	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, dataView };
 }
 

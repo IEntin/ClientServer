@@ -15,6 +15,7 @@ struct ClientOptions {
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;
+  static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
   static bool _showKey;
