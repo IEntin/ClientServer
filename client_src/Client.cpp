@@ -15,7 +15,7 @@
 std::atomic<bool> Client::_closeFlag = false;
 
 Client::Client() :
-  _crypto(utility::createCrypto(utility::generateRawUUID())),
+  _crypto(utility::createCrypto(utility::encryption, utility::generateRawUUID())),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {

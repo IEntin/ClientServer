@@ -118,22 +118,6 @@ bool getLastLine(std::string_view fileName, std::string& lastLine);
 bool fileEndsWithEOL(std::string_view fileName);
 
 inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(std::string_view  msg) {
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(encryption) {
-  case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msg);
-    break;
-  case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msg);
-    break;
-  default:
-    break;
-  }
-  return result;
-}
-
-inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
 createCrypto(CRYPTO encryption, std::string_view  msg) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
   switch(encryption) {
@@ -169,28 +153,6 @@ createCrypto(CRYPTO encryption,
 }
 
 template <typename Crypto>
-std::string_view encrypt(bool doEncrypt,
-			 std::string& buffer,
-			 const HEADER& header,
-			 std::weak_ptr<Crypto> weak,
-			 std::string& data) {
-  std::string_view encrypted;
-  if (doEncrypt) {
-    if (auto crypto = weak.lock(); crypto) {
-      encrypted = crypto->encrypt(buffer, header, data);
-      assert(isEncrypted(encrypted));
-    }
-    return encrypted;;
-  }
-  else {
-    char headerBuffer[HEADER_SIZE] = {};
-    data.insert(0, headerBuffer, HEADER_SIZE);
-    serialize(header, data.data());
-  }
-  return data;
-}
-
-template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,
 				 const HEADER& header,
 				 bool doEncrypt,
@@ -213,11 +175,20 @@ std::string_view compressEncrypt(std::string& buffer,
       break;
     }
   }
-  return encrypt(doEncrypt,
-		 buffer,
-		 header,
-		 weak,
-		 data);
+  if (doEncrypt) {
+    if (auto crypto = weak.lock();crypto) {
+      return crypto->encrypt(buffer,
+			     header,
+			     data);
+    }
+  }
+  else {
+    char headerBuffer[HEADER_SIZE] = {};
+    data.insert(0, headerBuffer, HEADER_SIZE);
+    serialize(header, data.data());
+    return data;
+  }
+  return "";
 }
 
 template <typename Crypto>
