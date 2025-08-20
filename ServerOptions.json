@@ -5,6 +5,7 @@
   "_comment": "0 for hardware_concurrency",
   "NumberWorkThreads" : 0,
   "_comment" : "LZ4, SNAPPY, ZSTD or anything for disabled",
+  "_comment" : "may differ for server and client",
   "Compression" : "LZ4",
   "_comment" : "Next is for LZ4",
   "CompressionLevel" : 3,

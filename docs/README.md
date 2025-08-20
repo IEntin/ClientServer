@@ -184,8 +184,11 @@ High compression ratio might be good for encryption and security.\
 ZSTD does not require saving of uncompressed size as well.\
 Software allows mixing different compression algorithms, for instance,\
 server can be configured to compress data using LZ4, but the client usually sending much longer input\
-messages will compress data using ZSTD. Headers accompanying sent data contain necessary information, so that\
-receiving end applies correct decompression algorithm. Some tests in LogicTests.cpp verify this possibility.
+messages will compress data using ZSTD. Headers accompanying sent data contain the necessary information, \
+so that receiving end applies correct decompression algorithm.\
+Some tests in EchoTests.cpp and LogicTests.cpp verify this possibility.\
+Headers are encrypted as well as other data. Mixing compression algorithms makes breaking encryption \
+more challenging.
 
 Server allows multi phase request processing. The preprocessor phase in the current code\
 is generation of the specific key and sorting requests by this key. This can be useful if\
