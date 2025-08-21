@@ -9,23 +9,25 @@
 #include "TcpClient.h"
 #include "TestEnvironment.h"
 
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_3600000_ENCRYPT_NOTENCRYPT_ND;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_NONE_100000_ENCRYPT_ENCRYPT_D;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_3600000_ENCRYPT_ENCRYPT_D;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_SNAPPY_3000000_ENCRYPT_ENCRYPT_D;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_ZSTD_3000000_ENCRYPT_ENCRYPT_D;done
-// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_SNAPPY_10000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_ZSTD_3600000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_NONE_ZSTD_100000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_SNAPPY_SNAPPY_3000000_ENCRYPT_ENCRYPT_D;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.TCP_ZSTD_ZSTD_3000000_ENCRYPT_ENCRYPT_ND;done
+// for i in {1..10}; do ./testbin --gtest_filter=LogicTest.FIFO_SNAPPY_ZSTD_10000_ENCRYPT_ENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTestAltFormat*;done
-// gdb --args testbin --gtest_filter=LogicTest.TCP_LZ4_3600000_ENCRYPT_NOTENCRYPT_ND
+
+// gdb --args testbin --gtest_filter=LogicTest.TCP_LZ4_ZSTD_3600000_ENCRYPT_ENCRYPT_D
 
 struct LogicTest : testing::Test {
   void testLogic(CLIENT_TYPE type,
-		 COMPRESSORS compressor,
+		 COMPRESSORS serverCompressor,
+		 COMPRESSORS clientCompressor,
 		 std::size_t bufferSize,
-		 DIAGNOSTICS diagnostics,
-		 COMPRESSORS clientCompressor = COMPRESSORS::ZSTD) {
-    ServerOptions::_compressor = compressor;
+		 DIAGNOSTICS diagnostics) {
+    ServerOptions::_compressor = serverCompressor;
+    ClientOptions::_compressor = clientCompressor;
     // start server
     ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
     ServerPtr server = std::make_shared<Server>();
@@ -60,161 +62,163 @@ struct LogicTest : testing::Test {
 };
 
 TEST_F(LogicTest, TCP_LZ4_ZSTD_3600000_ENCRYPT_ENCRYPT_D) {
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::ENABLED);
+  ServerOptions::_doEncrypt = true;
+  ClientOptions::_doEncrypt = true;
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::ENABLED);
 }
-TEST_F(LogicTest, TCP_NONE_3600000_NOTENCRYPT_ENCRYPT_D) {
+TEST_F(LogicTest, TCP_NONE_ZSTD_3600000_NOTENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, 3600000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, TCP_LZ4_NONE_3600000_NOTENCRYPT_NOTENCRYPT_D) {
-  ServerOptions::_doEncrypt = false;
-  ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::ENABLED, COMPRESSORS::NONE);
+TEST_F(LogicTest, TCP_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D) {
+  ServerOptions::_doEncrypt = true;
+  ClientOptions::_doEncrypt = true;
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, TCP_LZ4_SNAPPY_3600000_ENCRYPT_NOTENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::NONE, COMPRESSORS::SNAPPY);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::SNAPPY, 3600000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, TCP_LZ4_ZSTD_3000000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 3000000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 3000000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, TCP_ZSTD_LZ4_3000000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;  
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, 3000000, DIAGNOSTICS::ENABLED, COMPRESSORS::LZ4);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::LZ4, 3000000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, TCP_SNAPPY_SNAPPY_3000000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;  
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::SNAPPY, 3000000, DIAGNOSTICS::ENABLED, COMPRESSORS::SNAPPY);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::SNAPPY, 3000000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, TCP_ZSTD_ZSTD_3000000_ENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;  
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, 3000000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::ZSTD, 3000000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, TCP_SNAPPY_NONE_3000000_ENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;  
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::SNAPPY, 3000000, DIAGNOSTICS::NONE, COMPRESSORS::NONE);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::NONE, 3000000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, TCP_LZ4_NONE_20000_NOTENCRYPT__ENCRYPT_D) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 20000, DIAGNOSTICS::ENABLED, COMPRESSORS::NONE);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::NONE, 20000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, TCP_LZ4_55000_NOTENCRYPT_NOTENCRYPT_D) {
+TEST_F(LogicTest, TCP_LZ4_ZSTD_55000_NOTENCRYPT_NOTENCRYPT_D) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 55000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 55000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, TCP_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
+TEST_F(LogicTest, TCP_LZ4_ZSTD_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, TCP_NONE_NONE_3600000_ENCRYPT_NOTENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, 3600000, DIAGNOSTICS::ENABLED, COMPRESSORS::NONE);
+  testLogic(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, COMPRESSORS::NONE, 3600000, DIAGNOSTICS::ENABLED);
 }
-TEST_F(LogicTest, FIFO_LZ4_3600000_NOTENCRYPT_NOTENCRYPT_D) {
+TEST_F(LogicTest, FIFO_LZ4_LZ4_3600000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, FIFO_NONE_ZSTD_100000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, 100000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::ZSTD, 100000, DIAGNOSTICS::ENABLED);
 }
 
 TEST_F(LogicTest, FIFO_LZ4_ZSTD_3600000_ENCRYPT_NOTENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_100000_NOTENCRYPT_ENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_LZ4_ZSTD_100000_NOTENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 100000, DIAGNOSTICS::NONE, COMPRESSORS::LZ4);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 100000, DIAGNOSTICS::NONE);
 }
 
 TEST_F(LogicTest, FIFO_LZ4_SNAPPY_543_NOTENCRYPT_NOTENCRYPT_D) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 543, DIAGNOSTICS::ENABLED, COMPRESSORS::SNAPPY);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::SNAPPY, 543, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_10000_ENCRYPT_ENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_LZ4_ZSTD_10000_ENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 10000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::NONE);
 }
 
-TEST_F(LogicTest, FIFO_SNAPPY_10000_ENCRYPT_ENCRYPT_D) {
+TEST_F(LogicTest, FIFO_SNAPPY_ZSTD_10000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, 10000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, FIFO_SNAPPY_10000_ENCRYPT_ENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_SNAPPY_ZSTD_10000_ENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, 10000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::NONE);
 }
 
-TEST_F(LogicTest, FIFO_SNAPPY_10000_ENCRYPT_NOTENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_SNAPPY_ZSTD_10000_ENCRYPT_NOTENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, 10000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::NONE);
 }
 
-TEST_F(LogicTest, FIFO_ZSTD_10000_ENCRYPT_ENCRYPT_D) {
+TEST_F(LogicTest, FIFO_ZSTD_ZSTD_10000_ENCRYPT_ENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, FIFO_ZSTD_10000_ENCRYPT_ENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_ZSTD_ZSTD_10000_ENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::NONE);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_10000000_ENCRYPT_NOTENCRYPT_D) {
+TEST_F(LogicTest, FIFO_LZ4_ZSTD_10000000_ENCRYPT_NOTENCRYPT_D) {
   ServerOptions::_doEncrypt = true;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 10000000, DIAGNOSTICS::ENABLED);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 10000000, DIAGNOSTICS::ENABLED);
 }
 
-TEST_F(LogicTest, FIFO_LZ4_3600000_NOTENCRYPT_ENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_LZ4_ZSTD_3600000_NOTENCRYPT_ENCRYPT_ND) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = true;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, 3600000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::NONE);
 }
 
-TEST_F(LogicTest, FIFO_NONE_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
+TEST_F(LogicTest, FIFO_NONE_ZSTD_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
   ServerOptions::_doEncrypt = false;
   ClientOptions::_doEncrypt = false;
-  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, 3600000, DIAGNOSTICS::NONE);
+  testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::NONE);
 }
 
 struct LogicTestAltFormat : testing::Test {

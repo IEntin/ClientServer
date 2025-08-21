@@ -149,11 +149,12 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
-  const CryptoPP::SecByteBlock& pubAreceived { vect.data(), vect.size() };
-  bool result = _dh.Agree(_key, _privKeyAes, pubAreceived);
-  erasePubPrivKeys();
+  const CryptoPP::SecByteBlock& pubKeyAesServer { vect.data(), vect.size() };
+  if (!_dh.Agree(_key, _privKeyAes, pubKeyAesServer))
+    throw std::runtime_error("Client-side key exchange failed");
   hideKey();
-  return result;
+  erasePubPrivKeys();
+  return true;
 }
 
 void CryptoPlPl::signMessage() {

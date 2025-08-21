@@ -35,7 +35,7 @@ void HandleKey::recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>&
   }
 }
 
-void CryptoSodium::setAESKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
+void CryptoSodium::setAESKey(SessionKey& key) {
   std::lock_guard lock(_mutex);
   _keyHandler.recoverKey(_key);
   key = _key;
@@ -56,7 +56,7 @@ CryptoSodium::CryptoSodium(std::string_view msg) :
 		       _secretKeySign.data());
   
   _signatureWithPubKeySign.assign(_signature.cbegin(), _signature.cend());
-  _signatureWithPubKeySign.insert(_signatureWithPubKeySign.end(), _publicKeySign.cbegin(), _publicKeySign.cend());
+  _signatureWithPubKeySign.append(_publicKeySign.cbegin(), _publicKeySign.cend());
 }
 
 CryptoSodium::CryptoSodium(std::string_view msgHash,
@@ -121,6 +121,10 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   return buffer;
 }
 
+void CryptoSodium::hideKey() {
+  _keyHandler.hideKey(_key);
+}
+
 void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
@@ -161,7 +165,7 @@ bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
 				    pubKeyAesServer.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyClient", _key);
-  _keyHandler.hideKey(_key);
+  hideKey();
   eraseUsedData();
   return true;
 }

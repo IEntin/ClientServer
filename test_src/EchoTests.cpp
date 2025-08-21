@@ -15,11 +15,11 @@
 
 // for i in {1..10}; do ./testbin --gtest_filter=FifoNBDuplex*; done
 // for i in {1..10}; do ./testbin --gtest_filter=FifoBlockingTest*; done
-// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_ENCRYPT_ENCRYPT; done
-// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_ENCRYPT_ENCRYPT; done
-// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_SNAPPY_ENCRYPT_ENCRYPT; done
-// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_NONE_ENCRYPT_ENCRYPT; done
-// gdb --args testbin --gtest_filter=EchoTest.FIFO_NONE_ENCRYPT_ENCRYPT
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.TCP_LZ4_ZSTD_ENCRYPT_ENCRYPT; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_ZSTD_ZSTD_ENCRYPT_ENCRYPT; done
+// for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_NONE_ZSTD_ENCRYPT_ENCRYPT; done
+// gdb --args testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT
 
 static constexpr auto _smallPayload = "abcdefghijklmnopqr0123456789876543210";
 static constexpr auto _testFifo = "TestFifo";
@@ -27,11 +27,12 @@ static constexpr auto _testFifo = "TestFifo";
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;
   void testEcho(CLIENT_TYPE type,
-		COMPRESSORS compressor,
+		COMPRESSORS serverCompressor,
+		COMPRESSORS clientCompressor,
 		bool doEncryptServer,
-		bool doEncryptClient,
-		COMPRESSORS clientCompressor = COMPRESSORS::ZSTD) {
-    ServerOptions::_compressor = compressor;
+		bool doEncryptClient) {
+    ServerOptions::_compressor = serverCompressor;
+    ClientOptions::_compressor = clientCompressor;
     ServerOptions::_doEncrypt = doEncryptServer;
     ClientOptions::_doEncrypt = doEncryptClient;
     ClientOptions::_compressor = clientCompressor;
@@ -63,64 +64,60 @@ struct EchoTest : testing::Test {
   }
 };
 
-TEST_F(EchoTest, TCP_ZSTD_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, true, false);
+TEST_F(EchoTest, TCP_ZSTD_ZSTD_ENCRYPT_NOTENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::ZSTD, true, false);
 }
 
-TEST_F(EchoTest, TCP_LZ4_ENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, true, true);
+TEST_F(EchoTest, TCP_LZ4_ZSTD_ENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::LZ4, COMPRESSORS::ZSTD, true, true);
 }
 
-TEST_F(EchoTest, TCP_NONE_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, true, false);
+TEST_F(EchoTest, TCP_NONE_ZSTD_ENCRYPT_NOTENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, COMPRESSORS::ZSTD, true, false);
 }
 
-TEST_F(EchoTest, TCP_SNAPPY_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, true, false);
+TEST_F(EchoTest, TCP_SNAPPY_ZSTD_ENCRYPT_NOTENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::ZSTD, true, false);
 }
 
-TEST_F(EchoTest, TCP_ZSTD_NOTENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, false, true);
+TEST_F(EchoTest, TCP_ZSTD_ZSTD_NOTENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::ZSTD, false, true);
 }
 
-TEST_F(EchoTest, FIFO_LZ4_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, true, false);
+TEST_F(EchoTest, TCP_NONE_NONE_NOTENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::NONE, COMPRESSORS::NONE, false, true);
 }
 
-TEST_F(EchoTest, FIFO_SNAPPY_ENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, true, true);
+TEST_F(EchoTest, FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::LZ4, true, true);
 }
 
-TEST_F(EchoTest, FIFO_ZSTD) {
-  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, true, false);
+TEST_F(EchoTest, FIFO_SNAPPY_ZSTD_ENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::SNAPPY, true, true);
 }
 
-TEST_F(EchoTest, FIFO_ZSTD_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, true, false);
+TEST_F(EchoTest, FIFO_ZSTD_ZSTD_ENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::TCPCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::ZSTD, true, true);
 }
 
-TEST_F(EchoTest, FIFO_NONE_ENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, true, true);
+TEST_F(EchoTest, FIFO_ZSTD_SNAPPY_ENCRYPT_NOTENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, COMPRESSORS::SNAPPY, true, false);
 }
 
-TEST_F(EchoTest, FIFO_LZ4_ENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, true, true);
+TEST_F(EchoTest, FIFO_NONE_ZSTD_ENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::ZSTD, true, true);
 }
 
-TEST_F(EchoTest, FIFO_ZSTD_ENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::ZSTD, true, true);
+TEST_F(EchoTest, FIFO_LZ4_NONE_ENCRYPT_ENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::LZ4, COMPRESSORS::NONE, true, true);
 }
 
-TEST_F(EchoTest, FIFO_NONE_NOTENCRYPT_ENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, false, true);
+TEST_F(EchoTest, FIFO_NONE_LZ4_NOTENCRYPT_NOTENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::LZ4, false, false);
 }
 
-TEST_F(EchoTest, FIFO_NONE_NOTENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, false, false);
-}
-
-TEST_F(EchoTest, FIFO_NONE_ENCRYPT_NOTENCRYPT) {
-  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, true, false);
+TEST_F(EchoTest, FIFO_SNAPPY_SNAPPY_ENCRYPT_NOTENCRYPT) {
+  testEcho(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::SNAPPY, true, false);
 }
 
 struct FifoBlockingTest : testing::Test {
