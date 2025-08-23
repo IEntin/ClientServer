@@ -26,7 +26,7 @@ class DebugLog {
   static void setDebugLog(APPTYPE type);
 
   template <typename T>
-  static void logBinaryData([[maybe_unused]] const boost::source_location& loc,
+  static bool logBinaryData([[maybe_unused]] const boost::source_location& loc,
 			    [[maybe_unused]] std::string_view name,
 			    [[maybe_unused]] const T& variable) {
 #ifdef _DEBUG
@@ -36,6 +36,8 @@ class DebugLog {
     boost::algorithm::hex(std::cbegin(variable), std::cend(variable), std::ostream_iterator<char> { stream });
     stream << '\n';
     stream.flush();
+    // to be able to print just once
+    return true;
 #endif
 }
 

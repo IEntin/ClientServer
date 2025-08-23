@@ -29,8 +29,10 @@ class CryptoSodium {
   using SessionKey = std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>;
   std::string
   hashMessage(std::string_view message);
-  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _secretKeyAes;
-  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _pubKeyAes;
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _serverSecretKeyAes;
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _serverPubKeyAes;
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _clientSecretKeyAes;
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _clientPubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
@@ -55,18 +57,19 @@ public:
   void decrypt(std::string& buffer, std::string& data);
   std::string base64_encode(std::span<unsigned char> input);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
-  bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
+  bool clientKeyExchange(std::string_view encodedPubKeyAesServer);
   void showKey();
   std::string _msgHash;
   std::string _encodedPubKeyAes;
+  std::string _encodedPubKeyAesClient;
   std::string _signatureWithPubKeySign;
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAesClient.size(),
 		      COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
+    bool result = lambda(header, _msgHash, _encodedPubKeyAesClient, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();

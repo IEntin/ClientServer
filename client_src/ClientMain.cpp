@@ -20,10 +20,6 @@ void signalHandler(int) {
 
 int main() {
   DebugLog::setDebugLog(APPTYPE::CLIENT);
-  if (sodium_init() < 0) {
-    LogError << "sodium_init failure\n";
-    return 1;
-  }
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setClientTerminal(terminal);
   struct Finally {

@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 
+#include "CryptoDefinitions.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
@@ -37,7 +38,7 @@ public:
     std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()),
 					     cryptoC->_signatureWithPubKeySign.size());
     return std::make_shared<CryptoSodium>(cryptoC->_msgHash,
-					  cryptoC->_encodedPubKeyAes,
+					  cryptoC->_encodedPubKeyAesClient,
 					  signatureWithPubKeySign);
   }
 
@@ -68,11 +69,11 @@ public:
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	utility::compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
+	cryptodefinitions::compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
       HEADER restoredHeader;
       data = dataView;
-      ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
-      utility::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
+      ASSERT_EQ(cryptodefinitions::isEncrypted(data), doEncrypt);
+      cryptodefinitions::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }

@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "ClientOptions.h"
+#include "CryptoDefinitions.h"
 #include "DebugLog.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -45,9 +46,9 @@ void CryptoSodium::setAESKey(SessionKey& key) {
 // client
 CryptoSodium::CryptoSodium(std::string_view msg) :
   _msgHash(hashMessage(msg)) {
-  crypto_kx_keypair(_pubKeyAes.data(), _secretKeyAes.data());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAesClient in client", _pubKeyAes);
-  _encodedPubKeyAes = base64_encode(_pubKeyAes);
+  crypto_kx_keypair(_clientPubKeyAes.data(), _clientSecretKeyAes.data());
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_clientPubKeyAesClient in client", _clientPubKeyAes);
+  _encodedPubKeyAesClient = base64_encode(_clientPubKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
   crypto_sign_detached(_signature.data(),
 		       NULL,
@@ -66,9 +67,9 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   std::vector<unsigned char> pubKeyAesClient = base64_decode(encodedPubKeyAesClient);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "signatureWithPubKeySign", signatureWithPubKeySign);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesClient in server", pubKeyAesClient);
-  crypto_kx_keypair(_pubKeyAes.data(), _secretKeyAes.data());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer in server ", _pubKeyAes);
-  _encodedPubKeyAes = base64_encode(_pubKeyAes);
+  crypto_kx_keypair(_serverPubKeyAes.data(), _serverSecretKeyAes.data());
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_serverPubKeyAes", _serverPubKeyAes);
+  _encodedPubKeyAes = base64_encode(_serverPubKeyAes);
   unsigned char signature[crypto_sign_BYTES] = {};
   std::copy(signatureWithPubKeySign.begin(), signatureWithPubKeySign.begin() + crypto_sign_BYTES, signature);
   unsigned char peerPubcicKeySign[crypto_sign_PUBLICKEYBYTES] = {};
@@ -83,8 +84,8 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   // Server-side key exchange
   if (crypto_kx_server_session_keys(_key.data(),
 				    nullptr,
-				    _pubKeyAes.data(),
-				    _secretKeyAes.data(),
+				    _serverPubKeyAes.data(),
+				    _serverSecretKeyAes.data(),
 				    pubKeyAesClient.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyServer", _key);
@@ -129,7 +130,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
-  if (utility::isEncrypted(data)) {
+  if (cryptodefinitions::isEncrypted(data)) {
     unsigned long long ciphertext_len = std::ssize(data) - crypto_aead_aes256gcm_NPUBBYTES;
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
     std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);
@@ -155,13 +156,13 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   }
 }
 
-bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
-  std::vector<unsigned char> pubKeyAesServer = base64_decode(encodedPeerPubKeyAes);
+bool CryptoSodium::clientKeyExchange(std::string_view encodedPubKeyAesServer) {
+  std::vector<unsigned char> pubKeyAesServer = base64_decode(encodedPubKeyAesServer);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAesServer from server", pubKeyAesServer);
   if (crypto_kx_client_session_keys(nullptr,
 				    _key.data(),
-				    _pubKeyAes.data(),
-				    _secretKeyAes.data(),
+				    _clientPubKeyAes.data(),
+				    _clientSecretKeyAes.data(),
 				    pubKeyAesServer.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyClient", _key);
@@ -227,5 +228,6 @@ bool CryptoSodium::checkAccess() {
 
 void CryptoSodium::eraseUsedData() {
   std::string().swap(_msgHash);
-  std::array<unsigned char, crypto_kx_SECRETKEYBYTES>().swap(_secretKeyAes);
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES>().swap(_serverSecretKeyAes);
+  std::array<unsigned char, crypto_kx_SECRETKEYBYTES>().swap(_clientSecretKeyAes);
 }

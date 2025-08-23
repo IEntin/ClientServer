@@ -16,7 +16,7 @@ Session::Session(ServerWeakPtr server,
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  _crypto = utility::createCrypto(utility::encryption, msgHash, pubB, signatureWithPubKey);
+  _crypto = cryptodefinitions::createCrypto(msgHash, pubB, signatureWithPubKey);
 }
 
 std::pair<HEADER, std::string_view>
@@ -25,25 +25,23 @@ Session::buildReply(std::atomic<STATUS>& status) {
   const auto& response = _task->getResponse();
   for (std::string_view entry : response)
     _responseData += entry;
-  constexpr unsigned long index = utility::getEncryptionIndex();
-  auto crypto = std::get<index>(_crypto);
-  if (ServerOptions::_showKey)
-      crypto-> showKey();
   HEADER header =
     { HEADERTYPE::SESSION, 0,std::ssize(_responseData),
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
-    utility::compressEncrypt(_buffer, header, ServerOptions::_doEncrypt, std::weak_ptr(crypto),
-			     _responseData, ServerOptions::_compressionLevel);
+  cryptodefinitions::compressEncrypt(_crypto,
+				     _buffer,
+				     header,
+				     _responseData,
+				     ServerOptions::_doEncrypt,
+				     ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, 0, std::ssize(dataView),
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, dataView };
 }
 
 bool Session::processTask() {
-  constexpr unsigned long index = utility::getEncryptionIndex();
-  auto crypto = std::get<index>(_crypto);
-  utility::decryptDecompress(_buffer, _header, std::weak_ptr(crypto), _request);
+  cryptodefinitions::decryptDecompress(_crypto, _buffer, _header, _request);
   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(_header, _request);
     taskController->processTask(_task);

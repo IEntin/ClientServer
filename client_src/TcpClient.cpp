@@ -4,6 +4,7 @@
 
 #include "TcpClient.h"
 
+#include "CryptoDefinitions.h"
 #include "Tcp.h"
 
 namespace tcp {
@@ -18,7 +19,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     std::string_view signedAuth) {
     return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
-  constexpr unsigned long index = utility::getEncryptionIndex();
+  constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
   auto crypto = std::get<index>(_crypto);
   if (!crypto->sendSignature(lambda))
     throw std::runtime_error("TcpClient::init failed");
@@ -79,7 +80,8 @@ bool TcpClient::receiveStatus() {
   std::array<std::reference_wrapper<std::string>, 3> array = { dummy, std::ref(clientIdStr), std::ref(encodedPubKeyAesServer) };
   if (!Tcp::readMessage(_socket, _header, array))
     return false;
-  if (!DHFinish(clientIdStr, encodedPubKeyAesServer))
+  ioutility::fromChars(clientIdStr, _clientId);
+  if (!DHFinish(encodedPubKeyAesServer))
     return false;
   startHeartbeat();
   return true;

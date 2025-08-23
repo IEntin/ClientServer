@@ -78,7 +78,7 @@ public:
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
+  bool clientKeyExchange(std::string_view encodedPubKeyAesServer);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,

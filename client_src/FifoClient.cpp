@@ -10,6 +10,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "ClientOptions.h"
+#include "CryptoDefinitions.h"
 #include "Fifo.h"
 #include "Options.h"
 #include "Utility.h"
@@ -91,7 +92,7 @@ bool FifoClient::wakeupAcceptor() {
     std::string_view signedAuth) {
     return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAesServer, signedAuth);
   };
-  constexpr unsigned long index = utility::getEncryptionIndex();
+  constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
   auto crypto = std::get<index>(_crypto);
   return crypto->sendSignature(lambda);
 }
@@ -106,7 +107,8 @@ bool FifoClient::receiveStatus() {
     dummy, std::ref(clientIdStr), std::ref(encodedPubKeyAesServer) };
   if (!Fifo::readMessage(Options::_acceptorName, true,_header, array))
     return false;
-  if (!DHFinish(clientIdStr, encodedPubKeyAesServer))
+  ioutility::fromChars(clientIdStr, _clientId);
+  if (!DHFinish(encodedPubKeyAesServer))
     return false;
   _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);

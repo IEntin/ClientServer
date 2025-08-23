@@ -40,10 +40,6 @@ void TestEnvironment::reset() {
 
 int main(int argc, char** argv) {
   try {
-    if (sodium_init() < 0) {
-      LogError << "sodium_init failure\n";
-      return 1;
-    }
     utility::setTestbinTerminal(getenv("GNOME_TERMINAL_SCREEN"));
     TestEnvironment* env = new TestEnvironment();
     ::testing::AddGlobalTestEnvironment(env);

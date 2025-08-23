@@ -10,6 +10,7 @@
 #include <cryptopp/hex.h>
 
 #include "ClientOptions.h"
+#include "CryptoDefinitions.h"
 #include "IOUtility.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -130,7 +131,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
 void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     return;
-  if (utility::isEncrypted(data)) {
+  if (cryptodefinitions::isEncrypted(data)) {
     buffer.clear();
     CryptoPP::SecByteBlock
       iv(std::bit_cast<CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),

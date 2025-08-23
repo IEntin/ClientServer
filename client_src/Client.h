@@ -7,10 +7,10 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
+#include "CryptoDefinitions.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
-#include "Utility.h"
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
@@ -31,7 +31,7 @@ protected:
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;
-  bool DHFinish(std::string_view clientIdStr, std::string_view encodedPubAreceived);
+  bool DHFinish(std::string_view encodedPubAreceived);
 
   std::size_t _clientId = 0;
   Chronometer _chronometer;

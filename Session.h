@@ -9,6 +9,7 @@
 
 #include <boost/core/noncopyable.hpp>
 
+#include "CryptoDefinitions.h"
 #include "Header.h"
 #include "IOUtility.h"
 #include "Utility.h"
@@ -41,7 +42,7 @@ protected:
     if (auto server = _server.lock(); server) {
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
-      constexpr unsigned long index = utility::getEncryptionIndex();
+      constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
       auto crypto = std::get<index>(_crypto);
       HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, clientIdStr.size(),
 		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status,

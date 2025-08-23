@@ -7,6 +7,7 @@
 #include <boost/algorithm/hex.hpp>
 
 #include "ClientOptions.h"
+#include "CryptoDefinitions.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
@@ -15,7 +16,7 @@
 std::atomic<bool> Client::_closeFlag = false;
 
 Client::Client() :
-  _crypto(utility::createCrypto(utility::encryption, utility::generateRawUUID())),
+  _crypto(cryptodefinitions::createCrypto(utility::generateRawUUID())),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {
@@ -27,14 +28,13 @@ Client::~Client() {
   }
 }
 
-bool Client::DHFinish(std::string_view clientIdStr, std::string_view encodedPubKeyAesServer) {
-  constexpr unsigned long index = utility::getEncryptionIndex();
+bool Client::DHFinish(std::string_view encodedPubKeyAesServer) {
+  constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
   auto crypto = std::get<index>(_crypto);
   if (!crypto->clientKeyExchange(encodedPubKeyAesServer)) {
     LogError << "handshake failed";
     return false;
   }
-  ioutility::fromChars(clientIdStr, _clientId);
   assert(!isCompressed(_header) && "expected uncompressed");
   _status = extractStatus(_header);
   switch (_status) {
@@ -101,9 +101,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  constexpr unsigned long index = utility::getEncryptionIndex();
-  auto crypto = std::get<index>(_crypto);
-  utility::decryptDecompress(_buffer, _header, std::weak_ptr(crypto), _response);
+  cryptodefinitions::decryptDecompress(_crypto, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -119,14 +117,12 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 std::string& data,
 					 bool doEncrypt,
 					 int compressionLevel) {
-  constexpr unsigned long index = utility::getEncryptionIndex();
-  auto crypto = std::get<index>(_crypto);
-  return utility::compressEncrypt(buffer,
-				  header,
-				  doEncrypt,
-				  std::weak_ptr(crypto),
-				  data,
-				  compressionLevel);
+  return cryptodefinitions::compressEncrypt(_crypto,
+					     buffer,
+					     header,
+					     data,
+					     doEncrypt,
+					     compressionLevel);
 }
 
 void Client::start() {
