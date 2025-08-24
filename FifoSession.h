@@ -22,11 +22,11 @@ class FifoSession final : public RunnableT<FifoSession>,
  public:
   FifoSession(ServerWeakPtr server,
 	      std::string_view msgHash,
-	      std::string_view pubB,
+	      std::string_view encodedPubKeyAesClient,
 	      std::string_view signatureWithPubKey);
   ~FifoSession() override;
   bool start() override;
-  void sendStatusToClient() override;
+  void sendStatusToClient();
 };
 
 } // end of namespace fifo

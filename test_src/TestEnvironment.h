@@ -44,7 +44,7 @@ public:
 
   static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
     return std::make_shared<CryptoPlPl>(cryptoC->_msgHash,
-					cryptoC->_encodedPubKeyAes,
+					cryptoC->_encodedPubKeyAesClient,
 					cryptoC->_signatureWithPubKeySign);
   }
 

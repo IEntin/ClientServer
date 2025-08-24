@@ -47,7 +47,6 @@ private:
     if (!inserted)
       return false;
     _threadPoolSession.calculateStatus(session);
-    session->sendStatusToClient();
     _threadPoolSession.push(session);
     return true;
   }

@@ -38,6 +38,7 @@ bool TcpSession::start() {
   }
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
   boost::asio::post(_ioContext, [this] { readRequest(); });
+  sendStatusToClient();
   return true;
 }
 

@@ -79,7 +79,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msg) :
   _keyHandler(_key.size()),
   _msgHash(sha256_hash(msg)) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
-  _encodedPubKeyAes = base64_encode(_pubKeyAes);
+  _encodedPubKeyAesClient = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);

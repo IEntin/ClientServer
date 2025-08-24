@@ -74,6 +74,7 @@ public:
   ~CryptoPlPl() = default;
   std::string _msgHash;
   std::string _encodedPubKeyAes;
+  std::string _encodedPubKeyAesClient;
   std::string _signatureWithPubKeySign;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
@@ -89,10 +90,10 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAesClient.size(),
 		      COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
+    bool result = lambda(header, _msgHash, _encodedPubKeyAesClient, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseRSAKeys();

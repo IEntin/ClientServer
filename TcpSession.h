@@ -27,7 +27,7 @@ public:
 
   ~TcpSession() override = default;
   bool start() override;
-  void sendStatusToClient() override;
+  void sendStatusToClient();
 private:
  void run() noexcept override;
   void stop() override;

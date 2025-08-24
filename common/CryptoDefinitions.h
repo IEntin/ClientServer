@@ -93,15 +93,15 @@ createCrypto(std::string_view  msg) {
 inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
 createCrypto(CRYPTO encryption,
 	     std::string_view msgHash,
-	     std::string_view pubB,
+	     std::string_view encodedPubKeyAesClient,
 	     std::string_view signatureWithPubKey) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
   switch(encryption) {
   case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
+    result = std::make_shared<CryptoPlPl>(msgHash, encodedPubKeyAesClient, signatureWithPubKey);
     break;
   case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msgHash, pubB, signatureWithPubKey);
+    result = std::make_shared<CryptoSodium>(msgHash, encodedPubKeyAesClient, signatureWithPubKey);
     break;
   default:
     break;
@@ -111,15 +111,15 @@ createCrypto(CRYPTO encryption,
 
 inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
 createCrypto(std::string_view msgHash,
-	     std::string_view pubB,
+	     std::string_view encodedPubKeyAesClient,
 	     std::string_view signatureWithPubKey) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
   switch(encryption) {
   case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msgHash, pubB, signatureWithPubKey);
+    result = std::make_shared<CryptoPlPl>(msgHash, encodedPubKeyAesClient, signatureWithPubKey);
     break;
   case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msgHash, pubB, signatureWithPubKey);
+    result = std::make_shared<CryptoSodium>(msgHash, encodedPubKeyAesClient, signatureWithPubKey);
     break;
   default:
     break;
@@ -271,6 +271,18 @@ inline void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
   if (!crypto->clientKeyExchange(encodedPubKeyAesServer)) {
     throw std::runtime_error("clientKeyExchange failed");
   }
+}
+
+inline void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
+			       std::string_view clientIdStr,
+			       STATUS status,
+			       HEADER& header,
+			       std::string& encodedPubKeyAesServer) {
+  auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
+  encodedPubKeyAesServer.assign(crypto->_encodedPubKeyAes);
+  header = { HEADERTYPE::DH_HANDSHAKE, 0, clientIdStr.size(),
+	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status,
+	     encodedPubKeyAesServer.size() };
 }
 
 } // end of namespace cryptodefinitions

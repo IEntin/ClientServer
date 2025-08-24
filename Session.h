@@ -12,7 +12,6 @@
 #include "CryptoDefinitions.h"
 #include "Header.h"
 #include "IOUtility.h"
-#include "Utility.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
@@ -30,7 +29,7 @@ protected:
 
   Session(ServerWeakPtr server,
 	  std::string_view msgHash,
-	  std::string_view pubB,
+	  std::string_view encodedPubKeyAesClient,
 	  std::string_view signatureWithPubKey);
   virtual ~Session() = default;
   std::pair<HEADER, std::string_view>
@@ -42,12 +41,14 @@ protected:
     if (auto server = _server.lock(); server) {
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
-      constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
-      auto crypto = std::get<index>(_crypto);
-      HEADER header{ HEADERTYPE::DH_HANDSHAKE, 0, clientIdStr.size(),
-		     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status,
-		     crypto->_encodedPubKeyAes.size() };
-      lambda(header, clientIdStr, crypto->_encodedPubKeyAes);
+      HEADER header;
+      std::string encodedPubKeyAesServer;
+      cryptodefinitions::sendStatusToClient(_crypto,
+					    clientIdStr,
+					    status,
+					    header,
+					    encodedPubKeyAesServer);
+      lambda(header, clientIdStr, encodedPubKeyAesServer);
     }
   }
 
@@ -58,6 +59,5 @@ protected:
 			    unsigned maxNumberRunningByType,
 			    STATUS status) const;
 public:
-  virtual void sendStatusToClient() = 0;
   std::size_t getId() const { return _clientId; }
 };

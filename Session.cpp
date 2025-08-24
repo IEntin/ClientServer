@@ -8,15 +8,16 @@
 #include "ServerOptions.h"
 #include "Task.h"
 #include "TaskController.h"
+#include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
 		 std::string_view msgHash,
-		 std::string_view pubB,
+		 std::string_view encodedPubKeyAesClient,
 		 std::string_view signatureWithPubKey) :
   _task(std::make_shared<Task>(server)),
   _server(server) {
   _clientId = utility::getUniqueId();
-  _crypto = cryptodefinitions::createCrypto(msgHash, pubB, signatureWithPubKey);
+  _crypto = cryptodefinitions::createCrypto(msgHash, encodedPubKeyAesClient, signatureWithPubKey);
 }
 
 std::pair<HEADER, std::string_view>
