@@ -55,8 +55,7 @@ public:
       auto cryptoC(std::make_shared<CryptoType>(utility::generateRawUUID()));
       // server
       auto cryptoS = createServer(cryptoC);
-      cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
-
+      cryptodefinitions::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,

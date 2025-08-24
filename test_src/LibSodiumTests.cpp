@@ -38,7 +38,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
     // server
     CryptoSodiumPtr cryptoS = createServer(cryptoC);
-    cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
+    cryptodefinitions::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
     HEADER header{ HEADERTYPE::SESSION, 0, HEADER_SIZE + std::ssize(TestEnvironment::_source),
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };

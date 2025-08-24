@@ -259,4 +259,18 @@ inline void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
   }
 }
 
+template <typename Crypto>
+void clientKeyExchange(Crypto crypto, std::string_view encodedPubKeyAesServer) {
+  if (!crypto->clientKeyExchange(encodedPubKeyAesServer))
+    throw std::runtime_error("clientKeyExchange failed");
+}
+
+inline void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
+			      std::string_view encodedPubKeyAesServer) {
+  auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
+  if (!crypto->clientKeyExchange(encodedPubKeyAesServer)) {
+    throw std::runtime_error("clientKeyExchange failed");
+  }
+}
+
 } // end of namespace cryptodefinitions

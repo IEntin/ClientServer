@@ -108,7 +108,13 @@ bool FifoClient::receiveStatus() {
   if (!Fifo::readMessage(Options::_acceptorName, true,_header, array))
     return false;
   ioutility::fromChars(clientIdStr, _clientId);
-  if (!DHFinish(encodedPubKeyAesServer))
+  try {
+    cryptodefinitions::clientKeyExchange(_crypto, encodedPubKeyAesServer);
+  }
+  catch (const std::exception& e) {
+    return false;
+  }
+  if (!displayOverload("fifo"))
     return false;
   _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);

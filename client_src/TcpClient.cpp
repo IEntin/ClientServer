@@ -81,7 +81,14 @@ bool TcpClient::receiveStatus() {
   if (!Tcp::readMessage(_socket, _header, array))
     return false;
   ioutility::fromChars(clientIdStr, _clientId);
-  if (!DHFinish(encodedPubKeyAesServer))
+  try {
+    cryptodefinitions::clientKeyExchange(_crypto, encodedPubKeyAesServer);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+  if (!displayOverload("tcp"))
     return false;
   startHeartbeat();
   return true;

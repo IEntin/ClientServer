@@ -28,20 +28,14 @@ Client::~Client() {
   }
 }
 
-bool Client::DHFinish(std::string_view encodedPubKeyAesServer) {
-  constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
-  auto crypto = std::get<index>(_crypto);
-  if (!crypto->clientKeyExchange(encodedPubKeyAesServer)) {
-    LogError << "handshake failed";
-    return false;
-  }
+bool Client::displayOverload(std::string_view type) {
   assert(!isCompressed(_header) && "expected uncompressed");
   _status = extractStatus(_header);
   switch (_status) {
   case STATUS::NONE:
     break;
   case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn("fifo");
+    displayMaxSessionsOfTypeWarn(type);
     break;
   case STATUS::MAX_TOTAL_OBJECTS:
     displayMaxTotalSessionsWarn();
