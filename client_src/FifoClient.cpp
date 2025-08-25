@@ -114,8 +114,7 @@ bool FifoClient::receiveStatus() {
   catch (const std::exception& e) {
     return false;
   }
-  if (!displayOverload("fifo"))
-    return false;
+  displayMaxSessionsOfTypeWarn("fifo");
   _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
   startHeartbeat();

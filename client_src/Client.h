@@ -31,8 +31,7 @@ protected:
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;
-  bool displayOverload(std::string_view type);
-
+  
   std::size_t _clientId = 0;
   Chronometer _chronometer;
   ThreadPoolBase _threadPoolClient;

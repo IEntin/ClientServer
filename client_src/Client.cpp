@@ -28,25 +28,6 @@ Client::~Client() {
   }
 }
 
-bool Client::displayOverload(std::string_view type) {
-  assert(!isCompressed(_header) && "expected uncompressed");
-  _status = extractStatus(_header);
-  switch (_status) {
-  case STATUS::NONE:
-    break;
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn(type);
-    break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    displayMaxTotalSessionsWarn();
-    break;
-  default:
-    return false;
-    break;
-  }
-  return true;
-}
-
 // Allows to read and process the source in parts with sizes
 // determined by the buffer size. This reduces memory footprint.
 // For maximum speed the buffer should be large to read the

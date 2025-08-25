@@ -88,8 +88,7 @@ bool TcpClient::receiveStatus() {
     LogError << e.what() << '\n';
     return false;
   }
-  if (!displayOverload("tcp"))
-    return false;
+  displayMaxSessionsOfTypeWarn("tcp");
   startHeartbeat();
   return true;
 }
