@@ -38,13 +38,13 @@ public:
     std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()),
 					     cryptoC->_signatureWithPubKeySign.size());
     return std::make_shared<CryptoSodium>(cryptoC->_msgHash,
-					  cryptoC->_encodedPubKeyAesClient,
+					  cryptoC->_encodedPubKeyAes,
 					  signatureWithPubKeySign);
   }
 
   static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
     return std::make_shared<CryptoPlPl>(cryptoC->_msgHash,
-					cryptoC->_encodedPubKeyAesClient,
+					cryptoC->_encodedPubKeyAes,
 					cryptoC->_signatureWithPubKeySign);
   }
 

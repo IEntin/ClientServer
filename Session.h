@@ -29,7 +29,7 @@ protected:
 
   Session(ServerWeakPtr server,
 	  std::string_view msgHash,
-	  std::string_view encodedPubKeyAesClient,
+	  std::string_view encodedPeerPubKeyAes,
 	  std::string_view signatureWithPubKey);
   virtual ~Session() = default;
   std::pair<HEADER, std::string_view>
@@ -42,13 +42,13 @@ protected:
       std::string clientIdStr;
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
-      std::string encodedPubKeyAesServer;
+      std::string encodedPubKeyAes;
       cryptodefinitions::sendStatusToClient(_crypto,
 					    clientIdStr,
 					    status,
 					    header,
-					    encodedPubKeyAesServer);
-      lambda(header, clientIdStr, encodedPubKeyAesServer);
+					    encodedPubKeyAes);
+      lambda(header, clientIdStr, encodedPubKeyAes);
     }
   }
 

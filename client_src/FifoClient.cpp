@@ -101,15 +101,15 @@ bool FifoClient::receiveStatus() {
   if (_status != STATUS::NONE)
     return false;
   std::string clientIdStr;
-  std::string encodedPubKeyAesServer;
+  std::string encodedPeerPubKeyAes;
   std::string dummy;
   std::array<std::reference_wrapper<std::string>, 3> array {
-    dummy, std::ref(clientIdStr), std::ref(encodedPubKeyAesServer) };
+    dummy, std::ref(clientIdStr), std::ref(encodedPeerPubKeyAes) };
   if (!Fifo::readMessage(Options::_acceptorName, true,_header, array))
     return false;
   ioutility::fromChars(clientIdStr, _clientId);
   try {
-    cryptodefinitions::clientKeyExchange(_crypto, encodedPubKeyAesServer);
+    cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     return false;

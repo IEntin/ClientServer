@@ -68,18 +68,17 @@ class CryptoPlPl {
 
 public:
   CryptoPlPl(std::string_view msgHash,
-	     std::string_view pubKeyAesClient,
+	     std::string_view encodedPeerAesPubKey,
 	     std::string_view signatureWithPubKey);
   explicit CryptoPlPl(std::string_view msg);
   ~CryptoPlPl() = default;
   std::string _msgHash;
   std::string _encodedPubKeyAes;
-  std::string _encodedPubKeyAesClient;
   std::string _signatureWithPubKeySign;
   void showKey();
   std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
-  bool clientKeyExchange(std::string_view encodedPubKeyAesServer);
+  bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   std::pair<bool, std::string>
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,
@@ -90,10 +89,10 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAesClient.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
 		      COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAesClient, _signatureWithPubKeySign);
+    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseRSAKeys();

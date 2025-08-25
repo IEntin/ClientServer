@@ -42,7 +42,7 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
 
 // session
 CryptoPlPl::CryptoPlPl(std::string_view msgHash,
-		       std::string_view encodedPubKeyAesClient,
+		       std::string_view encodedPeerAesPubKey,
 		       std::string_view signatureWithPubKey) :
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
@@ -52,11 +52,14 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   _msgHash({ msgHash.data(), msgHash.size() }),
   _signatureWithPubKeySign(signatureWithPubKey.data(), signatureWithPubKey.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
+  std::vector<unsigned char> decoded = base64_decode(encodedPeerAesPubKey);
+  CryptoPP::SecByteBlock peerAesPubKey;
+  peerAesPubKey.Assign(decoded.data(), decoded.size());
+  if(!_dh.Agree(_key, _privKeyAes, peerAesPubKey))
+    throw std::runtime_error("DiffieHellman Failed");
+  hideKey();
+  CryptoPP::SecByteBlock().swap(peerAesPubKey);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
-  std::vector<unsigned char> pubBDecoded = base64_decode(encodedPubKeyAesClient);
-  const CryptoPP::SecByteBlock& pubB { pubBDecoded.data(), pubBDecoded.size() };
-  if(!_dh.Agree(_key, _privKeyAes, pubB))
-    throw std::runtime_error("Failed to reach shared secret (A)");
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   std::string signature(_signatureWithPubKeySign.data(), RSA_KEY_SIZE >> 3);
@@ -64,9 +67,9 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
-  hideKey();
   if (ServerOptions::_showKey)
     showKey();
+  hideKey();
   eraseRSAKeys();
 }
 
@@ -79,7 +82,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msg) :
   _keyHandler(_key.size()),
   _msgHash(sha256_hash(msg)) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
-  _encodedPubKeyAesClient = base64_encode(_pubKeyAes);
+  _encodedPubKeyAes = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);
@@ -150,8 +153,8 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
-  const CryptoPP::SecByteBlock& pubKeyAesServer { vect.data(), vect.size() };
-  if (!_dh.Agree(_key, _privKeyAes, pubKeyAesServer))
+  const CryptoPP::SecByteBlock& peerPubKeyAes { vect.data(), vect.size() };
+  if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
     throw std::runtime_error("Client-side key exchange failed");
   hideKey();
   erasePubPrivKeys();
@@ -236,6 +239,7 @@ void CryptoPlPl::eraseRSAKeys() {
 }
 
 void CryptoPlPl::erasePubPrivKeys() {
+  std::string().swap(_msgHash);
   CryptoPP::SecByteBlock().swap(_privKeyAes);
   CryptoPP::SecByteBlock().swap(_pubKeyAes);
 }

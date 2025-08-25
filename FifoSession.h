@@ -22,7 +22,7 @@ class FifoSession final : public RunnableT<FifoSession>,
  public:
   FifoSession(ServerWeakPtr server,
 	      std::string_view msgHash,
-	      std::string_view encodedPubKeyAesClient,
+	      std::string_view encodedPeerPubKeyAes,
 	      std::string_view signatureWithPubKey);
   ~FifoSession() override;
   bool start() override;
