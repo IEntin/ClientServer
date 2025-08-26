@@ -31,7 +31,7 @@ public:
 private:
  void run() noexcept override;
   void stop() override;
-  void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const override;
+  void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) override;
   void readRequest();
   void write(const HEADER& header, std::string_view payload);
   void asyncWait();

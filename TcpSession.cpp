@@ -38,15 +38,13 @@ bool TcpSession::start() {
   }
   Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
   boost::asio::post(_ioContext, [this] { readRequest(); });
-  sendStatusToClient();
   return true;
 }
 
 void TcpSession::sendStatusToClient() {
-  auto lambda = [this] (
-    const HEADER& header,
-    std::string_view idStr,
-    std::string_view pubKey) {
+  auto lambda = [this] (const HEADER& header,
+			std::string_view idStr,
+			std::string_view pubKey) {
     Tcp::sendMessage(_socket, header, idStr, pubKey);
   };
   Session::sendStatusToClient(lambda, _status);
@@ -187,13 +185,14 @@ void TcpSession::asyncWait() {
   });
 }
 
-void TcpSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {
+void TcpSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) {
   Session::displayCapacityCheck(TYPE,
 				totalNumberObjects,
 				getNumberObjects(),
 				getNumberRunningByType(),
 				_maxNumberRunningByType,
 				_status);
+  sendStatusToClient();
 }
 
 } // end of namespace tcp

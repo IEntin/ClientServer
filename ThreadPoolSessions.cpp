@@ -27,7 +27,7 @@ void ThreadPoolSessions::calculateStatus(RunnablePtr runnable) {
   }
   else if (!condition2)
     runnable->_status = STATUS::MAX_OBJECTS_OF_TYPE;
-  else if (runnable->_numberRunningTotal == _maxSize)
+  else if (runnable->_numberRunningTotal >= _maxSize)
     runnable->_status = STATUS::MAX_TOTAL_OBJECTS;
   runnable->displayCapacityCheck(_totalNumberObjects);
 }

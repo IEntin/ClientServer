@@ -41,7 +41,6 @@ bool FifoSession::start() {
     LogError << strerror(errno) << '-' << _fifoName << '\n';
     return false;
   }
-  sendStatusToClient();
   return true;
 }
 
@@ -97,22 +96,22 @@ bool FifoSession::sendResponse() {
 }
 
 void FifoSession::sendStatusToClient() {
-  auto lambda = [] (
-    const HEADER& header,
-    std::string_view idStr,
-    std::string_view pubKey) {
+  auto lambda = [] (const HEADER& header,
+		    std::string_view idStr,
+		    std::string_view pubKey) {
     Fifo::sendMessage(false, Options::_acceptorName, header, idStr, pubKey);
   };
   Session::sendStatusToClient(lambda, _status);
 }
 
-void FifoSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) const {
+void FifoSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) {
   Session::displayCapacityCheck(TYPE,
 				totalNumberObjects,
 				getNumberObjects(),
 				getNumberRunningByType(),
 				_maxNumberRunningByType,
 				_status);
+  sendStatusToClient();
 }
 
 } // end of namespace fifo

@@ -107,6 +107,7 @@ bool FifoClient::receiveStatus() {
     dummy, std::ref(clientIdStr), std::ref(encodedPeerPubKeyAes) };
   if (!Fifo::readMessage(Options::_acceptorName, true,_header, array))
     return false;
+  _status = extractStatus(_header);
   ioutility::fromChars(clientIdStr, _clientId);
   try {
     cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
@@ -114,9 +115,18 @@ bool FifoClient::receiveStatus() {
   catch (const std::exception& e) {
     return false;
   }
-  displayMaxSessionsOfTypeWarn("fifo");
   _fifoName = Options::_fifoDirectoryName + '/';
   ioutility::toChars(_clientId, _fifoName);
+  switch (_status) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    displayMaxSessionsOfTypeWarn("fifo");
+  break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    displayMaxTotalSessionsWarn();
+    break;
+  default:
+    break;
+  }
   startHeartbeat();
   return true;
 }

@@ -56,7 +56,7 @@ void Session::displayCapacityCheck(std::string_view type,
 				   unsigned numberObjects,
 				   unsigned numberRunningByType,
 				   unsigned maxNumberRunningByType,
-				   STATUS status) const {
+				   STATUS status) {
   Info << "Number " << type << " sessions=" << numberObjects
        << ", Number running " << type << " sessions=" << numberRunningByType
        << ", max number " << type << " running=" << maxNumberRunningByType

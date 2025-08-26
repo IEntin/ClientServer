@@ -27,7 +27,7 @@ class Runnable : private boost::noncopyable {
   virtual void stop() = 0;
   virtual unsigned getNumberObjects() const { return 0; }
   virtual unsigned getNumberRunningByType() const { return 0; }
-  virtual void displayCapacityCheck(std::atomic<unsigned>&) const {}
+  virtual void displayCapacityCheck(std::atomic<unsigned>&) {}
   std::string getType() const;
   std::atomic<bool> _stopped = false;
   std::atomic<STATUS> _status = STATUS::NONE;

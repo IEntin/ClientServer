@@ -77,9 +77,11 @@ bool TcpClient::receiveStatus() {
   std::string clientIdStr;
   std::string encodedPeerPubKeyAes;
   std::string dummy;
-  std::array<std::reference_wrapper<std::string>, 3> array = { dummy, std::ref(clientIdStr), std::ref(encodedPeerPubKeyAes) };
+  std::array<std::reference_wrapper<std::string>, 3> array = {
+    dummy, std::ref(clientIdStr), std::ref(encodedPeerPubKeyAes) };
   if (!Tcp::readMessage(_socket, _header, array))
     return false;
+  _status = extractStatus(_header);
   ioutility::fromChars(clientIdStr, _clientId);
   try {
     cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
@@ -88,7 +90,16 @@ bool TcpClient::receiveStatus() {
     LogError << e.what() << '\n';
     return false;
   }
-  displayMaxSessionsOfTypeWarn("tcp");
+  switch (_status) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    displayMaxSessionsOfTypeWarn("tcp");
+  break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    displayMaxTotalSessionsWarn();
+    break;
+  default:
+    break;
+  }
   startHeartbeat();
   return true;
 }

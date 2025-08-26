@@ -57,7 +57,7 @@ protected:
 			    unsigned numberObjects,
 			    unsigned numberRunningByType,
 			    unsigned maxNumberRunningByType,
-			    STATUS status) const;
+			    STATUS status);
 public:
   std::size_t getId() const { return _clientId; }
 };
