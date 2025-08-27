@@ -55,12 +55,20 @@ public:
 			  HEADER& header,
 			  std::span<std::reference_wrapper<std::string>> array);
 
+  static bool readMessage(std::string_view name,
+			  bool block,
+			  HEADER& header,
+			  std::string& field1,
+			  std::string& field2 = _emptyString,
+			  std::string& field3 = _emptyString);
+
   static void onExit(std::string_view fifoName);
   static void writeString(int fd, std::string_view str);
 private:
   Fifo() = delete;
   ~Fifo() = delete;
   static thread_local std::string _payload;
+  static std::string _emptyString;
   static short pollFd(int fd, short expected);
   static bool setPipeSize(int fd);
   static int openWriteNonBlock(std::string_view fifoName);

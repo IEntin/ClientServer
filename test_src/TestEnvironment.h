@@ -59,8 +59,8 @@ public:
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
-		     0,
 		     std::ssize(data),
+		     0,
 		     compressor,
 		     DIAGNOSTICS::NONE,
 		     STATUS::NONE,

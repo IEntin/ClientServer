@@ -40,9 +40,7 @@ FifoAcceptor::unblockAcceptor() {
   std::string msgHash;
   std::string pubBvector;
   std::string rsaPubB;
-  std::array<std::reference_wrapper<std::string>, 3> array {
-    std::ref(msgHash), std::ref(pubBvector), std::ref(rsaPubB) };
-  if (!Fifo::readMessage(_acceptorName, true,_header, array))
+  if (!Fifo::readMessage(_acceptorName, true,_header, msgHash, pubBvector, rsaPubB))
     return { HEADERTYPE::ERROR, std::string(), std::string(), rsaPubB };
   return { extractHeaderType(_header), msgHash, pubBvector, rsaPubB };
 }

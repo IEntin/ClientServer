@@ -218,7 +218,7 @@ void decryptDecompress(std::string& buffer,
       COMPRESSORS compressor = extractCompressor(header);
       switch (compressor) {
       case COMPRESSORS::LZ4:
-	compressionLZ4::uncompress(buffer, data, extractUncompressedSize(header));
+	compressionLZ4::uncompress(buffer, data, extractField1Size(header));
 	break;
       case COMPRESSORS::SNAPPY:
 	compressionSnappy::uncompress(buffer, data);
@@ -245,7 +245,7 @@ inline void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
     case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data, extractUncompressedSize(header));
+      compressionLZ4::uncompress(buffer, data, extractField2Size(header));
       break;
     case COMPRESSORS::SNAPPY:
       compressionSnappy::uncompress(buffer, data);
@@ -280,9 +280,9 @@ inline void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cry
 			       std::string& encodedPubKeyAes) {
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
-  header = { HEADERTYPE::DH_HANDSHAKE, 0, clientIdStr.size(),
+  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status,
-	     encodedPubKeyAes.size() };
+	     0 };
 }
 
 } // end of namespace cryptodefinitions

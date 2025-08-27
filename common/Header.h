@@ -10,15 +10,15 @@
 #include "Logger.h"
 
 inline constexpr int HEADERTYPE_SIZE = 1;
-inline constexpr int RESERVED_SIZE = 10;
-inline constexpr int NUM_FIELD_SIZE = 10;
+inline constexpr int FIELD1_SIZE = 10;
+inline constexpr int FIELD2_SIZE = 10;
 inline constexpr int COMPRESSOR_SIZE = 1;
 inline constexpr int DIAGNOSTICS_SIZE = 1;
 inline constexpr int STATUS_SIZE = 1;
-inline constexpr int PARAMETER_SIZE = 10;
+inline constexpr int FIELD3_SIZE = 10;
 inline constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + RESERVED_SIZE + NUM_FIELD_SIZE +
-  COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + PARAMETER_SIZE;
+  HEADERTYPE_SIZE + FIELD1_SIZE + FIELD2_SIZE +
+  COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + FIELD3_SIZE;
 
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
@@ -80,15 +80,16 @@ enum class STATUS : char {
   INVALIDHIGH
 };
 
-enum class HEADER_INDEX : char {
+enum class HEADER_INDEX : int {
+  INVALIDLOW = -1,
   HEADERTYPEINDEX,
-  RESERVEDINDEX,
-  UNCOMPRESSEDSIZEINDEX,
+  FIELD1SIZEINDEX,
+  FIELD2SIZEINDEX,
   COMPRESSORINDEX,
   DIAGNOSTICSINDEX,
   STATUSINDEX,
-  PARAMETERINDEX,
-  INVALIDHIGH
+  FIELD3SIZEINDEX,
+  INVALIDHIGH = 7
 };
 
 enum class CLIENT_TYPE : int {
@@ -101,9 +102,9 @@ using HEADER =
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
-std::size_t extractReservedSz(const HEADER& header);
+std::size_t extractField1Size(const HEADER& header);
 
-std::size_t extractUncompressedSize(const HEADER& header);
+std::size_t extractField2Size(const HEADER& header);
 
 COMPRESSORS extractCompressor(const HEADER& header);
 
@@ -115,7 +116,7 @@ bool isDiagnosticsEnabled(const HEADER& header);
 
 STATUS extractStatus(const HEADER& header);
 
-std::size_t extractParameter(const HEADER& header);
+std::size_t extractField3Size(const HEADER& header);
 
 bool isOk(const HEADER& header);
 

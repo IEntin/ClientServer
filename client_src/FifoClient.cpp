@@ -73,8 +73,7 @@ bool FifoClient::receive() {
   try {
     _status = STATUS::NONE;
     HEADER header;
-    std::array<std::reference_wrapper<std::string>, 1> array{std::ref(_response)};
-    if (!Fifo::readMessage(_fifoName, true, header, array))
+    if (!Fifo::readMessage(_fifoName, true, header, _response))
       return false;
     return printReply();
   }
@@ -102,10 +101,7 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string encodedPeerPubKeyAes;
-  std::string dummy;
-  std::array<std::reference_wrapper<std::string>, 3> array {
-    dummy, std::ref(clientIdStr), std::ref(encodedPeerPubKeyAes) };
-  if (!Fifo::readMessage(Options::_acceptorName, true,_header, array))
+  if (!Fifo::readMessage(Options::_acceptorName, true,_header, clientIdStr, encodedPeerPubKeyAes))
     return false;
   _status = extractStatus(_header);
   ioutility::fromChars(clientIdStr, _clientId);

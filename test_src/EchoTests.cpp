@@ -136,8 +136,8 @@ struct FifoBlockingTest : testing::Test {
   bool send(std::string_view payload) {
     HEADER header{
       HEADERTYPE::SESSION,
-      0,
       payload.size(),
+      0,
       COMPRESSORS::NONE,
       DIAGNOSTICS::NONE,
       STATUS::NONE,
@@ -147,8 +147,7 @@ struct FifoBlockingTest : testing::Test {
 
   void receive(std::string& received) {
     HEADER header;
-    std::array<std::reference_wrapper<std::string>, 1> array{std::ref(received)};
-    fifo::Fifo::readMessage(_testFifo, true, header, array);
+    fifo::Fifo::readMessage(_testFifo, true, header, received);
   }
 
   void testBlockingFifo(std::string_view payload) {
@@ -217,8 +216,7 @@ struct FifoNBDuplex : testing::Test {
   }
   // client receive
   bool receiveC(HEADER& header, std::string& data) {
-     std::array<std::reference_wrapper<std::string>, 1> array{std::ref(data)};
-     return fifo::Fifo::readMessage(_testFifo, true, header, array);
+     return fifo::Fifo::readMessage(_testFifo, true, header, data);
   }
   // server send
   bool sendS(const HEADER& header, std::string_view data) {
@@ -226,15 +224,13 @@ struct FifoNBDuplex : testing::Test {
   }
   // server receive
   bool receiveS(HEADER& header, std::string& data) {
-    std::array<std::reference_wrapper<std::string>, 1> array{std::ref(data)};
-    return fifo::Fifo::readMessage(_testFifo, true, header, array);
+    return fifo::Fifo::readMessage(_testFifo, true, header, data);
   }
 
   void testFifoNBDuplex(std::string_view payload) {
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
-    std::size_t size = payload.size();
     HEADER header =
-      { HEADERTYPE::SESSION, 0, size, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+      { HEADERTYPE::SESSION, payload.size(), 0, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
     std::string dataIntermed;

@@ -38,12 +38,12 @@ HEADERTYPE extractHeaderType(const HEADER& header) {
   return std::get<HEADERTYPE>(header);
 }
 
-std::size_t extractReservedSz(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::RESERVEDINDEX)>(header);
+std::size_t extractField1Size(const HEADER& header) {
+  return std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header);
 }
 
-std::size_t extractUncompressedSize(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header);
+std::size_t extractField2Size(const HEADER& header) {
+  return std::get<std::to_underlying(HEADER_INDEX::FIELD2SIZEINDEX)>(header);
 }
 
 COMPRESSORS extractCompressor(const HEADER& header) {
@@ -74,8 +74,8 @@ STATUS extractStatus(const HEADER& header) {
   return std::get<STATUS>(header);
 }
 
-std::size_t extractParameter(const HEADER& header) {
-  return std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header);
+std::size_t extractField3Size(const HEADER& header) {
+  return std::get<std::to_underlying(HEADER_INDEX::FIELD3SIZEINDEX)>(header);
 }
 
 bool isOk(const HEADER& header) {
@@ -95,17 +95,17 @@ void serialize(const HEADER& header, char* buffer) {
   std::size_t offset = 0;
   buffer[offset] = std::to_underlying(extractHeaderType(header));
   offset += HEADERTYPE_SIZE;
-  ioutility::toChars(extractReservedSz(header), buffer + offset, RESERVED_SIZE);
-  offset += RESERVED_SIZE;
-  ioutility::toChars(extractUncompressedSize(header), buffer + offset, NUM_FIELD_SIZE);
-  offset += NUM_FIELD_SIZE;
+  ioutility::toChars(extractField1Size(header), buffer + offset, FIELD1_SIZE);
+  offset += FIELD1_SIZE;
+  ioutility::toChars(extractField2Size(header), buffer + offset, FIELD2_SIZE);
+  offset += FIELD2_SIZE;
   buffer[offset] = std::to_underlying(extractCompressor(header));
   offset += COMPRESSOR_SIZE;
   buffer[offset] = std::to_underlying(extractDiagnostics(header));
   offset += DIAGNOSTICS_SIZE;
   buffer[offset] = std::to_underlying(extractStatus(header));
   offset += STATUS_SIZE;
-  ioutility::toChars(extractParameter(header), buffer + offset, PARAMETER_SIZE);
+  ioutility::toChars(extractField3Size(header), buffer + offset, FIELD3_SIZE);
 }
 
 bool deserialize(HEADER& header, const char* buffer) {
@@ -113,12 +113,12 @@ bool deserialize(HEADER& header, const char* buffer) {
   if (!deserializeEnumeration(std::get<HEADERTYPE>(header), buffer[offset]))
     return false;
   offset += HEADERTYPE_SIZE;
-  std::string_view strz(buffer + offset, RESERVED_SIZE);
-  ioutility::fromChars(strz, std::get<std::to_underlying(HEADER_INDEX::RESERVEDINDEX)>(header));
-  offset += RESERVED_SIZE;
-  std::string_view stru(buffer + offset, NUM_FIELD_SIZE);
-  ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::UNCOMPRESSEDSIZEINDEX)>(header));
-  offset += NUM_FIELD_SIZE;
+  std::string_view strz(buffer + offset, FIELD1_SIZE);
+  ioutility::fromChars(strz, std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header));
+  offset += FIELD1_SIZE;
+  std::string_view stru(buffer + offset, FIELD2_SIZE);
+  ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::FIELD2SIZEINDEX)>(header));
+  offset += FIELD2_SIZE;
   if (!deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]))
     return false;
   offset += COMPRESSOR_SIZE;
@@ -128,8 +128,8 @@ bool deserialize(HEADER& header, const char* buffer) {
   if (!deserializeEnumeration(std::get<STATUS>(header), buffer[offset]))
     return false;
   offset += STATUS_SIZE;
-  std::string_view strp(buffer + offset, PARAMETER_SIZE);
-  ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::PARAMETERINDEX)>(header));
+  std::string_view strp(buffer + offset, FIELD3_SIZE);
+  ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::FIELD3SIZEINDEX)>(header));
   if (ServerOptions::_printHeader)
     printHeader(header, LOG_LEVEL::ALWAYS);
   return true;

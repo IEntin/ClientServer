@@ -16,17 +16,13 @@ class Tcp {
   ~Tcp() = delete;
 
   static thread_local std::string _payload;
+  static std::string _emptyString;
 
 public:
 
   static void shutdownSocket(boost::asio::ip::tcp::socket& socket);
 
   static bool setSocket(boost::asio::ip::tcp::socket& socket);
-
-  static bool readMessage(boost::asio::ip::tcp::socket& socket,
-			  HEADER& header,
-			  std::span<std::reference_wrapper<std::string>> array);
-  
   template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1>
   static bool sendMessage(boost::asio::ip::tcp::socket& socket,
 			  const HEADER& header,
@@ -60,6 +56,13 @@ public:
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
   			  std::string& payload);
+
+  static bool readMessage(boost::asio::ip::tcp::socket& socket,
+			  HEADER& header,
+			  std::string& field1,
+			  std::string& field2 = _emptyString,
+			  std::string& field3 = _emptyString);
+
 };
 
 } // end of namespace tcp

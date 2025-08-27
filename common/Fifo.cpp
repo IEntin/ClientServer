@@ -15,6 +15,7 @@ namespace fifo {
 static constexpr std::size_t BUFFER_SIZE = 10000;
 
 thread_local std::string Fifo::_payload;
+std::string Fifo::_emptyString;
 
 CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
@@ -175,6 +176,42 @@ bool Fifo::readMessage(std::string_view name,
   if (!readMessage(name, block, _payload))
     return false;
   return ioutility::readMessage(_payload, header, array);
+}
+
+bool Fifo::readMessage(std::string_view name,
+		       bool block,
+		       HEADER& header,
+		       std::string& field1,
+		       std::string& field2,
+		       std::string& field3) {
+  _payload.clear();
+  if (!readMessage(name, block, _payload))
+    return false;
+  if (!deserialize(header, _payload.data()))
+    return false;
+  std::size_t payload1Sz = extractField1Size(header);
+  std::size_t payload2Sz = extractField2Size(header);
+  std::size_t payload3Sz = extractField3Size(header);
+  std::size_t shift = HEADER_SIZE;
+  if (payload1Sz == 0 && payload2Sz == 0 && payload3Sz == 0)
+    payload1Sz = _payload.size() - HEADER_SIZE;
+  if (shift == _payload.size())
+    return true;
+  if (payload1Sz > 0) {
+    field1.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz);
+    shift += payload1Sz;
+    if (shift == _payload.size())
+      return true;
+  }
+  if (payload2Sz > 0) {
+    field2.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz);
+    shift += payload2Sz;
+    if (shift == _payload.size())
+      return true;
+  }
+  if (payload3Sz > 0)
+    field3.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz);
+  return true;
 }
 
 void Fifo::writeString(int fd, std::string_view str) {

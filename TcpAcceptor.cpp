@@ -63,14 +63,12 @@ std::tuple<HEADERTYPE,
 	   std::string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::string msgHash;
-  std::string pubBvector;
+  std::string pubKeyAes;
   std::string signatureWithPubKey;
-  std::array<std::reference_wrapper<std::string>, 3> array {
-    std::ref(msgHash), std::ref(pubBvector), std::ref(signatureWithPubKey) };
-  if (!Tcp::readMessage(socket, _header, array))
+  if (!Tcp::readMessage(socket, _header, msgHash, pubKeyAes, signatureWithPubKey))
     throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");
-  return { extractHeaderType(_header), msgHash, pubBvector, signatureWithPubKey };
+  return { extractHeaderType(_header), msgHash, pubKeyAes, signatureWithPubKey };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {

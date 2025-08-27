@@ -45,16 +45,18 @@ bool readMessage(std::string_view payload,
 		 std::span<std::reference_wrapper<std::string>> array) {
   if (!deserialize(header, payload.data()))
     return false;
-  std::size_t sizes[] { extractReservedSz(header), extractUncompressedSize(header), extractParameter(header) };
-  if (array.size() == 1) {
+  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
+  if (array.size() == 1 && extractField1Size(header) == 0)
     sizes[0] = payload.size() - HEADER_SIZE;
-    sizes[1] = sizes[2] = 0;
-  }
   unsigned shift = HEADER_SIZE;
+  if (shift == payload.size())
+    return true;
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
       array[i].get().assign(payload.cbegin() + shift, payload.cbegin() + shift + sizes[i]);
       shift += sizes[i];
+      if (shift == payload.size())
+	return true;
     }
   }
   return true;
