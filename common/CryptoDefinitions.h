@@ -16,7 +16,7 @@
 
 namespace cryptodefinitions {
 
-constexpr CRYPTO encryption = CRYPTO::CRYPTOPP;
+constexpr CRYPTO encryption = CRYPTO::CRYPTOSODIUM;
 
 static consteval unsigned long getEncryptionIndex() {
   if (encryption == CRYPTO::CRYPTOPP)
@@ -26,6 +26,8 @@ static consteval unsigned long getEncryptionIndex() {
   else
     return 11;
 }
+
+static std::mutex mutex;
 
 static consteval unsigned long getEncryptionIndex(const CRYPTO crypto) {
   if (crypto == CRYPTO::CRYPTOPP)
@@ -43,9 +45,11 @@ inline const auto sodiumInitialized = [] {
  };
 
 // expected message starts with a header
-template <typename T>
-bool isEncrypted(const T& input) {
-  assert(input.size() >= HEADER_SIZE && "too short");
+static bool isEncrypted(std::string_view input) {
+  if (input.size() < HEADER_SIZE) {
+    LogError << "failed!\n";
+    std::exit(1);
+  }
   HEADER header;
   std::string inputStr(input.cbegin(), input.cbegin() + HEADER_SIZE);
   try {
@@ -171,6 +175,7 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 		std::string& data,
 		bool doEncrypt,
 		int compressionLevel = 3) {
+  std::lock_guard lock(mutex);
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
@@ -210,6 +215,7 @@ void decryptDecompress(std::string& buffer,
 		       HEADER& header,
 		       std::weak_ptr<Crypto> weak,
 		       std::string& data) {
+  std::lock_guard lock(mutex);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
     deserialize(header, data.data());
@@ -237,6 +243,7 @@ inline void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
 			      std::string& buffer,
 			      HEADER& header,
 			      std::string& data) {
+  std::lock_guard lock(mutex);
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   crypto->decrypt(buffer, data);
   deserialize(header, data.data());

@@ -8,6 +8,7 @@
 
 #include "Header.h"
 #include "IOUtility.h"
+#include "Utility.h"
 
 namespace fifo {
 
@@ -45,6 +46,7 @@ public:
     if (!payload3.empty())
       _payload.insert(_payload.end(), payload3.cbegin(), payload3.cend());
     writeString(fdWrite, _payload);
+    writeString(fdWrite, ENDOFMESSAGE);
     return true;
   }
 

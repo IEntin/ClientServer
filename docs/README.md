@@ -63,7 +63,15 @@ libbotan must be installed:\
 
 #### Notice:
 
-Simple Diffie-Hellman protocol is replaced with Elliptic-curve Diffie–Hellman (ECDH)
+There is a choice of encryption libraries to use in this application:\
+Sodium which is the current and Crypto++.\
+To switch one to another one have to replace global definition in\
+common/CryptoDefinitions.h header:\
+constexpr CRYPTO encryption = CRYPTO::CRYPTOSODIUM;\
+to\
+constexpr CRYPTO encryption = CRYPTO::CRYPTOPP;\
+and to rebuild the application.\
+Sodium seems preferable due to the active development of this library.
 
 Renamed binaries server -> serverX and client -> clientX to\
 avoid collision in scripts.

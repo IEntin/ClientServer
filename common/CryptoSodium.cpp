@@ -47,13 +47,14 @@ void CryptoSodium::setAESKey(SessionKey& key) {
 CryptoSodium::CryptoSodium(std::string_view msg) :
   _msgHash(hashMessage(msg)) {
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_privKeyAes", _privKeyAes);
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
   crypto_sign_detached(_signature.data(),
 		       NULL,
 		       std::bit_cast<const unsigned char *>(_msgHash.data()),
-		       std::ssize(_msgHash),
+		       _msgHash.size(),
 		       _secretKeySign.data());
   
   _signatureWithPubKeySign.assign(_signature.cbegin(), _signature.cend());
@@ -64,11 +65,10 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
 			   std::string_view encodedPeerAesPubKey,
 			   std::string_view signatureWithPubKeySign) :
   _msgHash(msgHash.data(), msgHash.size()) {
-  std::vector<unsigned char> peerAesPubKey = base64_decode(encodedPeerAesPubKey);
+  std::vector<unsigned char> peerAesPubKeyV = base64_decode(encodedPeerAesPubKey);
+  std::copy(peerAesPubKeyV.cbegin(), peerAesPubKeyV.cend(), _peerPubKeyAes.begin());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "signatureWithPubKeySign", signatureWithPubKeySign);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "pubKeyAes in server", peerAesPubKey);
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   unsigned char signature[crypto_sign_BYTES] = {};
   std::copy(signatureWithPubKeySign.begin(), signatureWithPubKeySign.begin() + crypto_sign_BYTES, signature);
@@ -82,16 +82,20 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_privKeyAes", _privKeyAes);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_peerPubKeyAes", _peerPubKeyAes);
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
   if (crypto_kx_server_session_keys(_key.data(),
-				    nullptr,
+				    server_tx.data(),
 				    _pubKeyAes.data(),
 				    _privKeyAes.data(),
-				    peerAesPubKey.data()) != 0)
+				    _peerPubKeyAes.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyServer", _key);
-  _keyHandler.hideKey(_key);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   if (ServerOptions::_showKey)
     showKey();
+  _keyHandler.hideKey(_key);
   eraseUsedData();
 }
 
@@ -151,21 +155,25 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
       throw std::runtime_error("decrypt failed");
     buffer.resize(decrypted_len);
     data = buffer;
-    if (ClientOptions::_showKey)
-      showKey();
   }
 }
 
 bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
-  std::vector<unsigned char> peerPubKeyAes = base64_decode(encodedPeerPubKeyAes);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "peerPubKeyAes", peerPubKeyAes);
-  if (crypto_kx_client_session_keys(nullptr,
+  std::vector<unsigned char> peerPubKeyAesV = base64_decode(encodedPeerPubKeyAes);
+  std::copy(peerPubKeyAesV.cbegin(), peerPubKeyAesV.cend(), _peerPubKeyAes.begin());
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_privKeyAes", _privKeyAes);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_peerPubKeyAes", _peerPubKeyAes);
+  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
+  if (crypto_kx_client_session_keys(client_rx.data(),
 				    _key.data(),
 				    _pubKeyAes.data(),
 				    _privKeyAes.data(),
-				    peerPubKeyAes.data()) != 0)
+				    _peerPubKeyAes.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_keyClient", _key);
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
+  if (ClientOptions::_showKey)
+    showKey();
   hideKey();
   eraseUsedData();
   return true;
@@ -228,6 +236,5 @@ bool CryptoSodium::checkAccess() {
 
 void CryptoSodium::eraseUsedData() {
   std::string().swap(_msgHash);
-  std::array<unsigned char, crypto_kx_SECRETKEYBYTES>().swap(_privKeyAes);
-  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES>().swap(_pubKeyAes);
+  std::string().swap(_signatureWithPubKeySign);
 }

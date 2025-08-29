@@ -31,6 +31,7 @@ class CryptoSodium {
   hashMessage(std::string_view message);
   std::array<unsigned char, crypto_kx_SECRETKEYBYTES> _privKeyAes;
   std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _pubKeyAes;
+  std::array<unsigned char, crypto_kx_PUBLICKEYBYTES> _peerPubKeyAes;
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
@@ -60,7 +61,6 @@ public:
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
-
   template <typename L>
   bool sendSignature(L& lambda) {
     HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
