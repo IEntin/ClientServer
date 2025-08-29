@@ -5,6 +5,7 @@
 #include "DebugLog.h"
 
 std::ofstream DebugLog::_file;
+std::mutex DebugLog::_mutex;
 
 void DebugLog::setDebugLog([[maybe_unused]] APPTYPE type) {
 #ifdef _DEBUG

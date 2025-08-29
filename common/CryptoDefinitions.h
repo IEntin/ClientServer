@@ -27,8 +27,6 @@ static consteval unsigned long getEncryptionIndex() {
     return 11;
 }
 
-static std::mutex mutex;
-
 static consteval unsigned long getEncryptionIndex(const CRYPTO crypto) {
   if (crypto == CRYPTO::CRYPTOPP)
     return 0;
@@ -175,7 +173,6 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 		std::string& data,
 		bool doEncrypt,
 		int compressionLevel = 3) {
-  std::lock_guard lock(mutex);
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
@@ -215,7 +212,6 @@ void decryptDecompress(std::string& buffer,
 		       HEADER& header,
 		       std::weak_ptr<Crypto> weak,
 		       std::string& data) {
-  std::lock_guard lock(mutex);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
     deserialize(header, data.data());
@@ -243,7 +239,6 @@ inline void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
 			      std::string& buffer,
 			      HEADER& header,
 			      std::string& data) {
-  std::lock_guard lock(mutex);
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   crypto->decrypt(buffer, data);
   deserialize(header, data.data());

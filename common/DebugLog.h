@@ -19,7 +19,7 @@ enum class APPTYPE : int {
 class DebugLog {
 
   static std::ofstream _file;
-
+  static std::mutex _mutex;
   DebugLog() = delete;
   ~DebugLog() = delete;
  public:
@@ -31,7 +31,8 @@ class DebugLog {
 			    [[maybe_unused]] const T& variable) {
 #ifdef _DEBUG
     static std::osyncstream stream(_file);
-    stream << '\n' << loc.file_name() << ':' << loc.line() << '-' << loc.function_name() << '\n';
+    std::lock_guard lock(_mutex);
+     stream << '\n' << loc.file_name() << ':' << loc.line() << '-' << loc.function_name() << '\n';
     stream << name << ",size=" << std::ranges::ssize(variable) << "\n0x";
     boost::algorithm::hex(std::cbegin(variable), std::cend(variable), std::ostream_iterator<char> { stream });
     stream << '\n';
