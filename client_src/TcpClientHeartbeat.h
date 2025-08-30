@@ -28,8 +28,8 @@ class TcpClientHeartbeat final : public std::enable_shared_from_this<TcpClientHe
 
   boost::asio::io_context _ioContext;
   boost::asio::ip::tcp::socket _socket;
-  boost::asio::deadline_timer _periodTimer;
-  boost::asio::deadline_timer _timeoutTimer;
+  boost::asio::steady_timer _periodTimer;
+  boost::asio::steady_timer _timeoutTimer;
   std::vector<char> _heartbeatBuffer;
 };
 

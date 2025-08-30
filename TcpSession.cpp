@@ -158,13 +158,7 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::asyncWait() {
-  boost::system::error_code ec;
-  _timeoutTimer.expires_from_now(
-    boost::posix_time::milliseconds(ServerOptions::_tcpTimeout), ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return;
-  }
+  _timeoutTimer.expires_after(std::chrono::milliseconds(ServerOptions::_tcpTimeout));
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
     if (auto self = weak_from_this().lock(); !self)
       return;

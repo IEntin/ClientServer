@@ -43,13 +43,8 @@ void TcpClientHeartbeat::stop() {
 }
 
 void TcpClientHeartbeat::heartbeatWait() {
-  boost::system::error_code ec;
-  _periodTimer.expires_from_now(
-    boost::posix_time::milliseconds(ClientOptions::_heartbeatPeriod), ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return;
-  }
+  _periodTimer.expires_after(
+    std::chrono::milliseconds(ClientOptions::_heartbeatPeriod));
   _periodTimer.async_wait([this](const boost::system::error_code& ec) {
     if (_stopped)
       return;
@@ -65,13 +60,8 @@ void TcpClientHeartbeat::heartbeatWait() {
 }
 
 void TcpClientHeartbeat::timeoutWait() {
-  boost::system::error_code ec;
-  _timeoutTimer.expires_from_now(
-    boost::posix_time::milliseconds(ClientOptions::_heartbeatTimeout), ec);
-  if (ec) {
-    LogError << ec.what() << '\n';
-    return;
-  }
+  _timeoutTimer.expires_after(
+    std::chrono::milliseconds(ClientOptions::_heartbeatTimeout));
   _timeoutTimer.async_wait([this](const boost::system::error_code& ec) {
     if (auto self = weak_from_this().lock(); !self)
       return;

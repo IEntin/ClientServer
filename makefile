@@ -72,7 +72,7 @@ endif
 
 WARNINGS := -Wall -Wextra -pedantic-errors
 
-BOOST_INCLUDES := /usr/local/boost_1_88_0
+BOOST_INCLUDES := /usr/local/boost_1_89_0
 
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(POLICYDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
 -I$(TESTSRCDIR)

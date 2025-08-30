@@ -7,6 +7,7 @@
 
 #include <boost/stacktrace.hpp>
 
+#include "CryptoDefinitions.h"
 #include "DebugLog.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
@@ -19,6 +20,7 @@ int main() {
   DebugLog::setDebugLog(APPTYPE::SERVER);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setServerTerminal(terminal);
+  bool initialized[[maybe_unused]] = cryptodefinitions::sodiumInitialized();
   atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);

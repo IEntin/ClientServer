@@ -39,7 +39,7 @@ private:
   ConnectionPtr _connection;
   boost::asio::io_context& _ioContext;
   boost::asio::ip::tcp::socket _socket;
-  boost::asio::deadline_timer _timeoutTimer;
+  boost::asio::steady_timer _timeoutTimer;
 };
 
 } // end of namespace tcp

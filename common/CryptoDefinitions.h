@@ -36,11 +36,25 @@ static consteval unsigned long getEncryptionIndex(const CRYPTO crypto) {
     return 11;
 }
 
-inline const auto sodiumInitialized = [] {
+static bool sodiumInitialized() {
+  std::string encryptionLib;
+  switch(encryption) {
+  case CRYPTO::CRYPTOPP:
+    encryptionLib.assign("Crypto++");
+    break;
+    case CRYPTO::CRYPTOSODIUM:
+    encryptionLib.assign("Sodium");
+    break;
+  default:
+    encryptionLib.assign("Error");
+    break;
+  }
+  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
+  logger << "\nUsing " << encryptionLib << ' ' << "library.\n\n";
   int initialized = sodium_init();
   assert(initialized == 0 && "libsodium initialization failed");
   return 0;
- };
+ }
 
 // expected message starts with a header
 static bool isEncrypted(std::string_view input) {
