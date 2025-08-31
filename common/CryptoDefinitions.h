@@ -16,29 +16,23 @@
 
 namespace cryptodefinitions {
 
-constexpr CRYPTO encryption = CRYPTO::CRYPTOSODIUM;
+constexpr CRYPTO _encryption = CRYPTO::CRYPTOSODIUM;
 
-static consteval unsigned long getEncryptionIndex() {
-  if (encryption == CRYPTO::CRYPTOPP)
+static consteval unsigned long getEncryptionIndex(std::optional<CRYPTO> encryption = std::nullopt) {
+  CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;  
+  switch (encryptionVal) {
+  case CRYPTO::CRYPTOPP:
     return 0;
-  else if (encryption == CRYPTO::CRYPTOSODIUM)
+  case CRYPTO::CRYPTOSODIUM:
     return 1;
-  else
+  default:
     return 11;
-}
-
-static consteval unsigned long getEncryptionIndex(const CRYPTO crypto) {
-  if (crypto == CRYPTO::CRYPTOPP)
-    return 0;
-  else if (crypto == CRYPTO::CRYPTOSODIUM)
-    return 1;
-  else
-    return 11;
+  }
 }
 
 static bool sodiumInitialized() {
   std::string encryptionLib;
-  switch(encryption) {
+  switch(_encryption) {
   case CRYPTO::CRYPTOPP:
     encryptionLib.assign("Crypto++");
     break;
@@ -50,7 +44,7 @@ static bool sodiumInitialized() {
     break;
   }
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger << "\nUsing " << encryptionLib << ' ' << "library.\n\n";
+  logger << "\nUsing " << encryptionLib << " library.\n\n";
   int initialized = sodium_init();
   assert(initialized == 0 && "libsodium initialization failed");
   return 0;
@@ -74,10 +68,12 @@ static bool isEncrypted(std::string_view input) {
   }
 }
 
-inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(CRYPTO encryption, std::string_view  msg) {
+static std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
+createCrypto(std::string_view  msg,
+	     std::optional<CRYPTO> encryption = std::nullopt) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(encryption) {
+  CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;  
+  switch(encryptionVal) {
   case CRYPTO::CRYPTOPP:
     result = std::make_shared<CryptoPlPl>(msg);
     break;
@@ -90,47 +86,14 @@ createCrypto(CRYPTO encryption, std::string_view  msg) {
   return result;
 }
 
-inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(std::string_view  msg) {
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(encryption) {
-  case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msg);
-    break;
-  case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msg);
-    break;
-  default:
-    break;
-  }
-  return result;
-}
-
-inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(CRYPTO encryption,
-	     std::string_view msgHash,
-	     std::string_view encodedPeerPubKeyAes,
-	     std::string_view signatureWithPubKey) {
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(encryption) {
-  case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msgHash, encodedPeerPubKeyAes, signatureWithPubKey);
-    break;
-  case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msgHash, encodedPeerPubKeyAes, signatureWithPubKey);
-    break;
-  default:
-    break;
-  }
-  return result;
-}
-
-inline std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
+static std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
 createCrypto(std::string_view msgHash,
 	     std::string_view encodedPeerPubKeyAes,
-	     std::string_view signatureWithPubKey) {
+	     std::string_view signatureWithPubKey,
+	     std::optional<CRYPTO> encryption = std::nullopt) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  switch(encryption) {
+  CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;
+  switch(encryptionVal) {
   case CRYPTO::CRYPTOPP:
     result = std::make_shared<CryptoPlPl>(msgHash, encodedPeerPubKeyAes, signatureWithPubKey);
     break;
@@ -180,7 +143,7 @@ std::string_view compressEncrypt(std::string& buffer,
   return "";
 }
 
-inline std::string_view
+static std::string_view
 compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 		std::string& buffer,
 		const HEADER& header,
@@ -249,7 +212,7 @@ void decryptDecompress(std::string& buffer,
   }
 }
 
-inline void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
+static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 			      std::string& buffer,
 			      HEADER& header,
 			      std::string& data) {
@@ -281,7 +244,7 @@ void clientKeyExchange(Crypto crypto, std::string_view encodedPubKeyAes) {
     throw std::runtime_error("clientKeyExchange failed");
 }
 
-inline void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
+static void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 			      std::string_view encodedPeerPubKeyAes) {
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
@@ -289,7 +252,7 @@ inline void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
   }
 }
 
-inline void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
+static void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 			       std::string_view clientIdStr,
 			       STATUS status,
 			       HEADER& header,

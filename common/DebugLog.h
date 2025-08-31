@@ -37,10 +37,10 @@ class DebugLog {
     boost::algorithm::hex(std::cbegin(variable), std::cend(variable), std::ostream_iterator<char> { stream });
     stream << '\n';
     stream.flush();
+#endif
     // to be able to print just once
     return true;
-#endif
-}
+  }
 
   static void setTitle([[maybe_unused]] std::string_view title) {
 #ifdef _DEBUG

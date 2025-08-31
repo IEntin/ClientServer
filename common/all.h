@@ -32,6 +32,7 @@
 #include <memory>
 #include <mutex>
 #include <numeric>
+#include <optional>
 #include <poll.h>
 #include <queue>
 #include <ranges>
