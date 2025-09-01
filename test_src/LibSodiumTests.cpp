@@ -52,7 +52,8 @@ TEST(LibSodiumTest, DHkeyExchange) {
     HEADER recoveredHeader;
     deserialize(recoveredHeader, data.data());
     ASSERT_EQ(header, recoveredHeader);
-    ASSERT_TRUE(data.erase(0, HEADER_SIZE) == TestEnvironment::_source);
+    std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
+    ASSERT_EQ(payload, TestEnvironment::_source);
   }
   catch (...) {
     // no exceptions

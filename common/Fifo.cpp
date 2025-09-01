@@ -202,8 +202,6 @@ bool Fifo::readMessage(std::string_view name,
   std::size_t payload2Sz = extractField2Size(header);
   std::size_t payload3Sz = extractField3Size(header);
   std::size_t shift = HEADER_SIZE;
-  if (payload1Sz == 0 && payload2Sz == 0 && payload3Sz == 0)
-    payload1Sz = _payload.size() - HEADER_SIZE;
   if (payload1Sz > 0) {
     field1.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz);
     shift += payload1Sz;

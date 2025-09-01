@@ -110,8 +110,8 @@ void TcpSession::readRequest() {
 	});
 	return;
       }
-       if (deserialize(_header, _request.data()))
-	 _request.erase(0, HEADER_SIZE);
+      if (deserialize(_header, _request.data()))
+	_request.erase(0, HEADER_SIZE);
       if (processTask())
 	boost::asio::post(_ioContext, [this] { sendReply(); });
       else {
@@ -127,7 +127,7 @@ void TcpSession::readRequest() {
   }
 }
 
-  void TcpSession::write(const HEADER& header, std::string_view payload) {
+void TcpSession::write(const HEADER& header, std::string_view payload) {
   char headerBuffer[HEADER_SIZE] = {};
   serialize(header, headerBuffer);
   std::array<boost::asio::const_buffer, 3> asioBuffers{ boost::asio::buffer(headerBuffer),

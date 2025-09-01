@@ -52,10 +52,9 @@ static bool sodiumInitialized() {
 
 // expected message starts with a header
 static bool isEncrypted(std::string_view input) {
-  if (input.size() < HEADER_SIZE) {
-    LogError << "failed!\n";
-    std::exit(1);
-  }
+  if (input.empty())
+    return false;
+  assert(input.size() >= HEADER_SIZE);
   HEADER header;
   std::string inputStr(input.cbegin(), input.cbegin() + HEADER_SIZE);
   try {
@@ -184,6 +183,14 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
   return "";
 }
 
+static std::size_t findUncompressedSize(const HEADER& header) {
+  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
+  for (int i = 0; i < std::ssize(sizes); ++i)
+    if (sizes[i] != 0)
+      return sizes[i];
+  return 0;
+}
+
 template <typename Crypto>
 void decryptDecompress(std::string& buffer,
 		       HEADER& header,
@@ -191,13 +198,14 @@ void decryptDecompress(std::string& buffer,
 		       std::string& data) {
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
-    deserialize(header, data.data());
+    if (!deserialize(header, data.data()))
+      throw std::runtime_error("deserialize failed");
     data.erase(0, HEADER_SIZE);
     if (isCompressed(header)) {
       COMPRESSORS compressor = extractCompressor(header);
       switch (compressor) {
       case COMPRESSORS::LZ4:
-	compressionLZ4::uncompress(buffer, data, extractField1Size(header));
+	compressionLZ4::uncompress(buffer, data, findUncompressedSize(header));
 	break;
       case COMPRESSORS::SNAPPY:
 	compressionSnappy::uncompress(buffer, data);
@@ -218,13 +226,14 @@ static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
 			      std::string& data) {
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   crypto->decrypt(buffer, data);
-  deserialize(header, data.data());
+  if (!deserialize(header, data.data()))
+    throw std::runtime_error("deserialize failed");
   data.erase(0, HEADER_SIZE);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
     case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data, extractField2Size(header));
+      compressionLZ4::uncompress(buffer, data, findUncompressedSize(header));
       break;
     case COMPRESSORS::SNAPPY:
       compressionSnappy::uncompress(buffer, data);
@@ -260,8 +269,7 @@ static void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cry
   auto crypto = std::get<getEncryptionIndex()>(cryptoVar);
   encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
-	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status,
-	     0 };
+	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
 
 } // end of namespace cryptodefinitions

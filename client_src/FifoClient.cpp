@@ -101,18 +101,22 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string encodedPeerPubKeyAes;
-  if (!Fifo::readMessage(Options::_acceptorName, true,_header, clientIdStr, encodedPeerPubKeyAes))
-    return false;
+  auto receiveFifo = [this] (HEADER&,
+			     std::string& clientIdStr,
+			     std::string& encodedPeerPubKeyAes) {
+    if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, encodedPeerPubKeyAes))
+      throw std::runtime_error("readMessage failed");
+    _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
+    ioutility::fromChars(clientIdStr, _clientId);
+  };
+  receiveFifo(_header, clientIdStr, encodedPeerPubKeyAes);
   _status = extractStatus(_header);
-  ioutility::fromChars(clientIdStr, _clientId);
   try {
     cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     return false;
   }
-  _fifoName = Options::_fifoDirectoryName + '/';
-  ioutility::toChars(_clientId, _fifoName);
   switch (_status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     displayMaxSessionsOfTypeWarn("fifo");

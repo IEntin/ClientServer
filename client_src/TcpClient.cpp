@@ -75,8 +75,14 @@ bool TcpClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string encodedPeerPubKeyAes;
-  if (!Tcp::readMessage(_socket, _header, clientIdStr, encodedPeerPubKeyAes))
-    return false;
+  auto receiveTcp = [this] (boost::asio::ip::tcp::socket&,
+		            HEADER&,
+			    std::string& clientIdStr,
+			    std::string& encodedPeerPubKeyAes) {
+    if (!Tcp::readMessage(_socket, _header, clientIdStr, encodedPeerPubKeyAes))
+      throw std::runtime_error("readMessage failed");
+  };
+  receiveTcp(_socket, _header, clientIdStr, encodedPeerPubKeyAes);
   _status = extractStatus(_header);
   ioutility::fromChars(clientIdStr, _clientId);
   try {
