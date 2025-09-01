@@ -7,17 +7,19 @@
 #include <condition_variable>
 #include <mutex>
 
+#include "CryptoDefinitions.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
 class Client;
+
+using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
 
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
 
-  Client& _client;
   std::string _aggregate;
   Subtasks _subtasks;
   unsigned _subtaskIndex;
@@ -25,11 +27,12 @@ class TaskBuilder final : public Runnable {
   std::condition_variable _conditionTask;
   std::condition_variable _conditionResume;
   bool _resume = false;
+  CryptoVariant _crypto;
   std::string _buffer;
   void run() override;
   bool start() override { return true; }
  public:
-  explicit TaskBuilder(Client& client);
+  explicit TaskBuilder(CryptoVariant crypto);
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);

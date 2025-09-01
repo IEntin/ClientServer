@@ -75,35 +75,19 @@ bool TcpClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string encodedPeerPubKeyAes;
-  auto receiveTcp = [this] (boost::asio::ip::tcp::socket&,
-		            HEADER&,
-			    std::string& clientIdStr,
-			    std::string& encodedPeerPubKeyAes) {
-    if (!Tcp::readMessage(_socket, _header, clientIdStr, encodedPeerPubKeyAes))
+  std::string type;
+  auto lambda = [this] (boost::asio::ip::tcp::socket& socket,
+			HEADER& header,
+			std::string& clientIdStr,
+			std::string& encodedPeerPubKeyAes,
+			std::string& type) {
+    if (!Tcp::readMessage(socket, header, clientIdStr, encodedPeerPubKeyAes))
       throw std::runtime_error("readMessage failed");
+    type = "tcp";
+    ioutility::fromChars(clientIdStr, _clientId);
   };
-  receiveTcp(_socket, _header, clientIdStr, encodedPeerPubKeyAes);
-  _status = extractStatus(_header);
-  ioutility::fromChars(clientIdStr, _clientId);
-  try {
-    cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
-  switch (_status) {
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn("tcp");
-  break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    displayMaxTotalSessionsWarn();
-    break;
-  default:
-    break;
-  }
-  startHeartbeat();
-  return true;
+  lambda(_socket, _header, clientIdStr, encodedPeerPubKeyAes, type);
+  return processStatus(encodedPeerPubKeyAes, type);
 }
 
 } // end of namespace tcp

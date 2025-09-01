@@ -42,6 +42,31 @@ protected:
   Subtasks _task;
   static std::atomic<bool> _closeFlag;
   std::string _buffer;
+
+  bool processStatus(std::string_view encodedPeerPubKeyAes,
+		     std::string_view type) {
+ _status = extractStatus(_header);
+  try {
+    cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+  switch (_status) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    displayMaxSessionsOfTypeWarn(type);
+  break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    displayMaxTotalSessionsWarn();
+    break;
+  default:
+    break;
+  }
+  startHeartbeat();
+  return true;
+}
+
 public:
   virtual ~Client();
 

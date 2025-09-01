@@ -93,15 +93,15 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 bool doEncrypt,
 					 int compressionLevel) {
   return cryptodefinitions::compressEncrypt(_crypto,
-					     buffer,
-					     header,
-					     data,
-					     doEncrypt,
-					     compressionLevel);
+					    buffer,
+					    header,
+					    data,
+					    doEncrypt,
+					    compressionLevel);
 }
 
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(*this);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_crypto);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

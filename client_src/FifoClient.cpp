@@ -101,34 +101,19 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string encodedPeerPubKeyAes;
-  auto receiveFifo = [this] (HEADER&,
-			     std::string& clientIdStr,
-			     std::string& encodedPeerPubKeyAes) {
-    if (!Fifo::readMessage(Options::_acceptorName, true, _header, clientIdStr, encodedPeerPubKeyAes))
+  std::string type;
+  auto lambda = [this] (HEADER& header,
+			std::string& clientIdStr,
+			std::string& encodedPeerPubKeyAes,
+			std::string& type) {
+    if (!Fifo::readMessage(Options::_acceptorName, true, header, clientIdStr, encodedPeerPubKeyAes))
       throw std::runtime_error("readMessage failed");
-    _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
-    ioutility::fromChars(clientIdStr, _clientId);
+    type = "fifo";
+     _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
+   ioutility::fromChars(clientIdStr, _clientId);
   };
-  receiveFifo(_header, clientIdStr, encodedPeerPubKeyAes);
-  _status = extractStatus(_header);
-  try {
-    cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
-  }
-  catch (const std::exception& e) {
-    return false;
-  }
-  switch (_status) {
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn("fifo");
-  break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    displayMaxTotalSessionsWarn();
-    break;
-  default:
-    break;
-  }
-  startHeartbeat();
-  return true;
+  lambda(_header, clientIdStr, encodedPeerPubKeyAes, type);
+  return processStatus(encodedPeerPubKeyAes, type);
 }
 
 } // end of namespace fifo

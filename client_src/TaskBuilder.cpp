@@ -4,15 +4,15 @@
 
 #include "TaskBuilder.h"
 
-#include "Client.h"
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 #include "Options.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(Client& client) :
-_client(client), _subtaskIndex(0) {
+TaskBuilder::TaskBuilder(CryptoVariant crypto) :
+  _subtaskIndex(0),
+  _crypto(crypto) {
   _aggregate.reserve(ClientOptions::_bufferSize);
 }
 
@@ -93,7 +93,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    _client.compressEncrypt(_buffer, header, _aggregate, ClientOptions::_doEncrypt);
+    cryptodefinitions::compressEncrypt(_crypto, _buffer, header, _aggregate, ClientOptions::_doEncrypt);
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];
