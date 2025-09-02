@@ -109,7 +109,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
     if (result == -1)
       throw std::runtime_error(ioutility::createErrorString());
     else if (result == 0)
-      break;
+      return false;
     else if (result > 0) {
       std::size_t transferred = std::bit_cast<std::size_t>(result);
       std::size_t prevSize = accumulatedSz;
@@ -117,14 +117,12 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       payload.resize(accumulatedSz);
       std::copy(std::cbegin(buffer), std::cbegin(buffer) + transferred, payload.begin() + prevSize);
       if (payload.ends_with(ENDOFMESSAGE)) {
-	break;
+	payload.erase(payload.size() - ENDOFMESSAGESZ);
+	return true;
       }
     }
   }
-  payload.resize(accumulatedSz);
-  if (payload.ends_with(ENDOFMESSAGE))
-      payload.erase(payload.size() - ENDOFMESSAGESZ);
-  return !payload.empty();
+  return false;
 }
 
 bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
@@ -138,8 +136,12 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
     if (result == -1) {
       switch (errno) {
-      case EAGAIN:
+      case EAGAIN: {
+	int ret =  pollFd(fd, POLLIN);
+	if (ret != POLLIN)
+	  return false;
 	continue;
+      }
 	break;
       default:
 	throw std::runtime_error(ioutility::createErrorString());
@@ -151,14 +153,13 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       accumulatedSz += transferred;
       payload.resize(accumulatedSz);
       std::copy(std::cbegin(buffer), std::cbegin(buffer) + transferred, payload.begin() + prevSize);
-    }
-    else if (result == 0) {
-      if (pollFd(fd, POLLIN) != POLLIN)
-	break;
-    }
+      if (payload.ends_with(ENDOFMESSAGE)) {
+	payload.erase(payload.size() - ENDOFMESSAGESZ);
+	return true;
+      }
+   }
   }
-  payload.resize(accumulatedSz);
-  return !payload.empty();
+  return false;
 }
 
 bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) {
@@ -220,14 +221,18 @@ bool Fifo::readMessage(std::string_view name,
   return true;
 }
 
-void Fifo::writeString(int fd, std::string_view str) {
+bool Fifo::writeString(int fd, std::string_view str) {
   std::size_t written = 0;
   while (written < str.size()) {
     ssize_t result = write(fd, str.data() + written, str.size() - written);
     if (result == -1) {
       switch (errno) {
-      case EAGAIN:
-	break;
+      case EAGAIN: {
+	int ret = pollFd(fd, POLLOUT);
+	if (ret != POLLOUT)
+	  return false;
+	continue;
+      }
       default:
 	throw std::runtime_error(ioutility::createErrorString());
       }
@@ -235,6 +240,7 @@ void Fifo::writeString(int fd, std::string_view str) {
     else
       written += result;
   }
+  return true;
 }
 
 } // end of namespace fifo

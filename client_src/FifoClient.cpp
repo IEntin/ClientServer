@@ -88,7 +88,7 @@ bool FifoClient::wakeupAcceptor() {
     const HEADER& header,
     std::string_view msgHash,
     std::string_view pubKeyAesServer,
-    std::string_view signedAuth) {
+    std::string_view signedAuth) -> bool {
     return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAesServer, signedAuth);
   };
   constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
@@ -105,14 +105,16 @@ bool FifoClient::receiveStatus() {
   auto lambda = [this] (HEADER& header,
 			std::string& clientIdStr,
 			std::string& encodedPeerPubKeyAes,
-			std::string& type) {
+			std::string& type) -> bool {
     if (!Fifo::readMessage(Options::_acceptorName, true, header, clientIdStr, encodedPeerPubKeyAes))
       throw std::runtime_error("readMessage failed");
     type = "fifo";
-     _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
-   ioutility::fromChars(clientIdStr, _clientId);
+    _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
+    ioutility::fromChars(clientIdStr, _clientId);
+    return true;
   };
-  lambda(_header, clientIdStr, encodedPeerPubKeyAes, type);
+  if (!lambda(_header, clientIdStr, encodedPeerPubKeyAes, type))
+    return false;
   return processStatus(encodedPeerPubKeyAes, type);
 }
 

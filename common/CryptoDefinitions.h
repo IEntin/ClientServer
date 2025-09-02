@@ -134,8 +134,8 @@ std::string_view compressEncrypt(std::string& buffer,
     }
   }
   else {
-    char headerBuffer[HEADER_SIZE] = {};
-    data.insert(0, headerBuffer, HEADER_SIZE);
+    std::string headerBuffer(HEADER_SIZE, '\0');
+    data.insert(0, headerBuffer);
     serialize(header, data.data());
     return data;
   }
@@ -175,8 +175,8 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
     }
   }
   else {
-    char headerBuffer[HEADER_SIZE] = {};
-    data.insert(0, headerBuffer, HEADER_SIZE);
+    std::string headerBuffer(HEADER_SIZE, '\0');
+    data.insert(0, headerBuffer);
     serialize(header, data.data());
     return data;
   }

@@ -39,14 +39,14 @@ public:
     _payload.clear();
     char headerBuffer[HEADER_SIZE] = {};
     serialize(header, headerBuffer);
-    _payload.insert(_payload.end(), std::cbegin(headerBuffer), std::cend(headerBuffer));
-    _payload.insert(_payload.end(), payload1.cbegin(), payload1.cend());
+    _payload.append(headerBuffer, std::ssize(headerBuffer));
+    _payload.append(payload1);
     if (!payload2.empty())
-      _payload.insert(_payload.end(), payload2.begin(), payload2.end());
+      _payload.append(payload2);
     if (!payload3.empty())
-      _payload.insert(_payload.end(), payload3.cbegin(), payload3.cend());
+      _payload.append(payload3);
+    _payload.append(ENDOFMESSAGE);
     writeString(fdWrite, _payload);
-    writeString(fdWrite, ENDOFMESSAGE);
     return true;
   }
 
@@ -65,7 +65,7 @@ public:
 			  std::string& field3 = _emptyString);
 
   static void onExit(std::string_view fifoName);
-  static void writeString(int fd, std::string_view str);
+  static bool writeString(int fd, std::string_view str);
 private:
   Fifo() = delete;
   ~Fifo() = delete;

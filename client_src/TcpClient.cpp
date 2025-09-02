@@ -16,7 +16,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     const HEADER& header,
     std::string_view msgHash,
     std::string_view pubKeyAes,
-    std::string_view signedAuth) {
+    std::string_view signedAuth) -> bool {
     return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
   };
   constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
@@ -80,11 +80,12 @@ bool TcpClient::receiveStatus() {
 			HEADER& header,
 			std::string& clientIdStr,
 			std::string& encodedPeerPubKeyAes,
-			std::string& type) {
+			std::string& type) -> bool {
     if (!Tcp::readMessage(socket, header, clientIdStr, encodedPeerPubKeyAes))
       throw std::runtime_error("readMessage failed");
     type = "tcp";
     ioutility::fromChars(clientIdStr, _clientId);
+    return true;
   };
   lambda(_socket, _header, clientIdStr, encodedPeerPubKeyAes, type);
   return processStatus(encodedPeerPubKeyAes, type);

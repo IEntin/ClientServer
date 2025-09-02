@@ -7,7 +7,7 @@
 #include <string_view>
 
 // common constants
-constexpr std::string_view ENDOFMESSAGE("7254a31c8f784bbc8b81124080469024");
+constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
