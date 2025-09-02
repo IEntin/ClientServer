@@ -181,42 +181,23 @@ bool Fifo::readMessage(std::string_view name,
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
-  return ioutility::readMessage(_payload, header, array);
-}
-
-bool Fifo::readMessage(std::string_view name,
-		       bool block,
-		       HEADER& header,
-		       std::string& field1,
-		       std::string& field2,
-		       std::string& field3) {
-  _payload.clear();
-  if (!readMessage(name, block, _payload))
+  if (_payload.size() < HEADER_SIZE)
     return false;
-  if (_payload.size() < HEADER_SIZE) {
-    LogAlways << "Here is the problem!\n";
-    exit(1);
-  }
   if (!deserialize(header, _payload.data()))
     return false;
-  std::size_t payload1Sz = extractField1Size(header);
-  std::size_t payload2Sz = extractField2Size(header);
-  std::size_t payload3Sz = extractField3Size(header);
-  std::size_t shift = HEADER_SIZE;
-  if (payload1Sz > 0) {
-    field1.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz);
-    shift += payload1Sz;
-  }
-  if (payload2Sz > 0) {
-    field2.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz);
-    shift += payload2Sz;
-  }
-  if (payload3Sz > 0)
-    field3.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz);
-
-  if (field1.empty() && field2.empty() && field3.empty()) {
-    LogAlways << "Here is the problem!\n";
-    exit(1);
+  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
+  if (array.size() == 1 && extractField1Size(header) == 0)
+    sizes[0] = _payload.size() - HEADER_SIZE;
+  unsigned shift = HEADER_SIZE;
+  if (shift == _payload.size())
+    return true;
+  for (unsigned i = 0; i < array.size(); ++i) {
+    if (sizes[i] > 0) {
+      array[i].get().assign(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i]);
+      shift += sizes[i];
+      if (shift == _payload.size())
+	return true;
+    }
   }
   return true;
 }

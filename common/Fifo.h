@@ -56,14 +56,6 @@ public:
 			  bool block,
 			  HEADER& header,
 			  std::span<std::reference_wrapper<std::string>> array);
-
-  static bool readMessage(std::string_view name,
-			  bool block,
-			  HEADER& header,
-			  std::string& field1,
-			  std::string& field2 = _emptyString,
-			  std::string& field3 = _emptyString);
-
   static void onExit(std::string_view fifoName);
   static bool writeString(int fd, std::string_view str);
 private:

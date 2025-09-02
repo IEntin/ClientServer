@@ -107,10 +107,6 @@ std::string& operator << (std::string& buffer, F number) {
   return buffer;
 }
 
-bool readMessage(std::string_view payload,
-		 HEADER& header,
-		 std::span<std::reference_wrapper<std::string>> array);
-
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 std::string& operator << (std::string&, const SIZETUPLE&);
 

@@ -40,26 +40,4 @@ std::string createErrorString(const boost::source_location& location) {
   return msg << ' ' << location.function_name();
 }
 
-bool readMessage(std::string_view payload,
-		 HEADER& header,
-		 std::span<std::reference_wrapper<std::string>> array) {
-  if (!deserialize(header, payload.data()))
-    return false;
-  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
-  if (array.size() == 1 && extractField1Size(header) == 0)
-    sizes[0] = payload.size() - HEADER_SIZE;
-  unsigned shift = HEADER_SIZE;
-  if (shift == payload.size())
-    return true;
-  for (unsigned i = 0; i < array.size(); ++i) {
-    if (sizes[i] > 0) {
-      array[i].get().assign(payload.cbegin() + shift, payload.cbegin() + shift + sizes[i]);
-      shift += sizes[i];
-      if (shift == payload.size())
-	return true;
-    }
-  }
-  return true;
-}
-
 } // end of namespace ioutility

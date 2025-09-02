@@ -73,7 +73,8 @@ bool FifoClient::receive() {
   try {
     _status = STATUS::NONE;
     HEADER header;
-    if (!Fifo::readMessage(_fifoName, true, header, _response))
+    std::array<std::reference_wrapper<std::string>, 1> array{ std::ref(_response) };
+    if (!Fifo::readMessage(_fifoName, true, header, array))
       return false;
     return printReply();
   }
@@ -106,7 +107,9 @@ bool FifoClient::receiveStatus() {
 			std::string& clientIdStr,
 			std::string& encodedPeerPubKeyAes,
 			std::string& type) -> bool {
-    if (!Fifo::readMessage(Options::_acceptorName, true, header, clientIdStr, encodedPeerPubKeyAes))
+    std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(clientIdStr),
+							      std::ref(encodedPeerPubKeyAes) };
+    if (!Fifo::readMessage(Options::_acceptorName, true, header, array))
       throw std::runtime_error("readMessage failed");
     type = "fifo";
     _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
