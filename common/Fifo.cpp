@@ -8,6 +8,7 @@
 #include <poll.h>
 #include <thread>
 
+#include "IOUtility.h"
 #include "Options.h"
 
 namespace fifo {
@@ -181,25 +182,7 @@ bool Fifo::readMessage(std::string_view name,
   _payload.clear();
   if (!readMessage(name, block, _payload))
     return false;
-  if (_payload.size() < HEADER_SIZE)
-    return false;
-  if (!deserialize(header, _payload.data()))
-    return false;
-  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
-  if (array.size() == 1 && extractField1Size(header) == 0)
-    sizes[0] = _payload.size() - HEADER_SIZE;
-  unsigned shift = HEADER_SIZE;
-  if (shift == _payload.size())
-    return true;
-  for (unsigned i = 0; i < array.size(); ++i) {
-    if (sizes[i] > 0) {
-      array[i].get().assign(_payload.cbegin() + shift, _payload.cbegin() + shift + sizes[i]);
-      shift += sizes[i];
-      if (shift == _payload.size())
-	return true;
-    }
-  }
-  return true;
+  return ioutility::processMessage(_payload, header, array);
 }
 
 bool Fifo::writeString(int fd, std::string_view str) {

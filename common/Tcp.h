@@ -16,7 +16,6 @@ class Tcp {
   ~Tcp() = delete;
 
   static thread_local std::string _payload;
-  static std::string _emptyString;
 
 public:
 
@@ -59,10 +58,7 @@ public:
 
   static bool readMessage(boost::asio::ip::tcp::socket& socket,
 			  HEADER& header,
-			  std::string& field1,
-			  std::string& field2 = _emptyString,
-			  std::string& field3 = _emptyString);
-
+			  std::span<std::reference_wrapper<std::string>> array);
 };
 
 } // end of namespace tcp

@@ -59,7 +59,8 @@ bool TcpClient::receive() {
       return false;
     }
     HEADER header;
-    if (!Tcp::readMessage(_socket, header, _response))
+    std::array<std::reference_wrapper<std::string>, 1> array{ std::ref(_response) };
+    if (!Tcp::readMessage(_socket, header, array))
       return false;
     _status = STATUS::NONE;
     return printReply();
@@ -81,7 +82,9 @@ bool TcpClient::receiveStatus() {
 			std::string& clientIdStr,
 			std::string& encodedPeerPubKeyAes,
 			std::string& type) -> bool {
-    if (!Tcp::readMessage(socket, header, clientIdStr, encodedPeerPubKeyAes))
+    std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(clientIdStr),
+							      std::ref(encodedPeerPubKeyAes) };
+    if (!Tcp::readMessage(socket, header, array))
       throw std::runtime_error("readMessage failed");
     type = "tcp";
     ioutility::fromChars(clientIdStr, _clientId);

@@ -65,7 +65,10 @@ TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::string msgHash;
   std::string pubKeyAes;
   std::string signatureWithPubKey;
-  if (!Tcp::readMessage(socket, _header, msgHash, pubKeyAes, signatureWithPubKey))
+  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(msgHash),
+							    std::ref(pubKeyAes),
+							    std::ref(signatureWithPubKey) };
+  if (!Tcp::readMessage(socket, _header, array))
     throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");
   return { extractHeaderType(_header), msgHash, pubKeyAes, signatureWithPubKey };

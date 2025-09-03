@@ -110,4 +110,8 @@ std::string& operator << (std::string& buffer, F number) {
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 std::string& operator << (std::string&, const SIZETUPLE&);
 
+bool processMessage(std::string_view payload,
+		    HEADER &header,
+		    std::span<std::reference_wrapper<std::string>> array);
+
 } // end of namespace ioutility

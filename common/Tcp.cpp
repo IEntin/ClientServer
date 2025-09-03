@@ -10,7 +10,6 @@
 namespace tcp {
 
 thread_local std::string Tcp::_payload;
-std::string Tcp::_emptyString;
 
 bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
   boost::system::error_code ec;
@@ -79,29 +78,11 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 		      HEADER& header,
-		      std::string& field1,
-		      std::string& field2,
-		      std::string& field3) {
+		      std::span<std::reference_wrapper<std::string>> array) {
   _payload.clear();
   if (!readMessage(socket, _payload))
     return false;
-  if (!deserialize(header, _payload.data()))
-    return false;
-  std::size_t payload1Sz = extractField1Size(header);
-  std::size_t payload2Sz = extractField2Size(header);
-  std::size_t payload3Sz = extractField3Size(header);
-  std::size_t shift = HEADER_SIZE;
-  if (payload1Sz > 0) {
-    field1.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload1Sz);
-    shift += payload1Sz;
-  }
-  if (payload2Sz > 0) {
-    field2.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload2Sz);
-    shift += payload2Sz;
-  }
-  if (payload3Sz > 0)
-    field3.assign(_payload.cbegin() + shift, _payload.cbegin() + shift + payload3Sz);
-  return true;
+  return ioutility::processMessage(_payload, header, array);
 }
 
 } // end of namespace tcp
