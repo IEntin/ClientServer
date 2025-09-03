@@ -40,7 +40,7 @@ std::string createErrorString(const boost::source_location& location) {
   return msg << ' ' << location.function_name();
 }
 
-bool processMessage(std::string_view payload,
+bool processMessage(std::string& payload,
 		    HEADER &header,
 		    std::span<std::reference_wrapper<std::string>> array) {
   if (payload.size() < HEADER_SIZE)
@@ -48,8 +48,11 @@ bool processMessage(std::string_view payload,
   if (!deserialize(header, payload.data()))
     return false;
   std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
-  if (array.size() == 1 && extractField1Size(header) == 0)
-    sizes[0] = payload.size() - HEADER_SIZE;
+  if (array.size() == 1) {
+    payload.erase(0, (HEADER_SIZE));
+    array[0].get().swap(payload);
+    return true;
+  }
   unsigned shift = HEADER_SIZE;
   if (shift == payload.size())
     return true;

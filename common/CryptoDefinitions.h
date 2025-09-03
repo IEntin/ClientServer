@@ -183,14 +183,6 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
   return "";
 }
 
-static std::size_t findUncompressedSize(const HEADER& header) {
-  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
-  for (int i = 0; i < std::ssize(sizes); ++i)
-    if (sizes[i] != 0)
-      return sizes[i];
-  return 0;
-}
-
 template <typename Crypto>
 void decryptDecompress(std::string& buffer,
 		       HEADER& header,
@@ -205,7 +197,7 @@ void decryptDecompress(std::string& buffer,
       COMPRESSORS compressor = extractCompressor(header);
       switch (compressor) {
       case COMPRESSORS::LZ4:
-	compressionLZ4::uncompress(buffer, data, findUncompressedSize(header));
+	compressionLZ4::uncompress(buffer, data, extractField2Size(header));
 	break;
       case COMPRESSORS::SNAPPY:
 	compressionSnappy::uncompress(buffer, data);
@@ -233,7 +225,7 @@ static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
     case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data, findUncompressedSize(header));
+      compressionLZ4::uncompress(buffer, data, extractField2Size(header));
       break;
     case COMPRESSORS::SNAPPY:
       compressionSnappy::uncompress(buffer, data);

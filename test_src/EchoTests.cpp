@@ -136,8 +136,8 @@ struct FifoBlockingTest : testing::Test {
   bool send(std::string_view payload) {
     HEADER header{
       HEADERTYPE::SESSION,
-      payload.size(),
       0,
+      payload.size(),
       COMPRESSORS::NONE,
       DIAGNOSTICS::NONE,
       STATUS::NONE,
@@ -145,10 +145,12 @@ struct FifoBlockingTest : testing::Test {
     return fifo::Fifo::sendMessage(true, _testFifo, header, payload);
   }
 
-  void receive(std::string& received) {
+  bool receive(std::string& received) {
     HEADER header;
     std::array<std::reference_wrapper<std::string>, 1> array{ std::ref(received) };
-    fifo::Fifo::readMessage(_testFifo, true, header, array);
+    if (!fifo::Fifo::readMessage(_testFifo, true, header, array))
+      return false;
+    return true;
   }
 
   void testBlockingFifo(std::string_view payload) {
@@ -159,7 +161,9 @@ struct FifoBlockingTest : testing::Test {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     auto fr = std::async(std::launch::async, &FifoBlockingTest::receive, this, std::ref(received));
     fr.wait();
+    ASSERT_TRUE(fr.get());
     fs.wait();
+    ASSERT_TRUE(fs.get());
     ASSERT_EQ(received, payload);
   }
 
@@ -171,8 +175,10 @@ struct FifoBlockingTest : testing::Test {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     auto fs = std::async(std::launch::async, &FifoBlockingTest::send, this, payload);
     fr.wait();
-    fs.wait();
-    ASSERT_EQ(received, payload);
+    ASSERT_TRUE(fr.get());
+   fs.wait();
+   ASSERT_TRUE(fs.get());
+   ASSERT_EQ(received, payload);
   }
 
   void SetUp() {}
@@ -218,7 +224,9 @@ struct FifoNBDuplex : testing::Test {
   // client receive
   bool receiveC(HEADER& header, std::string& data) {
     std::array<std::reference_wrapper<std::string>, 1> array{ std::ref(data) };
-    return fifo::Fifo::readMessage(_testFifo, true, header, array);
+    if (!fifo::Fifo::readMessage(_testFifo, true, header, array))
+      return false;
+    return true;
   }
   // server send
   bool sendS(const HEADER& header, std::string_view data) {
@@ -227,13 +235,15 @@ struct FifoNBDuplex : testing::Test {
   // server receive
   bool receiveS(HEADER& header, std::string& data) {
     std::array<std::reference_wrapper<std::string>, 1> array{ std::ref(data) };
-    return fifo::Fifo::readMessage(_testFifo, true, header, array);
+    if (!fifo::Fifo::readMessage(_testFifo, true, header, array))
+      return false;
+    return true;
   }
 
   void testFifoNBDuplex(std::string_view payload) {
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     HEADER header =
-      { HEADERTYPE::SESSION, payload.size(), 0, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+      { HEADERTYPE::SESSION, 0, payload.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
     std::string dataIntermed;

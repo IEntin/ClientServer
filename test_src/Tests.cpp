@@ -169,11 +169,11 @@ TEST(FromCharsTest, FloatingPoint) {
 
 TEST(HeaderTest, 1) {
   char buffer[HEADER_SIZE] = {};
-  unsigned field1Sz = 123456;
-  unsigned field2Sz = 0;
+  unsigned field1Sz = 0;
+  unsigned field2Sz = 123456;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
-  HEADER header{HEADERTYPE::SESSION, field1Sz, 0, compressor, diagnostics, STATUS::NONE, 0};
+  HEADER header{HEADERTYPE::SESSION, 0, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
   serialize(header, buffer);
   ASSERT_TRUE(deserialize(header, buffer));
   std::size_t field1SzResult = extractField1Size(header);
