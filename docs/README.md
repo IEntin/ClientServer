@@ -62,6 +62,13 @@ libbotan must be installed:\
 ### Building and Testing
 
 #### Notice:
+Top shows slow application memory growth with time when using libsodium. \
+Valgrind and leak sanitizers of both clang++ and g++ do not report any leaks \
+or other memory errors. \
+Switching application to crypto++ solves this problem: top shows steady\
+memory footprint in long (hour) tests.
+
+Setting default crypto library back to Crypto++.
 
 There is a choice of encryption libraries to use in this application:\
 Sodium which is the current and Crypto++.\

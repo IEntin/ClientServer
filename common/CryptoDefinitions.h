@@ -16,7 +16,7 @@
 
 namespace cryptodefinitions {
 
-constexpr CRYPTO _encryption = CRYPTO::CRYPTOSODIUM;
+constexpr CRYPTO _encryption = CRYPTO::CRYPTOPP;
 
 static consteval unsigned long getEncryptionIndex(std::optional<CRYPTO> encryption = std::nullopt) {
   CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;  
