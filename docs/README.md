@@ -70,9 +70,19 @@ constexpr CRYPTO encryption = CRYPTO::CRYPTOSODIUM;\
 to\
 constexpr CRYPTO encryption = CRYPTO::CRYPTOPP;\
 and to rebuild the application.\
-Sodium seems preferable due to the active development of this library,\
+Sodium is preferable due to the active development of this library,\
 besides, valgrind showed significant drop in the number of memory \
 allocations with Sodium.
+
+For debugging purposes DebugLog facility allows to print any binary data \
+including sensitive information like cryptographic keys.\
+To use it build the application with compiler flags \
+CPPFLAGS := -g -D_DEBUG ...\
+and insert lines similar to this where needed:\
+DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);\
+Definitely, this infomation must be removed in the secure release build.\
+Remove these lines and/or disable debug mode in the makefile by removing\
+compiler flags '-g -D_DEBUG'.
 
 Renamed binaries server -> serverX and client -> clientX to\
 avoid collision in scripts.
