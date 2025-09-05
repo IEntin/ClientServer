@@ -13,8 +13,6 @@
   "_comment" : "Next is for ZSTD",
   "CompressionLevel" : 3,
   "doEncrypt" : true,
-  "_comment": "If true logs crypto key",
-  "ShowKey" : false,
   "BufferSize" : 3000000,
   "Timing" : true,
   "RunLoop" : true,

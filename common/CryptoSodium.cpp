@@ -47,8 +47,6 @@ void CryptoSodium::setAESKey(SessionKey& key) {
 CryptoSodium::CryptoSodium(std::string_view msg) :
   _msgHash(hashMessage(msg)) {
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_privKeyAes", _privKeyAes);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
   crypto_sign_detached(_signature.data(),
@@ -67,7 +65,6 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   _msgHash(msgHash.data(), msgHash.size()) {
   std::vector<unsigned char> peerAesPubKeyV = base64_decode(encodedPeerAesPubKey);
   std::copy(peerAesPubKeyV.cbegin(), peerAesPubKeyV.cend(), _peerPubKeyAes.begin());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "signatureWithPubKeySign", signatureWithPubKeySign);
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   unsigned char signature[crypto_sign_BYTES] = {};
@@ -82,9 +79,6 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_privKeyAes", _privKeyAes);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_peerPubKeyAes", _peerPubKeyAes);
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
   if (crypto_kx_server_session_keys(_key.data(),
 				    server_tx.data(),
@@ -111,7 +105,6 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
   randombytes_buf(nonce, std::ssize(nonce));
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "nonceEncrypt", nonce);
   std::size_t message_len = std::ssize(input);
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
@@ -138,7 +131,6 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned long long ciphertext_len = std::ssize(data) - crypto_aead_aes256gcm_NPUBBYTES;
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
     std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);
-    DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "recoveredNonce", recoveredNonce);
     data.erase(data.end() - crypto_aead_aes256gcm_NPUBBYTES);
     buffer.resize(ciphertext_len);
     unsigned long long decrypted_len;
@@ -161,9 +153,6 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
 bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   std::vector<unsigned char> peerPubKeyAesV = base64_decode(encodedPeerPubKeyAes);
   std::copy(peerPubKeyAesV.cbegin(), peerPubKeyAesV.cend(), _peerPubKeyAes.begin());
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_pubKeyAes", _pubKeyAes);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_privKeyAes", _privKeyAes);
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_peerPubKeyAes", _peerPubKeyAes);
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
   if (crypto_kx_client_session_keys(client_rx.data(),
 				    _key.data(),

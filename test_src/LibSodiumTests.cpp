@@ -9,7 +9,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "DebugLog.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
@@ -17,7 +16,6 @@
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.DHkeyExchange; done
 
 TEST(LibSodiumTest, authentication) {
-  DebugLog::setTitle("LibSodiumTest, authentication");
   try {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
@@ -32,7 +30,6 @@ TEST(LibSodiumTest, authentication) {
 }
 
 TEST(LibSodiumTest, DHkeyExchange) {
-  DebugLog::setTitle("LibSodiumTest, DHkeyExchange");
   try {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
@@ -62,7 +59,6 @@ TEST(LibSodiumTest, DHkeyExchange) {
 }
 
 TEST(LibSodiumTest, publicKeyEncoding) {
-  DebugLog::setTitle("LibSodiumTest, publicKeyEncoding");
   unsigned char public_key[crypto_box_PUBLICKEYBYTES];
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(public_key, secret_key);

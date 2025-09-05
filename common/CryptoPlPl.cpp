@@ -11,6 +11,7 @@
 
 #include "ClientOptions.h"
 #include "CryptoDefinitions.h"
+#include "DebugLog.h"
 #include "IOUtility.h"
 #include "ServerOptions.h"
 #include "Utility.h"
@@ -57,6 +58,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   peerAesPubKey.Assign(decoded.data(), decoded.size());
   if(!_dh.Agree(_key, _privKeyAes, peerAesPubKey))
     throw std::runtime_error("DiffieHellman Failed");
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   hideKey();
   CryptoPP::SecByteBlock().swap(peerAesPubKey);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
@@ -156,6 +158,7 @@ bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   const CryptoPP::SecByteBlock& peerPubKeyAes { vect.data(), vect.size() };
   if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
     throw std::runtime_error("Client-side key exchange failed");
+  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   hideKey();
   erasePubPrivKeys();
   return true;

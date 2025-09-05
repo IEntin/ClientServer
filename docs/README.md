@@ -62,14 +62,6 @@ libbotan must be installed:\
 ### Building and Testing
 
 #### Notice:
-Top shows slow application memory growth with time when using libsodium. \
-Valgrind and leak sanitizers of both clang++ and g++ do not report any leaks \
-or other memory errors. \
-Switching application to crypto++ solves this problem: top shows steady\
-memory footprint in long (hour) tests.
-
-Setting default crypto library back to Crypto++.
-
 There is a choice of encryption libraries to use in this application:\
 Sodium which is the current and Crypto++.\
 To switch one to another one has to replace global definition in\
@@ -101,8 +93,6 @@ Unlike simple Diffie-Hellman the protocol in use is resistant to\
 are encrypted as well.\
 The time of exposure of the encryption key in the code is significantly\
 shortened by obfuscating the key while not in use with nonce obfuscator.\
-The result can be observed by enabling showKey option for the server\
-and/or client.\
 Closing and restarting the client creates a new encryption key used by a\
 client/session pair providing frequent key rotation. Performance impact\
 is not significant which can be proven by running runShortSessions.sh script.
