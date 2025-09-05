@@ -30,17 +30,17 @@ static consteval unsigned long getEncryptionIndex(std::optional<CRYPTO> encrypti
   }
 }
 
-static bool sodiumInitialized() {
-  std::string encryptionLib;
+static bool initialize() {
+  std::string_view encryptionLib;
   switch(_encryption) {
   case CRYPTO::CRYPTOPP:
-    encryptionLib.assign("Crypto++");
+    encryptionLib = "Crypto++";
     break;
     case CRYPTO::CRYPTOSODIUM:
-    encryptionLib.assign("Sodium");
+    encryptionLib = "Sodium";
     break;
   default:
-    encryptionLib.assign("Error");
+    encryptionLib = "Error";
     break;
   }
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
@@ -134,8 +134,8 @@ std::string_view compressEncrypt(std::string& buffer,
     }
   }
   else {
-    std::string headerBuffer(HEADER_SIZE, '\0');
-    data.insert(0, headerBuffer);
+    char headerBuffer[HEADER_SIZE];
+    data.insert(0, headerBuffer, HEADER_SIZE);
     serialize(header, data.data());
     return data;
   }

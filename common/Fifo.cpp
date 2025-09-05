@@ -185,10 +185,10 @@ bool Fifo::readMessage(std::string_view name,
   return ioutility::processMessage(_payload, header, array);
 }
 
-bool Fifo::writeString(int fd, std::string_view str) {
+bool Fifo::writeString(int fd, const char* str, std::size_t size) {
   std::size_t written = 0;
-  while (written < str.size()) {
-    ssize_t result = write(fd, str.data() + written, str.size() - written);
+  while (written < size) {
+    ssize_t result = write(fd, str + written, size - written);
     if (result == -1) {
       switch (errno) {
       case EAGAIN: {

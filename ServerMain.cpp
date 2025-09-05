@@ -20,7 +20,7 @@ int main() {
   DebugLog::setDebugLog(APPTYPE::SERVER);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setServerTerminal(terminal);
-  bool initialized[[maybe_unused]] = cryptodefinitions::sodiumInitialized();
+  bool initialized[[maybe_unused]] = cryptodefinitions::initialize();
   atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);

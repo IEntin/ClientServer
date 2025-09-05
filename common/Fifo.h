@@ -36,17 +36,13 @@ public:
     if (fdWrite == -1)
       return false;
     CloseFileDescriptor cfdw(fdWrite);
-    _payload.clear();
-    char headerBuffer[HEADER_SIZE] = {};
+    char headerBuffer[HEADER_SIZE];
     serialize(header, headerBuffer);
-    _payload.append(headerBuffer, std::ssize(headerBuffer));
-    _payload.append(payload1);
-    if (!payload2.empty())
-      _payload.append(payload2);
-    if (!payload3.empty())
-      _payload.append(payload3);
-    _payload.append(ENDOFMESSAGE);
-    writeString(fdWrite, _payload);
+    writeString(fdWrite, headerBuffer, std::ssize(headerBuffer));
+    writeString(fdWrite, payload1.data(), payload1.size());
+    writeString(fdWrite, payload2.data(), payload2.size());
+    writeString(fdWrite, payload3.data(), payload3.size());
+    writeString(fdWrite, ENDOFMESSAGE.data(), ENDOFMESSAGESZ);
     return true;
   }
 
@@ -57,7 +53,7 @@ public:
 			  HEADER& header,
 			  std::span<std::reference_wrapper<std::string>> array);
   static void onExit(std::string_view fifoName);
-  static bool writeString(int fd, std::string_view str);
+  static bool writeString(int fd, const char* str, std::size_t size);
 private:
   Fifo() = delete;
   ~Fifo() = delete;
