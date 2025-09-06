@@ -7,7 +7,7 @@
   "_comment" : "LZ4, SNAPPY, ZSTD or anything for disabled",
   "_comment" : "may differ for server and client",
   "Compression" : "LZ4",
-  "_comment" : "Next is for LZ4",
+  "_comment" : "Next is for ZSTD",
   "CompressionLevel" : 3,
   "doEncrypt" : true,
   "Timing" : true,
