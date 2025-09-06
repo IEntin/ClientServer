@@ -39,7 +39,7 @@ protected:
   HEADER _header;
   RunnableWeakPtr _heartbeat;
   TaskBuilderWeakPtr _taskBuilder;
-  Subtasks _task;
+  static thread_local Subtasks _task;
   static std::atomic<bool> _closeFlag;
   std::string _buffer;
 

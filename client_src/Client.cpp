@@ -14,6 +14,7 @@
 #include "Utility.h"
 
 std::atomic<bool> Client::_closeFlag = false;
+thread_local Subtasks Client::_task;
 
 Client::Client() :
   _crypto(cryptodefinitions::createCrypto(utility::generateRawUUID())),
