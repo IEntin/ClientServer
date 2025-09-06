@@ -12,7 +12,6 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 #include "Header.h"
-#include "ServerOptions.h"
 
 namespace cryptodefinitions {
 
@@ -166,17 +165,11 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
       break;
     }
   }
-  if (doEncrypt) {
-    if (ServerOptions::_showKey)
-      crypto-> showKey();
-    auto weak = std::weak_ptr(crypto);
-    if (auto cryptoEff = weak.lock();crypto) {
-      return cryptoEff->encrypt(buffer, header, data);
-    }
-  }
+  if (doEncrypt)
+    return crypto->encrypt(buffer, header, data);
   else {
-    std::string headerBuffer(HEADER_SIZE, '\0');
-    data.insert(0, headerBuffer);
+    char headerBuffer[HEADER_SIZE];
+    data.insert(0, headerBuffer, HEADER_SIZE);
     serialize(header, data.data());
     return data;
   }

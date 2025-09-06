@@ -9,11 +9,8 @@
 #include <cryptopp/base64.h>
 #include <cryptopp/hex.h>
 
-#include "ClientOptions.h"
 #include "CryptoDefinitions.h"
 #include "DebugLog.h"
-#include "IOUtility.h"
-#include "ServerOptions.h"
 #include "Utility.h"
 
 const CryptoPP::OID CryptoPlPl::_curve = CryptoPP::ASN1::secp256r1();
@@ -69,8 +66,6 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
-  if (ServerOptions::_showKey)
-    showKey();
   hideKey();
   eraseRSAKeys();
 }
@@ -148,8 +143,6 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
     stfDecryptor.Put(std::bit_cast<CryptoPP::byte*>(data.data()), data.size() - iv.size());
     stfDecryptor.MessageEnd();
     data = buffer;
-    if (ClientOptions::_showKey)
-      showKey();
   }
 }
 

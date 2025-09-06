@@ -6,10 +6,8 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "ClientOptions.h"
 #include "CryptoDefinitions.h"
 #include "DebugLog.h"
-#include "ServerOptions.h"
 #include "Utility.h"
 
 HandleKey::HandleKey() :
@@ -87,8 +85,6 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
 				    _peerPubKeyAes.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
-  if (ServerOptions::_showKey)
-    showKey();
   _keyHandler.hideKey(_key);
   eraseUsedData();
 }
@@ -161,8 +157,6 @@ bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
 				    _peerPubKeyAes.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
-  if (ClientOptions::_showKey)
-    showKey();
   hideKey();
   eraseUsedData();
   return true;
