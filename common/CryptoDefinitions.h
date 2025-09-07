@@ -49,7 +49,10 @@ static bool initialize() {
   return 0;
  }
 
-// expected message starts with a header
+// expected: message starts with a header
+// header is encrypted as the rest of data
+// but never compressed because decompression
+// needs header
 static bool isEncrypted(std::string_view input) {
   if (input.empty())
     return false;

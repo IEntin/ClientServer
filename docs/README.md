@@ -100,7 +100,7 @@ Symmetric encryption is used after the key is set for each session/client.\
 The key is specific for every session/client pair.\
 Unlike simple Diffie-Hellman the protocol in use is resistant to\
 'Man In The Middle' attack types. Headers being sent with the data\
-are encrypted as well.\
+are encrypted as well (but never compressed because decompression needs it).\
 The time of exposure of the encryption key in the code is significantly\
 shortened by obfuscating the key while not in use with nonce obfuscator.\
 Closing and restarting the client creates a new encryption key used by a\
