@@ -168,8 +168,8 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
   if (doEncrypt)
     return crypto->encrypt(buffer, header, data);
   else {
-    char headerBuffer[HEADER_SIZE];
-    data.insert(0, headerBuffer, HEADER_SIZE);
+    std::string headerBuffer(HEADER_SIZE, '\0');
+    data.insert(0, headerBuffer);
     serialize(header, data.data());
     return data;
   }
