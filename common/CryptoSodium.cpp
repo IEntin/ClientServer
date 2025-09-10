@@ -77,9 +77,8 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
   if (!_verified)
     throw std::runtime_error("authentication failed");
   // Server-side key exchange
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> server_tx;
   if (crypto_kx_server_session_keys(_key.data(),
-				    server_tx.data(),
+				    nullptr,
 				    _pubKeyAes.data(),
 				    _privKeyAes.data(),
 				    _peerPubKeyAes.data()) != 0)
@@ -149,8 +148,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
 bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   std::vector<unsigned char> peerPubKeyAesV = base64_decode(encodedPeerPubKeyAes);
   std::copy(peerPubKeyAesV.cbegin(), peerPubKeyAesV.cend(), _peerPubKeyAes.begin());
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> client_rx;
-  if (crypto_kx_client_session_keys(client_rx.data(),
+  if (crypto_kx_client_session_keys(nullptr,
 				    _key.data(),
 				    _pubKeyAes.data(),
 				    _privKeyAes.data(),
