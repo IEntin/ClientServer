@@ -22,8 +22,6 @@ TESTSRCDIR := test_src
 # google snappy must be installed
 # 'sudo apt-get install libsnappy-dev'
 # /usr/include/snappy.h
-# botan must be installed
-# 'sudo apt install libbotan-2-dev'
 # libcrypto++-dev must be installed
 # sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 # libsodium-dev must be installed
@@ -123,7 +121,7 @@ TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -lbotan-3 -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
 
 RUNTESTSPSEUDOTARGET := runtests
 

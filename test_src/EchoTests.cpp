@@ -250,7 +250,9 @@ struct FifoNBDuplex : testing::Test {
     auto fr = std::async(std::launch::async, &FifoNBDuplex::receiveS,
 			 this, std::ref(headerIntermed), std::ref(dataIntermed));
     fr.wait();
+    ASSERT_TRUE(fr.get());
     fs.wait();
+    ASSERT_TRUE(fs.get());
     ASSERT_EQ(headerIntermed, header);
     ASSERT_EQ(dataIntermed, payload);
     HEADER headerFin;
@@ -258,7 +260,9 @@ struct FifoNBDuplex : testing::Test {
     fs = std::async(std::launch::async, &FifoNBDuplex::sendS, this, std::cref(headerIntermed), dataIntermed);
     fr = std::async(std::launch::async, &FifoNBDuplex::receiveC, this, std::ref(headerFin), std::ref(dataFin));
     fr.wait();
+    ASSERT_TRUE(fr.get());
     fs.wait();
+    ASSERT_TRUE(fs.get());
     ASSERT_EQ(header, headerFin);
     ASSERT_EQ(payload, dataFin);
   }

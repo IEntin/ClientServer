@@ -56,9 +56,6 @@ libcrypto++-dev must be installed:\
 libsodium-dev must be installed:\
 'sudo apt install libsodium-dev'
 
-libbotan must be installed:\
-'sudo apt install libbotan-2-dev'
-
 ### Building and Testing
 
 #### Notice:
