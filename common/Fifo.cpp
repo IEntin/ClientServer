@@ -103,7 +103,6 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
   if (fd == -1)
     return false;
   CloseFileDescriptor cfdr(fd);
-  std::size_t accumulatedSz = 0;
   char buffer[BUFFER_SIZE] = {};
   while (true) {
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
@@ -113,10 +112,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       return false;
     else if (result > 0) {
       std::size_t transferred = std::bit_cast<std::size_t>(result);
-      std::size_t prevSize = accumulatedSz;
-      accumulatedSz += transferred;
-      payload.resize(accumulatedSz);
-      std::copy(std::cbegin(buffer), std::cbegin(buffer) + transferred, payload.begin() + prevSize);
+      payload.append(buffer, transferred);
       if (payload.ends_with(ENDOFMESSAGE)) {
 	payload.erase(payload.size() - ENDOFMESSAGESZ);
 	return true;
@@ -131,7 +127,6 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
   if (fd == -1)
     return false;
   CloseFileDescriptor cfdr(fd);
-  std::size_t accumulatedSz = 0;
   while (true) {
     char buffer[BUFFER_SIZE] = {};
     ssize_t result = read(fd, buffer, BUFFER_SIZE);
@@ -150,10 +145,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
     }
     else if (result > 0) {
       std::size_t transferred = std::bit_cast<std::size_t>(result);
-      std::size_t prevSize = accumulatedSz;
-      accumulatedSz += transferred;
-      payload.resize(accumulatedSz);
-      std::copy(std::cbegin(buffer), std::cbegin(buffer) + transferred, payload.begin() + prevSize);
+      payload.append(buffer, transferred);
       if (payload.ends_with(ENDOFMESSAGE)) {
 	payload.erase(payload.size() - ENDOFMESSAGESZ);
 	return true;
