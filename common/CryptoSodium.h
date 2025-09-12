@@ -17,7 +17,7 @@ using CryptoWeakSodiumPtr = std::weak_ptr<class CryptoSodium>;
 
 struct HandleKey {
   explicit HandleKey();
-  ~HandleKey() = default;
+  ~HandleKey();
   std::size_t _size;
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> _obfuscator;
   void hideKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key);
@@ -49,7 +49,7 @@ public:
   CryptoSodium(std::string_view msgHash,
 	       std::string_view encodedPeerAesPubKey,
 	       std::string_view signatureWithPubKey);
-  ~CryptoSodium() = default;
+  ~CryptoSodium();
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
 			   std::string_view data);

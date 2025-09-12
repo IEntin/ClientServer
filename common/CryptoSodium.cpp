@@ -16,6 +16,10 @@ HandleKey::HandleKey() :
   randombytes_buf(_obfuscator.data(), _size);
 }
 
+HandleKey::~HandleKey() {
+  sodium_memzero(_obfuscator.data(), _obfuscator.size());
+}
+
 void HandleKey::hideKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
   if (!_obfuscated) {
     // refresh obfuscator
@@ -57,6 +61,7 @@ CryptoSodium::CryptoSodium(std::string_view msg) :
   _signatureWithPubKeySign.append(_publicKeySign.cbegin(), _publicKeySign.cend());
 }
 
+// session
 CryptoSodium::CryptoSodium(std::string_view msgHash,
 			   std::string_view encodedPeerAesPubKey,
 			   std::string_view signatureWithPubKeySign) :
@@ -83,9 +88,14 @@ CryptoSodium::CryptoSodium(std::string_view msgHash,
 				    _privKeyAes.data(),
 				    _peerPubKeyAes.data()) != 0)
     throw std::runtime_error("Server-side key exchange failed");
+  sodium_memzero(_privKeyAes.data(), _privKeyAes.size());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   _keyHandler.hideKey(_key);
   eraseUsedData();
+}
+
+CryptoSodium::~CryptoSodium() {
+  sodium_memzero(_key.data(), _key.size());
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
@@ -154,6 +164,7 @@ bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
 				    _privKeyAes.data(),
 				    _peerPubKeyAes.data()) != 0)
     throw std::runtime_error("Client-side key exchange failed");
+  sodium_memzero(_privKeyAes.data(), _privKeyAes.size());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   hideKey();
   eraseUsedData();
@@ -216,6 +227,6 @@ bool CryptoSodium::checkAccess() {
 }
 
 void CryptoSodium::eraseUsedData() {
-  std::string().swap(_msgHash);
-  std::string().swap(_signatureWithPubKeySign);
+  sodium_memzero(_msgHash.data(), _msgHash.size());
+  sodium_memzero(_signatureWithPubKeySign.data(), _signatureWithPubKeySign.size());
 }
