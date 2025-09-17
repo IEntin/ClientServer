@@ -94,17 +94,6 @@ bool CryptoPlPl::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
   return true;
 }
 
-void CryptoPlPl::showKey() {
-  if (!checkAccess())
-    return;
-  Logger logger(LOG_LEVEL::INFO, std::clog, false);
-  if (logger._level >= Logger::_threshold) {
-    logger << "KEY: 0x";
-    boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream() });
-    logger << '\n';
-  }
-}
-
 std::string_view CryptoPlPl::encrypt(std::string& buffer,
 				     const HEADER& header,
 				     std::string_view data) {

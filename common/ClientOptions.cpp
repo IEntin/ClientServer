@@ -16,7 +16,6 @@ bool ClientOptions::_tcpClient;
 COMPRESSORS ClientOptions::_compressor;
 int ClientOptions::_compressionLevel;
 bool ClientOptions::_doEncrypt;
-bool ClientOptions::_showKey;
 std::string ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
 std::ostream* ClientOptions::_instrStream;
@@ -39,7 +38,6 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
   _compressionLevel = appOptions.get("CompressionLevel", 3);
   _doEncrypt = appOptions.get("doEncrypt", true);
-  _showKey = appOptions.get("ShowKey", false);
   _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
   if (externalDataStream)
     _dataStream = externalDataStream;

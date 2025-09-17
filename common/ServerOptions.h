@@ -15,7 +15,6 @@ struct ServerOptions : Options {
   static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
-  static bool _showKey;
   static int _numberWorkThreads;
   static int _maxTcpSessions;
   static int _maxFifoSessions;

@@ -15,7 +15,7 @@ HandleKey::HandleKey() :
   _obfuscated(false) {}
 
 HandleKey::~HandleKey() {
-  sodium_memzero(_obfuscator.data(), _obfuscator.size());
+  sodium_memzero(_obfuscator.data(), _size);
 }
 
 void HandleKey::hideKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
@@ -202,17 +202,6 @@ CryptoSodium::hashMessage(std::string_view message) {
 		     MESSAGE, crypto_generichash_BYTES,
 		     key, std::ssize(key));
   return { std::cbegin(hash), std::cend(hash) };
-}
-
-void CryptoSodium::showKey() {
-  if (!checkAccess())
-    return;
-  Logger logger(LOG_LEVEL::INFO, std::clog, false);
-  if (logger._level >= Logger::_threshold) {
-    logger << "KEY: 0x";
-    boost::algorithm::hex(_key, std::ostream_iterator<char> { logger.getStream() });
-    logger << '\n';
-  }
 }
 
 bool CryptoSodium::checkAccess() {

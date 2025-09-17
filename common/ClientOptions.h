@@ -18,7 +18,6 @@ struct ClientOptions {
   static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
-  static bool _showKey;
   static std::string _sourceName;
   static std::ostream* _dataStream;
   static std::ostream* _instrStream;

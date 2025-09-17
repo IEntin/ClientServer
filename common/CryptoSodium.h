@@ -57,7 +57,6 @@ public:
   std::string base64_encode(std::span<unsigned char> input);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
-  void showKey();
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
