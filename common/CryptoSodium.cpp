@@ -12,9 +12,7 @@
 
 HandleKey::HandleKey() :
   _size(crypto_kx_SESSIONKEYBYTES),
-  _obfuscated(false) {
-  randombytes_buf(_obfuscator.data(), _size);
-}
+  _obfuscated(false) {}
 
 HandleKey::~HandleKey() {
   sodium_memzero(_obfuscator.data(), _obfuscator.size());
@@ -22,8 +20,8 @@ HandleKey::~HandleKey() {
 
 void HandleKey::hideKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>& key) {
   if (!_obfuscated) {
-    // refresh obfuscator
-    randombytes(_obfuscator.data(), _size);
+    // generate obfuscator
+    randombytes_buf(_obfuscator.data(), _size);
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
     _obfuscated = true;
@@ -35,6 +33,7 @@ void HandleKey::recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>&
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
     _obfuscated = false;
+    sodium_memzero(_obfuscator.data(), _size);
   }
 }
 

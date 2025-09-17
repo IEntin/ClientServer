@@ -16,13 +16,11 @@
 const CryptoPP::OID CryptoPlPl::_curve = CryptoPP::ASN1::secp256r1();
 
 KeyHandler::KeyHandler(unsigned size) : _size(size),
-  _obfuscator(_size) {
-  _rng.GenerateBlock(_obfuscator, _size);
-}
+  _obfuscator(_size) {}
 
 void KeyHandler::hideKey(CryptoPP::SecByteBlock& key) {
   if (!_obfuscated) {
-    // refresh obfuscator
+    // generate obfuscator
     _rng.GenerateBlock(_obfuscator, _size);
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
