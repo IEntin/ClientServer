@@ -22,7 +22,7 @@ using CryptoWeakPlPlPtr = std::weak_ptr<class CryptoPlPl>;
 
 struct KeyHandler {
   explicit KeyHandler(unsigned size);
-  ~KeyHandler() = default;
+  ~KeyHandler();
   const unsigned _size;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::SecByteBlock _obfuscator;
@@ -59,10 +59,10 @@ class CryptoPlPl {
   }
   bool checkAccess();
   void hideKey();
-  void eraseRSAKeys();
+  void destroySecretData();
   void signMessage();
   std::string sha256_hash(std::string_view message);
-  void erasePubPrivKeys();
+  void eraseAfterUse();
   bool verifySignature(std::string_view signature);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
@@ -71,7 +71,7 @@ public:
 	     std::string_view encodedPeerAesPubKey,
 	     std::string_view signatureWithPubKey);
   explicit CryptoPlPl(std::string_view msg);
-  ~CryptoPlPl() = default;
+  ~CryptoPlPl();
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
@@ -94,7 +94,7 @@ public:
     bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
-    eraseRSAKeys();
+    destroySecretData();
     return result;
   }
 };

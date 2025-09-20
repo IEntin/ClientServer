@@ -97,9 +97,9 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];
-  subtask._data = dataView;
+  subtask._data.assign(dataView);
   _status = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
-  subtask._header.swap(header);
+  subtask._header = header;
   switch (_status) {
   case STATUS::TASK_DONE:
   case STATUS::ERROR:

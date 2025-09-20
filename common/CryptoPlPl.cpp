@@ -7,6 +7,7 @@
 #include <boost/algorithm/hex.hpp>
 
 #include <cryptopp/base64.h>
+#include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
 
 #include "CryptoDefinitions.h"
@@ -33,7 +34,11 @@ void KeyHandler::recoverKey(CryptoPP::SecByteBlock& key) {
     for (unsigned i = 0; i < _size; ++i)
       key[i] ^= _obfuscator[i];
     _obfuscated = false;
+    CryptoPP::memset_z(_obfuscator.data(), 0, _obfuscator.size());
   }
+}
+KeyHandler::~KeyHandler() {
+  CryptoPP::memset_z(_obfuscator.data(), 0, _obfuscator.size());
 }
 
 // session
@@ -65,7 +70,7 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
   hideKey();
-  eraseRSAKeys();
+  destroySecretData();
 }
 
 // client
@@ -85,6 +90,10 @@ CryptoPlPl::CryptoPlPl(std::string_view msg) :
     throw std::runtime_error("rsa key encode failed");   
   _serializedRsaPubKey.swap(encodedStr);
   signMessage();
+}
+
+CryptoPlPl::~CryptoPlPl() {
+  CryptoPP::SecureWipeArray(_key.data(), _key.size());
 }
 
 bool CryptoPlPl::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
@@ -140,7 +149,7 @@ bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
     throw std::runtime_error("Client-side key exchange failed");
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   hideKey();
-  erasePubPrivKeys();
+  eraseAfterUse();
   return true;
 }
 
@@ -193,7 +202,7 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
 				     std::bit_cast<CryptoPP::byte*>(signature.data()), signature.length());
   if (!_verified)
     throw std::runtime_error("Failed to verify signature");
-  eraseRSAKeys();
+  destroySecretData();
   return true;
 }
 // The message is based on uuid for testing purposes,
@@ -212,19 +221,17 @@ std::string CryptoPlPl::sha256_hash(std::string_view message) {
   return output;
 }
 
-void CryptoPlPl::eraseRSAKeys() {
-  std::string().swap(_msgHash);
-  _rsaPrivKey = CryptoPP::RSA::PrivateKey();
-  _rsaPubKey = CryptoPP::RSA::PublicKey();
-  _peerRsaPubKey = CryptoPP::RSA::PublicKey();
-  std::string().swap(_serializedRsaPubKey);
-  std::string().swap(_signatureWithPubKeySign);
+void CryptoPlPl::destroySecretData() {
+  CryptoPP::memset_z(_msgHash.data(), 0, _msgHash.size());
+  _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
+  CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());
+  CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());
 }
 
-void CryptoPlPl::erasePubPrivKeys() {
-  std::string().swap(_msgHash);
-  CryptoPP::SecByteBlock().swap(_privKeyAes);
-  CryptoPP::SecByteBlock().swap(_pubKeyAes);
+void CryptoPlPl::eraseAfterUse() {
+  CryptoPP::memset_z(_msgHash.data(), 0, _msgHash.size());
+  CryptoPP::memset_z(_privKeyAes.data(), 0, _privKeyAes.size());
+  CryptoPP::memset_z(_pubKeyAes.data(), 0, _pubKeyAes.size());
 }
 
 bool CryptoPlPl::checkAccess() {
