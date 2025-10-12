@@ -107,7 +107,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
 				     const HEADER& header,
 				     std::string_view data) {
   if (!checkAccess())
-    return data;
+    throw std::runtime_error("access denied");
   buffer.clear();
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
@@ -126,7 +126,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
 
 void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
-    return;
+    throw std::runtime_error("access denied");
   if (cryptodefinitions::isEncrypted(data)) {
     buffer.clear();
     CryptoPP::SecByteBlock

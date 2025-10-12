@@ -62,6 +62,7 @@
 #include <boost/asio.hpp>
 #include <boost/assert/source_location.hpp>
 #include <boost/charconv.hpp>
+#include <boost/container/static_vector.hpp>
 #include <boost/core/demangle.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -73,6 +74,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/regex.hpp>
 #include <boost/stacktrace.hpp>
+#include <boost/static_string/static_string.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid.hpp>
 
