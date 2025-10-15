@@ -37,14 +37,12 @@ public:
   static CryptoSodiumPtr createServer(CryptoSodiumPtr cryptoC) {
     std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()),
 					     cryptoC->_signatureWithPubKeySign.size());
-    return std::make_shared<CryptoSodium>(cryptoC->_msgHash,
-					  cryptoC->_encodedPubKeyAes,
+    return std::make_shared<CryptoSodium>(cryptoC->_encodedPubKeyAes,
 					  signatureWithPubKeySign);
   }
 
   static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
-    return std::make_shared<CryptoPlPl>(cryptoC->_msgHash,
-					cryptoC->_encodedPubKeyAes,
+    return std::make_shared<CryptoPlPl>(cryptoC->_encodedPubKeyAes,
 					cryptoC->_signatureWithPubKeySign);
   }
 
@@ -52,7 +50,7 @@ public:
     template <typename CryptoType, typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor, bool doEncrypt) {
       // client
-      auto cryptoC(std::make_shared<CryptoType>(utility::generateRawUUID()));
+      auto cryptoC(std::make_shared<CryptoType>());
       // server
       auto cryptoS = createServer(cryptoC);
       cryptodefinitions::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);

@@ -11,14 +11,13 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
-		 std::string_view msgHash,
 		 std::string_view encodedPeerPubKeyAes,
 		 std::string_view signatureWithPubKey)
 try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
-    _crypto = cryptodefinitions::createCrypto(msgHash, encodedPeerPubKeyAes, signatureWithPubKey);
+    _crypto = cryptodefinitions::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

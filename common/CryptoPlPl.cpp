@@ -42,15 +42,14 @@ KeyHandler::~KeyHandler() {
 }
 
 // session
-CryptoPlPl::CryptoPlPl(std::string_view msgHash,
-		       std::string_view encodedPeerAesPubKey,
+CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
 		       std::string_view signatureWithPubKey) :
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
-  _msgHash({ msgHash.data(), msgHash.size() }),
+  _msgHash(sha256_hash(buildDateTime)),
   _signatureWithPubKeySign(signatureWithPubKey.data(), signatureWithPubKey.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   std::vector<unsigned char> decoded = base64_decode(encodedPeerAesPubKey);
@@ -74,13 +73,13 @@ CryptoPlPl::CryptoPlPl(std::string_view msgHash,
 }
 
 // client
-CryptoPlPl::CryptoPlPl(std::string_view msg) :
+CryptoPlPl::CryptoPlPl() :
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
-  _msgHash(sha256_hash(msg)) {
+  _msgHash(sha256_hash(buildDateTime)) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
@@ -205,8 +204,8 @@ bool CryptoPlPl::verifySignature(std::string_view signature) {
   destroySecretData();
   return true;
 }
-// The message is based on uuid for testing purposes,
-// in real usage it may be a combination of user name and/or password
+// For the tests the message is based on the build datetime,
+// in real usage it may be a combination of user name and/or password.
 std::string CryptoPlPl::sha256_hash(std::string_view message) {
   CryptoPP::SHA256 hash;
   std::string digest;

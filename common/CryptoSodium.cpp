@@ -45,8 +45,8 @@ void CryptoSodium::setAESKey(SessionKey& key) {
 }
 
 // client
-CryptoSodium::CryptoSodium(std::string_view msg) :
-  _msgHash(hashMessage(msg)) {
+CryptoSodium::CryptoSodium() :
+  _msgHash(hashMessage(buildDateTime)) {
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
@@ -61,10 +61,9 @@ CryptoSodium::CryptoSodium(std::string_view msg) :
 }
 
 // session
-CryptoSodium::CryptoSodium(std::string_view msgHash,
-			   std::string_view encodedPeerAesPubKey,
+CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
 			   std::string_view signatureWithPubKeySign) :
-  _msgHash(msgHash.data(), msgHash.size()) {
+  _msgHash(hashMessage(buildDateTime)) {
   std::vector<unsigned char> peerAesPubKeyV = base64_decode(encodedPeerAesPubKey);
   std::copy(peerAesPubKeyV.cbegin(), peerAesPubKeyV.cend(), _peerPubKeyAes.begin());
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
@@ -191,16 +190,13 @@ std::vector<unsigned char> CryptoSodium::base64_decode(std::string_view encoded)
   return decoded_data;
 }
 
-std::string
-CryptoSodium::hashMessage(std::string_view message) {
+std::string CryptoSodium::hashMessage(std::string_view message) {
   unsigned char MESSAGE[crypto_generichash_BYTES] = {};
   std::copy(message.cbegin(), message.cend(), MESSAGE);
   unsigned char hash[crypto_generichash_BYTES] = {};
-  unsigned char key[crypto_generichash_KEYBYTES] = {};
-  randombytes_buf(key, std::ssize(key));
   crypto_generichash(hash, crypto_generichash_BYTES,
 		     MESSAGE, crypto_generichash_BYTES,
-		     key, std::ssize(key));
+		     NULL, 0);
   return { std::cbegin(hash), std::cend(hash) };
 }
 

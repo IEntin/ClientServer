@@ -27,11 +27,9 @@ public:
   ~Server();
   bool start();
   void stop();
-  void createFifoSession(std::string_view msgHash,
-			 std::string_view pubB,
+  void createFifoSession(std::string_view pubB,
 			 std::string_view signatureWithPubKey);
   void createTcpSession(tcp::ConnectionPtr connection,
-			std::string_view msgHash,
 			std::string_view pubB,
 			std::string_view signatureWithPubKey);
   const PolicyPtr& getPolicy() const { return _policy; }

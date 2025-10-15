@@ -18,7 +18,7 @@
 TEST(LibSodiumTest, authentication) {
   try {
     // client
-    CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
+    CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
     // server ctor throws on authentication failure
     CryptoSodiumPtr cryptoS = createServer(cryptoC);
@@ -32,7 +32,7 @@ TEST(LibSodiumTest, authentication) {
 TEST(LibSodiumTest, DHkeyExchange) {
   try {
     // client
-    CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>(utility::generateRawUUID()));
+    CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
     CryptoSodiumPtr cryptoS = createServer(cryptoC);
     cryptodefinitions::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);
@@ -63,7 +63,7 @@ TEST(LibSodiumTest, publicKeyEncoding) {
   unsigned char secret_key[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(public_key, secret_key);
   std::vector<unsigned char> original_data = { std::cbegin(public_key), std::cend(public_key) };
-  CryptoSodium crypto(utility::generateRawUUID());
+  CryptoSodium crypto;
   std::string encoded = crypto.base64_encode(original_data);
   ASSERT_EQ(original_data, crypto.base64_decode(encoded));
 }

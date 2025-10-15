@@ -44,7 +44,7 @@ TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
 TEST(AuthenticationTest, 1) {
   try {
     // client
-    CryptoPlPlPtr cryptoC(std::make_shared<CryptoPlPl>(utility::generateRawUUID()));
+    CryptoPlPlPtr cryptoC(std::make_shared<CryptoPlPl>());
     // server ctor throws on authentication failure
     CryptoPlPlPtr cryptoS = createServer(cryptoC);
   }
@@ -58,7 +58,7 @@ TEST(Base64EncodingTest, 1) {
   CryptoPP::SecByteBlock key(CryptoPP::AES::MAX_KEYLENGTH);
   CryptoPP::AutoSeededRandomPool prng;
   prng.GenerateBlock(key, key.size());
-  CryptoPlPl crypto(utility::generateRawUUID());
+  CryptoPlPl crypto;
   std::string encoded = crypto.base64_encode(key);
   std::vector<unsigned char> vect = crypto.base64_decode(encoded);
   CryptoPP::SecByteBlock recovered(vect.data(), vect.size());
@@ -67,12 +67,12 @@ TEST(Base64EncodingTest, 1) {
 
 TEST(VariantCrypto, 1) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant =
-    cryptodefinitions::createCrypto(utility::generateRawUUID(), CRYPTO::CRYPTOPP);
+    cryptodefinitions::createCrypto(CRYPTO::CRYPTOPP);
   std::size_t index = cryptoVariant.index();
   ASSERT_EQ(index, 0);
   auto active1 = std::get<0>(cryptoVariant);
   static_assert(std::is_same_v<decltype(active1), CryptoPlPlPtr> == true );
-  cryptoVariant = cryptodefinitions::createCrypto(utility::generateRawUUID(), CRYPTO::CRYPTOSODIUM);
+  cryptoVariant = cryptodefinitions::createCrypto(CRYPTO::CRYPTOSODIUM);
   index = cryptoVariant.index();
   ASSERT_EQ(index, 1);
   auto active2 = std::get<1>(cryptoVariant);

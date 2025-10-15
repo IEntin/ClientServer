@@ -57,7 +57,7 @@ void FifoAcceptor::run() {
       switch (type) {
       case HEADERTYPE::DH_INIT:
 	if (auto server = _server.lock(); server)
-	  server->createFifoSession(msgHash, pubBvector, signatureWithPubKey);
+	  server->createFifoSession(pubBvector, signatureWithPubKey);
 	break;
       default:
 	break;

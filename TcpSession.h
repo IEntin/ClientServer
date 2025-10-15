@@ -21,7 +21,6 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
-	     std::string_view msgHash,
 	     std::string_view pubB,
 	     std::string_view signatureWithPubKey);
 

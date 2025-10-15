@@ -28,7 +28,6 @@ protected:
   ServerWeakPtr _server;
 
   Session(ServerWeakPtr server,
-	  std::string_view msgHash,
 	  std::string_view encodedPeerPubKeyAes,
 	  std::string_view signatureWithPubKey);
   virtual ~Session() = default;

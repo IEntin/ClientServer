@@ -70,16 +70,15 @@ static bool isEncrypted(std::string_view input) {
 }
 
 static std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(std::string_view  msg,
-	     std::optional<CRYPTO> encryption = std::nullopt) {
+createCrypto(std::optional<CRYPTO> encryption = std::nullopt) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
-  CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;  
+  CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;
   switch(encryptionVal) {
   case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msg);
+    result = std::make_shared<CryptoPlPl>();
     break;
   case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msg);
+    result = std::make_shared<CryptoSodium>();
     break;
   default:
     break;
@@ -88,18 +87,17 @@ createCrypto(std::string_view  msg,
 }
 
 static std::variant<CryptoPlPlPtr, CryptoSodiumPtr>
-createCrypto(std::string_view msgHash,
-	     std::string_view encodedPeerPubKeyAes,
+createCrypto(std::string_view encodedPeerPubKeyAes,
 	     std::string_view signatureWithPubKey,
 	     std::optional<CRYPTO> encryption = std::nullopt) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> result;
   CRYPTO encryptionVal = encryption.has_value() ? *encryption : _encryption;
   switch(encryptionVal) {
   case CRYPTO::CRYPTOPP:
-    result = std::make_shared<CryptoPlPl>(msgHash, encodedPeerPubKeyAes, signatureWithPubKey);
+    result = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
     break;
   case CRYPTO::CRYPTOSODIUM:
-    result = std::make_shared<CryptoSodium>(msgHash, encodedPeerPubKeyAes, signatureWithPubKey);
+    result = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
     break;
   default:
     break;

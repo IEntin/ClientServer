@@ -19,11 +19,10 @@ static auto  TYPE{ "tcp" };
 
 TcpSession::TcpSession(ServerWeakPtr server,
 		       ConnectionPtr connection,
-		       std::string_view msgHash,
 		       std::string_view pubB,
 		       std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxTcpSessions),
-  Session(server, msgHash, pubB, signatureWithPubKey),
+  Session(server, pubB, signatureWithPubKey),
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),

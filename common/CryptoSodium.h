@@ -45,9 +45,8 @@ class CryptoSodium {
   bool _signatureSent = false;
   std::mutex _mutex;
 public:
-  explicit CryptoSodium(std::string_view msg);
-  CryptoSodium(std::string_view msgHash,
-	       std::string_view encodedPeerAesPubKey,
+  explicit CryptoSodium();
+  CryptoSodium(std::string_view encodedPeerAesPubKey,
 	       std::string_view signatureWithPubKey);
   ~CryptoSodium();
   std::string_view encrypt(std::string& buffer,

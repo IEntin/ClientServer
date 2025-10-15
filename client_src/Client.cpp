@@ -14,7 +14,7 @@ std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
 Client::Client() :
-  _crypto(cryptodefinitions::createCrypto(utility::generateRawUUID())),
+  _crypto(cryptodefinitions::createCrypto()),
   _chronometer(ClientOptions::_timing) {}
 
 Client::~Client() {

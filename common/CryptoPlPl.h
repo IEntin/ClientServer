@@ -67,10 +67,9 @@ class CryptoPlPl {
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
 public:
-  CryptoPlPl(std::string_view msgHash,
-	     std::string_view encodedPeerAesPubKey,
+  CryptoPlPl(std::string_view encodedPeerAesPubKey,
 	     std::string_view signatureWithPubKey);
-  explicit CryptoPlPl(std::string_view msg);
+  CryptoPlPl();
   ~CryptoPlPl();
   std::string _msgHash;
   std::string _encodedPubKeyAes;
