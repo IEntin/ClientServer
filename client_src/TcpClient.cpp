@@ -14,10 +14,9 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     throw std::runtime_error(ioutility::createErrorString());
   auto lambda = [this] (
     const HEADER& header,
-    std::string_view msgHash,
     std::string_view pubKeyAes,
     std::string_view signedAuth) -> bool {
-    return Tcp::sendMessage(_socket, header, msgHash, pubKeyAes, signedAuth);
+    return Tcp::sendMessage(_socket, header, pubKeyAes, signedAuth);
   };
   constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
   auto crypto = std::get<index>(_crypto);

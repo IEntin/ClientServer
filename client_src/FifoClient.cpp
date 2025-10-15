@@ -87,10 +87,9 @@ bool FifoClient::receive() {
 bool FifoClient::wakeupAcceptor() {
   auto lambda = [] (
     const HEADER& header,
-    std::string_view msgHash,
     std::string_view pubKeyAesServer,
     std::string_view signedAuth) -> bool {
-    return Fifo::sendMessage(false, Options::_acceptorName, header, msgHash, pubKeyAesServer, signedAuth);
+    return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
   };
   constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
   auto crypto = std::get<index>(_crypto);

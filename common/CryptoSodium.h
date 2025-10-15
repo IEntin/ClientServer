@@ -61,10 +61,10 @@ public:
   std::string _signatureWithPubKeySign;
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, _msgHash.size(), _encodedPubKeyAes.size(),
+    HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
 		      COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _msgHash, _encodedPubKeyAes, _signatureWithPubKeySign);
+    bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
     eraseUsedData();
