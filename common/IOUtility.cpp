@@ -48,11 +48,11 @@ bool processMessage(std::string& payload,
   if (!deserialize(header, payload.data()))
     return false;
   std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
+  unsigned shift = HEADER_SIZE;
   if (array.size() == 1) {
-    array[0].get().assign(payload.data() + HEADER_SIZE, payload.size() - HEADER_SIZE);
+    array[0].get().assign(payload.cbegin() + shift, payload.cend());
     return true;
   }
-  unsigned shift = HEADER_SIZE;
   if (shift == payload.size())
     return true;
   for (unsigned i = 0; i < array.size(); ++i) {

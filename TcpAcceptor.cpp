@@ -62,16 +62,16 @@ std::tuple<HEADERTYPE,
 	   std::string,
 	   std::string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
-  std::string msgHash;
+  std::string empty;
   std::string pubKeyAes;
   std::string signatureWithPubKey;
-  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(msgHash),
+  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(empty),
 							    std::ref(pubKeyAes),
 							    std::ref(signatureWithPubKey) };
   if (!Tcp::readMessage(socket, _header, array))
     throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");
-  return { extractHeaderType(_header), msgHash, pubKeyAes, signatureWithPubKey };
+  return { extractHeaderType(_header), empty, pubKeyAes, signatureWithPubKey };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -89,7 +89,7 @@ void TcpAcceptor::accept() {
      if (auto self = weak_from_this().lock(); !self)
 	return;
       if (!ec) {
-	auto [type, msgHash, pubBvector, signatureWithPubKey] = connectionType(connection->_socket);
+	auto [type, empty, pubBvector, signatureWithPubKey] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::DH_INIT:
 	  if (auto server = _server.lock(); server)
