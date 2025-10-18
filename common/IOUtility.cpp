@@ -53,14 +53,10 @@ bool processMessage(std::string& payload,
     array[0].get().assign(payload.cbegin() + shift, payload.cend());
     return true;
   }
-  if (shift == payload.size())
-    return true;
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
       array[i].get().assign(payload.cbegin() + shift, payload.cbegin() + shift + sizes[i]);
       shift += sizes[i];
-      if (shift == payload.size())
-	return true;
     }
   }
   return true;
