@@ -49,10 +49,6 @@ bool processMessage(std::string& payload,
     return false;
   std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
   unsigned shift = HEADER_SIZE;
-  if (array.size() == 1) {
-    array[0].get().assign(payload.cbegin() + shift, payload.cend());
-    return true;
-  }
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
       array[i].get().assign(payload.cbegin() + shift, payload.cbegin() + shift + sizes[i]);
