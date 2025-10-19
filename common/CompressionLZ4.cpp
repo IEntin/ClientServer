@@ -8,10 +8,16 @@
 #include <lz4.h>
 #include <stdexcept>
 
+#include "IOUtility.h"
+
 namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data) {
-  std::size_t requiredCapacity = LZ4_compressBound(data.size());
+  std::size_t uncompressedSize = data.size();
+  std::string metadata;
+  ioutility::toChars(uncompressedSize, metadata);
+  metadata.resize(ioutility::CONV_BUFFER_SIZE);
+  std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize);
   if (requiredCapacity > buffer.capacity())
     buffer.reserve(requiredCapacity);
   std::size_t compressedSize = LZ4_compress_default(data.data(),
@@ -21,9 +27,14 @@ void compress(std::string& buffer, std::string& data) {
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
   data.assign(buffer.cbegin(), buffer.cbegin() + compressedSize);
+  data.append(metadata);
 }
 
-void uncompress(std::string& buffer, std::string& data, std::size_t uncomprSize) {
+void uncompress(std::string& buffer, std::string& data) {
+  auto metadata = data.substr(data.size() - ioutility::CONV_BUFFER_SIZE);
+  std::size_t uncomprSize = 0;
+  ioutility::fromChars(metadata, uncomprSize);
+  data.erase(data.size() - ioutility::CONV_BUFFER_SIZE);
   if (uncomprSize > buffer.capacity())
     buffer.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),

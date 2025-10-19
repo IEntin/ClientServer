@@ -191,7 +191,7 @@ void decryptDecompress(std::string& buffer,
       COMPRESSORS compressor = extractCompressor(header);
       switch (compressor) {
       case COMPRESSORS::LZ4:
-	compressionLZ4::uncompress(buffer, data, extractField2Size(header));
+	compressionLZ4::uncompress(buffer, data);
 	break;
       case COMPRESSORS::SNAPPY:
 	compressionSnappy::uncompress(buffer, data);
@@ -219,7 +219,7 @@ static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
     case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data, extractField2Size(header));
+      compressionLZ4::uncompress(buffer, data);
       break;
     case COMPRESSORS::SNAPPY:
       compressionSnappy::uncompress(buffer, data);

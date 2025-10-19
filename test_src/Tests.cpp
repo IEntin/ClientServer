@@ -26,7 +26,7 @@ struct CompressionTestLZ4 : testing::Test {
     std::string original = input;
     compressionLZ4::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
-    compressionLZ4::uncompress(TestEnvironment::_buffer, input, original.size());
+    compressionLZ4::uncompress(TestEnvironment::_buffer, input);
     Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
     logger << "\n\tinput.size()=" << input.size()
 	   << " compressedSize=" << compressedSz << " restored to original:"

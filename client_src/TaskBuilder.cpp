@@ -84,7 +84,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   HEADER header{
     HEADERTYPE::SESSION,
     0,
-    _aggregate.size(),
+    0,
     ClientOptions::_compressor,
     ClientOptions::_diagnostics,
     _status,
