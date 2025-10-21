@@ -91,7 +91,7 @@ bool FifoClient::wakeupAcceptor() {
     std::string_view signedAuth) -> bool {
     return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
   };
-  constexpr unsigned long index = cryptodefinitions::getEncryptionIndex();
+  constexpr unsigned long index = cryptodefinitions::getEncryptorIndex();
   auto crypto = std::get<index>(_crypto);
   return crypto->sendSignature(lambda);
 }

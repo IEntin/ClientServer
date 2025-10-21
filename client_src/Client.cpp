@@ -5,6 +5,7 @@
 #include "Client.h"
 
 #include "ClientOptions.h"
+#include "CryptoDefinitions.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
@@ -14,8 +15,10 @@ std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
 Client::Client() :
-  _crypto(cryptodefinitions::createCrypto()),
-  _chronometer(ClientOptions::_timing) {}
+  _chronometer(ClientOptions::_timing) {
+  cryptodefinitions::createCrypto();
+  _crypto = cryptodefinitions::_encryptorVar;
+}
 
 Client::~Client() {
   try {
