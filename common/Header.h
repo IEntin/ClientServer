@@ -32,13 +32,11 @@ enum class HEADERTYPE : char {
   INVALIDHIGH
 };
 
-enum class CRYPTO : char {
-  INVALIDLOW = '@',
-  NONE,
+enum class CRYPTO : unsigned char {
   CRYPTOPP,
   CRYPTOSODIUM,
+  NONE,
   ERROR,
-  INVALIDHIGH
 };
 
 enum class COMPRESSORS : char {

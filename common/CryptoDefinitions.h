@@ -22,29 +22,15 @@ static std::tuple<CryptoPlPlPtr, CryptoSodiumPtr> _encryptors;
 constexpr CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
 
 static consteval unsigned long getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;  
-  switch (encryptorType) {
-  case CRYPTO::CRYPTOPP:
-    return 0;
-  case CRYPTO::CRYPTOSODIUM:
-    return 1;
-  default:
-    return 11;
-  }
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
+  return std::to_underlying(encryptorType);
 }
 
-static std::any getEncryptor(std::variant<CryptoPlPlPtr, CryptoSodiumPtr> var,
-			     std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptionVal = encryptor.has_value() ? *encryptor : _encryptorDefault;  
-  switch (encryptionVal) {
-  case CRYPTO::CRYPTOPP:
-    return std::get<CryptoPlPlPtr>(var);
-  case CRYPTO::CRYPTOSODIUM:
-    return std::get<CryptoSodiumPtr>(var);
-  default:
-    return nullptr;
-  }
-}
+std::any getEncryptor(std::tuple<CryptoPlPlPtr, CryptoSodiumPtr> tuple,
+		      std::optional<CRYPTO> encryptor = std::nullopt);
+
+std::any getEncryptor(std::variant<CryptoPlPlPtr, CryptoSodiumPtr> var,
+		      std::optional<CRYPTO> encryptor = std::nullopt);
 
 static auto getCryptoPP = [] (std::any cryptoAny) {
   try {
@@ -64,48 +50,15 @@ static auto getCryptoSodium = [] (std::any cryptoAny) {
   }
  };
 
-static bool initialize() {
-  std::string_view encryptorLib;
-  switch(_encryptorDefault) {
-  case CRYPTO::CRYPTOPP:
-    encryptorLib = "Crypto++";
-    break;
-    case CRYPTO::CRYPTOSODIUM:
-    encryptorLib = "Sodium";
-    break;
-  default:
-    encryptorLib = "Error";
-    break;
-  }
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger << "\nUsing " << encryptorLib << " library.\n\n";
-  int initialized = sodium_init();
-  assert(initialized == 0 && "libsodium initialization failed");
-  return 0;
- }
+bool initialize();
 
 // expected: message starts with a header
 // header is encrypted as the rest of data
 // but never compressed because decompression
 // needs header
-static bool isEncrypted(std::string_view input) {
-  if (input.empty())
-    return false;
-  assert(input.size() >= HEADER_SIZE);
-  HEADER header;
-  std::string inputStr(input.cbegin(), input.cbegin() + HEADER_SIZE);
-  try {
-    if (deserialize(header, inputStr.data()))
-      return false;
-    return true;
-  }
-  catch (const std::runtime_error& error) {
-    return true;
-  }
-}
+bool isEncrypted(std::string_view input);
 
-static void
-createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
+static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
@@ -119,10 +72,9 @@ createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
   }
 }
 
-static void
-createCrypto(std::string_view encodedPeerPubKeyAes,
-	     std::string_view signatureWithPubKey,
-	     std::optional<CRYPTO> encryptor = std::nullopt) {
+static void createCrypto(std::string_view encodedPeerPubKeyAes,
+			 std::string_view signatureWithPubKey,
+			 std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
@@ -181,9 +133,6 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 		bool doEncrypt,
 		int compressionLevel = 3) {
   auto crypto = std::get<getEncryptorIndex()>(cryptoVar);
-  std::any cryptoAny = getEncryptor(cryptoVar);
-  CryptoPlPlPtr ptr1 = getCryptoPP(cryptoAny);
-  CryptoSodiumPtr ptr2 = getCryptoSodium(cryptoAny);
   
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);

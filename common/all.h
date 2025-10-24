@@ -75,8 +75,10 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/regex.hpp>
 #include <boost/stacktrace.hpp>
-#include <boost/static_string/static_string.hpp>
+#include <boost/static_string.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <boost/variant.hpp>
 
 #include <gtest/gtest.h>
