@@ -17,7 +17,6 @@
 namespace cryptodefinitions {
 
 static std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _encryptorVar;
-static std::tuple<CryptoPlPlPtr, CryptoSodiumPtr> _encryptors;
 
 constexpr CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
 
@@ -25,9 +24,6 @@ static consteval unsigned long getEncryptorIndex(std::optional<CRYPTO> encryptor
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
   return std::to_underlying(encryptorType);
 }
-
-std::any getEncryptor(std::tuple<CryptoPlPlPtr, CryptoSodiumPtr> tuple,
-		      std::optional<CRYPTO> encryptor = std::nullopt);
 
 std::any getEncryptor(std::variant<CryptoPlPlPtr, CryptoSodiumPtr> var,
 		      std::optional<CRYPTO> encryptor = std::nullopt);

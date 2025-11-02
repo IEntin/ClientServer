@@ -10,7 +10,6 @@
 
 #include <sodium.h>
 
-#include "Encryptor.h"
 #include "Header.h"
 
 using CryptoSodiumPtr = std::shared_ptr<class CryptoSodium>;
@@ -26,7 +25,7 @@ struct HandleKey {
   std::atomic<bool> _obfuscated;
 };
 
-class CryptoSodium : public Encryptor {
+class CryptoSodium {
   using SessionKey = std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>;
   std::string
   hashMessage(std::string_view message);
@@ -49,7 +48,8 @@ public:
   explicit CryptoSodium();
   CryptoSodium(std::string_view encodedPeerAesPubKey,
 	       std::string_view signatureWithPubKey);
-  ~CryptoSodium() override;
+  ~CryptoSodium();
+  std::string getName() const { return "CryptoSodium"; }
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
 			   std::string_view data);

@@ -32,7 +32,7 @@ enum class HEADERTYPE : char {
   INVALIDHIGH
 };
 
-enum class CRYPTO : unsigned char {
+enum class CRYPTO : unsigned long {
   CRYPTOPP,
   CRYPTOSODIUM,
   NONE,
