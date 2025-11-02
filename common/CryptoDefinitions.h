@@ -49,12 +49,6 @@ static auto getCryptoSodium = [] (std::any cryptoAny) {
 
 bool initialize();
 
-// expected: message starts with a header
-// header is encrypted as the rest of data
-// but never compressed because decompression
-// needs header
-bool isEncrypted(std::string_view input);
-
 static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
   switch(encryptorType) {

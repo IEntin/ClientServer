@@ -4,26 +4,42 @@
 
 #pragma once
 
-#include <tuple>
 #include <iostream>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 
 #include "CryptoPlPl.h"
-#include "Logger.h"
 #include "CryptoSodium.h"
+#include "Logger.h"
 
+namespace cryptotuple {
+
+constexpr CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
+  
 using EncryptorTuple = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
 
 unsigned long constexpr requestIndexSodium = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);
 unsigned long constexpr requestIndexCryptoPP = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
 
-CryptoSodiumPtr getSodiumEncryptor(EncryptorTuple encryptors) {
+static CryptoSodiumPtr getSodiumEncryptor(EncryptorTuple encryptors) {
   return std::get<requestIndexSodium>(encryptors);
 }
 
-CryptoPlPlPtr getCryptoPLPlEncryptor(EncryptorTuple encryptors) {
+static CryptoPlPlPtr getCryptoPLPlEncryptor(EncryptorTuple encryptors) {
   return std::get<requestIndexCryptoPP>(encryptors);
+}
+
+static auto createCrypto() {
+  EncryptorTuple encryptorTuple = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
+  return encryptorTuple;
+}
+
+static auto createCrypto(std::string_view encodedPeerPubKeyAes,
+			 std::string_view signatureWithPubKey) {
+  EncryptorTuple encryptorTuple = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey),
+				    std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey) };
+  return encryptorTuple;
 }
 
 // more generic code below used only in the test
@@ -48,7 +64,8 @@ void runtime_get(std::size_t index, Func f, std::tuple<Types...>& t) {
     runtime_get_helper(index, f, t);
 }
 
-void getEncryptor(EncryptorTuple encryptors, CRYPTO type, unsigned long& foundIndex) {
+static void
+getEncryptor(EncryptorTuple encryptors, CRYPTO type, unsigned long& foundIndex) {
   try {
     auto index = std::to_underlying<CRYPTO>(type);
     
@@ -60,3 +77,5 @@ void getEncryptor(EncryptorTuple encryptors, CRYPTO type, unsigned long& foundIn
   catch (const std::exception& e) {
   }
 }
+
+} // end of namespace cryptotuple

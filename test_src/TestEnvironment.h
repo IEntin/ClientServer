@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 
 #include "CryptoDefinitions.h"
+#include "CryptoTuple.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
@@ -34,14 +35,12 @@ public:
 
   };
 
-  static CryptoSodiumPtr createServer(CryptoSodiumPtr cryptoC) {
-    std::string_view signatureWithPubKeySign(std::bit_cast<const char*>(cryptoC->_signatureWithPubKeySign.data()),
-					     cryptoC->_signatureWithPubKeySign.size());
+  static auto createServer(CryptoSodiumPtr cryptoC) {
     return std::make_shared<CryptoSodium>(cryptoC->_encodedPubKeyAes,
-					  signatureWithPubKeySign);
+					  cryptoC->_signatureWithPubKeySign);
   }
 
-  static CryptoPlPlPtr createServer(CryptoPlPlPtr cryptoC) {
+  static auto createServer(CryptoPlPlPtr cryptoC) {
     return std::make_shared<CryptoPlPl>(cryptoC->_encodedPubKeyAes,
 					cryptoC->_signatureWithPubKeySign);
   }
@@ -53,7 +52,7 @@ public:
       auto cryptoC(std::make_shared<CryptoType>());
       // server
       auto cryptoS = createServer(cryptoC);
-      cryptodefinitions::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);
+      cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
@@ -69,7 +68,7 @@ public:
 	cryptodefinitions::compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
       HEADER restoredHeader;
       data = dataView;
-      ASSERT_EQ(cryptodefinitions::isEncrypted(data), doEncrypt);
+      ASSERT_EQ(utility::isEncrypted(data), doEncrypt);
       cryptodefinitions::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);

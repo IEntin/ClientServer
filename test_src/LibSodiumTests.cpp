@@ -42,10 +42,10 @@ TEST(LibSodiumTest, DHkeyExchange) {
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
 						  header,
 						  TestEnvironment::_source);
-    ASSERT_TRUE(cryptodefinitions::isEncrypted(encrypted));
+    ASSERT_TRUE(utility::isEncrypted(encrypted));
     std::string data(encrypted);
     cryptoS->decrypt(TestEnvironment::_buffer, data);
-    ASSERT_FALSE(cryptodefinitions::isEncrypted(data));
+    ASSERT_FALSE(utility::isEncrypted(data));
     HEADER recoveredHeader;
     deserialize(recoveredHeader, data.data());
     ASSERT_EQ(header, recoveredHeader);

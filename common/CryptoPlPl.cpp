@@ -126,7 +126,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
 void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
-  if (cryptodefinitions::isEncrypted(data)) {
+  if (utility::isEncrypted(data)) {
     buffer.clear();
     CryptoPP::SecByteBlock
       iv(std::bit_cast<CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
