@@ -12,6 +12,7 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
+#include "Encryptors.h"
 #include "Header.h"
 
 namespace cryptodefinitions {
