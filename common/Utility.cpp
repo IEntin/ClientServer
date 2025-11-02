@@ -14,22 +14,6 @@
 
 namespace utility {
 
-bool isEncrypted(std::string_view input) {
-  if (input.empty())
-    return false;
-  assert(input.size() >= HEADER_SIZE);
-  HEADER header;
-  std::string inputStr(input.cbegin(), input.cbegin() + HEADER_SIZE);
-  try {
-    if (deserialize(header, inputStr.data()))
-      return false;
-    return true;
-  }
-  catch (const std::runtime_error& error) {
-    return true;
-  }
-}
-
 std::string serverTerminal;
 std::string clientTerminal;
 std::string testbinTerminal;

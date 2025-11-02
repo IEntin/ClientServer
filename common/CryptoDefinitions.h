@@ -10,33 +10,22 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
+#include "CryptoCommon.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 #include "Encryptors.h"
-#include "Header.h"
 
 namespace cryptodefinitions {
 
 static std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _encryptorVar;
 
-constexpr CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
-
 static consteval unsigned long getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : cryptocommon::_encryptorDefault;
   return std::to_underlying(encryptorType);
 }
 
 std::any getEncryptor(std::variant<CryptoPlPlPtr, CryptoSodiumPtr> var,
 		      std::optional<CRYPTO> encryptor = std::nullopt);
-
-static auto getCryptoPP = [] (std::any cryptoAny) {
-  try {
-    return std::any_cast<CryptoPlPlPtr>(cryptoAny);
-  }
-  catch (const std::bad_any_cast& e) {
-    return CryptoPlPlPtr();
-  }
- };
 
 static auto getCryptoSodium = [] (std::any cryptoAny) {
   try {
@@ -47,10 +36,8 @@ static auto getCryptoSodium = [] (std::any cryptoAny) {
   }
  };
 
-bool initialize();
-
 static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : cryptocommon::_encryptorDefault;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     _encryptorVar = std::make_shared<CryptoPlPl>();
@@ -66,7 +53,7 @@ static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
 static void createCrypto(std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey,
 			 std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : _encryptorDefault;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : cryptocommon::_encryptorDefault;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     _encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
@@ -77,43 +64,6 @@ static void createCrypto(std::string_view encodedPeerPubKeyAes,
   default:
     break;
   }
-}
-
-template <typename Crypto>
-std::string_view compressEncrypt(std::string& buffer,
-				 const HEADER& header,
-				 bool doEncrypt,
-				 std::weak_ptr<Crypto> weak,
-				 std::string& data,
-				 int compressionLevel = 3) {
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::compress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::compress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::compress(buffer, data, compressionLevel);
-      break;
-    default:
-      break;
-    }
-  }
-  if (doEncrypt) {
-    if (auto crypto = weak.lock();crypto) {
-      return crypto->encrypt(buffer, header, data);
-    }
-  }
-  else {
-    char headerBuffer[HEADER_SIZE];
-    data.insert(0, headerBuffer, HEADER_SIZE);
-    serialize(header, data.data());
-    return data;
-  }
-  return "";
 }
 
 static std::string_view
@@ -150,35 +100,6 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
     return data;
   }
   return "";
-}
-
-template <typename Crypto>
-void decryptDecompress(std::string& buffer,
-		       HEADER& header,
-		       std::weak_ptr<Crypto> weak,
-		       std::string& data) {
-  if (auto crypto = weak.lock();crypto) {
-    crypto->decrypt(buffer, data);
-    if (!deserialize(header, data.data()))
-      throw std::runtime_error("deserialize failed");
-    data.erase(0, HEADER_SIZE);
-    if (isCompressed(header)) {
-      COMPRESSORS compressor = extractCompressor(header);
-      switch (compressor) {
-      case COMPRESSORS::LZ4:
-	compressionLZ4::uncompress(buffer, data);
-	break;
-      case COMPRESSORS::SNAPPY:
-	compressionSnappy::uncompress(buffer, data);
-	break;
-      case COMPRESSORS::ZSTD:
-	compressionZSTD::uncompress(buffer, data);
-	break;
-      default:
-	break;
-      }
-    }
-  }
 }
 
 static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,

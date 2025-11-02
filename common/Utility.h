@@ -64,12 +64,6 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
   }
 }
 
-// expected: message starts with a header
-// header is encrypted as the rest of data
-// but never compressed because decompression
-// needs header
-bool isEncrypted(std::string_view input);
-
 std::size_t getUniqueId();
 
 std::string generateRawUUID();

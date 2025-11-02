@@ -41,7 +41,7 @@ void TestEnvironment::reset() {
 int main(int argc, char** argv) {
   try {
     utility::setTestbinTerminal(getenv("GNOME_TERMINAL_SCREEN"));
-    bool initialized[[maybe_unused]] = cryptodefinitions::initialize();
+    bool initialized[[maybe_unused]] = cryptocommon::displayCryptoLibName();
     TestEnvironment* env = new TestEnvironment();
     ::testing::AddGlobalTestEnvironment(env);
     testing::InitGoogleTest(&argc, argv);

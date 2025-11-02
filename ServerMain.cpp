@@ -7,7 +7,7 @@
 
 #include <boost/stacktrace.hpp>
 
-#include "CryptoDefinitions.h"
+#include "CryptoCommon.h"
 #include "DebugLog.h"
 #include "Metrics.h"
 #include "ServerOptions.h"
@@ -20,7 +20,7 @@ int main() {
   DebugLog::setDebugLog(APPTYPE::SERVER);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setServerTerminal(terminal);
-  bool initialized[[maybe_unused]] = cryptodefinitions::initialize();
+  bool initialized[[maybe_unused]] = cryptocommon::displayCryptoLibName();
   atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);

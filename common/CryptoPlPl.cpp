@@ -4,13 +4,14 @@
 
 #include "CryptoPlPl.h"
 
+#include "CryptoCommon.h"
+
 #include <boost/algorithm/hex.hpp>
 
 #include <cryptopp/base64.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
 
-#include "CryptoDefinitions.h"
 #include "DebugLog.h"
 #include "Utility.h"
 
@@ -126,7 +127,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
 void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
-  if (utility::isEncrypted(data)) {
+  if (cryptocommon::isEncrypted(data)) {
     buffer.clear();
     CryptoPP::SecByteBlock
       iv(std::bit_cast<CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
