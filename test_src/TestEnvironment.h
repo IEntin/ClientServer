@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-#include "CryptoDefinitions.h"
+#include "CryptoCommon.h"
 #include "CryptoTuple.h"
 #include "ServerOptions.h"
 #include "Utility.h"

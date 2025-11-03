@@ -22,7 +22,7 @@ bool AppOptions::initialize(std::string_view fileName) {
     return true;
   }
   catch (const std::exception& e) {
-    static auto& printOnce[[maybe_unused]] =
+    [[maybe_unused]] static auto& printOnce =
       Expected << e.what() << ",\n"
 	       << "default values will be returned." << '\n';
   }

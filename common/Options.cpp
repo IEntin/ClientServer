@@ -8,6 +8,7 @@
 
 #include "AppOptions.h"
 
+CRYPTO Options::_encryptorType;
 std::string Options::_fifoDirectoryName;
 std::string Options::_acceptorBaseName;
 std::string Options::_acceptorName;
@@ -19,6 +20,15 @@ unsigned short Options::_tcpPort;
 
 void Options::parse(std::string_view jsonName) {
   AppOptions appOptions(jsonName);
+  std::string encryptorTypeString = appOptions.get("EncryptorType", std::string("CRYPTOSODIUM"));
+  if (encryptorTypeString == "CRYPTOSODIUM")
+   _encryptorType = CRYPTO::CRYPTOSODIUM;
+  else if (encryptorTypeString == "CRYPTOPP")
+   _encryptorType = CRYPTO::CRYPTOPP;
+  else if (encryptorTypeString == "NONE")
+   _encryptorType = CRYPTO::NONE;
+  else
+   _encryptorType = CRYPTO::ERROR;
   _fifoDirectoryName = appOptions.get("FifoDirectoryName", std::filesystem::current_path().string());
   _acceptorBaseName = appOptions.get("AcceptorBaseName", std::string("acceptor"));
   _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;

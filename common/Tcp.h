@@ -36,7 +36,7 @@ public:
 						      boost::asio::buffer(payload3),
 						      boost::asio::buffer(ENDOFMESSAGE) };
     boost::system::error_code ec;
-    std::size_t bytes[[maybe_unused]] = boost::asio::write(socket, buffers, ec);
+    [[maybe_unused]] std::size_t bytes = boost::asio::write(socket, buffers, ec);
     if (ec) {
       switch (ec.value()) {
       case boost::asio::error::eof:

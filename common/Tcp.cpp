@@ -60,7 +60,7 @@ void Tcp::shutdownSocket(boost::asio::ip::tcp::socket& socket) {
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 		      std::string& payload) {
   boost::system::error_code ec;
-  std::size_t transferred [[maybe_unused]] = boost::asio::read_until(socket,
+  [[maybe_unused]] std::size_t transferred = boost::asio::read_until(socket,
     boost::asio::dynamic_buffer(payload), ENDOFMESSAGE, ec);
   if (ec) {
     Info << ec.what() << '\n';

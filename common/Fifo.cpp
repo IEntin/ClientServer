@@ -50,7 +50,7 @@ bool Fifo::setPipeSize(int fd) {
   if (Options::_pipeSize > currentSize) {
     ssize_t ret = fcntl(fd, F_SETPIPE_SZ, Options::_pipeSize);
     if (ret == -1) {
-      static auto& printOnce[[maybe_unused]] =
+      [[maybe_unused]] static auto& printOnce =
 	Info << strerror(errno) << ":\n"
 	     << "su privileges required, ignore." << '\n';
       return false;

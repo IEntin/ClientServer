@@ -21,7 +21,7 @@ bool StringLines::refillBuffer() {
   auto itEndSrc = itBeginSrc + bytesToRead;
   auto itBeginDst = _buffer.begin() + _sizeInUse;
   auto itEndDst = std::copy(itBeginSrc, itEndSrc, itBeginDst);
-  auto numberCopied[[maybe_unused]] = std::distance(itBeginDst, itEndDst);
+  [[maybe_unused]] auto numberCopied = std::distance(itBeginDst, itEndDst);
   _inputPosition += bytesToRead;
   _sizeInUse += bytesToRead;
   return true;

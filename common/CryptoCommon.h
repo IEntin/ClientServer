@@ -4,14 +4,18 @@
 
 #pragma once
 
+#include <any>
+
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 #include "Header.h"
 
+[[maybe_unused]] static CRYPTO _encryptorType;
+
 namespace cryptocommon {
-  
-constexpr CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
 
 // expected: message starts with a header
 // header is encrypted as the rest of data
@@ -84,6 +88,21 @@ void decryptDecompress(std::string& buffer,
     }
   }
 }
+
+template <typename Crypto>
+void clientKeyExchange(Crypto crypto, std::string_view encodedPubKeyAes) {
+  if (!crypto->clientKeyExchange(encodedPubKeyAes))
+    throw std::runtime_error("clientKeyExchange failed");
+}
+
+static auto getCryptoSodium = [] (std::any cryptoAny) {
+  try {
+    return std::any_cast<CryptoSodiumPtr>(cryptoAny);
+  }
+  catch (const std::bad_any_cast& e) {
+    return CryptoSodiumPtr();
+  }
+};
 
 bool displayCryptoLibName();
 

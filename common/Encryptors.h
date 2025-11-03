@@ -11,14 +11,13 @@
 using FirstAlternative = CryptoPlPlPtr;
 using SecondAlternative = CryptoSodiumPtr;
 
-constexpr std::size_t FirstAlternativeIndex = 0;
-constexpr std::size_t SecondAlternativeIndex = 1;
+constexpr std::size_t FirstAlternativeIndex = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
+constexpr std::size_t SecondAlternativeIndex = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);
 
 class Encryptors {
 private:
   const CRYPTO _encryptorType;
   std::variant<FirstAlternative, SecondAlternative> _encryptorVar;
-  static const CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
 public:
   Encryptors(CRYPTO encryptorType) : _encryptorType(encryptorType) {}
 

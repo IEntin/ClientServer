@@ -41,11 +41,11 @@ TEST(VisitorTest, 1) {
   try {
     Variant var = std::make_shared<CryptoSodium>();
     CRYPTO crypto1;
-    auto encryptor1[[maybe_unused]] = getEncryptor(var, crypto1);
+    [[maybe_unused]] auto encryptor1 = getEncryptor(var, crypto1);
     ASSERT_TRUE(crypto1 == CRYPTO::CRYPTOSODIUM);
     var = std::make_shared<CryptoPlPl>();
     CRYPTO crypto2;
-    auto encryptor2[[maybe_unused]] = getEncryptor(var, crypto2);
+    [[maybe_unused]] auto encryptor2 = getEncryptor(var, crypto2);
     ASSERT_TRUE(crypto2 == CRYPTO::CRYPTOPP);
   }
   catch (const std::exception& e) {

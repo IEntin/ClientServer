@@ -11,6 +11,7 @@
 struct Options {
 public:
   static void parse(std::string_view jsonName);
+  static CRYPTO _encryptorType;
   static std::string _fifoDirectoryName;
   static std::string _acceptorBaseName;
   static std::string _acceptorName;

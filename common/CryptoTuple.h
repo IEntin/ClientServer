@@ -45,7 +45,7 @@ static auto createCrypto(std::string_view encodedPeerPubKeyAes,
 // more generic code below used only in the test
 template <std::size_t I = 0, typename Func, typename... Types>
 typename std::enable_if<I == sizeof...(Types), void>::type
-runtime_get_helper(std::size_t index [[maybe_unused]], Func f [[maybe_unused]], std::tuple<Types...>& t [[maybe_unused]]) {
+runtime_get_helper([[maybe_unused]] std::size_t index, [[maybe_unused]] Func f,  [[maybe_unused]] std::tuple<Types...>& t) {
     throw std::runtime_error("Index out of bounds");
 }
 

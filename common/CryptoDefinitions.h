@@ -13,31 +13,23 @@
 #include "CryptoCommon.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-#include "Encryptors.h"
 
 namespace cryptodefinitions {
+  
+constexpr CRYPTO ENCRYPTOR_DEFAULT = CRYPTO::CRYPTOSODIUM;
 
 static std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _encryptorVar;
 
 static consteval unsigned long getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : cryptocommon::_encryptorDefault;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : ENCRYPTOR_DEFAULT;
   return std::to_underlying(encryptorType);
 }
 
 std::any getEncryptor(std::variant<CryptoPlPlPtr, CryptoSodiumPtr> var,
 		      std::optional<CRYPTO> encryptor = std::nullopt);
 
-static auto getCryptoSodium = [] (std::any cryptoAny) {
-  try {
-    return std::any_cast<CryptoSodiumPtr>(cryptoAny);
-  }
-  catch (const std::bad_any_cast& e) {
-    return CryptoSodiumPtr();
-  }
- };
-
 static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : cryptocommon::_encryptorDefault;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : ENCRYPTOR_DEFAULT;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     _encryptorVar = std::make_shared<CryptoPlPl>();
@@ -53,7 +45,7 @@ static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
 static void createCrypto(std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey,
 			 std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : cryptocommon::_encryptorDefault;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : ENCRYPTOR_DEFAULT;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     _encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
@@ -129,12 +121,6 @@ static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
   }
 }
 
-template <typename Crypto>
-void clientKeyExchange(Crypto crypto, std::string_view encodedPubKeyAes) {
-  if (!crypto->clientKeyExchange(encodedPubKeyAes))
-    throw std::runtime_error("clientKeyExchange failed");
-}
-
 static void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 			      std::string_view encodedPeerPubKeyAes) {
   auto crypto = std::get<getEncryptorIndex()>(cryptoVar);
@@ -155,3 +141,4 @@ static void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cry
 }
 
 } // end of namespace cryptodefinitions
+

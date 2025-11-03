@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "CryptoCommon.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
@@ -35,7 +36,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
     CryptoSodiumPtr cryptoS = createServer(cryptoC);
-    cryptodefinitions::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);
+    cryptocommon::clientKeyExchange(cryptoC, cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
     HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };

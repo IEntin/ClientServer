@@ -13,7 +13,7 @@ enum class POLICYENUM {
   NONE
 };
 
-static POLICYENUM fromString [[maybe_unused]] (std::string_view name) {
+[[maybe_unused]] static POLICYENUM fromString (std::string_view name) {
   if (name == "SORTINPUT")
     return POLICYENUM::SORTINPUT;
   else if (name == "NOSORTINPUT")
@@ -23,7 +23,7 @@ static POLICYENUM fromString [[maybe_unused]] (std::string_view name) {
   return POLICYENUM::NONE;
 }
 
-static std::string_view toString [[maybe_unused]] (POLICYENUM policy) {
+[[maybe_unused]]static std::string_view toString (POLICYENUM policy) {
   switch (policy) {
   case POLICYENUM::SORTINPUT:
     return "SORTINPUT";
