@@ -11,13 +11,9 @@
 #include <utility>
 
 #include "CryptoCommon.h"
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
 #include "Logger.h"
 
 namespace cryptotuple {
-  
-using EncryptorTuple = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
 
 std::size_t constexpr requestIndexCryptoPP = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
 std::size_t constexpr requestIndexSodium = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);

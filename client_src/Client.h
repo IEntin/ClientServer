@@ -21,7 +21,7 @@ class Client : private boost::noncopyable {
 
 protected:
   std::string _response;
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _crypto;
+  EncryptorVariant _crypto;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);

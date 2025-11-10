@@ -6,7 +6,7 @@
 #include "TestEnvironment.h"
 
 TEST(RuntimeTupleAccess, 1) {
-  cryptotuple::EncryptorTuple encryptors = cryptotuple::createCrypto();
+  EncryptorTuple encryptors = cryptotuple::createCrypto();
   CryptoPlPlPtr valueCryptoPP;
   CryptoSodiumPtr valueCryptoSodium;
   cryptotuple::getEncryptors(encryptors, valueCryptoPP, valueCryptoSodium);

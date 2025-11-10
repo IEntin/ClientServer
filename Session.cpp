@@ -34,19 +34,19 @@ Session::buildReply(std::atomic<STATUS>& status) {
     { HEADERTYPE::SESSION, _responseData.size(), 0,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
-  cryptodefinitions::compressEncrypt(_crypto,
-				     _buffer,
-				     header,
-				     _responseData,
-				     ServerOptions::_doEncrypt,
-				     ServerOptions::_compressionLevel);
+  cryptocommon::compressEncrypt(_crypto,
+				_buffer,
+				header,
+				_responseData,
+				ServerOptions::_doEncrypt,
+				ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, dataView };
 }
 
 bool Session::processTask() {
-  cryptodefinitions::decryptDecompress(_crypto, _buffer, _header, _request);
+  cryptocommon::decryptDecompress(_crypto, _buffer, _header, _request);
   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(_header, _request);
     taskController->processTask(_task);

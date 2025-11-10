@@ -19,7 +19,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _crypto;
+  EncryptorVariant _crypto;
   HEADER _header;
   std::string _request;
   TaskPtr _task;

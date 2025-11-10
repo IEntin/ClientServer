@@ -77,7 +77,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  cryptodefinitions::decryptDecompress(_crypto, _buffer, _header, _response);
+  cryptocommon::decryptDecompress(_crypto, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -93,12 +93,12 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 std::string& data,
 					 bool doEncrypt,
 					 int compressionLevel) {
-  return cryptodefinitions::compressEncrypt(_crypto,
-					    buffer,
-					    header,
-					    data,
-					    doEncrypt,
-					    compressionLevel);
+  return cryptocommon::compressEncrypt(_crypto,
+				       buffer,
+				       header,
+				       data,
+				       doEncrypt,
+				       compressionLevel);
 }
 
 void Client::start() {

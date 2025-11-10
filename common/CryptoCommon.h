@@ -14,8 +14,11 @@
 #include "Header.h"
 #include "Options.h"
 
-namespace cryptocommon {
+using EncryptorVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
+  
+using EncryptorTuple = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
 
+namespace cryptocommon {
   consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
     CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
   return std::to_underlying(encryptorType);
@@ -62,6 +65,70 @@ std::string_view compressEncrypt(std::string& buffer,
     return data;
   }
   return "";
+}
+template <typename EncryptorContainer>
+static std::string_view
+compressEncrypt(EncryptorContainer& container,
+		std::string& buffer,
+		const HEADER& header,
+		std::string& data,
+		bool doEncrypt,
+		int compressionLevel = 3) {
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(container);
+
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::compress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::compress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::compress(buffer, data, compressionLevel);
+      break;
+    default:
+      break;
+    }
+  }
+  if (doEncrypt)
+    return crypto->encrypt(buffer, header, data);
+  else {
+    std::string headerBuffer(HEADER_SIZE, '\0');
+    data.insert(0, headerBuffer);
+    serialize(header, data.data());
+    return data;
+  }
+  return "";
+}
+
+template <typename EncryptorContainer>
+static void decryptDecompress(EncryptorContainer& container,
+			      std::string& buffer,
+			      HEADER& header,
+			      std::string& data) {
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(container);
+  crypto->decrypt(buffer, data);
+  if (!deserialize(header, data.data()))
+    throw std::runtime_error("deserialize failed");
+  data.erase(0, HEADER_SIZE);
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::uncompress(buffer, data);
+      break;
+    default:
+      break;
+    }
+  }
 }
 
 template <typename Crypto>
