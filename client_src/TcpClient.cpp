@@ -4,7 +4,7 @@
 
 #include "TcpClient.h"
 
-#include "CryptoDefinitions.h"
+#include "CryptoCommon.h"
 #include "Tcp.h"
 
 namespace tcp {
@@ -18,7 +18,7 @@ TcpClient::TcpClient() : _socket(_ioContext) {
     std::string_view signedAuth) -> bool {
     return Tcp::sendMessage(_socket, header, pubKeyAes, signedAuth);
   };
-  constexpr unsigned long index = cryptodefinitions::getEncryptorIndex();
+  constexpr unsigned long index = cryptocommon::getEncryptorIndex();
   auto crypto = std::get<index>(_crypto);
   if (!crypto->sendSignature(lambda))
     throw std::runtime_error("TcpClient::init failed");

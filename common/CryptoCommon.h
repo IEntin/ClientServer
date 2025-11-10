@@ -12,10 +12,14 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 #include "Header.h"
-
-[[maybe_unused]] static CRYPTO _encryptorType;
+#include "Options.h"
 
 namespace cryptocommon {
+
+  consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
+    CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
+  return std::to_underlying(encryptorType);
+}
 
 // expected: message starts with a header
 // header is encrypted as the rest of data

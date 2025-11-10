@@ -39,6 +39,8 @@ void HandleKey::recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>&
   }
 }
 
+const std::string CryptoSodium::_name("CryptoSodium");
+
 void CryptoSodium::setAESKey(SessionKey& key) {
   std::lock_guard lock(_mutex);
   _keyHandler.recoverKey(_key);

@@ -1,28 +1,26 @@
-// clang++ runtime_tuple_access.cpp -std=c++2b -o runtimetupleaccess
 /*
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include <tuple>
-#include <utility>
-
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
 #include "CryptoTuple.h"
 #include "TestEnvironment.h"
 
 TEST(RuntimeTupleAccess, 1) {
   cryptotuple::EncryptorTuple encryptors = cryptotuple::createCrypto();
-  unsigned long resultIndex;
-  cryptotuple::getEncryptor(encryptors, CRYPTO::CRYPTOSODIUM, resultIndex);
-  ASSERT_TRUE(resultIndex == cryptotuple::requestIndexSodium);
-  cryptotuple::getEncryptor(encryptors, CRYPTO::CRYPTOPP, resultIndex);
-  ASSERT_TRUE(resultIndex == cryptotuple::requestIndexCryptoPP);
+  CryptoPlPlPtr valueCryptoPP;
+  CryptoSodiumPtr valueCryptoSodium;
+  cryptotuple::getEncryptors(encryptors, valueCryptoPP, valueCryptoSodium);
+  ASSERT_TRUE(valueCryptoPP->getName() == std::string("CryptoPlPl"));
+  ASSERT_TRUE(valueCryptoSodium->getName() == std::string("CryptoSodium"));
 
-  auto encryptorSodium = cryptotuple::getSodiumEncryptor(encryptors);
-  auto name1 = encryptorSodium->getName();
-  ASSERT_TRUE(name1 == std::string("CryptoSodium"));
-  auto encryptorCryptoPP = cryptotuple::getCryptoPLPlEncryptor(encryptors);
-  auto name2 = encryptorCryptoPP->getName();
-  ASSERT_TRUE(name2 == std::string("CryptoPlPl"));
+  CRYPTO crypto = CRYPTO::CRYPTOSODIUM;
+  std::size_t foundIndex;
+  cryptotuple::getEncryptor(encryptors, foundIndex, crypto);
+  ASSERT_TRUE(foundIndex == std::to_underlying<CRYPTO>(crypto));
+
+  auto cryptopp = cryptotuple::getTupleElement<0>(encryptors);
+  ASSERT_TRUE(cryptopp->getName() == "CryptoPlPl");
+  auto cryptosodium = cryptotuple::getTupleElement<1>(encryptors);
+  ASSERT_TRUE(cryptosodium->getName() == "CryptoSodium");
+
 }

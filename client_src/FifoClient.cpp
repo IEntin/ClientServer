@@ -10,7 +10,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "ClientOptions.h"
-#include "CryptoDefinitions.h"
+#include "CryptoCommon.h"
 #include "Fifo.h"
 #include "Options.h"
 #include "Utility.h"
@@ -91,7 +91,7 @@ bool FifoClient::wakeupAcceptor() {
     std::string_view signedAuth) -> bool {
     return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
   };
-  constexpr unsigned long index = cryptodefinitions::getEncryptorIndex();
+  constexpr unsigned long index = cryptocommon::getEncryptorIndex();
   auto crypto = std::get<index>(_crypto);
   return crypto->sendSignature(lambda);
 }

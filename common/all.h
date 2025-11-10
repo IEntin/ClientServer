@@ -51,6 +51,7 @@
 #include <system_error>
 #include <thread>
 #include <tuple>
+#include <typeindex>		
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
@@ -77,6 +78,7 @@
 #include <boost/stacktrace.hpp>
 #include <boost/static_string.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/type_index.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/variant.hpp>

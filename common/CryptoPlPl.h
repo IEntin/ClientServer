@@ -47,6 +47,7 @@ class CryptoPlPl {
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
+  const static std::string _name;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
@@ -71,7 +72,7 @@ public:
 	     std::string_view signatureWithPubKey);
   CryptoPlPl();
   ~CryptoPlPl();
-  std::string getName() const { return "CryptoPlPl"; }
+  const std::string&  getName() const { return _name; }
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;

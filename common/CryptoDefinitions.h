@@ -4,32 +4,17 @@
 
 #pragma once
 
-#include <any>
 #include <string>
 
-#include "CompressionLZ4.h"
-#include "CompressionSnappy.h"
-#include "CompressionZSTD.h"
 #include "CryptoCommon.h"
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
+#include "Options.h"
 
 namespace cryptodefinitions {
-  
-constexpr CRYPTO ENCRYPTOR_DEFAULT = CRYPTO::CRYPTOSODIUM;
 
 static std::variant<CryptoPlPlPtr, CryptoSodiumPtr> _encryptorVar;
 
-static consteval unsigned long getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : ENCRYPTOR_DEFAULT;
-  return std::to_underlying(encryptorType);
-}
-
-std::any getEncryptor(std::variant<CryptoPlPlPtr, CryptoSodiumPtr> var,
-		      std::optional<CRYPTO> encryptor = std::nullopt);
-
 static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : ENCRYPTOR_DEFAULT;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     _encryptorVar = std::make_shared<CryptoPlPl>();
@@ -45,7 +30,7 @@ static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
 static void createCrypto(std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey,
 			 std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : ENCRYPTOR_DEFAULT;
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     _encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
@@ -65,7 +50,7 @@ compressEncrypt(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 		std::string& data,
 		bool doEncrypt,
 		int compressionLevel = 3) {
-  auto crypto = std::get<getEncryptorIndex()>(cryptoVar);
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoVar);
   
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
@@ -98,7 +83,7 @@ static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
 			      std::string& buffer,
 			      HEADER& header,
 			      std::string& data) {
-  auto crypto = std::get<getEncryptorIndex()>(cryptoVar);
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoVar);
   crypto->decrypt(buffer, data);
   if (!deserialize(header, data.data()))
     throw std::runtime_error("deserialize failed");
@@ -123,7 +108,7 @@ static void decryptDecompress(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryp
 
 static void clientKeyExchange(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cryptoVar,
 			      std::string_view encodedPeerPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(cryptoVar);
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoVar);
   if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
     throw std::runtime_error("clientKeyExchange failed");
   }
@@ -134,7 +119,7 @@ static void sendStatusToClient(std::variant<CryptoPlPlPtr, CryptoSodiumPtr>& cry
 			       STATUS status,
 			       HEADER& header,
 			       std::string& encodedPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(cryptoVar);
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoVar);
   encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };

@@ -5,11 +5,8 @@
 #include <sodium.h>
 
 #include "CryptoCommon.h"
-#include "Options.h"
 
 namespace cryptocommon {
-  
-CRYPTO _cryptoType = Options::_encryptorType;
 
 bool isEncrypted(std::string_view input) {
   if (input.empty())
@@ -29,7 +26,7 @@ bool isEncrypted(std::string_view input) {
 
 bool displayCryptoLibName() {
   std::string_view encryptorLib;
-  switch(cryptocommon::_cryptoType) {
+  switch(Options::_encryptorTypeDefault) {
   case CRYPTO::CRYPTOPP:
     encryptorLib = "Crypto++";
     break;
@@ -42,8 +39,6 @@ bool displayCryptoLibName() {
   }
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
   logger << "\nUsing " << encryptorLib << " library.\n\n";
-  int initialized = sodium_init();
-  assert(initialized == 0 && "libsodium initialization failed");
   return 0;
 }
 

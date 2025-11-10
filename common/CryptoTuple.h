@@ -7,28 +7,30 @@
 #include <iostream>
 #include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
+#include "CryptoCommon.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 #include "Logger.h"
 
 namespace cryptotuple {
-
-constexpr CRYPTO _encryptorDefault = CRYPTO::CRYPTOSODIUM;
   
 using EncryptorTuple = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
 
-unsigned long constexpr requestIndexSodium = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);
-unsigned long constexpr requestIndexCryptoPP = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
+std::size_t constexpr requestIndexCryptoPP = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
+std::size_t constexpr requestIndexSodium = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);
 
-static CryptoSodiumPtr getSodiumEncryptor(EncryptorTuple encryptors) {
-  return std::get<requestIndexSodium>(encryptors);
+template <size_t Index>
+auto getTupleElement(EncryptorTuple tuple) {
+  return std::get<Index>(tuple);
 }
 
-static CryptoPlPlPtr getCryptoPLPlEncryptor(EncryptorTuple encryptors) {
-  return std::get<requestIndexCryptoPP>(encryptors);
-}
+static auto getEncryptors = [](EncryptorTuple tuple, auto& valueCryptoPP, auto& valueCryptoSodium) {
+  valueCryptoPP = std::get<0>(tuple);
+  valueCryptoSodium = std::get<1>(tuple);
+};
 
 static auto createCrypto() {
   EncryptorTuple encryptorTuple = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
@@ -42,11 +44,10 @@ static auto createCrypto(std::string_view encodedPeerPubKeyAes,
   return encryptorTuple;
 }
 
-// more generic code below used only in the test
 template <std::size_t I = 0, typename Func, typename... Types>
 typename std::enable_if<I == sizeof...(Types), void>::type
 runtime_get_helper([[maybe_unused]] std::size_t index, [[maybe_unused]] Func f,  [[maybe_unused]] std::tuple<Types...>& t) {
-    throw std::runtime_error("Index out of bounds");
+  throw std::runtime_error("Index out of bounds");
 }
 
 template <std::size_t I = 0, typename Func, typename... Types>
@@ -65,7 +66,7 @@ void runtime_get(std::size_t index, Func f, std::tuple<Types...>& t) {
 }
 
 static void
-getEncryptor(EncryptorTuple encryptors, CRYPTO type, unsigned long& foundIndex) {
+getEncryptor(EncryptorTuple encryptors, std::size_t& foundIndex, CRYPTO type = Options::_encryptorTypeDefault) {
   try {
     auto index = std::to_underlying<CRYPTO>(type);
     
@@ -75,6 +76,7 @@ getEncryptor(EncryptorTuple encryptors, CRYPTO type, unsigned long& foundIndex) 
     }, encryptors);
   }
   catch (const std::exception& e) {
+    LogError << e.what() << '\n';
   }
 }
 

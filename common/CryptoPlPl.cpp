@@ -17,6 +17,8 @@
 
 const CryptoPP::OID CryptoPlPl::_curve = CryptoPP::ASN1::secp256r1();
 
+const std::string CryptoPlPl::_name("CryptoPlPl");
+
 KeyHandler::KeyHandler(unsigned size) : _size(size),
   _obfuscator(_size) {}
 

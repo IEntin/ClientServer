@@ -44,12 +44,13 @@ class CryptoSodium {
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
+  const static std::string _name;
 public:
   explicit CryptoSodium();
   CryptoSodium(std::string_view encodedPeerAesPubKey,
 	       std::string_view signatureWithPubKey);
   ~CryptoSodium();
-  std::string getName() const { return "CryptoSodium"; }
+  const std::string&  getName() const { return _name; }
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
 			   std::string_view data);

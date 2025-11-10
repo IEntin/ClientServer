@@ -62,10 +62,10 @@ libsodium-dev must be installed:\
 There is a choice of encryption libraries to use in this application:\
 Sodium which is the current and Crypto++.\
 To switch one to another one has to replace global definition in\
-common/CryptoDefinitions.h header:\
-constexpr CRYPTO ENCRYPTOR_DEFAULT = CRYPTO::CRYPTOSODIUM;\
+common/Options.h header:\
+static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOSODIUM;\
 to\
-constexpr CRYPTO ENCRYPTOR_DEFAULT = CRYPTO::CRYPTOPP;\
+static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOPP;\
 and to rebuild the application.\
 Sodium is preferable due to the active development of this library,\
 besides, valgrind showed significant drop in the number of memory \
