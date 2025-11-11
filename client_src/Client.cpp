@@ -15,8 +15,8 @@ thread_local Subtasks Client::_task;
 
 Client::Client() :
   _chronometer(ClientOptions::_timing) {
-  cryptodefinitions::createCrypto();
-  _crypto = cryptodefinitions::_encryptorVar;
+  cryptovariant::createCrypto();
+  _cryptoVariant = cryptovariant::_encryptorVar;
 }
 
 Client::~Client() {
@@ -76,7 +76,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  cryptocommon::decryptDecompress(_crypto, _buffer, _header, _response);
+  cryptocommon::decryptDecompress(_cryptoVariant, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -92,7 +92,7 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 std::string& data,
 					 bool doEncrypt,
 					 int compressionLevel) {
-  return cryptocommon::compressEncrypt(_crypto,
+  return cryptocommon::compressEncrypt(_cryptoVariant,
 				       buffer,
 				       header,
 				       data,
@@ -101,7 +101,7 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 }
 
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(_crypto);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_cryptoVariant);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

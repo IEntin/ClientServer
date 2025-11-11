@@ -21,7 +21,7 @@ class Client : private boost::noncopyable {
 
 protected:
   std::string _response;
-  EncryptorVariant _crypto;
+  EncryptorVariant _cryptoVariant;
   Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
@@ -47,7 +47,7 @@ protected:
 		     std::string_view type) {
  _status = extractStatus(_header);
   try {
-    cryptodefinitions::clientKeyExchange(_crypto, encodedPeerPubKeyAes);
+    cryptocommon::clientKeyExchangeContainer(_cryptoVariant, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

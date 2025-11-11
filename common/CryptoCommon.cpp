@@ -2,8 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include <sodium.h>
-
 #include "CryptoCommon.h"
 
 namespace cryptocommon {

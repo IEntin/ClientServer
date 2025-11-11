@@ -92,7 +92,7 @@ bool FifoClient::wakeupAcceptor() {
     return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
   };
   constexpr unsigned long index = cryptocommon::getEncryptorIndex();
-  auto crypto = std::get<index>(_crypto);
+  auto crypto = std::get<index>(_cryptoVariant);
   return crypto->sendSignature(lambda);
 }
 

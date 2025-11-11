@@ -14,17 +14,14 @@
 
 namespace cryptotuple {
 
-std::size_t constexpr requestIndexCryptoPP = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
-std::size_t constexpr requestIndexSodium = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);
-
 template <size_t Index>
 auto getTupleElement(EncryptorTuple tuple) {
   return std::get<Index>(tuple);
 }
 
 static auto getEncryptors = [](EncryptorTuple tuple, auto& valueCryptoPP, auto& valueCryptoSodium) {
-  valueCryptoPP = std::get<0>(tuple);
-  valueCryptoSodium = std::get<1>(tuple);
+  valueCryptoPP = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(tuple);
+  valueCryptoSodium = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(tuple);
 };
 
 static auto createCrypto() {
@@ -72,14 +69,6 @@ getEncryptor(EncryptorTuple encryptors, std::size_t& foundIndex, CRYPTO type = O
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
-  }
-}
-
-static void clientKeyExchange(EncryptorTuple& cryptoTuple,
-			      std::string_view encodedPeerPubKeyAes) {
-  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoTuple);
-  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
-    throw std::runtime_error("clientKeyExchange failed");
   }
 }
 

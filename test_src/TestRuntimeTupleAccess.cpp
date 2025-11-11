@@ -18,9 +18,9 @@ TEST(RuntimeTupleAccess, 1) {
   cryptotuple::getEncryptor(encryptors, foundIndex, crypto);
   ASSERT_TRUE(foundIndex == std::to_underlying<CRYPTO>(crypto));
 
-  auto cryptopp = cryptotuple::getTupleElement<0>(encryptors);
+  auto cryptopp = cryptotuple::getTupleElement<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(encryptors);
   ASSERT_TRUE(cryptopp->getName() == "CryptoPlPl");
-  auto cryptosodium = cryptotuple::getTupleElement<1>(encryptors);
+  auto cryptosodium = cryptotuple::getTupleElement<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(encryptors);
   ASSERT_TRUE(cryptosodium->getName() == "CryptoSodium");
 
 }

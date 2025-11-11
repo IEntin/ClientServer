@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <any>
-
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
@@ -66,6 +64,7 @@ std::string_view compressEncrypt(std::string& buffer,
   }
   return "";
 }
+
 template <typename EncryptorContainer>
 static std::string_view
 compressEncrypt(EncryptorContainer& container,
@@ -160,20 +159,14 @@ void decryptDecompress(std::string& buffer,
   }
 }
 
-template <typename Crypto>
-void clientKeyExchange(Crypto crypto, std::string_view encodedPubKeyAes) {
-  if (!crypto->clientKeyExchange(encodedPubKeyAes))
+template <typename EncryptorContainer>
+static void clientKeyExchangeContainer(EncryptorContainer& container,
+				       std::string_view encodedPeerPubKeyAes) {
+  auto crypto = std::get<getEncryptorIndex()>(container);
+  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
     throw std::runtime_error("clientKeyExchange failed");
+  }
 }
-
-static auto getCryptoSodium = [] (std::any cryptoAny) {
-  try {
-    return std::any_cast<CryptoSodiumPtr>(cryptoAny);
-  }
-  catch (const std::bad_any_cast& e) {
-    return CryptoSodiumPtr();
-  }
-};
 
 template <typename EncryptorContainer>
 static void sendStatusToClient(EncryptorContainer& container,

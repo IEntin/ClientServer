@@ -68,17 +68,17 @@ TEST(Base64EncodingTest, 1) {
 
 TEST(VariantCrypto, 1) {
   std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant;
-  cryptodefinitions::createCrypto(CRYPTO::CRYPTOPP);
-  cryptoVariant = cryptodefinitions::_encryptorVar;
+  cryptovariant::createCrypto(CRYPTO::CRYPTOPP);
+  cryptoVariant = cryptovariant::_encryptorVar;
   std::size_t index = cryptoVariant.index();
   ASSERT_EQ(index, 0);
-  auto active1 = std::get<0>(cryptoVariant);
+  auto active1 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(cryptoVariant);
   static_assert(std::is_same_v<decltype(active1), CryptoPlPlPtr> == true );
-  cryptodefinitions::createCrypto(CRYPTO::CRYPTOSODIUM);
-  cryptoVariant = cryptodefinitions::_encryptorVar;
+  cryptovariant::createCrypto(CRYPTO::CRYPTOSODIUM);
+  cryptoVariant = cryptovariant::_encryptorVar;
   index = cryptoVariant.index();
   ASSERT_EQ(index, 1);
-  auto active2 = std::get<1>(cryptoVariant);
+  auto active2 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(cryptoVariant);
   static_assert(std::is_same_v<decltype(active2), CryptoSodiumPtr> == true );
   TestEnvironment::reset();
 }

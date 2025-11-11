@@ -8,7 +8,7 @@
 
 #include "CryptoCommon.h"
 
-namespace cryptodefinitions {
+namespace cryptovariant {
 
 static EncryptorVariant _encryptorVar;
 
@@ -42,12 +42,4 @@ static void createCrypto(std::string_view encodedPeerPubKeyAes,
   }
 }
 
-static void clientKeyExchange(EncryptorVariant& cryptoVar,
-			      std::string_view encodedPeerPubKeyAes) {
-  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoVar);
-  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
-    throw std::runtime_error("clientKeyExchange failed");
-  }
-}
-
-} // end of namespace cryptodefinitions
+} // end of namespace cryptovariant
