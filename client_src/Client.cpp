@@ -5,7 +5,6 @@
 #include "Client.h"
 
 #include "ClientOptions.h"
-#include "CryptoDefinitions.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"

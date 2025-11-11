@@ -9,7 +9,7 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "CryptoDefinitions.h"
+#include "CryptoVariant.h"
 #include "Header.h"
 #include "IOUtility.h"
 
@@ -42,11 +42,11 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      cryptodefinitions::sendStatusToClient(_crypto,
-					    clientIdStr,
-					    status,
-					    header,
-					    encodedPubKeyAes);
+      cryptocommon::sendStatusToClient(_crypto,
+				       clientIdStr,
+				       status,
+				       header,
+				       encodedPubKeyAes);
       lambda(header, clientIdStr, encodedPubKeyAes);
     }
   }

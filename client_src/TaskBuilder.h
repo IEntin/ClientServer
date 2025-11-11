@@ -7,7 +7,7 @@
 #include <condition_variable>
 #include <mutex>
 
-#include "CryptoDefinitions.h"
+#include "CryptoVariant.h"
 #include "Runnable.h"
 #include "Subtask.h"
 

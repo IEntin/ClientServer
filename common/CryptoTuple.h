@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <iostream>
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
@@ -73,6 +72,14 @@ getEncryptor(EncryptorTuple encryptors, std::size_t& foundIndex, CRYPTO type = O
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
+  }
+}
+
+static void clientKeyExchange(EncryptorTuple& cryptoTuple,
+			      std::string_view encodedPeerPubKeyAes) {
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoTuple);
+  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
+    throw std::runtime_error("clientKeyExchange failed");
   }
 }
 

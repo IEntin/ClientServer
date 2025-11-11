@@ -50,15 +50,4 @@ static void clientKeyExchange(EncryptorVariant& cryptoVar,
   }
 }
 
-static void sendStatusToClient(EncryptorVariant& cryptoVar,
-			       std::string_view clientIdStr,
-			       STATUS status,
-			       HEADER& header,
-			       std::string& encodedPubKeyAes) {
-  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(cryptoVar);
-  encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
-  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
-	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
-}
-
 } // end of namespace cryptodefinitions

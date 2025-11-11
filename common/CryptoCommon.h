@@ -175,6 +175,18 @@ static auto getCryptoSodium = [] (std::any cryptoAny) {
   }
 };
 
+template <typename EncryptorContainer>
+static void sendStatusToClient(EncryptorContainer& container,
+			       std::string_view clientIdStr,
+			       STATUS status,
+			       HEADER& header,
+			       std::string& encodedPubKeyAes) {
+  auto crypto = std::get<cryptocommon::getEncryptorIndex()>(container);
+  encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
+  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
+	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
+}
+
 bool displayCryptoLibName();
 
 } // end of namespace cryptocommon

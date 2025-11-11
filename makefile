@@ -75,8 +75,8 @@ BOOST_INCLUDES := /usr/local/boost_1_89_0
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(POLICYDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
 -I$(TESTSRCDIR)
 
-# to disable debug mode remove ' -g -D_DEBUG ' in the next line
-CPPFLAGS := -g -D_DEBUG $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
+# to disable debug mode remove ' -D_DEBUG ' '-DTUPLE' possible replacement for '-DVARIANT' (not implemented yet)
+CPPFLAGS := -g -D_DEBUG -DVARIANT $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
  -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD)
 
