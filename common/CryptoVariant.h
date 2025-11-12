@@ -10,36 +10,38 @@
 
 namespace cryptovariant {
 
-static EncryptorVariant _encryptorVar;
-
-static void createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
+static auto createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
+  EncryptorVariant encryptorVar;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
-    _encryptorVar = std::make_shared<CryptoPlPl>();
+    encryptorVar = std::make_shared<CryptoPlPl>();
     break;
   case CRYPTO::CRYPTOSODIUM:
-    _encryptorVar = std::make_shared<CryptoSodium>();
+    encryptorVar = std::make_shared<CryptoSodium>();
     break;
   default:
     break;
   }
+  return encryptorVar;
 }
 
-static void createCrypto(std::string_view encodedPeerPubKeyAes,
+static auto createCrypto(std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey,
 			 std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
+  EncryptorVariant encryptorVar;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
-    _encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
+    encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
     break;
   case CRYPTO::CRYPTOSODIUM:
-    _encryptorVar = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
+    encryptorVar = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
     break;
   default:
     break;
   }
+  return encryptorVar;
 }
 
 } // end of namespace cryptovariant

@@ -19,7 +19,7 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
-  EncryptorVariant _cryptoVariant;
+  EncryptorVariant _encryptorVariant;
   HEADER _header;
   std::string _request;
   TaskPtr _task;
@@ -42,7 +42,7 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      cryptocommon::sendStatusToClient(_cryptoVariant,
+      cryptocommon::sendStatusToClient(_encryptorVariant,
 				       clientIdStr,
 				       status,
 				       header,

@@ -61,7 +61,6 @@ static void
 getEncryptor(EncryptorTuple encryptors, std::size_t& foundIndex, CRYPTO type = Options::_encryptorTypeDefault) {
   try {
     auto index = std::to_underlying<CRYPTO>(type);
-    
     runtime_get(index, [&](auto& value) {
       foundIndex = index;
       LogAlways << "\n\n" << "Value at index " << index << ": " << value->getName() << "\n\n";
