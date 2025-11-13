@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Client.h"
+#include "Fifo.h"
 
 namespace fifo {
 
@@ -13,7 +14,19 @@ class FifoClient : public Client {
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
-  bool wakeupAcceptor();
+
+  template <typename EncryptorContainer>
+  bool wakeupAcceptor(EncryptorContainer& container) {
+    auto lambda = [] (const HEADER& header,
+		      std::string_view pubKeyAesServer,
+		      std::string_view signedAuth) -> bool {
+      return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
+    };
+    constexpr std::size_t index = cryptocommon::getEncryptorIndex();
+    auto crypto = std::get<index>(container);
+    return crypto->sendSignature(lambda);
+  }
+
   std::string _fifoName;
 
  public:

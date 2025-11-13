@@ -15,14 +15,9 @@
 namespace cryptotuple {
 
 template <size_t Index>
-auto getTupleElement(EncryptorTuple tuple) {
+auto getEncryptor(EncryptorTuple tuple) {
   return std::get<Index>(tuple);
 }
-
-static auto getEncryptors = [](EncryptorTuple tuple, auto& valueCryptoPP, auto& valueCryptoSodium) {
-  valueCryptoPP = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(tuple);
-  valueCryptoSodium = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(tuple);
-};
 
 static auto createCrypto() {
   EncryptorTuple encryptorTuple = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
@@ -56,19 +51,4 @@ template <typename Func, typename... Types>
 void runtime_get(std::size_t index, Func f, std::tuple<Types...>& t) {
     runtime_get_helper(index, f, t);
 }
-
-static void
-getEncryptor(EncryptorTuple encryptors, std::size_t& foundIndex, CRYPTO type = Options::_encryptorTypeDefault) {
-  try {
-    auto index = std::to_underlying<CRYPTO>(type);
-    runtime_get(index, [&](auto& value) {
-      foundIndex = index;
-      LogAlways << "\n\n" << "Value at index " << index << ": " << value->getName() << "\n\n";
-    }, encryptors);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
-}
-
 } // end of namespace cryptotuple

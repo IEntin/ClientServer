@@ -5,28 +5,19 @@
 #include "TcpClient.h"
 
 #include "CryptoCommon.h"
-#include "Tcp.h"
 
 namespace tcp {
 
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(ioutility::createErrorString());
-  auto lambda = [this] (
-    const HEADER& header,
-    std::string_view pubKeyAes,
-    std::string_view signedAuth) -> bool {
-    return Tcp::sendMessage(_socket, header, pubKeyAes, signedAuth);
-  };
-  constexpr std::size_t index = cryptocommon::getEncryptorIndex();
-  auto crypto = std::get<index>(_encryptorVariant);
-  if (!crypto->sendSignature(lambda))
-    throw std::runtime_error("TcpClient::init failed");
-  if (!receiveStatus())
-    throw std::runtime_error("TcpClient::receiveStatus failed");
-  Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
+#ifdef CRYPTOVARIANT
+  sendSignature(_encryptorVariant);
+#elifdef CRYPTOTUPLE
+   sendSignature(_encryptorTuple);
+#endif
 }
-
+  
 void TcpClient::run() {
   start();
   Client::run();

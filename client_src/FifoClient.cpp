@@ -11,7 +11,6 @@
 
 #include "ClientOptions.h"
 #include "CryptoCommon.h"
-#include "Fifo.h"
 #include "Options.h"
 #include "Utility.h"
 
@@ -24,7 +23,13 @@ namespace fifo {
 FifoClient::FifoClient()  {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
-  if (!wakeupAcceptor())
+  bool success;
+#ifdef CRYPTOVARIANT
+  success = wakeupAcceptor(_encryptorVariant);
+#elif
+  success = wakeupAcceptor(_encryptorToople);
+#endif
+  if (!success)
     throw std::runtime_error("FifoClient::wakeupAcceptor failed");
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
@@ -82,18 +87,6 @@ bool FifoClient::receive() {
     Warn << e.what() << '\n';
     return false;
   }
-}
-
-bool FifoClient::wakeupAcceptor() {
-  auto lambda = [] (
-    const HEADER& header,
-    std::string_view pubKeyAesServer,
-    std::string_view signedAuth) -> bool {
-    return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
-  };
-  constexpr unsigned long index = cryptocommon::getEncryptorIndex();
-  auto crypto = std::get<index>(_encryptorVariant);
-  return crypto->sendSignature(lambda);
 }
 
 bool FifoClient::receiveStatus() {

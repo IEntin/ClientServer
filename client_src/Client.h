@@ -20,9 +20,12 @@ class Client;
 class Client : private boost::noncopyable {
 
 protected:
+
   std::string _response;
   EncryptorVariant _encryptorVariant;
-  Client();
+  EncryptorTuple _encryptorTuple;
+
+Client();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
   bool printReply();
