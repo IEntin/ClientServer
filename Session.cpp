@@ -17,7 +17,13 @@ try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
+#ifdef CRYPTOVARIANT
     _encryptorContainer = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
+#elifdef CRYPTOTUPLE
+    CryptoPlPlPtr element0 = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
+    CryptoSodiumPtr element1 = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
+    _encryptorContainer = std::make_tuple(element0, element1);
+#endif
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

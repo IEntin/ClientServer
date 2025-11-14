@@ -22,18 +22,6 @@ auto getEncryptor(ENCRYPTORTUPLE tuple) {
   return std::get<Index>(tuple);
 }
 
-static auto createCrypto() {
-  ENCRYPTORTUPLE encryptorTuple = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
-  return encryptorTuple;
-}
-
-static auto createCrypto(std::string_view encodedPeerPubKeyAes,
-			 std::string_view signatureWithPubKey) {
-ENCRYPTORTUPLE encryptorTuple = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey),
-				  std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey) };
-  return encryptorTuple;
-}
-
 template <std::size_t I = 0, typename Func, typename... Types>
 typename std::enable_if<I == sizeof...(Types), void>::type
 runtime_get_helper([[maybe_unused]] std::size_t index, [[maybe_unused]] Func f,  [[maybe_unused]] std::tuple<Types...>& t) {

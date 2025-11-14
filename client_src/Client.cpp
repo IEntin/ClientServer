@@ -15,7 +15,13 @@ thread_local Subtasks Client::_task;
 
 Client::Client() :
   _chronometer(ClientOptions::_timing) {
+#ifdef CRYPTOVARIANT
   _encryptorContainer = cryptovariant::createCrypto();
+#elifdef CRYPTOTUPLE
+  CryptoPlPlPtr element0 = std::make_shared<CryptoPlPl>();
+  CryptoSodiumPtr element1 = std::make_shared<CryptoSodium>();
+  _encryptorContainer = std::make_tuple(element0, element1);
+#endif
 }
 
 Client::~Client() {
