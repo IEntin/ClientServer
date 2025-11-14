@@ -7,7 +7,7 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
-#include "CryptoVariant.h"
+#include "CryptoCommon.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"

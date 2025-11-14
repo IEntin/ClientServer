@@ -9,7 +9,7 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "CryptoVariant.h"
+#include "CryptoCommon.h"
 #include "Header.h"
 #include "IOUtility.h"
 

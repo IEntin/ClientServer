@@ -10,6 +10,10 @@
 #include "TaskController.h"
 #include "Utility.h"
 
+#ifdef CRYPTOVARIANT
+#include "CryptoVariant.h"
+#endif
+
 Session::Session(ServerWeakPtr server,
 		 std::string_view encodedPeerPubKeyAes,
 		 std::string_view signatureWithPubKey)
@@ -20,9 +24,8 @@ try :
 #ifdef CRYPTOVARIANT
     _encryptorContainer = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
 #elifdef CRYPTOTUPLE
-    CryptoPlPlPtr element0 = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
-    CryptoSodiumPtr element1 = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
-    _encryptorContainer = std::make_tuple(element0, element1);
+    _encryptorContainer = std::make_tuple(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey),
+					  std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey));
 #endif
   }
   catch (const std::exception& e) {

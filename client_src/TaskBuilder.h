@@ -7,13 +7,11 @@
 #include <condition_variable>
 #include <mutex>
 
-#include "CryptoVariant.h"
+#include "CryptoCommon.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
 class Client;
-
-using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
 
 class TaskBuilder final : public Runnable {
 
@@ -27,12 +25,12 @@ class TaskBuilder final : public Runnable {
   std::condition_variable _conditionTask;
   std::condition_variable _conditionResume;
   bool _resume = false;
-  CryptoVariant _crypto;
+  ENCRYPTORCONTAINER _crypto;
   std::string _buffer;
   void run() override;
   bool start() override { return true; }
  public:
-  explicit TaskBuilder(CryptoVariant crypto);
+  explicit TaskBuilder(ENCRYPTORCONTAINER crypto);
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);

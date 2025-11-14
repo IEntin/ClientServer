@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CryptoVariant.h"
+#include "CryptoCommon.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=TestCompressEncrypt*; done
@@ -66,17 +66,21 @@ TEST(Base64EncodingTest, 1) {
   ASSERT_EQ(key, recovered);
 }
 
-TEST(VariantCrypto, 1) {
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant;
-  cryptoVariant = cryptovariant::createCrypto(CRYPTO::CRYPTOPP);
-  std::size_t index = cryptoVariant.index();
+TEST(VariantCryptoAndTupleCrypto, 1) {
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant0 = std::make_shared<CryptoPlPl>();
+  std::size_t index = cryptoVariant0.index();
   ASSERT_EQ(index, 0);
-  auto active1 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(cryptoVariant);
-  static_assert(std::is_same_v<decltype(active1), CryptoPlPlPtr> == true );
-  cryptoVariant = cryptovariant::createCrypto(CRYPTO::CRYPTOSODIUM);
-  index = cryptoVariant.index();
+  auto active0 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(cryptoVariant0);
+  static_assert(std::is_same_v<decltype(active0), CryptoPlPlPtr> == true );
+  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant1 = std::make_shared<CryptoSodium>();
+  index = cryptoVariant1.index();
   ASSERT_EQ(index, 1);
-  auto active2 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(cryptoVariant);
+  auto active2 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(cryptoVariant1);
   static_assert(std::is_same_v<decltype(active2), CryptoSodiumPtr> == true );
+
+  std::tuple<CryptoPlPlPtr, CryptoSodiumPtr> cryptoTuple =
+    std::make_tuple(std::shared_ptr<CryptoPlPl>(), std::shared_ptr<CryptoSodium>());
+  auto encryptor = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)> (cryptoTuple);
+  ASSERT_EQ(encryptor, std::shared_ptr<CryptoSodium>());
   TestEnvironment::reset();
 }

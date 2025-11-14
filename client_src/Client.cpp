@@ -10,6 +10,10 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
+#ifdef CRYPTOVARIANT
+#include "CryptoVariant.h"
+#endif
+
 std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
@@ -18,9 +22,8 @@ Client::Client() :
 #ifdef CRYPTOVARIANT
   _encryptorContainer = cryptovariant::createCrypto();
 #elifdef CRYPTOTUPLE
-  CryptoPlPlPtr element0 = std::make_shared<CryptoPlPl>();
-  CryptoSodiumPtr element1 = std::make_shared<CryptoSodium>();
-  _encryptorContainer = std::make_tuple(element0, element1);
+  _encryptorContainer = std::make_tuple(std::make_shared<CryptoPlPl>(),
+					std::make_shared<CryptoSodium>());
 #endif
 }
 

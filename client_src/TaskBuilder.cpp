@@ -10,7 +10,7 @@
 #include "Options.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(CryptoVariant crypto) :
+TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {
   _aggregate.reserve(ClientOptions::_bufferSize);
