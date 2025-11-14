@@ -14,20 +14,23 @@
 
 namespace cryptotuple {
 
+// override global declaration mostly for tests
+using ENCRYPTORTUPLE = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
+
 template <size_t Index>
-auto getEncryptor(EncryptorTuple tuple) {
+auto getEncryptor(ENCRYPTORTUPLE tuple) {
   return std::get<Index>(tuple);
 }
 
 static auto createCrypto() {
-  EncryptorTuple encryptorTuple = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
+  ENCRYPTORTUPLE encryptorTuple = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
   return encryptorTuple;
 }
 
 static auto createCrypto(std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey) {
-  EncryptorTuple encryptorTuple = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey),
-				    std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey) };
+ENCRYPTORTUPLE encryptorTuple = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey),
+				  std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey) };
   return encryptorTuple;
 }
 

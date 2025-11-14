@@ -12,7 +12,7 @@ namespace cryptovariant {
 
 static auto createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
-  EncryptorVariant encryptorVar;
+  ENCRYPTORCONTAINER encryptorVar;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     encryptorVar = std::make_shared<CryptoPlPl>();
@@ -30,7 +30,7 @@ static auto createCrypto(std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey,
 			 std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
-  EncryptorVariant encryptorVar;
+  ENCRYPTORCONTAINER encryptorVar;
   switch(encryptorType) {
   case CRYPTO::CRYPTOPP:
     encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
@@ -66,7 +66,7 @@ void runtime_get(std::size_t index, Func f, std::variant<Types...>& t) {
 }
 
 static void
-getEncryptor(EncryptorVariant encryptors, CRYPTO type = Options::_encryptorTypeDefault) {
+getEncryptor(ENCRYPTORCONTAINER encryptors, CRYPTO type = Options::_encryptorTypeDefault) {
   try {
     auto index = std::to_underlying<CRYPTO>(type);
     runtime_get(index, [&]([[maybe_unused]] auto& value) {

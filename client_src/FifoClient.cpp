@@ -24,11 +24,7 @@ FifoClient::FifoClient()  {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
   bool success;
-#ifdef CRYPTOVARIANT
-  success = wakeupAcceptor(_encryptorVariant);
-#elif
-  success = wakeupAcceptor(_encryptorToople);
-#endif
+  success = wakeupAcceptor(_encryptorContainer);
   if (!success)
     throw std::runtime_error("FifoClient::wakeupAcceptor failed");
   if (!receiveStatus())

@@ -12,9 +12,13 @@
 #include "Header.h"
 #include "Options.h"
 
-using EncryptorVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
-  
-using EncryptorTuple = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
+#ifdef CRYPTOVARIANT
+using ENCRYPTORCONTAINER = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
+#elifdef CRYPTOTUPLE
+using ENCRYPTORCONTAINER = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
+#endif
+
+static ENCRYPTORCONTAINER _encryptorContainer;
 
 namespace cryptocommon {
   consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
@@ -65,9 +69,8 @@ std::string_view compressEncrypt(std::string& buffer,
   return "";
 }
 
-template <typename EncryptorContainer>
 static std::string_view
-compressEncrypt(EncryptorContainer& container,
+compressEncrypt(ENCRYPTORCONTAINER& container,
 		std::string& buffer,
 		const HEADER& header,
 		std::string& data,
@@ -102,8 +105,7 @@ compressEncrypt(EncryptorContainer& container,
   return "";
 }
 
-template <typename EncryptorContainer>
-static void decryptDecompress(EncryptorContainer& container,
+static void decryptDecompress(ENCRYPTORCONTAINER& container,
 			      std::string& buffer,
 			      HEADER& header,
 			      std::string& data) {
@@ -159,8 +161,7 @@ void decryptDecompress(std::string& buffer,
   }
 }
 
-template <typename EncryptorContainer>
-static void clientKeyExchangeContainer(EncryptorContainer& container,
+static void clientKeyExchangeContainer(ENCRYPTORCONTAINER& container,
 				       std::string_view encodedPeerPubKeyAes) {
   auto crypto = std::get<getEncryptorIndex()>(container);
   if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
@@ -168,8 +169,7 @@ static void clientKeyExchangeContainer(EncryptorContainer& container,
   }
 }
 
-template <typename EncryptorContainer>
-static void sendStatusToClient(EncryptorContainer& container,
+static void sendStatusToClient(ENCRYPTORCONTAINER& container,
 			       std::string_view clientIdStr,
 			       STATUS status,
 			       HEADER& header,

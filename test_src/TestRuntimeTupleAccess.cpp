@@ -6,7 +6,7 @@
 #include "TestEnvironment.h"
 
 TEST(RuntimeTupleAccess, 1) {
-  EncryptorTuple encryptors = cryptotuple::createCrypto();
+  cryptotuple::ENCRYPTORTUPLE encryptors = cryptotuple::createCrypto();
   auto cryptopp = cryptotuple::getEncryptor<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(encryptors);
   ASSERT_TRUE(cryptopp->getName() == "CryptoPlPl");
   auto cryptosodium = cryptotuple::getEncryptor<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(encryptors);
