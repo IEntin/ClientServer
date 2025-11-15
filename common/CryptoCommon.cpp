@@ -6,8 +6,6 @@
 
 namespace cryptocommon {
 
-ENCRYPTORCONTAINER _encryptorContainer;
-
 bool isEncrypted(std::string_view input) {
   if (input.empty())
     return false;

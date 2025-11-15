@@ -18,8 +18,6 @@ using ENCRYPTORCONTAINER = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
 using ENCRYPTORCONTAINER = std::tuple<CryptoPlPlPtr, CryptoSodiumPtr>;
 #endif
 
-static ENCRYPTORCONTAINER _encryptorContainer;
-
 namespace cryptocommon {
   consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
     CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
