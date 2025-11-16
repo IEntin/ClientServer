@@ -10,7 +10,6 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include "ClientOptions.h"
-#include "CryptoCommon.h"
 #include "Options.h"
 #include "Utility.h"
 

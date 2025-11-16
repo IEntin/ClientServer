@@ -13,7 +13,7 @@
 #include <cryptopp/rsa.h>
 #include <cryptopp/secblock.h>
 
-#include "Header.h"
+#include "CryptoBase.h"
 
 constexpr std::size_t RSA_KEY_SIZE = 2048;
 
@@ -32,7 +32,7 @@ struct KeyHandler {
 };
 
 // version using Crypto++ library
-class CryptoPlPl {
+class CryptoPlPl : public CryptoBase {
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
@@ -44,9 +44,6 @@ class CryptoPlPl {
   std::string _serializedRsaPubKey;
   static const CryptoPP::OID _curve;
   KeyHandler _keyHandler;
-  bool _verified = false;
-  bool _signatureSent = false;
-  std::mutex _mutex;
   const static std::string _name;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
@@ -71,8 +68,8 @@ public:
   CryptoPlPl(std::string_view encodedPeerAesPubKey,
 	     std::string_view signatureWithPubKey);
   CryptoPlPl();
-  ~CryptoPlPl();
-  const std::string&  getName() const { return _name; }
+  ~CryptoPlPl() override;
+  const std::string&  getName() const override { return _name; }
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;

@@ -7,10 +7,15 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
-#include "CryptoCommon.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
+
+#ifdef CRYPTOVARIANT
+#include "CryptoVariant.h"
+#else
+#include "CryptoBase.h"
+#endif
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
@@ -20,7 +25,7 @@ class Client : private boost::noncopyable {
 protected:
 
   std::string _response;
-  ENCRYPTORCONTAINER _encryptorContainer;
+  cryptovariant::CryptoVariant _encryptorContainer;
 
 Client();
 
@@ -47,7 +52,7 @@ Client();
 		     std::string_view type) {
  _status = extractStatus(_header);
   try {
-    cryptocommon::clientKeyExchangeContainer(_encryptorContainer, encodedPeerPubKeyAes);
+    cryptovariant::clientKeyExchangeContainer(_encryptorContainer, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

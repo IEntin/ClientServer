@@ -9,7 +9,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "CryptoCommon.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.authentication; done
@@ -43,10 +42,10 @@ TEST(LibSodiumTest, DHkeyExchange) {
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
 						  header,
 						  TestEnvironment::_source);
-    ASSERT_TRUE(cryptocommon::isEncrypted(encrypted));
+    ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
     std::string data(encrypted);
     cryptoS->decrypt(TestEnvironment::_buffer, data);
-    ASSERT_FALSE(cryptocommon::isEncrypted(data));
+    ASSERT_FALSE(CryptoBase::isEncrypted(data));
     HEADER recoveredHeader;
     deserialize(recoveredHeader, data.data());
     ASSERT_EQ(header, recoveredHeader);

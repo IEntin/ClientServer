@@ -10,10 +10,6 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-#ifdef CRYPTOVARIANT
-#include "CryptoVariant.h"
-#endif
-
 std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
@@ -21,9 +17,6 @@ Client::Client() :
   _chronometer(ClientOptions::_timing) {
 #ifdef CRYPTOVARIANT
   _encryptorContainer = cryptovariant::createCrypto();
-#elifdef CRYPTOTUPLE
-  _encryptorContainer = std::make_tuple(std::make_shared<CryptoPlPl>(),
-					std::make_shared<CryptoSodium>());
 #endif
 }
 
@@ -84,7 +77,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  cryptocommon::decryptDecompress(_encryptorContainer, _buffer, _header, _response);
+  cryptovariant::decryptDecompress(_encryptorContainer, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -100,12 +93,12 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 std::string& data,
 					 bool doEncrypt,
 					 int compressionLevel) {
-  return cryptocommon::compressEncrypt(_encryptorContainer,
-				       buffer,
-				       header,
-				       data,
-				       doEncrypt,
-				       compressionLevel);
+  return cryptovariant::compressEncrypt(_encryptorContainer,
+					buffer,
+					header,
+					data,
+					doEncrypt,
+					compressionLevel);
 }
 
 

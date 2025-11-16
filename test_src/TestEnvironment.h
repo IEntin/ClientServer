@@ -8,9 +8,14 @@
 
 #include <gtest/gtest.h>
 
-#include "CryptoCommon.h"
 #include "ServerOptions.h"
 #include "Utility.h"
+
+#ifdef CRYPTOVARIANT
+#include "CryptoVariant.h"
+#else
+#include "CryptoBase.h"
+#endif
 
 class TestEnvironment : public ::testing::Environment {
 public:
@@ -64,11 +69,11 @@ public:
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	cryptocommon::compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
+      compressEncrypt(TestEnvironment::_buffer, header, doEncrypt, std::weak_ptr(cryptoC), data);
       HEADER restoredHeader;
       data = dataView;
-      ASSERT_EQ(cryptocommon::isEncrypted(data), doEncrypt);
-      cryptocommon::decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
+      ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
+      decryptDecompress(TestEnvironment::_buffer, restoredHeader, std::weak_ptr(cryptoS), data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }

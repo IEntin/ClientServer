@@ -2,11 +2,9 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CryptoCommon.h"
+#include "CryptoBase.h"
 
-namespace cryptocommon {
-
-bool isEncrypted(std::string_view input) {
+bool CryptoBase::isEncrypted(std::string_view input) {
   if (input.empty())
     return false;
   assert(input.size() >= HEADER_SIZE);
@@ -22,7 +20,7 @@ bool isEncrypted(std::string_view input) {
   }
 }
 
-bool displayCryptoLibName() {
+bool CryptoBase::displayCryptoLibName() {
   std::string_view encryptorLib;
   switch(Options::_encryptorTypeDefault) {
   case CRYPTO::CRYPTOPP:
@@ -39,5 +37,3 @@ bool displayCryptoLibName() {
   logger << "\nUsing " << encryptorLib << " library.\n\n";
   return 0;
 }
-
-}// end of namespace cryptocommon

@@ -10,7 +10,7 @@
 #include "Options.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
+TaskBuilder::TaskBuilder(cryptovariant::CryptoVariant crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {
   _aggregate.reserve(ClientOptions::_bufferSize);
@@ -93,7 +93,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    cryptocommon::compressEncrypt(_crypto, _buffer, header, _aggregate, ClientOptions::_doEncrypt);
+    cryptovariant::compressEncrypt(_crypto, _buffer, header, _aggregate, ClientOptions::_doEncrypt);
   std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = dataView.size();
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();

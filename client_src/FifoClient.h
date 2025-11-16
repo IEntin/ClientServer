@@ -22,7 +22,7 @@ class FifoClient : public Client {
 		      std::string_view signedAuth) -> bool {
       return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
     };
-    constexpr std::size_t index = cryptocommon::getEncryptorIndex();
+    constexpr std::size_t index = getEncryptorIndex();
     auto crypto = std::get<index>(container);
     return crypto->sendSignature(lambda);
   }

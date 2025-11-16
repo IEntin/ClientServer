@@ -4,8 +4,6 @@
 
 #include "CryptoSodium.h"
 
-#include "CryptoCommon.h"
-
 #include <cstring>
 #include <stdexcept>
 
@@ -134,7 +132,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
-  if (cryptocommon::isEncrypted(data)) {
+  if (isEncrypted(data)) {
     unsigned long long ciphertext_len = std::ssize(data) - crypto_aead_aes256gcm_NPUBBYTES;
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
     std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);

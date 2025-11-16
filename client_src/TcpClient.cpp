@@ -4,8 +4,6 @@
 
 #include "TcpClient.h"
 
-#include "CryptoCommon.h"
-
 namespace tcp {
 
 TcpClient::TcpClient() : _socket(_ioContext) {

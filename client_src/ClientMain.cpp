@@ -22,7 +22,7 @@ int main() {
   DebugLog::setDebugLog(APPTYPE::CLIENT);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setClientTerminal(terminal);
-  [[maybe_unused]] bool initialized = cryptocommon::displayCryptoLibName();
+  [[maybe_unused]] bool initialized = CryptoBase::displayCryptoLibName();
   struct Finally {
     Finally() = default;
     ~Finally() {

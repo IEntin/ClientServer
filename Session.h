@@ -9,9 +9,14 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "CryptoCommon.h"
 #include "Header.h"
 #include "IOUtility.h"
+
+#ifdef CRYPTOVARIANT
+#include "CryptoVariant.h"
+#else
+#include "CryptoBase.h"
+#endif
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
@@ -19,13 +24,14 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
-  ENCRYPTORCONTAINER _encryptorContainer;
+  cryptovariant::CryptoVariant _encryptorContainer;
   HEADER _header;
   std::string _request;
   TaskPtr _task;
   std::string _responseData;
   std::string _buffer;
   ServerWeakPtr _server;
+  cryptovariant::CryptoVariant _encryptorVector;
 
   Session(ServerWeakPtr server,
 	  std::string_view encodedPeerPubKeyAes,
@@ -42,11 +48,11 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      cryptocommon::sendStatusToClient(_encryptorContainer,
-				       clientIdStr,
-				       status,
-				       header,
-				       encodedPubKeyAes);
+      cryptovariant::sendStatusToClient(_encryptorContainer,
+					clientIdStr,
+					status,
+					header,
+					encodedPubKeyAes);
       lambda(header, clientIdStr, encodedPubKeyAes);
     }
   }
