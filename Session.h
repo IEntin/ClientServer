@@ -14,8 +14,6 @@
 
 #ifdef CRYPTOVARIANT
 #include "CryptoVariant.h"
-#else
-#include "CryptoBase.h"
 #endif
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
@@ -24,14 +22,14 @@ using TaskPtr = std::shared_ptr<class Task>;
 class Session : private boost::noncopyable {
 protected:
   std::size_t _clientId = 0;
-  cryptovariant::CryptoVariant _encryptorContainer;
   HEADER _header;
   std::string _request;
   TaskPtr _task;
   std::string _responseData;
   std::string _buffer;
   ServerWeakPtr _server;
-  cryptovariant::CryptoVariant _encryptorVector;
+  cryptovariant::CryptoVariant _encryptorVariant;
+  ENCRYPTORVECTOR _encryptorVector;
 
   Session(ServerWeakPtr server,
 	  std::string_view encodedPeerPubKeyAes,
@@ -48,7 +46,7 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      cryptovariant::sendStatusToClient(_encryptorContainer,
+      cryptovariant::sendStatusToClient(_encryptorVariant,
 					clientIdStr,
 					status,
 					header,

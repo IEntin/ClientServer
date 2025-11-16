@@ -13,8 +13,6 @@
 
 #ifdef CRYPTOVARIANT
 #include "CryptoVariant.h"
-#else
-#include "CryptoBase.h"
 #endif
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
@@ -25,7 +23,8 @@ class Client : private boost::noncopyable {
 protected:
 
   std::string _response;
-  cryptovariant::CryptoVariant _encryptorContainer;
+  cryptovariant::CryptoVariant _encryptorVariant;
+  ENCRYPTORVECTOR _encryptorVector;
 
 Client();
 
@@ -52,7 +51,7 @@ Client();
 		     std::string_view type) {
  _status = extractStatus(_header);
   try {
-    cryptovariant::clientKeyExchangeContainer(_encryptorContainer, encodedPeerPubKeyAes);
+    cryptovariant::clientKeyExchangeContainer(_encryptorVariant, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

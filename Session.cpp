@@ -17,7 +17,14 @@ try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
-    _encryptorContainer = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
+#ifdef CRYPTOVARIANT
+    _encryptorVariant = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
+#else
+    CryptoPlPlPtr entry0 = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
+    _encryptorVector.push_back(entry0);
+    CryptoSodiumPtr entry1 = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
+    _encryptorVector.push_back(entry1); 
+#endif
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
@@ -33,7 +40,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
     { HEADERTYPE::SESSION, _responseData.size(), 0,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
-  cryptovariant::compressEncrypt(_encryptorContainer,
+  cryptovariant::compressEncrypt(_encryptorVariant,
 				 _buffer,
 				 header,
 				 _responseData,
@@ -45,7 +52,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
 }
 
 bool Session::processTask() {
-  cryptovariant::decryptDecompress(_encryptorContainer, _buffer, _header, _request);
+  cryptovariant::decryptDecompress(_encryptorVariant, _buffer, _header, _request);
   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(_header, _request);
     taskController->processTask(_task);

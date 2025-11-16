@@ -16,7 +16,12 @@ thread_local Subtasks Client::_task;
 Client::Client() :
   _chronometer(ClientOptions::_timing) {
 #ifdef CRYPTOVARIANT
-  _encryptorContainer = cryptovariant::createCrypto();
+  _encryptorVariant = cryptovariant::createCrypto();
+#else
+  CryptoPlPlPtr entry0 = std::make_shared<CryptoPlPl>();
+  _encryptorVector.push_back(entry0);
+  CryptoSodiumPtr entry1 = std::make_shared<CryptoSodium>();
+  _encryptorVector.push_back(entry1); 
 #endif
 }
 
@@ -77,7 +82,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  cryptovariant::decryptDecompress(_encryptorContainer, _buffer, _header, _response);
+  cryptovariant::decryptDecompress(_encryptorVariant, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -93,7 +98,7 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 					 std::string& data,
 					 bool doEncrypt,
 					 int compressionLevel) {
-  return cryptovariant::compressEncrypt(_encryptorContainer,
+  return cryptovariant::compressEncrypt(_encryptorVariant,
 					buffer,
 					header,
 					data,
@@ -103,7 +108,7 @@ std::string_view Client::compressEncrypt(std::string& buffer,
 
 
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorVariant);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

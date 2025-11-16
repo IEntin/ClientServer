@@ -13,8 +13,6 @@
 
 #ifdef CRYPTOVARIANT
 #include "CryptoVariant.h"
-#else
-#include "CryptoBase.h"
 #endif
 
 class TestEnvironment : public ::testing::Environment {

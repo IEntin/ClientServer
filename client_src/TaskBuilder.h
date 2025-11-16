@@ -12,8 +12,6 @@
 
 #ifdef CRYPTOVARIANT
 #include "CryptoVariant.h"
-#else
-#include "CryptoBase.h"
 #endif
 
 class Client;
