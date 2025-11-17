@@ -1,0 +1,100 @@
+/*
+ *  Copyright (C) 2021 Ilya Entin
+ */
+
+#pragma once
+
+#include "CompressionLZ4.h"
+#include "CompressionSnappy.h"
+#include "CompressionZSTD.h"
+#include "Header.h"
+#include "Options.h"
+
+template <typename Crypto>
+std::string_view compressEncrypt(std::string& buffer,
+				 const HEADER& header,
+				 bool doEncrypt,
+				 std::weak_ptr<Crypto> weak,
+				 std::string& data,
+				 int compressionLevel = 3) {
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::compress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::compress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::compress(buffer, data, compressionLevel);
+      break;
+    default:
+      break;
+    }
+  }
+  if (doEncrypt) {
+    if (auto crypto = weak.lock();crypto) {
+      return crypto->encrypt(buffer, header, data);
+    }
+  }
+  else {
+    char headerBuffer[HEADER_SIZE];
+    data.insert(0, headerBuffer, HEADER_SIZE);
+    serialize(header, data.data());
+    return data;
+  }
+  return "";
+}
+
+template <typename Crypto>
+void decryptDecompress(std::string& buffer,
+		       HEADER& header,
+		       std::weak_ptr<Crypto> weak,
+		       std::string& data) {
+  if (auto crypto = weak.lock();crypto) {
+    crypto->decrypt(buffer, data);
+    if (!deserialize(header, data.data()))
+      throw std::runtime_error("deserialize failed");
+    data.erase(0, HEADER_SIZE);
+    if (isCompressed(header)) {
+      COMPRESSORS compressor = extractCompressor(header);
+      switch (compressor) {
+      case COMPRESSORS::LZ4:
+	compressionLZ4::uncompress(buffer, data);
+	break;
+      case COMPRESSORS::SNAPPY:
+	compressionSnappy::uncompress(buffer, data);
+	break;
+      case COMPRESSORS::ZSTD:
+	compressionZSTD::uncompress(buffer, data);
+	break;
+      default:
+	break;
+      }
+    }
+  }
+}
+
+template <typename Crypto>
+void clientKeyExchange(std::weak_ptr<Crypto> weak,
+		       std::string_view encodedPeerPubKeyAes) {
+  if (auto crypto = weak.lock();crypto) {
+    if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
+      throw std::runtime_error("clientKeyExchange failed");
+    }
+  }
+}
+
+template <typename Crypto>
+static void sendStatusToClient(std::weak_ptr<Crypto> weak,
+			       std::string_view clientIdStr,
+			       STATUS status,
+			       HEADER& header,
+			       std::string& encodedPubKeyAes) {
+  if (auto crypto = weak.lock();crypto) {
+    encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
+    header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
+	       COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
+  }
+}

@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 
+#include "EncryptorTemplates.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
