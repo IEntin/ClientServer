@@ -7,8 +7,15 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 #include "Header.h"
 #include "Options.h"
+
+template<typename C>
+auto makeWeak(std::shared_ptr<C> crypto)->std::weak_ptr<C> {
+  return crypto;
+}
 
 template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,

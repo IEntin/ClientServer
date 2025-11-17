@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
 #include "EncryptorTemplates.h"
+
 namespace cryptovariant {
 
 using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
@@ -86,31 +85,8 @@ compressEncrypt(CryptoVariant& container,
 		bool doEncrypt,
 		int compressionLevel = 3) {
   auto crypto = std::get<getEncryptorIndex()>(container);
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::compress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::compress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::compress(buffer, data, compressionLevel);
-      break;
-    default:
-      break;
-    }
-  }
-  if (doEncrypt)
-    return crypto->encrypt(buffer, header, data);
-  else {
-    std::string headerBuffer(HEADER_SIZE, '\0');
-    data.insert(0, headerBuffer);
-    serialize(header, data.data());
-    return data;
-  }
-  return "";
+  auto weak = makeWeak(crypto);
+  return compressEncrypt(buffer, header, doEncrypt, weak, data, compressionLevel);
 }
 
 static void decryptDecompress(CryptoVariant& container,
@@ -118,34 +94,15 @@ static void decryptDecompress(CryptoVariant& container,
 			      HEADER& header,
 			      std::string& data) {
   auto crypto = std::get<getEncryptorIndex()>(container);
-  crypto->decrypt(buffer, data);
-  if (!deserialize(header, data.data()))
-    throw std::runtime_error("deserialize failed");
-  data.erase(0, HEADER_SIZE);
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::uncompress(buffer, data);
-      break;
-    default:
-      break;
-    }
-  }
+  auto weak = makeWeak(crypto);
+  return decryptDecompress(buffer, header, weak, data);
 }
 
 static void clientKeyExchangeContainer(CryptoVariant& container,
 				       std::string_view encodedPeerPubKeyAes) {
   auto crypto = std::get<getEncryptorIndex()>(container);
-  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
-    throw std::runtime_error("clientKeyExchange failed");
-  }
+  auto weak = makeWeak(crypto);
+  clientKeyExchange(weak, encodedPeerPubKeyAes);
 }
 
 static void sendStatusToClient(CryptoVariant& container,
@@ -154,9 +111,8 @@ static void sendStatusToClient(CryptoVariant& container,
 			       HEADER& header,
 			       std::string& encodedPubKeyAes) {
   auto crypto = std::get<getEncryptorIndex()>(container);
-  encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
-  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
-	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
+  auto weak = makeWeak(crypto);
+  sendStatusToClient(weak, clientIdStr, status, header, encodedPubKeyAes);
 }
 
 } // end of namespace cryptovariant
