@@ -47,8 +47,11 @@ std::string_view compressEncrypt(std::string& buffer,
   }
   else {
     char headerBuffer[HEADER_SIZE];
-    data.insert(0, headerBuffer, HEADER_SIZE);
-    serialize(header, data.data());
+    serialize(header, headerBuffer);
+    std::string headerWithData;
+    headerWithData.append(headerBuffer, HEADER_SIZE);
+    headerWithData.append(data);
+    data.swap(headerWithData);
     return data;
   }
   return "";
