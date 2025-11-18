@@ -89,7 +89,7 @@ void TcpSession::readRequest() {
     ENDOFMESSAGE,
     [this] (const boost::system::error_code& ec, std::size_t transferred) {
       if (_request.ends_with(ENDOFMESSAGE))
-	_request.erase(transferred - ENDOFMESSAGESZ);
+	_request.resize(transferred - ENDOFMESSAGESZ);
       if (auto self = weak_from_this().lock(); !self)
 	return;
       if (ec) {

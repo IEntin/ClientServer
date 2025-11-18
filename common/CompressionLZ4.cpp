@@ -8,15 +8,17 @@
 #include <lz4.h>
 #include <stdexcept>
 
+#include <boost/static_string/static_string.hpp>
+
 #include "IOUtility.h"
 
 namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data) {
   std::size_t uncompressedSize = data.size();
-  std::string metadata;
-  ioutility::toChars(uncompressedSize, metadata);
-  metadata.resize(ioutility::CONV_BUFFER_SIZE);
+  boost::static_strings::static_string<ioutility::CONV_BUFFER_SIZE>
+    metadata(ioutility::CONV_BUFFER_SIZE, '\0'); 
+  ioutility::toChars(uncompressedSize, metadata.data());
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize);
   if (requiredCapacity > buffer.capacity())
     buffer.reserve(requiredCapacity);
@@ -34,7 +36,7 @@ void uncompress(std::string& buffer, std::string& data) {
   auto metadata = data.substr(data.size() - ioutility::CONV_BUFFER_SIZE);
   std::size_t uncomprSize = 0;
   ioutility::fromChars(metadata, uncomprSize);
-  data.erase(data.size() - ioutility::CONV_BUFFER_SIZE);
+  data.resize(data.size() - metadata.size());
   if (uncomprSize > buffer.capacity())
     buffer.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),

@@ -196,6 +196,7 @@ ZSTD shows the same elapsed as SNAPPY, ~15% slower than LZ4 (ZSTD multithreading
 and high compression ratio as expected.\
 High compression ratio might be good for encryption and security.\
 ZSTD does not require saving of uncompressed size as well.\
+Here metadata  added for LZ4 routine saving uncompressed size at the end of the data string.\
 Software allows mixing different compression algorithms, for instance,\
 server can be configured to compress data using LZ4, but the client usually sending much longer input\
 messages will compress data using ZSTD. Headers accompanying sent data contain the necessary information, \

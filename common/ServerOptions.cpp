@@ -8,7 +8,6 @@
 #include <thread>
 
 #include "AppOptions.h"
-#include "Header.h"
 #include "Logger.h"
 
 std::string ServerOptions::_adsFileName;

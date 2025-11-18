@@ -67,7 +67,7 @@ bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
     return false;
   }
   if (payload.ends_with(ENDOFMESSAGE)) {
-    payload.erase(payload.size() - ENDOFMESSAGESZ);     
+    payload.resize(payload.size() - ENDOFMESSAGESZ);     
     return true;
   }
   else {

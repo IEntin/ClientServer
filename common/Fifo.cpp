@@ -117,7 +117,7 @@ bool Fifo::readStringBlock(std::string_view name, std::string& payload) {
       std::size_t transferred = std::bit_cast<std::size_t>(result);
       payload.append(buffer, transferred);
       if (payload.ends_with(ENDOFMESSAGE)) {
-	payload.erase(payload.size() - ENDOFMESSAGESZ);
+	payload.resize(payload.size() - ENDOFMESSAGESZ);
 	return true;
       }
     }
@@ -150,7 +150,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
       std::size_t transferred = std::bit_cast<std::size_t>(result);
       payload.append(buffer, transferred);
       if (payload.ends_with(ENDOFMESSAGE)) {
-	payload.erase(payload.size() - ENDOFMESSAGESZ);
+	payload.resize(payload.size() - ENDOFMESSAGESZ);
 	return true;
       }
    }

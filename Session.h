@@ -9,7 +9,6 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "Header.h"
 #include "IOUtility.h"
 
 #ifdef CRYPTOVARIANT

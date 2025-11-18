@@ -7,7 +7,6 @@
 #include <filesystem>
 
 #include "AppOptions.h"
-#include "Header.h"
 #include "Logger.h"
 #include "Options.h"
 
