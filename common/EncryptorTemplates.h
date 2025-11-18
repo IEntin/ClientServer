@@ -9,12 +9,10 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-#include "Header.h"
-#include "Options.h"
 
 template<typename C>
-auto makeWeak(std::shared_ptr<C> crypto)->std::weak_ptr<C> {
-  return crypto;
+auto makeWeak(std::shared_ptr<C> crypto) {
+  return std::weak_ptr<C>(crypto);
 }
 
 template <typename Crypto>
