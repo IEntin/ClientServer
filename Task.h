@@ -8,7 +8,6 @@
 #include <future>
 #include <memory>
 #include <tuple>
-#include <vector>
 
 #include <boost/core/noncopyable.hpp>
 

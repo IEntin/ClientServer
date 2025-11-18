@@ -7,7 +7,6 @@
 #include <condition_variable>
 #include <deque>
 #include <thread>
-#include <vector>
 
 #include "Runnable.h"
 

@@ -6,6 +6,8 @@
 
 #include <fcntl.h>
 
+#include <boost/static_string/static_string.hpp>
+
 #include "IOUtility.h"
 #include "Utility.h"
 
@@ -57,7 +59,8 @@ private:
   Fifo() = delete;
   ~Fifo() = delete;
   static thread_local std::string _payload;
-  static std::string _emptyString;
+  static boost::static_strings::static_string<0>
+ _emptyString;
   static short pollFd(int fd, short expected);
   static bool setPipeSize(int fd);
   static int openWriteNonBlock(std::string_view fifoName);

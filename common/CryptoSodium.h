@@ -6,7 +6,6 @@
 
 #include <array>
 #include <atomic>
-#include <vector>
 
 #include <sodium.h>
 

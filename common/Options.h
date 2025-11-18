@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <string>
-
 #include "Header.h"
 
 struct Options {

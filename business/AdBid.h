@@ -5,7 +5,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 using AdWeakPtr = std::weak_ptr<class Ad>;
 

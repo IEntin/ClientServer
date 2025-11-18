@@ -16,7 +16,7 @@ namespace fifo {
 static constexpr std::size_t BUFFER_SIZE = 10000;
 
 thread_local std::string Fifo::_payload;
-std::string Fifo::_emptyString;
+boost::static_strings::static_string<0> Fifo::_emptyString;
 
 CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
