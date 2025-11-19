@@ -10,6 +10,12 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 
+#ifdef CRYPTOVARIANT
+using ENCRYPTORCONTAINER = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;;
+#else
+using ENCRYPTORCONTAINER = boost::container::static_vector<std::shared_ptr<class CryptoBase>, 3>;;
+#endif
+
 template<typename C>
 auto makeWeak(std::shared_ptr<C> crypto) {
   return std::weak_ptr<C>(crypto);

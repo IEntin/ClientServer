@@ -8,11 +8,10 @@
 
 #include <boost/core/noncopyable.hpp>
 
+#include "EncryptorTemplates.h"
 #include "IOUtility.h"
 
-#ifdef CRYPTOVARIANT
 #include "CryptoVariant.h"
-#endif
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
@@ -26,8 +25,8 @@ protected:
   std::string _responseData;
   std::string _buffer;
   ServerWeakPtr _server;
-  cryptovariant::CryptoVariant _encryptorVariant;
-  ENCRYPTORVECTOR _encryptorVector;
+
+  ENCRYPTORCONTAINER _encryptorContainer;
 
   Session(ServerWeakPtr server,
 	  std::string_view encodedPeerPubKeyAes,
@@ -44,7 +43,7 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      cryptovariant::sendStatusToClient(_encryptorVariant,
+      cryptovariant::sendStatusToClient(_encryptorContainer,
 					clientIdStr,
 					status,
 					header,

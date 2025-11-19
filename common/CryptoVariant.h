@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "EncryptorTemplates.h"
-
 namespace cryptovariant {
 
 using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;

@@ -9,7 +9,7 @@ namespace tcp {
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(ioutility::createErrorString());
-  sendSignature(_encryptorVariant);
+  sendSignature(_encryptorContainer);
 }
   
 void TcpClient::run() {

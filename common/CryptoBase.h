@@ -9,7 +9,7 @@
 #include "Header.h"
 #include "Options.h"
 
-using ENCRYPTORVECTOR = boost::container::static_vector<std::shared_ptr<class CryptoBase>, 3>;
+using EncryptorVector = boost::container::static_vector<std::shared_ptr<class CryptoBase>, 3>;
 
 consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;

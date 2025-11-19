@@ -12,9 +12,7 @@
 #include "ServerOptions.h"
 #include "Utility.h"
 
-#ifdef CRYPTOVARIANT
 #include "CryptoVariant.h"
-#endif
 
 class TestEnvironment : public ::testing::Environment {
 public:
