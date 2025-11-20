@@ -20,8 +20,8 @@ try :
 #ifdef CRYPTOVARIANT
     _encryptorContainer = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
 #else
-    _encryptorContainer[0] = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
-    _encryptorContainer[1] = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey); 
+    _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
+    _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey)); 
 #endif
   }
   catch (const std::exception& e) {

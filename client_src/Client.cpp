@@ -18,8 +18,8 @@ Client::Client() :
 #ifdef CRYPTOVARIANT
   _encryptorContainer = cryptovariant::createCrypto();
 #else
-  _encryptorContainer[0] = std::make_shared<CryptoPlPl>();
-  _encryptorContainer[1] = std::make_shared<CryptoSodium>(); 
+  _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>());
+  _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>()); 
 #endif
 }
 

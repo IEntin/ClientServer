@@ -14,7 +14,7 @@ auto makeWeak(std::shared_ptr<C> crypto) {
   return std::weak_ptr<C>(crypto);
 }
 
-using EncryptorArray = std::array<class CryptoBase, 3>;
+using EncryptorVector = boost::container::static_vector<class CryptoBase, 3>;
 
 consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
@@ -24,12 +24,12 @@ consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::n
 class CryptoBase {
  protected:
   CryptoBase() {}
-  virtual ~CryptoBase() = default;
   virtual const std::string&  getName() const = 0;
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
 public:
+  virtual ~CryptoBase() = default;
 // expected: message starts with a header
 // header is encrypted as the rest of data
 // but never compressed because decompression
