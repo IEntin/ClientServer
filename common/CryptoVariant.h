@@ -6,8 +6,6 @@
 
 namespace cryptovariant {
 
-using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
-
 static CryptoVariant createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
   CryptoVariant encryptorVar;
@@ -63,18 +61,6 @@ void runtime_get(std::size_t index, Func f, std::variant<Types...>& t) {
     runtime_get_helper(index, f, t);
 }
 
-static void
-getEncryptor(CryptoVariant encryptors, CRYPTO type = Options::_encryptorTypeDefault) {
-  try {
-    auto index = std::to_underlying<CRYPTO>(type);
-    runtime_get(index, [&]([[maybe_unused]] auto& value) {
-    }, encryptors);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
-}
-
 static std::string_view
 compressEncrypt(CryptoVariant& container,
 		std::string& buffer,
@@ -94,23 +80,6 @@ static void decryptDecompress(CryptoVariant& container,
   auto crypto = std::get<getEncryptorIndex()>(container);
   auto weak = makeWeak(crypto);
   return decryptDecompress(buffer, header, weak, data);
-}
-
-static void clientKeyExchangeContainer(CryptoVariant& container,
-				       std::string_view encodedPeerPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
-  auto weak = makeWeak(crypto);
-  clientKeyExchange(weak, encodedPeerPubKeyAes);
-}
-
-static void sendStatusToClient(CryptoVariant& container,
-			       std::string_view clientIdStr,
-			       STATUS status,
-			       HEADER& header,
-			       std::string& encodedPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
-  auto weak = makeWeak(crypto);
-  sendStatusToClient(weak, clientIdStr, status, header, encodedPubKeyAes);
 }
 
 } // end of namespace cryptovariant

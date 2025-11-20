@@ -10,7 +10,6 @@
 
 #include "EncryptorTemplates.h"
 #include "IOUtility.h"
-
 #include "CryptoVariant.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
@@ -43,11 +42,11 @@ protected:
       ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      cryptovariant::sendStatusToClient(_encryptorContainer,
-					clientIdStr,
-					status,
-					header,
-					encodedPubKeyAes);
+      sendStatusToClientImpl(_encryptorContainer,
+			     clientIdStr,
+			     status,
+			     header,
+			     encodedPubKeyAes);
       lambda(header, clientIdStr, encodedPubKeyAes);
     }
   }

@@ -49,7 +49,7 @@ Client();
 		     std::string_view type) {
  _status = extractStatus(_header);
   try {
-    cryptovariant::clientKeyExchangeContainer(_encryptorContainer, encodedPeerPubKeyAes);
+    clientKeyExchange(_encryptorContainer, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

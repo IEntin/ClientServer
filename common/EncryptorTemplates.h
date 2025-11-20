@@ -10,16 +10,13 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 
+using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
+
 #ifdef CRYPTOVARIANT
 using ENCRYPTORCONTAINER = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;;
 #else
-using ENCRYPTORCONTAINER = boost::container::static_vector<std::shared_ptr<class CryptoBase>, 3>;;
+using ENCRYPTORCONTAINER = std::array<class CryptoBase, 3>;
 #endif
-
-template<typename C>
-auto makeWeak(std::shared_ptr<C> crypto) {
-  return std::weak_ptr<C>(crypto);
-}
 
 template <typename Crypto>
 std::string_view compressEncrypt(std::string& buffer,
@@ -90,25 +87,23 @@ void decryptDecompress(std::string& buffer,
   }
 }
 
-template <typename Crypto>
-void clientKeyExchange(std::weak_ptr<Crypto> weak,
+template <typename CONTAINER>
+void clientKeyExchange(CONTAINER& container,
 		       std::string_view encodedPeerPubKeyAes) {
-  if (auto crypto = weak.lock();crypto) {
-    if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
-      throw std::runtime_error("clientKeyExchange failed");
-    }
+  auto crypto = std::get<getEncryptorIndex()>(container);
+  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
+    throw std::runtime_error("clientKeyExchange failed");
   }
 }
 
-template <typename Crypto>
-static void sendStatusToClient(std::weak_ptr<Crypto> weak,
-			       std::string_view clientIdStr,
-			       STATUS status,
-			       HEADER& header,
-			       std::string& encodedPubKeyAes) {
-  if (auto crypto = weak.lock();crypto) {
-    encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
-    header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
-	       COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
-  }
+template <typename CONTAINER>
+void sendStatusToClientImpl(CONTAINER& container,
+			    std::string_view clientIdStr,
+			    STATUS status,
+			    HEADER& header,
+			    std::string& encodedPubKeyAes) {
+  auto crypto = std::get<getEncryptorIndex()>(container);
+  encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
+  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
+	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }

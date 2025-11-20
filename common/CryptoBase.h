@@ -9,7 +9,12 @@
 #include "Header.h"
 #include "Options.h"
 
-using EncryptorVector = boost::container::static_vector<std::shared_ptr<class CryptoBase>, 3>;
+template<typename C>
+auto makeWeak(std::shared_ptr<C> crypto) {
+  return std::weak_ptr<C>(crypto);
+}
+
+using EncryptorArray = std::array<class CryptoBase, 3>;
 
 consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
   CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
