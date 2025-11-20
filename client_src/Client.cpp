@@ -15,12 +15,7 @@ thread_local Subtasks Client::_task;
 
 Client::Client() :
   _chronometer(ClientOptions::_timing) {
-#ifdef CRYPTOVARIANT
-  _encryptorContainer = cryptovariant::createCrypto();
-#else
-  _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>());
-  _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>()); 
-#endif
+  fillEncryptorContainer(_encryptorContainer, Options::_encryptorTypeDefault);
 }
 
 Client::~Client() {
