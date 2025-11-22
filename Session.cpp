@@ -18,7 +18,10 @@ try :
   _server(server) {
     _clientId = utility::getUniqueId();
 #ifdef CRYPTOVARIANT
-    _encryptorContainer = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
+    fillEncryptorContainer(_encryptorContainer,
+			   Options::_encryptorTypeDefault,
+			   encodedPeerPubKeyAes,
+ 			   signatureWithPubKey);
 #else
     _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
     _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey)); 

@@ -107,3 +107,47 @@ void sendStatusToClientImpl(CONTAINER& container,
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
+///*
+template <typename CONTAINER>
+void fillEncryptorContainer(CONTAINER& container,
+			    CRYPTO encryptorType) {
+  if constexpr (std::is_same_v<CONTAINER, CryptoVariant>) {
+    switch(encryptorType) {
+    case CRYPTO::CRYPTOPP:
+      container = std::make_shared<CryptoPlPl>();
+      break;
+    case CRYPTO::CRYPTOSODIUM:
+      container = std::make_shared<CryptoSodium>();
+      break;
+    default:
+      break;
+    }
+  }
+  else if constexpr (std::is_same_v<CONTAINER, boost::container::static_vector<class CryptoBase, 3>>) {
+    container.emplace_back(std::make_shared<CryptoPlPl>());
+    container.emplace_back(std::make_shared<CryptoSodium>());
+  }
+}
+
+template <typename CONTAINER>
+void fillEncryptorContainer(CONTAINER& container,
+			    CRYPTO encryptorType,
+			    std::string_view encodedPeerPubKeyAes,
+ 			    std::string_view signatureWithPubKey) {
+ if constexpr (std::is_same_v<CONTAINER, CryptoVariant>) {
+    switch(encryptorType) {
+    case CRYPTO::CRYPTOPP:
+      container = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
+      break;
+    case CRYPTO::CRYPTOSODIUM:
+      container = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
+      break;
+    default:
+      break;
+    }
+ }
+ else if constexpr (std::is_same_v<CONTAINER, boost::container::static_vector<class CryptoBase, 3>>) {
+   container.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
+   container.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey));
+ }
+}
