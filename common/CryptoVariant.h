@@ -6,6 +6,40 @@
 
 namespace cryptovariant {
 
+static CryptoVariant createCrypto(std::optional<CRYPTO> encryptor = std::nullopt) {
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
+  CryptoVariant encryptorVar;
+  switch(encryptorType) {
+  case CRYPTO::CRYPTOPP:
+    encryptorVar = std::make_shared<CryptoPlPl>();
+    break;
+  case CRYPTO::CRYPTOSODIUM:
+    encryptorVar = std::make_shared<CryptoSodium>();
+    break;
+  default:
+    break;
+  }
+  return encryptorVar;
+}
+
+static CryptoVariant createCrypto(std::string_view encodedPeerPubKeyAes,
+				  std::string_view signatureWithPubKey,
+				  std::optional<CRYPTO> encryptor = std::nullopt) {
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
+  CryptoVariant encryptorVar;
+  switch(encryptorType) {
+  case CRYPTO::CRYPTOPP:
+    encryptorVar = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
+    break;
+  case CRYPTO::CRYPTOSODIUM:
+    encryptorVar = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
+    break;
+  default:
+    break;
+  }
+  return encryptorVar;
+}
+
 template <std::size_t I = 0, typename Func, typename... Types>
 typename std::enable_if<I == sizeof...(Types), void>::type
 runtime_get_helper([[maybe_unused]] std::size_t index, [[maybe_unused]] Func f,  [[maybe_unused]] std::variant<Types...>& t) {

@@ -12,6 +12,8 @@
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
+#include "CryptoVariant.h"
+
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 

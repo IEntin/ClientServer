@@ -10,6 +10,7 @@
 
 #include "EncryptorTemplates.h"
 #include "IOUtility.h"
+#include "CryptoVariant.h"
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;

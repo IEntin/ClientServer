@@ -6,7 +6,6 @@
 
 #include "Server.h"
 #include "ServerOptions.h"
-#include "CryptoVariant.h"
 #include "Task.h"
 #include "TaskController.h"
 #include "Utility.h"
@@ -18,8 +17,12 @@ try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
-    fillEncryptorContainer(_encryptorContainer, Options::_encryptorType,
-			   encodedPeerPubKeyAes, signatureWithPubKey);
+#ifdef CRYPTOVARIANT
+    _encryptorContainer = cryptovariant::createCrypto(encodedPeerPubKeyAes, signatureWithPubKey);
+#else
+    _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
+    _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey)); 
+#endif
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
