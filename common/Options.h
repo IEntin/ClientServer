@@ -10,6 +10,7 @@ struct Options {
 public:
   static void parse(std::string_view jsonName);
   static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOSODIUM;
+  static constexpr ENCRYPTORCONTAINERTYPE _encryptorContainerDefault = ENCRYPTORCONTAINERTYPE::VARIANTCONTAINER;
   static CRYPTO _encryptorType;
   static std::string _fifoDirectoryName;
   static std::string _acceptorBaseName;

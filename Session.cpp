@@ -17,19 +17,14 @@ try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
-#ifdef CRYPTOVARIANT
     fillEncryptorContainer(_encryptorContainer,
 			   Options::_encryptorTypeDefault,
 			   encodedPeerPubKeyAes,
- 			   signatureWithPubKey);
-#else
-    _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
-    _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey)); 
-#endif
+			   signatureWithPubKey);
   }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-  }
+catch (const std::exception& e) {
+  LogError << e.what() << '\n';
+ }
 
 std::pair<HEADER, std::string_view>
 Session::buildReply(std::atomic<STATUS>& status) {

@@ -13,15 +13,8 @@
 std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
-Client::Client() :
-  _chronometer(ClientOptions::_timing) {
-#ifdef CRYPTOVARIANT
-  fillEncryptorContainer(_encryptorContainer,
-			 Options::_encryptorTypeDefault);
-#else
-  _encryptorContainer.emplace_back(std::make_shared<CryptoPlPl>());
-  _encryptorContainer.emplace_back(std::make_shared<CryptoSodium>()); 
-#endif
+Client::Client() : _chronometer(ClientOptions::_timing) {
+  fillEncryptorContainer(_encryptorContainer, Options::_encryptorTypeDefault);
 }
 
 Client::~Client() {
