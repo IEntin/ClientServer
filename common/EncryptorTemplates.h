@@ -11,20 +11,19 @@
 #include "CryptoSodium.h"
 
 using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
+using CryptoVector = boost::container::static_vector<class CryptoBase, 3>;
 
-#ifdef CRYPTOVARIANT
-using ENCRYPTORCONTAINER = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;;
-#else
-using ENCRYPTORCONTAINER = boost::container::static_vector<class CryptoBase, 3>;
-#endif
+using ENCRYPTORCONTAINER = CryptoVariant;
 
-template <typename Crypto>
-std::string_view compressEncrypt(std::string& buffer,
+template <typename CONTAINER>
+std::string_view compressEncrypt(CONTAINER& container,
+				 std::string& buffer,
 				 const HEADER& header,
-				 bool doEncrypt,
-				 std::weak_ptr<Crypto> weak,
 				 std::string& data,
+				 bool doEncrypt,
 				 int compressionLevel = 3) {
+  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto weak = makeWeak(crypto);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
@@ -57,12 +56,14 @@ std::string_view compressEncrypt(std::string& buffer,
   }
   return "";
 }
-
-template <typename Crypto>
-void decryptDecompress(std::string& buffer,
+template <typename CONTAINER>
+void decryptDecompress(CONTAINER& container,
+		       std::string& buffer,
 		       HEADER& header,
-		       std::weak_ptr<Crypto> weak,
+		       //std::weak_ptr<Crypto> weak,
 		       std::string& data) {
+  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
     if (!deserialize(header, data.data()))

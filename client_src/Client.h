@@ -12,8 +12,6 @@
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
-#include "CryptoVariant.h"
-
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
@@ -71,12 +69,6 @@ Client();
 
 public:
   virtual ~Client();
-
-  std::string_view compressEncrypt(std::string& buffer,
-				   const HEADER& header,
-				   std::string& data,
-				   bool doEncrypt,
-				   int compressionLevel = 3);
   virtual bool send(const struct Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;

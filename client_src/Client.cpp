@@ -74,7 +74,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  cryptovariant::decryptDecompress(_encryptorContainer, _buffer, _header, _response);
+  decryptDecompress(_encryptorContainer, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -84,20 +84,6 @@ bool Client::printReply() {
   stream.write(_response.data(), _response.size());
   return true;
 }
-
-std::string_view Client::compressEncrypt(std::string& buffer,
-					 const HEADER& header,
-					 std::string& data,
-					 bool doEncrypt,
-					 int compressionLevel) {
-  return cryptovariant::compressEncrypt(_encryptorContainer,
-					buffer,
-					header,
-					data,
-					doEncrypt,
-					compressionLevel);
-}
-
 
 void Client::start() {
   auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer);

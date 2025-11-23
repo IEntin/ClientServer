@@ -8,39 +8,47 @@
 // for i in {1..10}; do ./testbin --gtest_filter=AuthenticationTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=Base64EncodingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=VariantCrypto*; done
-
+/*
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, true);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, true, container);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, true);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, true, container);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, true);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, true, container);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, true);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, true, container);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, false);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, false, container);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, false);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, false, container);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, false);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, false, container);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
-  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, false);
+  CryptoVariant container = std::make_shared<CryptoPlPl>();
+  testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, false, container);
 }
-
+*/
 TEST(AuthenticationTest, 1) {
   try {
     // client

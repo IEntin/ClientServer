@@ -11,7 +11,7 @@
 #include "Runnable.h"
 #include "Subtask.h"
 
-#include "CryptoVariant.h"
+//#include "CryptoVariant.h"
 
 class Client;
 
