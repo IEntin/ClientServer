@@ -43,7 +43,7 @@ public:
     return std::make_shared<CryptoPlPl>(cryptoC->_encodedPubKeyAes,
 					cryptoC->_signatureWithPubKeySign);
   }
-/*
+
   struct TestCompressEncrypt : testing::Test {
     template <typename CryptoType, typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor,
@@ -78,4 +78,3 @@ public:
       TestEnvironment::reset();
     }
   };
-*/
