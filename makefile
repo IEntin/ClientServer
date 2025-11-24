@@ -75,7 +75,7 @@ BOOST_INCLUDES := /usr/local/boost_1_89_0
 INCLUDES := -I. -I$(COMMONDIR) -I$(BUSINESSDIR) -I$(POLICYDIR) -I$(BOOST_INCLUDES) -I$(CLIENTSRCDIR) \
 -I$(TESTSRCDIR)
 
-CPPFLAGS := -g -D_DEBUG $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
+CPPFLAGS := -g $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-strong \
  -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD)
 

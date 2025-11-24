@@ -8,6 +8,7 @@
 
 #include "AppOptions.h"
 
+constexpr bool Options::_debug;
 CRYPTO Options::_encryptorType;
 std::string Options::_fifoDirectoryName;
 std::string Options::_acceptorBaseName;

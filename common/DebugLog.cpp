@@ -8,7 +8,7 @@ std::ofstream DebugLog::_file;
 std::mutex DebugLog::_mutex;
 
 void DebugLog::setDebugLog([[maybe_unused]] APPTYPE type) {
-#ifdef _DEBUG
+  if constexpr (Options::_debug)
   switch (type) {
   case APPTYPE::TESTS:
     _file.open("debugTests.txt", std::ios_base::out | std::ios::trunc);
@@ -22,5 +22,4 @@ void DebugLog::setDebugLog([[maybe_unused]] APPTYPE type) {
   default:
     break;
   }
-#endif
 }

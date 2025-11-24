@@ -9,6 +9,7 @@
 struct Options {
 public:
   static void parse(std::string_view jsonName);
+  static constexpr bool _debug = false;
   static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOSODIUM;
   static constexpr ENCRYPTORCONTAINERTYPE _encryptorContainerDefault = ENCRYPTORCONTAINERTYPE::VARIANTCONTAINER;
   static CRYPTO _encryptorType;
