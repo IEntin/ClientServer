@@ -10,10 +10,8 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
-#include "FileLines.h"
 #include "FileLines2.h"
 #include "IOUtility.h"
-#include "StringLines.h"
 #include "StringLines2.h"
 #include "TestEnvironment.h"
 
@@ -192,18 +190,16 @@ TEST(GetFileLineTest, 1) {
   ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
   if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
     lastLine.push_back('\n');
-
-  // use FileLines::getLine
-  std::string_view lineView;
-  FileLines linesV(ClientOptions::_sourceName, '\n', true);
-  while (linesV.getLine(lineView)) {
+  // use FileLines2::getLine
+  std::string line;
+  FileLines2 linesV(ClientOptions::_sourceName, '\n', true);
+  while (linesV.getLine(line)) {
     if (linesV._last) {
-      ASSERT_EQ(lineView, lastLine);
+      ASSERT_EQ(line, lastLine);
     }
   }
-
   std::string lineStr;
-  FileLines linesS(ClientOptions::_sourceName, '\n', true);
+  FileLines2 linesS(ClientOptions::_sourceName, '\n', true);
   while (linesS.getLine(lineStr)) {
     if (linesS._last) {
       ASSERT_EQ(lineStr, lastLine);
@@ -211,11 +207,11 @@ TEST(GetFileLineTest, 1) {
   }
   // discard delimiter:
   // keepDelimiter == false by default
-  FileLines linesDiscardDelimiter(ClientOptions::_sourceName);
+  FileLines2 linesDiscardDelimiter(ClientOptions::_sourceName);
   lastLine.pop_back();
-  while (linesDiscardDelimiter.getLine(lineView)) {
+  while (linesDiscardDelimiter.getLine(line)) {
     if (linesDiscardDelimiter._last) {
-      ASSERT_EQ(lineView, lastLine);
+      ASSERT_EQ(line, lastLine);
     }
   }
 }
@@ -229,16 +225,15 @@ TEST(GetStringLineTest, 1) {
   std::string_view lastLineCmp = lastLine;
 
   // use StringLines::getLine
-  std::string_view line;
+  std::string line;
 
-  StringLines linesKeepDelimeter(TestEnvironment::_source, '\n', true);
+  StringLines2 linesKeepDelimeter(TestEnvironment::_source, '\n', true);
   while (linesKeepDelimeter.getLine(line)) {
     if (linesKeepDelimeter._last) {
       ASSERT_EQ(line, lastLineCmp);
     }
   }
-
-  StringLines lines(TestEnvironment::_source);
+  StringLines2 lines(TestEnvironment::_source);
   lastLineCmp.remove_suffix(1);
   while (lines.getLine(line)) {
     if (lines._last) {
