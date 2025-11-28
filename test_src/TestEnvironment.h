@@ -54,7 +54,6 @@ public:
       // server
       auto cryptoS = createServer(cryptoC);
       cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
-      // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
 		     0,

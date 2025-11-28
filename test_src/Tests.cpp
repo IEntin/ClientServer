@@ -11,18 +11,20 @@
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
 #include "FileLines.h"
+#include "FileLines2.h"
 #include "IOUtility.h"
 #include "StringLines.h"
+#include "StringLines2.h"
 #include "TestEnvironment.h"
 
 // ./testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetStringLineTest*
 // for i in {1..10}; do ./testbin --gtest_filter=regex*;done
+// for i in {1..100}; do ./testbin --gtest_filter=GetFileLine2Test*;done
 
 struct CompressionTestLZ4 : testing::Test {
   void testCompressionDecompression(std::string& input) {
-    // must be a copy
     std::string original = input;
     compressionLZ4::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
@@ -36,20 +38,17 @@ struct CompressionTestLZ4 : testing::Test {
 };
 
 TEST_F(CompressionTestLZ4, 1_SOURCE) {
-  // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTestLZ4, 1_OUTPUTD) {
-  // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
 
 struct CompressionTestSnappy : testing::Test {
   void testCompressionDecompression(std::string& input) {
-    // must be a copy
     std::string original = input;
     compressionSnappy::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
@@ -63,20 +62,17 @@ struct CompressionTestSnappy : testing::Test {
 };
 
 TEST_F(CompressionTestSnappy, 1_SOURCE) {
-  // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTestSnappy, 1_OUTPUTD) {
-  // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
 
 struct CompressionTestZSTD : testing::Test {
   void testCompressionDecompression(std::string& input) {
-    // must be a copy
     std::string original = input;
     compressionZSTD::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
@@ -90,13 +86,11 @@ struct CompressionTestZSTD : testing::Test {
 };
 
 TEST_F(CompressionTestZSTD, 1_SOURCE) {
-  // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
-  // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
@@ -251,6 +245,15 @@ TEST(GetStringLineTest, 1) {
       ASSERT_EQ(line, lastLineCmp);
     }
   }
+}
+
+TEST(GetFileLine2Test, 1) {
+  std::string sourceCopy;
+  FileLines2 linesDelim(ClientOptions::_sourceName, '\n', true);
+  std::string line;
+  while (linesDelim.getLine(line))
+    sourceCopy += line;
+  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
 TEST(ClearPreservesCapacity, 1) {

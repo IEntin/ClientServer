@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <deque>
 #include <iostream>
 #include <string_view>
 
@@ -27,6 +28,23 @@ void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim
     std::size_t next = input.find(delim, start);
     bool endOfInput = next == INPUT::npos;
     rows.emplace_back(input.cbegin() + start,
+      endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
+    if (endOfInput)
+      break;
+    start = next + 1;
+  }
+}
+
+// reversed container order to erase from the end of the input
+[[maybe_unused]] static void splitReversedOrder(std::string_view input,
+						std::deque<std::string_view>& rows,
+						char delim = '\n',
+						int keepDelim = 0) {
+  std::size_t start = 0;
+  while (start < input.size()) {
+    std::size_t next = input.find(delim, start);
+    bool endOfInput = next == std::string_view::npos;
+    rows.emplace_front(input.cbegin() + start,
       endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
     if (endOfInput)
       break;

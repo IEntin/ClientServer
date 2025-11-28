@@ -5,7 +5,7 @@
 #include "TaskBuilder.h"
 
 #include "ClientOptions.h"
-#include "FileLines.h"
+#include "FileLines2.h"
 #include "IOUtility.h"
 #include "Options.h"
 #include "Utility.h"
@@ -21,7 +21,7 @@ void TaskBuilder::run() {
     _resume = false;
     try {
       // can be a new or the same source for tests.
-      FileLines lines(ClientOptions::_sourceName, '\n', true);
+      FileLines2 lines(ClientOptions::_sourceName, '\n', true);
       while (createSubtask(lines) == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
       _conditionResume.wait(lock, [this] { return _resume || _stopped; });
@@ -50,7 +50,7 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
   return { _subtaskIndex + 1, _status };
 }
 
-void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
+void TaskBuilder::copyRequestWithId(const std::string& line, long index) {
   _aggregate += '[';
   ioutility::toChars(index, _aggregate);
   _aggregate += ']';
@@ -64,11 +64,11 @@ void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
 // reduce the number of system calls. The size of the
 // aggregate depends on the buffer size.
 
-STATUS TaskBuilder::createSubtask(Lines& lines) {
+STATUS TaskBuilder::createSubtask(Lines2& lines) {
   _aggregate.clear();
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
-  std::string_view line;
+  std::string line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
     bool alldone = lines._last;

@@ -11,14 +11,12 @@
 #include "Runnable.h"
 #include "Subtask.h"
 
-//#include "CryptoVariant.h"
-
 class Client;
 
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
-  void copyRequestWithId(std::string_view line, long index);
+  void copyRequestWithId(const std::string& line, long index);
 
   std::string _aggregate;
   Subtasks _subtasks;
@@ -36,6 +34,6 @@ class TaskBuilder final : public Runnable {
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
-  STATUS createSubtask(class Lines& lines);
+  STATUS createSubtask(class Lines2& lines);
   void resume();
 };

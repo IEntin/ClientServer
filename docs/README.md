@@ -73,7 +73,7 @@ allocations with Sodium.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
-To use it set Options::_debug to true, by defult it is false.\
+To use it set Options::_debug to true, by defult it is false \
 and insert lines similar to this where needed:\
 DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);\
 Definitely, this infomation must be removed in the secure release build.\
