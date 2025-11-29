@@ -16,7 +16,7 @@ namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data) {
   std::size_t uncompressedSize = data.size();
-  boost::static_strings::static_string<ioutility::CONV_BUFFER_SIZE>
+  boost::static_string<ioutility::CONV_BUFFER_SIZE>
     metadata(ioutility::CONV_BUFFER_SIZE, '\0'); 
   ioutility::toChars(uncompressedSize, metadata.data());
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize);

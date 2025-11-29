@@ -19,7 +19,7 @@ FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelim
   }
 }
 
-bool FileLines2::getLine(std::string& line) {
+bool FileLines2::getLine(boost::static_string<MAXSUBSTRSIZE>& line) {
   if (_index >= _maxIndex) {
     _source.clear();
     _source.shrink_to_fit();

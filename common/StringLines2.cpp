@@ -6,7 +6,7 @@
 
 StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDelimiter) :
   Lines2(delimiter, keepDelimiter),
-  _source(source) {
+  _source(source.cbegin(), source.cend()) {
   try {
     _inputSize = source.size();
     utility::splitReversedOrder(_source, _lines, _delimiter, _keepDelimiter);
@@ -17,10 +17,15 @@ StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDel
   }
 }
 
-bool StringLines2::getLine(std::string& line) {
-  if (_index >= _maxIndex)
+bool StringLines2::getLine(boost::static_string<MAXSUBSTRSIZE>& line) {
+  if (_index >= _maxIndex) {
+    _source.clear();
+    _source.shrink_to_fit();
     return false;
-  line = _lines.back();
+  }
+  std::string_view lineView = _lines.back();
+  _substr.assign(lineView.data(), lineView.size());
+  line = std::move(_substr);
   _lines.pop_back();
   ++_index;
   _last = _index == _maxIndex;

@@ -82,7 +82,7 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
 void Ad::readAds(std::string_view filename) {
   assert(_mapBySize.empty() && "must be called once");
   FileLines2 lines(filename);
-  std::string line;
+  boost::static_string<MAXSUBSTRSIZE> line;
   while (lines.getLine(line)) {
     std::vector<AdPtr> empty;
     try {

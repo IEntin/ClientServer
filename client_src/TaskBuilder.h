@@ -8,6 +8,7 @@
 #include <mutex>
 
 #include "EncryptorTemplates.h"
+#include "Lines2.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
@@ -16,7 +17,7 @@ class Client;
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
-  void copyRequestWithId(const std::string& line, long index);
+  void copyRequestWithId(const boost::static_string<MAXSUBSTRSIZE>& line, long index);
 
   std::string _aggregate;
   Subtasks _subtasks;

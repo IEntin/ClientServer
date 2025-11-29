@@ -38,33 +38,6 @@ void readFile(std::string_view fileName, std::string& buffer) {
   stream.read(buffer.data(), buffer.size());
 }
 
-// used in tests
-bool getLastLine(std::string_view fileName, std::string& lastLine) {
-  char ch;
-  std::ifstream stream;
-  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  stream.open(fileName.data(), std::ios::binary);
-  stream.seekg(-2, std::ios_base::end);
-  stream.get(ch);
-  while (ch != '\n') {
-    stream.seekg(-2, std::ios_base::cur);
-    stream.get(ch);
-  }
-  std::getline(stream, lastLine);
-  return true;
-}
-
-// used in tests
-bool fileEndsWithEOL(std::string_view fileName) {
-  std::ifstream stream;
-  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  stream.open(fileName.data(), std::ios::binary);
-  stream.seekg(-1, std::ios::end);
-  char ch;
-  stream.get(ch);
-  return ch == '\n';
-}
-
 void setServerTerminal(std::string_view terminal) {
   serverTerminal = terminal;
 }

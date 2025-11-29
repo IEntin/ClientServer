@@ -50,7 +50,7 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
   return { _subtaskIndex + 1, _status };
 }
 
-void TaskBuilder::copyRequestWithId(const std::string& line, long index) {
+void TaskBuilder::copyRequestWithId(const boost::static_string<MAXSUBSTRSIZE>& line, long index) {
   _aggregate += '[';
   ioutility::toChars(index, _aggregate);
   _aggregate += ']';
@@ -68,7 +68,7 @@ STATUS TaskBuilder::createSubtask(Lines2& lines) {
   _aggregate.clear();
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
-  std::string line;
+  boost::static_string<MAXSUBSTRSIZE> line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
     bool alldone = lines._last;

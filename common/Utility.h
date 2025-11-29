@@ -88,10 +88,6 @@ std::string generateRawUUID();
 
 void readFile(std::string_view name, std::string& buffer);
 
-bool getLastLine(std::string_view fileName, std::string& lastLine);
-
-bool fileEndsWithEOL(std::string_view fileName);
-
 void setServerTerminal(std::string_view terminal);
 void setClientTerminal(std::string_view terminal);
 void setTestbinTerminal(std::string_view terminal);

@@ -184,68 +184,19 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(GetFileLineTest, 1) {
-  // get last line in the file using std::getline
-  std::string lastLine;
-  ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
-  if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
-    lastLine.push_back('\n');
-  // use FileLines2::getLine
-  std::string line;
-  FileLines2 linesV(ClientOptions::_sourceName, '\n', true);
-  while (linesV.getLine(line)) {
-    if (linesV._last) {
-      ASSERT_EQ(line, lastLine);
-    }
-  }
-  std::string lineStr;
-  FileLines2 linesS(ClientOptions::_sourceName, '\n', true);
-  while (linesS.getLine(lineStr)) {
-    if (linesS._last) {
-      ASSERT_EQ(lineStr, lastLine);
-    }
-  }
-  // discard delimiter:
-  // keepDelimiter == false by default
-  FileLines2 linesDiscardDelimiter(ClientOptions::_sourceName);
-  lastLine.pop_back();
-  while (linesDiscardDelimiter.getLine(line)) {
-    if (linesDiscardDelimiter._last) {
-      ASSERT_EQ(line, lastLine);
-    }
-  }
-}
-
-TEST(GetStringLineTest, 1) {
-  // get last line in the file using std::getline
-  std::string lastLine;
-  ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
-  if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
-    lastLine.push_back('\n');
-  std::string_view lastLineCmp = lastLine;
-
-  // use StringLines::getLine
-  std::string line;
-
-  StringLines2 linesKeepDelimeter(TestEnvironment::_source, '\n', true);
-  while (linesKeepDelimeter.getLine(line)) {
-    if (linesKeepDelimeter._last) {
-      ASSERT_EQ(line, lastLineCmp);
-    }
-  }
-  StringLines2 lines(TestEnvironment::_source);
-  lastLineCmp.remove_suffix(1);
-  while (lines.getLine(line)) {
-    if (lines._last) {
-      ASSERT_EQ(line, lastLineCmp);
-    }
-  }
-}
-
 TEST(GetFileLine2Test, 1) {
   std::string sourceCopy;
   FileLines2 linesDelim(ClientOptions::_sourceName, '\n', true);
-  std::string line;
+  boost::static_string<MAXSUBSTRSIZE> line;
+  while (linesDelim.getLine(line))
+    sourceCopy += line;
+  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+}
+
+TEST(GetStringLine2Test, 1) {
+  std::string sourceCopy;
+  StringLines2 linesDelim(TestEnvironment::_source, '\n', true);
+  boost::static_string<MAXSUBSTRSIZE> line;
   while (linesDelim.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);

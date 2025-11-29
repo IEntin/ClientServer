@@ -10,7 +10,7 @@ class StringLines2 : public Lines2 {
  public:
   explicit StringLines2(std::string_view source, char delimiter = '\n', bool keepDelimiter = false);
   ~StringLines2() override = default;
-  bool getLine(std::string& line) override;
+  bool getLine(boost::static_string<MAXSUBSTRSIZE>& line) override;
  protected:
-  std::string_view _source;
+  std::string _source;
 };

@@ -60,7 +60,6 @@ template <typename CONTAINER>
 void decryptDecompress(CONTAINER& container,
 		       std::string& buffer,
 		       HEADER& header,
-		       //std::weak_ptr<Crypto> weak,
 		       std::string& data) {
   auto crypto = std::get<getEncryptorIndex()>(container);
   auto weak = makeWeak(crypto);
@@ -108,7 +107,7 @@ void sendStatusToClientImpl(CONTAINER& container,
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
-///*
+
 template <typename CONTAINER>
 void fillEncryptorContainer(CONTAINER& container,
 			    CRYPTO encryptorType) {
