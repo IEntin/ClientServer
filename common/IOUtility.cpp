@@ -40,15 +40,16 @@ std::string createErrorString(const boost::source_location& location) {
   return msg << ' ' << location.function_name();
 }
 
-bool processMessage(std::string& payload,
-		    HEADER &header,
+bool processMessage(std::string_view payload,
+		    HEADER& header,
 		    std::span<std::reference_wrapper<std::string>> array) {
   if (payload.size() < HEADER_SIZE)
     return false;
   if (!deserialize(header, payload.data()))
     return false;
+  payload.remove_prefix(HEADER_SIZE);
   std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
-  unsigned shift = HEADER_SIZE;
+  unsigned shift = 0;
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
       array[i].get().assign(payload.cbegin() + shift, payload.cbegin() + shift + sizes[i]);
