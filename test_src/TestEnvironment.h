@@ -68,10 +68,11 @@ public:
 	compressEncrypt(container, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
-      ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
+      ASSERT_EQ(CryptoBase::isEncrypted(dataView), doEncrypt);
+      dataView =
       decryptDecompress(container, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
-      ASSERT_EQ(data, TestEnvironment::_source);
+      ASSERT_EQ(dataView, TestEnvironment::_source);
     }
     void TearDown() {
       TestEnvironment::reset();

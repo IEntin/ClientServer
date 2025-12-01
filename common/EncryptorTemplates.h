@@ -56,10 +56,10 @@ std::string_view compressEncrypt(CONTAINER& container,
   return "";
 }
 template <typename CONTAINER>
-void decryptDecompress(CONTAINER& container,
-		       std::string& buffer,
-		       HEADER& header,
-		       std::string& data) {
+std::string_view decryptDecompress(CONTAINER& container,
+				   std::string& buffer,
+				   HEADER& header,
+				   std::string& data) {
   auto crypto = std::get<getEncryptorIndex()>(container);
   auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
@@ -84,6 +84,7 @@ void decryptDecompress(CONTAINER& container,
       }
     }
   }
+  return data;
 }
 
 template <typename CONTAINER>
