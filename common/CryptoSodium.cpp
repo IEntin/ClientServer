@@ -59,7 +59,9 @@ CryptoSodium::CryptoSodium() :
 		       &_secretKeySign.front());
   
   _signatureWithPubKeySign.assign(_signature.cbegin(), _signature.cend());
-  _signatureWithPubKeySign.append(_publicKeySign.cbegin(), _publicKeySign.cend());
+  _signatureWithPubKeySign.insert(_signatureWithPubKeySign.cend(),
+				  _publicKeySign.cbegin(),
+				  _publicKeySign.cend());
 }
 
 // session
@@ -73,7 +75,7 @@ CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
   unsigned char signature[crypto_sign_BYTES] = {};
   std::copy(signatureWithPubKeySign.begin(), signatureWithPubKeySign.begin() + crypto_sign_BYTES, signature);
   unsigned char peerPubcicKeySign[crypto_sign_PUBLICKEYBYTES] = {};
-  std::copy(signatureWithPubKeySign.begin() + crypto_sign_BYTES, signatureWithPubKeySign.end(), std::begin(peerPubcicKeySign));
+  std::copy(signatureWithPubKeySign.begin() + crypto_sign_BYTES, signatureWithPubKeySign.cend(), std::begin(peerPubcicKeySign));
   _verified = crypto_sign_verify_detached(
     signature,
     std::bit_cast<const unsigned char*>(&_msgHash.front()),
@@ -106,7 +108,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   buffer.clear();
   std::string input(HEADER_SIZE, '\0');
   serialize(header,& input.front());
-  input.append(data.cbegin(), data.cend());
+  input.insert(input.cend(), data.cbegin(), data.cend());
   unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
   randombytes_buf(nonce, std::ssize(nonce));
@@ -120,7 +122,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
 				      message_len, nullptr, 0,
 				      nullptr, nonce, &key.front()) == 0))
     throw std::runtime_error("encrypt failed");
-  buffer.insert(buffer.end(), std::cbegin(nonce), std::cend(nonce));
+  buffer.insert(buffer.cend(), std::cbegin(nonce), std::cend(nonce));
   return buffer;
 }
 
@@ -135,7 +137,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
   if (isEncrypted(data)) {
     unsigned long long ciphertext_len = std::ssize(data) - crypto_aead_aes256gcm_NPUBBYTES;
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
-    std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);
+    std::copy(data.cend() - crypto_aead_aes256gcm_NPUBBYTES, data.cend(), recoveredNonce);
     data.resize(data.size() - crypto_aead_aes256gcm_NPUBBYTES);
     buffer.resize(ciphertext_len);
     unsigned long long decrypted_len;

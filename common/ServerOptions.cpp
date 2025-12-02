@@ -21,6 +21,7 @@ int ServerOptions::_maxTotalSessions;
 int ServerOptions::_tcpTimeout;
 bool ServerOptions::_useRegex;
 POLICYENUM ServerOptions::_policyEnum;
+std::size_t ServerOptions::_bufferSize;
 bool ServerOptions::_timing;
 bool ServerOptions::_printHeader;
 
@@ -39,6 +40,7 @@ void ServerOptions::parse(std::string_view jsonName) {
   _tcpTimeout = appOptions.get("TcpTimeout", 3000);
   _useRegex = appOptions.get("UseRegex", true);
   _policyEnum = fromString(appOptions.get("Policy", std::string("NOSORTINPUT")));
+  _bufferSize = appOptions.get("BufferSize", 100000);
   _timing = appOptions.get("Timing", false);
   _printHeader = appOptions.get("PrintHeader", false);
   Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));

@@ -72,7 +72,7 @@ bool Ad::parseArray() {
 
 const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
   static const std::vector<AdPtr> empty;
-  const auto it = _mapBySize.find(key);
+  const auto& it = _mapBySize.find(key);
   if (it == _mapBySize.end())
     return empty;
   else

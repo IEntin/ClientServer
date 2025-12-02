@@ -120,7 +120,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(&headerBuffer[0]), HEADER_SIZE);
   stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(&data.front()), data.size());
   stfEncryptor.MessageEnd();
-  buffer.append(iv.begin(), iv.end());
+  buffer.insert(buffer.cend(), iv.begin(), iv.end());
   return buffer;
 }
 
@@ -161,7 +161,9 @@ void CryptoPlPl::signMessage() {
       signer,
       new CryptoPP::StringSink(_signatureWithPubKeySign))
   );
-  _signatureWithPubKeySign.append(_serializedRsaPubKey);
+  _signatureWithPubKeySign.insert(_signatureWithPubKeySign.cend(),
+				  _serializedRsaPubKey.cbegin(),
+				  _serializedRsaPubKey.cend());
 }
 
 std::pair<bool, std::string>

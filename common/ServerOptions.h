@@ -22,6 +22,7 @@ struct ServerOptions : Options {
   static int _tcpTimeout;
   static bool _useRegex;
   static POLICYENUM _policyEnum;
+  static std::size_t _bufferSize;
   static bool _timing;
   static bool _printHeader;
 private:
