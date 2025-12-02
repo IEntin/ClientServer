@@ -47,7 +47,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     cryptoS->decrypt(TestEnvironment::_buffer, data);
     ASSERT_FALSE(CryptoBase::isEncrypted(data));
     HEADER recoveredHeader;
-    deserialize(recoveredHeader, data.data());
+    deserialize(recoveredHeader, &data.front());
     ASSERT_EQ(header, recoveredHeader);
     std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
     ASSERT_EQ(payload, TestEnvironment::_source);

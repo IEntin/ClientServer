@@ -38,10 +38,10 @@ public:
     char headerBuffer[HEADER_SIZE];
     serialize(header, headerBuffer);
     writeString(fdWrite, headerBuffer, std::ssize(headerBuffer));
-    writeString(fdWrite, payload1.data(), payload1.size());
-    writeString(fdWrite, payload2.data(), payload2.size());
-    writeString(fdWrite, payload3.data(), payload3.size());
-    writeString(fdWrite, ENDOFMESSAGE.data(), ENDOFMESSAGESZ);
+    writeString(fdWrite, &payload1.front(), payload1.size());
+    writeString(fdWrite, &payload2.front(), payload2.size());
+    writeString(fdWrite, &payload3.front(), payload3.size());
+    writeString(fdWrite, &ENDOFMESSAGE.front(), ENDOFMESSAGESZ);
     return true;
   }
 

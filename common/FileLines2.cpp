@@ -25,8 +25,7 @@ bool FileLines2::getLine(boost::static_string<MAXSUBSTRSIZE>& line) {
     _source.shrink_to_fit();
     return false;
   }
-  std::string_view lineView = _lines.back();
-  _substr.assign(lineView.data(), lineView.size());
+  _substr = _lines.back();
   line = std::move(_substr);
   _lines.pop_back();
   _lines.shrink_to_fit();

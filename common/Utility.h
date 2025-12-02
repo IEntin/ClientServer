@@ -5,6 +5,8 @@
 #pragma once
 
 #include <deque>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string_view>
 
@@ -82,11 +84,19 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
   }
 }
 
+template <typename BUFFER>
+void readFile(std::string_view fileName, BUFFER& buffer) {
+  std::ifstream stream;
+  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  stream.open(fileName.data(), std::ios::binary);
+  std::uintmax_t size = std::filesystem::file_size(fileName);
+  buffer.resize(size);
+  stream.read(&buffer.front(), buffer.size());
+}
+
 std::size_t getUniqueId();
 
 std::string generateRawUUID();
-
-void readFile(std::string_view name, std::string& buffer);
 
 void setServerTerminal(std::string_view terminal);
 void setClientTerminal(std::string_view terminal);
