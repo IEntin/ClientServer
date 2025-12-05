@@ -9,7 +9,8 @@ StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDel
   _source(source.cbegin(), source.cend()) {
   try {
     _inputSize = source.size();
-    utility::splitReversedOrder(_source, _lines, _delimiter, _keepDelimiter);
+    std::string_view sourceView(&*_source.cbegin(), _source.size());
+    utility::splitReversedOrder(sourceView, _lines, _delimiter, _keepDelimiter);
     _maxIndex = _lines.size() - 1;
   }
   catch (const std::exception& e) {

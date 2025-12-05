@@ -62,6 +62,7 @@
 #include <boost/algorithm/hex.hpp>
 #include <boost/assert/source_location.hpp>
 #include <boost/asio.hpp>
+#include <boost/asio/posix/stream_descriptor.hpp>
 #include <boost/assert/source_location.hpp>
 #include <boost/charconv.hpp>
 #include <boost/container/deque.hpp>

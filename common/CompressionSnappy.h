@@ -16,7 +16,7 @@ namespace compressionSnappy {
 
 template <typename DATA>
 bool compress(std::string& buffer, DATA& data) {
-  if (snappy::Compress(&data.front(), data.size(), &buffer)) {
+  if (snappy::Compress(&*data.cbegin(), data.size(), &buffer)) {
     data.assign(buffer.cbegin(), buffer.cend());
     return true;
   }
@@ -26,9 +26,9 @@ bool compress(std::string& buffer, DATA& data) {
 
 template <typename DATA>
 bool uncompress(std::string& buffer, DATA& data) {
-  if (!snappy::IsValidCompressedBuffer(&data.front(), data.size()))
+  if (!snappy::IsValidCompressedBuffer(&*data.cbegin(), data.size()))
     throw std::runtime_error("data is not valid.");      
-  if (snappy::Uncompress(&data.front(), data.size(), &buffer)) {
+  if (snappy::Uncompress(&*data.cbegin(), data.size(), &buffer)) {
     data.assign(buffer.cbegin(), buffer.cend());
     return true;
   }

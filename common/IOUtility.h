@@ -62,8 +62,8 @@ void toChars(I value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) 
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(&target.front() + origSize, &target.front() + origSize + size, value);
-  sizeIncr = ptr - &target.front() - origSize;
+  auto [ptr, ec] = std::to_chars(&*target.begin() + origSize, &*target.begin() + origSize + size, value);
+  sizeIncr = ptr - &*target.cbegin() - origSize;
   if (ec == std::errc()) {
     assert(sizeIncr <= size);
     target.erase(origSize + sizeIncr, size - sizeIncr);
@@ -92,9 +92,9 @@ void toChars(F value, std::string& target, int precision, std::size_t size = CON
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(&target.front() + origSize, &target.front() + origSize + size, value,
+  auto [ptr, ec] = std::to_chars(&*target.begin() + origSize, &*target.begin() + origSize + size, value,
 				 std::chars_format::fixed, precision);
-  sizeIncr = ptr - &target.front() - origSize;
+  sizeIncr = ptr - &*target.cbegin() - origSize;
   if (ec == std::errc())
     target.resize(origSize + sizeIncr);
   else

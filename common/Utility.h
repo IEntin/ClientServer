@@ -10,6 +10,9 @@
 #include <iostream>
 #include <string_view>
 
+#include <boost/asio.hpp>
+#include <boost/asio/posix/stream_descriptor.hpp>
+
 // common constants
 static constexpr std::string_view buildDateTime = __DATE__ " " __TIME__;
 constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
@@ -38,6 +41,7 @@ void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim
 }
 
 // reversed container order to erase from the end of the input
+
 [[maybe_unused]] static void splitReversedOrder(std::string_view input,
 						std::deque<std::string_view>& rows,
 						char delim = '\n',
@@ -91,7 +95,23 @@ void readFile(std::string_view fileName, BUFFER& buffer) {
   stream.open(fileName.data(), std::ios::binary);
   std::uintmax_t size = std::filesystem::file_size(fileName);
   buffer.resize(size);
-  stream.read(&buffer.front(), buffer.size());
+  stream.read(&*buffer.begin(), size);
+}
+
+template <typename SOURCE>
+bool writeToFd(int fd, SOURCE& source) {
+  try {
+    boost::asio::io_context io_context;
+    boost::asio::posix::stream_descriptor sd(io_context, fd);
+    std::vector<boost::asio::const_buffer> buffers;
+    buffers.push_back(boost::asio::buffer(source));
+    boost::asio::write(sd, buffers);
+    return true;
+  }
+  catch (const boost::system::system_error& e) {
+    LogError<< e.what() << '\n';
+    return false;
+  }
 }
 
 std::size_t getUniqueId();

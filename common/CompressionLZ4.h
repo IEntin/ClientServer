@@ -19,12 +19,12 @@ void compress(std::string& buffer, DATA& data) {
   std::size_t uncompressedSize = data.size();
   boost::static_string<ioutility::CONV_BUFFER_SIZE>
     metadata(ioutility::CONV_BUFFER_SIZE, '\0'); 
-  ioutility::toChars(uncompressedSize, &metadata.front());
+  ioutility::toChars(uncompressedSize, metadata.data());
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize);
   if (requiredCapacity > buffer.capacity())
     buffer.resize(requiredCapacity);
-  std::size_t compressedSize = LZ4_compress_default(&data.front(),
-						    &buffer.front(),
+  std::size_t compressedSize = LZ4_compress_default(&*data.begin(),
+						    &*buffer.begin(),
 						    data.size(),
 						    buffer.capacity());
   if (compressedSize == 0)
@@ -42,8 +42,8 @@ void uncompress(std::string& buffer, DATA& data) {
   data.resize(data.size() - metadata.size());
   if (uncomprSize > buffer.capacity())
     buffer.resize(uncomprSize);
-  ssize_t decomprSize = LZ4_decompress_safe(&data.front(),
-					    &buffer.front(),
+  ssize_t decomprSize = LZ4_decompress_safe(&*data.begin(),
+					    &*buffer.begin(),
 					    data.size(),
 					    uncomprSize);
   if (decomprSize < 0)

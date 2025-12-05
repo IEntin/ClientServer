@@ -43,7 +43,7 @@ std::string_view compressEncrypt(CONTAINER& container,
   if (doEncrypt) {
     if (auto crypto = weak.lock();crypto) {
       auto result = crypto->encrypt(buffer, header, data);
-      return { &result.front(), result.size() };
+      return { &*result.cbegin(), result.size() };
     }
   }
   else {
@@ -54,7 +54,7 @@ std::string_view compressEncrypt(CONTAINER& container,
     headerWithData.insert(headerWithData.cend(), it, it + HEADER_SIZE);
     headerWithData.insert(headerWithData.cend(), data.cbegin(), data.cend());
     data = headerWithData;
-    return { &data.front(), data.size() };
+    return { &*data.cbegin(), data.size() };
   }
   return "";
 }
@@ -67,7 +67,7 @@ std::string_view decryptDecompress(CONTAINER& container,
   auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
-    if (!deserialize(header, &data.front()))
+    if (!deserialize(header, &*data.cbegin()))
       throw std::runtime_error("deserialize failed");
     data.erase(0, HEADER_SIZE);
     if (isCompressed(header)) {
@@ -87,7 +87,7 @@ std::string_view decryptDecompress(CONTAINER& container,
       }
     }
   }
-  return { &data.front(), data.size() };
+  return { &*data.cbegin(), data.size() };
 }
 
 template <typename CONTAINER>

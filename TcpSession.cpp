@@ -109,7 +109,7 @@ void TcpSession::readRequest() {
 	});
 	return;
       }
-      if (deserialize(_header, &_request.front()))
+      if (deserialize(_header, &*_request.cbegin()))
 	_request.erase(0, HEADER_SIZE);
       if (processTask())
 	boost::asio::post(_ioContext, [this] { sendReply(); });

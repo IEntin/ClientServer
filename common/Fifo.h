@@ -37,14 +37,16 @@ public:
     CloseFileDescriptor cfdw(fdWrite);
     char headerBuffer[HEADER_SIZE];
     serialize(header, headerBuffer);
-    writeString(fdWrite, headerBuffer, std::ssize(headerBuffer));
-    if (!payload1.empty())
-      writeString(fdWrite, &payload1.front(), payload1.size());
-    if (!payload2.empty())
-      writeString(fdWrite, &payload2.front(), payload2.size());
-    if (!payload3.empty())
-      writeString(fdWrite, &payload3.front(), payload3.size());
-    writeString(fdWrite, &ENDOFMESSAGE.front(), ENDOFMESSAGESZ);
+    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(headerBuffer),
+						      boost::asio::buffer(payload1),
+						      boost::asio::buffer(payload2),
+						      boost::asio::buffer(payload3),
+						      boost::asio::buffer(ENDOFMESSAGE) };
+    writeString(fdWrite, static_cast<const char*>(buffers[0].data()), buffers[0].size());
+    writeString(fdWrite, static_cast<const char*>(payload1.data()), payload1.size());
+    writeString(fdWrite, static_cast<const char*>(payload2.data()), payload2.size());
+    writeString(fdWrite, static_cast<const char*>(payload3.data()), payload3.size());
+    writeString(fdWrite, static_cast<const char*>(ENDOFMESSAGE.data()), ENDOFMESSAGESZ);
     return true;
   }
 

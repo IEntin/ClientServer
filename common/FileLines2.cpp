@@ -11,7 +11,8 @@ FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelim
   try {
     _inputSize = std::filesystem::file_size(fileName);
     utility::readFile(fileName, _source);
-    utility::splitReversedOrder(_source, _lines, _delimiter, _keepDelimiter);
+    std::string_view sourceView(_source.cbegin(), _source.cend());
+    utility::splitReversedOrder(sourceView, _lines, _delimiter, _keepDelimiter);
     _maxIndex = _lines.size() -1;
   }
   catch (const std::exception& e) {

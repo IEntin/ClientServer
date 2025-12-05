@@ -81,7 +81,7 @@ bool Client::printReply() {
     displayStatus(STATUS::ERROR);
     return false;
   }
-  stream.write(&_response.front(), _response.size());
+  stream.write(&*_response.cbegin(), _response.size());
   return true;
 }
 
