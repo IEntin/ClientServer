@@ -41,9 +41,9 @@ void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim
 }
 
 // reversed container order to erase from the end of the input
-
+template <typename CONTAINER>
 [[maybe_unused]] static void splitReversedOrder(std::string_view input,
-						std::deque<std::string_view>& rows,
+						CONTAINER& rows,
 						char delim = '\n',
 						int keepDelim = 0) {
   std::size_t start = 0;

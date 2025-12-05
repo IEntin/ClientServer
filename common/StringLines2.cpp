@@ -5,12 +5,9 @@
 #include "StringLines2.h"
 
 StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDelimiter) :
-  Lines2(delimiter, keepDelimiter),
-  _source(source.cbegin(), source.cend()) {
+  Lines2(delimiter, keepDelimiter) {
   try {
-    _inputSize = source.size();
-    std::string_view sourceView(&*_source.cbegin(), _source.size());
-    utility::splitReversedOrder(sourceView, _lines, _delimiter, _keepDelimiter);
+    utility::splitReversedOrder(source, _lines, _delimiter, _keepDelimiter);
     _maxIndex = _lines.size() - 1;
   }
   catch (const std::exception& e) {
@@ -18,16 +15,12 @@ StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDel
   }
 }
 
-bool StringLines2::getLine(boost::static_string<MAXSUBSTRSIZE>& line) {
-  if (_index >= _maxIndex) {
-    _source.clear();
-    _source.shrink_to_fit();
+bool StringLines2::getLine(std::string& line) {
+  if (_lines.empty()) {
     return false;
   }
-  _substr = _lines.back();
-  line = std::move(_substr);
+  line = std::move(_lines.back());
   _lines.pop_back();
-  _lines.shrink_to_fit();
   ++_index;
   _last = _index == _maxIndex;
   return true;

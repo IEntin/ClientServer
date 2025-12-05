@@ -187,7 +187,7 @@ TEST(HeaderTest, 1) {
 TEST(GetFileLine2Test, 1) {
   std::string sourceCopy;
   FileLines2 linesDelim(ClientOptions::_sourceName, '\n', true);
-  boost::static_string<MAXSUBSTRSIZE> line;
+  std::string line;
   while (linesDelim.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
@@ -196,7 +196,7 @@ TEST(GetFileLine2Test, 1) {
 TEST(GetStringLine2Test, 1) {
   std::string sourceCopy;
   StringLines2 linesDelim(TestEnvironment::_source, '\n', true);
-  boost::static_string<MAXSUBSTRSIZE> line;
+  std::string line;
   while (linesDelim.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);

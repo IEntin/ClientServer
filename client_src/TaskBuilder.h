@@ -17,7 +17,7 @@ class Client;
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
-  void copyRequestWithId(const boost::static_string<MAXSUBSTRSIZE>& line, long index);
+  void copyRequestWithId(std::string_view line, long index);
 
   std::string _aggregate;
   Subtasks _subtasks;

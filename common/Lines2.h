@@ -4,9 +4,6 @@
 
 #pragma once
 
-  static constexpr long MAXSUBSTRSIZE = 2000;
-
-#include <boost/static_string.hpp>
 #include <boost/core/noncopyable.hpp>
 
 #include "Logger.h"
@@ -21,13 +18,11 @@ class Lines2 : private boost::noncopyable {
   long _index = -1;
   long _maxIndex;
   bool _last = false;
-  std::deque<std::string_view> _lines;
-  boost::static_string<MAXSUBSTRSIZE> _substr;
+  static thread_local std::deque<std::string> _lines;
   explicit Lines2(char delimiter = '\n', bool keepDelimiter = false);
   virtual ~Lines2() = default;
-  virtual bool getLine(boost::static_string<MAXSUBSTRSIZE>&) = 0;
+  virtual bool getLine(std::string&) = 0;
  protected:
   const char _delimiter;
   const bool _keepDelimiter;
-  std::size_t _inputSize = 0;
 };
