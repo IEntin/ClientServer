@@ -71,7 +71,7 @@ STATUS TaskBuilder::createSubtask(Lines2& lines) {
   static thread_local std::string line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
-    bool alldone = lines._last;
+    bool alldone = lines._lines.empty();
     if (_aggregate.size() >= maxSubtaskSize || alldone)
       return compressEncryptSubtask(alldone);
   }

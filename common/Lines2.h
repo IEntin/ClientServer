@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <boost/core/noncopyable.hpp>
+#include <deque>
+#include <string>
 
-#include "Logger.h"
-#include "Utility.h"
+#include <boost/core/noncopyable.hpp>
 
 class Lines2 : private boost::noncopyable {
  public:
@@ -16,8 +16,6 @@ class Lines2 : private boost::noncopyable {
   // next line is created use a string_view, it is
   // backed up by the buffer. Otherwise use a string.
   long _index = -1;
-  long _maxIndex;
-  bool _last = false;
   static thread_local std::deque<std::string> _lines;
   explicit Lines2(char delimiter = '\n', bool keepDelimiter = false);
   virtual ~Lines2() = default;

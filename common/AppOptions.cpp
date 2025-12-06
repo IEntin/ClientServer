@@ -15,7 +15,7 @@ AppOptions::AppOptions(std::string_view fileName) :
 bool AppOptions::initialize(std::string_view fileName) {
   if (!fileName.empty() && !std::filesystem::exists(fileName)) {
     LogError << fileName << " not found\n";
-      return false;
+    return false;
   }
   try {
     boost::property_tree::read_json(fileName.data(), _ptree);

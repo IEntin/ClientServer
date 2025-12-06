@@ -64,6 +64,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <boost/assert/source_location.hpp>
+#include <boost/beast/core/file.hpp>
 #include <boost/charconv.hpp>
 #include <boost/container/deque.hpp>
 #include <boost/container/static_vector.hpp>
@@ -73,6 +74,8 @@
 #include <boost/exception/all.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/json.hpp>
+#include <boost/json/basic_parser_impl.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/random.hpp>
