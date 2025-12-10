@@ -5,8 +5,9 @@
 #include "ClientOptions.h"
 
 #include <filesystem>
+#include <fstream>
 
-#include "AppOptions.h"
+#include "BoostJsonParser.h"
 #include "Logger.h"
 #include "Options.h"
 
@@ -30,39 +31,57 @@ bool ClientOptions::_printHeader;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   Options::parse(jsonName);
-  AppOptions appOptions(jsonName);
-  std::string clientType = appOptions.get("ClientType", std::string(""));
-  _fifoClient = clientType == "FIFO";
-  _tcpClient = clientType == "TCP";
-  _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
-  _compressionLevel = appOptions.get("CompressionLevel", 3);
-  _doEncrypt = appOptions.get("doEncrypt", true);
-  _sourceName = appOptions.get("SourceName", std::string("data/requests.log"));
-  if (externalDataStream)
-    _dataStream = externalDataStream;
+  if (!jsonName.empty()) {
+    boost::json::value jv;
+    parseJson(jsonName, jv);
+    auto clientType = jv.at("ClientType").as_string();
+    _fifoClient = clientType == "FIFO";
+    _tcpClient = clientType == "TCP";
+    _compressor = translateCompressorString(jv.at("Compression").as_string());
+    _compressionLevel = jv.at("CompressionLevel").as_int64();
+    _doEncrypt = jv.at("doEncrypt").as_bool();
+    _sourceName = jv.at("SourceName").as_string();
+    if (externalDataStream)
+      _dataStream = externalDataStream;
+    else {
+      const auto filename = jv.at("OutputFileName").as_string();
+      static std::ofstream fileStream(filename.data(), std::ofstream::binary);
+      if (!filename.empty())
+	_dataStream = &fileStream;
+      else
+	_dataStream = nullptr;
+    }
+    const auto filename = jv.at("InstrumentationFn").as_string();
+    _maxNumberTasks = jv.at("MaxNumberTasks").as_int64();
+    _heartbeatPeriod = jv.at("HeartbeatPeriod").as_int64();
+    _heartbeatTimeout = jv.at("HeartbeatTimeout").as_int64();
+    _heartbeatEnabled = jv.at("HeartbeatEnabled").as_bool();
+    _diagnostics = translateDiagnosticsString(jv.at("Diagnostics").as_string());
+    _runLoop = jv.at("RunLoop").as_bool();
+    _bufferSize = jv.at("BufferSize").as_int64();
+    _timing = jv.at("Timing").as_bool();
+    _printHeader = jv.at("PrintHeader").as_bool();
+    Logger::translateLogThreshold(jv.at("LogThreshold").as_string());
+  }
   else {
-    const std::string filename = appOptions.get("OutputFileName", std::string());
-    static std::ofstream fileStream(filename, std::ofstream::binary);
-    if (!filename.empty())
-      _dataStream = &fileStream;
-    else
+    _doEncrypt = false;
+    _sourceName = "data/requests.log";
+    if (externalDataStream)
+      _dataStream = externalDataStream;
+    else {
       _dataStream = nullptr;
-  }
-  const std::string filename = appOptions.get("InstrumentationFn", std::string());
-  if (!filename.empty()) {
-    static std::ofstream instrFileStream(filename, std::ofstream::binary);
-    _instrStream = &instrFileStream;
-  }
-  else
+    }
+    std::string filename = "";
     _instrStream = nullptr;
-  _maxNumberTasks = appOptions.get("MaxNumberTasks", 0);
-  _heartbeatPeriod = appOptions.get("HeartbeatPeriod", 15000);
-  _heartbeatTimeout = appOptions.get("HeartbeatTimeout", 3000);
-  _heartbeatEnabled = appOptions.get("HeartbeatEnabled", true);
-  _diagnostics = translateDiagnosticsString(appOptions.get("Diagnostics", std::string("Disabled")));
-  _runLoop = appOptions.get("RunLoop", false);
-  _bufferSize = appOptions.get("BufferSize", 100000);
-  _timing = appOptions.get("Timing", false);
-  _printHeader = appOptions.get("PrintHeader", false);
-  Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
+    _maxNumberTasks = 0;
+    _heartbeatPeriod =  15000;
+    _heartbeatTimeout =  3000;
+    _heartbeatEnabled =  true;
+    _diagnostics = translateDiagnosticsString("Disabled");
+    _runLoop =  false;
+    _bufferSize = 100000;
+    _timing = false;
+    _printHeader =  false;
+    Logger::translateLogThreshold("ERROR");
+  }
 }

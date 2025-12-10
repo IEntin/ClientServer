@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <thread>
 
-#include "AppOptions.h"
+#include "BoostJsonParser.h"
 #include "Logger.h"
 
 std::string ServerOptions::_adsFileName;
@@ -27,21 +27,41 @@ bool ServerOptions::_printHeader;
 
 void ServerOptions::parse(std::string_view jsonName) {
   Options::parse(jsonName);
-  AppOptions appOptions(jsonName);
-  _adsFileName = appOptions.get("AdsFileName", std::string("data/ads.txt"));
-  _compressor = translateCompressorString(appOptions.get("Compression", std::string("LZ4")));
-  _compressionLevel = appOptions.get("CompressionLevel", 3);
-  _doEncrypt = appOptions.get("doEncrypt", true);
-  int numberWorkThreadsCfg = appOptions.get("NumberWorkThreads", 0);
-  _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();
-  _maxTcpSessions = appOptions.get("MaxTcpSessions", 2);
-  _maxFifoSessions = appOptions.get("MaxFifoSessions", 2);
-  _maxTotalSessions = appOptions.get("MaxTotalSessions", 2);
-  _tcpTimeout = appOptions.get("TcpTimeout", 3000);
-  _useRegex = appOptions.get("UseRegex", true);
-  _policyEnum = fromString(appOptions.get("Policy", std::string("NOSORTINPUT")));
-  _bufferSize = appOptions.get("BufferSize", 100000);
-  _timing = appOptions.get("Timing", false);
-  _printHeader = appOptions.get("PrintHeader", false);
-  Logger::translateLogThreshold(appOptions.get("LogThreshold", std::string("ERROR")));
+  if (!jsonName.empty()) {
+    boost::json::value jv;
+    parseJson(jsonName, jv);
+    _adsFileName = jv.at("AdsFileName").as_string();
+    _compressor = translateCompressorString(jv.at("Compression").as_string());
+    _compressionLevel = jv.at("CompressionLevel").as_int64();
+    _doEncrypt = jv.at("doEncrypt").as_bool();
+    int numberWorkThreadsCfg = jv.at("NumberWorkThreads").as_int64();
+    _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();
+    _maxTcpSessions = jv.at("MaxTcpSessions").as_int64();
+    _maxFifoSessions = jv.at("MaxFifoSessions").as_int64();
+    _maxTotalSessions = jv.at("MaxTotalSessions").as_int64();
+    _tcpTimeout = jv.at("TcpTimeout").as_int64();
+    _useRegex = jv.at("UseRegex").as_bool();
+    _policyEnum = fromString(jv.at("Policy").as_string());
+    _bufferSize = jv.at("BufferSize").as_int64();
+    _timing = jv.at("Timing").as_bool();
+    _printHeader = jv.at("PrintHeader").as_bool();
+    Logger::translateLogThreshold(jv.at("LogThreshold").as_string());
+  }
+  else {
+    _adsFileName = "data/ads.txt";
+    _compressor = translateCompressorString("LZ4");
+    _compressionLevel = 3;
+    _doEncrypt = true;
+    _numberWorkThreads = std::thread::hardware_concurrency();
+    _maxTcpSessions = 2;
+    _maxFifoSessions = 2;
+    _maxTotalSessions = 2;
+    _tcpTimeout = 3000;
+    _useRegex = true;
+    _policyEnum = fromString("NOSORTINPUT");
+    _bufferSize = 100000;
+    _timing = false;
+    _printHeader = false;
+    Logger::translateLogThreshold("LogThreshold");//, std::string("ERROR")));
+  }
 }

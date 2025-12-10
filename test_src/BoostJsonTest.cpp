@@ -2,22 +2,19 @@
 *  Copyright (C) 2021 Ilya Entin
 */
 
-#include <boost/json/src.hpp>
+#include <boost/system/error_code.hpp>
 
+#include "BoostJsonParser.h"
 #include "Logger.h"
 #include "TestEnvironment.h"
+#include "Utility.h"
 
-// ./testbin --gtest_filter=boostjsonparser*
+//for i in {1..10}; do ./testbin --gtest_filter=boostjsonparser*;done
 
 TEST(boostjsonparser, 1) {
-  std::string json_string;
-  utility::readFile("ServerOptions.json", json_string);
-  boost::system::error_code ec;
-  boost::json::value jv = boost::json::parse(json_string, ec);
-  if (ec) {
-    LogError << "Error parsing JSON: " << ec.what() << '\n';
-    ASSERT_TRUE(false);
-  }
+
+  boost::json::value jv;
+  ASSERT_TRUE(parseJson("ServerOptions.json", jv));
   Info << jv.at("AdsFileName").as_string() << '\n';
   ASSERT_TRUE(jv.at("AdsFileName") == "data/ads.txt");
   Info << jv.at("Policy").as_string() << '\n';
