@@ -36,7 +36,7 @@ This limitation will be removed as soon as new versions of gcc/g++ are available
 
 Any distribution and/or version supporting C++20 is expected to work as well.
 
-Header only boost libraries, currently boost 1_89, must be installed.
+Header only boost libraries, currently boost 1_90, must be installed.
 
 lz4 dev version must be installed:\
 'sudo scripts/installLZ4.sh'
