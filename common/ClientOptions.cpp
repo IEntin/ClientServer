@@ -15,23 +15,23 @@ bool ClientOptions::_fifoClient;
 bool ClientOptions::_tcpClient;
 COMPRESSORS ClientOptions::_compressor;
 int ClientOptions::_compressionLevel;
-bool ClientOptions::_doEncrypt;
+bool ClientOptions::_doEncrypt(false);
 std::string ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
-std::ostream* ClientOptions::_instrStream;
-int ClientOptions::_maxNumberTasks;
-int ClientOptions::_heartbeatPeriod;
-int ClientOptions::_heartbeatTimeout;
-bool ClientOptions::_heartbeatEnabled;
-DIAGNOSTICS ClientOptions::_diagnostics;
-bool ClientOptions::_runLoop;
-std::size_t ClientOptions::_bufferSize;
-bool ClientOptions::_timing;
-bool ClientOptions::_printHeader;
+std::ostream* ClientOptions::_instrStream(nullptr);
+int ClientOptions::_maxNumberTasks(0);
+int ClientOptions::_heartbeatPeriod(15000);
+int ClientOptions::_heartbeatTimeout(3000);
+bool ClientOptions::_heartbeatEnabled(true);
+DIAGNOSTICS ClientOptions::_diagnostics(translateDiagnosticsString("Disabled"));
+bool ClientOptions::_runLoop(false);
+std::size_t ClientOptions::_bufferSize(100000);
+bool ClientOptions::_timing(false);
+bool ClientOptions::_printHeader(false);
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
-  Options::parse(jsonName);
   if (!jsonName.empty()) {
+    Options::parse(jsonName);
     boost::json::value jv;
     parseJson(jsonName, jv);
     auto clientType = jv.at("ClientType").as_string();
@@ -64,24 +64,12 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     Logger::translateLogThreshold(jv.at("LogThreshold").as_string());
   }
   else {
-    _doEncrypt = false;
     _sourceName = "data/requests.log";
     if (externalDataStream)
       _dataStream = externalDataStream;
     else {
       _dataStream = nullptr;
     }
-    std::string filename = "";
-    _instrStream = nullptr;
-    _maxNumberTasks = 0;
-    _heartbeatPeriod =  15000;
-    _heartbeatTimeout =  3000;
-    _heartbeatEnabled =  true;
-    _diagnostics = translateDiagnosticsString("Disabled");
-    _runLoop =  false;
-    _bufferSize = 100000;
-    _timing = false;
-    _printHeader =  false;
     Logger::translateLogThreshold("ERROR");
   }
 }

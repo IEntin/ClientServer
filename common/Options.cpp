@@ -8,15 +8,15 @@
 
 #include "BoostJsonParser.h"
 
-CRYPTO Options::_encryptorType;
-std::string Options::_fifoDirectoryName;
-std::string Options::_acceptorBaseName;
-std::string Options::_acceptorName;
-int Options::_numberRepeatENXIO;
-bool Options::_setPipeSize = true;
-std::size_t Options::_pipeSize;
-std::string Options::_serverAddress;
-unsigned short Options::_tcpPort;
+CRYPTO Options::_encryptorType(translateCryptoString("CRYPTOSODIUM"));
+std::string Options::_fifoDirectoryName(std::filesystem::current_path().string());
+std::string Options::_acceptorBaseName("acceptor");
+std::string Options::_acceptorName(_fifoDirectoryName + '/' + _acceptorBaseName);
+int Options::_numberRepeatENXIO(200);
+bool Options::_setPipeSize(true);
+std::size_t Options::_pipeSize(1000000);
+std::string Options::_serverAddress("127.0.0.1");
+unsigned short Options::_tcpPort(49151);
 
 void Options::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
@@ -32,16 +32,5 @@ void Options::parse(std::string_view jsonName) {
     _pipeSize = jv.at("PipeSize").as_int64();
     _serverAddress = jv.at("ServerAddress").as_string();
     _tcpPort = jv.at("TcpPort").as_int64();
-  }
-  else {
-    _encryptorType = translateCryptoString("CRYPTOSODIUM");
-    _fifoDirectoryName = std::filesystem::current_path().string();
-    _acceptorBaseName = "acceptor";
-    _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;
-    _numberRepeatENXIO = 200;
-    _setPipeSize = true;
-    _pipeSize = 1000000;
-    _serverAddress = "127.0.0.1";
-    _tcpPort = 49151;
   }
 }
