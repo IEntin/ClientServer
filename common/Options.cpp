@@ -17,20 +17,20 @@ bool Options::_setPipeSize(true);
 std::size_t Options::_pipeSize(1000000);
 std::string Options::_serverAddress("127.0.0.1");
 unsigned short Options::_tcpPort(49151);
+boost::json::value Options::_jv;
 
 void Options::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
-    boost::json::value jv;
-    parseJson(jsonName, jv);
-    auto encryptorTypeString = jv.at("EncryptorType").as_string();
+    parseJson(jsonName, _jv);
+    auto encryptorTypeString = _jv.at("EncryptorType").as_string();
     _encryptorType = translateCryptoString(encryptorTypeString);
-    _fifoDirectoryName = jv.at("FifoDirectoryName").as_string();
-    _acceptorBaseName = jv.at("AcceptorBaseName").as_string();
+    _fifoDirectoryName = _jv.at("FifoDirectoryName").as_string();
+    _acceptorBaseName = _jv.at("AcceptorBaseName").as_string();
     _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;
-    _numberRepeatENXIO = jv.at("NumberRepeatENXIO").as_int64();
-    _setPipeSize = jv.at("SetPipeSize").as_bool();
-    _pipeSize = jv.at("PipeSize").as_int64();
-    _serverAddress = jv.at("ServerAddress").as_string();
-    _tcpPort = jv.at("TcpPort").as_int64();
+    _numberRepeatENXIO = _jv.at("NumberRepeatENXIO").as_int64();
+    _setPipeSize = _jv.at("SetPipeSize").as_bool();
+    _pipeSize = _jv.at("PipeSize").as_int64();
+    _serverAddress = _jv.at("ServerAddress").as_string();
+    _tcpPort = _jv.at("TcpPort").as_int64();
   }
 }

@@ -32,6 +32,7 @@ struct ClientOptions {
   static std::size_t _bufferSize;
   static bool _timing;
   static bool _printHeader;
+  static std::string _logThresholdName;
 private:
   ClientOptions() = delete;
   ~ClientOptions() = delete;

@@ -25,6 +25,7 @@ struct ServerOptions : Options {
   static std::size_t _bufferSize;
   static bool _timing;
   static bool _printHeader;
+  static std::string _logThresholdName;
 private:
   ServerOptions() = delete;
   ~ServerOptions() = delete;

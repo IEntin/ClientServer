@@ -28,40 +28,40 @@ bool ClientOptions::_runLoop(false);
 std::size_t ClientOptions::_bufferSize(100000);
 bool ClientOptions::_timing(false);
 bool ClientOptions::_printHeader(false);
+std::string ClientOptions::_logThresholdName("ERROR");
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   if (!jsonName.empty()) {
     Options::parse(jsonName);
-    boost::json::value jv;
-    parseJson(jsonName, jv);
-    auto clientType = jv.at("ClientType").as_string();
+    parseJson(jsonName, Options::_jv);
+    auto clientType = Options::_jv.at("ClientType").as_string();
     _fifoClient = clientType == "FIFO";
     _tcpClient = clientType == "TCP";
-    _compressor = translateCompressorString(jv.at("Compression").as_string());
-    _compressionLevel = jv.at("CompressionLevel").as_int64();
-    _doEncrypt = jv.at("doEncrypt").as_bool();
-    _sourceName = jv.at("SourceName").as_string();
+    _compressor = translateCompressorString(Options::_jv.at("Compression").as_string());
+    _compressionLevel = Options::_jv.at("CompressionLevel").as_int64();
+    _doEncrypt = Options::_jv.at("doEncrypt").as_bool();
+    _sourceName = Options::_jv.at("SourceName").as_string();
     if (externalDataStream)
       _dataStream = externalDataStream;
     else {
-      const auto filename = jv.at("OutputFileName").as_string();
+      const auto filename = Options::_jv.at("OutputFileName").as_string();
       static std::ofstream fileStream(filename.data(), std::ofstream::binary);
       if (!filename.empty())
 	_dataStream = &fileStream;
       else
 	_dataStream = nullptr;
     }
-    const auto filename = jv.at("InstrumentationFn").as_string();
-    _maxNumberTasks = jv.at("MaxNumberTasks").as_int64();
-    _heartbeatPeriod = jv.at("HeartbeatPeriod").as_int64();
-    _heartbeatTimeout = jv.at("HeartbeatTimeout").as_int64();
-    _heartbeatEnabled = jv.at("HeartbeatEnabled").as_bool();
-    _diagnostics = translateDiagnosticsString(jv.at("Diagnostics").as_string());
-    _runLoop = jv.at("RunLoop").as_bool();
-    _bufferSize = jv.at("BufferSize").as_int64();
-    _timing = jv.at("Timing").as_bool();
-    _printHeader = jv.at("PrintHeader").as_bool();
-    Logger::translateLogThreshold(jv.at("LogThreshold").as_string());
+    const auto filename = Options::_jv.at("InstrumentationFn").as_string();
+    _maxNumberTasks = Options::_jv.at("MaxNumberTasks").as_int64();
+    _heartbeatPeriod = Options::_jv.at("HeartbeatPeriod").as_int64();
+    _heartbeatTimeout = Options::_jv.at("HeartbeatTimeout").as_int64();
+    _heartbeatEnabled = Options::_jv.at("HeartbeatEnabled").as_bool();
+    _diagnostics = translateDiagnosticsString(Options::_jv.at("Diagnostics").as_string());
+    _runLoop = Options::_jv.at("RunLoop").as_bool();
+    _bufferSize = Options::_jv.at("BufferSize").as_int64();
+    _timing = Options::_jv.at("Timing").as_bool();
+    _printHeader = Options::_jv.at("PrintHeader").as_bool();
+    _logThresholdName = Options::_jv.at("LogThreshold").as_string();
   }
   else {
     _sourceName = "data/requests.log";
@@ -70,6 +70,6 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     else {
       _dataStream = nullptr;
     }
-    Logger::translateLogThreshold("ERROR");
   }
+  Logger::translateLogThreshold(_logThresholdName);
 }
