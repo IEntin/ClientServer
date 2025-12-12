@@ -17,9 +17,7 @@ namespace compressionLZ4 {
 template <typename DATA>
 void compress(std::string& buffer, DATA& data) {
   std::size_t uncompressedSize = data.size();
-  boost::static_string<ioutility::CONV_BUFFER_SIZE>
-    metadata(ioutility::CONV_BUFFER_SIZE, '\0'); 
-  ioutility::toChars(uncompressedSize, metadata.data());
+  auto metadata = ioutility::toCharsBoost(uncompressedSize, true);
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize);
   if (requiredCapacity > buffer.capacity())
     buffer.resize(requiredCapacity);

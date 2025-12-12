@@ -18,10 +18,10 @@ std::string& operator << (std::string& buffer, std::string_view str) {
 
 std::string& operator << (std::string& buffer, const SIZETUPLE& sizeKey) {
   unsigned width = std::get<0>(sizeKey);
-  toChars(width, buffer);
+  buffer += toCharsBoost(width);
   buffer += 'x';
   unsigned height = std::get<1>(sizeKey);
-  toChars(height, buffer);
+  buffer += toCharsBoost(height);
   return buffer;
 }
 
@@ -29,14 +29,14 @@ std::string createErrorString(std::errc ec,
 			      const boost::source_location& location) {
   std::string msg(std::make_error_code(ec).message());
   msg << ':' << location.file_name() << ':';
-  ioutility::toChars(location.line(), msg);
+  ioutility::toCharsBoost(location.line());
   return msg << ' ' << location.function_name();
 }
 
 std::string createErrorString(const boost::source_location& location) {
   std::string msg(strerror(errno));
   msg << ':' << location.file_name() << ':';
-  ioutility::toChars(location.line(), msg);
+  msg += ioutility::toCharsBoost(location.line());
   return msg << ' ' << location.function_name();
 }
 

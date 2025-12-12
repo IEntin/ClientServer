@@ -38,7 +38,7 @@ protected:
   void sendStatusToClient(L& lambda, STATUS status) {
     if (auto server = _server.lock(); server) {
       std::string clientIdStr;
-      ioutility::toChars(_clientId, clientIdStr);
+      clientIdStr = ioutility::toCharsBoost(_clientId);
       HEADER header;
       std::string encodedPubKeyAes;
       sendStatusToClientImpl(_encryptorContainer,

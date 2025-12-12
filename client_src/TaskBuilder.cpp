@@ -54,12 +54,8 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
   _aggregate += '[';
-  char buffer[ioutility::CONV_BUFFER_SIZE] = {};
-  boost::charconv::to_chars_result result = 
-    boost::charconv::to_chars(buffer, buffer + sizeof(buffer), index);
-  if (result.ec != std::errc())
-    throw std::runtime_error("conversion failed");
-  _aggregate += buffer;
+  auto str(ioutility::toCharsBoost(index));
+  _aggregate += str;
   _aggregate += ']';
   _aggregate += line;
 }
