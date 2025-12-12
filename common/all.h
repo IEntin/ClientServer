@@ -76,8 +76,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/json.hpp>
 #include <boost/json/basic_parser_impl.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/regex.hpp>

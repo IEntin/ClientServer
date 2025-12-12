@@ -4,6 +4,8 @@
 
 #include "TaskBuilder.h"
 
+#include <boost/charconv.hpp>
+
 #include "ClientOptions.h"
 #include "FileLines2.h"
 #include "IOUtility.h"
@@ -52,7 +54,12 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
   _aggregate += '[';
-  ioutility::toChars(index, _aggregate);
+  char buffer[ioutility::CONV_BUFFER_SIZE] = {};
+  boost::charconv::to_chars_result result = 
+    boost::charconv::to_chars(buffer, buffer + sizeof(buffer), index);
+  if (result.ec != std::errc())
+    throw std::runtime_error("conversion failed");
+  _aggregate += buffer;
   _aggregate += ']';
   _aggregate += line;
 }
