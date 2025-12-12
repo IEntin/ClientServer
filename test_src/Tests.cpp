@@ -160,14 +160,14 @@ TEST(FromCharsTest, FloatingPoint) {
 }
 
 TEST(HeaderTest, 1) {
-  char buffer[HEADER_SIZE] = {};
+  //char buffer[HEADER_SIZE] = {};
   unsigned field1Sz = 0;
   unsigned field2Sz = 123456;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
   HEADER header{HEADERTYPE::SESSION, 0, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
-  serialize(header, buffer);
-  ASSERT_TRUE(deserialize(header, buffer));
+  auto buffer = serialize(header);
+  ASSERT_TRUE(deserialize(header, buffer.data()));
   std::size_t field1SzResult = extractField1Size(header);
   ASSERT_EQ(field1SzResult, field1Sz);
   std::size_t field2SzResult = extractField2Size(header);
@@ -178,8 +178,8 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
   header = {HEADERTYPE::SESSION, field1Sz, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
-  serialize(header, buffer);
-  ASSERT_TRUE(deserialize(header, buffer));
+  auto buffer2 = serialize(header);
+  ASSERT_TRUE(deserialize(header, buffer2.data()));
   compressorResult = extractCompressor(header);
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }

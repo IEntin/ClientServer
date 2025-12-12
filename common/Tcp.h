@@ -28,9 +28,8 @@ public:
 			  const P1& payload1 = P1(),
 			  const P2& payload2 = P2(),
 			  const P3& payload3 = P3()) {
-    char headerBuffer[HEADER_SIZE] = {};
-    serialize(header, headerBuffer);
-    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(headerBuffer),
+    auto serialized = serialize(header);
+    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(serialized),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2),
 						      boost::asio::buffer(payload3),

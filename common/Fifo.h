@@ -35,9 +35,8 @@ public:
     if (fdWrite == -1)
       return false;
     CloseFileDescriptor cfdw(fdWrite);
-    char headerBuffer[HEADER_SIZE];
-    serialize(header, headerBuffer);
-    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(headerBuffer),
+    auto serialized = serialize(header);
+    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(serialized),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2),
 						      boost::asio::buffer(payload3),

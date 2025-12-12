@@ -90,22 +90,15 @@ bool isOk(const HEADER& header) {
   }
 }
 
-void serialize(const HEADER& header, char* buffer) {
-  std::memset(buffer, ' ', HEADER_SIZE);
-  std::size_t offset = 0;
-  buffer[offset] = std::to_underlying(extractHeaderType(header));
-  offset += HEADERTYPE_SIZE;
-  ioutility::toChars(extractField1Size(header), buffer + offset, FIELD1_SIZE);
-  offset += FIELD1_SIZE;
-  ioutility::toChars(extractField2Size(header), buffer + offset, FIELD2_SIZE);
-  offset += FIELD2_SIZE;
-  buffer[offset] = std::to_underlying(extractCompressor(header));
-  offset += COMPRESSOR_SIZE;
-  buffer[offset] = std::to_underlying(extractDiagnostics(header));
-  offset += DIAGNOSTICS_SIZE;
-  buffer[offset] = std::to_underlying(extractStatus(header));
-  offset += STATUS_SIZE;
-  ioutility::toChars(extractField3Size(header), buffer + offset, FIELD3_SIZE);
+boost::static_string<HEADER_SIZE> serialize(const HEADER& header) {
+  serialized = std::to_underlying(extractHeaderType(header));
+  serialized += ioutility::toCharsBoost(extractField1Size(header), true);
+  serialized += ioutility::toCharsBoost(extractField2Size(header), true);
+  serialized += std::to_underlying(extractCompressor(header));
+  serialized += std::to_underlying(extractDiagnostics(header));
+  serialized += std::to_underlying(extractStatus(header));
+  serialized += ioutility::toCharsBoost(extractField3Size(header), true);
+  return serialized;
 }
 
 bool deserialize(HEADER& header, const char* buffer) {

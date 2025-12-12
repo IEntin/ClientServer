@@ -60,21 +60,6 @@ int toChars(I value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
 }
 
 template <Integral I>
-void toChars(I value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) {
-  std::size_t origSize = target.size();
-  target.resize(origSize + size);
-  std::size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(&*target.begin() + origSize, &*target.begin() + origSize + size, value);
-  sizeIncr = ptr - &*target.cbegin() - origSize;
-  if (ec == std::errc()) {
-    assert(sizeIncr <= size);
-    target.erase(origSize + sizeIncr, size - sizeIncr);
-  }
-  else
-    throw std::runtime_error(createErrorString(ec));
-}
-
-template <Integral I>
 boost::static_string<CONV_BUFFER_SIZE>
 toCharsBoost(I value, bool fixedSize = false) {
   char buffer[CONV_BUFFER_SIZE] = {};
