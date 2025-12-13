@@ -86,7 +86,7 @@ TEST(Base64EncodingTest, 1) {
   CryptoPlPl crypto;
   std::string encoded = crypto.base64_encode(key);
   std::vector<unsigned char> vect = crypto.base64_decode(encoded);
-  CryptoPP::SecByteBlock recovered(&*vect.cbegin(), vect.size());
+  CryptoPP::SecByteBlock recovered(&vect[0], vect.size());
   ASSERT_EQ(key, recovered);
 }
 

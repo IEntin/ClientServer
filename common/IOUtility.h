@@ -52,14 +52,6 @@ template <typename F>
 concept Float = std::is_floating_point_v<F>;
 
 template <Integral I>
-int toChars(I value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
-  auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-  if (ec != std::errc())
-    throw std::runtime_error(createErrorString(ec));
-  return ptr - buffer;
-}
-
-template <Integral I>
 boost::static_string<CONV_BUFFER_SIZE>
 toCharsBoost(I value, bool fixedSize = false) {
   char buffer[CONV_BUFFER_SIZE] = {};
@@ -91,9 +83,9 @@ void toChars(F value, std::string& target, int precision, std::size_t size = CON
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(&*target.begin() + origSize, &*target.begin() + origSize + size, value,
+  auto [ptr, ec] = std::to_chars(&target[0] + origSize, &target[0] + origSize + size, value,
 				 std::chars_format::fixed, precision);
-  sizeIncr = ptr - &*target.cbegin() - origSize;
+  sizeIncr = ptr - &target[0] - origSize;
   if (ec == std::errc())
     target.resize(origSize + sizeIncr);
   else

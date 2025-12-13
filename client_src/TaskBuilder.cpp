@@ -15,7 +15,8 @@
 TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {
-  _aggregate.reserve(ClientOptions::_bufferSize);
+  _aggregate.reserve(MAXBUFFERSIZE);
+  _buffer.reserve(MAXBUFFERSIZE);
 }
 
 void TaskBuilder::run() {

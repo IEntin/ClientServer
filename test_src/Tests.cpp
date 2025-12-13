@@ -131,11 +131,8 @@ TEST(SplitTest, MultiDelims) {
 
 TEST(ToCharsTest, Integral) {
   int value = 7;
-  int shift = 2;
-  constexpr int size = 7;
-  char array[size] = {};
-  ioutility::toChars(value, array + shift);
-  ASSERT_TRUE(array[shift] == '0' + value);
+  auto converted(ioutility::toCharsBoost(value));
+  ASSERT_TRUE(converted[0]== '7');
 }
 
 TEST(FromCharsTest, Integral0) {

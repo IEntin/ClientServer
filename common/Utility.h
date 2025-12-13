@@ -14,6 +14,8 @@
 #include <boost/asio/posix/stream_descriptor.hpp>
 
 // common constants
+
+static constexpr std::size_t MAXBUFFERSIZE = 10000000;
 static constexpr std::string_view buildDateTime = __DATE__ " " __TIME__;
 constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
@@ -95,7 +97,7 @@ void readFile(std::string_view fileName, BUFFER& buffer) {
   stream.open(fileName.data(), std::ios::binary);
   std::uintmax_t size = std::filesystem::file_size(fileName);
   buffer.resize(size);
-  stream.read(&*buffer.begin(), size);
+  stream.read(&buffer[0], size);
 }
 
 template <typename SOURCE>

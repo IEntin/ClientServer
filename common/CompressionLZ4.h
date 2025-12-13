@@ -21,8 +21,8 @@ void compress(std::string& buffer, DATA& data) {
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize);
   if (requiredCapacity > buffer.capacity())
     buffer.resize(requiredCapacity);
-  std::size_t compressedSize = LZ4_compress_default(&*data.begin(),
-						    &*buffer.begin(),
+  std::size_t compressedSize = LZ4_compress_default(&data[0],
+						    &buffer[0],
 						    data.size(),
 						    buffer.capacity());
   if (compressedSize == 0)
@@ -40,8 +40,8 @@ void uncompress(std::string& buffer, DATA& data) {
   data.resize(data.size() - metadata.size());
   if (uncomprSize > buffer.capacity())
     buffer.resize(uncomprSize);
-  ssize_t decomprSize = LZ4_decompress_safe(&*data.begin(),
-					    &*buffer.begin(),
+  ssize_t decomprSize = LZ4_decompress_safe(&data[0],
+					    &buffer[0],
 					    data.size(),
 					    uncomprSize);
   if (decomprSize < 0)

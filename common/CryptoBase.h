@@ -41,7 +41,7 @@ public:
     assert(input.size() >= HEADER_SIZE);
     HEADER header;
     try {
-      if (deserialize(header, &*input.cbegin()))
+      if (deserialize(header, &input[0]))
 	return false;
       return true;
     }
