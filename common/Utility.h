@@ -15,8 +15,8 @@
 
 // common constants
 
-static constexpr std::size_t MAXBUFFERSIZE = 10000000;
-static constexpr std::string_view buildDateTime = __DATE__ " " __TIME__;
+constexpr std::size_t MAXBUFFERSIZE = 10000000;
+constexpr std::string_view buildDateTime = __DATE__ " " __TIME__;
 constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");

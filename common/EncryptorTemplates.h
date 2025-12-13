@@ -49,9 +49,8 @@ std::string_view compressEncrypt(CONTAINER& container,
   else {
     auto serialized = serialize(header);
     DATA headerWithData;
-    const auto& it = serialized.cbegin();
-    headerWithData.insert(headerWithData.cend(), it, it + HEADER_SIZE);
-    headerWithData.insert(headerWithData.cend(), data.cbegin(), data.cend());
+    headerWithData.append(serialized);
+    headerWithData.append(data);
     data = headerWithData;
     return { &data[0], data.size() };
   }

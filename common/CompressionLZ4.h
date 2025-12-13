@@ -27,8 +27,8 @@ void compress(std::string& buffer, DATA& data) {
 						    buffer.capacity());
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
-  data.assign(buffer.cbegin(), buffer.cbegin() + compressedSize);
-  data.insert(data.cend(), metadata.cbegin(), metadata.cend());
+  data.assign(buffer.data(), compressedSize);
+  data.append(metadata);
 }
 
 template <typename DATA>
@@ -47,7 +47,7 @@ void uncompress(std::string& buffer, DATA& data) {
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
   std::size_t size = std::bit_cast<size_t>(decomprSize);
-  data.assign(buffer.cbegin(), buffer.cbegin() + size);
+  data.assign(buffer.data(), size);
 }
 
 } // end of namespace compression

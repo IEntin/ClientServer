@@ -160,9 +160,7 @@ void CryptoPlPl::signMessage() {
       signer,
       new CryptoPP::StringSink(_signatureWithPubKeySign))
   );
-  _signatureWithPubKeySign.insert(_signatureWithPubKeySign.cend(),
-				  _serializedRsaPubKey.cbegin(),
-				  _serializedRsaPubKey.cend());
+  _signatureWithPubKeySign += _serializedRsaPubKey;
 }
 
 std::pair<bool, std::string>
