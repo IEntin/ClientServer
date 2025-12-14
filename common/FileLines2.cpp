@@ -10,9 +10,9 @@
 FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelimiter) :
   Lines2(delimiter, keepDelimiter) {
   try {
-    static thread_local std::string source;
-    source.reserve(MAXBUFFERSIZE);
-    source.clear();
+    std::string source;
+    std::uintmax_t size = std::filesystem::file_size(fileName);
+    source.reserve(size);
     utility::readFile(fileName, source);
     utility::splitReversedOrder(source, _lines, _delimiter, _keepDelimiter);
   }
@@ -27,6 +27,7 @@ bool FileLines2::getLine(std::string& line) {
   }
   line = std::move(_lines.back());
   _lines.pop_back();
+  _lines.shrink_to_fit();
   ++_index;
   return true;
 }
