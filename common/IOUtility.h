@@ -91,7 +91,22 @@ void toChars(F value, std::string& target, int precision, std::size_t size = CON
   else
     throw std::runtime_error(createErrorString(ec));
 }
-
+ 
+template <Float F>
+void toCharsBoost(F value, std::string& buffer, int precision) {
+  buffer.resize(CONV_BUFFER_SIZE);
+  auto result = boost::charconv::to_chars(
+    buffer.data(),
+    buffer.data() + buffer.size(),
+    value,
+    boost::charconv::chars_format::fixed,
+    precision);
+  if (result.ec != std::errc())
+    throw std::runtime_error(createErrorString(result.ec));
+  std::size_t size = result.ptr - buffer.data();
+  buffer.resize(size);
+}
+ 
 template <Float F>
 std::string& operator << (std::string& buffer, F number) {
   toChars(number, buffer, 1);

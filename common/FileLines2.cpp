@@ -11,8 +11,6 @@ FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelim
   Lines2(delimiter, keepDelimiter) {
   try {
     std::string source;
-    std::uintmax_t size = std::filesystem::file_size(fileName);
-    source.reserve(size);
     utility::readFile(fileName, source);
     utility::splitReversedOrder(source, _lines, _delimiter, _keepDelimiter);
   }

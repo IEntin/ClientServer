@@ -42,7 +42,7 @@ bool Ad::parseAttributes() {
   _sizeKey = { keyWidth, keyHeight };
   double dblMoney = 0;
   ioutility::fromChars(adStrVect[DEFAULTBID], dblMoney);
-  _defaultBid = std::lround(dblMoney * Ad::_scaler);
+  _defaultBid = std::lround(dblMoney * _scaler);
   _array = parts[BIDPART];
   return true;
 }
