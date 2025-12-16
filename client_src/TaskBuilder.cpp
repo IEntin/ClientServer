@@ -15,8 +15,8 @@
 TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {
-  _aggregate.reserve(MAXBUFFERSIZE);
-  _buffer.reserve(MAXBUFFERSIZE);
+  _aggregate.reserve(ClientOptions::_bufferSize);
+  _buffer.reserve(ClientOptions::_bufferSize);
 }
 
 void TaskBuilder::run() {
@@ -55,8 +55,7 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
   _aggregate += '[';
-  auto str(ioutility::toCharsBoost(index));
-  _aggregate += str;
+  _aggregate += ioutility::toCharsBoost(index);
   _aggregate += ']';
   _aggregate += line;
 }

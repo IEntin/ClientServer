@@ -15,7 +15,6 @@
 
 // common constants
 
-constexpr std::size_t MAXBUFFERSIZE = 10000000;
 constexpr std::string_view buildDateTime = __DATE__ " " __TIME__;
 constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();

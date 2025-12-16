@@ -14,7 +14,7 @@ std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
 Client::Client() : _chronometer(ClientOptions::_timing) {
-  _buffer.reserve(MAXBUFFERSIZE);
+  _buffer.reserve(ClientOptions::_bufferSize);
   fillEncryptorContainer(_encryptorContainer, Options::_encryptorTypeDefault);
 }
 

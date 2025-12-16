@@ -10,7 +10,8 @@
 FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelimiter) :
   Lines2(delimiter, keepDelimiter) {
   try {
-    std::string source;
+    static thread_local std::string source;
+    source.clear();
     utility::readFile(fileName, source);
     utility::splitReversedOrder(source, _lines, _delimiter, _keepDelimiter);
   }

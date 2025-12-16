@@ -28,7 +28,7 @@ FifoClient::FifoClient()  {
     throw std::runtime_error("FifoClient::wakeupAcceptor failed");
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
-  _response.resize(ClientOptions::_bufferSize);
+  _response.reserve(ClientOptions::_bufferSize);
 }
 
 FifoClient::~FifoClient() {

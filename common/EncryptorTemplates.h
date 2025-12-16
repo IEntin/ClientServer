@@ -42,8 +42,7 @@ std::string_view compressEncrypt(CONTAINER& container,
   }
   if (doEncrypt) {
     if (auto crypto = weak.lock();crypto) {
-      auto result = crypto->encrypt(buffer, header, data);
-      return { &result[0], result.size() };
+      return crypto->encrypt(buffer, header, data);
     }
   }
   else {
@@ -52,7 +51,7 @@ std::string_view compressEncrypt(CONTAINER& container,
     headerWithData.append(serialized);
     headerWithData.append(data);
     data = headerWithData;
-    return { &data[0], data.size() };
+    return data;
   }
   return "";
 }

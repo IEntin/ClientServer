@@ -1,0 +1,929 @@
+--------------------------------------------------------------------------------
+Command:            ./clientX
+Massif arguments:   (none)
+ms_print arguments: massif.out.139200
+--------------------------------------------------------------------------------
+
+
+    MB
+15.85^#                                                                       
+     |#                                                                       
+     |#                                                                       
+     |#      : ::                                    :                        
+     |#:::::::::@:::::::::::::::::::::::::@:::::::::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+     |#:::::::::@:: : :::::::::: ::::: :: @:: ::: ::@:::::@::::::@:::::@:::::@
+   0 +----------------------------------------------------------------------->Gi
+     0                                                                   36.25
+
+Number of snapshots: 91
+ Detailed snapshots: [1 (peak), 12, 39, 49, 59, 69, 79, 89]
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1     82,125,624       16,620,904       16,459,256       161,648            0
+99.03% (16,459,256B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->54.15% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->54.15% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->54.15% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->54.15% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->54.15% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->54.15% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->18.05% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->18.05% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->18.05% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->18.05% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->18.05% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->18.05% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->18.05% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->18.05% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->18.05% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->18.05% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->18.05% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->18.05% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->18.05% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->18.05% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->18.05% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->18.05% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->18.05% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->18.05% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->18.05% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->18.05% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->18.05% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->18.05% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->18.05% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->18.05% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->18.05% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->26.50% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->26.50% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->26.50% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->26.50% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->26.50% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->26.50% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->15.80% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->15.80% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->15.80% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->15.80% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->15.80% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->15.80% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->15.80% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->15.80% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->15.80% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->15.80% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->15.80% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->15.80% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->15.80% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->15.80% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->15.80% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->15.80% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->10.31% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->09.42% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->09.42% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->09.42% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->09.42% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->09.42% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->09.42% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->09.42% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->09.42% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->09.42% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->09.42% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->09.42% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->09.42% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->09.42% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->09.42% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->00.89% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.40% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->14.87% (2,472,053B) 0x18A996: allocate (new_allocator.h:151)
+| ->14.87% (2,472,053B) 0x18A996: allocate (allocator.h:196)
+|   ->14.87% (2,472,053B) 0x18A996: allocate (alloc_traits.h:478)
+|     ->14.87% (2,472,053B) 0x18A996: _S_allocate (basic_string.h:131)
+|       ->14.87% (2,472,053B) 0x18A996: _M_create (basic_string.tcc:159)
+|         ->14.87% (2,472,053B) 0x18A996: _M_construct<const char *> (basic_string.tcc:229)
+|           ->14.87% (2,472,053B) 0x18A996: basic_string<const char *, void> (basic_string.h:770)
+|             ->14.87% (2,472,053B) 0x18A996: construct_at<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (stl_construct.h:97)
+|               ->14.87% (2,472,053B) 0x18A996: construct<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (alloc_traits.h:536)
+|                 ->14.87% (2,472,053B) 0x18A996: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:145)
+|                   ->14.87% (2,472,053B) 0x18A4F6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
+|                     ->14.87% (2,472,053B) 0x18A4F6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:16)
+|                       ->14.87% (2,472,053B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|                         ->14.87% (2,472,053B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|                           ->14.87% (2,472,053B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|                             ->14.87% (2,472,053B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|                               ->14.87% (2,472,053B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|                                 ->14.87% (2,472,053B) 0x193E86: operator() (std_thread.h:308)
+|                                   ->14.87% (2,472,053B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|                                     ->14.87% (2,472,053B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|                                       ->14.87% (2,472,053B) 0x5229E2D: start_thread (pthread_create.c:447)
+|                                         ->14.87% (2,472,053B) 0x52BB833: clone (clone.S:100)
+|                                           
+->01.93% (320,512B) 0x18AA97: allocate (new_allocator.h:151)
+| ->01.93% (320,512B) 0x18AA97: allocate (allocator.h:196)
+|   ->01.93% (320,512B) 0x18AA97: allocate (alloc_traits.h:478)
+|     ->01.93% (320,512B) 0x18AA97: _M_allocate_node (stl_deque.h:583)
+|       ->01.93% (320,512B) 0x18AA97: void std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_push_front_aux<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:536)
+|         ->01.93% (320,512B) 0x18A9BE: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:151)
+|           ->01.93% (320,512B) 0x18A4F6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
+|             ->01.93% (320,512B) 0x18A4F6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:16)
+|               ->01.93% (320,512B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|                 ->01.93% (320,512B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|                   ->01.93% (320,512B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|                     ->01.93% (320,512B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|                       ->01.93% (320,512B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|                         ->01.93% (320,512B) 0x193E86: operator() (std_thread.h:308)
+|                           ->01.93% (320,512B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|                             ->01.93% (320,512B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|                               ->01.93% (320,512B) 0x5229E2D: start_thread (pthread_create.c:447)
+|                                 ->01.93% (320,512B) 0x52BB833: clone (clone.S:100)
+|                                   
+->01.57% (261,593B) in 57 places, all below massif's threshold (1.00%)
+  
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  2    569,371,507       13,806,000       13,788,876        17,124            0
+  3  1,038,017,017       13,505,016       13,503,482         1,534            0
+  4  1,409,410,173       13,505,016       13,503,482         1,534            0
+  5  1,929,361,059       13,505,016       13,503,482         1,534            0
+  6  2,263,674,511       13,505,016       13,503,482         1,534            0
+  7  2,932,207,410       13,505,016       13,503,482         1,534            0
+  8  3,340,740,222       13,505,016       13,503,482         1,534            0
+  9  3,910,461,506       14,778,880       14,712,251        66,629            0
+ 10  4,529,224,660       13,505,016       13,503,482         1,534            0
+ 11  5,024,666,769       14,795,056       14,727,596        67,460            0
+ 12  5,532,011,210       13,505,016       13,503,482         1,534            0
+99.99% (13,503,482B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.64% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.64% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.64% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.64% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.64% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.64% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.21% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.21% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.21% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.21% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.21% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.62% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.62% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.62% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.62% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.62% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.62% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.44% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.44% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.44% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.44% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.44% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.44% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.44% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.44% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.44% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.44% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.44% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.44% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.44% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.44% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.69% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.59% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.59% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.59% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.59% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.59% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.59% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.59% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.59% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.59% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.59% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.59% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.59% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.59% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.59% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.73% (98,384B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 13  5,916,036,217       14,785,480       14,718,515        66,965            0
+ 14  6,311,974,454       13,505,016       13,503,482         1,534            0
+ 15  7,023,835,515       13,505,016       13,503,482         1,534            0
+ 16  7,619,157,228       13,513,792       13,512,204         1,588            0
+ 17  8,064,977,295       13,505,480       13,503,930         1,550            0
+ 18  8,659,234,021       13,509,192       13,507,409         1,783            0
+ 19  9,030,675,144       13,506,552       13,504,927         1,625            0
+ 20  9,699,209,602       13,507,528       13,505,840         1,688            0
+ 21 10,070,627,818       13,505,480       13,503,930         1,550            0
+ 22 10,702,000,997       13,512,864       13,510,919         1,945            0
+ 23 11,036,257,830       13,516,456       13,514,326         2,130            0
+ 24 11,593,352,331       13,522,432       13,519,989         2,443            0
+ 25 12,150,447,259       13,513,936       13,511,927         2,009            0
+ 26 12,484,746,922       13,506,552       13,504,927         1,625            0
+ 27 13,041,841,596       13,511,296       13,509,419         1,877            0
+ 28 13,376,117,473       13,507,312       13,505,645         1,667            0
+ 29 14,044,650,025       13,507,528       13,505,840         1,688            0
+ 30 14,713,163,608       13,514,400       13,512,366         2,034            0
+ 31 15,270,271,793       13,506,024       13,504,439         1,585            0
+ 32 15,715,947,471       13,510,768       13,508,919         1,849            0
+ 33 16,302,768,587       13,505,016       13,503,482         1,534            0
+ 34 16,674,162,583       13,505,016       13,503,482         1,534            0
+ 35 17,231,277,000       13,505,016       13,503,482         1,534            0
+ 36 17,974,073,376       13,505,016       13,503,482         1,534            0
+ 37 18,345,490,995       13,505,016       13,503,482         1,534            0
+ 38 18,902,580,534       13,505,016       13,503,482         1,534            0
+ 39 19,645,367,997       13,505,016       13,503,482         1,534            0
+99.99% (13,503,482B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.64% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.64% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.64% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.64% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.64% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.64% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.21% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.21% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.21% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.21% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.21% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.62% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.62% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.62% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.62% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.62% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.62% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.44% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.44% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.44% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.44% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.44% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.44% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.44% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.44% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.44% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.44% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.44% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.44% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.44% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.44% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.69% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.59% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.59% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.59% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.59% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.59% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.59% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.59% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.59% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.59% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.59% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.59% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.59% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.59% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.59% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.73% (98,384B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 40 20,202,458,535       13,505,016       13,503,482         1,534            0
+ 41 20,945,244,981       13,505,016       13,503,482         1,534            0
+ 42 21,688,029,297       13,505,016       13,503,482         1,534            0
+ 43 22,059,422,735       13,505,016       13,503,482         1,534            0
+ 44 22,616,511,243       13,505,016       13,503,482         1,534            0
+ 45 23,173,600,205       13,505,016       13,503,482         1,534            0
+ 46 23,916,400,256       13,505,016       13,503,482         1,534            0
+ 47 24,287,818,974       13,505,016       13,503,482         1,534            0
+ 48 24,844,934,505       13,505,016       13,503,482         1,534            0
+ 49 25,216,328,311       13,505,016       13,503,482         1,534            0
+99.99% (13,503,482B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.64% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.64% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.64% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.64% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.64% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.64% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.21% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.21% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.21% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.21% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.21% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.62% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.62% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.62% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.62% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.62% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.62% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.44% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.44% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.44% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.44% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.44% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.44% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.44% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.44% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.44% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.44% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.44% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.44% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.44% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.44% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.69% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.59% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.59% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.59% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.59% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.59% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.59% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.59% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.59% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.59% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.59% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.59% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.59% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.59% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.59% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.73% (98,384B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 50 25,551,365,417       14,287,624       14,286,081         1,543            0
+ 51 25,889,045,773       13,504,944       13,503,418         1,526            0
+ 52 26,223,324,964       13,504,944       13,503,418         1,526            0
+ 53 26,557,605,063       13,504,944       13,503,418         1,526            0
+ 54 26,893,864,202       13,505,016       13,503,482         1,534            0
+ 55 27,229,176,258       13,505,480       13,503,931         1,549            0
+ 56 27,563,433,364       13,506,016       13,504,444         1,572            0
+ 57 27,897,708,297       13,505,480       13,503,931         1,549            0
+ 58 28,231,965,454       13,506,016       13,504,444         1,572            0
+ 59 28,566,224,880       13,505,432       13,503,890         1,542            0
+99.99% (13,503,890B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.64% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.64% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.64% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.64% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.64% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.64% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.21% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.21% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.21% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.21% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.21% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.21% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.21% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.21% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.21% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.21% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.21% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.21% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.21% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.21% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.21% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.62% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.62% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.62% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.62% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.62% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.62% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.44% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.44% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.44% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.44% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.44% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.44% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.44% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.44% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.44% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.44% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.44% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.44% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.44% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.44% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.44% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.69% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.59% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.59% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.59% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.59% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.59% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.59% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.59% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.59% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.59% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.59% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.59% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.59% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.59% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.59% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.73% (98,792B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 60 28,900,626,967       13,505,432       13,503,890         1,542            0
+ 61 29,234,957,422       13,505,432       13,503,890         1,542            0
+ 62 29,569,222,760       13,505,432       13,503,890         1,542            0
+ 63 29,903,502,629       13,505,432       13,503,890         1,542            0
+ 64 30,237,759,587       13,509,392       13,507,599         1,793            0
+ 65 30,572,016,588       13,513,936       13,511,927         2,009            0
+ 66 30,906,288,258       13,505,432       13,503,890         1,542            0
+ 67 31,240,545,298       13,509,192       13,507,409         1,783            0
+ 68 31,574,802,173       13,513,688       13,511,695         1,993            0
+ 69 31,909,059,063       13,518,096       13,515,898         2,198            0
+99.98% (13,515,898B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.58% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.58% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.58% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.58% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.58% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.58% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.19% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.19% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.19% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.19% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.19% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.19% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.19% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.19% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.19% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.19% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.19% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.19% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.19% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.19% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.19% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.19% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.19% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.19% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.19% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.19% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.19% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.19% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.19% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.19% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.19% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.59% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.59% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.59% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.59% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.59% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.59% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.42% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.42% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.42% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.42% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.42% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.42% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.42% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.42% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.42% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.42% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.42% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.42% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.42% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.42% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.42% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.42% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.67% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.58% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.58% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.58% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.58% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.58% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.58% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.58% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.58% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.58% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.58% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.58% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.58% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.58% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.58% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.82% (110,800B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 70 32,243,316,056       13,521,968       13,519,555         2,413            0
+ 71 32,577,572,959       13,525,784       13,523,163         2,621            0
+ 72 32,911,829,938       13,529,408       13,526,587         2,821            0
+ 73 33,246,086,978       13,533,728       13,530,658         3,070            0
+ 74 33,580,343,872       13,537,608       13,534,333         3,275            0
+ 75 33,914,600,760       13,542,552       13,539,032         3,520            0
+ 76 34,248,857,692       13,548,344       13,544,561         3,783            0
+ 77 34,583,114,615       13,551,304       13,547,379         3,925            0
+ 78 34,917,371,665       13,556,000       13,551,818         4,182            0
+ 79 35,251,628,739       13,560,120       13,555,717         4,403            0
+99.97% (13,555,717B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.37% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.37% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.37% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.37% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.37% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.37% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.12% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.12% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.12% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.12% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.12% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.12% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.12% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.12% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.12% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.12% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.12% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.12% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.12% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.12% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.12% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.12% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.12% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.12% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.12% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.12% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.12% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.12% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.12% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.12% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.12% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.49% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.49% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.49% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.49% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.49% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.49% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.36% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.36% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.36% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.36% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.36% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.36% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.36% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.36% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.36% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.36% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.36% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.36% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.36% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.36% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.36% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.36% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.63% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.54% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.54% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.54% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.54% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.54% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.54% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.54% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.54% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.54% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.54% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.54% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.54% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.54% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.54% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->01.11% (150,619B) in 62 places, all below massif's threshold (1.00%)
+  
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 80 35,585,885,607       13,549,232       13,545,402         3,830            0
+ 81 35,920,142,492       13,553,208       13,549,182         4,026            0
+ 82 36,254,399,479       13,558,400       13,554,088         4,312            0
+ 83 36,588,656,397       13,527,880       13,525,138         2,742            0
+ 84 36,922,913,397       13,532,688       13,529,698         2,990            0
+ 85 37,257,170,353       13,538,160       13,534,862         3,298            0
+ 86 37,591,427,267       13,541,632       13,538,159         3,473            0
+ 87 37,925,684,147       13,547,192       13,543,469         3,723            0
+ 88 38,259,941,084       13,553,208       13,549,182         4,026            0
+ 89 38,594,198,139       13,558,168       13,553,873         4,295            0
+99.97% (13,553,873B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->66.38% (9,000,003B) 0x124DCA: allocate (new_allocator.h:151)
+| ->66.38% (9,000,003B) 0x124DCA: allocate (allocator.h:196)
+|   ->66.38% (9,000,003B) 0x124DCA: allocate (alloc_traits.h:478)
+|     ->66.38% (9,000,003B) 0x124DCA: _S_allocate (basic_string.h:131)
+|       ->66.38% (9,000,003B) 0x124DCA: _M_create (basic_string.tcc:159)
+|         ->66.38% (9,000,003B) 0x124DCA: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->22.13% (3,000,001B) 0x122BAC: Client::Client() (client_src/Client.cpp:17)
+|           | ->22.13% (3,000,001B) 0x132ED3: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->22.13% (3,000,001B) 0x12B274: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->22.13% (3,000,001B) 0x12FB2F: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:18)
+|           | ->22.13% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.13% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.13% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.13% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.13% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.13% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.13% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.13% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.13% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.13% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->22.13% (3,000,001B) 0x12FB3B: TaskBuilder::TaskBuilder(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >) (client_src/TaskBuilder.cpp:19)
+|           | ->22.13% (3,000,001B) 0x129AF7: _Construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (stl_construct.h:119)
+|           |   ->22.13% (3,000,001B) 0x129AF7: construct<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (alloc_traits.h:657)
+|           |     ->22.13% (3,000,001B) 0x129AF7: std::_Sp_counted_ptr_inplace<TaskBuilder, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&>(std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&) (shared_ptr_base.h:607)
+|           |       ->22.13% (3,000,001B) 0x1241C7: __shared_count<TaskBuilder, std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:970)
+|           |         ->22.13% (3,000,001B) 0x1241C7: __shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr_base.h:1713)
+|           |           ->22.13% (3,000,001B) 0x1241C7: shared_ptr<std::allocator<void>, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:463)
+|           |             ->22.13% (3,000,001B) 0x1241C7: make_shared<TaskBuilder, std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> > &> (shared_ptr.h:1007)
+|           |               ->22.13% (3,000,001B) 0x1241C7: Client::start() (???:90)
+|           |                 ->22.13% (3,000,001B) 0x1330C8: tcp::TcpClient::run() (client_src/TcpClient.cpp:16)
+|           |                   ->22.13% (3,000,001B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           |                     
+|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->32.49% (4,405,095B) 0x129953: allocate (new_allocator.h:151)
+| ->32.49% (4,405,095B) 0x129953: allocate (allocator.h:196)
+|   ->32.49% (4,405,095B) 0x129953: allocate (alloc_traits.h:478)
+|     ->32.49% (4,405,095B) 0x129953: _S_allocate (basic_string.h:131)
+|       ->32.49% (4,405,095B) 0x129953: _M_create (basic_string.tcc:159)
+|         ->32.49% (4,405,095B) 0x129953: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->19.37% (2,625,839B) 0x160FF3: _M_replace_aux (basic_string.tcc:468)
+|           | ->19.37% (2,625,839B) 0x160FF3: append (basic_string.h:1499)
+|           |   ->19.37% (2,625,839B) 0x160FF3: resize (basic_string.tcc:405)
+|           |     ->19.37% (2,625,839B) 0x160FF3: resize (basic_string.h:1119)
+|           |       ->19.37% (2,625,839B) 0x160FF3: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->19.37% (2,625,839B) 0x18A442: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:15)
+|           |         | ->19.37% (2,625,839B) 0x12FC6F: TaskBuilder::run() (client_src/TaskBuilder.cpp:27)
+|           |         |   ->19.37% (2,625,839B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->19.37% (2,625,839B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->19.37% (2,625,839B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->19.37% (2,625,839B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->19.37% (2,625,839B) 0x193E86: operator() (std_thread.h:308)
+|           |         |             ->19.37% (2,625,839B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->19.37% (2,625,839B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           |         |                 ->19.37% (2,625,839B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           |         |                   ->19.37% (2,625,839B) 0x52BB833: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->12.64% (1,713,317B) 0x129807: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->11.55% (1,565,382B) 0x1306B0: assign (basic_string.h:1678)
+|           | | ->11.55% (1,565,382B) 0x1306B0: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->11.55% (1,565,382B) 0x1306B0: TaskBuilder::compressEncryptSubtask(bool) (???:104)
+|           | |     ->11.55% (1,565,382B) 0x12FCFF: createSubtask (client_src/TaskBuilder.cpp:79)
+|           | |       ->11.55% (1,565,382B) 0x12FCFF: TaskBuilder::run() (???:28)
+|           | |         ->11.55% (1,565,382B) 0x193E86: operator() (common/ThreadPoolBase.cpp:69)
+|           | |           ->11.55% (1,565,382B) 0x193E86: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |             ->11.55% (1,565,382B) 0x193E86: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |               ->11.55% (1,565,382B) 0x193E86: _M_invoke<0UL> (std_thread.h:301)
+|           | |                 ->11.55% (1,565,382B) 0x193E86: operator() (std_thread.h:308)
+|           | |                   ->11.55% (1,565,382B) 0x193E86: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                     ->11.55% (1,565,382B) 0x4EDBDB3: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+|           | |                       ->11.55% (1,565,382B) 0x5229E2D: start_thread (pthread_create.c:447)
+|           | |                         ->11.55% (1,565,382B) 0x52BB833: clone (clone.S:100)
+|           | |                           
+|           | ->01.09% (147,711B) 0x1291BB: assign (basic_string.h:1678)
+|           | | ->01.09% (147,711B) 0x1291BB: void compressionLZ4::uncompress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:50)
+|           | |   ->01.09% (147,711B) 0x1258F0: std::basic_string_view<char, std::char_traits<char> > decryptDecompress<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long>&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (EncryptorTemplates.h:74)
+|           | |     ->01.09% (147,711B) 0x123683: Client::printReply() (client_src/Client.cpp:78)
+|           | |       ->01.09% (147,711B) 0x133583: tcp::TcpClient::receive() (client_src/TcpClient.cpp:50)
+|           | |         ->01.09% (147,711B) 0x1232DB: Client::processTask(std::weak_ptr<TaskBuilder>) (client_src/Client.cpp:43)
+|           | |           ->01.09% (147,711B) 0x123460: Client::run() (client_src/Client.cpp:55)
+|           | |             ->01.09% (147,711B) 0x12B27E: main (client_src/ClientMain.cpp:44)
+|           | |               
+|           | ->00.00% (224B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.49% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->01.10% (148,775B) in 62 places, all below massif's threshold (1.00%)
+  
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 90 38,928,455,033       13,562,776       13,558,260         4,516            0
