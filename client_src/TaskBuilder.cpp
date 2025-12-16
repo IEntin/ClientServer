@@ -14,10 +14,7 @@
 
 TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
   _subtaskIndex(0),
-  _crypto(crypto) {
-  _aggregate.reserve(ClientOptions::_bufferSize);
-  _buffer.reserve(ClientOptions::_bufferSize);
-}
+  _crypto(crypto) {}
 
 void TaskBuilder::run() {
   while (!_stopped) {
@@ -54,10 +51,10 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  _aggregate += '[';
-  _aggregate += ioutility::toCharsBoost(index);
-  _aggregate += ']';
-  _aggregate += line;
+  std::size_t requiredCapacity(_aggregate.size() + 3 * (line.size() + ioutility::CONV_BUFFER_SIZE));
+  if (_aggregate.capacity() < requiredCapacity)
+    _aggregate.reserve(requiredCapacity);
+  _aggregate.append(1, '[').append(ioutility::toCharsBoost(index)).append(1, ']').append(line);
 }
 
 // Read requests from the source, generate id for each.
