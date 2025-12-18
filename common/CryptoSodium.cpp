@@ -37,8 +37,6 @@ void HandleKey::recoverKey(std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>&
   }
 }
 
-const std::string CryptoSodium::_name("CryptoSodium");
-
 void CryptoSodium::setAESKey(SessionKey& key) {
   std::lock_guard lock(_mutex);
   _keyHandler.recoverKey(_key);
@@ -48,6 +46,7 @@ void CryptoSodium::setAESKey(SessionKey& key) {
 
 // client
 CryptoSodium::CryptoSodium() :
+  _name("CryptoSodium"),
   _msgHash(hashMessage(buildDateTime)) {
   crypto_kx_keypair(&_pubKeyAes[0], &_privKeyAes[0]);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
@@ -67,6 +66,7 @@ CryptoSodium::CryptoSodium() :
 // session
 CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
 			   std::string_view signatureWithPubKeySign) :
+  _name("CryptoSodium"),
   _msgHash(hashMessage(buildDateTime)) {
   std::vector<unsigned char> peerAesPubKeyV = base64_decode(encodedPeerAesPubKey);
   std::copy(peerAesPubKeyV.cbegin(), peerAesPubKeyV.cend(), _peerPubKeyAes.begin());

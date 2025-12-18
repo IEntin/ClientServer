@@ -44,7 +44,7 @@ class CryptoPlPl : public CryptoBase {
   std::string _serializedRsaPubKey;
   static const CryptoPP::OID _curve;
   KeyHandler _keyHandler;
-  const static std::string _name;
+  std::string_view _name;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
@@ -69,7 +69,7 @@ public:
 	     std::string_view signatureWithPubKey);
   CryptoPlPl();
   ~CryptoPlPl() override;
-  const std::string&  getName() const override { return _name; }
+  std::string_view  getName() const override { return _name; }
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;

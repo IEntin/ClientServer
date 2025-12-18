@@ -40,13 +40,13 @@ class CryptoSodium : public CryptoBase {
   void hideKey();
   void setAESKey(SessionKey& key);
   void eraseUsedData();
-  const static std::string _name;
+  std::string_view _name;
 public:
   explicit CryptoSodium();
   CryptoSodium(std::string_view encodedPeerAesPubKey,
 	       std::string_view signatureWithPubKey);
   ~CryptoSodium() override;
-  const std::string&  getName() const override { return _name; }
+  std::string_view  getName() const override { return _name; }
   std::string_view encrypt(std::string& buffer,
 			   const HEADER& header,
 			   std::string_view data);
@@ -54,7 +54,7 @@ public:
   std::string base64_encode(std::span<unsigned char> input);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
-  std::string _msgHash;
+  boost::static_string<crypto_generichash_BYTES> _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
   template <typename L>

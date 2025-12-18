@@ -15,8 +15,6 @@
 
 const CryptoPP::OID CryptoPlPl::_curve = CryptoPP::ASN1::secp256r1();
 
-const std::string CryptoPlPl::_name("CryptoPlPl");
-
 KeyHandler::KeyHandler(unsigned size) : _size(size),
   _obfuscator(_size) {}
 
@@ -50,6 +48,7 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
+  _name("CryptoPlPl"),
   _msgHash(sha256_hash(buildDateTime)),
   _signatureWithPubKeySign(&signatureWithPubKey[0], signatureWithPubKey.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
@@ -80,6 +79,7 @@ CryptoPlPl::CryptoPlPl() :
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
+  _name("CryptoPlPl"),
   _msgHash(sha256_hash(buildDateTime)) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);

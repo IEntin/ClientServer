@@ -20,7 +20,7 @@ void compress(std::string& buffer, DATA& data) {
   auto metadata = ioutility::toCharsBoost(uncompressedSize, true);
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize) + ioutility::CONV_BUFFER_SIZE;
   if (requiredCapacity > buffer.capacity())
-    buffer.reserve(2 * requiredCapacity);
+    buffer.reserve(requiredCapacity);
   buffer.resize(requiredCapacity);
   std::size_t compressedSize = LZ4_compress_default(&data[0],
 						    &buffer[0],
@@ -28,8 +28,7 @@ void compress(std::string& buffer, DATA& data) {
 						    buffer.capacity());
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
-  data.assign(buffer.data(), compressedSize);
-  data.append(metadata);
+  data.assign(buffer.data(), compressedSize).append(metadata);
 }
 
 template <typename DATA>

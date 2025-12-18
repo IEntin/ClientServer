@@ -51,7 +51,7 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  std::size_t requiredCapacity(_aggregate.size() + 3 * (line.size() + ioutility::CONV_BUFFER_SIZE));
+  std::size_t requiredCapacity(_aggregate.size() + line.size() + ioutility::CONV_BUFFER_SIZE);
   if (_aggregate.capacity() < requiredCapacity)
     _aggregate.reserve(requiredCapacity);
   _aggregate.append(1, '[').append(ioutility::toCharsBoost(index)).append(1, ']').append(line);

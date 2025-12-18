@@ -24,7 +24,7 @@ consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::n
 class CryptoBase {
  protected:
   CryptoBase() {}
-  virtual const std::string&  getName() const = 0;
+  virtual std::string_view getName() const = 0;
   bool _verified = false;
   bool _signatureSent = false;
   std::mutex _mutex;
