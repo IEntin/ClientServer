@@ -33,15 +33,14 @@ void compress(std::string& buffer, DATA& data) {
 
 template <typename DATA>
 void uncompress(std::string& buffer, DATA& data) {
-  DATA metadata;
-  metadata.assign(data.cend() - ioutility::CONV_BUFFER_SIZE, data.cend());
+  std::string_view metadata(data.cend() - ioutility::CONV_BUFFER_SIZE, data.cend());
   std::size_t uncomprSize = 0;
   ioutility::fromChars(metadata, uncomprSize);
   data.resize(data.size() - metadata.size());
   if (uncomprSize > buffer.capacity())
-    buffer.resize(uncomprSize);
+    buffer.reserve(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(&data[0],
-					    &buffer[0],
+					    buffer.data(),
 					    data.size(),
 					    uncomprSize);
   if (decomprSize < 0)
