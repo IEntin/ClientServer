@@ -17,6 +17,8 @@ using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
 
 class Client : private boost::noncopyable {
 
+friend class TaskBuilder;
+
 protected:
 
   std::string _response;
@@ -41,7 +43,7 @@ Client();
   TaskBuilderWeakPtr _taskBuilder;
   static thread_local Subtasks _task;
   static std::atomic<bool> _closeFlag;
-  std::string _buffer;
+  static thread_local std::string _buffer;
 
   bool processStatus(std::string_view encodedPeerPubKeyAes,
 		     std::string_view type) {

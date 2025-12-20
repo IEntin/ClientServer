@@ -10,6 +10,8 @@
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
+thread_local std::string Client::_buffer;
+
 std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 

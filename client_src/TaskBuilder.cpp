@@ -8,11 +8,11 @@
 
 #include "ClientOptions.h"
 #include "FileLines2.h"
-#include "IOUtility.h"
-#include "Options.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
+thread_local std::string TaskBuilder::_aggregate;
+
+TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER& crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {}
 
@@ -51,9 +51,6 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  std::size_t requiredCapacity(_aggregate.size() + line.size() + ioutility::CONV_BUFFER_SIZE);
-  if (_aggregate.capacity() < requiredCapacity)
-    _aggregate.reserve(requiredCapacity);
   _aggregate.append(1, '[').append(ioutility::toCharsBoost(index)).append(1, ']').append(line);
 }
 
@@ -93,7 +90,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    compressEncrypt(_crypto, _buffer, header, _aggregate, ClientOptions::_doEncrypt);
+    compressEncrypt(_crypto, Client::_buffer, header, _aggregate, ClientOptions::_doEncrypt);
   std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = dataView.size();
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();

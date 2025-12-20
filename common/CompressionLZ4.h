@@ -19,8 +19,6 @@ void compress(std::string& buffer, DATA& data) {
   std::size_t uncompressedSize = data.size();
   auto metadata = ioutility::toCharsBoost(uncompressedSize, true);
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize) + ioutility::CONV_BUFFER_SIZE;
-  if (requiredCapacity > buffer.capacity())
-    buffer.reserve(requiredCapacity);
   buffer.resize(requiredCapacity);
   std::size_t compressedSize = LZ4_compress_default(&data[0],
 						    &buffer[0],
