@@ -40,6 +40,7 @@ void TestEnvironment::reset() {
 
 int main(int argc, char** argv) {
   try {
+    std::ios_base::sync_with_stdio(false);
     utility::setTestbinTerminal(getenv("GNOME_TERMINAL_SCREEN"));
     [[maybe_unused]] bool initialized = CryptoBase::displayCryptoLibName();
     TestEnvironment* env = new TestEnvironment();

@@ -7,7 +7,7 @@
 #include <boost/charconv.hpp>
 
 #include "ClientOptions.h"
-#include "FileLines2.h"
+#include "FileLines.h"
 #include "Utility.h"
 
 thread_local std::string TaskBuilder::_aggregate;
@@ -21,7 +21,7 @@ void TaskBuilder::run() {
     _resume = false;
     try {
       // can be a new or the same source for tests.
-      FileLines2 lines(ClientOptions::_sourceName, '\n', true);
+      FileLines lines(ClientOptions::_sourceName, '\n', true);
       while (createSubtask(lines) == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
       _conditionResume.wait(lock, [this] { return _resume || _stopped; });
@@ -61,14 +61,14 @@ void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
 // reduce the number of system calls. The size of the
 // aggregate depends on the buffer size.
 
-STATUS TaskBuilder::createSubtask(Lines2& lines) {
+STATUS TaskBuilder::createSubtask(Lines& lines) {
   _aggregate.clear();
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
-  static thread_local std::string line;
+  std::string_view line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
-    bool alldone = lines._lines.empty();
+    bool alldone = lines._last;
     if (_aggregate.size() >= maxSubtaskSize || alldone)
       return compressEncryptSubtask(alldone);
   }

@@ -29,6 +29,6 @@ class TaskBuilder final : public Runnable {
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
-  STATUS createSubtask(class Lines2& lines);
+  STATUS createSubtask(class Lines& lines);
   void resume();
 };

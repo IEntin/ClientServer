@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "AdBid.h"
-#include "FileLines2.h"
+#include "FileLines.h"
 #include "IOUtility.h"
 #include "Logger.h"
 #include "Utility.h"
@@ -81,8 +81,8 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
 
 void Ad::readAds(std::string_view filename) {
   assert(_mapBySize.empty() && "must be called once");
-  FileLines2 lines(filename);
-  static thread_local std::string line;
+  FileLines lines(filename);
+  std::string_view line;
   while (lines.getLine(line)) {
     std::vector<AdPtr> empty;
     try {
