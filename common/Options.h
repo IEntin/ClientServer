@@ -5,6 +5,10 @@
 #pragma once
 
 #include <boost/json/value.hpp>
+#include <boost/static_string.hpp>
+
+#include <filesystem>
+#include <iostream>
 
 #include "Header.h"
 
@@ -15,13 +19,13 @@ public:
   static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOSODIUM;
   static constexpr ENCRYPTORCONTAINERTYPE _encryptorContainerDefault = ENCRYPTORCONTAINERTYPE::VARIANTCONTAINER;
   static CRYPTO _encryptorType;
-  static std::string _fifoDirectoryName;
-  static std::string _acceptorBaseName;
-  static std::string _acceptorName;
+  static boost::static_string<100> _fifoDirectoryName;
+  static boost::static_string<100> _acceptorBaseName;
+  static boost::static_string<100> _acceptorName;
   static int _numberRepeatENXIO;
   static bool _setPipeSize;
   static std::size_t _pipeSize;
-  static std::string _serverAddress;
+  static boost::static_string<100> _serverAddress;
   static unsigned short _tcpPort;
   static boost::json::value _jv;
 private:

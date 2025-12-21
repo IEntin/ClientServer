@@ -18,7 +18,7 @@ struct ClientOptions {
   static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
-  static std::string _sourceName;
+  static boost::static_string<100> _sourceName;
   static std::ostream* _dataStream;
   static std::ostream* _instrStream;
   // max number iterations when _runLoop is true,
@@ -32,7 +32,7 @@ struct ClientOptions {
   static std::size_t _bufferSize;
   static bool _timing;
   static bool _printHeader;
-  static std::string _logThresholdName;
+  static boost::static_string<100> _logThresholdName;
 private:
   ClientOptions() = delete;
   ~ClientOptions() = delete;

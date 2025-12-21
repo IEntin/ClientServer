@@ -25,7 +25,8 @@ Server::Server() :
   _threadPoolSession(ServerOptions::_maxTotalSessions) {
   try {
     // create if was removed
-    std::filesystem::create_directory(Options::_fifoDirectoryName);
+    std::string_view fifoDirectoryNameV(Options::_fifoDirectoryName.data(), Options::_fifoDirectoryName.size());
+    std::filesystem::create_directory(fifoDirectoryNameV);
     // Unlock computer in case the app crashed during debugging
     // leaving mutex locked, run serverX or testbin in this case.
     removeNamedMutex();

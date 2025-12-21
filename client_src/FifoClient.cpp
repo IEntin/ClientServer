@@ -99,7 +99,7 @@ bool FifoClient::receiveStatus() {
     if (!Fifo::readMessage(Options::_acceptorName, true, header, array))
       throw std::runtime_error("readMessage failed");
     type = "fifo";
-    _fifoName = Options::_fifoDirectoryName + '/' + clientIdStr;
+    _fifoName.append(Options::_fifoDirectoryName).append(1, '/').append(clientIdStr);
     ioutility::fromChars(clientIdStr, _clientId);
     return true;
   };

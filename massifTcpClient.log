@@ -1,1135 +1,674 @@
 --------------------------------------------------------------------------------
 Command:            ./clientX
 Massif arguments:   (none)
-ms_print arguments: massif.out.169486
+ms_print arguments: massif.out.36898
 --------------------------------------------------------------------------------
 
 
     MB
-17.38^#                                                                       
-     |#                                                                       
-     |#                                                                       
-     |#                                           ::                          
-     |#::::::::::::::::::::@:::@:@@::::::::::::@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
-     |#:::: : :::::::::::::@:::@:@ : :::::::: :@::::@:::::@:::::@:::::@:::::@:
+17.37^#                                                                       
+     |#                                     ::      ::                        
+     |#::                                   :    :: : :   ::  :               
+     |#::                                   :    :  : :   :   ::::@:::::::@:::
+     |#:::::::::::::::::::::::::::::::::::::: :::: :: ::@@: :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
+     |#:::::::::::: ::::: : :::: ::: : : :::: :: : :: ::@ : :@::::@:::::::@:::
    0 +----------------------------------------------------------------------->Gi
-     0                                                                   49.87
+     0                                                                   29.55
 
-Number of snapshots: 96
- Detailed snapshots: [1 (peak), 23, 28, 31, 46, 52, 62, 72, 82, 92]
+Number of snapshots: 69
+ Detailed snapshots: [1 (peak), 44, 47, 53, 63]
 
 --------------------------------------------------------------------------------
   n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
 --------------------------------------------------------------------------------
   0              0                0                0             0            0
-  1     83,987,800       18,219,040       18,053,395       165,645            0
-99.09% (18,053,395B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->65.86% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->65.86% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->65.86% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->65.86% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->65.86% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->65.86% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->26.89% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->26.89% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->26.89% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->26.89% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->26.89% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->26.89% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->26.89% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->26.89% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->26.89% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->26.89% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->26.89% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->26.89% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->26.89% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->26.89% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->26.89% (4,898,817B) 0x5301943: clone (clone.S:100)
+  1     83,986,203       18,217,856       18,052,267       165,589            0
+99.09% (18,052,267B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->65.86% (11,999,133B) 0x1299E3: allocate (new_allocator.h:151)
+| ->65.86% (11,999,133B) 0x1299E3: allocate (allocator.h:196)
+|   ->65.86% (11,999,133B) 0x1299E3: allocate (alloc_traits.h:515)
+|     ->65.86% (11,999,133B) 0x1299E3: _S_allocate (basic_string.h:131)
+|       ->65.86% (11,999,133B) 0x1299E3: _M_create (basic_string.tcc:159)
+|         ->65.86% (11,999,133B) 0x1299E3: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->26.89% (4,898,817B) 0x13014F: _M_append (basic_string.tcc:424)
+|           | ->26.89% (4,898,817B) 0x13014F: append (basic_string.h:1470)
+|           |   ->26.89% (4,898,817B) 0x13014F: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
+|           |     ->26.89% (4,898,817B) 0x13014F: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
+|           |       ->26.89% (4,898,817B) 0x12FBB1: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
+|           |         ->26.89% (4,898,817B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |           ->26.89% (4,898,817B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |             ->26.89% (4,898,817B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |               ->26.89% (4,898,817B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                 ->26.89% (4,898,817B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                   ->26.89% (4,898,817B) 0x193DD6: operator() (std_thread.h:308)
+|           |                     ->26.89% (4,898,817B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                       ->26.89% (4,898,817B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                         ->26.89% (4,898,817B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                           ->26.89% (4,898,817B) 0x5308943: clone (clone.S:100)
 |           |                             
-|           ->14.79% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->14.79% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->14.79% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->14.79% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->14.79% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->14.79% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->14.79% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->14.79% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->14.79% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->14.79% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->14.79% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->14.79% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->14.79% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->14.79% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->14.79% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->14.79% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->14.79% (2,695,283B) 0x5301943: clone (clone.S:100)
+|           ->14.79% (2,695,283B) 0x1321F3: _M_replace_aux (basic_string.tcc:468)
+|           | ->14.79% (2,695,283B) 0x1321F3: append (basic_string.h:1499)
+|           |   ->14.79% (2,695,283B) 0x1321F3: resize (basic_string.tcc:405)
+|           |     ->14.79% (2,695,283B) 0x1321F3: resize (basic_string.h:1119)
+|           |       ->14.79% (2,695,283B) 0x1321F3: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
+|           |         ->14.79% (2,695,283B) 0x13093F: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
+|           |           ->14.79% (2,695,283B) 0x130331: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
+|           |             ->14.79% (2,695,283B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |               ->14.79% (2,695,283B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |                 ->14.79% (2,695,283B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |                   ->14.79% (2,695,283B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                     ->14.79% (2,695,283B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                       ->14.79% (2,695,283B) 0x193DD6: operator() (std_thread.h:308)
+|           |                         ->14.79% (2,695,283B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                           ->14.79% (2,695,283B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                             ->14.79% (2,695,283B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                               ->14.79% (2,695,283B) 0x5308943: clone (clone.S:100)
 |           |                                 
-|           ->14.41% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->14.41% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->14.41% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->14.41% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->14.41% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->14.41% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->14.41% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->14.41% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->14.41% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->14.41% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->14.41% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->14.41% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->14.41% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->14.41% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->14.41% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->14.41% (2,625,839B) 0x5301943: clone (clone.S:100)
+|           ->14.41% (2,625,839B) 0x160E83: _M_replace_aux (basic_string.tcc:468)
+|           | ->14.41% (2,625,839B) 0x160E83: append (basic_string.h:1499)
+|           |   ->14.41% (2,625,839B) 0x160E83: resize (basic_string.tcc:405)
+|           |     ->14.41% (2,625,839B) 0x160E83: resize (basic_string.h:1119)
+|           |       ->14.41% (2,625,839B) 0x160E83: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->14.41% (2,625,839B) 0x18A049: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
+|           |         | ->14.41% (2,625,839B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|           |         |   ->14.41% (2,625,839B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->14.41% (2,625,839B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->14.41% (2,625,839B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->14.41% (2,625,839B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->14.41% (2,625,839B) 0x193DD6: operator() (std_thread.h:308)
+|           |         |             ->14.41% (2,625,839B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->14.41% (2,625,839B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |         |                 ->14.41% (2,625,839B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |         |                   ->14.41% (2,625,839B) 0x5308943: clone (clone.S:100)
 |           |         |                     
 |           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
 |           |         
-|           ->09.40% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->08.59% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->08.59% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->08.59% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->08.59% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->08.59% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->08.59% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->08.59% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->08.59% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->08.59% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->08.59% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->08.59% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->08.59% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->08.59% (1,565,382B) 0x5301943: clone (clone.S:100)
+|           ->09.40% (1,713,286B) 0x129B67: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->08.59% (1,565,382B) 0x1303D6: assign (basic_string.h:1678)
+|           | | ->08.59% (1,565,382B) 0x1303D6: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->08.59% (1,565,382B) 0x1303D6: TaskBuilder::compressEncryptSubtask(bool) (???:98)
+|           | |     ->08.59% (1,565,382B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           | |       ->08.59% (1,565,382B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           | |         ->08.59% (1,565,382B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |           ->08.59% (1,565,382B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |             ->08.59% (1,565,382B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           | |               ->08.59% (1,565,382B) 0x193DD6: operator() (std_thread.h:308)
+|           | |                 ->08.59% (1,565,382B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                   ->08.59% (1,565,382B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           | |                     ->08.59% (1,565,382B) 0x52777F0: start_thread (pthread_create.c:448)
+|           | |                       ->08.59% (1,565,382B) 0x5308943: clone (clone.S:100)
 |           | |                         
-|           | ->00.81% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | ->00.81% (147,904B) in 1+ places, all below ms_print's threshold (01.00%)
 |           | 
-|           ->00.36% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           ->00.36% (65,908B) in 1+ places, all below ms_print's threshold (01.00%)
 |           
-->16.47% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->16.47% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->16.47% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->16.47% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->16.47% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->16.47% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->16.47% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->16.47% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->16.47% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
+->16.47% (3,000,001B) 0x12514A: allocate (new_allocator.h:151)
+| ->16.47% (3,000,001B) 0x12514A: allocate (allocator.h:196)
+|   ->16.47% (3,000,001B) 0x12514A: allocate (alloc_traits.h:515)
+|     ->16.47% (3,000,001B) 0x12514A: _S_allocate (basic_string.h:131)
+|       ->16.47% (3,000,001B) 0x12514A: _M_create (basic_string.tcc:159)
+|         ->16.47% (3,000,001B) 0x12514A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->16.47% (3,000,001B) 0x122CA3: Client::Client() (client_src/Client.cpp:19)
+|           | ->16.47% (3,000,001B) 0x132E73: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->16.47% (3,000,001B) 0x12B334: main (client_src/ClientMain.cpp:43)
 |           |     
 |           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
 |           
-->13.57% (2,472,053B) 0x18A556: allocate (new_allocator.h:151)
-| ->13.57% (2,472,053B) 0x18A556: allocate (allocator.h:196)
-|   ->13.57% (2,472,053B) 0x18A556: allocate (alloc_traits.h:515)
-|     ->13.57% (2,472,053B) 0x18A556: _S_allocate (basic_string.h:131)
-|       ->13.57% (2,472,053B) 0x18A556: _M_create (basic_string.tcc:159)
-|         ->13.57% (2,472,053B) 0x18A556: _M_construct<const char *> (basic_string.tcc:229)
-|           ->13.57% (2,472,053B) 0x18A556: basic_string<const char *, void> (basic_string.h:770)
-|             ->13.57% (2,472,053B) 0x18A556: construct_at<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (stl_construct.h:97)
-|               ->13.57% (2,472,053B) 0x18A556: construct<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (alloc_traits.h:577)
-|                 ->13.57% (2,472,053B) 0x18A556: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:145)
-|                   ->13.57% (2,472,053B) 0x18A0B6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
-|                     ->13.57% (2,472,053B) 0x18A0B6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:15)
-|                       ->13.57% (2,472,053B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|                         ->13.57% (2,472,053B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|                           ->13.57% (2,472,053B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|                             ->13.57% (2,472,053B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|                               ->13.57% (2,472,053B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|                                 ->13.57% (2,472,053B) 0x193AF6: operator() (std_thread.h:308)
-|                                   ->13.57% (2,472,053B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|                                     ->13.57% (2,472,053B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|                                       ->13.57% (2,472,053B) 0x52707F0: start_thread (pthread_create.c:448)
-|                                         ->13.57% (2,472,053B) 0x5301943: clone (clone.S:100)
+->13.57% (2,472,053B) 0x18A596: allocate (new_allocator.h:151)
+| ->13.57% (2,472,053B) 0x18A596: allocate (allocator.h:196)
+|   ->13.57% (2,472,053B) 0x18A596: allocate (alloc_traits.h:515)
+|     ->13.57% (2,472,053B) 0x18A596: _S_allocate (basic_string.h:131)
+|       ->13.57% (2,472,053B) 0x18A596: _M_create (basic_string.tcc:159)
+|         ->13.57% (2,472,053B) 0x18A596: _M_construct<const char *> (basic_string.tcc:229)
+|           ->13.57% (2,472,053B) 0x18A596: basic_string<const char *, void> (basic_string.h:770)
+|             ->13.57% (2,472,053B) 0x18A596: construct_at<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (stl_construct.h:97)
+|               ->13.57% (2,472,053B) 0x18A596: construct<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (alloc_traits.h:577)
+|                 ->13.57% (2,472,053B) 0x18A596: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:145)
+|                   ->13.57% (2,472,053B) 0x18A0F6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
+|                     ->13.57% (2,472,053B) 0x18A0F6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:15)
+|                       ->13.57% (2,472,053B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|                         ->13.57% (2,472,053B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|                           ->13.57% (2,472,053B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|                             ->13.57% (2,472,053B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|                               ->13.57% (2,472,053B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|                                 ->13.57% (2,472,053B) 0x193DD6: operator() (std_thread.h:308)
+|                                   ->13.57% (2,472,053B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|                                     ->13.57% (2,472,053B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|                                       ->13.57% (2,472,053B) 0x52777F0: start_thread (pthread_create.c:448)
+|                                         ->13.57% (2,472,053B) 0x5308943: clone (clone.S:100)
 |                                           
-->01.76% (320,512B) 0x18A657: allocate (new_allocator.h:151)
-| ->01.76% (320,512B) 0x18A657: allocate (allocator.h:196)
-|   ->01.76% (320,512B) 0x18A657: allocate (alloc_traits.h:515)
-|     ->01.76% (320,512B) 0x18A657: _M_allocate_node (stl_deque.h:583)
-|       ->01.76% (320,512B) 0x18A657: void std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_push_front_aux<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:536)
-|         ->01.76% (320,512B) 0x18A57E: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:151)
-|           ->01.76% (320,512B) 0x18A0B6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
-|             ->01.76% (320,512B) 0x18A0B6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:15)
-|               ->01.76% (320,512B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|                 ->01.76% (320,512B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|                   ->01.76% (320,512B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|                     ->01.76% (320,512B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|                       ->01.76% (320,512B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|                         ->01.76% (320,512B) 0x193AF6: operator() (std_thread.h:308)
-|                           ->01.76% (320,512B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|                             ->01.76% (320,512B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|                               ->01.76% (320,512B) 0x52707F0: start_thread (pthread_create.c:448)
-|                                 ->01.76% (320,512B) 0x5301943: clone (clone.S:100)
+->01.76% (320,512B) 0x18A697: allocate (new_allocator.h:151)
+| ->01.76% (320,512B) 0x18A697: allocate (allocator.h:196)
+|   ->01.76% (320,512B) 0x18A697: allocate (alloc_traits.h:515)
+|     ->01.76% (320,512B) 0x18A697: _M_allocate_node (stl_deque.h:583)
+|       ->01.76% (320,512B) 0x18A697: void std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_push_front_aux<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:536)
+|         ->01.76% (320,512B) 0x18A5BE: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:151)
+|           ->01.76% (320,512B) 0x18A0F6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
+|             ->01.76% (320,512B) 0x18A0F6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:15)
+|               ->01.76% (320,512B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|                 ->01.76% (320,512B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|                   ->01.76% (320,512B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|                     ->01.76% (320,512B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|                       ->01.76% (320,512B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|                         ->01.76% (320,512B) 0x193DD6: operator() (std_thread.h:308)
+|                           ->01.76% (320,512B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|                             ->01.76% (320,512B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|                               ->01.76% (320,512B) 0x52777F0: start_thread (pthread_create.c:448)
+|                                 ->01.76% (320,512B) 0x5308943: clone (clone.S:100)
 |                                   
-->01.44% (261,634B) in 57 places, all below massif's threshold (1.00%)
+->01.43% (260,568B) in 56 places, all below massif's threshold (1.00%)
   
 --------------------------------------------------------------------------------
   n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
 --------------------------------------------------------------------------------
-  2    819,070,666       15,103,152       15,097,621         5,531            0
-  3  1,303,048,022       15,103,152       15,097,621         5,531            0
-  4  1,935,969,884       15,103,152       15,097,621         5,531            0
-  5  2,531,638,817       15,103,152       15,097,621         5,531            0
-  6  3,015,617,445       15,103,152       15,097,621         5,531            0
-  7  3,648,511,778       15,103,152       15,097,621         5,531            0
-  8  4,579,266,947       15,103,152       15,097,621         5,531            0
-  9  5,174,935,770       15,103,152       15,097,621         5,531            0
- 10  6,217,351,650       15,103,152       15,097,621         5,531            0
- 11  7,185,333,606       15,103,152       15,097,621         5,531            0
- 12  7,855,458,943       15,103,152       15,097,621         5,531            0
- 13  8,874,988,619       15,283,864       15,268,913        14,951            0
- 14  9,344,662,460       15,103,152       15,097,621         5,531            0
- 15 10,178,035,395       15,283,864       15,268,913        14,951            0
- 16 10,833,829,292       15,103,152       15,097,621         5,531            0
- 17 11,294,910,592       15,283,416       15,268,490        14,926            0
- 18 12,225,639,988       15,299,496       15,283,747        15,749            0
- 19 13,109,043,117       15,103,080       15,097,557         5,523            0
- 20 13,707,771,299       15,103,616       15,098,070         5,546            0
- 21 14,601,305,730       15,103,568       15,098,029         5,539            0
- 22 15,196,989,351       15,103,616       15,098,070         5,546            0
- 23 15,941,578,917       15,103,080       15,097,557         5,523            0
-99.96% (15,097,557B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.44% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.44% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.44% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.44% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.44% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.44% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.44% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.44% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.44% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.44% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.44% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.44% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.44% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.44% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.44% (4,898,817B) 0x5301943: clone (clone.S:100)
+  2    644,891,666       16,692,952       16,606,072        86,880            0
+  3    979,954,622       16,693,248       16,606,326        86,922            0
+  4  1,451,881,622       15,101,968       15,096,493         5,475            0
+  5  2,047,549,746       15,101,968       15,096,493         5,475            0
+  6  2,531,588,550       15,101,968       15,096,493         5,475            0
+  7  2,866,651,635       15,101,968       15,096,493         5,475            0
+  8  3,313,402,897       15,101,968       15,096,493         5,475            0
+  9  3,871,866,060       15,101,968       15,096,493         5,475            0
+ 10  4,287,602,685       15,101,968       15,096,493         5,475            0
+ 11  4,772,648,257       15,101,856       15,096,402         5,454            0
+ 12  5,256,637,698       15,102,976       15,097,450         5,526            0
+ 13  5,666,175,379       15,101,896       15,096,429         5,467            0
+ 14  6,254,566,262       15,101,968       15,096,493         5,475            0
+ 15  6,626,859,198       15,101,968       15,096,493         5,475            0
+ 16  7,148,095,014       15,101,968       15,096,493         5,475            0
+ 17  7,594,858,116       15,101,968       15,096,493         5,475            0
+ 18  8,339,443,866       15,101,968       15,096,493         5,475            0
+ 19  8,860,654,244       15,101,968       15,096,493         5,475            0
+ 20  9,232,970,455       15,101,968       15,096,493         5,475            0
+ 21  9,768,239,780       15,449,512       15,425,994        23,518            0
+ 22 10,163,701,771       15,101,968       15,096,493         5,475            0
+ 23 10,810,686,273       15,450,408       15,426,866        23,542            0
+ 24 11,331,896,635       15,449,888       15,426,354        23,534            0
+ 25 11,987,963,014       15,101,968       15,096,493         5,475            0
+ 26 12,374,314,897       15,449,888       15,426,354        23,534            0
+ 27 12,769,800,605       15,101,968       15,096,493         5,475            0
+ 28 13,156,154,332       15,465,888       15,441,528        24,360            0
+ 29 13,677,388,781       15,450,392       15,426,866        23,526            0
+ 30 14,072,850,022       15,101,968       15,096,493         5,475            0
+ 31 14,594,096,162       15,101,968       15,096,493         5,475            0
+ 32 14,980,449,729       15,450,408       15,426,866        23,542            0
+ 33 15,501,685,126       15,465,496       15,441,130        24,366            0
+ 34 15,897,170,747       15,101,968       15,096,493         5,475            0
+ 35 16,462,885,917       15,102,968       15,097,455         5,513            0
+ 36 17,024,501,735       17,683,904       17,545,722       138,182            0
+ 37 17,795,887,120       15,101,968       15,096,493         5,475            0
+ 38 18,361,602,154       15,102,968       15,097,455         5,513            0
+ 39 19,110,423,762       17,028,448       16,924,151       104,297            0
+ 40 19,884,935,984       15,101,896       15,096,429         5,467            0
+ 41 20,634,705,210       17,925,352       17,774,951       150,401            0
+ 42 21,196,321,430       16,432,936       16,359,452        73,484            0
+ 43 21,969,886,033       15,101,896       15,096,429         5,467            0
+ 44 22,345,244,402       15,102,968       15,097,455         5,513            0
+99.96% (15,097,455B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->79.45% (11,999,133B) 0x1299E3: allocate (new_allocator.h:151)
+| ->79.45% (11,999,133B) 0x1299E3: allocate (allocator.h:196)
+|   ->79.45% (11,999,133B) 0x1299E3: allocate (alloc_traits.h:515)
+|     ->79.45% (11,999,133B) 0x1299E3: _S_allocate (basic_string.h:131)
+|       ->79.45% (11,999,133B) 0x1299E3: _M_create (basic_string.tcc:159)
+|         ->79.45% (11,999,133B) 0x1299E3: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->32.44% (4,898,817B) 0x13014F: _M_append (basic_string.tcc:424)
+|           | ->32.44% (4,898,817B) 0x13014F: append (basic_string.h:1470)
+|           |   ->32.44% (4,898,817B) 0x13014F: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
+|           |     ->32.44% (4,898,817B) 0x13014F: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
+|           |       ->32.44% (4,898,817B) 0x12FBB1: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
+|           |         ->32.44% (4,898,817B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |           ->32.44% (4,898,817B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |             ->32.44% (4,898,817B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |               ->32.44% (4,898,817B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                 ->32.44% (4,898,817B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                   ->32.44% (4,898,817B) 0x193DD6: operator() (std_thread.h:308)
+|           |                     ->32.44% (4,898,817B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                       ->32.44% (4,898,817B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                         ->32.44% (4,898,817B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                           ->32.44% (4,898,817B) 0x5308943: clone (clone.S:100)
 |           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
+|           ->17.85% (2,695,283B) 0x1321F3: _M_replace_aux (basic_string.tcc:468)
+|           | ->17.85% (2,695,283B) 0x1321F3: append (basic_string.h:1499)
+|           |   ->17.85% (2,695,283B) 0x1321F3: resize (basic_string.tcc:405)
+|           |     ->17.85% (2,695,283B) 0x1321F3: resize (basic_string.h:1119)
+|           |       ->17.85% (2,695,283B) 0x1321F3: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
+|           |         ->17.85% (2,695,283B) 0x13093F: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
+|           |           ->17.85% (2,695,283B) 0x130331: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
+|           |             ->17.85% (2,695,283B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |               ->17.85% (2,695,283B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |                 ->17.85% (2,695,283B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |                   ->17.85% (2,695,283B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                     ->17.85% (2,695,283B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                       ->17.85% (2,695,283B) 0x193DD6: operator() (std_thread.h:308)
+|           |                         ->17.85% (2,695,283B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                           ->17.85% (2,695,283B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                             ->17.85% (2,695,283B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                               ->17.85% (2,695,283B) 0x5308943: clone (clone.S:100)
 |           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
+|           ->17.39% (2,625,839B) 0x160E83: _M_replace_aux (basic_string.tcc:468)
+|           | ->17.39% (2,625,839B) 0x160E83: append (basic_string.h:1499)
+|           |   ->17.39% (2,625,839B) 0x160E83: resize (basic_string.tcc:405)
+|           |     ->17.39% (2,625,839B) 0x160E83: resize (basic_string.h:1119)
+|           |       ->17.39% (2,625,839B) 0x160E83: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->17.39% (2,625,839B) 0x18A049: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
+|           |         | ->17.39% (2,625,839B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|           |         |   ->17.39% (2,625,839B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->17.39% (2,625,839B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->17.39% (2,625,839B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->17.39% (2,625,839B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->17.39% (2,625,839B) 0x193DD6: operator() (std_thread.h:308)
+|           |         |             ->17.39% (2,625,839B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->17.39% (2,625,839B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |         |                 ->17.39% (2,625,839B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |         |                   ->17.39% (2,625,839B) 0x5308943: clone (clone.S:100)
 |           |         |                     
 |           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
 |           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
+|           ->11.34% (1,713,286B) 0x129B67: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->10.36% (1,565,382B) 0x1303D6: assign (basic_string.h:1678)
+|           | | ->10.36% (1,565,382B) 0x1303D6: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->10.36% (1,565,382B) 0x1303D6: TaskBuilder::compressEncryptSubtask(bool) (???:98)
+|           | |     ->10.36% (1,565,382B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           | |       ->10.36% (1,565,382B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           | |         ->10.36% (1,565,382B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |           ->10.36% (1,565,382B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |             ->10.36% (1,565,382B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           | |               ->10.36% (1,565,382B) 0x193DD6: operator() (std_thread.h:308)
+|           | |                 ->10.36% (1,565,382B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                   ->10.36% (1,565,382B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           | |                     ->10.36% (1,565,382B) 0x52777F0: start_thread (pthread_create.c:448)
+|           | |                       ->10.36% (1,565,382B) 0x5308943: clone (clone.S:100)
 |           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | ->00.98% (147,904B) in 1+ places, all below ms_print's threshold (01.00%)
 |           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           ->00.44% (65,908B) in 1+ places, all below ms_print's threshold (01.00%)
 |           
-->19.86% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.86% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->19.86% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.86% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.86% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.86% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
+->19.87% (3,001,027B) 0x12514A: allocate (new_allocator.h:151)
+| ->19.87% (3,001,027B) 0x12514A: allocate (allocator.h:196)
+|   ->19.87% (3,001,027B) 0x12514A: allocate (alloc_traits.h:515)
+|     ->19.87% (3,001,027B) 0x12514A: _S_allocate (basic_string.h:131)
+|       ->19.87% (3,001,027B) 0x12514A: _M_create (basic_string.tcc:159)
+|         ->19.87% (3,001,027B) 0x12514A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->19.86% (3,000,001B) 0x122CA3: Client::Client() (client_src/Client.cpp:19)
+|           | ->19.86% (3,000,001B) 0x132E73: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->19.86% (3,000,001B) 0x12B334: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->00.01% (1,026B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.64% (97,295B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 45 23,094,065,321       17,028,872       16,924,535       104,337            0
+ 46 23,868,578,845       15,101,896       15,096,429         5,467            0
+ 47 24,243,937,519       15,102,968       15,097,455         5,513            0
+99.96% (15,097,455B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->79.45% (11,999,133B) 0x1299E3: allocate (new_allocator.h:151)
+| ->79.45% (11,999,133B) 0x1299E3: allocate (allocator.h:196)
+|   ->79.45% (11,999,133B) 0x1299E3: allocate (alloc_traits.h:515)
+|     ->79.45% (11,999,133B) 0x1299E3: _S_allocate (basic_string.h:131)
+|       ->79.45% (11,999,133B) 0x1299E3: _M_create (basic_string.tcc:159)
+|         ->79.45% (11,999,133B) 0x1299E3: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->32.44% (4,898,817B) 0x13014F: _M_append (basic_string.tcc:424)
+|           | ->32.44% (4,898,817B) 0x13014F: append (basic_string.h:1470)
+|           |   ->32.44% (4,898,817B) 0x13014F: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
+|           |     ->32.44% (4,898,817B) 0x13014F: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
+|           |       ->32.44% (4,898,817B) 0x12FBB1: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
+|           |         ->32.44% (4,898,817B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |           ->32.44% (4,898,817B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |             ->32.44% (4,898,817B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |               ->32.44% (4,898,817B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                 ->32.44% (4,898,817B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                   ->32.44% (4,898,817B) 0x193DD6: operator() (std_thread.h:308)
+|           |                     ->32.44% (4,898,817B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                       ->32.44% (4,898,817B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                         ->32.44% (4,898,817B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                           ->32.44% (4,898,817B) 0x5308943: clone (clone.S:100)
+|           |                             
+|           ->17.85% (2,695,283B) 0x1321F3: _M_replace_aux (basic_string.tcc:468)
+|           | ->17.85% (2,695,283B) 0x1321F3: append (basic_string.h:1499)
+|           |   ->17.85% (2,695,283B) 0x1321F3: resize (basic_string.tcc:405)
+|           |     ->17.85% (2,695,283B) 0x1321F3: resize (basic_string.h:1119)
+|           |       ->17.85% (2,695,283B) 0x1321F3: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
+|           |         ->17.85% (2,695,283B) 0x13093F: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
+|           |           ->17.85% (2,695,283B) 0x130331: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
+|           |             ->17.85% (2,695,283B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |               ->17.85% (2,695,283B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |                 ->17.85% (2,695,283B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |                   ->17.85% (2,695,283B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                     ->17.85% (2,695,283B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                       ->17.85% (2,695,283B) 0x193DD6: operator() (std_thread.h:308)
+|           |                         ->17.85% (2,695,283B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                           ->17.85% (2,695,283B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                             ->17.85% (2,695,283B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                               ->17.85% (2,695,283B) 0x5308943: clone (clone.S:100)
+|           |                                 
+|           ->17.39% (2,625,839B) 0x160E83: _M_replace_aux (basic_string.tcc:468)
+|           | ->17.39% (2,625,839B) 0x160E83: append (basic_string.h:1499)
+|           |   ->17.39% (2,625,839B) 0x160E83: resize (basic_string.tcc:405)
+|           |     ->17.39% (2,625,839B) 0x160E83: resize (basic_string.h:1119)
+|           |       ->17.39% (2,625,839B) 0x160E83: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->17.39% (2,625,839B) 0x18A049: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
+|           |         | ->17.39% (2,625,839B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|           |         |   ->17.39% (2,625,839B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->17.39% (2,625,839B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->17.39% (2,625,839B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->17.39% (2,625,839B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->17.39% (2,625,839B) 0x193DD6: operator() (std_thread.h:308)
+|           |         |             ->17.39% (2,625,839B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->17.39% (2,625,839B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |         |                 ->17.39% (2,625,839B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |         |                   ->17.39% (2,625,839B) 0x5308943: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->11.34% (1,713,286B) 0x129B67: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->10.36% (1,565,382B) 0x1303D6: assign (basic_string.h:1678)
+|           | | ->10.36% (1,565,382B) 0x1303D6: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->10.36% (1,565,382B) 0x1303D6: TaskBuilder::compressEncryptSubtask(bool) (???:98)
+|           | |     ->10.36% (1,565,382B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           | |       ->10.36% (1,565,382B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           | |         ->10.36% (1,565,382B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |           ->10.36% (1,565,382B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |             ->10.36% (1,565,382B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           | |               ->10.36% (1,565,382B) 0x193DD6: operator() (std_thread.h:308)
+|           | |                 ->10.36% (1,565,382B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                   ->10.36% (1,565,382B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           | |                     ->10.36% (1,565,382B) 0x52777F0: start_thread (pthread_create.c:448)
+|           | |                       ->10.36% (1,565,382B) 0x5308943: clone (clone.S:100)
+|           | |                         
+|           | ->00.98% (147,904B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.44% (65,908B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->19.87% (3,001,027B) 0x12514A: allocate (new_allocator.h:151)
+| ->19.87% (3,001,027B) 0x12514A: allocate (allocator.h:196)
+|   ->19.87% (3,001,027B) 0x12514A: allocate (alloc_traits.h:515)
+|     ->19.87% (3,001,027B) 0x12514A: _S_allocate (basic_string.h:131)
+|       ->19.87% (3,001,027B) 0x12514A: _M_create (basic_string.tcc:159)
+|         ->19.87% (3,001,027B) 0x12514A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->19.86% (3,000,001B) 0x122CA3: Client::Client() (client_src/Client.cpp:19)
+|           | ->19.86% (3,000,001B) 0x132E73: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->19.86% (3,000,001B) 0x12B334: main (client_src/ClientMain.cpp:43)
+|           |     
+|           ->00.01% (1,026B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->00.64% (97,295B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 48 24,992,758,723       17,029,384       16,925,046       104,338            0
+ 49 25,367,169,539       15,730,664       15,692,786        37,878            0
+ 50 25,702,232,793       15,731,696       15,693,744        37,952            0
+ 51 26,037,295,837       15,730,664       15,692,786        37,878            0
+ 52 26,372,358,987       15,746,912       15,708,145        38,767            0
+ 53 26,707,422,014       15,746,112       15,707,403        38,709            0
+99.75% (15,707,403B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->76.20% (11,999,133B) 0x1299E3: allocate (new_allocator.h:151)
+| ->76.20% (11,999,133B) 0x1299E3: allocate (allocator.h:196)
+|   ->76.20% (11,999,133B) 0x1299E3: allocate (alloc_traits.h:515)
+|     ->76.20% (11,999,133B) 0x1299E3: _S_allocate (basic_string.h:131)
+|       ->76.20% (11,999,133B) 0x1299E3: _M_create (basic_string.tcc:159)
+|         ->76.20% (11,999,133B) 0x1299E3: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->31.11% (4,898,817B) 0x13014F: _M_append (basic_string.tcc:424)
+|           | ->31.11% (4,898,817B) 0x13014F: append (basic_string.h:1470)
+|           |   ->31.11% (4,898,817B) 0x13014F: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
+|           |     ->31.11% (4,898,817B) 0x13014F: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
+|           |       ->31.11% (4,898,817B) 0x12FBB1: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
+|           |         ->31.11% (4,898,817B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |           ->31.11% (4,898,817B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |             ->31.11% (4,898,817B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |               ->31.11% (4,898,817B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                 ->31.11% (4,898,817B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                   ->31.11% (4,898,817B) 0x193DD6: operator() (std_thread.h:308)
+|           |                     ->31.11% (4,898,817B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                       ->31.11% (4,898,817B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                         ->31.11% (4,898,817B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                           ->31.11% (4,898,817B) 0x5308943: clone (clone.S:100)
+|           |                             
+|           ->17.12% (2,695,283B) 0x1321F3: _M_replace_aux (basic_string.tcc:468)
+|           | ->17.12% (2,695,283B) 0x1321F3: append (basic_string.h:1499)
+|           |   ->17.12% (2,695,283B) 0x1321F3: resize (basic_string.tcc:405)
+|           |     ->17.12% (2,695,283B) 0x1321F3: resize (basic_string.h:1119)
+|           |       ->17.12% (2,695,283B) 0x1321F3: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
+|           |         ->17.12% (2,695,283B) 0x13093F: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
+|           |           ->17.12% (2,695,283B) 0x130331: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
+|           |             ->17.12% (2,695,283B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |               ->17.12% (2,695,283B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |                 ->17.12% (2,695,283B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |                   ->17.12% (2,695,283B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                     ->17.12% (2,695,283B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                       ->17.12% (2,695,283B) 0x193DD6: operator() (std_thread.h:308)
+|           |                         ->17.12% (2,695,283B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                           ->17.12% (2,695,283B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                             ->17.12% (2,695,283B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                               ->17.12% (2,695,283B) 0x5308943: clone (clone.S:100)
+|           |                                 
+|           ->16.68% (2,625,839B) 0x160E83: _M_replace_aux (basic_string.tcc:468)
+|           | ->16.68% (2,625,839B) 0x160E83: append (basic_string.h:1499)
+|           |   ->16.68% (2,625,839B) 0x160E83: resize (basic_string.tcc:405)
+|           |     ->16.68% (2,625,839B) 0x160E83: resize (basic_string.h:1119)
+|           |       ->16.68% (2,625,839B) 0x160E83: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->16.68% (2,625,839B) 0x18A049: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
+|           |         | ->16.68% (2,625,839B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|           |         |   ->16.68% (2,625,839B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->16.68% (2,625,839B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->16.68% (2,625,839B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->16.68% (2,625,839B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->16.68% (2,625,839B) 0x193DD6: operator() (std_thread.h:308)
+|           |         |             ->16.68% (2,625,839B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->16.68% (2,625,839B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |         |                 ->16.68% (2,625,839B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |         |                   ->16.68% (2,625,839B) 0x5308943: clone (clone.S:100)
+|           |         |                     
+|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|           |         
+|           ->10.88% (1,713,286B) 0x129B67: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->09.94% (1,565,382B) 0x1303D6: assign (basic_string.h:1678)
+|           | | ->09.94% (1,565,382B) 0x1303D6: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->09.94% (1,565,382B) 0x1303D6: TaskBuilder::compressEncryptSubtask(bool) (???:98)
+|           | |     ->09.94% (1,565,382B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           | |       ->09.94% (1,565,382B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           | |         ->09.94% (1,565,382B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |           ->09.94% (1,565,382B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |             ->09.94% (1,565,382B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           | |               ->09.94% (1,565,382B) 0x193DD6: operator() (std_thread.h:308)
+|           | |                 ->09.94% (1,565,382B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                   ->09.94% (1,565,382B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           | |                     ->09.94% (1,565,382B) 0x52777F0: start_thread (pthread_create.c:448)
+|           | |                       ->09.94% (1,565,382B) 0x5308943: clone (clone.S:100)
+|           | |                         
+|           | ->00.94% (147,904B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | 
+|           ->00.42% (65,908B) in 1+ places, all below ms_print's threshold (01.00%)
+|           
+->19.05% (3,000,001B) 0x12514A: allocate (new_allocator.h:151)
+| ->19.05% (3,000,001B) 0x12514A: allocate (allocator.h:196)
+|   ->19.05% (3,000,001B) 0x12514A: allocate (alloc_traits.h:515)
+|     ->19.05% (3,000,001B) 0x12514A: _S_allocate (basic_string.h:131)
+|       ->19.05% (3,000,001B) 0x12514A: _M_create (basic_string.tcc:159)
+|         ->19.05% (3,000,001B) 0x12514A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->19.05% (3,000,001B) 0x122CA3: Client::Client() (client_src/Client.cpp:19)
+|           | ->19.05% (3,000,001B) 0x132E73: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->19.05% (3,000,001B) 0x12B334: main (client_src/ClientMain.cpp:43)
 |           |     
 |           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
 |           
-->00.65% (98,361B) in 1+ places, all below ms_print's threshold (01.00%)
-
+->03.25% (511,905B) 0x18A596: allocate (new_allocator.h:151)
+| ->03.25% (511,905B) 0x18A596: allocate (allocator.h:196)
+|   ->03.25% (511,905B) 0x18A596: allocate (alloc_traits.h:515)
+|     ->03.25% (511,905B) 0x18A596: _S_allocate (basic_string.h:131)
+|       ->03.25% (511,905B) 0x18A596: _M_create (basic_string.tcc:159)
+|         ->03.25% (511,905B) 0x18A596: _M_construct<const char *> (basic_string.tcc:229)
+|           ->03.25% (511,905B) 0x18A596: basic_string<const char *, void> (basic_string.h:770)
+|             ->03.25% (511,905B) 0x18A596: construct_at<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (stl_construct.h:97)
+|               ->03.25% (511,905B) 0x18A596: construct<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (alloc_traits.h:577)
+|                 ->03.25% (511,905B) 0x18A596: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:145)
+|                   ->03.25% (511,905B) 0x18A0F6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
+|                     ->03.25% (511,905B) 0x18A0F6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:15)
+|                       ->03.25% (511,905B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|                         ->03.25% (511,905B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|                           ->03.25% (511,905B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|                             ->03.25% (511,905B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|                               ->03.25% (511,905B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|                                 ->03.25% (511,905B) 0x193DD6: operator() (std_thread.h:308)
+|                                   ->03.25% (511,905B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|                                     ->03.25% (511,905B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|                                       ->03.25% (511,905B) 0x52777F0: start_thread (pthread_create.c:448)
+|                                         ->03.25% (511,905B) 0x5308943: clone (clone.S:100)
+|                                           
+->01.25% (196,364B) in 62 places, all below massif's threshold (1.00%)
+  
 --------------------------------------------------------------------------------
   n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
 --------------------------------------------------------------------------------
- 24 16,537,253,121       15,103,616       15,098,070         5,546            0
- 25 16,984,008,157       15,103,040       15,097,530         5,510            0
- 26 17,579,678,992       15,111,928       15,106,343         5,585            0
- 27 18,026,432,799       15,103,928       15,098,366         5,562            0
- 28 18,919,944,082       15,103,616       15,098,070         5,546            0
-99.96% (15,098,070B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.43% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.43% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.43% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.43% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.43% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.43% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.43% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.43% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.43% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.43% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.43% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.43% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.43% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.43% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.43% (4,898,817B) 0x5301943: clone (clone.S:100)
+ 54 27,042,485,361       15,761,528       15,722,064        39,464            0
+ 55 27,377,548,530       15,761,200       15,721,777        39,423            0
+ 56 27,712,611,879       15,760,056       15,720,637        39,419            0
+ 57 28,047,675,277       15,776,672       15,736,492        40,180            0
+ 58 28,382,738,681       15,791,504       15,750,491        41,013            0
+ 59 28,717,802,125       15,798,984       15,757,632        41,352            0
+ 60 29,052,865,515       15,799,016       15,757,632        41,384            0
+ 61 29,387,928,538       15,799,344       15,757,979        41,365            0
+ 62 29,722,991,654       15,799,688       15,758,281        41,407            0
+ 63 30,058,054,773       15,815,400       15,773,171        42,229            0
+99.73% (15,773,171B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->75.87% (11,999,133B) 0x1299E3: allocate (new_allocator.h:151)
+| ->75.87% (11,999,133B) 0x1299E3: allocate (allocator.h:196)
+|   ->75.87% (11,999,133B) 0x1299E3: allocate (alloc_traits.h:515)
+|     ->75.87% (11,999,133B) 0x1299E3: _S_allocate (basic_string.h:131)
+|       ->75.87% (11,999,133B) 0x1299E3: _M_create (basic_string.tcc:159)
+|         ->75.87% (11,999,133B) 0x1299E3: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
+|           ->30.97% (4,898,817B) 0x13014F: _M_append (basic_string.tcc:424)
+|           | ->30.97% (4,898,817B) 0x13014F: append (basic_string.h:1470)
+|           |   ->30.97% (4,898,817B) 0x13014F: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
+|           |     ->30.97% (4,898,817B) 0x13014F: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
+|           |       ->30.97% (4,898,817B) 0x12FBB1: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
+|           |         ->30.97% (4,898,817B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |           ->30.97% (4,898,817B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |             ->30.97% (4,898,817B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |               ->30.97% (4,898,817B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                 ->30.97% (4,898,817B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                   ->30.97% (4,898,817B) 0x193DD6: operator() (std_thread.h:308)
+|           |                     ->30.97% (4,898,817B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                       ->30.97% (4,898,817B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                         ->30.97% (4,898,817B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                           ->30.97% (4,898,817B) 0x5308943: clone (clone.S:100)
 |           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
+|           ->17.04% (2,695,283B) 0x1321F3: _M_replace_aux (basic_string.tcc:468)
+|           | ->17.04% (2,695,283B) 0x1321F3: append (basic_string.h:1499)
+|           |   ->17.04% (2,695,283B) 0x1321F3: resize (basic_string.tcc:405)
+|           |     ->17.04% (2,695,283B) 0x1321F3: resize (basic_string.h:1119)
+|           |       ->17.04% (2,695,283B) 0x1321F3: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
+|           |         ->17.04% (2,695,283B) 0x13093F: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
+|           |           ->17.04% (2,695,283B) 0x130331: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
+|           |             ->17.04% (2,695,283B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           |               ->17.04% (2,695,283B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |                 ->17.04% (2,695,283B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |                   ->17.04% (2,695,283B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |                     ->17.04% (2,695,283B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |                       ->17.04% (2,695,283B) 0x193DD6: operator() (std_thread.h:308)
+|           |                         ->17.04% (2,695,283B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |                           ->17.04% (2,695,283B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |                             ->17.04% (2,695,283B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |                               ->17.04% (2,695,283B) 0x5308943: clone (clone.S:100)
 |           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
+|           ->16.60% (2,625,839B) 0x160E83: _M_replace_aux (basic_string.tcc:468)
+|           | ->16.60% (2,625,839B) 0x160E83: append (basic_string.h:1499)
+|           |   ->16.60% (2,625,839B) 0x160E83: resize (basic_string.tcc:405)
+|           |     ->16.60% (2,625,839B) 0x160E83: resize (basic_string.h:1119)
+|           |       ->16.60% (2,625,839B) 0x160E83: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
+|           |         ->16.60% (2,625,839B) 0x18A049: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
+|           |         | ->16.60% (2,625,839B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|           |         |   ->16.60% (2,625,839B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           |         |     ->16.60% (2,625,839B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           |         |       ->16.60% (2,625,839B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           |         |         ->16.60% (2,625,839B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           |         |           ->16.60% (2,625,839B) 0x193DD6: operator() (std_thread.h:308)
+|           |         |             ->16.60% (2,625,839B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           |         |               ->16.60% (2,625,839B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           |         |                 ->16.60% (2,625,839B) 0x52777F0: start_thread (pthread_create.c:448)
+|           |         |                   ->16.60% (2,625,839B) 0x5308943: clone (clone.S:100)
 |           |         |                     
 |           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
 |           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
+|           ->10.83% (1,713,286B) 0x129B67: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
+|           | ->09.90% (1,565,382B) 0x1303D6: assign (basic_string.h:1678)
+|           | | ->09.90% (1,565,382B) 0x1303D6: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
+|           | |   ->09.90% (1,565,382B) 0x1303D6: TaskBuilder::compressEncryptSubtask(bool) (???:98)
+|           | |     ->09.90% (1,565,382B) 0x12F94A: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
+|           | |       ->09.90% (1,565,382B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|           | |         ->09.90% (1,565,382B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|           | |           ->09.90% (1,565,382B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|           | |             ->09.90% (1,565,382B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|           | |               ->09.90% (1,565,382B) 0x193DD6: operator() (std_thread.h:308)
+|           | |                 ->09.90% (1,565,382B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|           | |                   ->09.90% (1,565,382B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|           | |                     ->09.90% (1,565,382B) 0x52777F0: start_thread (pthread_create.c:448)
+|           | |                       ->09.90% (1,565,382B) 0x5308943: clone (clone.S:100)
 |           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
+|           | ->00.94% (147,904B) in 1+ places, all below ms_print's threshold (01.00%)
 |           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
+|           ->00.42% (65,908B) in 1+ places, all below ms_print's threshold (01.00%)
 |           
-->19.87% (3,000,514B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.87% (3,000,514B) 0x12506A: allocate (allocator.h:196)
-|   ->19.87% (3,000,514B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.87% (3,000,514B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.87% (3,000,514B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.87% (3,000,514B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (513B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.65% (98,361B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 29 19,515,640,071       15,103,080       15,097,557         5,523            0
- 30 19,962,435,645       15,103,616       15,098,070         5,546            0
- 31 20,736,975,191       15,103,152       15,097,621         5,531            0
-99.96% (15,097,621B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.44% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.44% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.44% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.44% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.44% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.44% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.44% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.44% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.44% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.44% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.44% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.44% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.44% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.44% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.44% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.86% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.86% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->19.86% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.86% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.86% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.86% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
+->18.97% (3,000,001B) 0x12514A: allocate (new_allocator.h:151)
+| ->18.97% (3,000,001B) 0x12514A: allocate (allocator.h:196)
+|   ->18.97% (3,000,001B) 0x12514A: allocate (alloc_traits.h:515)
+|     ->18.97% (3,000,001B) 0x12514A: _S_allocate (basic_string.h:131)
+|       ->18.97% (3,000,001B) 0x12514A: _M_create (basic_string.tcc:159)
+|         ->18.97% (3,000,001B) 0x12514A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
+|           ->18.97% (3,000,001B) 0x122CA3: Client::Client() (client_src/Client.cpp:19)
+|           | ->18.97% (3,000,001B) 0x132E73: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
+|           |   ->18.97% (3,000,001B) 0x12B334: main (client_src/ClientMain.cpp:43)
 |           |     
 |           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
 |           
-->00.65% (98,425B) in 1+ places, all below ms_print's threshold (01.00%)
-
+->03.59% (567,007B) 0x18A596: allocate (new_allocator.h:151)
+| ->03.59% (567,007B) 0x18A596: allocate (allocator.h:196)
+|   ->03.59% (567,007B) 0x18A596: allocate (alloc_traits.h:515)
+|     ->03.59% (567,007B) 0x18A596: _S_allocate (basic_string.h:131)
+|       ->03.59% (567,007B) 0x18A596: _M_create (basic_string.tcc:159)
+|         ->03.59% (567,007B) 0x18A596: _M_construct<const char *> (basic_string.tcc:229)
+|           ->03.59% (567,007B) 0x18A596: basic_string<const char *, void> (basic_string.h:770)
+|             ->03.59% (567,007B) 0x18A596: construct_at<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (stl_construct.h:97)
+|               ->03.59% (567,007B) 0x18A596: construct<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, const char *, const char *> (alloc_traits.h:577)
+|                 ->03.59% (567,007B) 0x18A596: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >& std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::emplace_front<char const*, char const*>(char const*&&, char const*&&) (deque.tcc:145)
+|                   ->03.59% (567,007B) 0x18A0F6: splitReversedOrder<std::deque<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > > (Utility.h:54)
+|                     ->03.59% (567,007B) 0x18A0F6: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (???:15)
+|                       ->03.59% (567,007B) 0x12F93E: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
+|                         ->03.59% (567,007B) 0x193DD6: operator() (common/ThreadPoolBase.cpp:69)
+|                           ->03.59% (567,007B) 0x193DD6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
+|                             ->03.59% (567,007B) 0x193DD6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
+|                               ->03.59% (567,007B) 0x193DD6: _M_invoke<0UL> (std_thread.h:301)
+|                                 ->03.59% (567,007B) 0x193DD6: operator() (std_thread.h:308)
+|                                   ->03.59% (567,007B) 0x193DD6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
+|                                     ->03.59% (567,007B) 0x4F16323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
+|                                       ->03.59% (567,007B) 0x52777F0: start_thread (pthread_create.c:448)
+|                                         ->03.59% (567,007B) 0x5308943: clone (clone.S:100)
+|                                           
+->01.31% (207,030B) in 62 places, all below massif's threshold (1.00%)
+  
 --------------------------------------------------------------------------------
   n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
 --------------------------------------------------------------------------------
- 32 21,779,389,765       15,103,152       15,097,621         5,531            0
- 33 22,300,599,714       15,103,152       15,097,621         5,531            0
- 34 23,082,436,697       15,103,152       15,097,621         5,531            0
- 35 23,603,697,149       15,103,152       15,097,621         5,531            0
- 36 24,124,904,436       15,103,152       15,097,621         5,531            0
- 37 24,646,125,269       15,103,152       15,097,621         5,531            0
- 38 25,688,541,545       15,103,152       15,097,621         5,531            0
- 39 26,209,751,054       15,103,152       15,097,621         5,531            0
- 40 27,252,167,232       15,103,152       15,097,621         5,531            0
- 41 27,773,375,246       15,103,152       15,097,621         5,531            0
- 42 28,294,609,422       15,103,152       15,097,621         5,531            0
- 43 28,815,843,914       15,103,152       15,097,621         5,531            0
- 44 29,858,262,061       15,103,152       15,097,621         5,531            0
- 45 30,640,099,117       15,103,152       15,097,621         5,531            0
- 46 31,161,307,271       15,103,152       15,097,621         5,531            0
-99.96% (15,097,621B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.44% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.44% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.44% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.44% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.44% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.44% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.44% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.44% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.44% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.44% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.44% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.44% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.44% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.44% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.44% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.86% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.86% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->19.86% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.86% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.86% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.86% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.65% (98,425B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 47 31,943,120,434       15,103,152       15,097,621         5,531            0
- 48 32,464,364,753       15,103,152       15,097,621         5,531            0
- 49 32,985,573,069       15,103,152       15,097,621         5,531            0
- 50 33,433,105,803       15,885,760       15,880,220         5,540            0
- 51 33,879,880,563       15,885,760       15,880,220         5,540            0
- 52 34,330,057,825       15,103,080       15,097,557         5,523            0
-99.96% (15,097,557B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.44% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.44% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.44% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.44% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.44% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.44% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.44% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.44% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.44% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.44% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.44% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.44% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.44% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.44% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.44% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.86% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.86% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->19.86% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.86% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.86% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.86% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.65% (98,361B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 53 34,776,834,363       15,103,080       15,097,557         5,523            0
- 54 35,225,588,270       15,103,152       15,097,621         5,531            0
- 55 35,673,395,881       15,103,616       15,098,070         5,546            0
- 56 36,120,149,789       15,103,040       15,097,530         5,510            0
- 57 36,566,903,834       15,111,928       15,106,343         5,585            0
- 58 37,013,657,719       15,105,168       15,099,527         5,641            0
- 59 37,460,411,634       15,109,432       15,103,558         5,874            0
- 60 37,907,193,340       15,103,616       15,098,070         5,546            0
- 61 38,353,947,613       15,104,152       15,098,583         5,569            0
- 62 38,800,703,181       15,103,568       15,098,029         5,539            0
-99.96% (15,098,029B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.43% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.43% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.43% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.43% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.43% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.43% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.43% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.43% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.43% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.43% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.43% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.43% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.43% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.43% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.43% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.86% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.86% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->19.86% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.86% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.86% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.86% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.65% (98,833B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 63 39,247,457,883       15,103,568       15,098,029         5,539            0
- 64 39,694,212,053       15,103,080       15,097,557         5,523            0
- 65 40,140,965,973       15,108,264       15,102,453         5,811            0
- 66 40,587,734,933       15,103,616       15,098,070         5,546            0
- 67 41,034,489,255       15,104,152       15,098,583         5,569            0
- 68 41,481,260,477       15,103,616       15,098,070         5,546            0
- 69 41,928,014,398       15,104,152       15,098,583         5,569            0
- 70 42,374,769,227       15,103,568       15,098,029         5,539            0
- 71 42,821,523,251       15,104,160       15,098,578         5,582            0
- 72 43,268,310,382       15,103,616       15,098,070         5,546            0
-99.96% (15,098,070B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.43% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.43% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.43% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.43% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.43% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.43% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.43% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.43% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.43% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.43% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.43% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.43% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.43% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.43% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.43% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.87% (3,000,514B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.87% (3,000,514B) 0x12506A: allocate (allocator.h:196)
-|   ->19.87% (3,000,514B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.87% (3,000,514B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.87% (3,000,514B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.87% (3,000,514B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (513B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.65% (98,361B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 73 43,715,064,866       15,103,080       15,097,557         5,523            0
- 74 44,161,818,847       15,111,808       15,106,239         5,569            0
- 75 44,608,573,188       15,103,568       15,098,029         5,539            0
- 76 45,055,327,042       15,108,264       15,102,453         5,811            0
- 77 45,502,080,997       15,115,840       15,109,657         6,183            0
- 78 45,948,835,250       15,104,152       15,098,583         5,569            0
- 79 46,395,590,990       15,103,568       15,098,029         5,539            0
- 80 46,842,346,283       15,103,568       15,098,029         5,539            0
- 81 47,289,100,320       15,107,528       15,101,738         5,790            0
- 82 47,735,854,312       15,112,536       15,106,505         6,031            0
-99.96% (15,106,505B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.40% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.40% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.40% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.40% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.40% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.40% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.42% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.42% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.42% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.42% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.42% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.42% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.42% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.42% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.42% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.42% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.42% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.42% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.42% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.42% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.42% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.83% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.83% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.83% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.83% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.83% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.83% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.83% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.83% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.83% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.83% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.83% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.83% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.83% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.83% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.83% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.83% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.83% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.38% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.38% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.38% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.38% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.38% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.38% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.38% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.38% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.38% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.38% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.38% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.38% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.38% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.38% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.38% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.38% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.85% (3,000,001B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.85% (3,000,001B) 0x12506A: allocate (allocator.h:196)
-|   ->19.85% (3,000,001B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.85% (3,000,001B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.85% (3,000,001B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.85% (3,000,001B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.85% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.85% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.85% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.71% (107,309B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 83 48,182,610,759       15,104,152       15,098,583         5,569            0
- 84 48,629,368,856       15,103,616       15,098,070         5,546            0
- 85 49,076,123,040       15,103,616       15,098,070         5,546            0
- 86 49,522,877,444       15,103,568       15,098,029         5,539            0
- 87 49,969,631,669       15,103,080       15,097,557         5,523            0
- 88 50,416,393,790       15,103,616       15,098,070         5,546            0
- 89 50,863,147,663       15,103,080       15,097,557         5,523            0
- 90 51,309,917,575       15,103,616       15,098,070         5,546            0
- 91 51,756,672,025       15,103,080       15,097,557         5,523            0
- 92 52,203,442,769       15,103,616       15,098,070         5,546            0
-99.96% (15,098,070B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
-->79.45% (11,999,195B) 0x129903: allocate (new_allocator.h:151)
-| ->79.45% (11,999,195B) 0x129903: allocate (allocator.h:196)
-|   ->79.45% (11,999,195B) 0x129903: allocate (alloc_traits.h:515)
-|     ->79.45% (11,999,195B) 0x129903: _S_allocate (basic_string.h:131)
-|       ->79.45% (11,999,195B) 0x129903: _M_create (basic_string.tcc:159)
-|         ->79.45% (11,999,195B) 0x129903: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:332)
-|           ->32.43% (4,898,817B) 0x1302EF: _M_append (basic_string.tcc:424)
-|           | ->32.43% (4,898,817B) 0x1302EF: append (basic_string.h:1470)
-|           |   ->32.43% (4,898,817B) 0x1302EF: append<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1544)
-|           |     ->32.43% (4,898,817B) 0x1302EF: TaskBuilder::copyRequestWithId(std::basic_string_view<char, std::char_traits<char> >, long) (???:54)
-|           |       ->32.43% (4,898,817B) 0x12FD51: TaskBuilder::createSubtask(Lines2&) (client_src/TaskBuilder.cpp:70)
-|           |         ->32.43% (4,898,817B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |           ->32.43% (4,898,817B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |             ->32.43% (4,898,817B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |               ->32.43% (4,898,817B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                 ->32.43% (4,898,817B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                   ->32.43% (4,898,817B) 0x193AF6: operator() (std_thread.h:308)
-|           |                     ->32.43% (4,898,817B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                       ->32.43% (4,898,817B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                         ->32.43% (4,898,817B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                           ->32.43% (4,898,817B) 0x5301943: clone (clone.S:100)
-|           |                             
-|           ->17.85% (2,695,283B) 0x132393: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.85% (2,695,283B) 0x132393: append (basic_string.h:1499)
-|           |   ->17.85% (2,695,283B) 0x132393: resize (basic_string.tcc:405)
-|           |     ->17.85% (2,695,283B) 0x132393: resize (basic_string.h:1119)
-|           |       ->17.85% (2,695,283B) 0x132393: void compressionLZ4::compress<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (CompressionLZ4.h:22)
-|           |         ->17.85% (2,695,283B) 0x130ADF: std::basic_string_view<char, std::char_traits<char> > compressEncrypt<std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::variant<std::shared_ptr<CryptoPlPl>, std::shared_ptr<CryptoSodium> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::tuple<HEADERTYPE, unsigned long, unsigned long, COMPRESSORS, DIAGNOSTICS, STATUS, unsigned long> const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, bool, int) (EncryptorTemplates.h:31)
-|           |           ->17.85% (2,695,283B) 0x1304D1: TaskBuilder::compressEncryptSubtask(bool) (client_src/TaskBuilder.cpp:93)
-|           |             ->17.85% (2,695,283B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           |               ->17.85% (2,695,283B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |                 ->17.85% (2,695,283B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |                   ->17.85% (2,695,283B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |                     ->17.85% (2,695,283B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |                       ->17.85% (2,695,283B) 0x193AF6: operator() (std_thread.h:308)
-|           |                         ->17.85% (2,695,283B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |                           ->17.85% (2,695,283B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |                             ->17.85% (2,695,283B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |                               ->17.85% (2,695,283B) 0x5301943: clone (clone.S:100)
-|           |                                 
-|           ->17.39% (2,625,839B) 0x161023: _M_replace_aux (basic_string.tcc:468)
-|           | ->17.39% (2,625,839B) 0x161023: append (basic_string.h:1499)
-|           |   ->17.39% (2,625,839B) 0x161023: resize (basic_string.tcc:405)
-|           |     ->17.39% (2,625,839B) 0x161023: resize (basic_string.h:1119)
-|           |       ->17.39% (2,625,839B) 0x161023: void utility::readFile<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(std::basic_string_view<char, std::char_traits<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (Utility.h:98)
-|           |         ->17.39% (2,625,839B) 0x18A009: FileLines2::FileLines2(std::basic_string_view<char, std::char_traits<char> >, char, bool) (common/FileLines2.cpp:14)
-|           |         | ->17.39% (2,625,839B) 0x12FAD9: TaskBuilder::run() (client_src/TaskBuilder.cpp:24)
-|           |         |   ->17.39% (2,625,839B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           |         |     ->17.39% (2,625,839B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           |         |       ->17.39% (2,625,839B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           |         |         ->17.39% (2,625,839B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           |         |           ->17.39% (2,625,839B) 0x193AF6: operator() (std_thread.h:308)
-|           |         |             ->17.39% (2,625,839B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           |         |               ->17.39% (2,625,839B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           |         |                 ->17.39% (2,625,839B) 0x52707F0: start_thread (pthread_create.c:448)
-|           |         |                   ->17.39% (2,625,839B) 0x5301943: clone (clone.S:100)
-|           |         |                     
-|           |         ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
-|           |         
-|           ->11.34% (1,713,317B) 0x129A87: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_replace(unsigned long, unsigned long, char const*, unsigned long) (basic_string.tcc:548)
-|           | ->10.36% (1,565,382B) 0x130576: assign (basic_string.h:1678)
-|           | | ->10.36% (1,565,382B) 0x130576: assign<std::basic_string_view<char, std::char_traits<char> > > (basic_string.h:1790)
-|           | |   ->10.36% (1,565,382B) 0x130576: TaskBuilder::compressEncryptSubtask(bool) (???:98)
-|           | |     ->10.36% (1,565,382B) 0x12FAEA: TaskBuilder::run() (client_src/TaskBuilder.cpp:25)
-|           | |       ->10.36% (1,565,382B) 0x193AF6: operator() (common/ThreadPoolBase.cpp:69)
-|           | |         ->10.36% (1,565,382B) 0x193AF6: __invoke_impl<void, (lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:61)
-|           | |           ->10.36% (1,565,382B) 0x193AF6: __invoke<(lambda at common/ThreadPoolBase.cpp:55:25)> (invoke.h:96)
-|           | |             ->10.36% (1,565,382B) 0x193AF6: _M_invoke<0UL> (std_thread.h:301)
-|           | |               ->10.36% (1,565,382B) 0x193AF6: operator() (std_thread.h:308)
-|           | |                 ->10.36% (1,565,382B) 0x193AF6: std::thread::_State_impl<std::thread::_Invoker<std::tuple<ThreadPoolBase::createThread()::$_0> > >::_M_run() (std_thread.h:253)
-|           | |                   ->10.36% (1,565,382B) 0x4F0F323: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.34)
-|           | |                     ->10.36% (1,565,382B) 0x52707F0: start_thread (pthread_create.c:448)
-|           | |                       ->10.36% (1,565,382B) 0x5301943: clone (clone.S:100)
-|           | |                         
-|           | ->00.98% (147,935B) in 1+ places, all below ms_print's threshold (01.00%)
-|           | 
-|           ->00.44% (65,939B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->19.87% (3,000,514B) 0x12506A: allocate (new_allocator.h:151)
-| ->19.87% (3,000,514B) 0x12506A: allocate (allocator.h:196)
-|   ->19.87% (3,000,514B) 0x12506A: allocate (alloc_traits.h:515)
-|     ->19.87% (3,000,514B) 0x12506A: _S_allocate (basic_string.h:131)
-|       ->19.87% (3,000,514B) 0x12506A: _M_create (basic_string.tcc:159)
-|         ->19.87% (3,000,514B) 0x12506A: std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long) (basic_string.tcc:315)
-|           ->19.86% (3,000,001B) 0x122BC3: Client::Client() (client_src/Client.cpp:19)
-|           | ->19.86% (3,000,001B) 0x133013: tcp::TcpClient::TcpClient() (client_src/TcpClient.cpp:9)
-|           |   ->19.86% (3,000,001B) 0x12B254: main (client_src/ClientMain.cpp:43)
-|           |     
-|           ->00.00% (513B) in 1+ places, all below ms_print's threshold (01.00%)
-|           
-->00.65% (98,361B) in 1+ places, all below ms_print's threshold (01.00%)
-
---------------------------------------------------------------------------------
-  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
---------------------------------------------------------------------------------
- 93 52,650,196,754       15,104,152       15,098,583         5,569            0
- 94 53,096,951,275       15,103,568       15,098,029         5,539            0
- 95 53,543,705,194       15,103,568       15,098,029         5,539            0
+ 64 30,393,117,736       15,831,120       15,788,045        43,075            0
+ 65 30,728,181,089       15,847,096       15,803,270        43,826            0
+ 66 31,063,244,213       15,847,128       15,803,270        43,858            0
+ 67 31,398,307,220       15,862,728       15,818,061        44,667            0
+ 68 31,733,370,206       15,878,184       15,832,654        45,530            0

@@ -9,13 +9,13 @@
 #include "BoostJsonParser.h"
 
 CRYPTO Options::_encryptorType(translateCryptoString("CRYPTOSODIUM"));
-std::string Options::_fifoDirectoryName(std::filesystem::current_path().string());
-std::string Options::_acceptorBaseName("acceptor");
-std::string Options::_acceptorName(_fifoDirectoryName + '/' + _acceptorBaseName);
+boost::static_string<100> Options::_fifoDirectoryName(std::filesystem::current_path().string());
+boost::static_string<100> Options::_acceptorBaseName("acceptor");
+boost::static_string<100> Options::_acceptorName(_fifoDirectoryName + '/' + _acceptorBaseName);
 int Options::_numberRepeatENXIO(200);
 bool Options::_setPipeSize(true);
 std::size_t Options::_pipeSize(1000000);
-std::string Options::_serverAddress("127.0.0.1");
+boost::static_string<100> Options::_serverAddress("127.0.0.1");
 unsigned short Options::_tcpPort(49151);
 boost::json::value Options::_jv;
 

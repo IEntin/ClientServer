@@ -16,7 +16,7 @@ bool ClientOptions::_tcpClient;
 COMPRESSORS ClientOptions::_compressor;
 int ClientOptions::_compressionLevel;
 bool ClientOptions::_doEncrypt(false);
-std::string ClientOptions::_sourceName;
+boost::static_string<100> ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream;
 std::ostream* ClientOptions::_instrStream(nullptr);
 int ClientOptions::_maxNumberTasks(0);
@@ -28,7 +28,7 @@ bool ClientOptions::_runLoop(false);
 std::size_t ClientOptions::_bufferSize(100000);
 bool ClientOptions::_timing(false);
 bool ClientOptions::_printHeader(false);
-std::string ClientOptions::_logThresholdName("ERROR");
+boost::static_string<100> ClientOptions::_logThresholdName("ERROR");
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   if (!jsonName.empty()) {

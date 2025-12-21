@@ -11,7 +11,7 @@ enum class COMPRESSORS : char;
 
 struct ServerOptions : Options {
   static void parse(std::string_view jsonName);
-  static std::string _adsFileName;
+  static boost::static_string<100> _adsFileName;
   static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
@@ -25,7 +25,7 @@ struct ServerOptions : Options {
   static std::size_t _bufferSize;
   static bool _timing;
   static bool _printHeader;
-  static std::string _logThresholdName;
+  static boost::static_string<100> _logThresholdName;
 private:
   ServerOptions() = delete;
   ~ServerOptions() = delete;

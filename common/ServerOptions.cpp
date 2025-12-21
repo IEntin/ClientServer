@@ -10,7 +10,7 @@
 #include "BoostJsonParser.h"
 #include "Logger.h"
 
-std::string ServerOptions::_adsFileName("data/ads.txt");
+boost::static_string<100> ServerOptions::_adsFileName("data/ads.txt");
 COMPRESSORS ServerOptions::_compressor(translateCompressorString("LZ4"));
 int ServerOptions::_compressionLevel(3);
 bool ServerOptions::_doEncrypt(true);
@@ -24,7 +24,7 @@ POLICYENUM ServerOptions::_policyEnum;
 std::size_t ServerOptions::_bufferSize(100000);
 bool ServerOptions::_timing(false);
 bool ServerOptions::_printHeader(false);
-std::string ServerOptions::_logThresholdName("ERROR");
+boost::static_string<100> ServerOptions::_logThresholdName("ERROR");
 
 void ServerOptions::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
