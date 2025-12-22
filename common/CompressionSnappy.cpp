@@ -25,7 +25,7 @@ bool uncompress(std::string& buffer, std::string& data) {
   if (!snappy::IsValidCompressedBuffer(data.data(), data.size()))
     throw std::runtime_error("data is not valid.");      
   if (snappy::Uncompress(data.data(), data.size(), &buffer)) {
-    data = buffer;
+    data.swap(buffer);
     return true;
   }
   LogError << "uncompress failed.\n";

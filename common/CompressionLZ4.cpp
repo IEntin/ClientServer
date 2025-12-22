@@ -23,14 +23,14 @@ void compress(std::string& buffer, std::string& data) {
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
   buffer.assign(buffer.data(), compressedSize).append(metadata);
-  data = buffer;
+  data.swap(buffer);
 }
 
 void uncompress(std::string& buffer, std::string& data) {
   std::string_view metadata(data.cend() - ioutility::CONV_BUFFER_SIZE, data.cend());
   std::size_t uncomprSize = 0;
   ioutility::fromChars(metadata, uncomprSize);
-  data.resize(data.size() - metadata.size());
+  data.erase(data.cend() - ioutility::CONV_BUFFER_SIZE, data.cend());
   buffer.resize(uncomprSize);
   ssize_t decomprSize = LZ4_decompress_safe(data.data(),
 					    buffer.data(),
@@ -38,7 +38,7 @@ void uncompress(std::string& buffer, std::string& data) {
 					    uncomprSize);
   if (decomprSize < 0)
     throw std::runtime_error("uncompress failed");
-  data.assign(buffer.data(), decomprSize);
+  data.swap(buffer);
 }
 
 } // end of namespace compression

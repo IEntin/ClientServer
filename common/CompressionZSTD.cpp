@@ -27,7 +27,7 @@ bool uncompress(std::string& buffer, std::string& data) {
     throw std::runtime_error(ZSTD_getErrorName(decompressedSize));
   buffer.resize(decompressedSize);
   ZSTD_decompress(buffer.data(), decompressedSize, data.data(), data.size());
-  data = buffer;
+  data.swap(buffer);
   return true;
 }
 
