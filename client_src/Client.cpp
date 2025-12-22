@@ -17,6 +17,7 @@ thread_local Subtasks Client::_task;
 
 Client::Client() : _chronometer(ClientOptions::_timing) {
   fillEncryptorContainer(_encryptorContainer, Options::_encryptorTypeDefault);
+  _buffer.reserve(ClientOptions::_bufferSize);
 }
 
 Client::~Client() {

@@ -21,6 +21,7 @@ try :
 			   Options::_encryptorTypeDefault,
 			   encodedPeerPubKeyAes,
 			   signatureWithPubKey);
+    _buffer.reserve(ServerOptions::_bufferSize);
   }
 catch (const std::exception& e) {
   LogError << e.what() << '\n';

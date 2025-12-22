@@ -12,7 +12,9 @@
 
 TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER& crypto) :
   _subtaskIndex(0),
-  _crypto(crypto) {}
+  _crypto(crypto) {
+  _aggregate.reserve(ClientOptions::_bufferSize);
+}
 
 void TaskBuilder::run() {
   while (!_stopped) {
