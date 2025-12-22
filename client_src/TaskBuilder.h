@@ -14,7 +14,7 @@ class TaskBuilder final : public Runnable {
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
 
-  static thread_local std::string _aggregate;
+  std::string _aggregate;
   Subtasks _subtasks;
   unsigned _subtaskIndex;
   std::mutex _mutex;

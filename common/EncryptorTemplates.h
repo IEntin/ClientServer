@@ -15,11 +15,11 @@ using CryptoVector = boost::container::static_vector<class CryptoBase, 3>;
 
 using ENCRYPTORCONTAINER = CryptoVariant;
 
-template <typename CONTAINER, typename DATA>
+template <typename CONTAINER>
 std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& buffer,
 				 const HEADER& header,
-				 DATA& data,
+				 std::string& data,
 				 bool doEncrypt,
 				 int compressionLevel = 3) {
   auto crypto = std::get<getEncryptorIndex()>(container);
@@ -47,23 +47,23 @@ std::string_view compressEncrypt(CONTAINER& container,
   }
   else {
     auto serialized = serialize(header);
-    DATA headerWithData;
+    std::string headerWithData;
     headerWithData.append(serialized).append(data);
     data.swap(headerWithData);
     return data;
   }
   return "";
 }
-template <typename CONTAINER, typename DATA>
+template <typename CONTAINER>
 std::string_view decryptDecompress(CONTAINER& container,
 				   std::string& buffer,
 				   HEADER& header,
-				   DATA& data) {
+				   std::string& data) {
   auto crypto = std::get<getEncryptorIndex()>(container);
   auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
-    if (!deserialize(header, &data[0]))
+    if (!deserialize(header, data.data()))
       throw std::runtime_error("deserialize failed");
     data.erase(0, HEADER_SIZE);
     if (isCompressed(header)) {
@@ -83,7 +83,7 @@ std::string_view decryptDecompress(CONTAINER& container,
       }
     }
   }
-  return { &data[0], data.size() };
+  return { data.data(), data.size() };
 }
 
 template <typename CONTAINER>

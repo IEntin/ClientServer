@@ -4,35 +4,12 @@
 
 #pragma once
 
-#include <cstring>
-#include <stdexcept>
 #include <string>
-#include <zstd.h>
-
-#include <boost/static_string/static_string.hpp>
 
 namespace compressionZSTD {
 
-template <typename DATA>
-bool compress(std::string& buffer, DATA& data, int compressionLevel = -3) {
-  std::size_t dstSize = ZSTD_compressBound(data.size());
-  buffer.resize(dstSize);
-  std::size_t compressedSize = ZSTD_compress(&buffer[0], dstSize, &data[0], data.size(), compressionLevel);
-  if (ZSTD_isError(compressedSize))
-    throw std::runtime_error(ZSTD_getErrorName(compressedSize));
-  data.assign(buffer.cbegin(), buffer.cbegin() + compressedSize);
-  return true;
-}
+bool compress(std::string& buffer, std::string& data, int compressionLevel = 3);
 
-template <typename DATA>
-bool uncompress(std::string& buffer, DATA& data) {
-  std::size_t decompressedSize = ZSTD_getFrameContentSize(&data[0], data.size());
-  if (ZSTD_isError(decompressedSize))
-    throw std::runtime_error(ZSTD_getErrorName(decompressedSize));
-  buffer.resize(decompressedSize);
-  ZSTD_decompress(&*buffer.begin(), decompressedSize, &*data.cbegin(), data.size());
-  data.assign(buffer.cbegin(), buffer.cend());
-  return true;
-}
+bool uncompress(std::string& buffer, std::string& data);
 
 } // end of namespace compressionZSTD

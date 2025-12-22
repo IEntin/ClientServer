@@ -34,21 +34,7 @@ public:
 // header is encrypted as the rest of data
 // but never compressed because decompression
 // needs header
-  template <typename SOURCE>
-  static bool isEncrypted(const SOURCE& input) {
-    if (input.empty())
-      return false;
-    assert(input.size() >= HEADER_SIZE);
-    HEADER header;
-    try {
-      if (deserialize(header, &input[0]))
-	return false;
-      return true;
-    }
-    catch (const std::runtime_error& error) {
-      return true;
-    }
-  }
+  static bool isEncrypted(std::string_view input);
 
   static bool displayCryptoLibName();
 };

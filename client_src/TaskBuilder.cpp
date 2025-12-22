@@ -10,8 +10,6 @@
 #include "FileLines.h"
 #include "Utility.h"
 
-thread_local std::string TaskBuilder::_aggregate;
-
 TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER& crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {}

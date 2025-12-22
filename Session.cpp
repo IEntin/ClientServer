@@ -16,7 +16,6 @@ Session::Session(ServerWeakPtr server,
 try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
-    _request.reserve(ServerOptions::_bufferSize);
     _clientId = utility::getUniqueId();
     fillEncryptorContainer(_encryptorContainer,
 			   Options::_encryptorTypeDefault,
