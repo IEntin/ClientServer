@@ -64,6 +64,14 @@ toCharsBoost(I value, bool fixedSize = false) {
 }
 
 template <Integral I>
+void toCharsBoost(I value, char* buffer, std::size_t bfferSize = CONV_BUFFER_SIZE) {
+  boost::charconv::to_chars_result result = 
+    boost::charconv::to_chars(buffer, buffer + bfferSize, value);
+  if (result.ec != std::errc())
+    throw std::runtime_error("conversion failed");
+}
+
+template <Integral I>
 std::string& operator << (std::string& buffer, I number) {
   buffer += toCharsBoost(number);
   return buffer;

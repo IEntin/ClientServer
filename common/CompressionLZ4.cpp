@@ -13,7 +13,6 @@ namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data) {
   std::size_t uncompressedSize = data.size();
-  auto metadata = ioutility::toCharsBoost(uncompressedSize, true);
   std::size_t requiredCapacity = LZ4_compressBound(uncompressedSize) + ioutility::CONV_BUFFER_SIZE;
   buffer.resize(requiredCapacity);
   std::size_t compressedSize = LZ4_compress_default(data.data(),
@@ -22,7 +21,9 @@ void compress(std::string& buffer, std::string& data) {
 						    buffer.capacity());
   if (compressedSize == 0)
     throw std::runtime_error("compress failed");
-  buffer.assign(buffer.data(), compressedSize).append(metadata);
+  buffer.resize(compressedSize + ioutility::CONV_BUFFER_SIZE);
+  std::memset(buffer.data() + compressedSize, '\0', ioutility::CONV_BUFFER_SIZE);
+  ioutility::toCharsBoost(uncompressedSize, buffer.data() + compressedSize);
   data.swap(buffer);
 }
 
