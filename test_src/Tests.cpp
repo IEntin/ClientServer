@@ -10,8 +10,10 @@
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
+#include "FileLines.h"
 #include "FileLines2.h"
 #include "IOUtility.h"
+#include "StringLines.h"
 #include "StringLines2.h"
 #include "TestEnvironment.h"
 
@@ -181,9 +183,27 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
+TEST(GetFileLineTest, 1) {
+  std::string sourceCopy;
+  FileLines linesDelim(ClientOptions::_sourceName, '\n', true);
+  std::string line;
+  while (linesDelim.getLine(line))
+    sourceCopy += line;
+  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+}
+
 TEST(GetFileLine2Test, 1) {
   std::string sourceCopy;
   FileLines2 linesDelim(ClientOptions::_sourceName, '\n', true);
+  std::string line;
+  while (linesDelim.getLine(line))
+    sourceCopy += line;
+  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+}
+
+TEST(GetStringLineTest, 1) {
+  std::string sourceCopy;
+  StringLines linesDelim(TestEnvironment::_source, '\n', true);
   std::string line;
   while (linesDelim.getLine(line))
     sourceCopy += line;
