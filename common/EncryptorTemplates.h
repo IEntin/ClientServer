@@ -122,7 +122,7 @@ void fillEncryptorContainer(CONTAINER& container,
       break;
     }
   }
-  else if constexpr (std::is_same_v<CONTAINER, boost::container::static_vector<class CryptoBase, 3>>) {
+  else if constexpr (std::is_same_v<CONTAINER, EncryptorVector>) {
     container.emplace_back(std::make_shared<CryptoPlPl>());
     container.emplace_back(std::make_shared<CryptoSodium>());
   }
@@ -145,7 +145,7 @@ void fillEncryptorContainer(CONTAINER& container,
       break;
     }
  }
- else if constexpr (std::is_same_v<CONTAINER, boost::container::static_vector<class CryptoBase, 3>>) {
+ else if constexpr (std::is_same_v<CONTAINER, EncryptorVector>) {
    container.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
    container.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey));
  }
