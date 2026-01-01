@@ -36,11 +36,6 @@ enum class HEADERTYPE : char {
   INVALIDHIGH
 };
 
-enum class ENCRYPTORCONTAINERTYPE : std::size_t {
-  VARIANTCONTAINER,
-  VECTORCONTAINER,
-  ERROR
-};
   enum class CRYPTO : std::size_t {
   CRYPTOPP,
   CRYPTOSODIUM,
