@@ -91,14 +91,14 @@ TEST(Base64EncodingTest, 1) {
 }
 
 TEST(CryptoVariant, 1) {
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant0 = std::make_shared<CryptoPlPl>();
+  std::variant<CryptoSodiumPtr, CryptoPlPlPtr> cryptoVariant0 = std::make_shared<CryptoPlPl>();
   std::size_t index = cryptoVariant0.index();
-  ASSERT_EQ(index, 0);
+  ASSERT_EQ(index, 1);
   auto active0 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(cryptoVariant0);
   static_assert(std::is_same_v<decltype(active0), CryptoPlPlPtr> == true );
-  std::variant<CryptoPlPlPtr, CryptoSodiumPtr> cryptoVariant1 = std::make_shared<CryptoSodium>();
+  std::variant<CryptoSodiumPtr, CryptoPlPlPtr> cryptoVariant1 = std::make_shared<CryptoSodium>();
   index = cryptoVariant1.index();
-  ASSERT_EQ(index, 1);
+  ASSERT_EQ(index, 0);
   auto active2 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(cryptoVariant1);
   static_assert(std::is_same_v<decltype(active2), CryptoSodiumPtr> == true );
  }

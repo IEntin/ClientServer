@@ -10,7 +10,7 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 
-using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
+using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 using CryptoVector = boost::container::static_vector<class CryptoBase, 3>;
 
 using ENCRYPTORCONTAINER = CryptoVariant;

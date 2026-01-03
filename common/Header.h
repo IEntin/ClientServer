@@ -37,8 +37,8 @@ enum class HEADERTYPE : char {
 };
 
   enum class CRYPTO : std::size_t {
-  CRYPTOPP,
   CRYPTOSODIUM,
+  CRYPTOPP,
   NONE,
   ERROR,
 };
