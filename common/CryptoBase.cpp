@@ -4,8 +4,6 @@
 
 #include "CryptoBase.h"
 
-EncryptorVector CryptoBase::_vector;
-
 bool CryptoBase::isEncrypted(std::string_view input) {
   if (input.empty())
     return false;

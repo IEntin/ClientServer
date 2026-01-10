@@ -11,7 +11,7 @@
 #include "CryptoSodium.h"
 
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
-using CryptoVector = boost::container::static_vector<class CryptoBase, 3>;
+using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = CryptoVariant;
 
@@ -122,9 +122,8 @@ void fillEncryptorContainer(CONTAINER& container,
       break;
     }
   }
-  else if constexpr (std::is_same_v<CONTAINER, EncryptorVector>) {
-    container.emplace_back(std::make_shared<CryptoPlPl>());
-    container.emplace_back(std::make_shared<CryptoSodium>());
+  else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
+    container = { std::make_shared<CryptoPlPl>(), std::make_shared<CryptoSodium>() };
   }
 }
 
@@ -145,8 +144,8 @@ void fillEncryptorContainer(CONTAINER& container,
       break;
     }
  }
- else if constexpr (std::is_same_v<CONTAINER, EncryptorVector>) {
-   container.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
-   container.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey));
+ else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
+   container = { std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey),
+		 std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey) };
  }
 }
