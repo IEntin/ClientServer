@@ -16,6 +16,7 @@ struct Options {
 public:
   static void parse(std::string_view jsonName);
   static constexpr bool _debug = false;
+  static constexpr bool _useEncryptorVariant = true;
   static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOSODIUM;
   static CRYPTO _encryptorType;
   static boost::static_string<100> _fifoDirectoryName;

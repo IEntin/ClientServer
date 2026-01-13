@@ -71,7 +71,7 @@ TEST(AuthenticationTest, 1) {
     // client
     CryptoPlPlPtr cryptoC(std::make_shared<CryptoPlPl>());
     // server ctor throws on authentication failure
-    CryptoPlPlPtr cryptoS = createServer(cryptoC);
+    CryptoPlPlPtr cryptoS = createServerEncryptor(cryptoC);
   }
   catch (...) {
     // no exceptions
