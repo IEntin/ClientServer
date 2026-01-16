@@ -10,15 +10,15 @@ This code was built and tested on
 
 1. Ubuntu 25.04\
 gcc 14.2.0\
-clang 19.1.1\
+clang 20.1.2\
 8GB RAM\
-4 cores
+8 cores
 
 and
 
 2. Ubuntu 25.04\
 gcc 14.2.0\
-clang 19.1.1\
+clang 20.1.2\
 4GB RAM\
 4 cores
 
@@ -69,7 +69,9 @@ static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOPP;\
 and to rebuild the application.\
 Sodium is preferable due to the active development of this library,\
 besides, valgrind showed significant drop in the number of memory \
-allocations with Sodium.
+allocations with Sodium. c++ variant is holding an active encryptor.\
+There is also an alternative with tuple holding both encryptors\
+for multilayered encryption. Usage requires some refactoring.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
@@ -143,7 +145,7 @@ address and ephemeral port in the tcp case.
 .........
 
 There are configurable restrictions on the number of tcp and/or fifo sessions the server\
-is handling. If a new client exceeds this limit it remains up but enrers a waiting mode.\
+is handling. If a new client exceeds this limit it remains up but enters a waiting mode.\
 When one of the previously started clients exits, the waiting client at the head of the\
 queue starts running.\
 Another restriction is on the total number of sessions.\
@@ -153,7 +155,7 @@ A waiting client can also be closed and tried again later.\
 The relevant settings are "MaxTcpSessions", "MaxFifoSessions" and "MaxTotalSessions"\
 in ServerOptions.json.
 
-There are no software or hardware restrictions on the number of clients. Observed\
+In general, all restrictions on the number of sessions/clients can be removed. Observed\
 latency is strictly proportional to the number of clients due to increasing load\
 on worker threads running processing logic. Only performance is a limiting factor.\
 This server was tested with up to 40 clients of mixed types, 20 FIFO and 20 TCP.\
@@ -190,12 +192,11 @@ especially of the client, which can in turn reduce hardware requirements.
 
 Option to use LZ4, SNAPPY, or ZSTD compression.\
 Preliminary results show that LZ4 gives better elapsed, compression ratio, and using less memory than SNAPPY.\
-SNAPPY is simpler to use, it does not require to save uncompressed size.\
 ZSTD shows the same elapsed as SNAPPY, ~15% slower than LZ4 (ZSTD multithreading was not enabled in these tests),\
 and high compression ratio as expected.\
-High compression ratio might be good for encryption and security.\
-ZSTD does not require saving of uncompressed size as well.\
-Here metadata  added for LZ4 routine saving uncompressed size at the end of the data string.\
+High compression ratio might be useful for encryption and security.\
+SNAPPY and ZSTD do not require saving of uncompressed size for decompression.\
+LZ4 compression in this app saves metadata with uncompressed size at the end of the data as well.\
 Software allows mixing different compression algorithms, for instance,\
 server can be configured to compress data using LZ4, but the client usually sending much longer input\
 messages will compress data using ZSTD. Headers accompanying sent data contain the necessary information, \
