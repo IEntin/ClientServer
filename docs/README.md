@@ -56,7 +56,7 @@ libcrypto++-dev must be installed:\
 libsodium-dev must be installed:\
 'sudo apt install libsodium-dev'
 
-### Building and Testing
+### Build and Testing
 
 #### Notice:
 There is a choice of encryption libraries to use in this application:\

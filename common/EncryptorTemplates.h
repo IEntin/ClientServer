@@ -15,8 +15,6 @@ using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = std::conditional_t<Options::_useEncryptorVariant, CryptoVariant, CryptoTuple>;
 
-static CryptoTuple _clientEncryptorContainer;
-
 template <typename CONTAINER>
 std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& buffer,
@@ -135,7 +133,7 @@ void fillEncryptorContainer(CONTAINER& container,
     }
   }
   else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
-    _clientEncryptorContainer = container = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
+    container = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
   }
 }
 
@@ -157,12 +155,13 @@ void fillEncryptorContainer(CONTAINER& container,
     }
  }
  else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
-   CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorContainer);
-   CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
-   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
-   CryptoPlPlPtr clientEncryptor1 = std::get<1>(_clientEncryptorContainer);
-   CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
-   clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
-   container = { serverEncryptor0, serverEncryptor1 };
+ extern CryptoTuple _clientEncryptorTuple;
+ CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorTuple);
+ CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
+ clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
+ CryptoPlPlPtr clientEncryptor1 = std::get<1>(_clientEncryptorTuple);
+ CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
+ clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
+ container = { serverEncryptor0, serverEncryptor1 };
  }
 }
