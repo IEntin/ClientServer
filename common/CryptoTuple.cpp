@@ -4,11 +4,12 @@
  */
 
 #include "CryptoTuple.h"
-#include "EncryptorTemplates.h"
+
+namespace cryptotuple {
 
 CryptoTuple _clientEncryptorTuple = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
 
-CryptoTuple initServerEncryptorTuple() {
+CryptoTuple initEncryptorTuples() {
   CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorTuple);
   CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
@@ -18,4 +19,14 @@ CryptoTuple initServerEncryptorTuple() {
   return { serverEncryptor0, serverEncryptor1 };
 }
 
-CryptoTuple _serverEncryptorTuple = initServerEncryptorTuple();
+CryptoTuple _serverEncryptorTuple = initEncryptorTuples();
+
+CryptoTuple getClientEncryptorTuple() {
+  return _clientEncryptorTuple;
+}
+
+CryptoTuple getServerEncryptorTuple() {
+  return _serverEncryptorTuple;
+}
+
+} // end of namespace cryptotuple
