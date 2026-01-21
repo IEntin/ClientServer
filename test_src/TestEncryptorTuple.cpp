@@ -54,3 +54,37 @@ TEST(EncryptDecrypt, 1) {
   std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
   ASSERT_EQ(payload, TestEnvironment::_source);
 }
+
+TEST(DoubleEncryptDecrypt, 0) {
+  CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
+  CryptoSodiumPtr cryptoC0 = std::get<0>(clientTuple);
+  CryptoPlPlPtr cryptoC1 = std::get<1>(clientTuple);
+  
+  CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
+  CryptoSodiumPtr cryptoS0 = std::get<0>(serverTuple);
+  CryptoPlPlPtr cryptoS1 = std::get<1>(serverTuple);
+
+  HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
+		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+  std::string_view encrypted = cryptoC0->encrypt(TestEnvironment::_buffer,
+						 header,
+						 TestEnvironment::_source);
+  ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
+  std::string source(TestEnvironment::_buffer);
+  TestEnvironment::_buffer.clear();
+  std::string_view encrypted1 = cryptoC1->encrypt(TestEnvironment::_buffer,
+						  source);
+  ASSERT_TRUE(CryptoBase::isEncrypted(encrypted1));
+  std::string data(encrypted1);
+  TestEnvironment::_buffer.clear();
+  cryptoS1->decrypt(TestEnvironment::_buffer, data);
+  ASSERT_TRUE(CryptoBase::isEncrypted(data));
+  TestEnvironment::_buffer.clear();
+  cryptoS0->decrypt(TestEnvironment::_buffer, data);
+  ASSERT_FALSE(CryptoBase::isEncrypted(data));
+  HEADER recoveredHeader;
+  deserialize(recoveredHeader, data.data());
+  ASSERT_EQ(header, recoveredHeader);
+  std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
+  ASSERT_EQ(payload, TestEnvironment::_source);
+}

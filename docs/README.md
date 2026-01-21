@@ -71,7 +71,9 @@ Sodium is preferable due to the active development of this library,\
 besides, valgrind showed significant drop in the number of memory \
 allocations with Sodium. c++ variant is holding an active encryptor.\
 There is also an alternative with tuple holding both encryptors\
-for multilayered encryption. Usage requires some refactoring.
+for multilayered encryption.\
+See TestEncryptorTuple.cpp: TEST(DoubleEncryptDecrypt, 0)\
+Usage requires refactoring.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
