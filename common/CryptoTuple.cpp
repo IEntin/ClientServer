@@ -7,7 +7,8 @@
 
 namespace cryptotuple {
 
-CryptoTuple _clientEncryptorTuple = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
+  CryptoTuple _clientEncryptorTuple;
+  CryptoTuple _serverEncryptorTuple;
 
 CryptoTuple initEncryptorTuples() {
   CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorTuple);
@@ -19,9 +20,9 @@ CryptoTuple initEncryptorTuples() {
   return { serverEncryptor0, serverEncryptor1 };
 }
 
-CryptoTuple _serverEncryptorTuple = initEncryptorTuples();
-
 CryptoTuple getClientEncryptorTuple() {
+  _clientEncryptorTuple = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
+  _serverEncryptorTuple = initEncryptorTuples();
   return _clientEncryptorTuple;
 }
 
