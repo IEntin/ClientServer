@@ -69,11 +69,13 @@ static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOPP;\
 and to rebuild the application.\
 Sodium is preferable due to the active development of this library,\
 besides, valgrind showed significant drop in the number of memory \
-allocations with Sodium. c++ variant is holding an active encryptor.\
+allocations with Sodium. c++ variant is holding an active encryptor.
+
 There is also an alternative with tuple holding both encryptors\
-for multilayered encryption.\
-See TestEncryptorTuple.cpp: TEST(DoubleEncryptDecrypt, 0)\
-Usage requires refactoring.
+for multilayered encryption when two or more layers use different encryption libraries\
+and different secret AES keys to encrypt data more than once and then \
+decrypt data in the opposite order at the receiving end with a potential to enhance secrecy.\
+See TestEncryptorTuple.cpp: TEST(DoubleEncryptDecrypt, 0).
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
