@@ -2,13 +2,16 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "EncryptorTemplates.h"
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 
 #pragma once
 
+using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
+
 namespace cryptotuple {
 
-  CryptoTuple getClientEncryptorTuple();
-  CryptoTuple getServerEncryptorTuple();
+CryptoTuple getClientEncryptorTuple();
+CryptoTuple getServerEncryptorTuple();
 
 } // end of namespace cryptotuple

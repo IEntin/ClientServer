@@ -4,11 +4,12 @@
  */
 
 #include "CryptoTuple.h"
+#include "EncryptorTemplates.h"
 
 namespace cryptotuple {
 
-  CryptoTuple _clientEncryptorTuple;
-  CryptoTuple _serverEncryptorTuple;
+CryptoTuple _clientEncryptorTuple;
+CryptoTuple _serverEncryptorTuple;
 
 CryptoTuple initEncryptorTuples() {
   CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorTuple);

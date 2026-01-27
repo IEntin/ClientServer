@@ -9,6 +9,7 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
+#include "CryptoTuple.h"
 
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
@@ -155,13 +156,13 @@ void fillEncryptorContainer(CONTAINER& container,
     }
  }
  else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
- extern CryptoTuple _clientEncryptorTuple;
- CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorTuple);
- CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
- clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
- CryptoPlPlPtr clientEncryptor1 = std::get<1>(_clientEncryptorTuple);
- CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
- clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
- container = { serverEncryptor0, serverEncryptor1 };
+   CryptoTuple clientEncryptorTuple = cryptotuple::getClientEncryptorTuple();
+   CryptoSodiumPtr clientEncryptor0 = std::get<0>(clientEncryptorTuple);
+   CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
+   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
+   CryptoPlPlPtr clientEncryptor1 = std::get<1>(clientEncryptorTuple);
+   CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
+   clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
+   container = { serverEncryptor0, serverEncryptor1 };
  }
 }
