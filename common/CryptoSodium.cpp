@@ -101,41 +101,16 @@ CryptoSodium::~CryptoSodium() {
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
-				       const HEADER& header,
-				       std::string_view data) {
+				       std::string_view data,
+				       const HEADER* const header) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
   static thread_local std::string input;
   input.clear();
-  input.append(serialize(header)).append(data);
-  unsigned long long ciphertext_len;
-  unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
-  randombytes_buf(nonce, std::ssize(nonce));
-  std::size_t message_len = std::ssize(input);
-  buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
-  std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
-  setAESKey(key);
-  if (!(crypto_aead_aes256gcm_encrypt(std::bit_cast<unsigned char*>(buffer.data()),
-				      &ciphertext_len,
-				      std::bit_cast<unsigned char*>(input.data()),
-				      message_len, nullptr, 0,
-				      nullptr, nonce, key.data()) == 0)) {
-    sodium_memzero(input.data(), input.size());
-    throw std::runtime_error("encrypt failed");
-  }
-  sodium_memzero(input.data(), input.size());
-  buffer.insert(buffer.cend(), std::cbegin(nonce), std::cend(nonce));
-  return buffer;
-}
-
-std::string_view CryptoSodium::encrypt(std::string& buffer,
-				       std::string_view data) {
-  if (!checkAccess())
-    throw std::runtime_error("access denied");
-  buffer.clear();
-  static thread_local std::string input;
-  input.assign(data);
+  if (header != nullptr)
+    input.append(serialize(*header));
+  input.append(data);
   unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
   randombytes_buf(nonce, std::ssize(nonce));

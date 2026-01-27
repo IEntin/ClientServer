@@ -23,8 +23,8 @@ TEST(EncryptDecrypt, 0) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC0->encrypt(TestEnvironment::_buffer,
-						 header,
-						 TestEnvironment::_source);
+						 TestEnvironment::_source,
+						 &header);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
   cryptoS0->decrypt(TestEnvironment::_buffer, data);
@@ -44,8 +44,8 @@ TEST(EncryptDecrypt, 1) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC1->encrypt(TestEnvironment::_buffer,
-						 header,
-						 TestEnvironment::_source);
+						 TestEnvironment::_source,
+						 &header);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
   cryptoS1->decrypt(TestEnvironment::_buffer, data);
@@ -69,8 +69,8 @@ TEST(DoubleEncryptDecrypt, 0) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC0->encrypt(TestEnvironment::_buffer,
-						 header,
-						 TestEnvironment::_source);
+						 TestEnvironment::_source,
+						 &header);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string source(TestEnvironment::_buffer);
   TestEnvironment::_buffer.clear();
@@ -103,8 +103,8 @@ TEST(DoubleEncryptDecrypt, 1) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC1->encrypt(TestEnvironment::_buffer,
-						 header,
-						 TestEnvironment::_source);
+						 TestEnvironment::_source,
+						 &header);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string source(TestEnvironment::_buffer);
   TestEnvironment::_buffer.clear();

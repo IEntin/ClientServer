@@ -104,8 +104,8 @@ bool CryptoPlPl::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 }
 
 std::string_view CryptoPlPl::encrypt(std::string& buffer,
-				     const HEADER& header,
-				     std::string_view data) {
+				     std::string_view data,
+				     const HEADER* const header) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
@@ -115,25 +115,10 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   setAESmodule(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
-  std::string headerBuffer(serialize(header));
-  stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(headerBuffer.data()), HEADER_SIZE);
-  stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(data.data()), data.size());
-  stfEncryptor.MessageEnd();
-  buffer.insert(buffer.cend(), iv.begin(), iv.end());
-  return buffer;
-}
-
-std::string_view CryptoPlPl::encrypt(std::string& buffer,
-				     std::string_view data) {
-  if (!checkAccess())
-    throw std::runtime_error("access denied");
-  buffer.clear();
-  CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
-  _rng.GenerateBlock(iv, iv.size());
-  CryptoPP::AES::Encryption aesEncryption;
-  setAESmodule(aesEncryption);
-  CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
-  CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
+  if (header != nullptr) {
+    std::string headerBuffer(serialize(*header));
+    stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(headerBuffer.data()), HEADER_SIZE);
+  }
   stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.insert(buffer.cend(), iv.begin(), iv.end());

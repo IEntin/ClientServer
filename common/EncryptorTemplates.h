@@ -42,7 +42,7 @@ std::string_view compressEncrypt(CONTAINER& container,
   }
   if (doEncrypt) {
     if (auto crypto = weak.lock();crypto) {
-      return crypto->encrypt(buffer, header, data);
+      return crypto->encrypt(buffer, data, &header);
     }
   }
   else {
