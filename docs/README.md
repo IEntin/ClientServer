@@ -8,7 +8,7 @@ Copyright (C) 2021 Ilya Entin.
 
 This code was built and tested on
 
-1. Ubuntu 25.04\
+1. Ubuntu 25.10\
 gcc 14.2.0\
 clang 20.1.2\
 8GB RAM\
