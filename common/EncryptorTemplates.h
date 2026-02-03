@@ -156,13 +156,6 @@ void fillEncryptorContainer(CONTAINER& container,
     }
  }
  else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
-   CryptoTuple clientEncryptorTuple = cryptotuple::getClientEncryptorTuple();
-   CryptoSodiumPtr clientEncryptor0 = std::get<0>(clientEncryptorTuple);
-   CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
-   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
-   CryptoPlPlPtr clientEncryptor1 = std::get<1>(clientEncryptorTuple);
-   CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
-   clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
-   container = { serverEncryptor0, serverEncryptor1 };
+   container = cryptotuple::getServerEncryptorTuple();
  }
 }
