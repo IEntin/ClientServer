@@ -16,7 +16,7 @@ clang 20.1.2\
 
 and
 
-2. Ubuntu 25.10\
+2. Ubuntu 25.04\
 gcc 14.2.0\
 clang 20.1.2\
 4GB RAM\
