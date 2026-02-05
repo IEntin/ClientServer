@@ -145,11 +145,11 @@ void fillEncryptorContainer(CONTAINER& container,
  			    std::string_view signatureWithPubKey) {
  if constexpr (std::is_same_v<CONTAINER, CryptoVariant>) {
     switch(encryptorType) {
-    case CRYPTO::CRYPTOPP:
-      container = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey) };
-      break;
     case CRYPTO::CRYPTOSODIUM:
       container = { std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey) };
+      break;
+    case CRYPTO::CRYPTOPP:
+      container = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey) };
       break;
     default:
       break;
