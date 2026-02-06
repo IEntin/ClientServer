@@ -25,7 +25,7 @@ class TcpClient : public Client {
     std::string_view signedAuth) -> bool {
     return Tcp::sendMessage(_socket, header, pubKeyAes, signedAuth);
   };
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = findEncryptor(container);
   if (!crypto->sendSignature(lambda))
     throw std::runtime_error("TcpClient::init failed");
   if (!receiveStatus())

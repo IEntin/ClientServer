@@ -12,11 +12,6 @@ auto makeWeak(std::shared_ptr<C> crypto) {
   return std::weak_ptr<C>(crypto);
 }
 
-consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
-  return std::to_underlying(encryptorType);
-}
-
 class CryptoBase {
  protected:
   CryptoBase() {}

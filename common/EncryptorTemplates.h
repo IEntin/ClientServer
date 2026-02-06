@@ -16,6 +16,17 @@ using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = std::conditional_t<Options::_useEncryptorVariant, CryptoVariant, CryptoTuple>;
 
+constexpr auto findEncryptor = []<typename C>(const C& c) {
+  if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
+    return std::get<CryptoSodiumPtr>(c);
+  }
+  else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOPP) {
+    return std::get<CryptoPlPlPtr>(c);
+  }
+  else
+    throw std::runtime_error("findEncryptor failed");
+};
+
 template <typename CONTAINER>
 std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& buffer,
@@ -23,7 +34,7 @@ std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& data,
 				 bool doEncrypt,
 				 int compressionLevel = 3) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = findEncryptor(container);
   auto weak = makeWeak(crypto);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
@@ -60,7 +71,7 @@ std::string_view decryptDecompress(CONTAINER& container,
 				   std::string& buffer,
 				   HEADER& header,
 				   std::string& data) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = findEncryptor(container);
   auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
@@ -90,7 +101,7 @@ std::string_view decryptDecompress(CONTAINER& container,
 template <typename CONTAINER>
 void clientKeyExchange(CONTAINER& container,
 		       std::string_view encodedPeerPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = findEncryptor(container);
   if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
     throw std::runtime_error("clientKeyExchange failed");
   }
@@ -102,7 +113,7 @@ void sendStatusToClientImpl(CONTAINER& container,
 			    STATUS status,
 			    HEADER& header,
 			    std::string& encodedPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = findEncryptor(container);
   encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
