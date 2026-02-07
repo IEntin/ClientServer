@@ -145,7 +145,7 @@ void fillEncryptorContainer(CONTAINER& container,
     }
   }
   else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
-    container = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
+    container = cryptotuple::getClientEncryptorTuple();
   }
 }
 
@@ -157,10 +157,10 @@ void fillEncryptorContainer(CONTAINER& container,
  if constexpr (std::is_same_v<CONTAINER, CryptoVariant>) {
     switch(encryptorType) {
     case CRYPTO::CRYPTOSODIUM:
-      container = { std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey) };
+      container = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
       break;
     case CRYPTO::CRYPTOPP:
-      container = { std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey) };
+      container = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
       break;
     default:
       break;
