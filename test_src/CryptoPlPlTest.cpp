@@ -13,56 +13,56 @@
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, true, container);
+    testCompressEncrypt(COMPRESSORS::LZ4, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, true, container);
+    testCompressEncrypt(COMPRESSORS::SNAPPY, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, true, container);
+    testCompressEncrypt(COMPRESSORS::ZSTD, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, true, container);
+    testCompressEncrypt(COMPRESSORS::NONE, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::LZ4, false, container);
+    testCompressEncrypt(COMPRESSORS::LZ4, false, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::SNAPPY, false, container);
+    testCompressEncrypt(COMPRESSORS::SNAPPY, false, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::ZSTD, false, container);
+    testCompressEncrypt(COMPRESSORS::ZSTD, false, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
-    testCompressEncrypt<CryptoPlPl>(COMPRESSORS::NONE, false, container);
+    testCompressEncrypt(COMPRESSORS::NONE, false, container);
   }
 }
 

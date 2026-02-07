@@ -71,55 +71,55 @@ TEST(LibSodiumTest, publicKeyEncoding) {
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::LZ4, true, container);
+    testCompressEncrypt(COMPRESSORS::LZ4, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::SNAPPY, true, container);
+    testCompressEncrypt(COMPRESSORS::SNAPPY, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::ZSTD, true, container);
+    testCompressEncrypt(COMPRESSORS::ZSTD, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::NONE, true, container);
+    testCompressEncrypt(COMPRESSORS::NONE, true, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::LZ4, false, container);
+    testCompressEncrypt(COMPRESSORS::LZ4, false, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::SNAPPY, false, container);
+    testCompressEncrypt(COMPRESSORS::SNAPPY, false, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::ZSTD, false, container);
+    testCompressEncrypt(COMPRESSORS::ZSTD, false, container);
   }
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_S) {
   if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoSodium>();
-    testCompressEncrypt<CryptoSodium>(COMPRESSORS::NONE, false, container);
+    testCompressEncrypt(COMPRESSORS::NONE, false, container);
   }
 }

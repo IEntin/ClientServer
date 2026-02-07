@@ -35,12 +35,12 @@ public:
   };
 
   struct TestCompressEncrypt : testing::Test {
-    template <typename CryptoType, typename COMPRESSORS>
+    template <typename CONTAINER, typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor,
 			     bool doEncrypt,
-			     [[maybe_unused]] const CryptoVariant& container) {
+			     const CONTAINER& container) {
       // client
-      auto cryptoC(std::make_shared<CryptoType>());
+      auto cryptoC = findEncryptor(container);
       // server
       auto cryptoS = createServerEncryptor(cryptoC);
       cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
