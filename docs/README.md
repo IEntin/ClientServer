@@ -41,10 +41,6 @@ Header only boost libraries, currently boost 1_90, must be installed.
 lz4 dev version must be installed:\
 'sudo scripts/installLZ4.sh'
 
-google snappy dev must be installed:\
-current version 1.2.2\
-'sudo apt-get install libsnappy-dev'
-
 google tests must be installed:\
 'sudo scripts/installGtest.sh'
 
