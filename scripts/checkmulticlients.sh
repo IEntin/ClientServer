@@ -115,4 +115,3 @@ pkill serverX
 
 wait
 
-sleep 5

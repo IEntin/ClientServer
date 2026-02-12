@@ -16,8 +16,6 @@ then
     exit 0
 fi 
 
-trap SIGHUP SIGINT SIGTERM
-
-NUMBER_CORES=$(nproc)
+trap EXIT SIGHUP SIGINT SIGTERM
 
 $UP_DIR/testbin --gtest_repeat=$1 --gtest_break_on_failure

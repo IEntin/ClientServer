@@ -25,7 +25,7 @@ pkill clientX
 
 set -e
 
-trap SIGHUP SIGINT SIGTERM
+trap EXIT SIGHUP SIGINT SIGTERM
 
 date
 
@@ -56,8 +56,6 @@ make cleanall
 
 $PRJ_DIR/serverX&
 
-sleep 1
-
 # Start the client
 
 ( cd $UP_DIR/Client;
@@ -65,12 +63,9 @@ if [[ $1 == fifo ]]; then
     sed -i 's/"ClientType" : "TCP"/"ClientType" : "FIFO"/' ClientOptions.json
 elif [[ $1 == tcp ]]; then
     sed -i 's/"ClientType" : "FIFO"/"ClientType" : "TCP"/' ClientOptions.json
-fi )
-
-( cd $UP_DIR/Client;
-  sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 100/' ClientOptions.json
-  valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $PRJ_DIR/clientX > /dev/null
-  sed -i 's/"MaxNumberTasks" : 100/"MaxNumberTasks" : 0/' ClientOptions.json
+fi
+sed -i 's/"MaxNumberTasks" : 0/"MaxNumberTasks" : 100/' ClientOptions.json
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $PRJ_DIR/clientX > /dev/null
 )
 
 echo -e "\nkilling server\n"
@@ -78,3 +73,5 @@ echo -e "\nkilling server\n"
 pkill serverX
 
 wait
+
+make cleanall
