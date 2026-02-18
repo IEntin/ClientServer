@@ -15,12 +15,16 @@
 
 // common constants
 
-constexpr std::string_view buildDateTime = __DATE__ " " __TIME__;
-constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
+constexpr std::string_view ENDOFMESSAGE("f65438b3bf504ace8483e6642a84d2fd");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
 namespace utility {
+
+constexpr std::string_view getAuthenticationMessage() {
+  static std::string_view message = __DATE__ " " __TIME__;
+  return message;
+}
 
 // INPUT can be a string or string_view.
 // CONTAINER can be a vector or a deque or a list of string,

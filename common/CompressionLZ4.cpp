@@ -19,7 +19,7 @@ void compress(std::string& buffer, std::string& data) {
 						    buffer.data(),
 						    data.size(),
 						    buffer.capacity());
-  if (compressedSize == 0)
+  if (compressedSize <= 0)
     throw std::runtime_error("compress failed");
   buffer.resize(compressedSize + ioutility::CONV_BUFFER_SIZE);
   std::memset(buffer.data() + compressedSize, '\0', ioutility::CONV_BUFFER_SIZE);

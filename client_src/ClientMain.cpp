@@ -21,6 +21,7 @@ void signalHandler(int) {
 
 int main() {
   std::ios_base::sync_with_stdio(false);
+  std::cin.tie(NULL);
   DebugLog::setDebugLog(APPTYPE::CLIENT);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setClientTerminal(terminal);

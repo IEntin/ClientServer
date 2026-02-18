@@ -49,7 +49,7 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
   _name("CryptoPlPl"),
-  _msgHash(sha256_hash(buildDateTime)),
+  _msgHash(sha256_hash(utility::getAuthenticationMessage())),
   _signatureWithPubKeySign(signatureWithPubKey.data(), signatureWithPubKey.size()) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   std::vector<unsigned char> decoded = base64_decode(encodedPeerAesPubKey);
@@ -80,7 +80,7 @@ CryptoPlPl::CryptoPlPl() :
   _key(_dh.AgreedValueLength()),
   _keyHandler(_key.size()),
   _name("CryptoPlPl"),
-  _msgHash(sha256_hash(buildDateTime)) {
+  _msgHash(sha256_hash(utility::getAuthenticationMessage())) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
