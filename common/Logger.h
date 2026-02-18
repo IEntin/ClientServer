@@ -30,7 +30,7 @@ enum class LOG_LEVEL : int {
   INVALID
 };
 
-inline constexpr std::string_view levelNames[] {
+constexpr std::string_view levelNames[] {
   "TRACE",
   "DEBUG",
   "INFO",

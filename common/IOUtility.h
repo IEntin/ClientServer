@@ -17,7 +17,7 @@
 
 namespace ioutility {
 
-inline constexpr int CONV_BUFFER_SIZE = 10;
+constexpr int CONV_BUFFER_SIZE = 10;
 
 inline auto removeNonDigits = [] (std::string_view& view) mutable {
   int shift = 0;

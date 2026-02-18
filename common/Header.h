@@ -11,14 +11,14 @@
 
 #include "Logger.h"
 
-inline constexpr int HEADERTYPE_SIZE = 1;
-inline constexpr int FIELD1_SIZE = 10;
-inline constexpr int FIELD2_SIZE = 10;
-inline constexpr int COMPRESSOR_SIZE = 1;
-inline constexpr int DIAGNOSTICS_SIZE = 1;
-inline constexpr int STATUS_SIZE = 1;
-inline constexpr int FIELD3_SIZE = 10;
-inline constexpr int HEADER_SIZE =
+constexpr int HEADERTYPE_SIZE = 1;
+constexpr int FIELD1_SIZE = 10;
+constexpr int FIELD2_SIZE = 10;
+constexpr int COMPRESSOR_SIZE = 1;
+constexpr int DIAGNOSTICS_SIZE = 1;
+constexpr int STATUS_SIZE = 1;
+constexpr int FIELD3_SIZE = 10;
+constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + FIELD1_SIZE + FIELD2_SIZE +
   COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + FIELD3_SIZE;
 

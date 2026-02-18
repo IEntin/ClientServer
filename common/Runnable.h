@@ -11,7 +11,7 @@
 
 #include "Header.h"
 
-inline constexpr int MAX_NUMBER_THREADS_DEFAULT = 1000;
+constexpr int MAX_NUMBER_THREADS_DEFAULT = 1000;
 
 using RunnablePtr = std::shared_ptr<class Runnable>;
 
