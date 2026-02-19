@@ -119,14 +119,10 @@ void sendStatusToClientImpl(CONTAINER& container,
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
 
-static CryptoSodiumPtr createServerEncryptor(CryptoSodiumPtr cryptoClient) {
-  return std::make_shared<CryptoSodium>(cryptoClient->_encodedPubKeyAes,
-					cryptoClient->_signatureWithPubKeySign);
-}
-
-static CryptoPlPlPtr createServerEncryptor(CryptoPlPlPtr cryptoClient) {
-  return std::make_shared<CryptoPlPl>(cryptoClient->_encodedPubKeyAes,
-				      cryptoClient->_signatureWithPubKeySign);
+template <typename E>
+E createServerEncryptor(E clientEncryptor) {
+  return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
+    clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
 }
 
 template <typename CONTAINER>

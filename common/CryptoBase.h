@@ -16,7 +16,8 @@ class CryptoBase {
  protected:
   CryptoBase() {}
   virtual std::string_view getName() const = 0;
-  bool _verified = false;
+  bool _verifiedSignature = false;
+  bool _keysExchanged = false;
   bool _signatureSent = false;
   std::mutex _mutex;
 public:

@@ -76,20 +76,26 @@ CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
   std::copy(signatureWithPubKeySign.begin(), signatureWithPubKeySign.begin() + crypto_sign_BYTES, signature);
   unsigned char peerPubcicKeySign[crypto_sign_PUBLICKEYBYTES] = {};
   std::copy(signatureWithPubKeySign.begin() + crypto_sign_BYTES, signatureWithPubKeySign.cend(), std::begin(peerPubcicKeySign));
-  _verified = crypto_sign_verify_detached(
-    signature,
-    std::bit_cast<const unsigned char*>(_msgHash.data()),
-    std::ssize(_msgHash),
-    peerPubcicKeySign) == 0;
-  if (!_verified)
-    throw std::runtime_error("authentication failed");
+  if (!_verifiedSignature) {
+    _verifiedSignature = crypto_sign_verify_detached(
+      signature,
+      std::bit_cast<const unsigned char*>(_msgHash.data()),
+      std::ssize(_msgHash),
+      peerPubcicKeySign) == 0;
+    if (!_verifiedSignature) {
+      eraseUsedData();
+      throw std::runtime_error("authentication failed");
+    }
+  }
   // Server-side key exchange
   if (crypto_kx_server_session_keys(_key.data(),
 				    nullptr,
 				    _pubKeyAes.data(),
 				    _privKeyAes.data(),
-				    _peerPubKeyAes.data()) != 0)
+				    _peerPubKeyAes.data()) != 0) {
+    eraseUsedData();
     throw std::runtime_error("Server-side key exchange failed");
+  }
   sodium_memzero(_privKeyAes.data(), _privKeyAes.size());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   _keyHandler.hideKey(_key);
@@ -211,7 +217,7 @@ std::string CryptoSodium::hashMessage(std::string_view message) {
 
 bool CryptoSodium::checkAccess() {
   if (utility::isServerTerminal())
-    return _verified;
+    return _verifiedSignature;
   else if (utility::isClientTerminal())
     return _signatureSent;
   else if (utility::isTestbinTerminal())

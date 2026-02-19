@@ -66,9 +66,14 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   std::string signature(_signatureWithPubKeySign.data(), RSA_KEY_SIZE >> 3);
   std::string rsaPubKeySerialized = _signatureWithPubKeySign.substr(RSA_KEY_SIZE >> 3);
   decodePeerRsaPublicKey(rsaPubKeySerialized);
-  if (!verifySignature(signature))
-    throw std::runtime_error("signature verification failed.");
-  hideKey();
+  if (!_verifiedSignature) {
+    if (!verifySignature(signature)) {
+      destroySecretData();
+      throw std::runtime_error("signature verification failed.");
+    }
+    hideKey();
+    _verifiedSignature = true;
+  }
   destroySecretData();
 }
 
@@ -199,11 +204,11 @@ void CryptoPlPl::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 
 bool CryptoPlPl::verifySignature(std::string_view signature) {
   CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
-  _verified = verifier.VerifyMessage(std::bit_cast<CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
-				     std::bit_cast<CryptoPP::byte*>(signature.data()), signature.length());
-  if (!_verified)
-    throw std::runtime_error("Failed to verify signature");
+  _verifiedSignature = verifier.VerifyMessage(std::bit_cast<CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
+			 std::bit_cast<CryptoPP::byte*>(signature.data()), signature.length());
   destroySecretData();
+  if (!_verifiedSignature)
+    throw std::runtime_error("Failed to verify signature");
   return true;
 }
 // For the tests the message is based on the build datetime,
@@ -237,7 +242,7 @@ void CryptoPlPl::eraseAfterUse() {
 
 bool CryptoPlPl::checkAccess() {
   if (utility::isServerTerminal())
-    return _verified;
+    return _verifiedSignature;
   else if (utility::isClientTerminal())
     return _signatureSent;
   else if (utility::isTestbinTerminal())
