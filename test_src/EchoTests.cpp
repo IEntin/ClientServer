@@ -21,8 +21,8 @@
 // for i in {1..10}; do ./testbin --gtest_filter=EchoTest.FIFO_NONE_ZSTD_ENCRYPT_ENCRYPT; done
 // gdb --args testbin --gtest_filter=EchoTest.FIFO_LZ4_LZ4_ENCRYPT_ENCRYPT
 
-static constexpr auto _smallPayload = "abcdefghijklmnopqr0123456789876543210";
-static constexpr auto _testFifo = "TestFifo";
+constexpr auto _smallPayload = "abcdefghijklmnopqr0123456789876543210";
+constexpr auto _testFifo = "TestFifo";
 
 struct EchoTest : testing::Test {
   const std::string _originalSource = TestEnvironment::_source;

@@ -13,7 +13,7 @@
 
 namespace fifo {
 
-static constexpr std::size_t BUFFER_SIZE = 10000;
+constexpr std::size_t BUFFER_SIZE = 10000;
 
 thread_local std::string Fifo::_payload;
 

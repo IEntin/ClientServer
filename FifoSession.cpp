@@ -15,7 +15,7 @@
 
 namespace fifo {
 
-static constexpr auto TYPE{ "fifo" };
+constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view encodedPeerPubKeyAes,
