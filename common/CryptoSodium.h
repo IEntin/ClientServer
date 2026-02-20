@@ -25,6 +25,7 @@ struct HandleKey {
 };
 
 class CryptoSodium : public CryptoBase {
+  friend struct RemoveSensitiveData;
   using SessionKey = std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>;
   std::string
   hashMessage(std::string_view message);
@@ -34,13 +35,24 @@ class CryptoSodium : public CryptoBase {
   std::array<unsigned char, crypto_sign_SECRETKEYBYTES> _secretKeySign;
   std::array<unsigned char, crypto_sign_PUBLICKEYBYTES> _publicKeySign;
   std::array<unsigned char, crypto_sign_BYTES> _signature;
-  HandleKey _keyHandler; 
+  HandleKey _keyHandler;
   SessionKey _key;
   bool checkAccess();
   void hideKey();
   void setAESKey(SessionKey& key);
   void eraseUsedData();
   std::string_view _name;
+
+  struct RemoveSensitiveData {
+    RemoveSensitiveData(CryptoSodium* ptr) : _ptr(ptr) {}
+    ~RemoveSensitiveData() {
+      sodium_memzero(_ptr->_privKeyAes.data(), _ptr->_privKeyAes.size());
+      sodium_memzero(_ptr->_msgHash.data(), _ptr->_msgHash.size());
+      sodium_memzero(_ptr->_signatureWithPubKeySign.data(), _ptr->_signatureWithPubKeySign.size());
+    }
+    CryptoSodium* _ptr = nullptr;
+  };
+
 public:
   explicit CryptoSodium();
   CryptoSodium(std::string_view encodedPeerAesPubKey,
@@ -65,7 +77,6 @@ public:
     bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
-    eraseUsedData();
     return result;
   }
 

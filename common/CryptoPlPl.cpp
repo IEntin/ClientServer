@@ -55,10 +55,15 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   std::vector<unsigned char> decoded = base64_decode(encodedPeerAesPubKey);
   CryptoPP::SecByteBlock peerAesPubKey;
   peerAesPubKey.Assign(decoded.data(), decoded.size());
-  if(!_dh.Agree(_key, _privKeyAes, peerAesPubKey))
-    throw std::runtime_error("DiffieHellman Failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
-  hideKey();
+  if (!_keysExchanged) {
+    if(!_dh.Agree(_key, _privKeyAes, peerAesPubKey)) {
+      throw std::runtime_error("DiffieHellman Failed");
+      destroySecretData();
+    }
+    DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
+    _keysExchanged = true;
+    hideKey();
+  }
   CryptoPP::SecByteBlock().swap(peerAesPubKey);
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
@@ -151,11 +156,14 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
   const CryptoPP::SecByteBlock& peerPubKeyAes { vect.data(), vect.size() };
-  if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
-    throw std::runtime_error("Client-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
-  hideKey();
-  eraseAfterUse();
+  if (!_keysExchanged) {
+    if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
+      throw std::runtime_error("Client-side key exchange failed");
+    DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
+    hideKey();
+    eraseAfterUse();
+    _keysExchanged = true;
+  }
   return true;
 }
 
