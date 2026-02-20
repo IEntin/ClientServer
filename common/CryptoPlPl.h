@@ -33,6 +33,7 @@ struct KeyHandler {
 
 // version using Crypto++ library
 class CryptoPlPl : public CryptoBase {
+  friend struct RemoveSensitiveData;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
@@ -57,12 +58,19 @@ class CryptoPlPl : public CryptoBase {
   }
   bool checkAccess();
   void hideKey();
-  void destroySecretData();
+  void destroySensitiveData();
   void signMessage();
   std::string sha256_hash(std::string_view message);
-  void eraseAfterUse();
   bool verifySignature(std::string_view signature);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
+
+  struct RemoveSensitiveData {
+    RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
+    ~RemoveSensitiveData() {
+      _ptr->destroySensitiveData();
+    }
+    CryptoPlPl* _ptr = nullptr;
+  };
 
 public:
   CryptoPlPl(std::string_view encodedPeerAesPubKey,
@@ -94,7 +102,7 @@ public:
     bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
-    destroySecretData();
+    destroySensitiveData();
     return result;
   }
 };
