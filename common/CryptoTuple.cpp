@@ -14,10 +14,10 @@ CryptoTuple _serverEncryptorTuple;
 
 bool initEncryptorTuples() {
   _clientEncryptorTuple = { std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>() };
-  CryptoSodiumPtr clientEncryptor0 = std::get<0>(_clientEncryptorTuple);
+  CryptoSodiumPtr clientEncryptor0 = std::get<CryptoSodiumPtr>(_clientEncryptorTuple);
   CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
-  CryptoPlPlPtr clientEncryptor1 = std::get<1>(_clientEncryptorTuple);
+  CryptoPlPlPtr clientEncryptor1 = std::get<CryptoPlPlPtr>(_clientEncryptorTuple);
   CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
   clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
   _serverEncryptorTuple = { serverEncryptor0, serverEncryptor1 };

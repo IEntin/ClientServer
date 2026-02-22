@@ -17,9 +17,9 @@ TEST(RuntimeTupleAccess, 1) {
 
 TEST(EncryptDecrypt, 0) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoSodiumPtr cryptoC0 = std::get<0>(clientTuple);
+  CryptoSodiumPtr cryptoC0 = std::get<CryptoSodiumPtr>(clientTuple);
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoSodiumPtr cryptoS0 = std::get<0>(serverTuple);
+  CryptoSodiumPtr cryptoS0 = std::get<CryptoSodiumPtr>(serverTuple);
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC0->encrypt(TestEnvironment::_buffer,
@@ -38,9 +38,9 @@ TEST(EncryptDecrypt, 0) {
 
 TEST(EncryptDecrypt, 1) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoPlPlPtr cryptoC1 = std::get<1>(clientTuple);
+  CryptoPlPlPtr cryptoC1 = std::get<CryptoPlPlPtr>(clientTuple);
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoPlPlPtr cryptoS1 = std::get<1>(serverTuple);
+  CryptoPlPlPtr cryptoS1 = std::get<CryptoPlPlPtr>(serverTuple);
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC1->encrypt(TestEnvironment::_buffer,
@@ -59,12 +59,12 @@ TEST(EncryptDecrypt, 1) {
 
 TEST(DoubleEncryptDecrypt, 0) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoSodiumPtr cryptoC0 = std::get<0>(clientTuple);
-  CryptoPlPlPtr cryptoC1 = std::get<1>(clientTuple);
+  CryptoSodiumPtr cryptoC0 = std::get<CryptoSodiumPtr>(clientTuple);
+  CryptoPlPlPtr cryptoC1 = std::get<CryptoPlPlPtr>(clientTuple);
   
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoSodiumPtr cryptoS0 = std::get<0>(serverTuple);
-  CryptoPlPlPtr cryptoS1 = std::get<1>(serverTuple);
+  CryptoSodiumPtr cryptoS0 = std::get<CryptoSodiumPtr>(serverTuple);
+  CryptoPlPlPtr cryptoS1 = std::get<CryptoPlPlPtr>(serverTuple);
 
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
@@ -93,12 +93,12 @@ TEST(DoubleEncryptDecrypt, 0) {
 
 TEST(DoubleEncryptDecrypt, 1) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoSodiumPtr cryptoC0 = std::get<0>(clientTuple);
-  CryptoPlPlPtr cryptoC1 = std::get<1>(clientTuple);
+  CryptoSodiumPtr cryptoC0 = std::get<CryptoSodiumPtr>(clientTuple);
+  CryptoPlPlPtr cryptoC1 = std::get<CryptoPlPlPtr>(clientTuple);
   
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoSodiumPtr cryptoS0 = std::get<0>(serverTuple);
-  CryptoPlPlPtr cryptoS1 = std::get<1>(serverTuple);
+  CryptoSodiumPtr cryptoS0 = std::get<CryptoSodiumPtr>(serverTuple);
+  CryptoPlPlPtr cryptoS1 = std::get<CryptoPlPlPtr>(serverTuple);
 
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };

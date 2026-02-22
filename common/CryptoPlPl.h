@@ -65,7 +65,7 @@ class CryptoPlPl : public CryptoBase {
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
   struct RemoveSensitiveData {
-    RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
+    explicit RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
     ~RemoveSensitiveData() {
       _ptr->destroySensitiveData();
     }
@@ -75,7 +75,7 @@ class CryptoPlPl : public CryptoBase {
 public:
   CryptoPlPl(std::string_view encodedPeerAesPubKey,
 	     std::string_view signatureWithPubKey);
-  CryptoPlPl();
+  explicit CryptoPlPl();
   ~CryptoPlPl() override;
   std::string_view  getName() const override { return _name; }
   std::string _msgHash;

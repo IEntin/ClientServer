@@ -44,7 +44,7 @@ class CryptoSodium : public CryptoBase {
   std::string_view _name;
 
   struct RemoveSensitiveData {
-    RemoveSensitiveData(CryptoSodium* ptr) : _ptr(ptr) {}
+    explicit RemoveSensitiveData(CryptoSodium* ptr) : _ptr(ptr) {}
     ~RemoveSensitiveData() {
       sodium_memzero(_ptr->_privKeyAes.data(), _ptr->_privKeyAes.size());
       sodium_memzero(_ptr->_msgHash.data(), _ptr->_msgHash.size());

@@ -15,7 +15,7 @@
 class TestEnvironment : public ::testing::Environment {
 public:
 
-  TestEnvironment() = default;
+  explicit TestEnvironment() = default;
 
   ~TestEnvironment() override = default;
 
@@ -35,15 +35,10 @@ public:
   };
 
   struct TestCompressEncrypt : testing::Test {
-    template <typename CONTAINER, typename COMPRESSORS>
+    template <typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor,
-			     bool doEncrypt,
-			     const CONTAINER& container) {
-      // client
-      auto cryptoC = findEncryptor(container);
-      // server
-      auto cryptoS = createServerEncryptor(cryptoC);
-      cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
+			     bool doEncrypt) {
+      const CryptoTuple& container = cryptotuple::getClientEncryptorTuple();
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
 		     0,
