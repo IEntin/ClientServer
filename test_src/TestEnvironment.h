@@ -38,7 +38,8 @@ public:
     template <typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor,
 			     bool doEncrypt) {
-      const CryptoTuple& container = cryptotuple::getClientEncryptorTuple();
+      const CryptoTuple& clientContainer = cryptotuple::getClientEncryptorTuple();
+      const CryptoTuple& serverContainer = cryptotuple::getServerEncryptorTuple();
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
 		     0,
@@ -50,12 +51,12 @@ public:
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	compressEncrypt(container, TestEnvironment::_buffer, header, data, doEncrypt);
+	compressEncrypt(clientContainer, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
       ASSERT_EQ(CryptoBase::isEncrypted(dataView), doEncrypt);
       dataView =
-      decryptDecompress(container, TestEnvironment::_buffer, restoredHeader, data);
+      decryptDecompress(serverContainer, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(dataView, TestEnvironment::_source);
     }
