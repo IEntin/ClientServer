@@ -69,49 +69,33 @@ TEST(LibSodiumTest, publicKeyEncoding) {
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::LZ4, true);
-  }
+  testCompressEncrypt(COMPRESSORS::LZ4, CRYPTO::CRYPTOSODIUM, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::SNAPPY, true);
-  }
+  testCompressEncrypt(COMPRESSORS::SNAPPY, CRYPTO::CRYPTOSODIUM, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::ZSTD, true);
-  }
+  testCompressEncrypt(COMPRESSORS::ZSTD, CRYPTO::CRYPTOSODIUM, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::NONE, true);
-  }
+  testCompressEncrypt(COMPRESSORS::NONE, CRYPTO::CRYPTOSODIUM, true);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::LZ4, false);
-  }
+  testCompressEncrypt(COMPRESSORS::LZ4, CRYPTO::CRYPTOSODIUM, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::SNAPPY, false);
-  }
+  testCompressEncrypt(COMPRESSORS::SNAPPY, CRYPTO::CRYPTOSODIUM, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::ZSTD, false);
-  }
+  testCompressEncrypt(COMPRESSORS::ZSTD, CRYPTO::CRYPTOSODIUM, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_S) {
-  if (CRYPTO::CRYPTOSODIUM == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::NONE, false);
-  }
+  testCompressEncrypt(COMPRESSORS::NONE, CRYPTO::CRYPTOSODIUM, false);
 }

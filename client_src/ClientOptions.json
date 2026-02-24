@@ -12,6 +12,8 @@
   "Compression" : "LZ4",
   "_comment" : "Next is for ZSTD",
   "CompressionLevel" : 3,
+  "_comment": "Next must match server settings",
+  "EncryptorType" : "CRYPTOSODIUM",
   "doEncrypt" : true,
   "BufferSize" : 3000000,
   "Timing" : true,

@@ -37,28 +37,31 @@ public:
   struct TestCompressEncrypt : testing::Test {
     template <typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor,
+			     CRYPTO crypto,
 			     bool doEncrypt) {
-      const CryptoTuple& clientContainer = cryptotuple::getClientEncryptorTuple();
-      const CryptoTuple& serverContainer = cryptotuple::getServerEncryptorTuple();
-      std::string data = TestEnvironment::_source;
-      HEADER header{ HEADERTYPE::SESSION,
-		     0,
-		     data.size(),
-		     compressor,
-		     DIAGNOSTICS::NONE,
-		     STATUS::NONE,
-		     0 };
-      if (ServerOptions::_printHeader)
-	printHeader(header, LOG_LEVEL::ALWAYS);
-      std::string_view dataView =
-	compressEncrypt(clientContainer, TestEnvironment::_buffer, header, data, doEncrypt);
-      HEADER restoredHeader;
-      data = dataView;
-      ASSERT_EQ(CryptoBase::isEncrypted(dataView), doEncrypt);
-      dataView =
-      decryptDecompress(serverContainer, TestEnvironment::_buffer, restoredHeader, data);
-      ASSERT_EQ(header, restoredHeader);
-      ASSERT_EQ(dataView, TestEnvironment::_source);
+      if (crypto == Options::_encryptorTypeDefault) {
+	const CryptoTuple& clientContainer = cryptotuple::getClientEncryptorTuple();
+	const CryptoTuple& serverContainer = cryptotuple::getServerEncryptorTuple();
+	std::string data = TestEnvironment::_source;
+	HEADER header{ HEADERTYPE::SESSION,
+		       0,
+		       data.size(),
+		       compressor,
+		       DIAGNOSTICS::NONE,
+		       STATUS::NONE,
+		       0 };
+	if (ServerOptions::_printHeader)
+	  printHeader(header, LOG_LEVEL::ALWAYS);
+	std::string_view dataView =
+	  compressEncrypt(clientContainer, TestEnvironment::_buffer, header, data, doEncrypt);
+	HEADER restoredHeader;
+	data = dataView;
+	ASSERT_EQ(CryptoBase::isEncrypted(dataView), doEncrypt);
+	dataView =
+	  decryptDecompress(serverContainer, TestEnvironment::_buffer, restoredHeader, data);
+	ASSERT_EQ(header, restoredHeader);
+	ASSERT_EQ(dataView, TestEnvironment::_source);
+      }
     }
     void TearDown() {
       TestEnvironment::reset();

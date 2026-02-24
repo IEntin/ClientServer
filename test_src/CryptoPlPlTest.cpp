@@ -11,51 +11,35 @@
 
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::LZ4, true);
-  }
+  testCompressEncrypt(COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::SNAPPY, true);
-  }
+  testCompressEncrypt(COMPRESSORS::SNAPPY, CRYPTO::CRYPTOPP, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::ZSTD, true);
-  }
+  testCompressEncrypt(COMPRESSORS::ZSTD, CRYPTO::CRYPTOPP, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::NONE, true);
-  }
+  testCompressEncrypt(COMPRESSORS::NONE, CRYPTO::CRYPTOPP, true);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::LZ4, false);
-  }
+  testCompressEncrypt(COMPRESSORS::LZ4, CRYPTO::CRYPTOPP, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::SNAPPY, false);
-  }
+  testCompressEncrypt(COMPRESSORS::SNAPPY, CRYPTO::CRYPTOPP, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::ZSTD, false);
-  }
+  testCompressEncrypt(COMPRESSORS::ZSTD, CRYPTO::CRYPTOPP, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
-  if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
-    testCompressEncrypt(COMPRESSORS::NONE, false);
-  }
+  testCompressEncrypt(COMPRESSORS::NONE, CRYPTO::CRYPTOPP, false);
 }
 
 TEST(AuthenticationTest, 1) {
