@@ -153,6 +153,9 @@ void fillEncryptorContainer(CONTAINER& container,
   else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
     container = cryptotuple::getClientEncryptorTuple();
   }
+  else if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
+    container = cryptobhtuple::getClientEncryptors();
+  }
 }
 
 template <typename CONTAINER>
@@ -174,5 +177,8 @@ void fillEncryptorContainer(CONTAINER& container,
  }
  else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
    container = cryptotuple::getServerEncryptorTuple();
+ }
+ else if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
+   container = cryptobhtuple::getServerEncryptors();
  }
 }
