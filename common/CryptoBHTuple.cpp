@@ -8,8 +8,14 @@
 
 namespace cryptobhtuple {
 
-CRYPTOBHTUPLE _clientEncryptors;
-CRYPTOBHTUPLE _serverEncryptors;
+bool _initialized = false;
+
+CryptoBHTuple _clientEncryptors;
+CryptoBHTuple _serverEncryptors;
+
+bool isInitialized(){
+  return _initialized;
+}
 
 bool initialize() {
   CryptoSodiumPtr clientEncryptor0 = std::make_shared<CryptoSodium>();
@@ -22,15 +28,20 @@ bool initialize() {
 
   _clientEncryptors = boost::hana::make_tuple(clientEncryptor0, clientEncryptor1);
   _serverEncryptors = boost::hana::make_tuple(serverEncryptor0, serverEncryptor1);
+  _initialized = true;;
   return true;
 }
 
-CRYPTOBHTUPLE getClientEncryptors() {
+CryptoBHTuple getClientEncryptors() {
+  if (!isInitialized())
+    initialize();
   return _clientEncryptors;
 }
 
-CRYPTOBHTUPLE getServerEncryptors() {
+CryptoBHTuple getServerEncryptors() {
+  if (!isInitialized())
+    initialize();
   return _serverEncryptors;
 }
 
-} // end of namespace cryptotuple
+} // end of namespace cryptobhtuple

@@ -9,13 +9,29 @@
 
 #pragma once
 
-using CRYPTOBHTUPLE = boost::hana::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
+using CryptoBHTuple = boost::hana::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 namespace cryptobhtuple {
 
 bool initialize();
 
-CRYPTOBHTUPLE getClientEncryptors();
-CRYPTOBHTUPLE getServerEncryptors();
+bool isInitialized();
 
-} // end of namespace cryptotuple
+CryptoBHTuple getClientEncryptors();
+CryptoBHTuple getServerEncryptors();
+
+inline auto getTupleElement(const CryptoBHTuple& tuple, CRYPTO cryptoType) {
+auto lambda = [](auto const& v) {
+  return v;
+};
+
+unsigned index = std::to_underlying<CRYPTO>(cryptoType);
+unsigned i = 0;
+boost::hana::for_each(tuple, [&](auto& el) {
+  if (i == index)
+    lambda(el);
+  i++;
+ });
+}
+
+} // end of namespace cryptobhtuple

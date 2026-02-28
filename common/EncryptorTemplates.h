@@ -9,19 +9,29 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
+#include "CryptoBHTuple.h"
 #include "CryptoTuple.h"
 
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
+using CryptoBHTuple = boost::hana::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = std::conditional_t<Options::_useEncryptorVariant, CryptoVariant, CryptoTuple>;
 
-constexpr auto findEncryptor = []<typename C>(const C& c) {
-  if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
-    return std::get<CryptoSodiumPtr>(c);
+inline auto findEncryptorRuntime(const CryptoBHTuple& tuple, CRYPTO cryptoType) {
+  return cryptobhtuple::getTupleElement(tuple, cryptoType);
+}
+
+inline auto findEncryptor = []<typename CONTAINER>(const CONTAINER& container,
+					    [[maybe_unused]] CRYPTO criptoType = Options::_encryptorTypeDefault) {
+  if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
+    return findEncryptorRuntime(container, criptoType);
+  }
+  else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
+    return std::get<CryptoSodiumPtr>(container);
   }
   else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOPP) {
-    return std::get<CryptoPlPlPtr>(c);
+    return std::get<CryptoPlPlPtr>(container);
   }
   else
     throw std::runtime_error("findEncryptor failed");
