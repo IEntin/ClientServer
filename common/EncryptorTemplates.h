@@ -23,9 +23,9 @@ inline auto findEncryptorRuntime(const CryptoBHTuple& tuple, CRYPTO cryptoType) 
 }
 
 inline auto findEncryptor = []<typename CONTAINER>(const CONTAINER& container,
-					    [[maybe_unused]] CRYPTO criptoType = Options::_encryptorTypeDefault) {
+					    [[maybe_unused]] CRYPTO cryptoType = Options::_encryptorTypeDefault) {
   if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
-    return findEncryptorRuntime(container, criptoType);
+    return findEncryptorRuntime(container, cryptoType);
   }
   else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
     return std::get<CryptoSodiumPtr>(container);
