@@ -11,7 +11,9 @@ using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 namespace cryptotuple {
 
-bool initEncryptorTuples();
+bool initialize();
+
+bool isInitialized();
 
 CryptoTuple getClientEncryptorTuple();
 CryptoTuple getServerEncryptorTuple();
