@@ -2,6 +2,8 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <any>
+
 #include <boost/hana.hpp>
 
 #include "CryptoPlPl.h"
@@ -20,18 +22,25 @@ bool isInitialized();
 CryptoBHTuple getClientEncryptors();
 CryptoBHTuple getServerEncryptors();
 
-inline auto getTupleElement(const CryptoBHTuple& tuple, CRYPTO cryptoType) {
-auto lambda = [](auto const& v) {
-  return v;
+template <typename A>
+A& returnResult(A& alternative) {
+  return alternative;
 };
 
-unsigned index = std::to_underlying<CRYPTO>(cryptoType);
-unsigned i = 0;
-boost::hana::for_each(tuple, [&](auto& el) {
-  if (i == index)
-    lambda(el);
-  i++;
- });
+inline auto getTupleElement(const CryptoBHTuple& tuple) {
+ CryptoSodiumPtr alternative0 = boost::hana::at_c<0>(tuple);
+ CryptoPlPlPtr alternative1 = boost::hana::at_c<1>(tuple);
+ CRYPTO crypto = Options::_encryptorType;
+ switch(crypto) {
+ case CRYPTO::CRYPTOSODIUM:
+   returnResult(alternative0);
+   break;
+ case CRYPTO::CRYPTOPP:
+   returnResult(alternative1);
+   break;
+ default:
+   break;
+ }
 }
 
 } // end of namespace cryptobhtuple

@@ -18,14 +18,14 @@ using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = std::conditional_t<Options::_useEncryptorVariant, CryptoVariant, CryptoTuple>;
 
-inline auto findEncryptorRuntime(const CryptoBHTuple& tuple, CRYPTO cryptoType) {
-  return cryptobhtuple::getTupleElement(tuple, cryptoType);
+inline auto findEncryptorRuntime(const CryptoBHTuple& tuple) {
+  return cryptobhtuple::getTupleElement(tuple);
 }
 
 inline auto findEncryptor = []<typename CONTAINER>(const CONTAINER& container,
 					    [[maybe_unused]] CRYPTO cryptoType = Options::_encryptorTypeDefault) {
   if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
-    return findEncryptorRuntime(container, cryptoType);
+    return cryptobhtuple::getTupleElement(container);
   }
   else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
     return std::get<CryptoSodiumPtr>(container);
