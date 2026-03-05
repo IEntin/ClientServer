@@ -16,7 +16,7 @@ std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
 Client::Client() : _chronometer(ClientOptions::_timing) {
-  fillEncryptorContainer(_encryptorContainer, Options::_encryptorTypeDefault);
+  encryptortemplates::fillEncryptorContainer(_encryptorContainer, Options::_encryptorTypeDefault);
   _buffer.reserve(ClientOptions::_bufferSize);
 }
 
@@ -77,7 +77,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  decryptDecompress(_encryptorContainer, _buffer, _header, _response);
+  encryptortemplates::decryptDecompress(_encryptorContainer, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {

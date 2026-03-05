@@ -24,7 +24,7 @@ protected:
   std::string _buffer;
   ServerWeakPtr _server;
 
-  ENCRYPTORCONTAINER _encryptorContainer;
+  encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
 
   Session(ServerWeakPtr server,
 	  std::string_view encodedPeerPubKeyAes,
@@ -41,11 +41,11 @@ protected:
       clientIdStr = ioutility::toCharsBoost(_clientId);
       HEADER header;
       std::string encodedPubKeyAes;
-      sendStatusToClientImpl(_encryptorContainer,
-			     clientIdStr,
-			     status,
-			     header,
-			     encodedPubKeyAes);
+      encryptortemplates::sendStatusToClientImpl(_encryptorContainer,
+						 clientIdStr,
+						 status,
+						 header,
+						 encodedPubKeyAes);
       lambda(header, clientIdStr, encodedPubKeyAes);
     }
   }

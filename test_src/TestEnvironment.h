@@ -40,8 +40,8 @@ public:
 			     CRYPTO crypto,
 			     bool doEncrypt) {
       if (crypto == Options::_encryptorTypeDefault) {
-	const CryptoTuple& clientContainer = cryptotuple::getClientEncryptorTuple();
-	const CryptoTuple& serverContainer = cryptotuple::getServerEncryptorTuple();
+	const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
+	const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
 	std::string data = TestEnvironment::_source;
 	HEADER header{ HEADERTYPE::SESSION,
 		       0,
@@ -53,12 +53,12 @@ public:
 	if (ServerOptions::_printHeader)
 	  printHeader(header, LOG_LEVEL::ALWAYS);
 	std::string_view dataView =
-	  compressEncrypt(clientContainer, TestEnvironment::_buffer, header, data, doEncrypt);
+	  encryptortemplates::compressEncrypt(clientTuple, TestEnvironment::_buffer, header, data, doEncrypt);
 	HEADER restoredHeader;
 	data = dataView;
 	ASSERT_EQ(CryptoBase::isEncrypted(dataView), doEncrypt);
 	dataView =
-	  decryptDecompress(serverContainer, TestEnvironment::_buffer, restoredHeader, data);
+	  encryptortemplates::decryptDecompress(serverTuple, TestEnvironment::_buffer, restoredHeader, data);
 	ASSERT_EQ(header, restoredHeader);
 	ASSERT_EQ(dataView, TestEnvironment::_source);
       }

@@ -22,7 +22,7 @@ friend class TaskBuilder;
 protected:
 
   std::string _response;
-  ENCRYPTORCONTAINER _encryptorContainer;
+  encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
 
 Client();
 
@@ -49,7 +49,7 @@ Client();
 		     std::string_view type) {
  _status = extractStatus(_header);
   try {
-    clientKeyExchange(_encryptorContainer, encodedPeerPubKeyAes);
+    encryptortemplates::clientKeyExchange(_encryptorContainer, encodedPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

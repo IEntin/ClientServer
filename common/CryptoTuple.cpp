@@ -19,10 +19,10 @@ bool isInitialized(){
 
 bool initialize() {
   CryptoSodiumPtr clientEncryptor0 = std::make_shared<CryptoSodium>();
-  CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
+  CryptoSodiumPtr serverEncryptor0 = encryptortemplates::createServerEncryptor(clientEncryptor0);
   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
   CryptoPlPlPtr clientEncryptor1 = std::make_shared<CryptoPlPl>();
-  CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
+  CryptoPlPlPtr serverEncryptor1 = encryptortemplates::createServerEncryptor(clientEncryptor1);
   clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
 
   _clientEncryptorTuple = std::make_tuple(clientEncryptor0, clientEncryptor1);

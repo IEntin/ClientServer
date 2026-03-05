@@ -21,7 +21,7 @@ TEST(LibSodiumTest, authentication) {
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
     // server ctor throws on authentication failure
-    CryptoSodiumPtr cryptoS = createServerEncryptor(cryptoC);
+    CryptoSodiumPtr cryptoS = encryptortemplates::createServerEncryptor(cryptoC);
   }
   catch (...) {
     // no exceptions
@@ -34,7 +34,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
-    CryptoSodiumPtr cryptoS = createServerEncryptor(cryptoC);
+    CryptoSodiumPtr cryptoS = encryptortemplates::createServerEncryptor(cryptoC);
     cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
     HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),

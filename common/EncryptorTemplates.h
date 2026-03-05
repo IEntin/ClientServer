@@ -12,20 +12,38 @@
 #include "CryptoBHTuple.h"
 #include "CryptoTuple.h"
 
+namespace encryptortemplates {
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 using CryptoBHTuple = boost::hana::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = std::conditional_t<Options::_useEncryptorVariant, CryptoVariant, CryptoTuple>;
 
-inline auto findEncryptorRuntime(const CryptoBHTuple& tuple) {
-  return cryptobhtuple::getTupleElement(tuple);
+template <typename A>
+A& returnResult(A& alternative) {
+  return alternative;
+};
+
+template <typename T>
+auto getEncryptor(const T& tuple, CRYPTO crypto = Options::_encryptorType) {
+  CryptoSodiumPtr alternative0 = std::get<CryptoSodiumPtr>(tuple);
+  CryptoPlPlPtr alternative1 = std::get<CryptoPlPlPtr>(tuple);
+  switch(crypto) {
+  case CRYPTO::CRYPTOSODIUM:
+    returnResult(alternative0);
+    break;
+  case CRYPTO::CRYPTOPP:
+    returnResult(alternative1);
+    break;
+  default:
+    break;
+  }
 }
 
 inline auto findEncryptor = []<typename CONTAINER>(const CONTAINER& container,
-					    [[maybe_unused]] CRYPTO cryptoType = Options::_encryptorTypeDefault) {
+					    [[maybe_unused]] CRYPTO crypto = Options::_encryptorTypeDefault) {
   if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
-    return cryptobhtuple::getTupleElement(container);
+    return getEncryptor(container, crypto);
   }
   else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
     return std::get<CryptoSodiumPtr>(container);
@@ -182,3 +200,4 @@ void fillEncryptorContainer(CONTAINER& container,
    container = cryptobhtuple::getServerEncryptors();
  }
 }
+} // end of namespace encryptortemplates

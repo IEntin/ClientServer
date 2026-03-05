@@ -22,7 +22,7 @@ class FifoClient : public Client {
 		      std::string_view signedAuth) -> bool {
       return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
     };
-    auto crypto = findEncryptor(container);
+    auto crypto = encryptortemplates::findEncryptor(container);
     return crypto->sendSignature(lambda);
   }
 
