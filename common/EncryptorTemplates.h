@@ -16,8 +16,7 @@
 
 namespace encryptortemplates {
 
-using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
-  using CryptoVector = boost::container::static_vector<class CryptoBase, 3>;
+using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = CryptoVariant;
 

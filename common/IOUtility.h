@@ -10,6 +10,8 @@
 #include <stdexcept>
 
 #include <boost/assert/source_location.hpp>
+#include <boost/charconv.hpp>
+#include <boost/static_string.hpp>
 
 #include "Header.h"
 
@@ -48,6 +50,26 @@ concept Integral = std::is_integral_v<I>;
 
 template <typename F>
 concept Float = std::is_floating_point_v<F>;
+
+template <Integral I>
+boost::static_string<CONV_BUFFER_SIZE>
+toCharsBoost(I value, bool fixedSize = false) {
+  char buffer[CONV_BUFFER_SIZE] = {};
+  boost::charconv::to_chars_result result = 
+    boost::charconv::to_chars(buffer, buffer + sizeof(buffer), value);
+  if (result.ec != std::errc())
+    throw std::runtime_error("conversion failed");
+  std::size_t size = result.ptr - buffer;
+  return { buffer, fixedSize? CONV_BUFFER_SIZE : size };
+}
+
+template <Integral I>
+void toCharsBoost(I value, char* buffer, std::size_t bfferSize = CONV_BUFFER_SIZE) {
+  boost::charconv::to_chars_result result = 
+    boost::charconv::to_chars(buffer, buffer + bfferSize, value);
+  if (result.ec != std::errc())
+    throw std::runtime_error("conversion failed");
+}
 
 template <Integral I>
 int toChars(I value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {

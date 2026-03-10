@@ -90,6 +90,17 @@ bool isOk(const HEADER& header) {
   }
 }
 
+boost::static_string<HEADER_SIZE> serialize(const HEADER& header) {
+  serialized = std::to_underlying(extractHeaderType(header));
+  serialized += ioutility::toCharsBoost(extractField1Size(header), true);
+  serialized += ioutility::toCharsBoost(extractField2Size(header), true);
+  serialized += std::to_underlying(extractCompressor(header));
+  serialized += std::to_underlying(extractDiagnostics(header));
+  serialized += std::to_underlying(extractStatus(header));
+  serialized += ioutility::toCharsBoost(extractField3Size(header), true);
+  return serialized;
+}
+
 void serialize(const HEADER& header, char* buffer) {
   std::memset(buffer, ' ', HEADER_SIZE);
   std::size_t offset = 0;

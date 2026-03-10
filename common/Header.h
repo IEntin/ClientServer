@@ -7,6 +7,8 @@
 #include <string_view>
 #include <tuple>
 
+#include <boost/static_string.hpp>
+
 #include "Logger.h"
 
 inline constexpr int HEADERTYPE_SIZE = 1;
@@ -20,6 +22,8 @@ inline constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + FIELD1_SIZE + FIELD2_SIZE +
   COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + FIELD3_SIZE;
 
+static thread_local boost::static_string<HEADER_SIZE> serialized;
+
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
   NONE,
@@ -32,14 +36,9 @@ enum class HEADERTYPE : char {
   INVALIDHIGH
 };
 
-enum class ENCRYPTORCONTAINERTYPE : std::size_t {
-  VARIANTCONTAINER,
-  VECTORCONTAINER,
-  ERROR
-};
   enum class CRYPTO : std::size_t {
-  CRYPTOPP,
   CRYPTOSODIUM,
+  CRYPTOPP,
   NONE,
   ERROR,
 };
@@ -122,6 +121,8 @@ STATUS extractStatus(const HEADER& header);
 std::size_t extractField3Size(const HEADER& header);
 
 bool isOk(const HEADER& header);
+
+boost::static_string<HEADER_SIZE> serialize(const HEADER& header);
 
 void serialize(const HEADER& header, char* buffer);
 
