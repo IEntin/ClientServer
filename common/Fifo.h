@@ -6,6 +6,8 @@
 
 #include <fcntl.h>
 
+#include <boost/static_string/static_string.hpp>
+
 #include "IOUtility.h"
 #include "Utility.h"
 
@@ -35,17 +37,13 @@ public:
     if (fdWrite == -1)
       return false;
     CloseFileDescriptor cfdw(fdWrite);
-    auto serialized = serialize(header);
-    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(serialized),
-						      boost::asio::buffer(payload1),
-						      boost::asio::buffer(payload2),
-						      boost::asio::buffer(payload3),
-						      boost::asio::buffer(ENDOFMESSAGE) };
-    writeString(fdWrite, static_cast<const char*>(buffers[0].data()), buffers[0].size());
-    writeString(fdWrite, static_cast<const char*>(payload1.data()), payload1.size());
-    writeString(fdWrite, static_cast<const char*>(payload2.data()), payload2.size());
-    writeString(fdWrite, static_cast<const char*>(payload3.data()), payload3.size());
-    writeString(fdWrite, static_cast<const char*>(ENDOFMESSAGE.data()), ENDOFMESSAGESZ);
+    char headerBuffer[HEADER_SIZE];
+    serialize(header, headerBuffer);
+    writeString(fdWrite, headerBuffer, std::ssize(headerBuffer));
+    writeString(fdWrite, payload1.data(), payload1.size());
+    writeString(fdWrite, payload2.data(), payload2.size());
+    writeString(fdWrite, payload3.data(), payload3.size());
+    writeString(fdWrite, ENDOFMESSAGE.data(), ENDOFMESSAGESZ);
     return true;
   }
 
@@ -61,6 +59,8 @@ private:
   Fifo() = delete;
   ~Fifo() = delete;
   static thread_local std::string _payload;
+  static boost::static_strings::static_string<0>
+ _emptyString;
   static short pollFd(int fd, short expected);
   static bool setPipeSize(int fd);
   static int openWriteNonBlock(std::string_view fifoName);

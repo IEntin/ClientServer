@@ -6,10 +6,6 @@
 
 #include <string>
 
-#include <boost/static_string/static_string.hpp>
-
-#include "IOUtility.h"
-
 namespace compressionLZ4 {
 
 void compress(std::string& buffer, std::string& data);

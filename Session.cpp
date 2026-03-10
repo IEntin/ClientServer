@@ -17,11 +17,10 @@ try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
-    encryptortemplates::fillEncryptorContainer(_encryptorContainer,
-					       Options::_encryptorTypeDefault,
-					       encodedPeerPubKeyAes,
-					       signatureWithPubKey);
-    _buffer.reserve(ServerOptions::_bufferSize);
+    fillEncryptorContainer(_encryptorContainer,
+			   Options::_encryptorTypeDefault,
+			   encodedPeerPubKeyAes,
+			   signatureWithPubKey);
   }
 catch (const std::exception& e) {
   LogError << e.what() << '\n';
@@ -37,19 +36,19 @@ Session::buildReply(std::atomic<STATUS>& status) {
     { HEADERTYPE::SESSION, _responseData.size(), 0,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   std::string_view dataView =
-  encryptortemplates::compressEncrypt(_encryptorContainer,
-				      _buffer,
-				      header,
-				      _responseData,
-				      ServerOptions::_doEncrypt,
-				      ServerOptions::_compressionLevel);
+  compressEncrypt(_encryptorContainer,
+		  _buffer,
+		  header,
+		  _responseData,
+		  ServerOptions::_doEncrypt,
+		  ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
   return { header, dataView };
 }
 
 bool Session::processTask() {
-  encryptortemplates::decryptDecompress(_encryptorContainer, _buffer, _header, _request);
+  decryptDecompress(_encryptorContainer, _buffer, _header, _request);
   if (auto taskController = TaskController::getWeakPtr().lock(); taskController) {
     _task->update(_header, _request);
     taskController->processTask(_task);

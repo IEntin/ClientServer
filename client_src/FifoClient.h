@@ -7,6 +7,8 @@
 #include "Client.h"
 #include "Fifo.h"
 
+using namespace encryptortemplates;
+
 namespace fifo {
 
 class FifoClient : public Client {
@@ -22,7 +24,8 @@ class FifoClient : public Client {
 		      std::string_view signedAuth) -> bool {
       return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
     };
-    auto crypto = encryptortemplates::findEncryptor(container);
+    constexpr std::size_t index = getEncryptorIndex();
+    auto crypto = std::get<index>(container);
     return crypto->sendSignature(lambda);
   }
 

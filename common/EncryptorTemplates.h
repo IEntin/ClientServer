@@ -4,56 +4,33 @@
 
 #pragma once
 
+#include <variant>
+
+#include <boost/container/static_vector.hpp>
+
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-#include "CryptoBHTuple.h"
-#include "CryptoTuple.h"
 
 namespace encryptortemplates {
-using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
-using CryptoBHTuple = boost::hana::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
-using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
 
-using ENCRYPTORCONTAINER = std::conditional_t<Options::_useEncryptorVariant, CryptoVariant, CryptoTuple>;
+using CryptoVariant = std::variant<CryptoPlPlPtr, CryptoSodiumPtr>;
+  using CryptoVector = boost::container::static_vector<class CryptoBase, 3>;
 
-template <typename A>
-A& returnResult(A& alternative) {
-  return alternative;
-};
+using ENCRYPTORCONTAINER = CryptoVariant;
 
-template <typename T>
-auto getEncryptor(const T& tuple, CRYPTO crypto = Options::_encryptorType) {
-  CryptoSodiumPtr alternative0 = std::get<CryptoSodiumPtr>(tuple);
-  CryptoPlPlPtr alternative1 = std::get<CryptoPlPlPtr>(tuple);
-  switch(crypto) {
-  case CRYPTO::CRYPTOSODIUM:
-    returnResult(alternative0);
-    break;
-  case CRYPTO::CRYPTOPP:
-    returnResult(alternative1);
-    break;
-  default:
-    break;
-  }
+consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
+  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
+  return std::to_underlying(encryptorType);
 }
 
-inline auto findEncryptor = []<typename CONTAINER>(const CONTAINER& container,
-					    [[maybe_unused]] CRYPTO crypto = Options::_encryptorTypeDefault) {
-  if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
-    return getEncryptor(container, crypto);
-  }
-  else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOSODIUM) {
-    return std::get<CryptoSodiumPtr>(container);
-  }
-  else if constexpr (Options::_encryptorTypeDefault == CRYPTO::CRYPTOPP) {
-    return std::get<CryptoPlPlPtr>(container);
-  }
-  else
-    throw std::runtime_error("findEncryptor failed");
-};
+template <typename E>
+E createServerEncryptor(E clientEncryptor) {
+  return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
+    clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
+}
 
 template <typename CONTAINER>
 std::string_view compressEncrypt(CONTAINER& container,
@@ -62,7 +39,7 @@ std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& data,
 				 bool doEncrypt,
 				 int compressionLevel = 3) {
-  auto crypto = findEncryptor(container);
+  auto crypto = std::get<getEncryptorIndex()>(container);
   auto weak = makeWeak(crypto);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
@@ -82,24 +59,27 @@ std::string_view compressEncrypt(CONTAINER& container,
   }
   if (doEncrypt) {
     if (auto crypto = weak.lock();crypto) {
-      return crypto->encrypt(buffer, data, &header);
+      return crypto->encrypt(buffer, header, data);
     }
   }
   else {
-    auto serialized = serialize(header);
+    char headerBuffer[HEADER_SIZE];
+    serialize(header, headerBuffer);
     std::string headerWithData;
-    headerWithData.append(serialized).append(data);
+    headerWithData.append(headerBuffer, HEADER_SIZE);
+    headerWithData.append(data);
     data.swap(headerWithData);
     return data;
   }
   return "";
 }
 template <typename CONTAINER>
-std::string_view decryptDecompress(CONTAINER& container,
-				   std::string& buffer,
-				   HEADER& header,
-				   std::string& data) {
-  auto crypto = findEncryptor(container);
+void decryptDecompress(CONTAINER& container,
+		       std::string& buffer,
+		       HEADER& header,
+		       //std::weak_ptr<Crypto> weak,
+		       std::string& data) {
+  auto crypto = std::get<getEncryptorIndex()>(container);
   auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
@@ -123,13 +103,12 @@ std::string_view decryptDecompress(CONTAINER& container,
       }
     }
   }
-  return { data.data(), data.size() };
 }
 
 template <typename CONTAINER>
 void clientKeyExchange(CONTAINER& container,
 		       std::string_view encodedPeerPubKeyAes) {
-  auto crypto = findEncryptor(container);
+  auto crypto = std::get<getEncryptorIndex()>(container);
   if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
     throw std::runtime_error("clientKeyExchange failed");
   }
@@ -141,38 +120,30 @@ void sendStatusToClientImpl(CONTAINER& container,
 			    STATUS status,
 			    HEADER& header,
 			    std::string& encodedPubKeyAes) {
-  auto crypto = findEncryptor(container);
+  auto crypto = std::get<getEncryptorIndex()>(container);
   encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
-
-template <typename E>
-E createServerEncryptor(E clientEncryptor) {
-  return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
-    clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
-}
-
+///*
 template <typename CONTAINER>
 void fillEncryptorContainer(CONTAINER& container,
 			    CRYPTO encryptorType) {
   if constexpr (std::is_same_v<CONTAINER, CryptoVariant>) {
     switch(encryptorType) {
-    case CRYPTO::CRYPTOSODIUM:
-      container = std::make_shared<CryptoSodium>();
-      break;
     case CRYPTO::CRYPTOPP:
       container = std::make_shared<CryptoPlPl>();
+      break;
+    case CRYPTO::CRYPTOSODIUM:
+      container = std::make_shared<CryptoSodium>();
       break;
     default:
       break;
     }
   }
-  else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
-    container = cryptotuple::getClientEncryptorTuple();
-  }
-  else if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
-    container = cryptobhtuple::getClientEncryptors();
+  else if constexpr (std::is_same_v<CONTAINER, boost::container::static_vector<class CryptoBase, 3>>) {
+    container.emplace_back(std::make_shared<CryptoPlPl>());
+    container.emplace_back(std::make_shared<CryptoSodium>());
   }
 }
 
@@ -183,21 +154,20 @@ void fillEncryptorContainer(CONTAINER& container,
  			    std::string_view signatureWithPubKey) {
  if constexpr (std::is_same_v<CONTAINER, CryptoVariant>) {
     switch(encryptorType) {
-    case CRYPTO::CRYPTOSODIUM:
-      container = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
-      break;
     case CRYPTO::CRYPTOPP:
       container = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
+      break;
+    case CRYPTO::CRYPTOSODIUM:
+      container = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
       break;
     default:
       break;
     }
  }
- else if constexpr (std::is_same_v<CONTAINER, CryptoTuple>) {
-   container = cryptotuple::getServerEncryptorTuple();
- }
- else if constexpr (std::is_same_v<CONTAINER, CryptoBHTuple>) {
-   container = cryptobhtuple::getServerEncryptors();
+ else if constexpr (std::is_same_v<CONTAINER, boost::container::static_vector<class CryptoBase, 3>>) {
+   container.emplace_back(std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey));
+   container.emplace_back(std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey));
  }
 }
+
 } // end of namespace encryptortemplates

@@ -105,7 +105,7 @@ void TcpClientHeartbeat::read() {
 	Warn << "timeout\n";
 	_status = STATUS::HEARTBEAT_TIMEOUT;
       }
-      std::string_view receivedView(&*_heartbeatBuffer.cbegin(), _heartbeatBuffer.size());
+      std::string_view receivedView(_heartbeatBuffer.data(), _heartbeatBuffer.size());
       if (receivedView.ends_with(ENDOFMESSAGE))
 	receivedView.remove_suffix(ENDOFMESSAGESZ);
       if (ec) {
@@ -127,7 +127,7 @@ void TcpClientHeartbeat::read() {
 	return;
       }
       HEADER header;
-      if (!deserialize(header, &*receivedView.cbegin()))
+      if (!deserialize(header, receivedView.data()))
 	return;
       if (!isOk(header)) {
 	LogError << "header is invalid." << '\n';
@@ -154,8 +154,8 @@ void TcpClientHeartbeat::write() {
   }
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE,
 		 DIAGNOSTICS::NONE, _status, 0 };
-  auto serialized = serialize(header);
-  std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(serialized),
+  serialize(header, _heartbeatBuffer.data());
+  std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(_heartbeatBuffer),
 							boost::asio::buffer(ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
     asioBuffers,

@@ -4,18 +4,11 @@
 
 #pragma once
 
-#include <deque>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <string_view>
 
-#include <boost/asio.hpp>
-#include <boost/asio/posix/stream_descriptor.hpp>
-
 // common constants
-
-constexpr std::string_view ENDOFMESSAGE("f65438b3bf504ace8483e6642a84d2fd");
+constexpr std::string_view ENDOFMESSAGE("e10c82c380024fbe8e2b1f578c8793db");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
@@ -93,35 +86,15 @@ void split(const INPUT& input, CONTAINER& rows, const char* separators) {
   }
 }
 
-template <typename BUFFER>
-void readFile(std::string_view fileName, BUFFER& buffer) {
-  std::ifstream stream;
-  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  stream.open(fileName.data(), std::ios::binary);
-  std::uintmax_t size = std::filesystem::file_size(fileName);
-  buffer.resize(size);
-  stream.read(&buffer[0], size);
-}
-
-template <typename SOURCE>
-bool writeToFd(int fd, SOURCE& source) {
-  try {
-    boost::asio::io_context io_context;
-    boost::asio::posix::stream_descriptor sd(io_context, fd);
-    std::vector<boost::asio::const_buffer> buffers;
-    buffers.push_back(boost::asio::buffer(source));
-    boost::asio::write(sd, buffers);
-    return true;
-  }
-  catch (const boost::system::system_error& e) {
-    LogError<< e.what() << '\n';
-    return false;
-  }
-}
-
 std::size_t getUniqueId();
 
 std::string generateRawUUID();
+
+void readFile(std::string_view name, std::string& buffer);
+
+bool getLastLine(std::string_view fileName, std::string& lastLine);
+
+bool fileEndsWithEOL(std::string_view fileName);
 
 void setServerTerminal(std::string_view terminal);
 void setClientTerminal(std::string_view terminal);

@@ -15,7 +15,7 @@
 
 namespace fifo {
 
-constexpr auto TYPE{ "fifo" };
+static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view encodedPeerPubKeyAes,
@@ -34,7 +34,7 @@ FifoSession::~FifoSession() {
 
 bool FifoSession::start() {
   _fifoName = Options::_fifoDirectoryName + '/';
-  _fifoName += ioutility::toCharsBoost(_clientId);
+  ioutility::toChars(_clientId, _fifoName);
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     LogError << strerror(errno) << '-' << _fifoName << '\n';
     return false;

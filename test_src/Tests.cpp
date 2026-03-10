@@ -11,20 +11,18 @@
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
 #include "FileLines.h"
-#include "FileLines2.h"
 #include "IOUtility.h"
 #include "StringLines.h"
-#include "StringLines2.h"
 #include "TestEnvironment.h"
 
 // ./testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetFileLineTest*
 // gdb --args testbin --gtest_filter=GetStringLineTest*
 // for i in {1..10}; do ./testbin --gtest_filter=regex*;done
-// for i in {1..100}; do ./testbin --gtest_filter=GetFileLine2Test*;done
 
 struct CompressionTestLZ4 : testing::Test {
   void testCompressionDecompression(std::string& input) {
+    // must be a copy
     std::string original = input;
     compressionLZ4::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
@@ -38,17 +36,20 @@ struct CompressionTestLZ4 : testing::Test {
 };
 
 TEST_F(CompressionTestLZ4, 1_SOURCE) {
+  // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTestLZ4, 1_OUTPUTD) {
+  // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
 
 struct CompressionTestSnappy : testing::Test {
   void testCompressionDecompression(std::string& input) {
+    // must be a copy
     std::string original = input;
     compressionSnappy::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
@@ -62,17 +63,20 @@ struct CompressionTestSnappy : testing::Test {
 };
 
 TEST_F(CompressionTestSnappy, 1_SOURCE) {
+  // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTestSnappy, 1_OUTPUTD) {
+  // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
 
 struct CompressionTestZSTD : testing::Test {
   void testCompressionDecompression(std::string& input) {
+    // must be a copy
     std::string original = input;
     compressionZSTD::compress(TestEnvironment::_buffer, input);
     std::size_t compressedSz = input.size();
@@ -86,11 +90,13 @@ struct CompressionTestZSTD : testing::Test {
 };
 
 TEST_F(CompressionTestZSTD, 1_SOURCE) {
+  // must be a copy
   std::string input = TestEnvironment::_source;
   testCompressionDecompression(input);
 }
 
 TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
+  // must be a copy
   std::string input = TestEnvironment::_outputD;
   testCompressionDecompression(TestEnvironment::_outputD);
 }
@@ -133,8 +139,11 @@ TEST(SplitTest, MultiDelims) {
 
 TEST(ToCharsTest, Integral) {
   int value = 7;
-  auto converted(ioutility::toCharsBoost(value));
-  ASSERT_TRUE(converted[0]== '7');
+  int shift = 2;
+  constexpr int size = 7;
+  char array[size] = {};
+  ioutility::toChars(value, array + shift);
+  ASSERT_TRUE(array[shift] == '0' + value);
 }
 
 TEST(FromCharsTest, Integral0) {
@@ -159,13 +168,14 @@ TEST(FromCharsTest, FloatingPoint) {
 }
 
 TEST(HeaderTest, 1) {
+  char buffer[HEADER_SIZE] = {};
   unsigned field1Sz = 0;
   unsigned field2Sz = 123456;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
   HEADER header{HEADERTYPE::SESSION, 0, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
-  auto buffer = serialize(header);
-  ASSERT_TRUE(deserialize(header, buffer.data()));
+  serialize(header, buffer);
+  ASSERT_TRUE(deserialize(header, buffer));
   std::size_t field1SzResult = extractField1Size(header);
   ASSERT_EQ(field1SzResult, field1Sz);
   std::size_t field2SzResult = extractField2Size(header);
@@ -176,46 +186,71 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
   header = {HEADERTYPE::SESSION, field1Sz, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
-  auto buffer2 = serialize(header);
-  ASSERT_TRUE(deserialize(header, buffer2.data()));
+  serialize(header, buffer);
+  ASSERT_TRUE(deserialize(header, buffer));
   compressorResult = extractCompressor(header);
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
 TEST(GetFileLineTest, 1) {
-  std::string sourceCopy;
-  FileLines linesDelim(ClientOptions::_sourceName, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
-    sourceCopy += line;
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
-}
+  // get last line in the file using std::getline
+  std::string lastLine;
+  ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
+  if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
+    lastLine.push_back('\n');
 
-TEST(GetFileLine2Test, 1) {
-  std::string sourceCopy;
-  FileLines2 linesDelim(ClientOptions::_sourceName, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
-    sourceCopy += line;
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+  // use FileLines::getLine
+  std::string_view lineView;
+  FileLines linesV(ClientOptions::_sourceName, '\n', true);
+  while (linesV.getLine(lineView)) {
+    if (linesV._last) {
+      ASSERT_EQ(lineView, lastLine);
+    }
+  }
+
+  std::string lineStr;
+  FileLines linesS(ClientOptions::_sourceName, '\n', true);
+  while (linesS.getLine(lineStr)) {
+    if (linesS._last) {
+      ASSERT_EQ(lineStr, lastLine);
+    }
+  }
+  // discard delimiter:
+  // keepDelimiter == false by default
+  FileLines linesDiscardDelimiter(ClientOptions::_sourceName);
+  lastLine.pop_back();
+  while (linesDiscardDelimiter.getLine(lineView)) {
+    if (linesDiscardDelimiter._last) {
+      ASSERT_EQ(lineView, lastLine);
+    }
+  }
 }
 
 TEST(GetStringLineTest, 1) {
-  std::string sourceCopy;
-  StringLines linesDelim(TestEnvironment::_source, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
-    sourceCopy += line;
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
-}
+  // get last line in the file using std::getline
+  std::string lastLine;
+  ASSERT_TRUE(utility::getLastLine(ClientOptions::_sourceName, lastLine));
+  if (utility::fileEndsWithEOL(ClientOptions::_sourceName))
+    lastLine.push_back('\n');
+  std::string_view lastLineCmp = lastLine;
 
-TEST(GetStringLine2Test, 1) {
-  std::string sourceCopy;
-  StringLines2 linesDelim(TestEnvironment::_source, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
-    sourceCopy += line;
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+  // use StringLines::getLine
+  std::string_view line;
+
+  StringLines linesKeepDelimeter(TestEnvironment::_source, '\n', true);
+  while (linesKeepDelimeter.getLine(line)) {
+    if (linesKeepDelimeter._last) {
+      ASSERT_EQ(line, lastLineCmp);
+    }
+  }
+
+  StringLines lines(TestEnvironment::_source);
+  lastLineCmp.remove_suffix(1);
+  while (lines.getLine(line)) {
+    if (lines._last) {
+      ASSERT_EQ(line, lastLineCmp);
+    }
+  }
 }
 
 TEST(ClearPreservesCapacity, 1) {
@@ -231,7 +266,7 @@ TEST(regex, 1) {
   std::string request("http://bid.simpli.fi/ck_bid?size=728x90&user_agent\
 =Mozilla/5.0%20(compatible;%20MSIE%209.0;%20Windows%20NT%206.1;%20WOW64;%20Trident/5.0)\
 &kw=discountcomputer+gliclazide&ip_address=67.87.131.40&site_id=95");
-  const boost::regex pattern("size=\\d+x\\d+&");
+  static const boost::regex pattern("size=\\d+x\\d+&");
   boost::smatch match;
   ASSERT_TRUE(boost::regex_search(request, match, pattern));
   Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);

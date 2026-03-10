@@ -27,7 +27,7 @@ bool initialize() {
 
   _clientEncryptorTuple = std::make_tuple(clientEncryptor0, clientEncryptor1);
   _serverEncryptorTuple = std::make_tuple(serverEncryptor0, serverEncryptor1);
-  _initialized = true;;
+  _initialized = true;
   return true;
 }
 

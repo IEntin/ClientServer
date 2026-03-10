@@ -11,6 +11,8 @@
 #include "EncryptorTemplates.h"
 #include "IOUtility.h"
 
+using namespace encryptortemplates;
+
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;
 
@@ -24,7 +26,7 @@ protected:
   std::string _buffer;
   ServerWeakPtr _server;
 
-  encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
+  ENCRYPTORCONTAINER _encryptorContainer;
 
   Session(ServerWeakPtr server,
 	  std::string_view encodedPeerPubKeyAes,
@@ -38,14 +40,14 @@ protected:
   void sendStatusToClient(L& lambda, STATUS status) {
     if (auto server = _server.lock(); server) {
       std::string clientIdStr;
-      clientIdStr = ioutility::toCharsBoost(_clientId);
+      ioutility::toChars(_clientId, clientIdStr);
       HEADER header;
       std::string encodedPubKeyAes;
-      encryptortemplates::sendStatusToClientImpl(_encryptorContainer,
-						 clientIdStr,
-						 status,
-						 header,
-						 encodedPubKeyAes);
+      sendStatusToClientImpl(_encryptorContainer,
+			     clientIdStr,
+			     status,
+			     header,
+			     encodedPubKeyAes);
       lambda(header, clientIdStr, encodedPubKeyAes);
     }
   }

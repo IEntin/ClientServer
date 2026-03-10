@@ -9,6 +9,8 @@
 #include "Client.h"
 #include "Tcp.h"
 
+using namespace encryptortemplates;
+
 namespace tcp {
 
 class TcpClient : public Client {
@@ -25,7 +27,8 @@ class TcpClient : public Client {
     std::string_view signedAuth) -> bool {
     return Tcp::sendMessage(_socket, header, pubKeyAes, signedAuth);
   };
-  auto crypto = encryptortemplates::findEncryptor(container);
+  constexpr std::size_t index = getEncryptorIndex();
+  auto crypto = std::get<index>(container);
   if (!crypto->sendSignature(lambda))
     throw std::runtime_error("TcpClient::init failed");
   if (!receiveStatus())

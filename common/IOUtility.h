@@ -10,14 +10,12 @@
 #include <stdexcept>
 
 #include <boost/assert/source_location.hpp>
-#include <boost/charconv.hpp>
-#include <boost/static_string.hpp>
 
 #include "Header.h"
 
 namespace ioutility {
 
-constexpr int CONV_BUFFER_SIZE = 10;
+inline constexpr int CONV_BUFFER_SIZE = 10;
 
 inline auto removeNonDigits = [] (std::string_view& view) mutable {
   int shift = 0;
@@ -52,28 +50,31 @@ template <typename F>
 concept Float = std::is_floating_point_v<F>;
 
 template <Integral I>
-boost::static_string<CONV_BUFFER_SIZE>
-toCharsBoost(I value, bool fixedSize = false) {
-  char buffer[CONV_BUFFER_SIZE] = {};
-  boost::charconv::to_chars_result result = 
-    boost::charconv::to_chars(buffer, buffer + sizeof(buffer), value);
-  if (result.ec != std::errc())
-    throw std::runtime_error("conversion failed");
-  std::size_t size = result.ptr - buffer;
-  return { buffer, fixedSize? CONV_BUFFER_SIZE : size };
+int toChars(I value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
+  auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
+  if (ec != std::errc())
+    throw std::runtime_error(createErrorString(ec));
+  return ptr - buffer;
 }
 
 template <Integral I>
-void toCharsBoost(I value, char* buffer, std::size_t bfferSize = CONV_BUFFER_SIZE) {
-  boost::charconv::to_chars_result result = 
-    boost::charconv::to_chars(buffer, buffer + bfferSize, value);
-  if (result.ec != std::errc())
-    throw std::runtime_error("conversion failed");
+void toChars(I value, std::string& target, std::size_t size = CONV_BUFFER_SIZE) {
+  std::size_t origSize = target.size();
+  target.resize(origSize + size);
+  std::size_t sizeIncr = 0;
+  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value);
+  sizeIncr = ptr - target.data() - origSize;
+  if (ec == std::errc()) {
+    assert(sizeIncr <= size);
+    target.erase(origSize + sizeIncr, size - sizeIncr);
+  }
+  else
+    throw std::runtime_error(createErrorString(ec));
 }
 
 template <Integral I>
 std::string& operator << (std::string& buffer, I number) {
-  buffer += toCharsBoost(number);
+  toChars(number, buffer);
   return buffer;
 }
 
@@ -91,30 +92,15 @@ void toChars(F value, std::string& target, int precision, std::size_t size = CON
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(&target[0] + origSize, &target[0] + origSize + size, value,
+  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value,
 				 std::chars_format::fixed, precision);
-  sizeIncr = ptr - &target[0] - origSize;
+  sizeIncr = ptr - target.data() - origSize;
   if (ec == std::errc())
     target.resize(origSize + sizeIncr);
   else
     throw std::runtime_error(createErrorString(ec));
 }
- 
-template <Float F>
-void toCharsBoost(F value, std::string& buffer, int precision) {
-  buffer.resize(CONV_BUFFER_SIZE);
-  auto result = boost::charconv::to_chars(
-    buffer.data(),
-    buffer.data() + buffer.size(),
-    value,
-    boost::charconv::chars_format::fixed,
-    precision);
-  if (result.ec != std::errc())
-    throw std::runtime_error(createErrorString(result.ec));
-  std::size_t size = result.ptr - buffer.data();
-  buffer.resize(size);
-}
- 
+
 template <Float F>
 std::string& operator << (std::string& buffer, F number) {
   toChars(number, buffer, 1);
@@ -124,7 +110,7 @@ std::string& operator << (std::string& buffer, F number) {
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 std::string& operator << (std::string&, const SIZETUPLE&);
 
-bool processMessage(std::string_view payload,
+bool processMessage(std::string& payload,
 		    HEADER &header,
 		    std::span<std::reference_wrapper<std::string>> array);
 

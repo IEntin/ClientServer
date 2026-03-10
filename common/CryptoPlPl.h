@@ -33,7 +33,6 @@ struct KeyHandler {
 
 // version using Crypto++ library
 class CryptoPlPl : public CryptoBase {
-  friend struct RemoveSensitiveData;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
@@ -45,7 +44,6 @@ class CryptoPlPl : public CryptoBase {
   std::string _serializedRsaPubKey;
   static const CryptoPP::OID _curve;
   KeyHandler _keyHandler;
-  std::string_view _name;
   bool generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 		       CryptoPP::SecByteBlock& priv,
 		       CryptoPP::SecByteBlock& pub);
@@ -58,32 +56,23 @@ class CryptoPlPl : public CryptoBase {
   }
   bool checkAccess();
   void hideKey();
-  void destroySensitiveData();
+  void destroySecretData();
   void signMessage();
   std::string sha256_hash(std::string_view message);
+  void eraseAfterUse();
   bool verifySignature(std::string_view signature);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
-
-  struct RemoveSensitiveData {
-    explicit RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
-    ~RemoveSensitiveData() {
-      _ptr->destroySensitiveData();
-    }
-    CryptoPlPl* _ptr = nullptr;
-  };
 
 public:
   CryptoPlPl(std::string_view encodedPeerAesPubKey,
 	     std::string_view signatureWithPubKey);
-  explicit CryptoPlPl();
+  CryptoPlPl();
   ~CryptoPlPl() override;
-  std::string_view  getName() const override { return _name; }
+  std::string_view  getName() const override { return "CryptoPlPl"; }
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
-  std::string_view encrypt(std::string& buffer,
-			   std::string_view data,
-			   const HEADER* const header = nullptr);
+  std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   std::pair<bool, std::string>
@@ -102,7 +91,7 @@ public:
     bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
-    destroySensitiveData();
+    destroySecretData();
     return result;
   }
 };

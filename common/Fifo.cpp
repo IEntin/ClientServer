@@ -13,9 +13,10 @@
 
 namespace fifo {
 
-constexpr std::size_t BUFFER_SIZE = 10000;
+static constexpr std::size_t BUFFER_SIZE = 10000;
 
 thread_local std::string Fifo::_payload;
+boost::static_strings::static_string<0> Fifo::_emptyString;
 
 CloseFileDescriptor::CloseFileDescriptor(int& fd) : _fd(fd) {}
 
@@ -152,7 +153,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
 	payload.resize(payload.size() - ENDOFMESSAGESZ);
 	return true;
       }
-    }
+   }
   }
   return false;
 }

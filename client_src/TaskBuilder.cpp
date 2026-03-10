@@ -4,13 +4,13 @@
 
 #include "TaskBuilder.h"
 
-#include <boost/charconv.hpp>
-
 #include "ClientOptions.h"
 #include "FileLines.h"
+#include "IOUtility.h"
+#include "Options.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(encryptortemplates::ENCRYPTORCONTAINER& crypto) :
+TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
   _subtaskIndex(0),
   _crypto(crypto) {
   _aggregate.reserve(ClientOptions::_bufferSize);
@@ -51,7 +51,10 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  _aggregate.append(1, '[').append(ioutility::toCharsBoost(index)).append(1, ']').append(line);
+  _aggregate += '[';
+  ioutility::toChars(index, _aggregate);
+  _aggregate += ']';
+  _aggregate += line;
 }
 
 // Read requests from the source, generate id for each.
@@ -90,7 +93,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    encryptortemplates::compressEncrypt(_crypto, Client::_buffer, header, _aggregate, ClientOptions::_doEncrypt);
+    compressEncrypt(_crypto, _buffer, header, _aggregate, ClientOptions::_doEncrypt);
   std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = dataView.size();
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();

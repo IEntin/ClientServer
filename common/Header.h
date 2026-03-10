@@ -7,22 +7,18 @@
 #include <string_view>
 #include <tuple>
 
-#include <boost/static_string.hpp>
-
 #include "Logger.h"
 
-constexpr int HEADERTYPE_SIZE = 1;
-constexpr int FIELD1_SIZE = 10;
-constexpr int FIELD2_SIZE = 10;
-constexpr int COMPRESSOR_SIZE = 1;
-constexpr int DIAGNOSTICS_SIZE = 1;
-constexpr int STATUS_SIZE = 1;
-constexpr int FIELD3_SIZE = 10;
-constexpr int HEADER_SIZE =
+inline constexpr int HEADERTYPE_SIZE = 1;
+inline constexpr int FIELD1_SIZE = 10;
+inline constexpr int FIELD2_SIZE = 10;
+inline constexpr int COMPRESSOR_SIZE = 1;
+inline constexpr int DIAGNOSTICS_SIZE = 1;
+inline constexpr int STATUS_SIZE = 1;
+inline constexpr int FIELD3_SIZE = 10;
+inline constexpr int HEADER_SIZE =
   HEADERTYPE_SIZE + FIELD1_SIZE + FIELD2_SIZE +
   COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + FIELD3_SIZE;
-
-static thread_local boost::static_string<HEADER_SIZE> serialized;
 
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
@@ -36,9 +32,14 @@ enum class HEADERTYPE : char {
   INVALIDHIGH
 };
 
+enum class ENCRYPTORCONTAINERTYPE : std::size_t {
+  VARIANTCONTAINER,
+  VECTORCONTAINER,
+  ERROR
+};
   enum class CRYPTO : std::size_t {
-  CRYPTOSODIUM,
   CRYPTOPP,
+  CRYPTOSODIUM,
   NONE,
   ERROR,
 };
@@ -122,7 +123,7 @@ std::size_t extractField3Size(const HEADER& header);
 
 bool isOk(const HEADER& header);
 
-boost::static_string<HEADER_SIZE> serialize(const HEADER& header);
+void serialize(const HEADER& header, char* buffer);
 
 bool deserialize(HEADER& header, const char* buffer);
 

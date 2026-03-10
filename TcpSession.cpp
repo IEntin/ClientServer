@@ -127,8 +127,9 @@ void TcpSession::readRequest() {
 }
 
 void TcpSession::write(const HEADER& header, std::string_view payload) {
-  auto serialized = serialize(header);
-  std::array<boost::asio::const_buffer, 3> asioBuffers{ boost::asio::buffer(serialized),
+  char headerBuffer[HEADER_SIZE] = {};
+  serialize(header, headerBuffer);
+  std::array<boost::asio::const_buffer, 3> asioBuffers{ boost::asio::buffer(headerBuffer),
 							boost::asio::buffer(payload),
 							boost::asio::buffer(ENDOFMESSAGE) };
   boost::asio::async_write(_socket,
