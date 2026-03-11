@@ -20,7 +20,7 @@ int Metrics::_numberOpenFDs = 0;
 void Metrics::save() {
   _pid = getpid();
   std::string prefix("/proc/");
-  ioutility::toChars(_pid, prefix);
+  prefix += ioutility::toCharsBoost(_pid);
   _procFdPath = prefix;
   _procFdPath.append("/fd");
   _procThreadPath = prefix;

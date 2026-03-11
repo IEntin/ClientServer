@@ -34,7 +34,7 @@ FifoSession::~FifoSession() {
 
 bool FifoSession::start() {
   _fifoName = Options::_fifoDirectoryName + '/';
-  ioutility::toChars(_clientId, _fifoName);
+  _fifoName += ioutility::toCharsBoost(_clientId);
   if (mkfifo(_fifoName.data(), 0666) == -1 && errno != EEXIST) {
     LogError << strerror(errno) << '-' << _fifoName << '\n';
     return false;
