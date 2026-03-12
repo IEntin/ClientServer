@@ -6,8 +6,8 @@
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=DoubleEncryptDecrypt*; done
-/*
-TEST(RuntimeTupleAccess, 1) {
+
+TEST(RuntimeTupleAccess, 0) {
   auto encryptors = std::make_tuple(std::make_shared<CryptoSodium>(), std::make_shared<CryptoPlPl>());
   auto cryptopp = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(encryptors);
   ASSERT_TRUE(cryptopp->getName() == "CryptoPlPl");
@@ -23,8 +23,8 @@ TEST(EncryptDecrypt, 0) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC0->encrypt(TestEnvironment::_buffer,
-						 TestEnvironment::_source,
-						 &header);
+						 &header,
+						 TestEnvironment::_source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
   cryptoS0->decrypt(TestEnvironment::_buffer, data);
@@ -44,8 +44,8 @@ TEST(EncryptDecrypt, 1) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC1->encrypt(TestEnvironment::_buffer,
-						 TestEnvironment::_source,
-						 &header);
+						 &header,
+						 TestEnvironment::_source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
   cryptoS1->decrypt(TestEnvironment::_buffer, data);
@@ -69,12 +69,13 @@ TEST(DoubleEncryptDecrypt, 0) {
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted = cryptoC0->encrypt(TestEnvironment::_buffer,
-						 TestEnvironment::_source,
-						 &header);
+						 &header,
+						 TestEnvironment::_source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string source(TestEnvironment::_buffer);
   TestEnvironment::_buffer.clear();
   std::string_view encrypted1 = cryptoC1->encrypt(TestEnvironment::_buffer,
+						  nullptr,
 						  source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted1));
   std::string data(encrypted1);
@@ -90,38 +91,3 @@ TEST(DoubleEncryptDecrypt, 0) {
   std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
   ASSERT_EQ(payload, TestEnvironment::_source);
 }
-
-TEST(DoubleEncryptDecrypt, 1) {
-  CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoSodiumPtr cryptoC0 = std::get<CryptoSodiumPtr>(clientTuple);
-  CryptoPlPlPtr cryptoC1 = std::get<CryptoPlPlPtr>(clientTuple);
-  
-  CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoSodiumPtr cryptoS0 = std::get<CryptoSodiumPtr>(serverTuple);
-  CryptoPlPlPtr cryptoS1 = std::get<CryptoPlPlPtr>(serverTuple);
-
-  HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
-		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
-  std::string_view encrypted = cryptoC1->encrypt(TestEnvironment::_buffer,
-						 TestEnvironment::_source,
-						 &header);
-  ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
-  std::string source(TestEnvironment::_buffer);
-  TestEnvironment::_buffer.clear();
-  std::string_view encrypted1 = cryptoC0->encrypt(TestEnvironment::_buffer,
-						  source);
-  ASSERT_TRUE(CryptoBase::isEncrypted(encrypted1));
-  std::string data(encrypted1);
-  TestEnvironment::_buffer.clear();
-  cryptoS0->decrypt(TestEnvironment::_buffer, data);
-  ASSERT_TRUE(CryptoBase::isEncrypted(data));
-  TestEnvironment::_buffer.clear();
-  cryptoS1->decrypt(TestEnvironment::_buffer, data);
-  ASSERT_FALSE(CryptoBase::isEncrypted(data));
-  HEADER recoveredHeader;
-  deserialize(recoveredHeader, data.data());
-  ASSERT_EQ(header, recoveredHeader);
-  std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
-  ASSERT_EQ(payload, TestEnvironment::_source);
-}
-*/

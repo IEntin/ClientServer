@@ -97,13 +97,18 @@ CryptoSodium::~CryptoSodium() {
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
-				       const HEADER& header,
+				       const HEADER* const header,
 				       std::string_view data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
-  auto serialized(serialize(header));
-  std::string input = { serialized.cbegin(), serialized.cend() };
+  
+  static thread_local std::string input;
+  if (header != nullptr) {
+    auto serialized(serialize(*header));
+    input = { serialized.cbegin(), serialized.cend() };
+  }
+
   input.append(data.cbegin(), data.cend());
   unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};

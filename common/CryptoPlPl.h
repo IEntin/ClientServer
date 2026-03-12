@@ -72,7 +72,7 @@ public:
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
-  std::string_view encrypt(std::string& buffer, const HEADER& header, std::string_view data);
+  std::string_view encrypt(std::string& buffer, const HEADER* const header, std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   bool clientKeyExchange(std::string_view encodedPeerPubKeyAes);
   std::pair<bool, std::string>

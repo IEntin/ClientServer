@@ -102,7 +102,7 @@ bool CryptoPlPl::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
 }
 
 std::string_view CryptoPlPl::encrypt(std::string& buffer,
-				     const HEADER& header,
+				     const HEADER* const header,
 				     std::string_view data) {
   if (!checkAccess())
     throw std::runtime_error("access denied");
@@ -113,8 +113,10 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   setAESmodule(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
-  auto serialized(serialize(header));
-  stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(serialized.data()), HEADER_SIZE);
+  if (header != nullptr) {
+    auto serialized(serialize(*header));
+    stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(serialized.data()), HEADER_SIZE);
+  }
   stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.append(iv.begin(), iv.end());

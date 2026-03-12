@@ -47,7 +47,7 @@ public:
   ~CryptoSodium() override;
   std::string_view  getName() const override { return "CryptoSodium"; }
   std::string_view encrypt(std::string& buffer,
-			   const HEADER& header,
+			   const HEADER* const header,
 			   std::string_view data);
   void decrypt(std::string& buffer, std::string& data);
   std::string base64_encode(std::span<unsigned char> input);

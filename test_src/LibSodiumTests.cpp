@@ -42,7 +42,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
-						  header,
+						  &header,
 						  TestEnvironment::_source);
     ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
     std::string data(encrypted);
