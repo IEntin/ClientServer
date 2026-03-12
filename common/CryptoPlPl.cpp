@@ -113,9 +113,8 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   setAESmodule(aesEncryption);
   CryptoPP::CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, iv.data());
   CryptoPP::StreamTransformationFilter stfEncryptor(cbcEncryption, new CryptoPP::StringSink(buffer));
-  char headerBuffer[HEADER_SIZE] = {};
-  serialize(header, headerBuffer);
-  stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(&headerBuffer[0]), HEADER_SIZE);
+  auto serialized(serialize(header));
+  stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(serialized.data()), HEADER_SIZE);
   stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
   buffer.append(iv.begin(), iv.end());

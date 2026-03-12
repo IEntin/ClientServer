@@ -102,8 +102,8 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   if (!checkAccess())
     throw std::runtime_error("access denied");
   buffer.clear();
-  std::string input(HEADER_SIZE, '\0');
-  serialize(header, input.data());
+  auto serialized(serialize(header));
+  std::string input = { serialized.cbegin(), serialized.cend() };
   input.append(data.cbegin(), data.cend());
   unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};

@@ -124,8 +124,6 @@ bool isOk(const HEADER& header);
 
 boost::static_string<HEADER_SIZE> serialize(const HEADER& header);
 
-void serialize(const HEADER& header, char* buffer);
-
 bool deserialize(HEADER& header, const char* buffer);
 
 // works if there are no gaps in values

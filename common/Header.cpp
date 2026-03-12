@@ -101,24 +101,6 @@ boost::static_string<HEADER_SIZE> serialize(const HEADER& header) {
   return serialized;
 }
 
-void serialize(const HEADER& header, char* buffer) {
-  std::memset(buffer, ' ', HEADER_SIZE);
-  std::size_t offset = 0;
-  buffer[offset] = std::to_underlying(extractHeaderType(header));
-  offset += HEADERTYPE_SIZE;
-  ioutility::toChars(extractField1Size(header), buffer + offset, FIELD1_SIZE);
-  offset += FIELD1_SIZE;
-  ioutility::toChars(extractField2Size(header), buffer + offset, FIELD2_SIZE);
-  offset += FIELD2_SIZE;
-  buffer[offset] = std::to_underlying(extractCompressor(header));
-  offset += COMPRESSOR_SIZE;
-  buffer[offset] = std::to_underlying(extractDiagnostics(header));
-  offset += DIAGNOSTICS_SIZE;
-  buffer[offset] = std::to_underlying(extractStatus(header));
-  offset += STATUS_SIZE;
-  ioutility::toChars(extractField3Size(header), buffer + offset, FIELD3_SIZE);
-}
-
 bool deserialize(HEADER& header, const char* buffer) {
   std::size_t offset = 0;
   if (!deserializeEnumeration(std::get<HEADERTYPE>(header), buffer[offset]))

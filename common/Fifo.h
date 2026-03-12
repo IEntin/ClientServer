@@ -37,9 +37,8 @@ public:
     if (fdWrite == -1)
       return false;
     CloseFileDescriptor cfdw(fdWrite);
-    char headerBuffer[HEADER_SIZE];
-    serialize(header, headerBuffer);
-    writeString(fdWrite, headerBuffer, std::ssize(headerBuffer));
+    auto serialized(serialize(header));
+    writeString(fdWrite, serialized.data(), serialized.size());
     writeString(fdWrite, payload1.data(), payload1.size());
     writeString(fdWrite, payload2.data(), payload2.size());
     writeString(fdWrite, payload3.data(), payload3.size());

@@ -64,14 +64,6 @@ toCharsBoost(I value, bool fixedSize = false) {
 }
 
 template <Integral I>
-int toChars(I value, char* buffer, std::size_t size = CONV_BUFFER_SIZE) {
-  auto [ptr, ec] = std::to_chars(buffer, buffer + size, value);
-  if (ec != std::errc())
-    throw std::runtime_error(createErrorString(ec));
-  return ptr - buffer;
-}
-
-template <Integral I>
 void toCharsBoost(I value, char* buffer, std::size_t bfferSize = CONV_BUFFER_SIZE) {
   boost::charconv::to_chars_result result = 
     boost::charconv::to_chars(buffer, buffer + bfferSize, value);
