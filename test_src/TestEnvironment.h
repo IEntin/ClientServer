@@ -54,8 +54,7 @@ public:
       // client
       auto cryptoC(std::make_shared<CryptoType>());
       // server
-      auto cryptoS = createServer(cryptoC);
-      cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
+      auto cryptoS = encryptortemplates::createServerEncryptor(cryptoC);
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,

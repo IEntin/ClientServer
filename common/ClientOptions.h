@@ -11,7 +11,7 @@
 enum class COMPRESSORS : char;
 enum class DIAGNOSTICS : char;
 
-struct ClientOptions {
+struct ClientOptions : Options {
   static void parse(std::string_view jsonName, std::ostream* externalDataStream = nullptr);
   static bool _fifoClient;
   static bool _tcpClient;

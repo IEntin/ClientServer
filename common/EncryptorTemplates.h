@@ -25,6 +25,11 @@ consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::n
   return std::to_underlying(encryptorType);
 }
 
+template <typename CONTAINER>
+auto getEncryptor(const CONTAINER& container) {
+  return std::get<getEncryptorIndex()>(container);
+}
+
 template <typename E>
 E createServerEncryptor(E clientEncryptor) {
   return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
@@ -38,7 +43,7 @@ std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& data,
 				 bool doEncrypt,
 				 int compressionLevel = 3) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = getEncryptor(container);
   auto weak = makeWeak(crypto);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
@@ -77,7 +82,7 @@ void decryptDecompress(CONTAINER& container,
 		       HEADER& header,
 		       //std::weak_ptr<Crypto> weak,
 		       std::string& data) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = getEncryptor(container);
   auto weak = makeWeak(crypto);
   if (auto crypto = weak.lock();crypto) {
     crypto->decrypt(buffer, data);
@@ -106,7 +111,7 @@ void decryptDecompress(CONTAINER& container,
 template <typename CONTAINER>
 void clientKeyExchange(CONTAINER& container,
 		       std::string_view encodedPeerPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = getEncryptor(container);
   if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
     throw std::runtime_error("clientKeyExchange failed");
   }
@@ -118,7 +123,7 @@ void sendStatusToClientImpl(CONTAINER& container,
 			    STATUS status,
 			    HEADER& header,
 			    std::string& encodedPubKeyAes) {
-  auto crypto = std::get<getEncryptorIndex()>(container);
+  auto crypto = getEncryptor(container);
   encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
