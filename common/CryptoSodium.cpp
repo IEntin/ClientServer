@@ -104,7 +104,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   buffer.clear();
   
   static thread_local std::string input;
-  if (header != nullptr) {
+  if (header) {
     auto serialized(serialize(*header));
     input = { serialized.cbegin(), serialized.cend() };
   }

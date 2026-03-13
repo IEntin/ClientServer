@@ -9,8 +9,6 @@
 // for i in {1..10}; do ./testbin --gtest_filter=Base64EncodingTest*; done
 // for i in {1..10}; do ./testbin --gtest_filter=VariantCrypto*; done
 
-using namespace encryptortemplates;
-
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_P) {
   if (CRYPTO::CRYPTOPP == Options::_encryptorTypeDefault) {
     CryptoVariant container = std::make_shared<CryptoPlPl>();
@@ -72,10 +70,10 @@ TEST(AuthenticationTest, 1) {
     // client
     CryptoPlPlPtr cryptoC(std::make_shared<CryptoPlPl>());
     // server ctor throws on authentication failure
-    CryptoPlPlPtr cryptoS = createServer(cryptoC);
+    CryptoPlPlPtr cryptoS = createServerEncryptor(cryptoC);
   }
-  catch (...) {
-    // no exceptions
+  catch (const std::exception& e) {
+    LogError<< e.what() << '\n';
     ASSERT_TRUE(false);
   }
 }

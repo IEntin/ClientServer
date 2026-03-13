@@ -36,16 +36,6 @@ public:
 
   };
 
-  static auto createServer(CryptoSodiumPtr cryptoC) {
-    return std::make_shared<CryptoSodium>(cryptoC->_encodedPubKeyAes,
-					  cryptoC->_signatureWithPubKeySign);
-  }
-
-  static auto createServer(CryptoPlPlPtr cryptoC) {
-    return std::make_shared<CryptoPlPl>(cryptoC->_encodedPubKeyAes,
-					cryptoC->_signatureWithPubKeySign);
-  }
-
   struct TestCompressEncrypt : testing::Test {
     template <typename CryptoType, typename COMPRESSORS>
     void testCompressEncrypt(COMPRESSORS compressor,
@@ -54,7 +44,7 @@ public:
       // client
       auto cryptoC(std::make_shared<CryptoType>());
       // server
-      auto cryptoS = encryptortemplates::createServerEncryptor(cryptoC);
+      auto cryptoS = createServerEncryptor(cryptoC);
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,

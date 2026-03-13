@@ -15,18 +15,16 @@
 // for i in {1..10}; do ./testbin --gtest_filter=TestCompressEncrypt*; done
 // for i in {1..10}; do ./testbin --gtest_filter=LibSodiumTest.DHkeyExchange; done
 
-using namespace encryptortemplates;
-
 TEST(LibSodiumTest, authentication) {
   try {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
     // server ctor throws on authentication failure
-    CryptoSodiumPtr cryptoS = createServer(cryptoC);
+    CryptoSodiumPtr cryptoS = createServerEncryptor(cryptoC);
   }
-  catch (...) {
-    // no exceptions
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
     ASSERT_TRUE(false);
   }
 }
@@ -36,7 +34,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     // client
     CryptoSodiumPtr cryptoC(std::make_shared<CryptoSodium>());
     // server
-    CryptoSodiumPtr cryptoS = createServer(cryptoC);
+    CryptoSodiumPtr cryptoS = createServerEncryptor(cryptoC);
     cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
     HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
@@ -54,8 +52,8 @@ TEST(LibSodiumTest, DHkeyExchange) {
     std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
     ASSERT_EQ(payload, TestEnvironment::_source);
   }
-  catch (...) {
-    // no exceptions
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
     ASSERT_TRUE(false);
   }
 }
