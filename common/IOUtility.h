@@ -11,7 +11,6 @@
 
 #include <boost/assert/source_location.hpp>
 #include <boost/charconv.hpp>
-#include <boost/static_string.hpp>
 
 #include "Header.h"
 
@@ -78,15 +77,6 @@ std::string& operator << (std::string& buffer, I number) {
 }
 
 template <Float F>
-int toChars(F value, char* buffer, int precision, std::size_t size = CONV_BUFFER_SIZE) {
-  auto [ptr, ec] = std::to_chars(buffer, buffer + size, value,
-				 std::chars_format::fixed, precision);
-  if (ec != std::errc())
-    throw std::runtime_error(createErrorString(ec));
-  return ptr - buffer;
-}
-
-template <Float F>
 void toChars(F value, std::string& target, int precision, std::size_t size = CONV_BUFFER_SIZE) {
   std::size_t origSize = target.size();
   target.resize(origSize + size);
@@ -99,26 +89,11 @@ void toChars(F value, std::string& target, int precision, std::size_t size = CON
   else
     throw std::runtime_error(createErrorString(ec));
 }
- 
+
 template <Float F>
-void toCharsBoost(F value, std::string& buffer, int precision) {
-  buffer.resize(CONV_BUFFER_SIZE);
-  auto result = boost::charconv::to_chars(
-    buffer.data(),
-    buffer.data() + buffer.size(),
-    value,
-    boost::charconv::chars_format::fixed,
-    precision);
-  if (result.ec != std::errc())
-    throw std::runtime_error(createErrorString(result.ec));
-  std::size_t size = result.ptr - buffer.data();
-  buffer.resize(size);
-}
- 
-template <Float F>
-std::string& operator << (std::string& buffer, F number) {
-  toChars(number, buffer, 1);
-  return buffer;
+std::string& operator << (std::string& str, F value) {
+  toChars(value, str, 1);
+  return str;
 }
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
