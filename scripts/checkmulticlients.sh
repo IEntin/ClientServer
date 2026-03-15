@@ -109,9 +109,6 @@ sleep 60
 
 clients=$(ps -ef | grep clientX | grep -v 'grep')
 
-echo -e "\nkilling clients and server\n"
+echo -e "\nkilling server\n"
 
-pkill clientX
 pkill serverX
-
-wait
