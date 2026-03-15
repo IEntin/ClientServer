@@ -17,8 +17,8 @@ clang 20.1.8\
 and
 
 2. Ubuntu 25.10\
-gcc 14.2.0\
-clang 20.1.2\
+gcc 15.2.0\
+clang 20.1.8\
 4GB RAM\
 4 cores
 
