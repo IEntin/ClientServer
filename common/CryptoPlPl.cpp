@@ -50,6 +50,7 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   _keyHandler(_key.size()),
   _msgHash(sha256_hash(utility::getAuthenticationMessage())),
   _signatureWithPubKeySign(signatureWithPubKey.data(), signatureWithPubKey.size()) {
+  RemoveSensitiveData instance(this);
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   std::vector<unsigned char> decoded = base64_decode(encodedPeerAesPubKey);
   CryptoPP::SecByteBlock peerAesPubKey;
@@ -68,7 +69,6 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
   hideKey();
-  destroySecretData();
 }
 
 // client
@@ -142,13 +142,16 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
-  std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
-  const CryptoPP::SecByteBlock& peerPubKeyAes { vect.data(), vect.size() };
-  if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
-    throw std::runtime_error("Client-side key exchange failed");
-  DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
-  hideKey();
-  eraseAfterUse();
+  if (!_keysExchanged) {
+    std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
+    const CryptoPP::SecByteBlock& peerPubKeyAes { vect.data(), vect.size() };
+    if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
+      throw std::runtime_error("Client-side key exchange failed");
+    DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
+    hideKey();
+    _keysExchanged = true;
+    eraseAfterUse();
+  }
   return true;
 }
 
@@ -196,12 +199,15 @@ void CryptoPlPl::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 }
 
 bool CryptoPlPl::verifySignature(std::string_view signature) {
-  CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
-  _verifiedSignature = verifier.VerifyMessage(std::bit_cast<CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
-				     std::bit_cast<CryptoPP::byte*>(signature.data()), signature.length());
-  if (!_verifiedSignature)
-    throw std::runtime_error("Failed to verify signature");
-  destroySecretData();
+  if (!_verifiedSignature) {
+    RemoveSensitiveData instance(this);
+    CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
+    _verifiedSignature = verifier.VerifyMessage(std::bit_cast<CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
+						std::bit_cast<CryptoPP::byte*>(signature.data()), signature.length());
+    if (!_verifiedSignature)
+      throw std::runtime_error("Failed to verify signature");
+    _verifiedSignature = true;
+  }
   return true;
 }
 // For the tests the message is based on the build datetime,
@@ -220,7 +226,7 @@ std::string CryptoPlPl::sha256_hash(std::string_view message) {
   return output;
 }
 
-void CryptoPlPl::destroySecretData() {
+void CryptoPlPl::destroySensitiveData() {
   CryptoPP::memset_z(_msgHash.data(), 0, _msgHash.size());
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());

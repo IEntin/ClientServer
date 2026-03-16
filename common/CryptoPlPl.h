@@ -33,6 +33,7 @@ struct KeyHandler {
 
 // version using Crypto++ library
 class CryptoPlPl : public CryptoBase {
+  friend struct RemoveSensitiveData;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
@@ -56,10 +57,9 @@ class CryptoPlPl : public CryptoBase {
   }
   bool checkAccess();
   void hideKey();
-  void destroySecretData();
+  void destroySensitiveData();
   void signMessage();
   std::string sha256_hash(std::string_view message);
-  void eraseAfterUse();
   bool verifySignature(std::string_view signature);
   void decodePeerRsaPublicKey(std::string_view rsaPubBserialized);
 
@@ -80,18 +80,27 @@ public:
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
 
+  void eraseAfterUse();
+  struct RemoveSensitiveData {
+    explicit RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
+    ~RemoveSensitiveData() {
+      _ptr->destroySensitiveData();
+    }
+    CryptoPlPl* _ptr = nullptr;
+  };
+
   std::string base64_encode(std::span<unsigned char> binary);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
 
   template <typename L>
   bool sendSignature(L& lambda) {
+    RemoveSensitiveData instance(this);
     HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
 		      COMPRESSORS::NONE,
 		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
     bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
     if (result)
       _signatureSent = true;
-    destroySecretData();
     return result;
   }
 };
