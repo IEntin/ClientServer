@@ -40,10 +40,9 @@ public:
   };
 
   struct TestCompressEncrypt : testing::Test {
-    template <typename CryptoType, typename COMPRESSORS>
-    void testCompressEncrypt(COMPRESSORS compressor,
-			     CRYPTO crypto,
-			     bool doEncrypt) {
+    inline void testCompressEncrypt(COMPRESSORS compressor,
+				    CRYPTO crypto,
+				    bool doEncrypt) {
       CryptoVariant container = getClientEncryptorVariant(crypto);
       if (crypto == Options::_encryptorTypeDefault) {
 	// must be a copy
