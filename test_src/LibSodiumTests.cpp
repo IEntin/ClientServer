@@ -69,33 +69,33 @@ TEST(LibSodiumTest, publicKeyEncoding) {
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_LZ4_S) {
-  testCompressEncrypt(COMPRESSORS::LZ4, CRYPTO::CRYPTOSODIUM, true);
+  testCompressEncrypt(COMPRESSORS::LZ4, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_SNAPPY_S) {
-  testCompressEncrypt(COMPRESSORS::SNAPPY, CRYPTO::CRYPTOSODIUM, true);
+  testCompressEncrypt(COMPRESSORS::SNAPPY, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_ZSTD_S) {
-  testCompressEncrypt(COMPRESSORS::ZSTD, CRYPTO::CRYPTOSODIUM, true);
+  testCompressEncrypt(COMPRESSORS::ZSTD, true);
 }
 
 TEST_F(TestCompressEncrypt, ENCRYPT_COMPRESSORS_NONE_S) {
-  testCompressEncrypt(COMPRESSORS::NONE, CRYPTO::CRYPTOSODIUM, true);
+  testCompressEncrypt(COMPRESSORS::NONE, true);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_LZ4_S) {
-  testCompressEncrypt(COMPRESSORS::LZ4, CRYPTO::CRYPTOSODIUM, false);
+  testCompressEncrypt(COMPRESSORS::LZ4, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_SNAPPY_S) {
-  testCompressEncrypt(COMPRESSORS::SNAPPY, CRYPTO::CRYPTOSODIUM, false);
+  testCompressEncrypt(COMPRESSORS::SNAPPY, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_S) {
-  testCompressEncrypt(COMPRESSORS::ZSTD, CRYPTO::CRYPTOSODIUM, false);
+  testCompressEncrypt(COMPRESSORS::ZSTD, false);
 }
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_S) {
-  testCompressEncrypt(COMPRESSORS::NONE, CRYPTO::CRYPTOSODIUM, false);
+  testCompressEncrypt(COMPRESSORS::NONE, false);
 }

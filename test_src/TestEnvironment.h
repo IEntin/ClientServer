@@ -41,30 +41,27 @@ public:
 
   struct TestCompressEncrypt : testing::Test {
     inline void testCompressEncrypt(COMPRESSORS compressor,
-				    CRYPTO crypto,
 				    bool doEncrypt) {
-      CryptoVariant container = getClientEncryptorVariant(crypto);
-      if (crypto == Options::_encryptorTypeDefault) {
-	// must be a copy
-	std::string data = TestEnvironment::_source;
-	HEADER header{ HEADERTYPE::SESSION,
-		       0,
-		       data.size(),
-		       compressor,
-		       DIAGNOSTICS::NONE,
-		       STATUS::NONE,
-		       0 };
-	if (ServerOptions::_printHeader)
-	  printHeader(header, LOG_LEVEL::ALWAYS);
-	std::string_view dataView =
-	  compressEncrypt(container, TestEnvironment::_buffer, header, data, doEncrypt);
-	HEADER restoredHeader;
-	data = dataView;
-	ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
-	decryptDecompress(container, TestEnvironment::_buffer, restoredHeader, data);
-	ASSERT_EQ(header, restoredHeader);
-	ASSERT_EQ(data, TestEnvironment::_source);
-      }
+      CryptoVariant container = getClientEncryptorVariant(Options::_encryptorTypeDefault);
+      // must be a copy
+      std::string data = TestEnvironment::_source;
+      HEADER header{ HEADERTYPE::SESSION,
+		     0,
+		     data.size(),
+		     compressor,
+		     DIAGNOSTICS::NONE,
+		     STATUS::NONE,
+		     0 };
+      if (ServerOptions::_printHeader)
+	printHeader(header, LOG_LEVEL::ALWAYS);
+      std::string_view dataView =
+	compressEncrypt(container, TestEnvironment::_buffer, header, data, doEncrypt);
+      HEADER restoredHeader;
+      data = dataView;
+      ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
+      decryptDecompress(container, TestEnvironment::_buffer, restoredHeader, data);
+      ASSERT_EQ(header, restoredHeader);
+      ASSERT_EQ(data, TestEnvironment::_source);
     }
     void TearDown() {
       TestEnvironment::reset();
