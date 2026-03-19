@@ -31,12 +31,10 @@ trap SIGHUP SIGINT SIGTERM
 date
 
 function printReport {
-    printf "\n$clients\n"
+    printf "\n$clients\n\n"
     printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
     date
 }
-
-trap printReport EXIT
 
 # clean Client* and Fifos directories
 
@@ -92,6 +90,8 @@ do
     /bin/cp -f clientX $UP_DIR/Client$c
 done
 
+trap printReport EXIT
+
 # Start the server
 
 $PRJ_DIR/serverX&
@@ -105,10 +105,10 @@ do
     ( cd $UP_DIR/Client$c; $UP_DIR/Client$c/clientX > /dev/null& )
 done
 
-sleep 60
+sleep 30
 
 clients=$(ps -ef | grep clientX | grep -v 'grep')
 
 echo -e "\nkilling server\n"
 
-pkill serverX
+pkill serverX > /dev/null

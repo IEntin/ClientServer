@@ -63,7 +63,4 @@ public:
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }
-    void TearDown() {
-      TestEnvironment::reset();
-    }
   };

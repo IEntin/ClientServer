@@ -39,6 +39,7 @@ TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD_P) {
 
 TEST_F(TestCompressEncrypt, NOTENCRYPT_COMPRESSORS_NONE_P) {
   testCompressEncrypt(COMPRESSORS::NONE, false);
+  TestEnvironment::reset();
 }
 
 TEST(AuthenticationTest, 1) {
