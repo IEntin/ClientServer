@@ -42,7 +42,7 @@ public:
   struct TestCompressEncrypt : testing::Test {
     inline void testCompressEncrypt(COMPRESSORS compressor,
 				    bool doEncrypt) {
-      CryptoVariant container = getClientEncryptorVariant(Options::_encryptorTypeDefault);
+      CryptoVariant container = getClientEncryptorVariant(Options::_encryptorType);
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,

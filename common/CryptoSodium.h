@@ -40,7 +40,6 @@ class CryptoSodium : public CryptoBase {
   bool checkAccess();
   void hideKey();
   void setAESKey(SessionKey& key);
-  void eraseUsedData();
   struct RemoveSensitiveData {
     explicit RemoveSensitiveData(CryptoSodium* ptr) : _ptr(ptr) {}
     ~RemoveSensitiveData() {
@@ -66,15 +65,17 @@ public:
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
+
   template <typename L>
   bool sendSignature(L& lambda) {
-    HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
-		      COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
-    if (result)
-      _signatureSent = true;
-    return result;
+    if (!_signatureSent) {
+      HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
+			COMPRESSORS::NONE,
+			DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
+      _signatureSent = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
+    }
+    sodium_memzero(_signatureWithPubKeySign.data(), _signatureWithPubKeySign.size());
+    return _signatureSent;
   }
 
 }; 

@@ -80,7 +80,6 @@ public:
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
 
-  void eraseAfterUse();
   struct RemoveSensitiveData {
     explicit RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
     ~RemoveSensitiveData() {
@@ -94,13 +93,15 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    RemoveSensitiveData instance(this);
-    HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
-		      COMPRESSORS::NONE,
-		      DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-    bool result = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
-    if (result)
-      _signatureSent = true;
-    return result;
+    if (!_signatureSent) {
+      HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
+			COMPRESSORS::NONE,
+			DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
+      _signatureSent = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
+    }
+    CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());
+    CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());
+    return _signatureSent;
   }
+
 };

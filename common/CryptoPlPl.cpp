@@ -142,6 +142,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
+  RemoveSensitiveData instance(this);
   if (!_keysExchanged) {
     std::vector<unsigned char> vect = base64_decode(encodedPeerPubKeyAes);
     const CryptoPP::SecByteBlock& peerPubKeyAes { vect.data(), vect.size() };
@@ -150,7 +151,6 @@ bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
     DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
     hideKey();
     _keysExchanged = true;
-    eraseAfterUse();
   }
   return true;
 }
@@ -199,8 +199,8 @@ void CryptoPlPl::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 }
 
 bool CryptoPlPl::verifySignature(std::string_view signature) {
+  RemoveSensitiveData instance(this);
   if (!_verifiedSignature) {
-    RemoveSensitiveData instance(this);
     CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
     _verifiedSignature = verifier.VerifyMessage(std::bit_cast<CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
 						std::bit_cast<CryptoPP::byte*>(signature.data()), signature.length());
@@ -228,15 +228,11 @@ std::string CryptoPlPl::sha256_hash(std::string_view message) {
 
 void CryptoPlPl::destroySensitiveData() {
   CryptoPP::memset_z(_msgHash.data(), 0, _msgHash.size());
+  CryptoPP::memset_z(_privKeyAes.data(), 0, _privKeyAes.size());
+  CryptoPP::memset_z(_pubKeyAes.data(), 0, _pubKeyAes.size());
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());
   CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());
-}
-
-void CryptoPlPl::eraseAfterUse() {
-  CryptoPP::memset_z(_msgHash.data(), 0, _msgHash.size());
-  CryptoPP::memset_z(_privKeyAes.data(), 0, _privKeyAes.size());
-  CryptoPP::memset_z(_pubKeyAes.data(), 0, _pubKeyAes.size());
 }
 
 bool CryptoPlPl::checkAccess() {
