@@ -40,9 +40,11 @@ public:
   };
 
   struct TestCompressEncrypt : testing::Test {
-    inline void testCompressEncrypt(COMPRESSORS compressor,
-				    bool doEncrypt) {
+    static void testCompressEncrypt(COMPRESSORS compressor,
+				    bool doEncrypt,
+				    [[maybe_unused]] CRYPTO crypto) {
       CryptoVariant container = getClientEncryptorVariant(Options::_encryptorType);
+
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
@@ -62,5 +64,8 @@ public:
       decryptDecompress(container, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
+    }
+    void TearDown() {
+      TestEnvironment::reset();
     }
   };

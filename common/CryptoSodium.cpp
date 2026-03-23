@@ -81,6 +81,7 @@ CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
     peerPubcicKeySign) == 0;
   if (!_verifiedSignature)
     throw std::runtime_error("authentication failed");
+  _verifiedSignature = true;
 }
   // Server-side key exchange
   if (crypto_kx_server_session_keys(_key.data(),

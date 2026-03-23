@@ -22,10 +22,13 @@ class CryptoBase {
   std::mutex _mutex;
 public:
   virtual ~CryptoBase() = default;
-// expected: message starts with a header
-// header is encrypted as the rest of data
-// but never compressed because decompression
-// needs header
+  void donotSendSignature() {
+    _signatureSent = true;
+  }
+  // expected: message starts with a header
+  // header is encrypted as the rest of data
+  // but never compressed because decompression
+  // needs header
   static bool isEncrypted(std::string_view input);
 
   static bool displayCryptoLibName();

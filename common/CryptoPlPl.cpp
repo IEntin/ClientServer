@@ -68,6 +68,8 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   decodePeerRsaPublicKey(rsaPubKeySerialized);
   if (!verifySignature(signature))
     throw std::runtime_error("signature verification failed.");
+  _verifiedSignature = true;
+  _keysExchanged = true;
   hideKey();
 }
 

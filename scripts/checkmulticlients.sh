@@ -34,6 +34,7 @@ function printReport {
     printf "\n$clients\n\n"
     printf "\nnumber started clients=%d\n\n" $(echo "$clients" | wc -l)
     date
+    &>/dev/null
 }
 
 # clean Client* and Fifos directories
@@ -109,6 +110,7 @@ sleep 30
 
 clients=$(ps -ef | grep clientX | grep -v 'grep')
 
-echo -e "\nkilling server\n"
+echo -e "\nkilling clients and server\n"
 
+pkill clientX > /dev/null
 pkill serverX > /dev/null

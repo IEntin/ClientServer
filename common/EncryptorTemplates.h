@@ -32,6 +32,8 @@ auto getEncryptor(const CONTAINER& container) {
 
 template <typename E>
 E createServerEncryptor(E clientEncryptor) {
+  // do not send siganture, it is passed through the server constructor:
+  clientEncryptor->donotSendSignature();
   return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
     clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
 }

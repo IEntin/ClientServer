@@ -60,4 +60,18 @@ const CryptoVariant& getServerEncryptorVariant(CRYPTO crypto) {
   }
 }
 
+CryptoSodiumPtr getCryptoSodiumValue(CryptoVariant& var) {
+  CryptoSodiumPtr result = nullptr;
+  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&var))
+    result = *ptr;
+  return result;
+}
+
+CryptoPlPlPtr getCryptoPPValue(CryptoVariant& var) {
+  CryptoPlPlPtr result = nullptr;
+  if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&var))
+    result = *ptr;
+  return result;
+}
+
 } // end of namespace cryptovariant
