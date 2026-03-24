@@ -3,6 +3,7 @@
  */
 
 #include "DoubleEncryption.h"
+
 #include "CryptoVariant.h"
 
 DoubleEncryption::DoubleEncryption(CRYPTO crypto0, CRYPTO crypto1) :

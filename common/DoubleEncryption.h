@@ -2,9 +2,9 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#pragma once
+#include "Header.h"
 
-#include "EncryptorTemplates.h"
+#pragma once
 
 struct DoubleEncryption {
 

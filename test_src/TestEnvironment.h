@@ -9,11 +9,8 @@
 #include <gtest/gtest.h>
 
 #include "CryptoVariant.h"
-#include "EncryptorTemplates.h"
 #include "ServerOptions.h"
 #include "Utility.h"
-
-using namespace encryptortemplates;
 
 class TestEnvironment : public ::testing::Environment {
 public:
