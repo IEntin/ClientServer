@@ -12,6 +12,14 @@ auto makeWeak(std::shared_ptr<C> crypto) {
   return std::weak_ptr<C>(crypto);
 }
 
+template <typename E>
+E createServerEncryptor(E clientEncryptor) {
+  // do not send siganture, it is passed through the server constructor:
+  clientEncryptor->donotSendSignature();
+  return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
+    clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
+}
+
 class CryptoBase {
  protected:
   CryptoBase() {}

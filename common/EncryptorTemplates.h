@@ -30,14 +30,6 @@ auto getEncryptor(const CONTAINER& container) {
   return std::get<getEncryptorIndex()>(container);
 }
 
-template <typename E>
-E createServerEncryptor(E clientEncryptor) {
-  // do not send siganture, it is passed through the server constructor:
-  clientEncryptor->donotSendSignature();
-  return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
-    clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
-}
-
 template <typename CONTAINER>
 std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& buffer,
@@ -82,7 +74,6 @@ template <typename CONTAINER>
 void decryptDecompress(CONTAINER& container,
 		       std::string& buffer,
 		       HEADER& header,
-		       //std::weak_ptr<Crypto> weak,
 		       std::string& data) {
   auto crypto = getEncryptor(container);
   auto weak = makeWeak(crypto);

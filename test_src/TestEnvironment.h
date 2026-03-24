@@ -15,8 +15,6 @@
 
 using namespace encryptortemplates;
 
-using namespace cryptovariant;
-
 class TestEnvironment : public ::testing::Environment {
 public:
 
@@ -42,8 +40,8 @@ public:
   struct TestCompressEncrypt : testing::Test {
     static void testCompressEncrypt(COMPRESSORS compressor,
 				    bool doEncrypt,
-				    [[maybe_unused]] CRYPTO crypto) {
-      CryptoVariant container = getClientEncryptorVariant(Options::_encryptorType);
+				    CRYPTO crypto) {
+      CryptoVariant variant = cryptovariant::getClientEncryptorVariant(crypto);
 
       // must be a copy
       std::string data = TestEnvironment::_source;
@@ -57,11 +55,11 @@ public:
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	compressEncrypt(container, TestEnvironment::_buffer, header, data, doEncrypt);
+	cryptovariant::compressEncrypt(variant, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
       ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
-      decryptDecompress(container, TestEnvironment::_buffer, restoredHeader, data);
+      cryptovariant::decryptDecompress(variant, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }

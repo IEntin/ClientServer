@@ -21,33 +21,16 @@ bool isInitialized();
 const CryptoVariant& getClientEncryptorVariant(CRYPTO crypto);
 const CryptoVariant& getServerEncryptorVariant(CRYPTO crypto);
 
-CryptoSodiumPtr getCryptoSodiumValue(CryptoVariant& var);
-CryptoPlPlPtr getCryptoPPValue(CryptoVariant& var);
+std::string_view compressEncrypt(CryptoVariant& variant,
+				 std::string& buffer,
+				 const HEADER& header,
+				 std::string& data,
+				 bool doEncrypt,
+				 int compressionLevel = 3);
 
-template <typename CRYPTO>
-const auto& getClientEncryptor(CRYPTO crypto) {
-  CryptoVariant variant = getClientEncryptorVariant(crypto);
-  if constexpr (crypto == CRYPTO::CRYPTOSODIUM)
-    return getCryptoSodiumValue(variant);
-  else if constexpr (crypto == CRYPTO::CRYPTOPP)
-    return getCryptoPPValue(variant);
-}
-
-template <typename CRYPTO>
-const auto& getServerEncryptor(CRYPTO crypto) {
-  CryptoVariant variant = getServerEncryptorVariant(crypto);
-  if constexpr (crypto == CRYPTO::CRYPTOSODIUM)
-    return getCryptoSodiumValue(variant);
-  else if constexpr (crypto == CRYPTO::CRYPTOPP)
-    return getCryptoPPValue(variant);
-}
-
-template <typename CRYPTO>
-const auto& getEncryptor(CRYPTO crypto, CryptoVariant& variant) {
-  if constexpr (crypto == CRYPTO::CRYPTOSODIUM)
-    return getCryptoSodiumValue(variant);
-  else if constexpr (crypto == CRYPTO::CRYPTOPP)
-    return getCryptoPPValue(variant);
-}
+void decryptDecompress(CryptoVariant& variant,
+		       std::string& buffer,
+		       HEADER& header,
+		       std::string& data);
 
 } // end of namespace cryptovariant
