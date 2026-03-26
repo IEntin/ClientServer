@@ -10,10 +10,10 @@
 #include "Options.h"
 #include "Utility.h"
 
-TaskBuilder::TaskBuilder(ENCRYPTORCONTAINER crypto) :
+TaskBuilder::TaskBuilder(const CryptoVariant& cryptoVariant) :
   _subtaskIndex(0),
-  _crypto(crypto) {
-  _aggregate.reserve(ClientOptions::_bufferSize);
+  _cryptoVariant(cryptoVariant) {
+  _batch.reserve(ClientOptions::_bufferSize);
 }
 
 void TaskBuilder::run() {
@@ -51,7 +51,7 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 }
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  _aggregate.append(1, '[').append(ioutility::toCharsBoost(index)).append(1, ']').append(line);
+  _batch.append(1, '[').append(ioutility::toCharsBoost(index)).append(1, ']').append(line);
 }
 
 // Read requests from the source, generate id for each.
@@ -62,14 +62,14 @@ void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
 // aggregate depends on the buffer size.
 
 STATUS TaskBuilder::createSubtask(Lines& lines) {
-  _aggregate.clear();
+  _batch.clear();
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
   std::string_view line;
   while (lines.getLine(line)) {
     copyRequestWithId(line, lines._index);
     bool alldone = lines._last;
-    if (_aggregate.size() >= maxSubtaskSize || alldone)
+    if (_batch.size() >= maxSubtaskSize || alldone)
       return compressEncryptSubtask(alldone);
   }
   return STATUS::NONE;
@@ -90,7 +90,11 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    compressEncrypt(_crypto, _buffer, header, _aggregate, ClientOptions::_doEncrypt);
+    cryptovariant::compressEncrypt(_cryptoVariant,
+				   _buffer,
+				   header,
+				   _batch,
+				   ClientOptions::_doEncrypt);
   std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = dataView.size();
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
