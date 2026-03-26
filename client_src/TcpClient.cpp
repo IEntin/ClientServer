@@ -39,7 +39,10 @@ bool TcpClient::receive() {
     boost::system::error_code ec;
     _socket.wait(boost::asio::ip::tcp::socket::wait_read, ec);
     if (ec) {
-      Warn << ec.what() << '\n';
+      if (ec == boost::asio::error::interrupted)
+	Info << ec.what() << '\n';
+      else
+	Warn << ec.what() << '\n';
       return false;
     }
     HEADER header;
