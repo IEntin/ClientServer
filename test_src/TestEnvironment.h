@@ -38,8 +38,6 @@ public:
     static void testCompressEncrypt(COMPRESSORS compressor,
 				    bool doEncrypt,
 				    CRYPTO crypto) {
-      CryptoVariant variant = cryptovariant::getClientEncryptorVariant(crypto);
-
       // must be a copy
       std::string data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
@@ -52,11 +50,11 @@ public:
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	cryptovariant::compressEncrypt(variant, TestEnvironment::_buffer, header, data, doEncrypt);
+	cryptovariant::compressEncryptClient(crypto, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
       ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
-      cryptovariant::decryptDecompress(variant, TestEnvironment::_buffer, restoredHeader, data);
+      cryptovariant::decryptDecompressClient(crypto, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }

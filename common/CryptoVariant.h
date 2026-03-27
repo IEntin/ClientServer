@@ -28,9 +28,21 @@ std::string_view compressEncrypt(CryptoVariant& variant,
 				 bool doEncrypt,
 				 int compressionLevel = 3);
 
+std::string_view compressEncryptClient(CRYPTO crypto,
+				       std::string& buffer,
+				       const HEADER& header,
+				       std::string& data,
+				       bool doEncrypt,
+				       int compressionLevel = 3);
+
 void decryptDecompress(CryptoVariant& variant,
 		       std::string& buffer,
 		       HEADER& header,
 		       std::string& data);
+
+void decryptDecompressClient(CRYPTO crypto,
+			     std::string& buffer,
+			     HEADER& header,
+			     std::string& data);
 
 } // end of namespace cryptovariant

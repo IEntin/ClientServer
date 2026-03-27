@@ -101,10 +101,80 @@ std::string_view compressEncrypt(CryptoVariant& variant,
   return "";
 }
 
+std::string_view compressEncryptClient(CRYPTO crypto,
+				       std::string& buffer,
+				       const HEADER& header,
+				       std::string& data,
+				       bool doEncrypt,
+				       int compressionLevel) {
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::compress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::compress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::compress(buffer, data, compressionLevel);
+      break;
+    default:
+      break;
+    }
+  }
+  if (doEncrypt) {
+    CryptoVariant variant = getClientEncryptorVariant(crypto);
+    if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
+      return (*ptr)->encrypt(buffer, &header, data);
+    else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))
+      return (*ptr)->encrypt(buffer, &header, data);
+  }
+  else {
+    auto serialized(serialize(header));
+    std::string headerWithData;
+    headerWithData.append(serialized);
+    headerWithData.append(data);
+    data.swap(headerWithData);
+    return data;
+  }
+  return "";
+}
+
 void decryptDecompress(CryptoVariant& variant,
 		       std::string& buffer,
 		       HEADER& header,
 		       std::string& data) {
+  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
+    (*ptr)->decrypt(buffer, data);
+  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))
+    (*ptr)->decrypt(buffer, data);
+  if (!deserialize(header, data.data()))
+    throw std::runtime_error("deserialize failed");
+  data.erase(0, HEADER_SIZE);
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::uncompress(buffer, data);
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+void decryptDecompressClient(CRYPTO crypto,
+			     std::string& buffer,
+			     HEADER& header,
+			     std::string& data) {
+  CryptoVariant variant = getClientEncryptorVariant(crypto);
   if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
     (*ptr)->decrypt(buffer, data);
   else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))

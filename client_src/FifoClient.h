@@ -24,8 +24,12 @@ class FifoClient : public Client {
 		      std::string_view signedAuth) -> bool {
       return Fifo::sendMessage(false, Options::_acceptorName, header, pubKeyAesServer, signedAuth);
     };
-    auto crypto = getEncryptor(container);
-    return crypto->sendSignature(lambda);
+    bool sentSignature = false;
+    if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container))
+      sentSignature = (*ptr)->sendSignature(lambda);
+    else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container))
+      sentSignature = (*ptr)->sendSignature(lambda);
+    return sentSignature;
   }
 
   std::string _fifoName;

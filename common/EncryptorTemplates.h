@@ -20,16 +20,6 @@ using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 using ENCRYPTORCONTAINER = CryptoVariant;
 
-consteval std::size_t getEncryptorIndex(std::optional<CRYPTO> encryptor = std::nullopt) {
-  CRYPTO encryptorType = encryptor.has_value() ? *encryptor : Options::_encryptorTypeDefault;
-  return std::to_underlying(encryptorType);
-}
-
-template <typename CONTAINER>
-auto getEncryptor(const CONTAINER& container) {
-  return std::get<getEncryptorIndex()>(container);
-}
-
 template <typename CONTAINER>
 std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& buffer,
@@ -37,8 +27,6 @@ std::string_view compressEncrypt(CONTAINER& container,
 				 std::string& data,
 				 bool doEncrypt,
 				 int compressionLevel = 3) {
-  auto crypto = getEncryptor(container);
-  auto weak = makeWeak(crypto);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
@@ -56,9 +44,10 @@ std::string_view compressEncrypt(CONTAINER& container,
     }
   }
   if (doEncrypt) {
-    if (auto crypto = weak.lock();crypto) {
-      return crypto->encrypt(buffer, &header, data);
-    }
+    if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container))
+      return (*ptr)->encrypt(buffer, &header, data);
+    else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container))
+      return (*ptr)->encrypt(buffer, &header, data);
   }
   else {
     auto serialized(serialize(header));
@@ -70,33 +59,33 @@ std::string_view compressEncrypt(CONTAINER& container,
   }
   return "";
 }
+
 template <typename CONTAINER>
 void decryptDecompress(CONTAINER& container,
 		       std::string& buffer,
 		       HEADER& header,
 		       std::string& data) {
-  auto crypto = getEncryptor(container);
-  auto weak = makeWeak(crypto);
-  if (auto crypto = weak.lock();crypto) {
-    crypto->decrypt(buffer, data);
-    if (!deserialize(header, data.data()))
-      throw std::runtime_error("deserialize failed");
-    data.erase(0, HEADER_SIZE);
-    if (isCompressed(header)) {
-      COMPRESSORS compressor = extractCompressor(header);
-      switch (compressor) {
-      case COMPRESSORS::LZ4:
-	compressionLZ4::uncompress(buffer, data);
-	break;
-      case COMPRESSORS::SNAPPY:
-	compressionSnappy::uncompress(buffer, data);
-	break;
-      case COMPRESSORS::ZSTD:
-	compressionZSTD::uncompress(buffer, data);
-	break;
-      default:
-	break;
-      }
+  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container))
+    (*ptr)->decrypt(buffer, data);
+  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container))
+    (*ptr)->decrypt(buffer, data);
+  if (!deserialize(header, data.data()))
+    throw std::runtime_error("deserialize failed");
+  data.erase(0, HEADER_SIZE);
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::uncompress(buffer, data);
+      break;
+    default:
+      break;
     }
   }
 }
@@ -104,10 +93,13 @@ void decryptDecompress(CONTAINER& container,
 template <typename CONTAINER>
 void clientKeyExchange(CONTAINER& container,
 		       std::string_view encodedPeerPubKeyAes) {
-  auto crypto = getEncryptor(container);
-  if (!crypto->clientKeyExchange(encodedPeerPubKeyAes)) {
+  bool keysExchanged = false;
+  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container))
+    keysExchanged = (*ptr)->clientKeyExchange(encodedPeerPubKeyAes);
+  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container))
+    keysExchanged = (*ptr)->clientKeyExchange(encodedPeerPubKeyAes);
+  if (!keysExchanged)
     throw std::runtime_error("clientKeyExchange failed");
-  }
 }
 
 template <typename CONTAINER>
@@ -116,8 +108,11 @@ void sendStatusToClientImpl(CONTAINER& container,
 			    STATUS status,
 			    HEADER& header,
 			    std::string& encodedPubKeyAes) {
-  auto crypto = getEncryptor(container);
-  encodedPubKeyAes.assign(crypto->_encodedPubKeyAes);
+  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container))
+    encodedPubKeyAes.assign((*ptr)->_encodedPubKeyAes);
+  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container))
+    encodedPubKeyAes.assign((*ptr)->_encodedPubKeyAes);
+
   header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
 	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
