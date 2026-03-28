@@ -18,7 +18,7 @@ try :
   _server(server) {
     _clientId = utility::getUniqueId();
     fillEncryptorContainer(_encryptorContainer,
-			   Options::_encryptorTypeDefault,
+			   Options::_encryptorType,
 			   encodedPeerPubKeyAes,
 			   signatureWithPubKey);
   }

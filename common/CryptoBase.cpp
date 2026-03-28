@@ -19,20 +19,18 @@ bool CryptoBase::isEncrypted(std::string_view input) {
   }
 }
 
-bool CryptoBase::displayCryptoLibName() {
+void CryptoBase::displayCryptoLibName() {
   std::string_view encryptorLib;
-  switch(Options::_encryptorTypeDefault) {
-  case CRYPTO::CRYPTOPP:
-    encryptorLib = "Crypto++";
-    break;
+  switch(Options::_encryptorType) {
   case CRYPTO::CRYPTOSODIUM:
     encryptorLib = "Sodium";
+    break;
+  case CRYPTO::CRYPTOPP:
+    encryptorLib = "Crypto++";
     break;
   default:
     encryptorLib = "Error";
     break;
   }
-  Logger logger(LOG_LEVEL::ALWAYS, std::clog, false);
-  logger << "\nUsing " << encryptorLib << " library.\n\n";
-  return 0;
+  Info << "\n\nUsing " << encryptorLib << " library.\n\n";
 }

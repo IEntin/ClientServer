@@ -57,17 +57,15 @@ libsodium-dev must be installed:\
 #### Notice:
 There is a choice of encryption libraries to use in this application:\
 Sodium which is the current and Crypto++.\
-To switch one to another one has to replace global definition in\
-common/Options.h header:\
-static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOSODIUM;\
-to\
-static constexpr CRYPTO _encryptorTypeDefault = CRYPTO::CRYPTOPP;\
-and to rebuild the application.\
+To select one or another change both ServerOptiond.json and ClientOptions.json files:\
+"EncryptorType" : "CRYPTOSODIUM"  to "EncryptorType" : "CRYPTOPP" or vice versa.\
+No application rebuild is required.
+
 Sodium is preferable due to the active development of this library,\
 besides, valgrind showed significant drop in the number of memory \
 allocations with Sodium. c++ variant is holding an active encryptor.
 
-There is an alternative with tuple holding both encryptors\
+There is an option to use both encryptors \
 for multilayered encryption when two or more layers use different encryption libraries\
 and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\

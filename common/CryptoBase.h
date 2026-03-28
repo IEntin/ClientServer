@@ -39,5 +39,5 @@ public:
   // needs header
   static bool isEncrypted(std::string_view input);
 
-  static bool displayCryptoLibName();
+  static void displayCryptoLibName();
 };

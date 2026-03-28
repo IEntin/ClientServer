@@ -23,7 +23,6 @@ int main() {
   DebugLog::setDebugLog(APPTYPE::SERVER);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setServerTerminal(terminal);
-  [[maybe_unused]] bool initialized = CryptoBase::displayCryptoLibName();
   atexit(Server::removeNamedMutex);
   try {
     signal(SIGPIPE, SIG_IGN);
@@ -36,6 +35,7 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions::parse("ServerOptions.json");
+    CryptoBase::displayCryptoLibName();
     ServerPtr server = std::make_shared<Server>();
     if (!server->start())
       return 3;

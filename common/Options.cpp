@@ -8,7 +8,7 @@
 
 #include "BoostJsonParser.h"
 
-CRYPTO Options::_encryptorType = _encryptorTypeDefault;
+CRYPTO Options::_encryptorType;
 boost::static_string<100> Options::_fifoDirectoryName(std::filesystem::current_path().string());
 boost::static_string<100> Options::_acceptorBaseName("acceptor");
 boost::static_string<100> Options::_acceptorName(_fifoDirectoryName + '/' + _acceptorBaseName);

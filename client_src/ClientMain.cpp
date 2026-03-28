@@ -25,7 +25,6 @@ int main() {
   DebugLog::setDebugLog(APPTYPE::CLIENT);
   std::string terminal(getenv("GNOME_TERMINAL_SCREEN"));
   utility::setClientTerminal(terminal);
-  [[maybe_unused]] bool initialized = CryptoBase::displayCryptoLibName();
   struct Finally {
     Finally() = default;
     ~Finally() {
@@ -37,6 +36,7 @@ int main() {
   signal(SIGPIPE, SIG_IGN);
   std::string_view fileName("ClientOptions.json");
   ClientOptions::parse(fileName);
+  CryptoBase::displayCryptoLibName();
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;
