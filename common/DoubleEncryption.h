@@ -5,7 +5,7 @@
 #include "Header.h"
 
 #pragma once
-
+/*
 struct DoubleEncryption {
 
 const CRYPTO _crypto0;
@@ -21,3 +21,4 @@ std::string_view encryptDouble(std::string& buffer,
 void decryptDouble(std::string& buffer, std::string& data);
 
 };
+*/

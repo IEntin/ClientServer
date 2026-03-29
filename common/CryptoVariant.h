@@ -11,15 +11,9 @@ using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 namespace cryptovariant {
 
-  constexpr std::size_t _index0 = 0;
-  constexpr std::size_t _index1 = 1;
-
 bool initialize();
 
 bool isInitialized();
-
-const CryptoVariant& getClientEncryptorVariant(CRYPTO crypto);
-const CryptoVariant& getServerEncryptorVariant(CRYPTO crypto);
 
 std::string_view compressEncrypt(CryptoVariant& variant,
 				 std::string& buffer,
@@ -28,21 +22,18 @@ std::string_view compressEncrypt(CryptoVariant& variant,
 				 bool doEncrypt,
 				 int compressionLevel = 3);
 
-std::string_view compressEncryptClient(CRYPTO crypto,
-				       std::string& buffer,
-				       const HEADER& header,
-				       std::string& data,
-				       bool doEncrypt,
-				       int compressionLevel = 3);
+std::string_view compressEncrypt(APPTYPE app,
+				 CRYPTO crypto,
+				 std::string& buffer,
+				 const HEADER& header,
+				 std::string& data,
+				 bool doEncrypt,
+				 int compressionLevel = 3);
 
-void decryptDecompress(CryptoVariant& variant,
+void decryptDecompress(APPTYPE app,
+		       CRYPTO crypto,
 		       std::string& buffer,
 		       HEADER& header,
 		       std::string& data);
-
-void decryptDecompressClient(CRYPTO crypto,
-			     std::string& buffer,
-			     HEADER& header,
-			     std::string& data);
 
 } // end of namespace cryptovariant

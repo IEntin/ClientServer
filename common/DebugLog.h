@@ -12,12 +12,6 @@
 
 #include "Options.h"
 
-enum class APPTYPE : int {
-  TESTS,
-  SERVER,
-  CLIENT
-};
-
 class DebugLog {
 
   static std::ofstream _file;

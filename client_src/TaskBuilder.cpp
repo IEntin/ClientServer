@@ -7,8 +7,6 @@
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
-#include "Options.h"
-#include "Utility.h"
 
 TaskBuilder::TaskBuilder(const CryptoVariant& cryptoVariant) :
   _subtaskIndex(0),

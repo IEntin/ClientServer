@@ -36,7 +36,13 @@ enum class HEADERTYPE : char {
   INVALIDHIGH
 };
 
-  enum class CRYPTO : std::size_t {
+enum class APPTYPE : int {
+  TESTS,
+  SERVER,
+  CLIENT
+};
+
+enum class CRYPTO : std::size_t {
   CRYPTOSODIUM,
   CRYPTOPP,
   NONE,

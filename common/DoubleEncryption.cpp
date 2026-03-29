@@ -3,7 +3,7 @@
  */
 
 #include "DoubleEncryption.h"
-
+/*
 #include "CryptoVariant.h"
 
 DoubleEncryption::DoubleEncryption(CRYPTO crypto0, CRYPTO crypto1) :
@@ -23,3 +23,4 @@ void DoubleEncryption::decryptDouble([[maybe_unused]] std::string& buffer,
   CryptoVariant encryptorVariantServer0 = cryptovariant::getServerEncryptorVariant(_crypto0);
   CryptoVariant encryptorVariantServer1 = cryptovariant::getServerEncryptorVariant(_crypto1);
 }
+*/

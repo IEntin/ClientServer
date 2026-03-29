@@ -50,11 +50,11 @@ public:
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
       std::string_view dataView =
-	cryptovariant::compressEncryptClient(crypto, TestEnvironment::_buffer, header, data, doEncrypt);
+	cryptovariant::compressEncrypt(APPTYPE::CLIENT, crypto, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
       ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
-      cryptovariant::decryptDecompressClient(crypto, TestEnvironment::_buffer, restoredHeader, data);
+      cryptovariant::decryptDecompress(APPTYPE::SERVER, crypto, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }

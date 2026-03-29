@@ -36,30 +36,33 @@ bool initialize() {
   return true;
 }
 
-const CryptoVariant& getClientEncryptorVariant(CRYPTO crypto) {
+const CryptoVariant& getEncryptorVariant(APPTYPE app, CRYPTO crypto) {
+  static const CryptoVariant emptyVariant;
   if (!isInitialized())
     initialize();
-  switch(crypto) {
-  case CRYPTO::CRYPTOSODIUM:
-    return _clientEncryptorVariant0;
-  case CRYPTO::CRYPTOPP:
-    return _clientEncryptorVariant1;
-  default:
-    throw std::runtime_error("Bad variant index");
-  }
-}
-
-const CryptoVariant& getServerEncryptorVariant(CRYPTO crypto) {
-  if (!isInitialized())
-    initialize();
-  switch(crypto) {
-  case CRYPTO::CRYPTOSODIUM:
-    return _serverEncryptorVariant0;
-  case CRYPTO::CRYPTOPP:
-    return _serverEncryptorVariant1;
-  default:
-    throw std::runtime_error("Bad variant index");
-  }
+  switch (app) {
+  case APPTYPE::SERVER:
+    switch (crypto) {
+    case CRYPTO::CRYPTOSODIUM:
+      return _serverEncryptorVariant0;
+    case CRYPTO::CRYPTOPP:
+      return _serverEncryptorVariant1;
+    default:
+      return emptyVariant;
+    };
+    case APPTYPE::CLIENT:
+    switch (crypto) {
+    case CRYPTO::CRYPTOSODIUM:
+      return _clientEncryptorVariant0;
+    case CRYPTO::CRYPTOPP:
+      return _clientEncryptorVariant1;
+    default:
+      return emptyVariant;
+    };
+    case APPTYPE::TESTS:
+      return emptyVariant;
+  };
+  return emptyVariant;
 }
 
 std::string_view compressEncrypt(CryptoVariant& variant,
@@ -101,12 +104,13 @@ std::string_view compressEncrypt(CryptoVariant& variant,
   return "";
 }
 
-std::string_view compressEncryptClient(CRYPTO crypto,
-				       std::string& buffer,
-				       const HEADER& header,
-				       std::string& data,
-				       bool doEncrypt,
-				       int compressionLevel) {
+std::string_view compressEncrypt(APPTYPE app,
+				 CRYPTO crypto,
+				 std::string& buffer,
+				 const HEADER& header,
+				 std::string& data,
+				 bool doEncrypt,
+				 int compressionLevel) {
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {
@@ -124,7 +128,7 @@ std::string_view compressEncryptClient(CRYPTO crypto,
     }
   }
   if (doEncrypt) {
-    CryptoVariant variant = getClientEncryptorVariant(crypto);
+    CryptoVariant variant = getEncryptorVariant(app, crypto);
     if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
       return (*ptr)->encrypt(buffer, &header, data);
     else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))
@@ -141,40 +145,12 @@ std::string_view compressEncryptClient(CRYPTO crypto,
   return "";
 }
 
-void decryptDecompress(CryptoVariant& variant,
+void decryptDecompress(APPTYPE app,
+		       CRYPTO crypto,
 		       std::string& buffer,
 		       HEADER& header,
 		       std::string& data) {
-  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
-    (*ptr)->decrypt(buffer, data);
-  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))
-    (*ptr)->decrypt(buffer, data);
-  if (!deserialize(header, data.data()))
-    throw std::runtime_error("deserialize failed");
-  data.erase(0, HEADER_SIZE);
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::uncompress(buffer, data);
-      break;
-    default:
-      break;
-    }
-  }
-}
-
-void decryptDecompressClient(CRYPTO crypto,
-			     std::string& buffer,
-			     HEADER& header,
-			     std::string& data) {
-  CryptoVariant variant = getClientEncryptorVariant(crypto);
+  CryptoVariant variant = getEncryptorVariant(app, crypto);
   if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
     (*ptr)->decrypt(buffer, data);
   else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))
