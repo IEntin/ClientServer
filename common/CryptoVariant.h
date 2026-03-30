@@ -17,17 +17,4 @@ bool isInitialized();
 
 CryptoVariant& getEncryptorVariant(APPTYPE app, CRYPTO crypto);
 
-std::string_view compressEncrypt(CryptoVariant& variant,
-				 std::string& buffer,
-				 const HEADER& header,
-				 std::string& data,
-				 bool doEncrypt,
-				 int compressionLevel = 3);
-
-void decryptDecompress(APPTYPE app,
-		       CRYPTO crypto,
-		       std::string& buffer,
-		       HEADER& header,
-		       std::string& data);
-
 } // end of namespace cryptovariant
