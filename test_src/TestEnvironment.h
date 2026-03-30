@@ -49,8 +49,9 @@ public:
 		     0 };
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);
+      CryptoVariant& clientVariant = cryptovariant::getEncryptorVariant(APPTYPE::CLIENT, crypto);
       std::string_view dataView =
-	cryptovariant::compressEncrypt(APPTYPE::CLIENT, crypto, TestEnvironment::_buffer, header, data, doEncrypt);
+	cryptovariant::compressEncrypt(clientVariant, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
       ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);

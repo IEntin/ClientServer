@@ -15,15 +15,9 @@ bool initialize();
 
 bool isInitialized();
 
-std::string_view compressEncrypt(CryptoVariant& variant,
-				 std::string& buffer,
-				 const HEADER& header,
-				 std::string& data,
-				 bool doEncrypt,
-				 int compressionLevel = 3);
+CryptoVariant& getEncryptorVariant(APPTYPE app, CRYPTO crypto);
 
-std::string_view compressEncrypt(APPTYPE app,
-				 CRYPTO crypto,
+std::string_view compressEncrypt(CryptoVariant& variant,
 				 std::string& buffer,
 				 const HEADER& header,
 				 std::string& data,

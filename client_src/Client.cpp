@@ -29,6 +29,22 @@ Client::~Client() {
   }
 }
 
+void Client::start() {
+  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer);
+  _threadPoolClient.push(taskBuilder);
+  _taskBuilder = taskBuilder;
+}
+
+void Client::stop() {
+  _status = STATUS::STOPPED;
+  Metrics::save();
+  if (auto heartbeat = _heartbeat.lock(); heartbeat)
+    heartbeat->stop();
+  if (auto taskBuilder = _taskBuilder.lock(); taskBuilder)
+    taskBuilder->stop();
+  _threadPoolClient.stop();
+}
+
 // Allows to read and process the source in parts with sizes
 // determined by the buffer size. This reduces memory footprint.
 // For maximum speed the buffer should be large to read the
@@ -62,16 +78,6 @@ void Client::run() {
   } while (ClientOptions::_runLoop);
 }
 
-void Client::stop() {
-  _status = STATUS::STOPPED;
-  Metrics::save();
-  if (auto heartbeat = _heartbeat.lock(); heartbeat)
-    heartbeat->stop();
-  if (auto taskBuilder = _taskBuilder.lock(); taskBuilder)
-    taskBuilder->stop();
-  _threadPoolClient.stop();
-}
-
 bool Client::printReply() {
   if (auto ptr = _heartbeat.lock(); ptr) {
     if (displayStatus(ptr->_status))
@@ -86,12 +92,6 @@ bool Client::printReply() {
   }
   stream.write(&*_response.cbegin(), _response.size());
   return true;
-}
-
-void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer);
-  _threadPoolClient.push(taskBuilder);
-  _taskBuilder = taskBuilder;
 }
 
 void Client::startHeartbeat() {

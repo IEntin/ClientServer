@@ -36,8 +36,8 @@ bool initialize() {
   return true;
 }
 
-const CryptoVariant& getEncryptorVariant(APPTYPE app, CRYPTO crypto) {
-  static const CryptoVariant emptyVariant;
+CryptoVariant& getEncryptorVariant(APPTYPE app, CRYPTO crypto) {
+  static CryptoVariant emptyVariant;
   if (!isInitialized())
     initialize();
   switch (app) {
@@ -88,47 +88,6 @@ std::string_view compressEncrypt(CryptoVariant& variant,
     }
   }
   if (doEncrypt) {
-    if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
-      return (*ptr)->encrypt(buffer, &header, data);
-    else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))
-      return (*ptr)->encrypt(buffer, &header, data);
-  }
-  else {
-    auto serialized(serialize(header));
-    std::string headerWithData;
-    headerWithData.append(serialized);
-    headerWithData.append(data);
-    data.swap(headerWithData);
-    return data;
-  }
-  return "";
-}
-
-std::string_view compressEncrypt(APPTYPE app,
-				 CRYPTO crypto,
-				 std::string& buffer,
-				 const HEADER& header,
-				 std::string& data,
-				 bool doEncrypt,
-				 int compressionLevel) {
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::compress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::compress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::compress(buffer, data, compressionLevel);
-      break;
-    default:
-      break;
-    }
-  }
-  if (doEncrypt) {
-    CryptoVariant variant = getEncryptorVariant(app, crypto);
     if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&variant))
       return (*ptr)->encrypt(buffer, &header, data);
     else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&variant))

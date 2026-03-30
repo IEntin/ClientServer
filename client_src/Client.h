@@ -24,11 +24,15 @@ protected:
   std::string _response;
   encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
 
-Client();
+  Client();
+  virtual ~Client();
+
+  void start();
+
+  void stop();
 
   bool processTask(TaskBuilderWeakPtr weakPtr);
   bool printReply();
-  void start();
 
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
@@ -70,13 +74,11 @@ Client();
 }
 
 public:
-  virtual ~Client();
   virtual bool send(const struct Subtask& subtask) = 0;
   virtual bool receive() = 0;
   virtual bool receiveStatus() = 0;
   virtual void run() = 0;
 
   void startHeartbeat();
-  void stop();
   static void onSignal();
 };
