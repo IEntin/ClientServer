@@ -21,8 +21,8 @@ constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
 namespace utility {
 
-constexpr std::string_view getAuthenticationMessage() {
-  static std::string_view message = __DATE__ " " __TIME__;
+consteval std::string_view getAuthenticationMessage() {
+  static constexpr std::string_view message = __DATE__ " " __TIME__;
   return message;
 }
 

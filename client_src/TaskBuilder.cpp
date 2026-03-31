@@ -5,7 +5,6 @@
 #include "TaskBuilder.h"
 
 #include "ClientOptions.h"
-#include "EncryptorTemplates.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 

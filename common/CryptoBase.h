@@ -7,15 +7,11 @@
 #include "Header.h"
 #include "Options.h"
 
-template<typename C>
-auto makeWeak(std::shared_ptr<C> crypto) {
-  return std::weak_ptr<C>(crypto);
-}
-
+// used in tests to create server locally
 template <typename E>
 E createServerEncryptor(E clientEncryptor) {
   // do not send siganture, it is passed through the server constructor:
-  clientEncryptor->donotSendSignature();
+  clientEncryptor->markSignatureSent();
   return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
     clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
 }
@@ -30,7 +26,7 @@ class CryptoBase {
   std::mutex _mutex;
 public:
   virtual ~CryptoBase() = default;
-  void donotSendSignature() {
+  void markSignatureSent() {
     _signatureSent = true;
   }
   // expected: message starts with a header

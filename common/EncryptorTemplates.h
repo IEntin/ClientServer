@@ -14,9 +14,9 @@
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
 
-namespace encryptortemplates {
-
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
+
+namespace encryptortemplates {
 
 using ENCRYPTORCONTAINER = CryptoVariant;
 
