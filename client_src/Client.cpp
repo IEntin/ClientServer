@@ -38,9 +38,9 @@ void Client::start() {
 void Client::stop() {
   _status = STATUS::STOPPED;
   Metrics::save();
-  if (auto heartbeat = _heartbeat.lock(); heartbeat)
+  if (auto heartbeat = _heartbeat.lock())
     heartbeat->stop();
-  if (auto taskBuilder = _taskBuilder.lock(); taskBuilder)
+  if (auto taskBuilder = _taskBuilder.lock())
     taskBuilder->stop();
   _threadPoolClient.stop();
 }
@@ -51,7 +51,7 @@ void Client::stop() {
 // contents in one shot.
 
 bool Client::processTask(TaskBuilderWeakPtr weakPtr) {
-  if (auto taskBuilder = weakPtr.lock(); taskBuilder) {
+  if (auto taskBuilder = weakPtr.lock()) {
     auto [size, status] = taskBuilder->getTask(_task);
     if (status == STATUS::ERROR)
       return false;
@@ -79,7 +79,7 @@ void Client::run() {
 }
 
 bool Client::printReply() {
-  if (auto ptr = _heartbeat.lock(); ptr) {
+  if (auto ptr = _heartbeat.lock()) {
     if (displayStatus(ptr->_status))
       return false;
   }

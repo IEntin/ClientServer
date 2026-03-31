@@ -112,10 +112,10 @@ void Server::createTcpSession(tcp::ConnectionPtr connection,
 void Server::stopSessions() {
   std::lock_guard lock(_mutex);
   for (auto& pr : _sessions)
-    if (auto session = pr.second.lock(); session)
+    if (auto session = pr.second.lock())
       session->_stopped.store(true);
   for (auto& pr : _sessions)
-    if (auto session = pr.second.lock(); session)
+    if (auto session = pr.second.lock())
       session->stop();
 }
 

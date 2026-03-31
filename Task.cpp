@@ -47,7 +47,7 @@ bool Task::preprocessNext() {
 bool Task::processNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
-    if (auto server = _server.lock(); server) {
+    if (auto server = _server.lock()) {
       auto& policy = server->getPolicy();
       assert(policy);
       if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {

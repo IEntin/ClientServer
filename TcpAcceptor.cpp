@@ -92,7 +92,7 @@ void TcpAcceptor::accept() {
 	auto [type, empty, pubBvector, signatureWithPubKey] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::DH_INIT:
-	  if (auto server = _server.lock(); server)
+	  if (auto server = _server.lock())
 	    server->createTcpSession(connection, pubBvector, signatureWithPubKey);
 	  break;
 	case HEADERTYPE::HEARTBEAT:

@@ -111,7 +111,7 @@ TaskController::Worker::Worker(TaskControllerWeakPtr taskController) :
 // at the sync point when the task is done and wait for the next one.
 
 void TaskController::Worker::run() noexcept {
-  if (auto taskController = _taskController.lock(); taskController) {
+  if (auto taskController = _taskController.lock()) {
     auto& stopped = taskController->_stopped;
     auto& task = taskController->_task;
     auto& barrier = taskController->_barrier;

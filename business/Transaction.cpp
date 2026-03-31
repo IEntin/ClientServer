@@ -238,7 +238,7 @@ void Transaction::printDiagnostics() const {
 void Transaction::printSummary() const {
   _output << _id << ' ';
   double money = _winningBid->_money / Ad::_scaler;
-  if (auto ad = _winningBid->_ad.lock(); ad)
+  if (auto ad = _winningBid->_ad.lock())
   _output << ad->getId() << DELIMITER << money << '\n';
 }
 
@@ -246,7 +246,7 @@ void Transaction::printMatchingAds() const {
   static constexpr auto MATCHINGADS{ "matching ads:\n" };
   _output << MATCHINGADS;
   for (const AdBid& adBid : _bids) {
-    if (auto ad = adBid._ad.lock(); ad)
+    if (auto ad = adBid._ad.lock())
       ad->print(_output);
     static constexpr auto MATCH{ " match:" };
     _output << MATCH << adBid._keyword << ' ' << adBid._money << '\n';
@@ -254,7 +254,7 @@ void Transaction::printMatchingAds() const {
 }
 
 void Transaction::printWinningAd() const {
-  if (auto ad = _winningBid->_ad.lock(); ad)
+  if (auto ad = _winningBid->_ad.lock())
     _output << ad->getId() << DELIMITER
 	    << _winningBid->_keyword << DELIMITER;
   double money = _winningBid->_money / Ad::_scaler;

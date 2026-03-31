@@ -38,7 +38,7 @@ protected:
 
   template <typename L>
   void sendStatusToClient(L& lambda, STATUS status) {
-    if (auto server = _server.lock(); server) {
+    if (auto server = _server.lock()) {
       std::string clientIdStr;
       clientIdStr = ioutility::toCharsBoost(_clientId);
       HEADER header;
