@@ -7,7 +7,7 @@
 
 #pragma once
 
-using CryptoTuple = std::tuple<CryptoSodiumPtr, CryptoPlPlPtr>;
+using CryptoTuple = std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>;
 
 namespace cryptotuple {
 
