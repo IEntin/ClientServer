@@ -12,7 +12,7 @@ template <typename E>
 E createServerEncryptor(E clientEncryptor) {
   // do not send siganture, it is passed through the server constructor:
   clientEncryptor->markSignatureSent();
-  return std::make_shared<typename std::remove_pointer<decltype(clientEncryptor.get())>::type>(
+  return std::make_shared<typename std::remove_pointer_t<decltype(clientEncryptor.get())>>(
     clientEncryptor->_encodedPubKeyAes, clientEncryptor->_signatureWithPubKeySign);
 }
 
