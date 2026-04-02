@@ -70,11 +70,11 @@ TEST(CryptoVariant, 1) {
   CryptoVariant cryptoVariant0 = std::make_shared<CryptoPlPl>();
   std::size_t index = cryptoVariant0.index();
   ASSERT_EQ(index, 1);
-  auto active0 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(cryptoVariant0);
+  CryptoPlPlPtr active0 = std::get<CryptoPlPlPtr>(cryptoVariant0);
   static_assert(std::is_same_v<decltype(active0), CryptoPlPlPtr> == true );
   CryptoVariant cryptoVariant1 = std::make_shared<CryptoSodium>();
   index = cryptoVariant1.index();
   ASSERT_EQ(index, 0);
-  auto active2 = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(cryptoVariant1);
+  CryptoSodiumPtr active2 = std::get<CryptoSodiumPtr>(cryptoVariant1);
   static_assert(std::is_same_v<decltype(active2), CryptoSodiumPtr> == true );
  }

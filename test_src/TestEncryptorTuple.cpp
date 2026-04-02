@@ -9,34 +9,34 @@
 
 TEST(RuntimeTupleAccess, 0) {
   static CryptoSodiumPtr encryptorSodium = std::make_shared<CryptoSodium>();
-  static CryptoPlPlPtr encryptorPP = std::make_shared<CryptoPlPl>();
-  auto encryptors = std::make_tuple(encryptorSodium, encryptorPP);
-  CryptoWeakPlPlPtr cryptoppWeak = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)>(encryptors);
-  if (CryptoPlPlPtr cryptopp = cryptoppWeak.lock()) {
-    ASSERT_TRUE(cryptopp->getName() == "CryptoPlPl");
+  static CryptoPlPlPtr encryptorCryptoPP = std::make_shared<CryptoPlPl>();
+  CryptoTuple encryptors = std::make_tuple(encryptorSodium, encryptorCryptoPP);
+  CryptoWeakPlPlPtr weakCryptoPP = std::get<CryptoWeakPlPlPtr>(encryptors);
+  if (CryptoPlPlPtr encryptorCryptoPP = weakCryptoPP.lock()) {
+    ASSERT_TRUE(encryptorCryptoPP->getName() == "CryptoPlPl");
   }
-  CryptoWeakSodiumPtr cryptosodWeak = std::get<std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)>(encryptors);
-  if (CryptoSodiumPtr cryptosod = cryptosodWeak.lock()) {
-    ASSERT_TRUE(cryptosod->getName() == "CryptoSodium");
+  CryptoWeakSodiumPtr weakCryptoSodium = std::get<CryptoWeakSodiumPtr>(encryptors);
+  if (CryptoSodiumPtr encryptorSodium = weakCryptoSodium.lock()) {
+    ASSERT_TRUE(encryptorSodium->getName() == "CryptoSodium");
   }
 }
 
 TEST(EncryptDecrypt, 0) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoWeakSodiumPtr cryptoWeakC0 = std::get<CryptoWeakSodiumPtr>(clientTuple);
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoWeakSodiumPtr cryptoWeakS0 = std::get<CryptoWeakSodiumPtr>(serverTuple);
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted;
-  if (CryptoSodiumPtr encryptor = cryptoWeakC0.lock())
-    encrypted = encryptor->encrypt(TestEnvironment::_buffer,
-				   &header,
-				   TestEnvironment::_source);
+  CryptoWeakSodiumPtr weakSodiumClient = std::get<CryptoWeakSodiumPtr>(clientTuple);
+  if (CryptoSodiumPtr encryptorSodiumClient = weakSodiumClient.lock())
+    encrypted = encryptorSodiumClient->encrypt(TestEnvironment::_buffer,
+					       &header,
+					       TestEnvironment::_source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
-  if (CryptoSodiumPtr encryptorsod = cryptoWeakS0.lock())
-    encryptorsod->decrypt(TestEnvironment::_buffer, data);
+  CryptoWeakSodiumPtr weakSodiumServer = std::get<CryptoWeakSodiumPtr>(serverTuple);
+  if (CryptoSodiumPtr encryptorSodiumServer = weakSodiumServer.lock())
+    encryptorSodiumServer->decrypt(TestEnvironment::_buffer, data);
   ASSERT_FALSE(CryptoBase::isEncrypted(data));
   HEADER recoveredHeader;
   deserialize(recoveredHeader, data.data());
@@ -47,20 +47,20 @@ TEST(EncryptDecrypt, 0) {
 
 TEST(EncryptDecrypt, 1) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
-  CryptoWeakPlPlPtr cryptoWeakC1 = std::get<CryptoWeakPlPlPtr>(clientTuple);
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  CryptoWeakPlPlPtr cryptoWeakS1 = std::get<CryptoWeakPlPlPtr>(serverTuple);
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string_view encrypted;
-  if (CryptoPlPlPtr encryptorpp = cryptoWeakC1.lock())
-      encrypted = encryptorpp->encrypt(TestEnvironment::_buffer,
-				       &header,
-				       TestEnvironment::_source);
+  CryptoWeakPlPlPtr weakCryptoPPClient = std::get<CryptoWeakPlPlPtr>(clientTuple);
+  if (CryptoPlPlPtr encryptorCryptoPPClient = weakCryptoPPClient.lock())
+      encrypted = encryptorCryptoPPClient->encrypt(TestEnvironment::_buffer,
+						   &header,
+						   TestEnvironment::_source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
-  if (CryptoPlPlPtr encryptorpp = cryptoWeakS1.lock())
-  encryptorpp->decrypt(TestEnvironment::_buffer, data);
+  CryptoWeakPlPlPtr weakCryptoPPServer = std::get<CryptoWeakPlPlPtr>(serverTuple);
+  if (CryptoPlPlPtr encryptorCryptoPPServer = weakCryptoPPServer.lock())
+    encryptorCryptoPPServer->decrypt(TestEnvironment::_buffer, data);
   ASSERT_FALSE(CryptoBase::isEncrypted(data));
   HEADER recoveredHeader;
   deserialize(recoveredHeader, data.data());

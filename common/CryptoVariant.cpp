@@ -22,11 +22,11 @@ bool isInitialized(){
 }
 
 bool initialize() {
-  CryptoSodiumPtr clientEncryptor0 = std::make_shared<CryptoSodium>();
-  CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
+  static CryptoSodiumPtr clientEncryptor0 = std::make_shared<CryptoSodium>();
+  static CryptoSodiumPtr serverEncryptor0 = createServerEncryptor(clientEncryptor0);
   clientEncryptor0->clientKeyExchange(serverEncryptor0->_encodedPubKeyAes);
-  CryptoPlPlPtr clientEncryptor1 = std::make_shared<CryptoPlPl>();
-  CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
+  static CryptoPlPlPtr clientEncryptor1 = std::make_shared<CryptoPlPl>();
+  static CryptoPlPlPtr serverEncryptor1 = createServerEncryptor(clientEncryptor1);
   clientEncryptor1->clientKeyExchange(serverEncryptor1->_encodedPubKeyAes);
   _clientEncryptorVariant0 = std::move(clientEncryptor0);
   _serverEncryptorVariant0 = std::move(serverEncryptor0);
