@@ -121,8 +121,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   }
   stfEncryptor.Put(std::bit_cast<CryptoPP::byte*>(data.data()), data.size());
   stfEncryptor.MessageEnd();
-  buffer.append(iv.begin(), iv.end());
-  return buffer;
+  return buffer.append(iv.begin(), iv.end());
 }
 
 void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {

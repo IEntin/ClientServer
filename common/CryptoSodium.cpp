@@ -130,8 +130,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
     sodium_memzero(input.data(), input.size());
     throw std::runtime_error("encrypt failed");
   }
-  buffer.insert(buffer.end(), std::cbegin(nonce), std::cend(nonce));
-  return buffer;
+  return buffer.append(std::cbegin(nonce), std::cend(nonce));
 }
 
 void CryptoSodium::hideKey() {
@@ -151,14 +150,13 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned long long decrypted_len;
     std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
     setAESKey(key);
-    bool success = crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(buffer.data()),
-						 &decrypted_len,
-						 nullptr,
-						 std::bit_cast<unsigned char*>(data.data()),
-						 ciphertext_len,
-						 nullptr, 0,
-						 recoveredNonce, key.data()) == 0;
-    if (!success)
+    if (!(crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(buffer.data()),
+				       &decrypted_len,
+				       nullptr,
+				       std::bit_cast<unsigned char*>(data.data()),
+				       ciphertext_len,
+				       nullptr, 0,
+					recoveredNonce, key.data()) == 0))
       throw std::runtime_error("decrypt failed");
     buffer.resize(decrypted_len);
     data = buffer;
