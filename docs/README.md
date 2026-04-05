@@ -69,7 +69,7 @@ There is an option to use both encryptors \
 for multilayered encryption when two or more layers use different encryption libraries\
 and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\
-See TestEncryptorTuple.cpp: TEST(DoubleEncryptDecrypt, *).
+See test_src/DoubleEncryptionTest.cpp.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
