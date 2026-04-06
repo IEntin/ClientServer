@@ -32,7 +32,7 @@ struct KeyHandler {
 };
 
 // version using Crypto++ library
-class CryptoPlPl : public CryptoBase {
+class CryptoPlPl : public CryptoBase, public std::enable_shared_from_this<CryptoPlPl> {
   friend struct RemoveSensitiveData;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;

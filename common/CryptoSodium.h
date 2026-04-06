@@ -24,7 +24,7 @@ struct HandleKey {
   std::atomic<bool> _obfuscated;
 };
 
-class CryptoSodium : public CryptoBase {
+class CryptoSodium : public CryptoBase, public std::enable_shared_from_this<CryptoSodium> {
   friend struct RemoveSensitiveData;
   using SessionKey = std::array<unsigned char, crypto_kx_SESSIONKEYBYTES>;
   std::string

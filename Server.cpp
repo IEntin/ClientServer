@@ -70,11 +70,11 @@ bool Server::start() {
   setPolicy();
   if (!TaskController::create())
     return false;
-  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(shared_from_this());
+  _tcpAcceptor = std::make_shared<tcp::TcpAcceptor>(weak_from_this());
   if (!_tcpAcceptor->start())
     return false;
   _threadPoolAcceptor.push(_tcpAcceptor);
-  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(shared_from_this());
+  _fifoAcceptor = std::make_shared<fifo::FifoAcceptor>(weak_from_this());
   if (!_fifoAcceptor->start())
     return false;
   _threadPoolAcceptor.push(_fifoAcceptor);
