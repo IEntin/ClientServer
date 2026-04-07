@@ -47,17 +47,16 @@ Server::~Server() {
 }
 
 void Server::setPolicy() {
-  POLICYENUM policyEnum = ServerOptions::_policyEnum;
-  switch (std::to_underlying(policyEnum)) {
-  case std::to_underlying(POLICYENUM::NOSORTINPUT) :
+  switch (ServerOptions::_policyEnum) {
+  case POLICYENUM::NOSORTINPUT:
     Ad::readAds(ServerOptions::_adsFileName);
     _policy = std::make_unique<NoSortInputPolicy>();
     break;
-  case std::to_underlying(POLICYENUM::SORTINPUT) :
+  case POLICYENUM::SORTINPUT:
     Ad::readAds(ServerOptions::_adsFileName);
     _policy = std::make_unique<SortInputPolicy>();
     break;
-  case std::to_underlying(POLICYENUM::ECHOPOLICY) :
+  case POLICYENUM::ECHOPOLICY:
     _policy = std::make_unique<EchoPolicy>();
     break;
   default:

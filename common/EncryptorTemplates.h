@@ -121,11 +121,11 @@ template <typename CONTAINER>
 void fillEncryptorContainer(CONTAINER& container,
 			    CRYPTO encryptorType) {
   switch(encryptorType) {
-  case CRYPTO::CRYPTOPP:
-    container = std::make_shared<CryptoPlPl>();
-    break;
   case CRYPTO::CRYPTOSODIUM:
     container = std::make_shared<CryptoSodium>();
+    break;
+  case CRYPTO::CRYPTOPP:
+    container = std::make_shared<CryptoPlPl>();
     break;
   default:
     break;
@@ -138,11 +138,11 @@ void fillEncryptorContainer(CONTAINER& container,
 			    std::string_view encodedPeerPubKeyAes,
  			    std::string_view signatureWithPubKey) {
   switch(encryptorType) {
-  case CRYPTO::CRYPTOPP:
-    container = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
-    break;
   case CRYPTO::CRYPTOSODIUM:
     container = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
+    break;
+  case CRYPTO::CRYPTOPP:
+    container = std::make_shared<CryptoPlPl>(encodedPeerPubKeyAes, signatureWithPubKey);
     break;
   default:
     break;

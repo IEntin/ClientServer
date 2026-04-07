@@ -25,7 +25,6 @@ inline constexpr auto _smallPayload = "abcdefghijklmnopqr0123456789876543210";
 inline constexpr auto _testFifo = "TestFifo";
 
 struct EchoTest : testing::Test {
-  const std::string _originalSource = TestEnvironment::_source;
   void testEcho(CLIENT_TYPE type,
 		COMPRESSORS serverCompressor,
 		COMPRESSORS clientCompressor,
@@ -55,7 +54,7 @@ struct EchoTest : testing::Test {
       }
       break;
     }
-    ASSERT_EQ(TestEnvironment::_oss.str(), _originalSource);
+    ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     server->stop();
   }
 

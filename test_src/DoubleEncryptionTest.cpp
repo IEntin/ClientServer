@@ -17,33 +17,33 @@ TEST(DoubleEncryptDecrypt, 0) {
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
   std::string encrypted;
   CryptoWeakSodiumPtr cryptoWeakSodiumPtrClient = std::get<CryptoWeakSodiumPtr>(clientTuple);
-  if (CryptoSodiumPtr encryptorClientSodium = cryptoWeakSodiumPtrClient.lock()) {
+  if (CryptoSodiumPtr encryptorSodiumClient = cryptoWeakSodiumPtrClient.lock()) {
     TestEnvironment::_buffer.clear();
-    encrypted = encryptorClientSodium->encrypt(TestEnvironment::_buffer,
+    encrypted = encryptorSodiumClient->encrypt(TestEnvironment::_buffer,
 					       &header,
 					       source);
   }
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   CryptoWeakPlPlPtr cryptoWeakPlPlPtrClient = std::get<CryptoWeakPlPlPtr>(clientTuple);
-  if (CryptoPlPlPtr encryptorClientPlPl = cryptoWeakPlPlPtrClient.lock()) {
+  if (CryptoPlPlPtr encryptorPlPlClient = cryptoWeakPlPlPtrClient.lock()) {
     TestEnvironment::_buffer.clear();
-    encrypted = encryptorClientPlPl->encrypt(TestEnvironment::_buffer,
+    encrypted = encryptorPlPlClient->encrypt(TestEnvironment::_buffer,
 					     nullptr,
 					     encrypted);
   }
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string decrypted;
   CryptoWeakPlPlPtr cryptoWeakPlPlPtrServer = std::get<CryptoWeakPlPlPtr>(serverTuple);
-  if (CryptoPlPlPtr encryptorServerPlPlPtr = cryptoWeakPlPlPtrServer.lock()) {
+  if (CryptoPlPlPtr encryptorPlPlPtrServer = cryptoWeakPlPlPtrServer.lock()) {
     TestEnvironment::_buffer.clear();
-    encryptorServerPlPlPtr->decrypt(TestEnvironment::_buffer, encrypted);
+    encryptorPlPlPtrServer->decrypt(TestEnvironment::_buffer, encrypted);
     decrypted = TestEnvironment::_buffer;
   }
   ASSERT_TRUE(CryptoBase::isEncrypted(decrypted));
   CryptoWeakSodiumPtr cryptoWeakSodiumPtrServer = std::get<CryptoWeakSodiumPtr>(serverTuple);
-  if (CryptoSodiumPtr encryptorServerSodiumPtr = cryptoWeakSodiumPtrServer.lock()) {
+  if (CryptoSodiumPtr encryptorSodiumPtrServer = cryptoWeakSodiumPtrServer.lock()) {
     TestEnvironment::_buffer.clear();
-    encryptorServerSodiumPtr->decrypt(TestEnvironment::_buffer, decrypted);
+    encryptorSodiumPtrServer->decrypt(TestEnvironment::_buffer, decrypted);
     decrypted = TestEnvironment::_buffer;
   }
   ASSERT_FALSE(CryptoBase::isEncrypted(decrypted));
