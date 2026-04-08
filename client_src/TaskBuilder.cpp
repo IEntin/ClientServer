@@ -36,10 +36,10 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
   std::unique_lock lock(_mutex);
   _conditionTask.wait(lock, [this] {
     switch (_status) {
-      case STATUS::TASK_DONE:
-      case STATUS::ERROR:
-      case STATUS::STOPPED:
-	return true;
+    case STATUS::TASK_DONE:
+    case STATUS::ERROR:
+    case STATUS::STOPPED:
+      return true;
     default:
       return false;
     }

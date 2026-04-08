@@ -55,14 +55,8 @@ std::string_view compressEncrypt(CONTAINER& container,
 	return encryptor->encrypt(buffer, &header, data);
     }
   }
-  else {
-    auto serialized(serialize(header));
-    std::string headerWithData;
-    headerWithData.append(serialized);
-    headerWithData.append(data);
-    data.swap(headerWithData);
-    return data;
-  }
+  else
+    return data.insert(0, serialize(header));
   return "";
 }
 
