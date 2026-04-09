@@ -77,7 +77,7 @@ There is no 'Man In the Middle' during setup in this case or he is sitting uninv
 in front of the same computer.\
 The next step will be implementation of the traditional remote server and client \
 setup with remote key exchanges. Among other things it will make possible key \
-rotation happening each time when the client restarts.
+rotation happening each time the client restarts.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
