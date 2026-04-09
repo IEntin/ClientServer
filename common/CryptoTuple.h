@@ -23,9 +23,9 @@ std::string doubleEncrypt(const CryptoTuple& tuple,
 			  const HEADER& header,
 			  std::string& source);
 
-std::string doubleDecrypt(const CryptoTuple& tuple,
-			  std::string& buffer,
-			  HEADER& header,
-			  std::string& data);
+void doubleDecrypt(const CryptoTuple& tuple,
+		   std::string& buffer,
+		   HEADER& header,
+		   std::string& data);
 
 } // end of namespace cryptotuple

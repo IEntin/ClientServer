@@ -13,6 +13,7 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
+#include "CryptoTuple.h"
 
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 
@@ -77,6 +78,58 @@ void decryptDecompress(CONTAINER& container,
   }
   if (!deserialize(header, data.data()))
     throw std::runtime_error("deserialize failed");
+  data.erase(0, HEADER_SIZE);
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::uncompress(buffer, data);
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+inline std::string compressDoubleEncrypt(const CryptoTuple& tuple,
+					 std::string& buffer,
+					 const HEADER& header,
+					 std::string& data,
+					 bool doEncrypt,
+					 int compressionLevel = 3) {
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::compress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::compress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::compress(buffer, data, compressionLevel);
+      break;
+    default:
+      break;
+    }
+  }
+  if (doEncrypt)
+    return cryptotuple::doubleEncrypt(tuple, buffer, header, data);
+  else
+    return data.insert(0, serialize(header));
+}
+
+inline void doubleDecryptDecompress(const CryptoTuple& tuple,
+				    std::string& buffer,
+				    HEADER& header,
+				    std::string& data) {
+  cryptotuple::doubleDecrypt(tuple, buffer, header, data);
   data.erase(0, HEADER_SIZE);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);

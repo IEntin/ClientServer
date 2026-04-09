@@ -60,26 +60,22 @@ std::string doubleEncrypt(const CryptoTuple& tuple,
   return encrypted;
 }
 
-std::string doubleDecrypt(const CryptoTuple& tuple,
-			  std::string& buffer,
-			  HEADER& header,
-			  std::string& data) {
-  std::string decrypted;
+void doubleDecrypt(const CryptoTuple& tuple,
+		   std::string& buffer,
+		   HEADER& header,
+		   std::string& data) {
   CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
   if (CryptoPlPlPtr encryptorPlPlPtr = cryptoWeakPlPlPtr.lock()) {
     buffer.clear();
     encryptorPlPlPtr->decrypt(buffer, data);
-    decrypted = buffer;
   }
   CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
   if (CryptoSodiumPtr encryptorSodiumPtr = cryptoWeakSodiumPtr.lock()) {
     buffer.clear();
-    encryptorSodiumPtr->decrypt(buffer, decrypted);
-    decrypted = buffer;
+    encryptorSodiumPtr->decrypt(buffer, data);
   }
-  if (!deserialize(header, decrypted.data()))
+  if (!deserialize(header, data.data()))
     throw std::runtime_error("doubleDecrypt failure.");
-  return decrypted;
 }
 
 } // end of namespace cryptotuple

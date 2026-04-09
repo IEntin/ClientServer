@@ -6,9 +6,10 @@
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=DoubleEncryptDecrypt*; done
+// for i in {1..10}; do ./testbin --gtest_filter=TestCompressDoubleEncrypt*;done
 
 TEST(DoubleEncryptDecrypt, 0) {
-  CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
+  const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
 
   std::string source = TestEnvironment::_source;
 
@@ -19,16 +20,58 @@ TEST(DoubleEncryptDecrypt, 0) {
 						     header,
 						     source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
-  CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
+  const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
 
-  std::string decrypted = cryptotuple::doubleDecrypt(serverTuple,
-						     TestEnvironment::_buffer,
-						     header,
-						     encrypted);
+  cryptotuple::doubleDecrypt(serverTuple,
+			     TestEnvironment::_buffer,
+			     header,
+			     encrypted);
+  std::string decrypted = TestEnvironment::_buffer;
   ASSERT_FALSE(CryptoBase::isEncrypted(decrypted));
   HEADER recoveredHeader;
   deserialize(recoveredHeader, decrypted.data());
   ASSERT_EQ(header, recoveredHeader);
-  std::string_view recoveredSource(decrypted.cbegin() + HEADER_SIZE, decrypted.cend());
-  ASSERT_EQ(TestEnvironment::_source, recoveredSource);
+  decrypted.erase(0, HEADER_SIZE);
+  ASSERT_EQ(TestEnvironment::_source, decrypted);
+}
+
+struct TestCompressDoubleEncrypt : testing::Test {
+  static void testCompressDoubleEncrypt(COMPRESSORS compressor,
+					bool doEncrypt) {
+    std::string data = TestEnvironment::_source;
+    HEADER header{ HEADERTYPE::SESSION,
+		   0,
+		   data.size(),
+		   compressor,
+		   DIAGNOSTICS::NONE,
+		   STATUS::NONE,
+		   0 };
+    CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
+    std::string encrypted = encryptortemplates::compressDoubleEncrypt(clientTuple,
+								      TestEnvironment::_buffer,
+								      header,
+								      data,
+								      doEncrypt);
+    ASSERT_EQ(CryptoBase::isEncrypted(encrypted), doEncrypt);
+    const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
+    TestEnvironment::_buffer.clear();
+    HEADER recoveredHeader;
+    encryptortemplates::doubleDecryptDecompress(serverTuple,
+						TestEnvironment::_buffer,
+						recoveredHeader,
+						encrypted);
+    ASSERT_EQ(header, recoveredHeader);
+    ASSERT_EQ(encrypted, TestEnvironment::_source);
+  }
+  void TearDown() {
+    TestEnvironment::reset();
+  }
+};
+
+TEST_F(TestCompressDoubleEncrypt, ENCRYPT_COMPRESSORS_LZ4) {
+  testCompressDoubleEncrypt(COMPRESSORS::LZ4, true);
+}
+
+TEST_F(TestCompressDoubleEncrypt, ENCRYPT_COMPRESSORS_ZSTD) {
+  testCompressDoubleEncrypt(COMPRESSORS::ZSTD, true);
 }
