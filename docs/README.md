@@ -71,13 +71,7 @@ and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\
 See test_src/DoubleEncryptionTest.cpp. The current implementation for simplicity creates \
 encryptor tuples locally with local key exchanges. \
-Build process creates both client and server side tuples. \
-Two parties get client and server each and start secret remote communications. \
-There is no 'Man In the Middle' during setup in this case or he is sitting uninvited \
-in front of the same computer.\
-The next step will be implementation of the traditional remote server and client \
-setup with remote key exchanges. Among other things it will make possible key \
-rotation happening each time the client restarts.
+Next will be implementation of the remote key exchanges.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
