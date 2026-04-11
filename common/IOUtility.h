@@ -37,13 +37,6 @@ std::string createErrorString(std::errc ec,
 
 std::string createErrorString(const boost::source_location& location = BOOST_CURRENT_LOCATION);
 
-template <typename T>
-constexpr void fromChars (std::string_view str, T& value) {
-  if (auto [p, ec] = std::from_chars(str.cbegin(), str.cend(), value);
-      ec != std::errc())
-    throw std::runtime_error(createErrorString(ec));
-}
-
 template <typename I>
 concept Integral = std::is_integral_v<I>;
 
@@ -60,6 +53,13 @@ constexpr void fromCharsBoost(std::string_view str, I& value) {
   if (result.ec != std::errc()) {
     throw std::runtime_error("conversion failed");
   }
+}
+
+template <typename F>
+constexpr void fromChars (std::string_view str, F& value) {
+  if (auto [p, ec] = std::from_chars(str.cbegin(), str.cend(), value);
+      ec != std::errc())
+    throw std::runtime_error(createErrorString(ec));
 }
 
 template <Integral I>
