@@ -8,10 +8,10 @@
 #include "ServerOptions.h"
 
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
-  if (cryptoStr == "CRYPTOPP")
-    return CRYPTO::CRYPTOPP;
-  else if (cryptoStr == "CRYPTOSODIUM")
+  if (cryptoStr == "CRYPTOSODIUM" || cryptoStr == "0")
     return CRYPTO::CRYPTOSODIUM;
+  else if (cryptoStr == "CRYPTOPP" || cryptoStr == "1")
+    return CRYPTO::CRYPTOPP;
   else if (cryptoStr == "NONE")
     return CRYPTO::NONE;
   else

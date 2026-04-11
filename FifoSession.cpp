@@ -18,10 +18,11 @@ namespace fifo {
 static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
+			 CRYPTO crypto,
 			 std::string_view encodedPeerPubKeyAes,
 			 std::string_view signatureWithPubKey) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, encodedPeerPubKeyAes, signatureWithPubKey) {}
+  Session(server, crypto, encodedPeerPubKeyAes, signatureWithPubKey) {}
 
 FifoSession::~FifoSession() {
   try {

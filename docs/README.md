@@ -70,8 +70,8 @@ for multilayered encryption when two or more layers use different encryption lib
 and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\
 See test_src/DoubleEncryptionTest.cpp. The current implementation for simplicity creates \
-encryptor tuples locally with local key exchanges. \
-Next will be implementation of the remote key exchanges.
+encryptor tuples locally with local authentication and key exchanges. \
+Next will be implementation of the remote authentication and key exchanges.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\

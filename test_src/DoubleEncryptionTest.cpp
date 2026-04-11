@@ -75,3 +75,11 @@ TEST_F(TestCompressDoubleEncrypt, ENCRYPT_COMPRESSORS_LZ4) {
 TEST_F(TestCompressDoubleEncrypt, ENCRYPT_COMPRESSORS_ZSTD) {
   testCompressDoubleEncrypt(COMPRESSORS::ZSTD, true);
 }
+
+TEST_F(TestCompressDoubleEncrypt, NOTENCRYPT_COMPRESSORS_ZSTD) {
+  testCompressDoubleEncrypt(COMPRESSORS::ZSTD, false);
+}
+
+TEST_F(TestCompressDoubleEncrypt, ENCRYPT_COMPRESSORS_SNAPPY) {
+  testCompressDoubleEncrypt(COMPRESSORS::SNAPPY, true);
+}

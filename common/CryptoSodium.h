@@ -10,6 +10,7 @@
 #include <sodium.h>
 
 #include "CryptoBase.h"
+#include "IOUtility.h"
 
 using CryptoSodiumPtr = std::shared_ptr<class CryptoSodium>;
 using CryptoWeakSodiumPtr = std::weak_ptr<class CryptoSodium>;
@@ -68,11 +69,13 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda) {
+    std::string cryptoStr =
+      static_cast<std::string>(ioutility::toCharsBoost(std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)));
     if (!_signatureSent) {
-      HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
+      HEADER header = { HEADERTYPE::DH_INIT, cryptoStr.size(), _encodedPubKeyAes.size(),
 			COMPRESSORS::NONE,
 			DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-      _signatureSent = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
+      _signatureSent = lambda(header, cryptoStr, _encodedPubKeyAes, _signatureWithPubKeySign);
     }
     sodium_memzero(_signatureWithPubKeySign.data(), _signatureWithPubKeySign.size());
     return _signatureSent;

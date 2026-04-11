@@ -14,6 +14,7 @@
 #include <cryptopp/secblock.h>
 
 #include "CryptoBase.h"
+#include "IOUtility.h"
 
 constexpr std::size_t RSA_KEY_SIZE = 2048;
 
@@ -93,11 +94,13 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda) {
+    std::string cryptoStr =
+      static_cast<std::string>(ioutility::toCharsBoost(std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP)));
     if (!_signatureSent) {
-      HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
+      HEADER header = { HEADERTYPE::DH_INIT, cryptoStr.size(), _encodedPubKeyAes.size(),
 			COMPRESSORS::NONE,
 			DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
-      _signatureSent = lambda(header, _encodedPubKeyAes, _signatureWithPubKeySign);
+      _signatureSent = lambda(header, cryptoStr, _encodedPubKeyAes, _signatureWithPubKeySign);
     }
     CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());
     CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());

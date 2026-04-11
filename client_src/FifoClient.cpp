@@ -22,10 +22,8 @@ namespace fifo {
 FifoClient::FifoClient()  {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
-  bool success;
-  success = wakeupAcceptor(_encryptorContainer);
-  if (!success)
-    throw std::runtime_error("FifoClient::wakeupAcceptor failed");
+  if (!sendSignature(_encryptorContainer))
+    throw std::runtime_error("FifoClient::sendSignature failed");
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
 }

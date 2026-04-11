@@ -29,6 +29,7 @@ protected:
   ENCRYPTORCONTAINER _encryptorContainer;
 
   Session(ServerWeakPtr server,
+	  CRYPTO crypto,
 	  std::string_view encodedPeerPubKeyAes,
 	  std::string_view signatureWithPubKey);
   virtual ~Session() = default;

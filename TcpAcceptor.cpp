@@ -62,16 +62,16 @@ std::tuple<HEADERTYPE,
 	   std::string,
 	   std::string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
-  std::string empty;
+  std::string cryptoStr;
   std::string pubKeyAes;
   std::string signatureWithPubKey;
-  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(empty),
+  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(cryptoStr),
 							    std::ref(pubKeyAes),
 							    std::ref(signatureWithPubKey) };
   if (!Tcp::readMessage(socket, _header, array))
     throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");
-  return { extractHeaderType(_header), empty, pubKeyAes, signatureWithPubKey };
+  return { extractHeaderType(_header), cryptoStr, pubKeyAes, signatureWithPubKey };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -89,11 +89,12 @@ void TcpAcceptor::accept() {
      if (auto self = weak_from_this().lock(); !self)
 	return;
       if (!ec) {
-	auto [type, empty, pubBvector, signatureWithPubKey] = connectionType(connection->_socket);
+	auto [type, cryptoStr, pubBvector, signatureWithPubKey] = connectionType(connection->_socket);
+	CRYPTO crypto = translateCryptoString(cryptoStr);
 	switch (type) {
 	case HEADERTYPE::DH_INIT:
 	  if (auto server = _server.lock())
-	    server->createTcpSession(connection, pubBvector, signatureWithPubKey);
+	    server->createTcpSession(connection, crypto, pubBvector, signatureWithPubKey);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(connection->_socket);
