@@ -50,6 +50,18 @@ concept Integral = std::is_integral_v<I>;
 template <typename F>
 concept Float = std::is_floating_point_v<F>;
 
+template <typename I>
+constexpr void fromCharsBoost(std::string_view str, I& value) {
+  value = 0;
+  boost::charconv::from_chars_result result =
+    boost::charconv::from_chars(str.data(), 
+				str.data() + str.size(), 
+				value);
+  if (result.ec != std::errc()) {
+    throw std::runtime_error("conversion failed");
+  }
+}
+
 template <Integral I>
 boost::static_string<CONV_BUFFER_SIZE>
 toCharsBoost(I value, bool fixedSize = false) {

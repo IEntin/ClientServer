@@ -140,14 +140,14 @@ TEST(ToCharsTest, Integral) {
 TEST(FromCharsTest, Integral0) {
   std::string_view view = "0000";
   int value = 7;
-  ioutility::fromChars(view, value);
+  ioutility::fromCharsBoost(view, value);
   ASSERT_EQ(value, 0);
 }
 
 TEST(FromCharsTest, Integral) {
   std::string_view view = "123456789";
   int value = {};
-  ioutility::fromChars(view, value);
+  ioutility::fromCharsBoost(view, value);
   ASSERT_EQ(value, 123456789);
 }
 

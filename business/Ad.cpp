@@ -36,9 +36,9 @@ bool Ad::parseAttributes() {
     return false;
   _id = adStrVect[ID];
   unsigned keyWidth = 0;
-  ioutility::fromChars(adStrVect[WIDTH], keyWidth);
+  ioutility::fromCharsBoost(adStrVect[WIDTH], keyWidth);
   unsigned keyHeight = 0;
-  ioutility::fromChars(adStrVect[HEIGHT], keyHeight);
+  ioutility::fromCharsBoost(adStrVect[HEIGHT], keyHeight);
   _sizeKey = { keyWidth, keyHeight };
   double dblMoney = 0;
   ioutility::fromChars(adStrVect[DEFAULTBID], dblMoney);

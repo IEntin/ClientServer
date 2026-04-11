@@ -8,9 +8,9 @@
 #include "ServerOptions.h"
 
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
-  if (cryptoStr == "CRYPTOSODIUM" || cryptoStr == "0")
+  if (cryptoStr == "CRYPTOSODIUM")
     return CRYPTO::CRYPTOSODIUM;
-  else if (cryptoStr == "CRYPTOPP" || cryptoStr == "1")
+  else if (cryptoStr == "CRYPTOPP")
     return CRYPTO::CRYPTOPP;
   else if (cryptoStr == "NONE")
     return CRYPTO::NONE;
@@ -107,10 +107,10 @@ bool deserialize(HEADER& header, const char* buffer) {
     return false;
   offset += HEADERTYPE_SIZE;
   std::string_view strz(buffer + offset, FIELD1_SIZE);
-  ioutility::fromChars(strz, std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header));
+  ioutility::fromCharsBoost(strz, std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header));
   offset += FIELD1_SIZE;
   std::string_view stru(buffer + offset, FIELD2_SIZE);
-  ioutility::fromChars(stru, std::get<std::to_underlying(HEADER_INDEX::FIELD2SIZEINDEX)>(header));
+  ioutility::fromCharsBoost(stru, std::get<std::to_underlying(HEADER_INDEX::FIELD2SIZEINDEX)>(header));
   offset += FIELD2_SIZE;
   if (!deserializeEnumeration(std::get<COMPRESSORS>(header), buffer[offset]))
     return false;
@@ -122,7 +122,7 @@ bool deserialize(HEADER& header, const char* buffer) {
     return false;
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, FIELD3_SIZE);
-  ioutility::fromChars(strp, std::get<std::to_underlying(HEADER_INDEX::FIELD3SIZEINDEX)>(header));
+  ioutility::fromCharsBoost(strp, std::get<std::to_underlying(HEADER_INDEX::FIELD3SIZEINDEX)>(header));
   if (ServerOptions::_printHeader)
     printHeader(header, LOG_LEVEL::ALWAYS);
   return true;

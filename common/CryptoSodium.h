@@ -69,8 +69,7 @@ public:
 
   template <typename L>
   bool sendSignature(L& lambda) {
-    std::string cryptoStr =
-      static_cast<std::string>(ioutility::toCharsBoost(std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM)));
+    std::string cryptoStr("CRYPTOSODIUM");
     if (!_signatureSent) {
       HEADER header = { HEADERTYPE::DH_INIT, cryptoStr.size(), _encodedPubKeyAes.size(),
 			COMPRESSORS::NONE,
