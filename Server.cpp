@@ -91,22 +91,20 @@ void Server::stop() {
   TaskController::destroy();
 }
 
-void Server::createFifoSession(CRYPTO crypto,
-			       std::string_view pubB,
+void Server::createFifoSession(std::string_view pubB,
 			       std::string_view signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<fifo::FifoSession>(weak_from_this(), crypto, pubB, signatureWithPubKey);
+    std::make_shared<fifo::FifoSession>(weak_from_this(), pubB, signatureWithPubKey);
   startSession(session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
-			      CRYPTO crypto,
 			      std::string_view pubB,
 			      std::string_view signatureWithPubKey) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, crypto, pubB, signatureWithPubKey);
+    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, pubB, signatureWithPubKey);
   startSession(session);
 }
 

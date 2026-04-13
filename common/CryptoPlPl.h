@@ -66,8 +66,9 @@ class CryptoPlPl : public CryptoBase, public std::enable_shared_from_this<Crypto
 
 public:
   CryptoPlPl(std::string_view encodedPeerAesPubKey,
-	     std::string_view signatureWithPubKey);
-  CryptoPlPl();
+	     std::string_view signatureWithPubKey,
+	     bool primary = true);
+  CryptoPlPl(bool primary = true);
   ~CryptoPlPl() override;
   std::string_view  getName() const override { return "CryptoPlPl"; }
   std::string _msgHash;
@@ -96,7 +97,7 @@ public:
   bool sendSignature(L& lambda) {
     std::string cryptoStr("CRYPTOPP");
     if (!_signatureSent) {
-      HEADER header = { HEADERTYPE::DH_INIT, cryptoStr.size(), _encodedPubKeyAes.size(),
+      HEADER header = { HEADERTYPE::CREATE_SESSION, cryptoStr.size(), _encodedPubKeyAes.size(),
 			COMPRESSORS::NONE,
 			DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
       _signatureSent = lambda(header, cryptoStr, _encodedPubKeyAes, _signatureWithPubKeySign);

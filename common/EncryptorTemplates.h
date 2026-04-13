@@ -183,8 +183,8 @@ void sendStatusToClientImpl(CONTAINER& container,
     if (auto encryptor = weak.lock())
       encodedPubKeyAes.assign(encryptor->_encodedPubKeyAes);
   }
-  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
-	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
+  header = { HEADERTYPE::PRIMARY_CLIENT_KEY_EXCHANGE, clientIdStr.size(),
+	     encodedPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 };
 }
 
 template <typename CONTAINER>

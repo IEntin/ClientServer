@@ -45,7 +45,8 @@ void CryptoSodium::setAESKey(SessionKey& key) {
 }
 
 // client
-CryptoSodium::CryptoSodium() :
+CryptoSodium::CryptoSodium(bool primary) :
+  CryptoBase(primary),
   _msgHash(hashMessage(utility::getAuthenticationMessage())) {
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
   _encodedPubKeyAes = base64_encode(_pubKeyAes);
@@ -62,7 +63,9 @@ CryptoSodium::CryptoSodium() :
 
 // session
 CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
-			   std::string_view signatureWithPubKeySign) :
+			   std::string_view signatureWithPubKeySign,
+			   bool primary) :
+  CryptoBase(primary),
   _msgHash(hashMessage(utility::getAuthenticationMessage())) {
   RemoveSensitiveData instance(this);
   std::vector<unsigned char> peerAesPubKeyV = base64_decode(encodedPeerAesPubKey);

@@ -42,7 +42,9 @@ KeyHandler::~KeyHandler() {
 
 // session
 CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
-		       std::string_view signatureWithPubKey) :
+		       std::string_view signatureWithPubKey,
+		       bool primary) :
+  CryptoBase(primary),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
@@ -74,7 +76,8 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
 }
 
 // client
-CryptoPlPl::CryptoPlPl() :
+CryptoPlPl::CryptoPlPl(bool primary) :
+  CryptoBase(primary),
   _dh(_curve),
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),

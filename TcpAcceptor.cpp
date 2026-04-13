@@ -90,11 +90,10 @@ void TcpAcceptor::accept() {
 	return;
       if (!ec) {
 	auto [type, cryptoStr, pubBvector, signatureWithPubKey] = connectionType(connection->_socket);
-	CRYPTO crypto = translateCryptoString(cryptoStr);
 	switch (type) {
-	case HEADERTYPE::DH_INIT:
+	case HEADERTYPE::CREATE_SESSION:
 	  if (auto server = _server.lock())
-	    server->createTcpSession(connection, crypto, pubBvector, signatureWithPubKey);
+	    server->createTcpSession(connection, pubBvector, signatureWithPubKey);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(connection->_socket);

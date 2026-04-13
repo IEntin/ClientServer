@@ -21,7 +21,7 @@ bool CryptoBase::isEncrypted(std::string_view input) {
 
 void CryptoBase::displayCryptoLibName() {
   std::string_view encryptorLib;
-  switch(Options::_encryptorType) {
+  switch(Options::_primaryEncryptor) {
   case CRYPTO::CRYPTOSODIUM:
     encryptorLib = "Sodium";
     break;

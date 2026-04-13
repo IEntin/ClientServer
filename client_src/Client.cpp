@@ -16,7 +16,16 @@ std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
 
 Client::Client() : _chronometer(ClientOptions::_timing) {
-  encryptortemplates::fillEncryptorContainer(_encryptorContainer, Options::_encryptorType);
+  switch (Options::_primaryEncryptor) {
+  case CRYPTO::CRYPTOSODIUM:
+    _encryptorContainer = _sodiumEncryptor;
+    break;
+  case CRYPTO::CRYPTOPP:
+    _encryptorContainer = _cryptoPPEncryptor;
+    break;
+  default:
+    break;
+  }
   _buffer.reserve(ClientOptions::_bufferSize);
 }
 

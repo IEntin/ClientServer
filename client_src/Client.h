@@ -7,6 +7,8 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "Chronometer.h"
+#include "CryptoPlPl.h"
+#include "CryptoSodium.h"
 #include "EncryptorTemplates.h"
 #include "IOUtility.h"
 #include "Subtask.h"
@@ -23,6 +25,9 @@ protected:
 
   std::string _response;
   encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
+
+  CryptoSodiumPtr _sodiumEncryptor = std::make_shared<CryptoSodium>();
+  CryptoPlPlPtr _cryptoPPEncryptor = std::make_shared<CryptoPlPl>();
 
   Client();
   virtual ~Client();
