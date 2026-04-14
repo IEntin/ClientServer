@@ -27,7 +27,7 @@ protected:
   encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
 
   CryptoSodiumPtr _sodiumEncryptor = std::make_shared<CryptoSodium>();
-  CryptoPlPlPtr _cryptoPPEncryptor = std::make_shared<CryptoPlPl>();
+  CryptoPlPlPtr _cryptoppEncryptor = std::make_shared<CryptoPlPl>();
 
   Client();
   virtual ~Client();

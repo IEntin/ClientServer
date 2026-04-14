@@ -11,6 +11,7 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
+		 CRYPTO crypto,
 		 std::string_view encodedPeerPubKeyAes,
 		 std::string_view signatureWithPubKey)
 try :
@@ -18,7 +19,7 @@ try :
   _server(server) {
     _clientId = utility::getUniqueId();
     fillEncryptorContainer(_encryptorContainer,
-			   Options::_primaryEncryptor,
+			   crypto,
 			   encodedPeerPubKeyAes,
 			   signatureWithPubKey);
   }
@@ -34,7 +35,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
     _responseData += entry;
   HEADER header =
     { HEADERTYPE::SESSION, _responseData.size(), 0,
-      ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+      ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
   std::string_view dataView =
   compressEncrypt(_encryptorContainer,
 		  _buffer,
@@ -43,7 +44,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
 		  ServerOptions::_doEncrypt,
 		  ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
-	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0 };
+	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
   return { header, dataView };
 }
 

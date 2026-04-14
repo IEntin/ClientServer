@@ -140,6 +140,7 @@ struct FifoBlockingTest : testing::Test {
       COMPRESSORS::NONE,
       DIAGNOSTICS::NONE,
       STATUS::NONE,
+      0,
       0 };
     return fifo::Fifo::sendMessage(true, _testFifo, header, payload);
   }
@@ -242,7 +243,7 @@ struct FifoNBDuplex : testing::Test {
   void testFifoNBDuplex(std::string_view payload) {
     ASSERT_TRUE(std::filesystem::exists(_testFifo));
     HEADER header =
-      { HEADERTYPE::SESSION, payload.size(), 0, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+      { HEADERTYPE::SESSION, payload.size(), 0, COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
     auto fs = std::async(std::launch::async, &FifoNBDuplex::sendC, this, std::cref(header), payload);
     HEADER headerIntermed;
     std::string dataIntermed;

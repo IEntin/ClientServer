@@ -21,7 +21,7 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
     _encryptorContainer = _sodiumEncryptor;
     break;
   case CRYPTO::CRYPTOPP:
-    _encryptorContainer = _cryptoPPEncryptor;
+    _encryptorContainer = _cryptoppEncryptor;
     break;
   default:
     break;

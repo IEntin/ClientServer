@@ -163,7 +163,7 @@ TEST(HeaderTest, 1) {
   unsigned field2Sz = 123456;
   COMPRESSORS compressor = COMPRESSORS::LZ4;
   DIAGNOSTICS diagnostics = DIAGNOSTICS::ENABLED;
-  HEADER header{HEADERTYPE::SESSION, 0, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
+  HEADER header{HEADERTYPE::SESSION, 0, field2Sz, compressor, diagnostics, STATUS::NONE, 0, 0 };
   auto buffer = serialize(header);
   ASSERT_TRUE(deserialize(header, buffer.data()));
   std::size_t field1SzResult = extractField1Size(header);
@@ -175,7 +175,7 @@ TEST(HeaderTest, 1) {
   DIAGNOSTICS diagnosticsResult = extractDiagnostics(header);
   ASSERT_EQ(diagnostics, diagnosticsResult);
   compressor = COMPRESSORS::NONE;
-  header = {HEADERTYPE::SESSION, field1Sz, field2Sz, compressor, diagnostics, STATUS::NONE, 0};
+  header = {HEADERTYPE::SESSION, field1Sz, field2Sz, compressor, diagnostics, STATUS::NONE, 0, 0 };
   auto buffer2 = serialize(header);
   ASSERT_TRUE(deserialize(header, buffer2.data()));
   compressorResult = extractCompressor(header);

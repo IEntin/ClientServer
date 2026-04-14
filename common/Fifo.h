@@ -20,13 +20,14 @@ struct CloseFileDescriptor {
 class Fifo {
 public:
 
-  template <typename P1, typename P2 = P1, typename P3 = P1>
+  template <typename P1, typename P2 = P1, typename P3 = P1, typename P4 = P1>
   static bool sendMessage(bool block,
 			  std::string_view name,
 			  const HEADER& header,
 			  const P1& payload1,
 			  const P2& payload2 = P2(),
-			  const P3& payload3 = P3()) {
+			  const P3& payload3 = P3(),
+			  const P4& payload4 = P4()) {
     int fdWrite = -1;
     if (block)
       fdWrite = open(name.data(), O_WRONLY);
@@ -40,6 +41,7 @@ public:
     writeString(fdWrite, payload1.data(), payload1.size());
     writeString(fdWrite, payload2.data(), payload2.size());
     writeString(fdWrite, payload3.data(), payload3.size());
+    writeString(fdWrite, payload4.data(), payload4.size());
     writeString(fdWrite, ENDOFMESSAGE.data(), ENDOFMESSAGESZ);
     return true;
   }

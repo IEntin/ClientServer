@@ -18,8 +18,7 @@ E createServerEncryptor(E clientEncryptor) {
 
 class CryptoBase {
  protected:
-  CryptoBase(bool primary) :
-    _primary(primary) {}
+  CryptoBase() {}
   virtual std::string_view getName() const = 0;
   bool _verifiedSignature = false;
   bool _keysExchanged = false;
@@ -30,7 +29,6 @@ public:
   void markSignatureSent() {
     _signatureSent = true;
   }
-  bool _primary;
   // expected: message starts with a header
   // header is encrypted as the rest of data
   // but never compressed because decompression

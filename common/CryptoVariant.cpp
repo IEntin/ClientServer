@@ -8,8 +8,6 @@
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
 
-// methods here are used in tests only
-
 namespace cryptovariant {
 
 bool _initialized = false;

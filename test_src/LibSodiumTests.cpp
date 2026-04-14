@@ -38,7 +38,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
     HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
-		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
 						  &header,
 						  TestEnvironment::_source);

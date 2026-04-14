@@ -18,18 +18,19 @@ inline constexpr int COMPRESSOR_SIZE = 1;
 inline constexpr int DIAGNOSTICS_SIZE = 1;
 inline constexpr int STATUS_SIZE = 1;
 inline constexpr int FIELD3_SIZE = 10;
+inline constexpr int FIELD4_SIZE = 10;
 inline constexpr int HEADER_SIZE =
-  HEADERTYPE_SIZE + FIELD1_SIZE + FIELD2_SIZE +
-  COMPRESSOR_SIZE + DIAGNOSTICS_SIZE + STATUS_SIZE + FIELD3_SIZE;
+  HEADERTYPE_SIZE + FIELD1_SIZE + FIELD2_SIZE + COMPRESSOR_SIZE +
+  DIAGNOSTICS_SIZE + STATUS_SIZE + FIELD3_SIZE + FIELD4_SIZE;
 
 static thread_local boost::static_string<HEADER_SIZE> serialized;
 
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
-  CREATE_SESSION,
-  PRIMARY_CLIENT_KEY_EXCHANGE,
-  CREATE_SECONDARY_ENCRYPTOR,
-  SECONDARY_CLIENT_KEY_EXCHANGE,
+  NONE,
+  DH_INIT,
+  DH_HANDSHAKE,
+  AUTHENTICATE,
   HEARTBEAT,
   SESSION,
   ERROR,
@@ -97,6 +98,7 @@ enum class HEADER_INDEX : int {
   DIAGNOSTICSINDEX,
   STATUSINDEX,
   FIELD3SIZEINDEX,
+  FIELD4SIZEINDEX,
   INVALIDHIGH = 7
 };
 
@@ -106,7 +108,8 @@ enum class CLIENT_TYPE : int {
 };
 
 using HEADER =
-  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, DIAGNOSTICS, STATUS, std::size_t>;
+  std::tuple<HEADERTYPE, std::size_t, std::size_t, COMPRESSORS, DIAGNOSTICS,
+	     STATUS, std::size_t, std::size_t>;
 
 HEADERTYPE extractHeaderType(const HEADER& header);
 
@@ -125,6 +128,8 @@ bool isDiagnosticsEnabled(const HEADER& header);
 STATUS extractStatus(const HEADER& header);
 
 std::size_t extractField3Size(const HEADER& header);
+
+std::size_t extractField4Size(const HEADER& header);
 
 bool isOk(const HEADER& header);
 

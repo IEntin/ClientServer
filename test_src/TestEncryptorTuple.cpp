@@ -23,7 +23,7 @@ TEST(EncryptDecrypt, 0) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
-		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
   std::string_view encrypted;
   CryptoWeakSodiumPtr weakSodiumClient = std::get<CryptoWeakSodiumPtr>(clientTuple);
   if (CryptoSodiumPtr encryptorSodiumClient = weakSodiumClient.lock())
@@ -47,7 +47,7 @@ TEST(EncryptDecrypt, 1) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
-		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
   std::string_view encrypted;
   CryptoWeakPlPlPtr weakCryptoPPClient = std::get<CryptoWeakPlPlPtr>(clientTuple);
   if (CryptoPlPlPtr encryptorCryptoPPClient = weakCryptoPPClient.lock())

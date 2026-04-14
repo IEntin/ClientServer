@@ -14,7 +14,7 @@ TEST(DoubleEncryptDecrypt, 0) {
   std::string source = TestEnvironment::_source;
 
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
-		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0 };
+		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
   std::string encrypted = cryptotuple::doubleEncrypt(clientTuple,
 						     TestEnvironment:: _buffer,
 						     header,
@@ -45,7 +45,8 @@ struct TestCompressDoubleEncrypt : testing::Test {
 		   compressor,
 		   DIAGNOSTICS::NONE,
 		   STATUS::NONE,
-		   0 };
+		   0,
+		   0};
     CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
     std::string encrypted = encryptortemplates::compressDoubleEncrypt(clientTuple,
 								      TestEnvironment::_buffer,

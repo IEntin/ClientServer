@@ -51,10 +51,9 @@ class CryptoSodium : public CryptoBase, public std::enable_shared_from_this<Cryp
     CryptoSodium* _ptr = nullptr;
   };
 public:
-  explicit CryptoSodium(bool primary = true);
+  explicit CryptoSodium();
   CryptoSodium(std::string_view encodedPeerAesPubKey,
-	       std::string_view signatureWithPubKey,
-	       bool primary = true);
+	       std::string_view signatureWithPubKey);
   ~CryptoSodium() override;
   std::string_view  getName() const override { return "CryptoSodium"; }
   std::string_view encrypt(std::string& buffer,
@@ -72,9 +71,9 @@ public:
   bool sendSignature(L& lambda) {
     std::string cryptoStr("CRYPTOSODIUM");
     if (!_signatureSent) {
-      HEADER header = { HEADERTYPE::CREATE_SESSION, cryptoStr.size(), _encodedPubKeyAes.size(),
-			COMPRESSORS::NONE,
-			DIAGNOSTICS::NONE, STATUS::NONE, _signatureWithPubKeySign.size() };
+      HEADER header = { HEADERTYPE::DH_INIT, cryptoStr.size(), _encodedPubKeyAes.size(),
+			COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE,
+			_signatureWithPubKeySign.size(), 0 };
       _signatureSent = lambda(header, cryptoStr, _encodedPubKeyAes, _signatureWithPubKeySign);
     }
     sodium_memzero(_signatureWithPubKeySign.data(), _signatureWithPubKeySign.size());

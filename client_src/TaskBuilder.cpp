@@ -83,6 +83,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
     ClientOptions::_compressor,
     ClientOptions::_diagnostics,
     _status,
+    0,
     0 };
   std::lock_guard lock(_mutex);
   if (_stopped)

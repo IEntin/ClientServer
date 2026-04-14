@@ -47,6 +47,7 @@ public:
 		     compressor,
 		     DIAGNOSTICS::NONE,
 		     STATUS::NONE,
+		     0,
 		     0 };
       if (ServerOptions::_printHeader)
 	printHeader(header, LOG_LEVEL::ALWAYS);

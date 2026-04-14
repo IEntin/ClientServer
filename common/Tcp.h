@@ -22,17 +22,19 @@ public:
   static void shutdownSocket(boost::asio::ip::tcp::socket& socket);
 
   static bool setSocket(boost::asio::ip::tcp::socket& socket);
-  template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1>
+  template <typename P1 = std::span<const char>, typename P2 = P1, typename P3 = P1, typename P4 = P1>
   static bool sendMessage(boost::asio::ip::tcp::socket& socket,
 			  const HEADER& header,
 			  const P1& payload1 = P1(),
 			  const P2& payload2 = P2(),
-			  const P3& payload3 = P3()) {
+			  const P3& payload3 = P3(),
+			  const P4& payload4 = P4()) {
     auto serialized(serialize(header));
-    std::array<boost::asio::const_buffer, 5> buffers{ boost::asio::buffer(serialized),
+    std::array<boost::asio::const_buffer, 6> buffers{ boost::asio::buffer(serialized),
 						      boost::asio::buffer(payload1),
 						      boost::asio::buffer(payload2),
 						      boost::asio::buffer(payload3),
+						      boost::asio::buffer(payload4),
 						      boost::asio::buffer(ENDOFMESSAGE) };
     boost::system::error_code ec;
     [[maybe_unused]] std::size_t bytes = boost::asio::write(socket, buffers, ec);

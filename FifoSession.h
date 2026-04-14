@@ -21,6 +21,7 @@ class FifoSession final : public RunnableT<FifoSession>,
   void displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects) override;
  public:
   FifoSession(ServerWeakPtr server,
+	      CRYPTO crypto,
 	      std::string_view encodedPeerPubKeyAes,
 	      std::string_view signatureWithPubKey);
   ~FifoSession() override;

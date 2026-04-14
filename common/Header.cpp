@@ -78,6 +78,10 @@ std::size_t extractField3Size(const HEADER& header) {
   return std::get<std::to_underlying(HEADER_INDEX::FIELD3SIZEINDEX)>(header);
 }
 
+std::size_t extractField4Size(const HEADER& header) {
+  return std::get<std::to_underlying(HEADER_INDEX::FIELD4SIZEINDEX)>(header);
+}
+
 bool isOk(const HEADER& header) {
   STATUS status = extractStatus(header);
   switch(status) {
@@ -98,6 +102,7 @@ boost::static_string<HEADER_SIZE> serialize(const HEADER& header) {
   serialized += std::to_underlying(extractDiagnostics(header));
   serialized += std::to_underlying(extractStatus(header));
   serialized += ioutility::toCharsBoost(extractField3Size(header), true);
+  serialized += ioutility::toCharsBoost(extractField4Size(header), true);
   return serialized;
 }
 
@@ -123,6 +128,9 @@ bool deserialize(HEADER& header, const char* buffer) {
   offset += STATUS_SIZE;
   std::string_view strp(buffer + offset, FIELD3_SIZE);
   ioutility::fromCharsBoost(strp, std::get<std::to_underlying(HEADER_INDEX::FIELD3SIZEINDEX)>(header));
+  offset += FIELD3_SIZE;
+  std::string_view strq(buffer + offset, FIELD4_SIZE);
+  ioutility::fromCharsBoost(strp, std::get<std::to_underlying(HEADER_INDEX::FIELD4SIZEINDEX)>(header));
   if (ServerOptions::_printHeader)
     printHeader(header, LOG_LEVEL::ALWAYS);
   return true;

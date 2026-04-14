@@ -54,10 +54,11 @@ void FifoAcceptor::run() {
       auto [type, cryptoStr, pubBvector, signatureWithPubKey] = unblockAcceptor();
       if (_stopped)
 	break;
+      CRYPTO crypto = translateCryptoString(cryptoStr);
       switch (type) {
-      case HEADERTYPE::CREATE_SESSION:
+      case HEADERTYPE::DH_INIT:
 	if (auto server = _server.lock())
-	  server->createFifoSession(pubBvector, signatureWithPubKey);
+	  server->createFifoSession(crypto, pubBvector, signatureWithPubKey);
 	break;
       default:
 	break;

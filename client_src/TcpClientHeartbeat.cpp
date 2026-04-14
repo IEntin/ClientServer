@@ -153,7 +153,7 @@ void TcpClientHeartbeat::write() {
     return;
   }
   HEADER header{ HEADERTYPE::HEARTBEAT, 0, 0, COMPRESSORS::NONE,
-		 DIAGNOSTICS::NONE, _status, 0 };
+		 DIAGNOSTICS::NONE, _status, 0, 0 };
   auto serialized(serialize(header));
   std::array<boost::asio::const_buffer, 2> asioBuffers{ boost::asio::buffer(serialized),
 							boost::asio::buffer(ENDOFMESSAGE) };
