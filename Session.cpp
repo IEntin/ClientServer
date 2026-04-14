@@ -11,7 +11,6 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
-		 CRYPTO crypto,
 		 std::string_view encodedPeerPubKeyAes,
 		 std::string_view signatureWithPubKey)
 try :
@@ -19,7 +18,6 @@ try :
   _server(server) {
     _clientId = utility::getUniqueId();
     fillEncryptorContainer(_encryptorContainer,
-			   crypto,
 			   encodedPeerPubKeyAes,
 			   signatureWithPubKey);
   }

@@ -23,10 +23,10 @@ class TcpClient : public Client {
   void sendSignature(EncryptorContainer& container) {
   auto lambda = [this] (
     const HEADER& header,
-    std::string cryptoStr,
+    std::string empty,
     std::string_view pubKeyAes,
     std::string_view signedAuth) -> bool {
-    return Tcp::sendMessage(_socket, header,cryptoStr,  pubKeyAes, signedAuth);
+    return Tcp::sendMessage(_socket, header,empty,  pubKeyAes, signedAuth);
   };
   bool sentSignature = false;
   if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container)) {

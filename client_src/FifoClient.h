@@ -20,10 +20,10 @@ class FifoClient : public Client {
   template <typename EncryptorContainer>
   bool sendSignature(EncryptorContainer& container) {
     auto lambda = [] (const HEADER& header,
-		      std::string_view cryptoStr,
+		      std::string_view empty,
 		      std::string_view pubKeyAesServer,
 		      std::string_view signedAuth) -> bool {
-      return Fifo::sendMessage(false, Options::_acceptorName, header, cryptoStr, pubKeyAesServer, signedAuth);
+      return Fifo::sendMessage(false, Options::_acceptorName, header, empty, pubKeyAesServer, signedAuth);
     };
     bool sentSignature = false;
     if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container)) {

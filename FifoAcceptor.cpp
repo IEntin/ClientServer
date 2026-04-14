@@ -37,28 +37,27 @@ FifoAcceptor::unblockAcceptor() {
   if (_stopped)
     return { HEADERTYPE::ERROR, std::string(),
 	     std::string(), std::string() };
-  std::string cryptoStr;
+  std::string empty;
   std::string pubBvector;
   std::string rsaPubB;
-  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(cryptoStr),
+  std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(empty),
 							    std::ref(pubBvector),
 							    std::ref(rsaPubB) };
   if (!Fifo::readMessage(_acceptorName, true,_header, array))
     return { HEADERTYPE::ERROR, std::string(), std::string(), rsaPubB };
-  return { extractHeaderType(_header), cryptoStr, pubBvector, rsaPubB };
+  return { extractHeaderType(_header), empty, pubBvector, rsaPubB };
 }
 
 void FifoAcceptor::run() {
   try {
     while (!_stopped) {
-      auto [type, cryptoStr, pubBvector, signatureWithPubKey] = unblockAcceptor();
+      auto [type, empty, pubBvector, signatureWithPubKey] = unblockAcceptor();
       if (_stopped)
 	break;
-      CRYPTO crypto = translateCryptoString(cryptoStr);
       switch (type) {
       case HEADERTYPE::DH_INIT:
 	if (auto server = _server.lock())
-	  server->createFifoSession(crypto, pubBvector, signatureWithPubKey);
+	  server->createFifoSession(pubBvector, signatureWithPubKey);
 	break;
       default:
 	break;

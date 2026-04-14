@@ -204,10 +204,9 @@ void fillEncryptorContainer(CONTAINER& container,
 
 template <typename CONTAINER>
 void fillEncryptorContainer(CONTAINER& container,
-			    CRYPTO encryptorType,
 			    std::string_view encodedPeerPubKeyAes,
  			    std::string_view signatureWithPubKey) {
-  switch(encryptorType) {
+  switch(Options::_primaryEncryptor) {
   case CRYPTO::CRYPTOSODIUM:
     container = std::make_shared<CryptoSodium>(encodedPeerPubKeyAes, signatureWithPubKey);
     break;
