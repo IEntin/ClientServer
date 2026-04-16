@@ -27,11 +27,11 @@ public:
   ~Server();
   bool start();
   void stop();
-  void createFifoSession(std::string_view pubB,
-			 std::string_view signatureWithPubKey);
+  void createFifoSession(std::string_view primaryPubKeyAes,
+			 std::string_view primarySignatureWithKey);
   void createTcpSession(tcp::ConnectionPtr connection,
-			std::string_view pubB,
-			std::string_view signatureWithPubKey);
+			std::string_view primaryPubKeyAes,
+			std::string_view primarySignatureWithKey);
   const PolicyPtr& getPolicy() const { return _policy; }
   static void removeNamedMutex();
 private:

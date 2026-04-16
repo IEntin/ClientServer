@@ -66,15 +66,13 @@ public:
   std::string _msgHash;
   std::string _encodedPubKeyAes;
   std::string _signatureWithPubKeySign;
-
+  
   template <typename L>
   bool sendSignature(L& lambda) {
-    std::string empty;
     if (!_signatureSent) {
-      HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
-			COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE,
-			_signatureWithPubKeySign.size(), 0 };
-      _signatureSent = lambda(header, empty, _encodedPubKeyAes, _signatureWithPubKeySign);
+      HEADER header = { HEADERTYPE::DH_INIT, _signatureWithPubKeySign.size(), _encodedPubKeyAes.size(),
+			COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
+      _signatureSent = lambda(header, _signatureWithPubKeySign, _encodedPubKeyAes);
     }
     sodium_memzero(_signatureWithPubKeySign.data(), _signatureWithPubKeySign.size());
     return _signatureSent;

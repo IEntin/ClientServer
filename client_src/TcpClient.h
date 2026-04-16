@@ -21,12 +21,12 @@ class TcpClient : public Client {
 
   template <typename EncryptorContainer>
   void sendSignature(EncryptorContainer& container) {
-  auto lambda = [this] (
-    const HEADER& header,
-    std::string empty,
-    std::string_view pubKeyAes,
-    std::string_view signedAuth) -> bool {
-    return Tcp::sendMessage(_socket, header,empty,  pubKeyAes, signedAuth);
+    auto lambda = [this] (
+      const HEADER& header,
+      std::string_view signedAuth,
+    std::string_view pubKeyAes
+    ) -> bool {
+    return Tcp::sendMessage(_socket, header, signedAuth,  pubKeyAes );
   };
   bool sentSignature = false;
   if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container)) {

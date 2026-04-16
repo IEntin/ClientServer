@@ -95,11 +95,9 @@ public:
   template <typename L>
   bool sendSignature(L& lambda) {
     if (!_signatureSent) {
-      std::string empty;
-      HEADER header = { HEADERTYPE::DH_INIT, 0, _encodedPubKeyAes.size(),
-			COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE,
-			_signatureWithPubKeySign.size(), 0 };
-      _signatureSent = lambda(header, empty, _encodedPubKeyAes, _signatureWithPubKeySign);
+      HEADER header = { HEADERTYPE::DH_INIT, _signatureWithPubKeySign.size(), _encodedPubKeyAes.size(),
+			COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
+      _signatureSent = lambda(header, _signatureWithPubKeySign, _encodedPubKeyAes);
     }
     CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());
     CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());

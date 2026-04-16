@@ -29,8 +29,8 @@ protected:
   ENCRYPTORCONTAINER _encryptorContainer;
 
   Session(ServerWeakPtr server,
-	  std::string_view encodedPeerPubKeyAes,
-	  std::string_view signatureWithPubKey);
+	  std::string_view primaryPubKeyAes,
+	  std::string_view primarySignatureWithKey);
   virtual ~Session() = default;
   std::pair<HEADER, std::string_view>
   buildReply(std::atomic<STATUS>& status);
