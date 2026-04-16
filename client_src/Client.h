@@ -26,8 +26,10 @@ protected:
   std::string _response;
   encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
 
-  CryptoSodiumPtr _sodiumEncryptor = std::make_shared<CryptoSodium>();
-  CryptoPlPlPtr _cryptoppEncryptor = std::make_shared<CryptoPlPl>();
+  CryptoSodiumPtr _primarySodiumEncryptor;
+  CryptoSodiumPtr _secondarySodiumEncryptor;
+  CryptoPlPlPtr _primaryCryptoppEncryptor;
+  CryptoPlPlPtr _secondaryCryptoppEncryptor;
 
   Client();
   virtual ~Client();

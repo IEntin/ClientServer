@@ -18,10 +18,24 @@ thread_local Subtasks Client::_task;
 Client::Client() : _chronometer(ClientOptions::_timing) {
   switch (Options::_primaryEncryptor) {
   case CRYPTO::CRYPTOSODIUM:
-    _encryptorContainer = _sodiumEncryptor;
+    _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
+    _encryptorContainer = _primarySodiumEncryptor;
     break;
   case CRYPTO::CRYPTOPP:
-    _encryptorContainer = _cryptoppEncryptor;
+    _primaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
+    _encryptorContainer = _primaryCryptoppEncryptor;
+    break;
+  default:
+    break;
+  }
+  switch (Options::_secondaryEncryptor) {
+  case CRYPTO::CRYPTOSODIUM:
+    if (Options::_doubleEncryption)
+      _secondarySodiumEncryptor = std::make_shared<CryptoSodium>();
+    break;
+  case CRYPTO::CRYPTOPP:
+    if (Options::_doubleEncryption)
+      _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
     break;
   default:
     break;

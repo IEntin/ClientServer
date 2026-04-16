@@ -18,6 +18,7 @@ public:
   static constexpr bool _debug = false;
   static CRYPTO _primaryEncryptor;
   static CRYPTO _secondaryEncryptor;
+  static bool _doubleEncryption;
   static boost::static_string<100> _fifoDirectoryName;
   static boost::static_string<100> _acceptorBaseName;
   static boost::static_string<100> _acceptorName;

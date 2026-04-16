@@ -189,21 +189,6 @@ void sendStatusToClientImpl(CONTAINER& container,
 
 template <typename CONTAINER>
 void fillEncryptorContainer(CONTAINER& container,
-			    CRYPTO encryptorType) {
-  switch(encryptorType) {
-  case CRYPTO::CRYPTOSODIUM:
-    container = std::make_shared<CryptoSodium>();
-    break;
-  case CRYPTO::CRYPTOPP:
-    container = std::make_shared<CryptoPlPl>();
-    break;
-  default:
-    break;
-  }
-}
-
-template <typename CONTAINER>
-void fillEncryptorContainer(CONTAINER& container,
 			    std::string_view encodedPeerPubKeyAes,
  			    std::string_view signatureWithPubKey) {
   switch(Options::_primaryEncryptor) {

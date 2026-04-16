@@ -10,6 +10,7 @@
 
 CRYPTO Options::_primaryEncryptor;
 CRYPTO Options::_secondaryEncryptor;
+bool Options::_doubleEncryption;
 boost::static_string<100> Options::_fifoDirectoryName(std::filesystem::current_path().string());
 boost::static_string<100> Options::_acceptorBaseName("acceptor");
 boost::static_string<100> Options::_acceptorName(_fifoDirectoryName + '/' + _acceptorBaseName);
@@ -25,6 +26,7 @@ void Options::parse(std::string_view jsonName) {
     parseJson(jsonName, _jv);
     _primaryEncryptor = translateCryptoString(_jv.at("PrimaryEncryptor").as_string());
     _secondaryEncryptor = translateCryptoString(_jv.at("SecondaryEncryptor").as_string());
+    _doubleEncryption = _jv.at("DoubleEncryption").as_bool();
     _fifoDirectoryName = _jv.at("FifoDirectoryName").as_string();
     _acceptorBaseName = _jv.at("AcceptorBaseName").as_string();
     _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;
