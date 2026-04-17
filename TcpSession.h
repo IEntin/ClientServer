@@ -21,8 +21,8 @@ class TcpSession final : public std::enable_shared_from_this<TcpSession>,
 public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
-	     std::string_view primaryPubKeyAes,
-	     std::string_view primarySignatureWithKey);
+	     std::string_view primarySignatureWithKey,
+	     std::string_view primaryPubKeyAes);
 
   ~TcpSession() override = default;
   bool start() override;

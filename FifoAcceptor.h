@@ -16,6 +16,8 @@ class FifoAcceptor : public Runnable {
   void stop() override;
   std::tuple<HEADERTYPE,
 	     std::string,
+	     std::string,
+	     std::string,
 	     std::string>
   unblockAcceptor();
   void removeFifoFiles();

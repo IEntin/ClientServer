@@ -59,16 +59,21 @@ void TcpAcceptor::run() {
 
 std::tuple<HEADERTYPE,
 	   std::string,
+	   std::string,
+	   std::string,
 	   std::string>
 TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
-  std::string pubKeyAes;
   std::string primarySignatureWithKey;
+  std::string primaryPubKeyAes;
+  std::string secondarySignatureWithKey;
+  std::string secondaryPubKeyAes;
   std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(primarySignatureWithKey),
-							    std::ref(pubKeyAes) };
+							    std::ref(primaryPubKeyAes) };
   if (!Tcp::readMessage(socket, _header, array))
     throw std::runtime_error(ioutility::createErrorString());
   assert(!isCompressed(_header) && "Expected uncompressed");
-  return { extractHeaderType(_header), pubKeyAes, primarySignatureWithKey };
+  return { extractHeaderType(_header), primarySignatureWithKey, primaryPubKeyAes,
+	   secondarySignatureWithKey, secondaryPubKeyAes };
 }
 
 void TcpAcceptor::replyHeartbeat(boost::asio::ip::tcp::socket& socket) {
@@ -86,11 +91,12 @@ void TcpAcceptor::accept() {
      if (auto self = weak_from_this().lock(); !self)
 	return;
       if (!ec) {
-	auto [type, primaryPubKeyAes, primarySignatureWithKey] = connectionType(connection->_socket);
+	auto [type, primarySignatureWithKey, primaryPubKeyAes,
+	      secondarySignatureWithKey, secondaryPubKeyAes] = connectionType(connection->_socket);
 	switch (type) {
 	case HEADERTYPE::DH_INIT:
 	  if (auto server = _server.lock())
-	    server->createTcpSession(connection, primaryPubKeyAes, primarySignatureWithKey);
+	    server->createTcpSession(connection, primarySignatureWithKey, primaryPubKeyAes);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(connection->_socket);

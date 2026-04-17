@@ -11,15 +11,15 @@
 #include "Utility.h"
 
 Session::Session(ServerWeakPtr server,
-		 std::string_view primaryPubKeyAes,
-		 std::string_view primarySignatureWithKey)
+		 std::string_view primarySignatureWithKey,
+		 std::string_view primaryPubKeyAes)
 try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
     _clientId = utility::getUniqueId();
     fillEncryptorContainer(_encryptorContainer,
-			   primaryPubKeyAes,
-			   primarySignatureWithKey);
+			   primarySignatureWithKey,
+			   primaryPubKeyAes);
   }
 catch (const std::exception& e) {
   LogError << e.what() << '\n';
