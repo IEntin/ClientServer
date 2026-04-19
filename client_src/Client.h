@@ -31,6 +31,13 @@ protected:
   CryptoPlPlPtr _primaryCryptoppEncryptor;
   CryptoPlPlPtr _secondaryCryptoppEncryptor;
 
+  //authentication parametera
+  std::string _primarySignatureWithKey;
+  std::string _primaryPubKeyAes;
+  std::string _secondarySignatureWithKey;
+  std::string _secondaryPubKeyAes;
+  HEADER _authenticationHeader;
+
   Client();
   virtual ~Client();
 
@@ -80,6 +87,8 @@ protected:
   return true;
 }
 
+  void getAuthenticationParameters();
+  
 public:
   virtual bool send(const struct Subtask& subtask) = 0;
   virtual bool receive() = 0;

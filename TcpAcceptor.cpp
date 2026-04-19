@@ -94,7 +94,7 @@ void TcpAcceptor::accept() {
 	auto [type, primarySignatureWithKey, primaryPubKeyAes,
 	      secondarySignatureWithKey, secondaryPubKeyAes] = connectionType(connection->_socket);
 	switch (type) {
-	case HEADERTYPE::DH_INIT:
+	case HEADERTYPE::AUTHENTICATE:
 	  if (auto server = _server.lock())
 	    server->createTcpSession(connection, primarySignatureWithKey, primaryPubKeyAes);
 	  break;

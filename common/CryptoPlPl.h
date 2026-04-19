@@ -92,16 +92,18 @@ public:
   std::string base64_encode(std::span<unsigned char> binary);
   std::vector<unsigned char> base64_decode(std::string_view encoded);
 
-  template <typename L>
-  bool sendSignature(L& lambda) {
+  bool sendSignature() {
     if (!_signatureSent) {
-      HEADER header = { HEADERTYPE::DH_INIT, _signatureWithPubKeySign.size(), _encodedPubKeyAes.size(),
-			COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
-      _signatureSent = lambda(header, _signatureWithPubKeySign, _encodedPubKeyAes);
+      _signatureSent = true;
     }
     CryptoPP::memset_z(_serializedRsaPubKey.data(), 0, _serializedRsaPubKey.size());
     CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());
     return _signatureSent;
   }
 
+  void getAuthenticationParameters(std::string& signatureWithKey,
+				   std::string& PubKeyAes) {
+    signatureWithKey = _signatureWithPubKeySign;
+    PubKeyAes = _encodedPubKeyAes;
+  }
 };

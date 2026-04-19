@@ -28,18 +28,19 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
   default:
     break;
   }
-  switch (Options::_secondaryEncryptor) {
-  case CRYPTO::CRYPTOSODIUM:
-    if (Options::_doubleEncryption)
+  if (Options::_doubleEncryption) {
+    switch (Options::_secondaryEncryptor) {
+    case CRYPTO::CRYPTOSODIUM:
       _secondarySodiumEncryptor = std::make_shared<CryptoSodium>();
-    break;
-  case CRYPTO::CRYPTOPP:
-    if (Options::_doubleEncryption)
+      break;
+    case CRYPTO::CRYPTOPP:
       _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
-    break;
-  default:
-    break;
+      break;
+    default:
+      break;
+    }
   }
+  getAuthenticationParameters();
   _buffer.reserve(ClientOptions::_bufferSize);
 }
 
@@ -201,4 +202,34 @@ bool Client::displayStatus(STATUS status) const {
     LogError << "unexpected problem" << '\n';
     return true;
   }
+}
+
+void Client::getAuthenticationParameters() {
+  if (_primarySodiumEncryptor) {
+    CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+    if(CryptoSodiumPtr encryptor = weak.lock())
+      encryptor->getAuthenticationParameters(_primarySignatureWithKey,
+					     _primaryPubKeyAes);
+  }
+  else if (_primaryCryptoppEncryptor) {
+    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+    if (CryptoPlPlPtr encryptor = weak.lock())
+      encryptor->getAuthenticationParameters(_primarySignatureWithKey,
+					     _primaryPubKeyAes);
+  }
+  if (_secondarySodiumEncryptor) {
+    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+    if(CryptoSodiumPtr encryptor = weak.lock())
+      encryptor->getAuthenticationParameters(_secondarySignatureWithKey,
+					     _secondaryPubKeyAes);
+  }
+  else if (_secondaryCryptoppEncryptor) {
+    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+    if(CryptoPlPlPtr encryptor = weak.lock())
+      encryptor->getAuthenticationParameters(_secondarySignatureWithKey,
+					     _secondaryPubKeyAes);
+  }
+  _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
+			    _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
+			    STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };
 }

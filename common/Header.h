@@ -28,9 +28,8 @@ static thread_local boost::static_string<HEADER_SIZE> serialized;
 enum class HEADERTYPE : char {
   INVALIDLOW = '@',
   NONE,
-  DH_INIT,
-  DH_HANDSHAKE,
   AUTHENTICATE,
+  DH_HANDSHAKE,
   HEARTBEAT,
   SESSION,
   ERROR,

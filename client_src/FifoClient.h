@@ -16,25 +16,20 @@ class FifoClient : public Client {
   bool send(const Subtask& subtask) override;
   bool receive() override;
   bool receiveStatus() override;
-
   template <typename EncryptorContainer>
   bool sendSignature(EncryptorContainer& container) {
-    auto lambda = [] (const HEADER& header,
-		      std::string_view signedAuth,
-		      std::string_view pubKeyAesServer
-		      ) -> bool {
-      return Fifo::sendMessage(false, Options::_acceptorName, header, signedAuth, pubKeyAesServer );
-    };
+    Fifo::sendMessage(false, Options::_acceptorName, _authenticationHeader, _primarySignatureWithKey, _primaryPubKeyAes,
+		      _secondarySignatureWithKey, _secondaryPubKeyAes);
     bool sentSignature = false;
     if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container)) {
       CryptoWeakSodiumPtr weak = *ptr;
       if (auto encryptor = weak.lock())
-	sentSignature = encryptor->sendSignature(lambda);
+	sentSignature = encryptor->sendSignature();
     }
     if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container)) {
       CryptoWeakPlPlPtr weak = *ptr;
       if (auto encryptor = weak.lock())
-	sentSignature = encryptor->sendSignature(lambda);
+	sentSignature = encryptor->sendSignature();
     }
     return sentSignature;
   }
