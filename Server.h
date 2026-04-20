@@ -28,10 +28,14 @@ public:
   bool start();
   void stop();
   void createFifoSession(std::string_view primarySignatureWithKey,
-			 std::string_view primaryPubKeyAes);
+			 std::string_view primaryPubKeyAes,
+			 std::string_view secondarySignatureWithKey,
+			 std::string_view secondaryPubKeyAes);
   void createTcpSession(tcp::ConnectionPtr connection,
 			std::string_view primarySignatureWithKey,
-			std::string_view primaryPubKeyAes);
+			std::string_view primaryPubKeyAes,
+			std::string_view secondarySignatureWithKey,
+			std::string_view secondaryPubKeyAes);
   const PolicyPtr& getPolicy() const { return _policy; }
   static void removeNamedMutex();
 private:

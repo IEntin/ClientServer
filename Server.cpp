@@ -92,19 +92,32 @@ void Server::stop() {
 }
 
 void Server::createFifoSession(std::string_view primarySignatureWithKey,
-			       std::string_view primaryPubKeyAes) {
+			       std::string_view primaryPubKeyAes,
+			       std::string_view secondarySignatureWithKey,
+			       std::string_view secondaryPubKeyAes) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<fifo::FifoSession>(weak_from_this(), primarySignatureWithKey, primaryPubKeyAes);
+    std::make_shared<fifo::FifoSession>(weak_from_this(),
+					primarySignatureWithKey,
+					primaryPubKeyAes,
+					secondarySignatureWithKey,
+					secondaryPubKeyAes);
   startSession(session);
 }
 
 void Server::createTcpSession(tcp::ConnectionPtr connection,
 			      std::string_view primarySignatureWithKey,
-			      std::string_view primaryPubKeyAes) {
+			      std::string_view primaryPubKeyAes,
+			      std::string_view secondarySignatureWithKey,
+			      std::string_view secondaryPubKeyAes) {
   std::lock_guard lock(_mutex);
   auto session =
-    std::make_shared<tcp::TcpSession>(weak_from_this(), connection, primarySignatureWithKey, primaryPubKeyAes);
+    std::make_shared<tcp::TcpSession>(weak_from_this(),
+				      connection,
+				      primarySignatureWithKey,
+				      primaryPubKeyAes,
+				      secondarySignatureWithKey,
+				      secondaryPubKeyAes);
   startSession(session);
 }
 

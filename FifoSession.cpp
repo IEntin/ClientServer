@@ -19,9 +19,14 @@ static constexpr auto TYPE{ "fifo" };
 
 FifoSession::FifoSession(ServerWeakPtr server,
 			 std::string_view primarySignatureWithKey,
-			 std::string_view primaryPubKeyAes) :
+			 std::string_view primaryPubKeyAes,
+			 std::string_view secondarySignatureWithKey,
+			 std::string_view secondaryPubKeyAes) :
   RunnableT(ServerOptions::_maxFifoSessions),
-  Session(server, primarySignatureWithKey, primaryPubKeyAes) {}
+  Session(server, primarySignatureWithKey,
+	  primaryPubKeyAes,
+	  secondarySignatureWithKey,
+	  secondaryPubKeyAes) {}
 
 FifoSession::~FifoSession() {
   try {

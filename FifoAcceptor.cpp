@@ -70,7 +70,10 @@ void FifoAcceptor::run() {
       switch (type) {
       case HEADERTYPE::AUTHENTICATE:
 	if (auto server = _server.lock())
-	  server->createFifoSession(primarySignatureWithKey, primaryPubKeyAes);
+	  server->createFifoSession(primarySignatureWithKey,
+				    primaryPubKeyAes,
+				    secondarySignatureWithKey,
+				    secondaryPubKeyAes);
 	break;
       default:
 	break;

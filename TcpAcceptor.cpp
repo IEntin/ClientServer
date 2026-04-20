@@ -107,7 +107,11 @@ void TcpAcceptor::accept() {
 	switch (type) {
 	case HEADERTYPE::AUTHENTICATE:
 	  if (auto server = _server.lock())
-	    server->createTcpSession(connection, primarySignatureWithKey, primaryPubKeyAes);
+	    server->createTcpSession(connection,
+				     primarySignatureWithKey,
+				     primaryPubKeyAes,
+				     secondarySignatureWithKey,
+				     secondaryPubKeyAes);
 	  break;
 	case HEADERTYPE::HEARTBEAT:
 	  replyHeartbeat(connection->_socket);

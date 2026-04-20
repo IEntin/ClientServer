@@ -22,7 +22,9 @@ public:
   TcpSession(ServerWeakPtr server,
 	     ConnectionPtr connection,
 	     std::string_view primarySignatureWithKey,
-	     std::string_view primaryPubKeyAes);
+	     std::string_view primaryPubKeyAes,
+	     std::string_view secondarySignatureWithKey,
+	     std::string_view secondaryPubKeyAes);
 
   ~TcpSession() override = default;
   bool start() override;

@@ -12,7 +12,9 @@
 
 Session::Session(ServerWeakPtr server,
 		 std::string_view primarySignatureWithKey,
-		 std::string_view primaryPubKeyAes)
+		 std::string_view primaryPubKeyAes,
+		 [[maybe_unused]] std::string_view secondarySignatureWithKey,
+		 [[maybe_unused]] std::string_view secondaryPubKeyAes)
 try :
   _task(std::make_shared<Task>(server)),
   _server(server) {
