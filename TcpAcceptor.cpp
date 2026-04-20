@@ -67,10 +67,21 @@ TcpAcceptor::connectionType(boost::asio::ip::tcp::socket& socket) {
   std::string primaryPubKeyAes;
   std::string secondarySignatureWithKey;
   std::string secondaryPubKeyAes;
-  std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(primarySignatureWithKey),
-							    std::ref(primaryPubKeyAes) };
-  if (!Tcp::readMessage(socket, _header, array))
-    throw std::runtime_error(ioutility::createErrorString());
+  
+  if (Options::_doubleEncryption) {
+    std::array<std::reference_wrapper<std::string>, 4> array4{ std::ref(primarySignatureWithKey),
+							       std::ref(primaryPubKeyAes),
+							       std::ref(secondarySignatureWithKey),
+							       std::ref(secondaryPubKeyAes) };
+    if (!Tcp::readMessage(socket, _header, array4))
+      throw std::runtime_error(ioutility::createErrorString());
+  }
+  else {
+    std::array<std::reference_wrapper<std::string>, 2> array2{ std::ref(primarySignatureWithKey),
+							       std::ref(primaryPubKeyAes) };
+    if (!Tcp::readMessage(socket, _header, array2))
+      throw std::runtime_error(ioutility::createErrorString());
+  }
   assert(!isCompressed(_header) && "Expected uncompressed");
   return { extractHeaderType(_header), primarySignatureWithKey, primaryPubKeyAes,
 	   secondarySignatureWithKey, secondaryPubKeyAes };

@@ -34,8 +34,7 @@ int main() {
   signal(SIGINT, signalHandler);
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
-  std::string_view fileName("ClientOptions.json");
-  ClientOptions::parse(fileName);
+  ClientOptions::parse("ClientOptions.json");
   CryptoBase::displayCryptoLibName();
   try {
     if (ClientOptions::_fifoClient) {

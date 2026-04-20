@@ -12,6 +12,7 @@
   "_comment": "Next 3 settings must match client settings",
   "PrimaryEncryptor" : "CRYPTOSODIUM",
   "SecondaryEncryptor" : "CRYPTOPP" ,
+  "_comment" : "not yet implemented",
   "DoubleEncryption" : false,
   "doEncrypt" : true,
   "BufferSize" : 3000000,

@@ -41,13 +41,24 @@ FifoAcceptor::unblockAcceptor() {
   std::string primaryPubKeyAes;
   std::string secondarySignatureWithKey;
   std::string secondaryPubKeyAes;
-  std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(primarySignatureWithKey),
-							    std::ref(primaryPubKeyAes) };
-  if (!Fifo::readMessage(_acceptorName, true,_header, array))
+
+  if (Options::_doubleEncryption) {
+    std::array<std::reference_wrapper<std::string>, 4> array4{ std::ref(primarySignatureWithKey),
+                                                               std::ref(primaryPubKeyAes),
+						               std::ref(secondarySignatureWithKey),
+							       std::ref(secondaryPubKeyAes) };
+  if (!Fifo::readMessage(_acceptorName, true,_header, array4))
     return { HEADERTYPE::ERROR, std::string(), std::string(), std::string(), std::string() };
+  }
+  else {
+    std::array<std::reference_wrapper<std::string>, 2> array2{ std::ref(primarySignatureWithKey),
+							       std::ref(primaryPubKeyAes) };
+    if (!Fifo::readMessage(_acceptorName, true,_header, array2))
+      return { HEADERTYPE::ERROR, std::string(), std::string(), std::string(), std::string() };
+  }
   return { extractHeaderType(_header), primarySignatureWithKey, primaryPubKeyAes,
 	   secondarySignatureWithKey, secondaryPubKeyAes };
-}
+  }
 
 void FifoAcceptor::run() {
   try {
