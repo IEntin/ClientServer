@@ -18,32 +18,52 @@ thread_local Subtasks Client::_task;
 Client::Client() : _chronometer(ClientOptions::_timing) {
   switch (Options::_primaryEncryptor) {
   case CRYPTO::CRYPTOSODIUM:
-    _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
-    _encryptorContainer = _primarySodiumEncryptor;
-    _primarySignatureWithKey = _primarySodiumEncryptor->_signatureWithPubKeySign;
-    _primaryPubKeyAes = _primarySodiumEncryptor->_encodedPubKeyAes;
-    break;
+    {
+      _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
+      CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+      if (CryptoSodiumPtr encryptor = weak.lock()) {
+	_encryptorContainer = encryptor;
+	_primarySignatureWithKey = encryptor->_signatureWithPubKeySign;
+	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
+      }
+      break;
+    }
   case CRYPTO::CRYPTOPP:
-    _primaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
-    _primarySignatureWithKey = _primaryCryptoppEncryptor->_signatureWithPubKeySign;
-    _primaryPubKeyAes = _primaryCryptoppEncryptor->_encodedPubKeyAes;
-    _encryptorContainer = _primaryCryptoppEncryptor;
-    break;
+    {
+      _primaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
+      CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+      if (CryptoPlPlPtr encryptor = weak.lock()) {
+	_encryptorContainer = encryptor;
+	_primarySignatureWithKey = encryptor->_signatureWithPubKeySign;
+	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
+      }
+      break;
+    }
   default:
     break;
   }
   if (Options::_doubleEncryption) {
     switch (Options::_secondaryEncryptor) {
     case CRYPTO::CRYPTOSODIUM:
-      _secondarySodiumEncryptor = std::make_shared<CryptoSodium>();
-      _secondarySignatureWithKey = _secondarySodiumEncryptor->_signatureWithPubKeySign;
-      _secondaryPubKeyAes = _secondarySodiumEncryptor->_encodedPubKeyAes;
-      break;
+      {
+	_secondarySodiumEncryptor = std::make_shared<CryptoSodium>();
+	CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+	if (CryptoSodiumPtr encryptor = weak.lock()) {
+	  _secondarySignatureWithKey = encryptor->_signatureWithPubKeySign;
+	  _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
+	}
+	break;
+      }
     case CRYPTO::CRYPTOPP:
-      _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
-      _secondarySignatureWithKey = _primaryCryptoppEncryptor->_signatureWithPubKeySign;
-      _secondaryPubKeyAes = _primaryCryptoppEncryptor->_encodedPubKeyAes;
-      break;
+      {
+	_secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
+	CryptoWeakPlPlPtr weak  = _secondaryCryptoppEncryptor;
+	if (CryptoPlPlPtr encryptor = weak.lock()) {
+	  _secondarySignatureWithKey = encryptor->_signatureWithPubKeySign;
+	  _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
+	}
+	break;
+      }
     default:
       break;
     }

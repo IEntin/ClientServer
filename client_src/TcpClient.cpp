@@ -9,7 +9,7 @@ namespace tcp {
 TcpClient::TcpClient() : _socket(_ioContext) {
   if (!Tcp::setSocket(_socket))
     throw std::runtime_error(ioutility::createErrorString());
-  sendSignature(_encryptorContainer);
+  sendSignature();
 }
   
 void TcpClient::run() {
@@ -32,6 +32,38 @@ bool TcpClient::send(const Subtask& subtask) {
     Warn << e.what() << '\n';
     return false;
   }
+}
+
+void TcpClient::sendSignature() {
+  bool sentSignature =
+  Tcp::sendMessage(_socket, _authenticationHeader,
+		   _primarySignatureWithKey, _primaryPubKeyAes,
+		   _secondarySignatureWithKey, _secondaryPubKeyAes);
+  if (sentSignature) {
+    CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (!sentSignature)
+    throw std::runtime_error("TcpClient::init failed");
+  if (!receiveStatus())
+    throw std::runtime_error("TcpClient::receiveStatus failed");
+  Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
 }
 
 bool TcpClient::receive() {

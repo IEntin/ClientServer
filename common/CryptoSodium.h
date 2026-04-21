@@ -72,6 +72,7 @@ public:
       _signatureSent = true;
     }
     sodium_memzero(_signatureWithPubKeySign.data(), _signatureWithPubKeySign.size());
+    sodium_memzero(_encodedPubKeyAes.data(), _encodedPubKeyAes.size());
     return _signatureSent;
   }
 

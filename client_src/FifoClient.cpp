@@ -22,7 +22,7 @@ namespace fifo {
 FifoClient::FifoClient()  {
   boost::interprocess::named_mutex mutex(boost::interprocess::open_or_create, FIFO_NAMED_MUTEX);
   boost::interprocess::scoped_lock lock(mutex);
-  if (!sendSignature(_encryptorContainer))
+  if (!sendSignature())
     throw std::runtime_error("FifoClient::sendSignature failed");
   if (!receiveStatus())
     throw std::runtime_error("FifoClient::receiveStatus failed");
@@ -64,6 +64,34 @@ bool FifoClient::send(const Subtask& subtask) {
     std::this_thread::sleep_for(std::chrono::milliseconds(FIFO_CLIENT_POLLING_PERIOD));
   }
   return false;
+}
+
+bool FifoClient::sendSignature() {
+  bool sentSignature =  
+  Fifo::sendMessage(false, Options::_acceptorName, _authenticationHeader,
+		    _primarySignatureWithKey, _primaryPubKeyAes,
+		    _secondarySignatureWithKey, _secondaryPubKeyAes);
+  if (sentSignature) {
+    CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature && encryptor->sendSignature();
+  }
+  return sentSignature;
 }
 
 bool FifoClient::receive() {
