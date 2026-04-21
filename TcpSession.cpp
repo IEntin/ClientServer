@@ -31,7 +31,9 @@ TcpSession::TcpSession(ServerWeakPtr server,
   _connection(std::move(connection)),
   _ioContext(_connection->_ioContext),
   _socket(std::move(_connection->_socket)),
-  _timeoutTimer(_ioContext) {}
+  _timeoutTimer(_ioContext) {
+  sendStatusToClient();
+}
 
 bool TcpSession::start() {
   boost::system::error_code ec;
@@ -189,7 +191,6 @@ void TcpSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects)
 				getNumberRunningByType(),
 				_maxNumberRunningByType,
 				_status);
-  sendStatusToClient();
 }
 
 } // end of namespace tcp

@@ -75,10 +75,4 @@ public:
     return _signatureSent;
   }
 
-  void getAuthenticationParameters(std::string& signatureWithKey,
-				   std::string& PubKeyAes) {
-    signatureWithKey = _signatureWithPubKeySign;
-    PubKeyAes = _encodedPubKeyAes;
-  }
-
 }; 

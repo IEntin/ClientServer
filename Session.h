@@ -40,7 +40,6 @@ protected:
 
   template <typename L>
   void sendStatusToClient(L& lambda, STATUS status) {
-    if (auto server = _server.lock()) {
       std::string clientIdStr;
       clientIdStr = ioutility::toCharsBoost(_clientId);
       HEADER header;
@@ -52,7 +51,6 @@ protected:
 			     encodedPubKeyAes);
       lambda(header, clientIdStr, encodedPubKeyAes);
     }
-  }
 
   void displayCapacityCheck(std::string_view type,
 			    unsigned totalNumberObjects,

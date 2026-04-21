@@ -26,7 +26,9 @@ FifoSession::FifoSession(ServerWeakPtr server,
   Session(server, primarySignatureWithKey,
 	  primaryPubKeyAes,
 	  secondarySignatureWithKey,
-	  secondaryPubKeyAes) {}
+	  secondaryPubKeyAes) {
+  sendStatusToClient();
+}
 
 FifoSession::~FifoSession() {
   try {
@@ -114,7 +116,6 @@ void FifoSession::displayCapacityCheck(std::atomic<unsigned>& totalNumberObjects
 				getNumberRunningByType(),
 				_maxNumberRunningByType,
 				_status);
-  sendStatusToClient();
 }
 
 } // end of namespace fifo

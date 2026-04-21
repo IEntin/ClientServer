@@ -100,10 +100,4 @@ public:
     CryptoPP::memset_z(_signatureWithPubKeySign.data(), 0, _signatureWithPubKeySign.size());
     return _signatureSent;
   }
-
-  void getAuthenticationParameters(std::string& signatureWithKey,
-				   std::string& PubKeyAes) {
-    signatureWithKey = _signatureWithPubKeySign;
-    PubKeyAes = _encodedPubKeyAes;
-  }
 };

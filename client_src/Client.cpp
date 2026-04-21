@@ -20,9 +20,13 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
   case CRYPTO::CRYPTOSODIUM:
     _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
     _encryptorContainer = _primarySodiumEncryptor;
+    _primarySignatureWithKey = _primarySodiumEncryptor->_signatureWithPubKeySign;
+    _primaryPubKeyAes = _primarySodiumEncryptor->_encodedPubKeyAes;
     break;
   case CRYPTO::CRYPTOPP:
     _primaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
+    _primarySignatureWithKey = _primaryCryptoppEncryptor->_signatureWithPubKeySign;
+    _primaryPubKeyAes = _primaryCryptoppEncryptor->_encodedPubKeyAes;
     _encryptorContainer = _primaryCryptoppEncryptor;
     break;
   default:
@@ -32,15 +36,22 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
     switch (Options::_secondaryEncryptor) {
     case CRYPTO::CRYPTOSODIUM:
       _secondarySodiumEncryptor = std::make_shared<CryptoSodium>();
+      _secondarySignatureWithKey = _secondarySodiumEncryptor->_signatureWithPubKeySign;
+      _secondaryPubKeyAes = _secondarySodiumEncryptor->_encodedPubKeyAes;
       break;
     case CRYPTO::CRYPTOPP:
       _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
+      _secondarySignatureWithKey = _primaryCryptoppEncryptor->_signatureWithPubKeySign;
+      _secondaryPubKeyAes = _primaryCryptoppEncryptor->_encodedPubKeyAes;
       break;
     default:
       break;
     }
   }
-  getAuthenticationParameters();
+  _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
+			    _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
+			    STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };
+
   _buffer.reserve(ClientOptions::_bufferSize);
 }
 
@@ -202,34 +213,4 @@ bool Client::displayStatus(STATUS status) const {
     LogError << "unexpected problem" << '\n';
     return true;
   }
-}
-
-void Client::getAuthenticationParameters() {
-  if (_primarySodiumEncryptor) {
-    CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
-    if(CryptoSodiumPtr encryptor = weak.lock())
-      encryptor->getAuthenticationParameters(_primarySignatureWithKey,
-					     _primaryPubKeyAes);
-  }
-  else if (_primaryCryptoppEncryptor) {
-    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
-    if (CryptoPlPlPtr encryptor = weak.lock())
-      encryptor->getAuthenticationParameters(_primarySignatureWithKey,
-					     _primaryPubKeyAes);
-  }
-  if (_secondarySodiumEncryptor) {
-    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
-    if(CryptoSodiumPtr encryptor = weak.lock())
-      encryptor->getAuthenticationParameters(_secondarySignatureWithKey,
-					     _secondaryPubKeyAes);
-  }
-  else if (_secondaryCryptoppEncryptor) {
-    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
-    if(CryptoPlPlPtr encryptor = weak.lock())
-      encryptor->getAuthenticationParameters(_secondarySignatureWithKey,
-					     _secondaryPubKeyAes);
-  }
-  _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
-			    _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
-			    STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };
 }

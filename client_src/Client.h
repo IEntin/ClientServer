@@ -86,8 +86,6 @@ protected:
   startHeartbeat();
   return true;
 }
-
-  void getAuthenticationParameters();
   
 public:
   virtual bool send(const struct Subtask& subtask) = 0;
