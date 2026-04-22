@@ -48,6 +48,7 @@ protected:
   bool processTask(TaskBuilderWeakPtr weakPtr);
   bool printReply();
 
+  bool sendSignatureCommon();
   void displayMaxTotalSessionsWarn() const;
   void displayMaxSessionsOfTypeWarn(std::string_view type) const;
   bool displayStatus(STATUS status) const;

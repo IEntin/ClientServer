@@ -82,6 +82,10 @@ Client::~Client() {
   catch (const std::exception& e) {
     Warn << e.what() << '\n';
   }
+  sodium_memzero(_primarySignatureWithKey.data(), _primarySignatureWithKey.size());
+  sodium_memzero(_primaryPubKeyAes.data(), _primaryPubKeyAes.size());
+  sodium_memzero(_secondarySignatureWithKey.data(), _secondarySignatureWithKey.size());
+  sodium_memzero(_secondaryPubKeyAes.data(), _secondaryPubKeyAes.size());
 }
 
 void Client::start() {
@@ -162,6 +166,29 @@ void Client::onSignal() {
   auto errnoSaved = errno;
   _closeFlag.store(true);
   errno = errnoSaved;
+}
+
+bool Client::sendSignatureCommon() {
+  bool sentSignature = true;
+  CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+  if (auto encryptor = weak.lock())
+    sentSignature = encryptor->sendSignature();
+  if (sentSignature) {
+    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature = encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature = encryptor->sendSignature();
+  }
+  if (sentSignature) {
+    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+    if (auto encryptor = weak.lock())
+      sentSignature = encryptor->sendSignature();
+  }
+  return sentSignature;
 }
 
 void Client::displayMaxTotalSessionsWarn() const {

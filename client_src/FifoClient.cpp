@@ -71,26 +71,8 @@ bool FifoClient::sendSignature() {
   Fifo::sendMessage(false, Options::_acceptorName, _authenticationHeader,
 		    _primarySignatureWithKey, _primaryPubKeyAes,
 		    _secondarySignatureWithKey, _secondaryPubKeyAes);
-  if (sentSignature) {
-    CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
-    if (auto encryptor = weak.lock())
-      sentSignature && encryptor->sendSignature();
-  }
-  if (sentSignature) {
-    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
-    if (auto encryptor = weak.lock())
-      sentSignature && encryptor->sendSignature();
-  }
-  if (sentSignature) {
-    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
-    if (auto encryptor = weak.lock())
-      sentSignature && encryptor->sendSignature();
-  }
-  if (sentSignature) {
-    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
-    if (auto encryptor = weak.lock())
-      sentSignature && encryptor->sendSignature();
-  }
+  if (sentSignature)
+    sentSignature = sendSignatureCommon();
   return sentSignature;
 }
 
