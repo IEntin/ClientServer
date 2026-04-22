@@ -82,10 +82,6 @@ Client::~Client() {
   catch (const std::exception& e) {
     Warn << e.what() << '\n';
   }
-  sodium_memzero(_primarySignatureWithKey.data(), _primarySignatureWithKey.size());
-  sodium_memzero(_primaryPubKeyAes.data(), _primaryPubKeyAes.size());
-  sodium_memzero(_secondarySignatureWithKey.data(), _secondarySignatureWithKey.size());
-  sodium_memzero(_secondaryPubKeyAes.data(), _secondaryPubKeyAes.size());
 }
 
 void Client::start() {
@@ -188,6 +184,10 @@ bool Client::sendSignatureCommon() {
     if (auto encryptor = weak.lock())
       sentSignature = encryptor->sendSignature();
   }
+  sodium_memzero(_primarySignatureWithKey.data(), _primarySignatureWithKey.size());
+  sodium_memzero(_primaryPubKeyAes.data(), _primaryPubKeyAes.size());
+  sodium_memzero(_secondarySignatureWithKey.data(), _secondarySignatureWithKey.size());
+  sodium_memzero(_secondaryPubKeyAes.data(), _secondaryPubKeyAes.size());
   return sentSignature;
 }
 
