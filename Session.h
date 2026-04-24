@@ -26,6 +26,15 @@ protected:
   std::string _buffer;
   ServerWeakPtr _server;
 
+  CryptoSodiumPtr _primarySodiumEncryptor;
+  CryptoSodiumPtr _secondarySodiumEncryptor;
+  CryptoPlPlPtr _primaryCryptoppEncryptor;
+  CryptoPlPlPtr _secondaryCryptoppEncryptor;
+
+  // key exchange parametera
+  std::string _primaryPubKeyAes;
+  std::string _secondaryPubKeyAes;
+
   ENCRYPTORCONTAINER _encryptorContainer;
 
   Session(ServerWeakPtr server,
@@ -40,17 +49,17 @@ protected:
 
   template <typename L>
   void sendStatusToClient(L& lambda, STATUS status) {
-      std::string clientIdStr;
-      clientIdStr = ioutility::toCharsBoost(_clientId);
-      HEADER header;
-      std::string encodedPubKeyAes;
-      sendStatusToClientImpl(_encryptorContainer,
-			     clientIdStr,
-			     status,
-			     header,
-			     encodedPubKeyAes);
-      lambda(header, clientIdStr, encodedPubKeyAes);
-    }
+    std::string clientIdStr;
+    clientIdStr = ioutility::toCharsBoost(_clientId);
+    HEADER header;
+    std::string encodedPubKeyAes;
+    sendStatusToClientImpl(_encryptorContainer,
+			   clientIdStr,
+			   status,
+			   header,
+			   encodedPubKeyAes);
+    lambda(header, clientIdStr, encodedPubKeyAes);
+  }
 
   void displayCapacityCheck(std::string_view type,
 			    unsigned totalNumberObjects,

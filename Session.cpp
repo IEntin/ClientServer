@@ -13,15 +13,64 @@
 Session::Session(ServerWeakPtr server,
 		 std::string_view primarySignatureWithKey,
 		 std::string_view primaryPubKeyAes,
-		 [[maybe_unused]] std::string_view secondarySignatureWithKey,
-		 [[maybe_unused]] std::string_view secondaryPubKeyAes)
+		 std::string_view secondarySignatureWithKey,
+		 std::string_view secondaryPubKeyAes)
 try :
   _task(std::make_shared<Task>(server)),
-  _server(server) {
+    _server(server) {
     _clientId = utility::getUniqueId();
-    fillEncryptorContainer(_encryptorContainer,
-			   primarySignatureWithKey,
-			   primaryPubKeyAes);
+    switch(Options::_primaryEncryptor) {
+    case CRYPTO::CRYPTOSODIUM:
+      {
+	_primarySodiumEncryptor = std::make_shared<CryptoSodium>(primaryPubKeyAes,
+								 primarySignatureWithKey);
+	CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+	if (CryptoSodiumPtr encryptor = weak.lock()) {
+	  _encryptorContainer = encryptor;
+	  _primaryPubKeyAes = encryptor->_encodedPubKeyAes;
+	}
+      }
+      break;
+    case CRYPTO::CRYPTOPP:
+      {
+	_primaryCryptoppEncryptor = std::make_shared<CryptoPlPl>(primaryPubKeyAes,
+								 primarySignatureWithKey);
+	CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+	if (CryptoPlPlPtr encryptor = weak.lock()) {
+	  _encryptorContainer = encryptor;
+	  _primaryPubKeyAes = encryptor->_encodedPubKeyAes;
+	}
+      }
+      break;
+    default:
+      break;
+    }
+    if (Options::_doubleEncryption) {
+      switch (Options::_secondaryEncryptor) {
+      case CRYPTO::CRYPTOSODIUM:
+	{
+	  _secondarySodiumEncryptor = std::make_shared<CryptoSodium>(secondaryPubKeyAes,
+								     secondarySignatureWithKey);
+	  CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+	  if (CryptoSodiumPtr encryptor = weak.lock()) {
+	    _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
+	  }
+	}
+	break;
+      case CRYPTO::CRYPTOPP:
+	{
+	  _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>(secondaryPubKeyAes,
+								     secondarySignatureWithKey);
+	  CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+	  if (CryptoPlPlPtr encryptor = weak.lock()) {
+	    _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
+	  }
+	}
+	break;
+      default:
+	break;
+      }
+    }
   }
 catch (const std::exception& e) {
   LogError << e.what() << '\n';
