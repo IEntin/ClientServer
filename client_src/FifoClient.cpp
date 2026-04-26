@@ -96,21 +96,24 @@ bool FifoClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string primaryPeerPubKeyAes;
+  std::string secondaryPeerPubKeyAes;
   std::string type = "fifo";
   auto lambda = [this] (HEADER& header,
 			std::string& clientIdStr,
-			std::string& primaryPeerPubKeyAes) -> bool {
-    std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(clientIdStr),
-							      std::ref(primaryPeerPubKeyAes) };
+			std::string& primaryPeerPubKeyAes,
+			std::string& secondaryPeerPubKeyAes) -> bool {
+    std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(clientIdStr),
+							      std::ref(primaryPeerPubKeyAes),
+							      std::ref(secondaryPeerPubKeyAes) };
     if (!Fifo::readMessage(Options::_acceptorName, true, header, array))
       throw std::runtime_error("readMessage failed");
     _fifoName.append(Options::_fifoDirectoryName).append(1, '/').append(clientIdStr);
     ioutility::fromChars(clientIdStr, _clientId);
     return true;
   };
-  if (!lambda(_header, clientIdStr, primaryPeerPubKeyAes))
+  if (!lambda(_header, clientIdStr, primaryPeerPubKeyAes, secondaryPeerPubKeyAes))
     return false;
-  return processStatus(primaryPeerPubKeyAes, type);
+  return processStatus(primaryPeerPubKeyAes, type, secondaryPeerPubKeyAes);
 }
 
 } // end of namespace fifo

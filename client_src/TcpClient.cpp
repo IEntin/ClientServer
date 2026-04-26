@@ -77,20 +77,23 @@ bool TcpClient::receiveStatus() {
     return false;
   std::string clientIdStr;
   std::string primaryPeerPubKeyAes;
+  std::string secondaryPeerPubKeyAes;
   std::string type = "tcp";
   auto lambda = [this] (boost::asio::ip::tcp::socket& socket,
 			HEADER& header,
 			std::string& clientIdStr,
-			std::string& primaryPeerPubKeyAes) -> bool {
-    std::array<std::reference_wrapper<std::string>, 2> array{ std::ref(clientIdStr),
-							      std::ref(primaryPeerPubKeyAes) };
+			std::string& primaryPeerPubKeyAes,
+			std::string& secondaryPeerPubKeyAes) -> bool {
+    std::array<std::reference_wrapper<std::string>, 3> array{ std::ref(clientIdStr),
+                                                              std::ref(primaryPeerPubKeyAes),
+							      std::ref(secondaryPeerPubKeyAes) };
     if (!Tcp::readMessage(socket, header, array))
       throw std::runtime_error("readMessage failed");
     ioutility::fromChars(clientIdStr, _clientId);
     return true;
   };
-  lambda(_socket, _header, clientIdStr, primaryPeerPubKeyAes);
-  return processStatus(primaryPeerPubKeyAes, type);
+  lambda(_socket, _header, clientIdStr, primaryPeerPubKeyAes, secondaryPeerPubKeyAes);
+  return processStatus(primaryPeerPubKeyAes, type, secondaryPeerPubKeyAes);
 }
 
 } // end of namespace tcp

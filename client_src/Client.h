@@ -64,10 +64,12 @@ protected:
   static std::atomic<bool> _closeFlag;
   static thread_local std::string _buffer;
 
-  bool processStatus(std::string_view encodedPeerPubKeyAes,
-		     std::string_view type);
-  
-void clientKeyExchange(std::string_view encodedPeerPubKeyAes);
+  bool processStatus(std::string_view primaryPeerPubKeyAes,
+		     std::string_view type, std::string_view
+		     secondaryPeerPubKeyAes = std::string_view());
+
+void clientKeyExchange(std::string_view primaryPeerPubKeyAes,
+		       std::string_view secondaryPeerPubKeyAes = std::string_view());
 
 public:
   virtual bool send(const struct Subtask& subtask) = 0;

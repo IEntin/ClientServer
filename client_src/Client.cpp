@@ -202,11 +202,13 @@ void Client::displayMaxTotalSessionsWarn() const {
        << "\t!!!!!!!!!\n";
 }
 
-bool Client::processStatus(std::string_view encodedPeerPubKeyAes,
-			   std::string_view type) {
+bool Client::processStatus(std::string_view primaryPeerPubKeyAes,
+			   std::string_view type,
+			   std::string_view secondaryPeerPubKeyAes) {
  _status = extractStatus(_header);
   try {
-    clientKeyExchange(encodedPeerPubKeyAes);
+    clientKeyExchange(primaryPeerPubKeyAes,
+		      secondaryPeerPubKeyAes);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
@@ -226,17 +228,28 @@ bool Client::processStatus(std::string_view encodedPeerPubKeyAes,
   return true;
 }
 
-void Client::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
+void Client::clientKeyExchange(std::string_view primaryPeerPubKeyAes,
+			       std::string_view secondaryPeerPubKeyAes) {
   bool keysExchanged = false;
   {
     CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
     if (CryptoSodiumPtr encryptor = weak.lock())
-      keysExchanged = encryptor->clientKeyExchange(encodedPeerPubKeyAes);
+      keysExchanged = encryptor->clientKeyExchange(primaryPeerPubKeyAes);
   }
   {
     CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
     if (CryptoPlPlPtr encryptor = weak.lock())
-      keysExchanged = encryptor->clientKeyExchange(encodedPeerPubKeyAes);
+      keysExchanged = encryptor->clientKeyExchange(primaryPeerPubKeyAes);
+  }
+  if (Options::_doubleEncryption) {
+    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+    if (CryptoSodiumPtr encryptor = weak.lock())
+      keysExchanged = encryptor->clientKeyExchange(secondaryPeerPubKeyAes);
+  {
+    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+    if (CryptoPlPlPtr encryptor = weak.lock())
+      keysExchanged = encryptor->clientKeyExchange(secondaryPeerPubKeyAes);
+  }
   }
   if (!keysExchanged)
     throw std::runtime_error("clientKeyExchange failed");
