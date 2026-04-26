@@ -50,8 +50,9 @@ bool TcpSession::start() {
 void TcpSession::sendStatusToClient() {
   auto lambda = [this] (const HEADER& header,
 			std::string_view idStr,
-			std::string_view pubKey) {
-    Tcp::sendMessage(_socket, header, idStr, pubKey);
+			std::string_view _primaryPubKeyAes,
+			std::string_view _secondaryPubKeyAes) {
+    Tcp::sendMessage(_socket, header, idStr, _primaryPubKeyAes, _secondaryPubKeyAes);
   };
   Session::sendStatusToClient(lambda, _status);
 }

@@ -103,8 +103,9 @@ bool FifoSession::sendResponse() {
 void FifoSession::sendStatusToClient() {
   auto lambda = [] (const HEADER& header,
 		    std::string_view idStr,
-		    std::string_view pubKey) {
-    Fifo::sendMessage(false, Options::_acceptorName, header, idStr, pubKey);
+		    std::string_view _primaryPubKeyAes,
+		    std::string_view _secondaryPubKeyAes) {
+    Fifo::sendMessage(false, Options::_acceptorName, header, idStr, _primaryPubKeyAes, _secondaryPubKeyAes);
   };
   Session::sendStatusToClient(lambda, _status);
 }

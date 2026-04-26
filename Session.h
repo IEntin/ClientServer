@@ -34,6 +34,7 @@ protected:
   // key exchange parametera
   std::string _primaryPubKeyAes;
   std::string _secondaryPubKeyAes;
+  HEADER _keyExchangeHeader;
 
   ENCRYPTORCONTAINER _encryptorContainer;
 
@@ -51,14 +52,9 @@ protected:
   void sendStatusToClient(L& lambda, STATUS status) {
     std::string clientIdStr;
     clientIdStr = ioutility::toCharsBoost(_clientId);
-    HEADER header;
-    std::string encodedPubKeyAes;
-    sendStatusToClientImpl(_encryptorContainer,
-			   clientIdStr,
-			   status,
-			   header,
-			   encodedPubKeyAes);
-    lambda(header, clientIdStr, encodedPubKeyAes);
+    _keyExchangeHeader = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), _primaryPubKeyAes.size(),
+			   COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, _secondaryPubKeyAes.size(), 0};
+    lambda(_keyExchangeHeader, clientIdStr, _primaryPubKeyAes, _secondaryPubKeyAes);
   }
 
   void displayCapacityCheck(std::string_view type,

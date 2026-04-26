@@ -202,6 +202,46 @@ void Client::displayMaxTotalSessionsWarn() const {
        << "\t!!!!!!!!!\n";
 }
 
+bool Client::processStatus(std::string_view encodedPeerPubKeyAes,
+			   std::string_view type) {
+ _status = extractStatus(_header);
+  try {
+    clientKeyExchange(encodedPeerPubKeyAes);
+  }
+  catch (const std::exception& e) {
+    LogError << e.what() << '\n';
+    return false;
+  }
+  switch (_status) {
+  case STATUS::MAX_OBJECTS_OF_TYPE:
+    displayMaxSessionsOfTypeWarn(type);
+  break;
+  case STATUS::MAX_TOTAL_OBJECTS:
+    displayMaxTotalSessionsWarn();
+    break;
+  default:
+    break;
+  }
+  startHeartbeat();
+  return true;
+}
+
+void Client::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
+  bool keysExchanged = false;
+  {
+    CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+    if (CryptoSodiumPtr encryptor = weak.lock())
+      keysExchanged = encryptor->clientKeyExchange(encodedPeerPubKeyAes);
+  }
+  {
+    CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
+    if (CryptoPlPlPtr encryptor = weak.lock())
+      keysExchanged = encryptor->clientKeyExchange(encodedPeerPubKeyAes);
+  }
+  if (!keysExchanged)
+    throw std::runtime_error("clientKeyExchange failed");
+}
+
 void Client::displayMaxSessionsOfTypeWarn(std::string_view type) const {
   Warn << "\n\t!!!!!!!!!\n"
        << "\tThe number of " << type << " sessions exceeds pool capacity.\n"

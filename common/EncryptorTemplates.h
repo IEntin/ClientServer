@@ -149,42 +149,4 @@ inline void doubleDecryptDecompress(const CryptoTuple& tuple,
   }
 }
 
-template <typename CONTAINER>
-void clientKeyExchange(CONTAINER& container,
-		       std::string_view encodedPeerPubKeyAes) {
-  bool keysExchanged = false;
-  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container)) {
-    CryptoWeakSodiumPtr weak = *ptr;
-    if (auto encryptor = weak.lock())
-      keysExchanged = encryptor->clientKeyExchange(encodedPeerPubKeyAes);
-  }
-  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container)) {
-    CryptoWeakPlPlPtr weak = *ptr;
-    if (auto encryptor = weak.lock())
-      keysExchanged = encryptor->clientKeyExchange(encodedPeerPubKeyAes);
-  }
-  if (!keysExchanged)
-    throw std::runtime_error("clientKeyExchange failed");
-}
-
-template <typename CONTAINER>
-void sendStatusToClientImpl(CONTAINER& container,
-			    std::string_view clientIdStr,
-			    STATUS status,
-			    HEADER& header,
-			    std::string& encodedPubKeyAes) {
-  if (CryptoSodiumPtr* ptr = std::get_if<CryptoSodiumPtr>(&container)) {
-    CryptoWeakSodiumPtr weak = *ptr;
-    if (auto encryptor = weak.lock())
-      encodedPubKeyAes.assign(encryptor->_encodedPubKeyAes);
-  }
-  else if (CryptoPlPlPtr* ptr = std::get_if<CryptoPlPlPtr>(&container)) {
-    CryptoWeakPlPlPtr weak = *ptr;
-    if (auto encryptor = weak.lock())
-      encodedPubKeyAes.assign(encryptor->_encodedPubKeyAes);
-  }
-  header = { HEADERTYPE::DH_HANDSHAKE, clientIdStr.size(), encodedPubKeyAes.size(),
-	     COMPRESSORS::NONE, DIAGNOSTICS::NONE, status, 0 , 0};
-}
-
 } // end of namespace encryptortemplates

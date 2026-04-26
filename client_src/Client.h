@@ -65,29 +65,10 @@ protected:
   static thread_local std::string _buffer;
 
   bool processStatus(std::string_view encodedPeerPubKeyAes,
-		     std::string_view type) {
- _status = extractStatus(_header);
-  try {
-    encryptortemplates::clientKeyExchange(_encryptorContainer, encodedPeerPubKeyAes);
-  }
-  catch (const std::exception& e) {
-    LogError << e.what() << '\n';
-    return false;
-  }
-  switch (_status) {
-  case STATUS::MAX_OBJECTS_OF_TYPE:
-    displayMaxSessionsOfTypeWarn(type);
-  break;
-  case STATUS::MAX_TOTAL_OBJECTS:
-    displayMaxTotalSessionsWarn();
-    break;
-  default:
-    break;
-  }
-  startHeartbeat();
-  return true;
-}
+		     std::string_view type);
   
+void clientKeyExchange(std::string_view encodedPeerPubKeyAes);
+
 public:
   virtual bool send(const struct Subtask& subtask) = 0;
   virtual bool receive() = 0;
