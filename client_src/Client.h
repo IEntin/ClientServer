@@ -66,10 +66,10 @@ protected:
 
   bool processStatus(std::string_view primaryPeerPubKeyAes,
 		     std::string_view type, std::string_view
-		     secondaryPeerPubKeyAes = std::string_view());
+		     secondaryPeerPubKeyAes);
 
 void clientKeyExchange(std::string_view primaryPeerPubKeyAes,
-		       std::string_view secondaryPeerPubKeyAes = std::string_view());
+		       std::string_view secondaryPeerPubKeyAes);
 
 public:
   virtual bool send(const struct Subtask& subtask) = 0;

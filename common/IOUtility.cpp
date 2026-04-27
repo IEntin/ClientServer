@@ -48,7 +48,10 @@ bool processMessage(std::string_view payload,
   if (!deserialize(header, &payload[0]))
     return false;
   payload.remove_prefix(HEADER_SIZE);
-  std::size_t sizes[] { extractField1Size(header), extractField2Size(header), extractField3Size(header) };
+  std::size_t sizes[] { extractField1Size(header),
+			extractField2Size(header),
+			extractField3Size(header),
+			extractField4Size(header) };
   unsigned shift = 0;
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
