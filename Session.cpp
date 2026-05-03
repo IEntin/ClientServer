@@ -46,30 +46,22 @@ try :
       break;
     }
     if (Options::_doubleEncryption) {
-      switch (Options::_secondaryEncryptor) {
-      case CRYPTO::CRYPTOSODIUM:
-	{
-	  _secondarySodiumEncryptor = std::make_shared<CryptoSodium>(secondaryPubKeyAes,
-								     secondarySignatureWithKey);
-	  CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
-	  if (CryptoSodiumPtr encryptor = weak.lock()) {
-	    _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
-	  }
+      if (!_primarySodiumEncryptor) {
+	_primarySodiumEncryptor = std::make_shared<CryptoSodium>(primaryPubKeyAes,
+								 primarySignatureWithKey);
+	CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+	if (CryptoSodiumPtr encryptor = weak.lock()) {
+	  _encryptorContainer = encryptor;
+	  _primaryPubKeyAes = encryptor->_encodedPubKeyAes;
 	}
-	break;
-      case CRYPTO::CRYPTOPP:
-	{
-	  _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>(secondaryPubKeyAes,
-								     secondarySignatureWithKey);
-	  CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
-	  if (CryptoPlPlPtr encryptor = weak.lock()) {
-	    _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
-	  }
-	}
-	break;
-      default:
-	break;
       }
+      _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>(secondaryPubKeyAes,
+								 secondarySignatureWithKey);
+      CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+      if (CryptoPlPlPtr encryptor = weak.lock()) {
+	_secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
+      }
+      _encryptors = { _primarySodiumEncryptor, _secondaryCryptoppEncryptor };
     }
   }
 catch (const std::exception& e) {

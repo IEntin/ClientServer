@@ -3,10 +3,13 @@
  */
 
 #include "CryptoTuple.h"
+#include "EncryptorTemplates.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=DoubleEncryptDecrypt*; done
 // for i in {1..10}; do ./testbin --gtest_filter=TestCompressDoubleEncrypt*;done
+
+using namespace encryptortemplates;
 
 TEST(DoubleEncryptDecrypt, 0) {
   const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
@@ -15,17 +18,17 @@ TEST(DoubleEncryptDecrypt, 0) {
 
   HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
-  std::string encrypted = cryptotuple::doubleEncrypt(clientTuple,
-						     TestEnvironment:: _buffer,
-						     header,
-						     source);
+  std::string encrypted = doubleEncrypt(clientTuple,
+					TestEnvironment:: _buffer,
+					header,
+					source);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
 
-  cryptotuple::doubleDecrypt(serverTuple,
-			     TestEnvironment::_buffer,
-			     header,
-			     encrypted);
+  doubleDecrypt(serverTuple,
+		TestEnvironment::_buffer,
+		header,
+		encrypted);
   std::string decrypted = TestEnvironment::_buffer;
   ASSERT_FALSE(CryptoBase::isEncrypted(decrypted));
   HEADER recoveredHeader;
@@ -47,7 +50,7 @@ struct TestCompressDoubleEncrypt : testing::Test {
 		   STATUS::NONE,
 		   0,
 		   0};
-    CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
+    const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
     std::string encrypted = encryptortemplates::compressDoubleEncrypt(clientTuple,
 								      TestEnvironment::_buffer,
 								      header,

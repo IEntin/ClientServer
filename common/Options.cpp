@@ -24,9 +24,14 @@ boost::json::value Options::_jv;
 void Options::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
     parseJson(jsonName, _jv);
-    _primaryEncryptor = translateCryptoString(_jv.at("PrimaryEncryptor").as_string());
-    _secondaryEncryptor = translateCryptoString(_jv.at("SecondaryEncryptor").as_string());
     _doubleEncryption = _jv.at("DoubleEncryption").as_bool();
+    if (_doubleEncryption) {
+      _primaryEncryptor = CRYPTO::CRYPTOSODIUM;
+      _secondaryEncryptor = CRYPTO::CRYPTOPP;
+    }
+    else {
+      _primaryEncryptor = translateCryptoString(_jv.at("PrimaryEncryptor").as_string());
+    }
     _fifoDirectoryName = _jv.at("FifoDirectoryName").as_string();
     _acceptorBaseName = _jv.at("AcceptorBaseName").as_string();
     _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;

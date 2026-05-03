@@ -42,40 +42,4 @@ CryptoTuple getServerEncryptorTuple() {
   return _serverEncryptorTuple;
 }
 
-std::string doubleEncrypt(const CryptoTuple& tuple,
-			  std::string& buffer,
-			  const HEADER& header,
-			  std::string& source) {
-  std::string encrypted;
-  CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-  if (CryptoSodiumPtr encryptorSodium = cryptoWeakSodiumPtr.lock()) {
-    buffer.clear();
-    encrypted = encryptorSodium->encrypt(buffer, &header, source);
-  }
-  CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-  if (CryptoPlPlPtr encryptorPlPl = cryptoWeakPlPlPtr.lock()) {
-    buffer.clear();
-    encrypted = encryptorPlPl->encrypt(buffer, nullptr, encrypted);
-  }
-  return encrypted;
-}
-
-void doubleDecrypt(const CryptoTuple& tuple,
-		   std::string& buffer,
-		   HEADER& header,
-		   std::string& data) {
-  CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-  if (CryptoPlPlPtr encryptorPlPlPtr = cryptoWeakPlPlPtr.lock()) {
-    buffer.clear();
-    encryptorPlPlPtr->decrypt(buffer, data);
-  }
-  CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-  if (CryptoSodiumPtr encryptorSodiumPtr = cryptoWeakSodiumPtr.lock()) {
-    buffer.clear();
-    encryptorSodiumPtr->decrypt(buffer, data);
-  }
-  if (!deserialize(header, data.data()))
-    throw std::runtime_error("doubleDecrypt failure.");
-}
-
 } // end of namespace cryptotuple

@@ -13,12 +13,49 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-#include "CryptoTuple.h"
 
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 
+using CryptoTuple = std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>;
+
 namespace encryptortemplates {
 
+inline std::string doubleEncrypt(const CryptoTuple& tuple,
+				 std::string& buffer,
+				 const HEADER& header,
+				 std::string& source) {
+  std::string encrypted;
+  CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
+  if (CryptoSodiumPtr encryptorSodium = cryptoWeakSodiumPtr.lock()) {
+    buffer.clear();
+    encrypted = encryptorSodium->encrypt(buffer, &header, source);
+  }
+  CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
+  if (CryptoPlPlPtr encryptorPlPl = cryptoWeakPlPlPtr.lock()) {
+    buffer.clear();
+    encrypted = encryptorPlPl->encrypt(buffer, nullptr, encrypted);
+  }
+  return encrypted;
+}
+
+inline void doubleDecrypt(const CryptoTuple& tuple,
+			  std::string& buffer,
+			  HEADER& header,
+			  std::string& data) {
+  CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
+  if (CryptoPlPlPtr encryptorPlPlPtr = cryptoWeakPlPlPtr.lock()) {
+    buffer.clear();
+    encryptorPlPlPtr->decrypt(buffer, data);
+  }
+  CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
+  if (CryptoSodiumPtr encryptorSodiumPtr = cryptoWeakSodiumPtr.lock()) {
+    buffer.clear();
+    encryptorSodiumPtr->decrypt(buffer, data);
+  }
+  if (!deserialize(header, data.data()))
+    throw std::runtime_error("doubleDecrypt failure.");
+}
+  
 using ENCRYPTORCONTAINER = CryptoVariant;
 
 template <typename CONTAINER>
@@ -97,56 +134,16 @@ void decryptDecompress(CONTAINER& container,
   }
 }
 
-inline std::string compressDoubleEncrypt(const CryptoTuple& tuple,
-					 std::string& buffer,
-					 const HEADER& header,
-					 std::string& data,
-					 bool doEncrypt,
-					 int compressionLevel = 3) {
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::compress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::compress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::compress(buffer, data, compressionLevel);
-      break;
-    default:
-      break;
-    }
-  }
-  if (doEncrypt)
-    return cryptotuple::doubleEncrypt(tuple, buffer, header, data);
-  else
-    return data.insert(0, serialize(header));
-}
+std::string compressDoubleEncrypt(const CryptoTuple& tuple,
+				  std::string& buffer,
+				  const HEADER& header,
+				  std::string& data,
+				  bool doEncrypt,
+				  int compressionLevel = 3);
 
-inline void doubleDecryptDecompress(const CryptoTuple& tuple,
-				    std::string& buffer,
-				    HEADER& header,
-				    std::string& data) {
-  cryptotuple::doubleDecrypt(tuple, buffer, header, data);
-  data.erase(0, HEADER_SIZE);
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::uncompress(buffer, data);
-      break;
-    default:
-      break;
-    }
-  }
-}
+void doubleDecryptDecompress(const CryptoTuple& tuple,
+			     std::string& buffer,
+			     HEADER& header,
+			     std::string& data);
 
 } // end of namespace encryptortemplates

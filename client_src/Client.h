@@ -30,6 +30,7 @@ protected:
   CryptoSodiumPtr _secondarySodiumEncryptor;
   CryptoPlPlPtr _primaryCryptoppEncryptor;
   CryptoPlPlPtr _secondaryCryptoppEncryptor;
+  std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr> _encryptors;
 
   //authentication parametera
   std::string _primarySignatureWithKey;
