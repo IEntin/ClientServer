@@ -21,7 +21,9 @@
 // gdb --args testbin --gtest_filter=LogicTest.TCP_LZ4_ZSTD_3600000_ENCRYPT_ENCRYPT_D
 
 struct LogicTest : testing::Test {
-  void testLogic(CLIENT_TYPE type,
+  void SetUp() override {
+  }
+   void testLogic(CLIENT_TYPE type,
 		 COMPRESSORS serverCompressor,
 		 COMPRESSORS clientCompressor,
 		 std::size_t bufferSize,
@@ -56,7 +58,7 @@ struct LogicTest : testing::Test {
     server->stop();
   }
 
-  void TearDown() {
+  void TearDown() override {
     TestEnvironment::reset();
   }
 };
