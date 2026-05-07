@@ -55,7 +55,7 @@ bool processMessage(std::string_view payload,
   unsigned shift = 0;
   for (unsigned i = 0; i < array.size(); ++i) {
     if (sizes[i] > 0) {
-      array[i].get().assign(payload.cbegin() + shift, payload.cbegin() + shift + sizes[i]);
+      array[i].get().assign(payload.substr(shift, sizes[i]));
       shift += sizes[i];
     }
   }
