@@ -76,7 +76,7 @@ Client::~Client() {
 }
 
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer);
+  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer, _encryptors);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

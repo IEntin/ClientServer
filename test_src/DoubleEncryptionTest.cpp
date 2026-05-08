@@ -51,19 +51,19 @@ struct TestCompressDoubleEncrypt : testing::Test {
 		   0,
 		   0};
     const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
-    std::string encrypted = encryptortemplates::compressDoubleEncrypt(clientTuple,
-								      TestEnvironment::_buffer,
-								      header,
-								      data,
-								      doEncrypt);
+    std::string encrypted = compressDoubleEncrypt(clientTuple,
+						  TestEnvironment::_buffer,
+						  header,
+						  data,
+						  doEncrypt);
     ASSERT_EQ(CryptoBase::isEncrypted(encrypted), doEncrypt);
     const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
     TestEnvironment::_buffer.clear();
     HEADER recoveredHeader;
-    encryptortemplates::doubleDecryptDecompress(serverTuple,
-						TestEnvironment::_buffer,
-						recoveredHeader,
-						encrypted);
+    doubleDecryptDecompress(serverTuple,
+			    TestEnvironment::_buffer,
+			    recoveredHeader,
+			    encrypted);
     ASSERT_EQ(header, recoveredHeader);
     ASSERT_EQ(encrypted, TestEnvironment::_source);
   }

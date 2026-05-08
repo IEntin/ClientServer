@@ -13,6 +13,8 @@
 #include "ServerOptions.h"
 #include "Utility.h"
 
+using namespace encryptortemplates;
+
 class TestEnvironment : public ::testing::Environment {
 public:
 
@@ -53,12 +55,12 @@ public:
 	printHeader(header, LOG_LEVEL::ALWAYS);
       CryptoVariant& clientVariant = cryptovariant::getEncryptorVariant(APPTYPE::CLIENT, crypto);
       std::string_view dataView =
-	encryptortemplates::compressEncrypt(clientVariant, TestEnvironment::_buffer, header, data, doEncrypt);
+	compressEncrypt(clientVariant, TestEnvironment::_buffer, header, data, doEncrypt);
       HEADER restoredHeader;
       data = dataView;
       ASSERT_EQ(CryptoBase::isEncrypted(data), doEncrypt);
       CryptoVariant& serverVariant = cryptovariant::getEncryptorVariant(APPTYPE::SERVER, crypto);
-      encryptortemplates::decryptDecompress(serverVariant, TestEnvironment::_buffer, restoredHeader, data);
+      decryptDecompress(serverVariant, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
       ASSERT_EQ(data, TestEnvironment::_source);
     }
