@@ -35,8 +35,7 @@ int main() {
   signal(SIGTERM, signalHandler);
   signal(SIGPIPE, SIG_IGN);
   ClientOptions::parse("ClientOptions.json");
-  if (!Options::_doubleEncryption)
-    CryptoBase::displayCryptoLibName();
+  CryptoBase::displayCryptoLibName();
   try {
     if (ClientOptions::_fifoClient) {
       fifo::FifoClient client;

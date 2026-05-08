@@ -35,8 +35,7 @@ int main() {
     if (sigaddset(&set, SIGTERM) == -1)
       LogError << strerror(errno) << '\n';
     ServerOptions::parse("ServerOptions.json");
-    if (!Options::_doubleEncryption)
-      CryptoBase::displayCryptoLibName();
+    CryptoBase::displayCryptoLibName();
     ServerPtr server = std::make_shared<Server>();
     if (!server->start())
       return 3;

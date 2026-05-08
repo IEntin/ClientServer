@@ -32,5 +32,5 @@ void CryptoBase::displayCryptoLibName() {
     encryptorLib = "Error";
     break;
   }
-  Info << "\n\nUsing " << encryptorLib << " library.\n\n";
+  Info << "\n\nprimary encryptor: " << encryptorLib << " library.\n\n";
 }
