@@ -14,6 +14,7 @@ thread_local std::string Client::_buffer;
 
 std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
+std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr> Client::_encryptors;
 
 Client::Client() : _chronometer(ClientOptions::_timing) {
   switch (Options::_primaryEncryptor) {
@@ -42,7 +43,6 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
   default:
     break;
   }
-  if (Options::_doubleEncryption) {
     if (!_primarySodiumEncryptor) {
       _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
       CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
@@ -59,11 +59,10 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
       _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
     }
     _encryptors = { _primarySodiumEncryptor, _secondaryCryptoppEncryptor };
-  }
-  _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
-			    _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
-			    STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };
-  _buffer.reserve(ClientOptions::_bufferSize);
+    _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
+			      _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
+			      STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };
+    _buffer.reserve(ClientOptions::_bufferSize);
 }
 
 Client::~Client() {
@@ -76,7 +75,7 @@ Client::~Client() {
 }
 
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptorContainer, _encryptors);
+  auto taskBuilder = std::make_shared<TaskBuilder>();
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }
@@ -129,7 +128,7 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  encryptortemplates::decryptDecompress(_encryptorContainer, _buffer, _header, _response);
+  encryptortemplates::singleDecryptDecompress(_encryptors, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {
@@ -232,15 +231,13 @@ void Client::clientKeyExchange(std::string_view primaryPeerPubKeyAes,
     if (CryptoPlPlPtr encryptor = weak.lock())
       keysExchanged = encryptor->clientKeyExchange(primaryPeerPubKeyAes);
   }
-  if (Options::_doubleEncryption) {
-    CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
-    if (CryptoSodiumPtr encryptor = weak.lock())
-      keysExchanged = encryptor->clientKeyExchange(secondaryPeerPubKeyAes);
+  CryptoWeakSodiumPtr weak = _secondarySodiumEncryptor;
+  if (CryptoSodiumPtr encryptor = weak.lock())
+    keysExchanged = encryptor->clientKeyExchange(secondaryPeerPubKeyAes);
   {
     CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
     if (CryptoPlPlPtr encryptor = weak.lock())
       keysExchanged = encryptor->clientKeyExchange(secondaryPeerPubKeyAes);
-  }
   }
   if (!keysExchanged)
     throw std::runtime_error("clientKeyExchange failed");

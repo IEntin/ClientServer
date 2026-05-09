@@ -6,20 +6,75 @@
 
 namespace encryptortemplates {
 
+std::string_view singleEncrypt(const CryptoTuple& tuple,
+			       std::string& buffer,
+			       const HEADER& header,
+			       std::string& source) {
+  buffer.clear();
+  switch (Options::_primaryEncryptor) {
+  case CRYPTO::CRYPTOSODIUM:
+    {
+      CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
+      if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock()) {
+	return cryptoSodiumPtr->encrypt(buffer, &header, source);
+      }
+    }
+    break;
+  case CRYPTO::CRYPTOPP:
+    {
+      CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
+      if (CryptoPlPlPtr cryptoPlPlPtr = cryptoWeakPlPlPtr.lock()) {
+	return cryptoPlPlPtr->encrypt(buffer, &header, source);
+      }
+    }
+    break;
+  default:
+    break;
+  }
+  return "";
+}
+
+void singleDecrypt(const CryptoTuple& tuple,
+		   std::string& buffer,
+		   HEADER& header,
+		   std::string& data) {
+  switch (Options::_primaryEncryptor) {
+  case CRYPTO::CRYPTOSODIUM:
+    {
+      CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
+      if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock())
+	cryptoSodiumPtr->decrypt(buffer, data);
+    }
+    break;
+  case CRYPTO::CRYPTOPP:
+    {
+      CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
+      if (CryptoPlPlPtr cryptoPlPlPtr  = cryptoWeakPlPlPtr.lock())
+	cryptoPlPlPtr->decrypt(buffer, data);
+    }
+    break;
+  default:
+    break;
+  }
+  if (!deserialize(header, data.data()))
+    throw std::runtime_error("deserialize failed");
+  data.erase(0, HEADER_SIZE);
+}
+
 std::string doubleEncrypt(const CryptoTuple& tuple,
 			  std::string& buffer,
 			  const HEADER& header,
 			  std::string& source) {
   std::string encrypted;
   CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-  if (CryptoSodiumPtr encryptorSodium = cryptoWeakSodiumPtr.lock()) {
+  if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock()) {
     buffer.clear();
-    encrypted = encryptorSodium->encrypt(buffer, &header, source);
+    encrypted = cryptoSodiumPtr->encrypt(buffer, &header, source);
   }
   CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-  if (CryptoPlPlPtr encryptorPlPl = cryptoWeakPlPlPtr.lock()) {
+  if (CryptoPlPlPtr cryptoPlPlPtr = cryptoWeakPlPlPtr.lock()) {
     buffer.clear();
-    encrypted = encryptorPlPl->encrypt(buffer, nullptr, encrypted);
+    encrypted = cryptoPlPlPtr->encrypt(buffer, nullptr, encrypted);
   }
   return encrypted;
 }
@@ -29,17 +84,68 @@ void doubleDecrypt(const CryptoTuple& tuple,
 		   HEADER& header,
 		   std::string& data) {
   CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-  if (CryptoPlPlPtr encryptorPlPlPtr = cryptoWeakPlPlPtr.lock()) {
+  if (CryptoPlPlPtr cryptoPlPlPtr = cryptoWeakPlPlPtr.lock()) {
     buffer.clear();
-    encryptorPlPlPtr->decrypt(buffer, data);
+    cryptoPlPlPtr->decrypt(buffer, data);
   }
   CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-  if (CryptoSodiumPtr encryptorSodiumPtr = cryptoWeakSodiumPtr.lock()) {
+  if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock()) {
     buffer.clear();
-    encryptorSodiumPtr->decrypt(buffer, data);
+    cryptoSodiumPtr->decrypt(buffer, data);
   }
   if (!deserialize(header, data.data()))
     throw std::runtime_error("doubleDecrypt failure.");
+}
+
+std::string_view compressSingleEncrypt(CryptoTuple& tuple,
+				       std::string& buffer,
+				       const HEADER& header,
+				       std::string& data,
+				       bool doEncrypt,
+				       int compressionLevel) {
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::compress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::compress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::compress(buffer, data, compressionLevel);
+      break;
+    default:
+      break;
+    }
+  }
+  if (doEncrypt)
+    return singleEncrypt(tuple, buffer, header, data);
+  else
+    return data.insert(0, serialize(header));
+}
+
+void singleDecryptDecompress(CryptoTuple& tuple,
+			     std::string& buffer,
+			     HEADER& header,
+			     std::string& data) {
+  singleDecrypt(tuple, buffer, header, data);
+  if (isCompressed(header)) {
+    COMPRESSORS compressor = extractCompressor(header);
+    switch (compressor) {
+    case COMPRESSORS::LZ4:
+      compressionLZ4::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::SNAPPY:
+      compressionSnappy::uncompress(buffer, data);
+      break;
+    case COMPRESSORS::ZSTD:
+      compressionZSTD::uncompress(buffer, data);
+      break;
+    default:
+      break;
+    }
+  }
 }
 
 std::string compressDoubleEncrypt(const CryptoTuple& tuple,

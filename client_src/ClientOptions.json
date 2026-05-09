@@ -14,6 +14,7 @@
   "CompressionLevel" : 3,
   "_comment": "Next 3 settings must match server settings",
   "PrimaryEncryptor" : "CRYPTOSODIUM",
+  "SecondaryEncryptor" : "CRYPTOPP",
   "DoubleEncryption" : false,
   "doEncrypt" : true,
   "BufferSize" : 3000000,

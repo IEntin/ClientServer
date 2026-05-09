@@ -20,6 +20,16 @@ using CryptoTuple = std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>;
 
 namespace encryptortemplates {
 
+std::string_view singleEncrypt(const CryptoTuple& tuple,
+			       std::string& buffer,
+			       const HEADER& header,
+			       std::string& source);
+
+void singleDecrypt(const CryptoTuple& tuple,
+		   std::string& buffer,
+		   HEADER& header,
+		   std::string& data);
+
 std::string doubleEncrypt(const CryptoTuple& tuple,
 			  std::string& buffer,
 			  const HEADER& header,
@@ -107,6 +117,18 @@ void decryptDecompress(CONTAINER& container,
     }
   }
 }
+
+std::string_view compressSingleEncrypt(CryptoTuple& tuple,
+				       std::string& buffer,
+				       const HEADER& header,
+				       std::string& data,
+				       bool doEncrypt,
+				       int compressionLevel = 3);
+
+void singleDecryptDecompress(CryptoTuple& tuple,
+			     std::string& buffer,
+			     HEADER& header,
+			     std::string& data);
 
 std::string compressDoubleEncrypt(const CryptoTuple& tuple,
 				  std::string& buffer,

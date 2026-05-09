@@ -25,14 +25,11 @@ class TaskBuilder final : public Runnable {
   std::condition_variable _conditionTask;
   std::condition_variable _conditionResume;
   bool _resume = false;
-  CryptoVariant _cryptoVariant;
-  CryptoTuple _encryptors;
   std::string _buffer;
   void run() override;
   bool start() override { return true; }
  public:
-  explicit TaskBuilder(const CryptoVariant& cryptoVariant,
-		       const CryptoTuple& cryptoTuple);
+  TaskBuilder();
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);

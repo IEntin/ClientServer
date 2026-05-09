@@ -45,24 +45,22 @@ try :
     default:
       break;
     }
-    if (Options::_doubleEncryption) {
-      if (!_primarySodiumEncryptor) {
-	_primarySodiumEncryptor = std::make_shared<CryptoSodium>(primaryPubKeyAes,
-								 primarySignatureWithKey);
-	CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
-	if (CryptoSodiumPtr encryptor = weak.lock()) {
-	  _encryptorContainer = encryptor;
-	  _primaryPubKeyAes = encryptor->_encodedPubKeyAes;
-	}
+    if (!_primarySodiumEncryptor) {
+      _primarySodiumEncryptor = std::make_shared<CryptoSodium>(primaryPubKeyAes,
+							       primarySignatureWithKey);
+      CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
+      if (CryptoSodiumPtr encryptor = weak.lock()) {
+	_encryptorContainer = encryptor;
+	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
       }
-      _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>(secondaryPubKeyAes,
-								 secondarySignatureWithKey);
-      CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
-      if (CryptoPlPlPtr encryptor = weak.lock()) {
-	_secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
-      }
-      _encryptors = { _primarySodiumEncryptor, _secondaryCryptoppEncryptor };
     }
+    _secondaryCryptoppEncryptor = std::make_shared<CryptoPlPl>(secondaryPubKeyAes,
+							       secondarySignatureWithKey);
+    CryptoWeakPlPlPtr weak = _secondaryCryptoppEncryptor;
+    if (CryptoPlPlPtr encryptor = weak.lock()) {
+      _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
+    }
+    _encryptors = { _primarySodiumEncryptor, _secondaryCryptoppEncryptor };
   }
 catch (const std::exception& e) {
   LogError << e.what() << '\n';
@@ -78,19 +76,19 @@ Session::buildReply(std::atomic<STATUS>& status) {
     { HEADERTYPE::SESSION, _responseData.size(), 0,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
   std::string_view dataView =
-  compressEncrypt(_encryptorContainer,
-		  _buffer,
-		  header,
-		  _responseData,
-		  ServerOptions::_doEncrypt,
-		  ServerOptions::_compressionLevel);
+  compressSingleEncrypt(_encryptors,
+			_buffer,
+			header,
+			_responseData,
+			ServerOptions::_doEncrypt,
+			ServerOptions::_compressionLevel);
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
   return { header, dataView };
 }
 
 bool Session::processTask() {
-  decryptDecompress(_encryptorContainer, _buffer, _header, _request);
+  singleDecryptDecompress(_encryptors, _buffer, _header, _request);
   if (auto taskController = TaskController::getWeakPtr().lock()) {
     _task->update(_header, _request);
     taskController->processTask(_task);
