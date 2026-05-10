@@ -14,7 +14,6 @@ thread_local std::string Client::_buffer;
 
 std::atomic<bool> Client::_closeFlag = false;
 thread_local Subtasks Client::_task;
-std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr> Client::_encryptors;
 
 Client::Client() : _chronometer(ClientOptions::_timing) {
   switch (Options::_primaryEncryptor) {
@@ -75,7 +74,7 @@ Client::~Client() {
 }
 
 void Client::start() {
-  auto taskBuilder = std::make_shared<TaskBuilder>();
+  auto taskBuilder = std::make_shared<TaskBuilder>(_encryptors);
   _threadPoolClient.push(taskBuilder);
   _taskBuilder = taskBuilder;
 }

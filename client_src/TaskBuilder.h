@@ -17,7 +17,7 @@ class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
-
+  const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr> _encryptors;
   std::string _batch;
   Subtasks _subtasks;
   unsigned _subtaskIndex;
@@ -29,7 +29,7 @@ class TaskBuilder final : public Runnable {
   void run() override;
   bool start() override { return true; }
  public:
-  TaskBuilder();
+  TaskBuilder(const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>& encryptors);
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);

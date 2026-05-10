@@ -118,14 +118,14 @@ void decryptDecompress(CONTAINER& container,
   }
 }
 
-std::string_view compressSingleEncrypt(CryptoTuple& tuple,
+std::string_view compressSingleEncrypt(const CryptoTuple& tuple,
 				       std::string& buffer,
 				       const HEADER& header,
 				       std::string& data,
 				       bool doEncrypt,
 				       int compressionLevel = 3);
 
-void singleDecryptDecompress(CryptoTuple& tuple,
+void singleDecryptDecompress(const CryptoTuple& tuple,
 			     std::string& buffer,
 			     HEADER& header,
 			     std::string& data);

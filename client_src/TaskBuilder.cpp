@@ -4,12 +4,12 @@
 
 #include "TaskBuilder.h"
 
-#include "Client.h"
 #include "ClientOptions.h"
 #include "FileLines.h"
 #include "IOUtility.h"
 
-TaskBuilder::TaskBuilder() :
+TaskBuilder::TaskBuilder(const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>& encryptors) :
+  _encryptors(encryptors),
   _subtaskIndex(0) {
   _batch.reserve(ClientOptions::_bufferSize);
 }
@@ -89,7 +89,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   if (_stopped)
     return STATUS::STOPPED;
   std::string_view dataView =
-    compressSingleEncrypt(Client::_encryptors,
+    compressSingleEncrypt(_encryptors,
 			  _buffer,
 			  header,
 			  _batch,
