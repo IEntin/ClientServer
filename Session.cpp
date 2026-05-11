@@ -75,20 +75,22 @@ Session::buildReply(std::atomic<STATUS>& status) {
   HEADER header =
     { HEADERTYPE::SESSION, _responseData.size(), 0,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
-  std::string_view dataView =
-  compressSingleEncrypt(_encryptors,
-			_buffer,
-			header,
-			_responseData,
-			ServerOptions::_doEncrypt,
-			ServerOptions::_compressionLevel);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-gsl"
+  std::string_view dataView = Options::_doubleEncryption ?
+    compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
+    compressSingleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel);
+#pragma GCC diagnostic pop
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
   return { header, dataView };
 }
 
 bool Session::processTask() {
-  singleDecryptDecompress(_encryptors, _buffer, _header, _request);
+  Options::_doubleEncryption ?
+    doubleDecryptDecompress(_encryptors, _buffer, _header, _request) :
+    singleDecryptDecompress(_encryptors, _buffer, _header, _request);
+
   if (auto taskController = TaskController::getWeakPtr().lock()) {
     _task->update(_header, _request);
     taskController->processTask(_task);

@@ -88,17 +88,17 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   std::lock_guard lock(_mutex);
   if (_stopped)
     return STATUS::STOPPED;
-  std::string_view dataView =
-    compressSingleEncrypt(_encryptors,
-			  _buffer,
-			  header,
-			  _batch,
-			  ClientOptions::_doEncrypt);
-  std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = dataView.size();
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-gsl"
+  std::string_view view = Options::_doubleEncryption ?
+    compressDoubleEncrypt(_encryptors, _buffer, header, _batch, ClientOptions::_doEncrypt) :
+    compressSingleEncrypt(_encryptors, _buffer, header, _batch, ClientOptions::_doEncrypt);
+#pragma GCC diagnostic pop
+  std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = view.size();
   if (_subtaskIndex >= _subtasks.size())
     _subtasks.emplace_back();
   Subtask& subtask = _subtasks[_subtaskIndex];
-  subtask._data.assign(dataView);
+  subtask._data.assign(view.data(), view.size());
   _status = alldone ? STATUS::TASK_DONE : STATUS::SUBTASK_DONE;
   subtask._header = header;
   switch (_status) {

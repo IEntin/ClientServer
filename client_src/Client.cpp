@@ -5,10 +5,13 @@
 #include "Client.h"
 
 #include "ClientOptions.h"
+#include "EncryptorTemplates.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
+
+using namespace encryptortemplates;
 
 thread_local std::string Client::_buffer;
 
@@ -127,7 +130,9 @@ bool Client::printReply() {
     if (displayStatus(ptr->_status))
       return false;
   }
-  encryptortemplates::singleDecryptDecompress(_encryptors, _buffer, _header, _response);
+  Options::_doubleEncryption ?
+    doubleDecryptDecompress(_encryptors, _buffer, _header, _response) :
+    singleDecryptDecompress(_encryptors, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {

@@ -57,11 +57,10 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   
   if(!_dh.Agree(_key, _privKeyAes, peerAesPubKey))
     throw std::runtime_error("DiffieHellman Failed");
+  _encodedPubKeyAes.assign(std::bit_cast<const char*>(_pubKeyAes.data()), _pubKeyAes.size());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   hideKey();
   CryptoPP::SecByteBlock().swap(peerAesPubKey);
-  _encodedPubKeyAes.resize(_pubKeyAes.size());
-  std::copy(_pubKeyAes.begin(), _pubKeyAes.end(), _encodedPubKeyAes.begin());
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   std::string signature(_signatureWithPubKeySign.data(), RSA_KEY_SIZE >> 3);
@@ -83,8 +82,7 @@ CryptoPlPl::CryptoPlPl() :
   _keyHandler(_key.size()),
   _msgHash(sha256_hash(utility::getAuthenticationMessage())) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
-  _encodedPubKeyAes.resize(_pubKeyAes.size());
-  std::copy(_pubKeyAes.begin(), _pubKeyAes.end(), _encodedPubKeyAes.begin());
+  _encodedPubKeyAes.assign(std::bit_cast<const char*>(_pubKeyAes.data()), _pubKeyAes.size());
   _rsaPrivKey.GenerateRandomWithKeySize(_rng, RSA_KEY_SIZE);
   _rsaPubKey.AssignFrom(_rsaPrivKey);
   auto [success, encodedStr] = encodeRsaPublicKey(_rsaPrivKey);

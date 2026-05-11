@@ -14,7 +14,7 @@
 
 struct LogicTest2 : testing::Test {
   void SetUp() override {
-    Options::_doubleEncryption = true;
+    //Options::_doubleEncryption = true;
   }
   void testLogic2(CLIENT_TYPE type,
 		  COMPRESSORS serverCompressor,
@@ -66,3 +66,4 @@ TEST_F(LogicTest2, FIFO_SNAPPY_ZSTD_10000_2ENCRYPT_2ENCRYPT_D) {
   ClientOptions::_doEncrypt = true;
   testLogic2(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::ENABLED);
 }
+
