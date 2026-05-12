@@ -75,12 +75,12 @@ Session::buildReply(std::atomic<STATUS>& status) {
   HEADER header =
     { HEADERTYPE::SESSION, _responseData.size(), 0,
       ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdangling-gsl"
-  std::string_view dataView = Options::_doubleEncryption ?
-    compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
-    compressSingleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel);
-#pragma GCC diagnostic pop
+  static thread_local std::string encrypted;
+  encrypted.clear();
+  encrypted = Options::_doubleEncryption ?
+      compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
+  compressSingleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel);
+  std::string_view dataView = encrypted;
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
   return { header, dataView };
