@@ -52,7 +52,7 @@ CryptoSodium::CryptoSodium() :
   crypto_sign_keypair(_publicKeySign.data(), _secretKeySign.data());
   crypto_sign_detached(_signature.data(),
 		       NULL,
-		       std::bit_cast<const unsigned char *>(_msgHash.data()),
+		       reinterpret_cast<const unsigned char *>(_msgHash.data()),
 		       _msgHash.size(),
 		       _secretKeySign.data());
   
@@ -76,7 +76,7 @@ CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
   if (!_verifiedSignature) {
   _verifiedSignature = crypto_sign_verify_detached(
     signature,
-    std::bit_cast<const unsigned char*>(_msgHash.data()),
+    reinterpret_cast<const unsigned char*>(_msgHash.data()),
     std::ssize(_msgHash),
     peerPubcicKeySign) == 0;
   if (!_verifiedSignature)
@@ -122,9 +122,9 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   buffer.resize(message_len + crypto_aead_aes256gcm_ABYTES);
   std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
   setAESKey(key);
-  if (!(crypto_aead_aes256gcm_encrypt(std::bit_cast<unsigned char*>(buffer.data()),
+  if (!(crypto_aead_aes256gcm_encrypt(reinterpret_cast<unsigned char*>(buffer.data()),
 				      &ciphertext_len,
-				      std::bit_cast<unsigned char*>(input.data()),
+				      reinterpret_cast<unsigned char*>(input.data()),
 				      message_len, nullptr, 0,
 				      nullptr, nonce, key.data()) == 0)) {
     sodium_memzero(input.data(), input.size());
@@ -150,10 +150,10 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned long long decrypted_len;
     std::array<unsigned char, crypto_kx_SESSIONKEYBYTES> key;
     setAESKey(key);
-    if (!(crypto_aead_aes256gcm_decrypt(std::bit_cast<unsigned char*>(buffer.data()),
+    if (!(crypto_aead_aes256gcm_decrypt(reinterpret_cast<unsigned char*>(buffer.data()),
 				       &decrypted_len,
 				       nullptr,
-				       std::bit_cast<unsigned char*>(data.data()),
+				       reinterpret_cast<unsigned char*>(data.data()),
 				       ciphertext_len,
 				       nullptr, 0,
 					recoveredNonce, key.data()) == 0))
