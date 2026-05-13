@@ -26,7 +26,6 @@ try :
 								 primarySignatureWithKey);
 	CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
 	if (CryptoSodiumPtr encryptor = weak.lock()) {
-	  _encryptorContainer = encryptor;
 	  _primaryPubKeyAes = encryptor->_encodedPubKeyAes;
 	}
       }
@@ -37,7 +36,6 @@ try :
 								 primarySignatureWithKey);
 	CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
 	if (CryptoPlPlPtr encryptor = weak.lock()) {
-	  _encryptorContainer = encryptor;
 	  _primaryPubKeyAes = encryptor->_encodedPubKeyAes;
 	}
       }
@@ -50,7 +48,6 @@ try :
 							       primarySignatureWithKey);
       CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
       if (CryptoSodiumPtr encryptor = weak.lock()) {
-	_encryptorContainer = encryptor;
 	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
       }
     }
@@ -79,7 +76,13 @@ Session::buildReply(std::atomic<STATUS>& status) {
   encrypted.clear();
   encrypted = Options::_doubleEncryption ?
       compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
-  compressSingleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel);
+    compressSingleEncrypt(_encryptors,
+			  Options::_primaryEncryptor,
+			  _buffer,
+			  header,
+			  _responseData,
+			  ServerOptions::_doEncrypt,
+			  ServerOptions::_compressionLevel);
   std::string_view dataView = encrypted;
   header = { HEADERTYPE::SESSION, dataView.size(), 0,
 	     ServerOptions::_compressor, DIAGNOSTICS::NONE, status, 0, 0 };
@@ -89,7 +92,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
 bool Session::processTask() {
   Options::_doubleEncryption ?
     doubleDecryptDecompress(_encryptors, _buffer, _header, _request) :
-    singleDecryptDecompress(_encryptors, _buffer, _header, _request);
+    singleDecryptDecompress(_encryptors, Options::_primaryEncryptor, _buffer, _header, _request);
 
   if (auto taskController = TaskController::getWeakPtr().lock()) {
     _task->update(_header, _request);

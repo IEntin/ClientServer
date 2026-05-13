@@ -7,11 +7,12 @@
 namespace encryptortemplates {
 
 std::string_view singleEncrypt(const CryptoTuple& tuple,
+			       CRYPTO crypto,
 			       std::string& buffer,
 			       const HEADER& header,
 			       std::string& source) {
   buffer.clear();
-  switch (Options::_primaryEncryptor) {
+  switch (crypto) {
   case CRYPTO::CRYPTOSODIUM:
     {
       CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
@@ -35,10 +36,11 @@ std::string_view singleEncrypt(const CryptoTuple& tuple,
 }
 
 void singleDecrypt(const CryptoTuple& tuple,
+		   CRYPTO crypto,
 		   std::string& buffer,
 		   HEADER& header,
 		   std::string& data) {
-  switch (Options::_primaryEncryptor) {
+  switch (crypto) {
   case CRYPTO::CRYPTOSODIUM:
     {
       CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
@@ -98,6 +100,7 @@ void doubleDecrypt(const CryptoTuple& tuple,
 }
 
 std::string_view compressSingleEncrypt(const CryptoTuple& tuple,
+				       CRYPTO crypto,
 				       std::string& buffer,
 				       const HEADER& header,
 				       std::string& data,
@@ -120,16 +123,17 @@ std::string_view compressSingleEncrypt(const CryptoTuple& tuple,
     }
   }
   if (doEncrypt)
-    return singleEncrypt(tuple, buffer, header, data);
+    return singleEncrypt(tuple, crypto, buffer, header, data);
   else
     return data.insert(0, serialize(header));
 }
 
 void singleDecryptDecompress(const CryptoTuple& tuple,
+			     CRYPTO crypto,
 			     std::string& buffer,
 			     HEADER& header,
 			     std::string& data) {
-  singleDecrypt(tuple, buffer, header, data);
+  singleDecrypt(tuple, crypto, buffer, header, data);
   if (isCompressed(header)) {
     COMPRESSORS compressor = extractCompressor(header);
     switch (compressor) {

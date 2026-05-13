@@ -25,7 +25,6 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
       _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
       CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
       if (CryptoSodiumPtr encryptor = weak.lock()) {
-	_encryptorContainer = encryptor;
 	_primarySignatureWithKey = encryptor->_signatureWithPubKeySign;
 	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
       }
@@ -36,7 +35,6 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
       _primaryCryptoppEncryptor = std::make_shared<CryptoPlPl>();
       CryptoWeakPlPlPtr weak = _primaryCryptoppEncryptor;
       if (CryptoPlPlPtr encryptor = weak.lock()) {
-	_encryptorContainer = encryptor;
 	_primarySignatureWithKey = encryptor->_signatureWithPubKeySign;
 	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
       }
@@ -49,7 +47,6 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
       _primarySodiumEncryptor = std::make_shared<CryptoSodium>();
       CryptoWeakSodiumPtr weak = _primarySodiumEncryptor;
       if (CryptoSodiumPtr encryptor = weak.lock()) {
-	_encryptorContainer = encryptor;
 	_primarySignatureWithKey = encryptor->_signatureWithPubKeySign;
 	_primaryPubKeyAes = encryptor->_encodedPubKeyAes;
       }
@@ -132,7 +129,7 @@ bool Client::printReply() {
   }
   Options::_doubleEncryption ?
     doubleDecryptDecompress(_encryptors, _buffer, _header, _response) :
-    singleDecryptDecompress(_encryptors, _buffer, _header, _response);
+    singleDecryptDecompress(_encryptors, Options::_primaryEncryptor, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {

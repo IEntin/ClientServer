@@ -24,7 +24,6 @@ friend class TaskBuilder;
 protected:
 
   std::string _response;
-  encryptortemplates::ENCRYPTORCONTAINER _encryptorContainer;
 
   CryptoSodiumPtr _primarySodiumEncryptor;
   CryptoSodiumPtr _secondarySodiumEncryptor;

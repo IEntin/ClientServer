@@ -37,8 +37,6 @@ protected:
   std::string _secondaryPubKeyAes;
   HEADER _keyExchangeHeader;
 
-  ENCRYPTORCONTAINER _encryptorContainer;
-
   Session(ServerWeakPtr server,
 	  std::string_view primarySignatureWithKey,
 	  std::string_view primaryPubKeyAes,

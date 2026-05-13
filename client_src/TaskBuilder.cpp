@@ -92,7 +92,7 @@ STATUS TaskBuilder::compressEncryptSubtask(bool alldone) {
   encrypted.clear();
   encrypted = Options::_doubleEncryption ?
     compressDoubleEncrypt(_encryptors, _buffer, header, _batch, ClientOptions::_doEncrypt) :
-    compressSingleEncrypt(_encryptors, _buffer, header, _batch, ClientOptions::_doEncrypt);
+    compressSingleEncrypt(_encryptors, Options::_primaryEncryptor, _buffer, header, _batch, ClientOptions::_doEncrypt);
   std::string_view dataView = encrypted;
   std::get<std::to_underlying(HEADER_INDEX::FIELD1SIZEINDEX)>(header) = dataView.size();
   if (_subtaskIndex >= _subtasks.size())

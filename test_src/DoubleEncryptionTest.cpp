@@ -11,7 +11,10 @@
 
 using namespace encryptortemplates;
 
+CRYPTO crypto = CRYPTO::CRYPTOSODIUM;
+
 TEST(DoubleEncryptDecrypt, 0) {
+  
   const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
 
   std::string source = TestEnvironment::_source;
