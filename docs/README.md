@@ -58,7 +58,7 @@ libsodium-dev must be installed:\
 There is a choice of encryption libraries to use in this application:\
 Sodium which is the current and Crypto++.\
 To select one or another change both ServerOptiond.json and ClientOptions.json files:\
-"EncryptorType" : "CRYPTOSODIUM"  to "EncryptorType" : "CRYPTOPP" or vice versa.\
+"SingleEncryptor" : "CRYPTOSODIUM"  to "EncryptorType" : "CRYPTOPP" or vice versa.\
 No application rebuild is required.
 
 Sodium is preferable due to the active development of this library,\
@@ -69,9 +69,12 @@ There is an option to use both encryptors \
 for multilayered encryption when two or more layers use different encryption libraries\
 and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\
-See test_src/DoubleEncryptionTest.cpp. The current implementation for simplicity creates \
-encryptor tuples locally with local authentication and key exchanges. \
-Next will be implementation of the remote authentication and key exchanges.
+DoubleEncryptionTest.cpp is using simplified implementation with local \
+authentication and key exchanges. \
+The realistic test with remote authentication and key exchanges is in XdoubleEncryptionTest.cpp.\
+To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
+necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
+and Options::_secondaryEncryptor. Changing these two requires rebuild.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\

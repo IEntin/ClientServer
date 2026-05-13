@@ -14,7 +14,7 @@
 
 struct LogicTest2 : testing::Test {
   void SetUp() override {
-    //Options::_doubleEncryption = true;
+    Options::_doubleEncryption = true;
   }
   void testLogic2(CLIENT_TYPE type,
 		  COMPRESSORS serverCompressor,

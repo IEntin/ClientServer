@@ -33,4 +33,16 @@ void CryptoBase::displayCryptoLibName() {
     break;
   }
   Info << "\n\nprimary encryptor: " << encryptorLib << " library.\n\n";
+  switch(Options::_singleEncryptor) {
+  case CRYPTO::CRYPTOSODIUM:
+    encryptorLib = "Sodium";
+    break;
+  case CRYPTO::CRYPTOPP:
+    encryptorLib = "Crypto++";
+    break;
+  default:
+    encryptorLib = "Error";
+    break;
+  }
+  Info << "\n\nsingle encryptor: " << encryptorLib << " library.\n\n";
 }
