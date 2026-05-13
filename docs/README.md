@@ -74,7 +74,9 @@ authentication and key exchanges. \
 The realistic test with remote authentication and key exchanges is in XdoubleEncryptionTest.cpp.\
 To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
-and Options::_secondaryEncryptor. Changing these two requires rebuild.
+which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\
+CRYPTOPP. Changing these two requires rebuild. Latency increase due to double encryption is\
+about 7%.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
