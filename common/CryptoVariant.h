@@ -2,7 +2,11 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
+#include <variant>
+
 #include "EncryptorTemplates.h"
+
+using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 
 #pragma once
 

@@ -77,7 +77,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
   encrypted = Options::_doubleEncryption ?
       compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
     compressSingleEncrypt(_encryptors,
-			  Options::_primaryEncryptor,
+			  Options::_singleEncryptor,
 			  _buffer,
 			  header,
 			  _responseData,
@@ -92,7 +92,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
 bool Session::processTask() {
   Options::_doubleEncryption ?
     doubleDecryptDecompress(_encryptors, _buffer, _header, _request) :
-    singleDecryptDecompress(_encryptors, Options::_primaryEncryptor, _buffer, _header, _request);
+    singleDecryptDecompress(_encryptors, Options::_singleEncryptor, _buffer, _header, _request);
 
   if (auto taskController = TaskController::getWeakPtr().lock()) {
     _task->update(_header, _request);

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <variant>
-
 #include <boost/container/static_vector.hpp>
 
 #include "CompressionLZ4.h"
@@ -13,10 +11,7 @@
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-
-using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
-
-using CryptoTuple = std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>;
+#include "CryptoTuple.h"
 
 namespace encryptortemplates {
 

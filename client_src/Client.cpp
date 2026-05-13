@@ -129,7 +129,7 @@ bool Client::printReply() {
   }
   Options::_doubleEncryption ?
     doubleDecryptDecompress(_encryptors, _buffer, _header, _response) :
-    singleDecryptDecompress(_encryptors, Options::_primaryEncryptor, _buffer, _header, _response);
+    singleDecryptDecompress(_encryptors, Options::_singleEncryptor, _buffer, _header, _response);
   std::ostream* pstream = ClientOptions::_dataStream;
   std::ostream& stream = pstream ? *pstream : std::cout;
   if (_response.empty()) {

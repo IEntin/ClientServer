@@ -8,8 +8,7 @@
 
 #include "BoostJsonParser.h"
 
-CRYPTO Options::_primaryEncryptor;
-CRYPTO Options::_secondaryEncryptor;
+CRYPTO Options::_singleEncryptor;
 bool Options::_doubleEncryption;
 boost::static_string<100> Options::_fifoDirectoryName(std::filesystem::current_path().string());
 boost::static_string<100> Options::_acceptorBaseName("acceptor");
@@ -24,8 +23,9 @@ boost::json::value Options::_jv;
 void Options::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
     parseJson(jsonName, _jv);
-    _primaryEncryptor = translateCryptoString(_jv.at("PrimaryEncryptor").as_string());
-    _secondaryEncryptor = translateCryptoString(_jv.at("SecondaryEncryptor").as_string());
+    //_primaryEncryptor = translateCryptoString(_jv.at("PrimaryEncryptor").as_string());
+    //_secondaryEncryptor = translateCryptoString(_jv.at("SecondaryEncryptor").as_string());
+    _singleEncryptor = translateCryptoString(_jv.at("SingleEncryptor").as_string());
     _doubleEncryption = _jv.at("DoubleEncryption").as_bool();
     _fifoDirectoryName = _jv.at("FifoDirectoryName").as_string();
     _acceptorBaseName = _jv.at("AcceptorBaseName").as_string();

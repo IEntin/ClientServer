@@ -16,8 +16,9 @@ struct Options {
 public:
   static void parse(std::string_view jsonName);
   static constexpr bool _debug = false;
-  static CRYPTO _primaryEncryptor;
-  static CRYPTO _secondaryEncryptor;
+  static constexpr CRYPTO _primaryEncryptor = CRYPTO::CRYPTOSODIUM;
+  static constexpr CRYPTO _secondaryEncryptor = CRYPTO::CRYPTOPP;
+  static CRYPTO _singleEncryptor;
   static bool _doubleEncryption;
   static boost::static_string<100> _fifoDirectoryName;
   static boost::static_string<100> _acceptorBaseName;
