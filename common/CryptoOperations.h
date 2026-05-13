@@ -13,7 +13,7 @@
 #include "CryptoSodium.h"
 #include "CryptoTuple.h"
 
-namespace encryptortemplates {
+namespace cryptooperations {
 
 std::string_view singleEncrypt(const CryptoTuple& tuple,
 			       CRYPTO crypto,
@@ -64,4 +64,4 @@ void doubleDecryptDecompress(const CryptoTuple& tuple,
 			     HEADER& header,
 			     std::string& data);
 
-} // end of namespace encryptortemplates
+} // end of namespace cryptooperations

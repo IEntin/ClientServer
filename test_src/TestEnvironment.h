@@ -9,11 +9,11 @@
 #include <gtest/gtest.h>
 
 #include "CryptoTuple.h"
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 #include "ServerOptions.h"
 #include "Utility.h"
 
-using namespace encryptortemplates;
+using namespace cryptooperations;
 
 class TestEnvironment : public ::testing::Environment {
 public:

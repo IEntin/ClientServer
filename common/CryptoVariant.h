@@ -4,7 +4,7 @@
 
 #include <variant>
 
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 
 using CryptoVariant = std::variant<CryptoSodiumPtr, CryptoPlPlPtr>;
 

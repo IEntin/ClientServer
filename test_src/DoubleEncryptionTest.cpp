@@ -3,13 +3,10 @@
  */
 
 #include "CryptoTuple.h"
-#include "EncryptorTemplates.h"
 #include "TestEnvironment.h"
 
 // for i in {1..10}; do ./testbin --gtest_filter=DoubleEncryptDecrypt*; done
 // for i in {1..10}; do ./testbin --gtest_filter=TestCompressDoubleEncrypt*;done
-
-using namespace encryptortemplates;
 
 CRYPTO crypto = CRYPTO::CRYPTOSODIUM;
 

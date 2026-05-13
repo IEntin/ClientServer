@@ -2,9 +2,9 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 
-namespace encryptortemplates {
+namespace cryptooperations {
 
 std::string_view singleEncrypt(const CryptoTuple& tuple,
 			       CRYPTO crypto,
@@ -204,4 +204,4 @@ void doubleDecryptDecompress(const CryptoTuple& tuple,
   }
 }
 
-} // end of namespace encryptortemplates
+} // end of namespace cryptoperations

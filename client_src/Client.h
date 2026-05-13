@@ -9,13 +9,15 @@
 #include "Chronometer.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 #include "IOUtility.h"
 #include "Subtask.h"
 #include "ThreadPoolBase.h"
 
 using TaskBuilderPtr = std::shared_ptr<class TaskBuilder>;
 using TaskBuilderWeakPtr = std::weak_ptr<class TaskBuilder>;
+
+using namespace cryptooperations;
 
 class Client : private boost::noncopyable {
 

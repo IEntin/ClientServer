@@ -8,10 +8,10 @@
 
 #include <boost/core/noncopyable.hpp>
 
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 #include "IOUtility.h"
 
-using namespace encryptortemplates;
+using namespace cryptooperations;
 
 using ServerWeakPtr = std::weak_ptr<class Server>;
 using TaskPtr = std::shared_ptr<class Task>;

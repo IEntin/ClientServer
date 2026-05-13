@@ -7,8 +7,6 @@
 #include "Client.h"
 #include "Fifo.h"
 
-using namespace encryptortemplates;
-
 namespace fifo {
 
 class FifoClient : public Client {

@@ -9,8 +9,6 @@
 #include "Client.h"
 #include "Tcp.h"
 
-using namespace encryptortemplates;
-
 namespace tcp {
 
 class TcpClient : public Client {

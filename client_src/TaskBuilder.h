@@ -7,11 +7,11 @@
 #include <condition_variable>
 #include <mutex>
 
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
-using namespace encryptortemplates;
+using namespace cryptooperations;
 
 class TaskBuilder final : public Runnable {
 

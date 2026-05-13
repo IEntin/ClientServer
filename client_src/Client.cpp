@@ -5,13 +5,13 @@
 #include "Client.h"
 
 #include "ClientOptions.h"
-#include "EncryptorTemplates.h"
+#include "CryptoOperations.h"
 #include "Metrics.h"
 #include "TaskBuilder.h"
 #include "TcpClientHeartbeat.h"
 #include "Utility.h"
 
-using namespace encryptortemplates;
+using namespace cryptooperations;
 
 thread_local std::string Client::_buffer;
 
