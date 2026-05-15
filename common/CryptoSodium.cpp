@@ -64,7 +64,6 @@ CryptoSodium::CryptoSodium() :
 CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
 			   std::string_view signatureWithPubKeySign) :
   _msgHash(hashMessage(utility::getAuthenticationMessage())) {
-  RemoveSensitiveData instance(this);
   std::vector<unsigned char> peerAesPubKeyV = base64_decode(encodedPeerAesPubKey);
   std::copy(peerAesPubKeyV.cbegin(), peerAesPubKeyV.cend(), _peerPubKeyAes.begin());
   crypto_kx_keypair(_pubKeyAes.data(), _privKeyAes.data());
@@ -99,6 +98,9 @@ CryptoSodium::CryptoSodium(std::string_view encodedPeerAesPubKey,
 
 CryptoSodium::~CryptoSodium() {
   sodium_memzero(_key.data(), _key.size());
+  sodium_memzero(_privKeyAes.data(), _privKeyAes.size());
+  sodium_memzero(_msgHash.data(),_msgHash.size());
+  sodium_memzero(_signatureWithPubKeySign.data(),_signatureWithPubKeySign.size());
 }
 
 std::string_view CryptoSodium::encrypt(std::string& buffer,
@@ -165,7 +167,6 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
 
 bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
   if (!_keysExchanged) {
-    RemoveSensitiveData instance(this);
     std::vector<unsigned char> peerPubKeyAesV = base64_decode(encodedPeerPubKeyAes);
     std::copy(peerPubKeyAesV.cbegin(), peerPubKeyAesV.cend(), _peerPubKeyAes.begin());
     if (crypto_kx_client_session_keys(nullptr,

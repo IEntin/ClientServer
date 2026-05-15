@@ -34,7 +34,6 @@ struct KeyHandler {
 
 // version using Crypto++ library
 class CryptoPlPl : public CryptoBase, public std::enable_shared_from_this<CryptoPlPl> {
-  friend struct RemoveSensitiveData;
   CryptoPP::AutoSeededX917RNG<CryptoPP::AES> _rng;
   CryptoPP::ECDH<CryptoPP::ECP>::Domain _dh;
   CryptoPP::SecByteBlock _privKeyAes;
@@ -80,14 +79,6 @@ public:
   encodeRsaPublicKey(const CryptoPP::RSA::PrivateKey& privateKey);
   bool decodeRsaPublicKey(std::string_view serializedKey,
 			  CryptoPP::RSA::PublicKey& publicKey);
-
-  struct RemoveSensitiveData {
-    explicit RemoveSensitiveData(CryptoPlPl* ptr) : _ptr(ptr) {}
-    ~RemoveSensitiveData() {
-      _ptr->destroySensitiveData();
-    }
-    CryptoPlPl* _ptr = nullptr;
-  };
 
   std::string base64_encode(std::span<unsigned char> binary);
   std::vector<unsigned char> base64_decode(std::string_view encoded);

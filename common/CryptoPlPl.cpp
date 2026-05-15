@@ -47,17 +47,17 @@ CryptoPlPl::CryptoPlPl(std::string_view encodedPeerAesPubKey,
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _keyHandler(_key.size()),
+  _keyHandler(_dh.AgreedValueLength()),
   _msgHash(sha256_hash(utility::getAuthenticationMessage())),
   _signatureWithPubKeySign(signatureWithPubKey.data(), signatureWithPubKey.size()) {
-  RemoveSensitiveData instance(this);
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   CryptoPP::SecByteBlock peerAesPubKey(reinterpret_cast<const CryptoPP::byte*>(encodedPeerAesPubKey.data()),
-  				       encodedPeerAesPubKey.size());
+  				       _dh.PublicKeyLength());
   
-  if(!_dh.Agree(_key, _privKeyAes, peerAesPubKey))
-    throw std::runtime_error("DiffieHellman Failed");
-  _encodedPubKeyAes.assign(reinterpret_cast<const char*>(_pubKeyAes.data()), _pubKeyAes.size());
+  _keysExchanged = _dh.Agree(_key, _privKeyAes, peerAesPubKey);
+  if (!_keysExchanged)
+    throw std::runtime_error("Server-side DiffieHellman Failed");
+  _encodedPubKeyAes.assign(reinterpret_cast<const char*>(_pubKeyAes.data()), _dh.PublicKeyLength());
   DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
   hideKey();
   CryptoPP::SecByteBlock().swap(peerAesPubKey);
@@ -79,7 +79,7 @@ CryptoPlPl::CryptoPlPl() :
   _privKeyAes(_dh.PrivateKeyLength()),
   _pubKeyAes(_dh.PublicKeyLength()),
   _key(_dh.AgreedValueLength()),
-  _keyHandler(_key.size()),
+  _keyHandler(_dh.AgreedValueLength()),
   _msgHash(sha256_hash(utility::getAuthenticationMessage())) {
   generateKeyPair(_dh, _privKeyAes, _pubKeyAes);
   _encodedPubKeyAes.assign(reinterpret_cast<const char*>(_pubKeyAes.data()), _pubKeyAes.size());
@@ -93,7 +93,7 @@ CryptoPlPl::CryptoPlPl() :
 }
 
 CryptoPlPl::~CryptoPlPl() {
-  CryptoPP::SecureWipeArray(_key.data(), _key.size());
+  destroySensitiveData();
 }
 
 bool CryptoPlPl::generateKeyPair(CryptoPP::ECDH<CryptoPP::ECP>::Domain& dh,
@@ -143,15 +143,14 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
 }
 
 bool CryptoPlPl::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
-  RemoveSensitiveData instance(this);
   if (!_keysExchanged) {
     CryptoPP::SecByteBlock peerPubKeyAes(reinterpret_cast<const CryptoPP::byte*>(encodedPeerPubKeyAes.data()),
 					 encodedPeerPubKeyAes.size());
-    if (!_dh.Agree(_key, _privKeyAes, peerPubKeyAes))
+    _keysExchanged = _dh.Agree(_key, _privKeyAes, peerPubKeyAes);
+    if (!_keysExchanged)
       throw std::runtime_error("Client-side key exchange failed");
     DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);
     hideKey();
-    _keysExchanged = true;
   }
   return true;
 }
@@ -200,7 +199,6 @@ void CryptoPlPl::decodePeerRsaPublicKey(std::string_view rsaPubBserialized) {
 }
 
 bool CryptoPlPl::verifySignature(std::string_view signature) {
-  RemoveSensitiveData instance(this);
   if (!_verifiedSignature) {
     CryptoPP::RSASSA_PKCS1v15_SHA256_Verifier verifier(_peerRsaPubKey);
     _verifiedSignature = verifier.VerifyMessage(reinterpret_cast<const CryptoPP::byte*>(_msgHash.data()), _msgHash.length(),
@@ -228,6 +226,7 @@ std::string CryptoPlPl::sha256_hash(std::string_view message) {
 }
 
 void CryptoPlPl::destroySensitiveData() {
+  CryptoPP::SecureWipeArray(_key.data(), _key.size());
   CryptoPP::memset_z(_msgHash.data(), 0, _msgHash.size());
   CryptoPP::memset_z(_privKeyAes.data(), 0, _privKeyAes.size());
   CryptoPP::memset_z(_pubKeyAes.data(), 0, _pubKeyAes.size());
