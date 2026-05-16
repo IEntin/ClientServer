@@ -76,7 +76,7 @@ To enable double encryption Options::_doubleEncryption should be set to true, ag
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
 which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\
 CRYPTOPP. Changing these two requires rebuild. Latency increase due to double encryption is\
-about 7%.
+about 7%. Double Encryption enabled by default.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
