@@ -10,7 +10,7 @@
     "_comment" : "Next is for ZSTD",
     "CompressionLevel" : 3,
     "_comment": "Next 2 settings must match client settings",
-   "SingleEncryptor" : "CRYPTOSODIUM",
+    "SingleEncryptor" : "CRYPTOSODIUM",
     "DoubleEncryption" : true,
     "doEncrypt" : true,
     "BufferSize" : 3000000,

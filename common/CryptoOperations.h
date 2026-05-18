@@ -4,16 +4,20 @@
 
 #pragma once
 
-#include <boost/container/static_vector.hpp>
+#include <tuple>
 
 #include "CompressionLZ4.h"
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
 #include "CryptoPlPl.h"
 #include "CryptoSodium.h"
-#include "CryptoTuple.h"
+
+using CryptoTuple = std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>;
 
 namespace cryptooperations {
+
+  constexpr std::size_t cryptoSodiumIndex = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOSODIUM);
+  constexpr std::size_t cryptoPPIndex = std::to_underlying<CRYPTO>(CRYPTO::CRYPTOPP);
 
 std::string_view singleEncrypt(const CryptoTuple& tuple,
 			       CRYPTO crypto,

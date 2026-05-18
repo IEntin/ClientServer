@@ -57,7 +57,7 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
       _secondarySignatureWithKey = encryptor->_signatureWithPubKeySign;
       _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
     }
-    _encryptors = { _primarySodiumEncryptor, _secondaryCryptoppEncryptor };
+    _encryptors = std::make_tuple(_primarySodiumEncryptor, _secondaryCryptoppEncryptor);
     _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
 			      _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
 			      STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };

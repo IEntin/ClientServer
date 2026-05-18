@@ -2,12 +2,9 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include "CryptoPlPl.h"
-#include "CryptoSodium.h"
+#include "CryptoOperations.h"
 
 #pragma once
-
-using CryptoTuple = std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>;
 
 namespace cryptotuple {
 

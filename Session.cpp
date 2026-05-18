@@ -57,7 +57,7 @@ try :
     if (CryptoPlPlPtr encryptor = weak.lock()) {
       _secondaryPubKeyAes = encryptor->_encodedPubKeyAes;
     }
-    _encryptors = { _primarySodiumEncryptor, _secondaryCryptoppEncryptor };
+    _encryptors = std::make_tuple(_primarySodiumEncryptor, _secondaryCryptoppEncryptor);
   }
 catch (const std::exception& e) {
   LogError << e.what() << '\n';

@@ -15,18 +15,16 @@ std::string_view singleEncrypt(const CryptoTuple& tuple,
   switch (crypto) {
   case CRYPTO::CRYPTOSODIUM:
     {
-      CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-      if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock()) {
-	return cryptoSodiumPtr->encrypt(buffer, &header, source);
-      }
+      auto cryptoWeakSodiumPtr = std::get<cryptoSodiumIndex>(tuple);
+      if (auto encryptor = cryptoWeakSodiumPtr.lock(); encryptor)
+	return encryptor->encrypt(buffer, &header, source);
     }
     break;
   case CRYPTO::CRYPTOPP:
     {
-      CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-      if (CryptoPlPlPtr cryptoPlPlPtr = cryptoWeakPlPlPtr.lock()) {
-	return cryptoPlPlPtr->encrypt(buffer, &header, source);
-      }
+      auto cryptoWeakPlPlPtr = std::get<cryptoPPIndex>(tuple);
+      if (auto encryptor = cryptoWeakPlPlPtr.lock(); encryptor)
+	return encryptor->encrypt(buffer, &header, source);
     }
     break;
   default:
@@ -43,16 +41,16 @@ void singleDecrypt(const CryptoTuple& tuple,
   switch (crypto) {
   case CRYPTO::CRYPTOSODIUM:
     {
-      CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-      if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock())
-	cryptoSodiumPtr->decrypt(buffer, data);
+      auto cryptoWeakSodiumPtr = std::get<cryptoSodiumIndex>(tuple);
+      if (auto encryptor = cryptoWeakSodiumPtr.lock(); encryptor)
+	encryptor->decrypt(buffer, data);
     }
     break;
   case CRYPTO::CRYPTOPP:
     {
-      CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-      if (CryptoPlPlPtr cryptoPlPlPtr  = cryptoWeakPlPlPtr.lock())
-	cryptoPlPlPtr->decrypt(buffer, data);
+      CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<cryptoPPIndex>(tuple);
+      if (auto encryptor  = cryptoWeakPlPlPtr.lock(); encryptor)
+	encryptor->decrypt(buffer, data);
     }
     break;
   default:
@@ -68,15 +66,15 @@ std::string doubleEncrypt(const CryptoTuple& tuple,
 			  const HEADER& header,
 			  std::string& source) {
   std::string encrypted;
-  CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-  if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock()) {
+  auto cryptoWeakSodiumPtr = std::get<cryptoSodiumIndex>(tuple);
+  if (auto encryptor = cryptoWeakSodiumPtr.lock(); encryptor) {
     buffer.clear();
-    encrypted = cryptoSodiumPtr->encrypt(buffer, &header, source);
+    encrypted = encryptor->encrypt(buffer, &header, source);
   }
-  CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-  if (CryptoPlPlPtr cryptoPlPlPtr = cryptoWeakPlPlPtr.lock()) {
+  auto cryptoWeakPlPlPtr = std::get<cryptoPPIndex>(tuple);
+  if (auto encryptor = cryptoWeakPlPlPtr.lock(); encryptor) {
     buffer.clear();
-    encrypted = cryptoPlPlPtr->encrypt(buffer, nullptr, encrypted);
+    encrypted = encryptor->encrypt(buffer, nullptr, encrypted);
   }
   return encrypted;
 }
@@ -85,15 +83,15 @@ void doubleDecrypt(const CryptoTuple& tuple,
 		   std::string& buffer,
 		   HEADER& header,
 		   std::string& data) {
-  CryptoWeakPlPlPtr cryptoWeakPlPlPtr = std::get<CryptoWeakPlPlPtr>(tuple);
-  if (CryptoPlPlPtr cryptoPlPlPtr = cryptoWeakPlPlPtr.lock()) {
+  auto cryptoWeakPlPlPtr = std::get<cryptoPPIndex>(tuple);
+  if (auto encryptor = cryptoWeakPlPlPtr.lock(); encryptor) {
     buffer.clear();
-    cryptoPlPlPtr->decrypt(buffer, data);
+    encryptor->decrypt(buffer, data);
   }
-  CryptoWeakSodiumPtr cryptoWeakSodiumPtr = std::get<CryptoWeakSodiumPtr>(tuple);
-  if (CryptoSodiumPtr cryptoSodiumPtr = cryptoWeakSodiumPtr.lock()) {
+  auto cryptoWeakSodiumPtr = std::get<cryptoSodiumIndex>(tuple);
+  if (auto encryptor = cryptoWeakSodiumPtr.lock(); encryptor) {
     buffer.clear();
-    cryptoSodiumPtr->decrypt(buffer, data);
+    encryptor->decrypt(buffer, data);
   }
   if (!deserialize(header, data.data()))
     throw std::runtime_error("doubleDecrypt failure.");
