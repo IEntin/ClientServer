@@ -93,9 +93,9 @@ void toChars(F value, std::string& target, int precision, std::size_t size = CON
   std::size_t origSize = target.size();
   target.resize(origSize + size);
   std::size_t sizeIncr = 0;
-  auto [ptr, ec] = std::to_chars(&target[0] + origSize, &target[0] + origSize + size, value,
+  auto [ptr, ec] = std::to_chars(target.data() + origSize, target.data() + origSize + size, value,
 				 std::chars_format::fixed, precision);
-  sizeIncr = ptr - &target[0] - origSize;
+  sizeIncr = ptr - target.data() - origSize;
   if (ec == std::errc())
     target.resize(origSize + sizeIncr);
   else

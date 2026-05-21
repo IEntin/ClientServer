@@ -45,7 +45,7 @@ bool processMessage(std::string_view payload,
 		    std::span<std::reference_wrapper<std::string>> array) {
   if (payload.size() < HEADER_SIZE)
     return false;
-  if (!deserialize(header, &payload[0]))
+  if (!deserialize(header, payload.data()))
     return false;
   payload.remove_prefix(HEADER_SIZE);
   std::size_t sizes[] { extractField1Size(header),

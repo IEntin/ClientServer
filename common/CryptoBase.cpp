@@ -10,7 +10,7 @@ bool CryptoBase::isEncrypted(std::string_view input) {
   assert(input.size() >= HEADER_SIZE);
   HEADER header;
   try {
-    if (deserialize(header, &input[0]))
+    if (deserialize(header, input.data()))
       return false;
     return true;
   }

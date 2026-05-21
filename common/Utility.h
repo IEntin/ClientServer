@@ -100,7 +100,7 @@ void readFile(std::string_view fileName, BUFFER& buffer) {
   stream.open(fileName.data(), std::ios::binary);
   std::uintmax_t size = std::filesystem::file_size(fileName);
   buffer.resize(size);
-  stream.read(&buffer[0], size);
+  stream.read(buffer.data(), size);
 }
 
 template <typename SOURCE>
