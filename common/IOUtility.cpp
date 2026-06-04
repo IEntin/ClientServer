@@ -62,4 +62,16 @@ bool processMessage(std::string_view payload,
   return true;
 }
 
+const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(unsigned index) {
+  static std::vector<boost::static_string<CONV_BUFFER_SIZE>> vector(10000);
+  static bool initialized;
+  if (!initialized) {
+    for (unsigned i = 0; i < vector.size(); ++i) {
+      vector[i].append(1, '[').append(toCharsBoost(i)).append(1, ']');
+    }
+    initialized = true;
+  }
+  return vector[index];
+}
+
 } // end of namespace ioutility

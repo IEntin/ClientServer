@@ -115,4 +115,6 @@ bool processMessage(std::string_view payload,
 		    HEADER &header,
 		    std::span<std::reference_wrapper<std::string>> array);
 
+const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(unsigned index);
+
 } // end of namespace ioutility
