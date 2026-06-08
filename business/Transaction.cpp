@@ -56,7 +56,8 @@ void Transaction::init(std::string_view input) {
   auto pos = input.find(']');
   if (pos != std::string_view::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
-    _request = { input.data() + pos + 1, input.size() - pos - 1 };
+    _request = input;
+    _request.remove_prefix(_id.size());
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }

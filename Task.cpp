@@ -50,16 +50,19 @@ bool Task::processNext() {
     if (auto server = _server.lock()) {
       auto& policy = server->getPolicy();
       assert(policy);
-      if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
+      switch (ServerOptions::_policyEnum) {
+      case POLICYENUM::SORTINPUT: {
 	unsigned orgIndex = _sortedIndices[index];
 	const Request& request = _requests[orgIndex];
 	_response[orgIndex] = (*policy) (request, _diagnostics);
       }
-      else {
+	return true;
+      default: {
 	const Request& request = _requests[index];
 	_response[index] = (*policy) (request, _diagnostics);
       }
-      return true;
+	return true;
+      }
     }
   }
   return false;
