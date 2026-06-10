@@ -14,7 +14,6 @@
 #include <cryptopp/secblock.h>
 
 #include "CryptoBase.h"
-#include "IOUtility.h"
 
 constexpr std::size_t RSA_KEY_SIZE = 2048;
 

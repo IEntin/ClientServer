@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cassert>
 #include <charconv>
 #include <concepts>
 #include <stdexcept>

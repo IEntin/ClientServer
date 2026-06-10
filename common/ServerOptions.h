@@ -7,8 +7,6 @@
 #include "Options.h"
 #include "Policy.h"
 
-enum class COMPRESSORS : char;
-
 struct ServerOptions : Options {
   static void parse(std::string_view jsonName);
   static boost::static_string<100> _adsFileName;

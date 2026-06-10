@@ -10,7 +10,6 @@
 #include <sodium.h>
 
 #include "CryptoBase.h"
-#include "IOUtility.h"
 
 using CryptoSodiumPtr = std::shared_ptr<class CryptoSodium>;
 using CryptoWeakSodiumPtr = std::weak_ptr<class CryptoSodium>;
