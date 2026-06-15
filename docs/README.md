@@ -54,6 +54,9 @@ libsodium-dev must be installed:\
 
 ### Build and Testing
 
+This is the Linux only project. Ugly and useless CMAKE is not required.\
+Instead efficient and flexible GMAKE with natural dependencies tracking is used.
+
 #### Notice:
 There is a choice of encryption libraries to use in this application:\
 Sodium which is the current and Crypto++.\
