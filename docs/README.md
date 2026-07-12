@@ -72,9 +72,10 @@ There is an option to use both encryptors \
 for multilayered encryption when two or more layers use different encryption libraries\
 and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\
-DoubleEncryptionTest.cpp is using simplified implementation with local \
+DoubleEncryptionTest.cpp is using simplified implementation with local (in a single process) \
 authentication and key exchanges. \
-The realistic test with remote authentication and key exchanges is in XdoubleEncryptionTest.cpp.\
+The realistic test with implementation of authentication and Diffie-Hellman protocols remotely \
+for each encryption layer is in XdoubleEncryptionTest.cpp.\
 To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
 which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\

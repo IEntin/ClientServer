@@ -2,8 +2,6 @@
  *  Copyright (C) 2021 Ilya Entin
  */
 
-#include <snappy.h>
-
 #include <boost/regex.hpp>
 
 #include "ClientOptions.h"

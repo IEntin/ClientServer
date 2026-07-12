@@ -4,11 +4,11 @@
 
 #include "CompressionSnappy.h"
 
+#include "Logger.h"
+
 #include <stdexcept>
 
 #include <snappy.h>
-
-#include "Logger.h"
 
 namespace compressionSnappy {
 
