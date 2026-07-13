@@ -11,6 +11,7 @@
 
 #include <boost/core/noncopyable.hpp>
 
+#include "IOUtility.h"
 #include "Header.h"
 
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
@@ -26,18 +27,20 @@ struct Request {
   Request() = default;
   ~Request() = default;
 
-  Request& operator=(std::string_view value) {
-    _value = value;
+  Request& operator=(std::string_view input) {
+    _input = input;
     return *this;
   }
 
   SIZETUPLE _sizeKey;
-  std::string_view _value;
+  std::string_view _input;
+  boost::static_string<ioutility::CONV_BUFFER_SIZE> _requestId;
 };
 
 class Task : private boost::noncopyable {
+  boost::static_string<ioutility::CONV_BUFFER_SIZE> createRequestId(std::size_t index);
   std::vector<Request> _requests;
-  std::size_t _size = 0;
+  unsigned _size = 0;
   std::vector<unsigned> _sortedIndices;
   Response _response;
   std::promise<void> _promise;

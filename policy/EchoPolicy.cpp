@@ -18,7 +18,7 @@ static const boost::regex pattern("^\\[\\d+\\]");
 // tests transport layer, multithreading, compression, and encryption
 std::string_view EchoPolicy::operator() (const Request& request,
 					 [[maybe_unused]] bool diagnostics) {
-  _buffer = request._value;
+  _buffer = request._input;
   _buffer.push_back('\n');
   boost::smatch match;
   // string::erase is expensive

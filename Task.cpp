@@ -34,11 +34,19 @@ void Task::sortIndices() {
 	    });
 }
 
+boost::static_string<ioutility::CONV_BUFFER_SIZE> Task::createRequestId(std::size_t index) {
+  boost::static_string<ioutility::CONV_BUFFER_SIZE> buffer;
+  buffer.append(1, '[');
+  buffer.append(ioutility::toCharsBoost(index));
+  buffer.append(1, ']');
+  return buffer;
+}
+
 bool Task::preprocessNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
     Request& request = _requests[index];
-    request._sizeKey = _preprocessRequest(request._value);
+    request._sizeKey = _preprocessRequest(request._input);
     return true;
   }
   return false;
@@ -53,12 +61,14 @@ bool Task::processNext() {
       switch (ServerOptions::_policyEnum) {
       case POLICYENUM::SORTINPUT: {
 	unsigned orgIndex = _sortedIndices[index];
-	const Request& request = _requests[orgIndex];
+	Request& request = _requests[orgIndex];
+	request._requestId = createRequestId(orgIndex);
 	_response[orgIndex] = (*policy) (request, _diagnostics);
       }
 	return true;
       default: {
-	const Request& request = _requests[index];
+	Request& request = _requests[index];
+	request._requestId = createRequestId(index);
 	_response[index] = (*policy) (request, _diagnostics);
       }
 	return true;
