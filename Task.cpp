@@ -34,14 +34,6 @@ void Task::sortIndices() {
 	    });
 }
 
-boost::static_string<ioutility::CONV_BUFFER_SIZE> Task::createRequestId(std::size_t index) {
-  boost::static_string<ioutility::CONV_BUFFER_SIZE> buffer;
-  buffer.append(1, '[');
-  buffer.append(ioutility::toCharsBoost(index));
-  buffer.append(1, ']');
-  return buffer;
-}
-
 bool Task::preprocessNext() {
   unsigned index = _index.fetch_add(1);
   if (index < _size) {
@@ -62,13 +54,11 @@ bool Task::processNext() {
       case POLICYENUM::SORTINPUT: {
 	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
-	request._requestId = createRequestId(orgIndex);
 	_response[orgIndex] = (*policy) (request, _diagnostics);
       }
 	return true;
       default: {
 	Request& request = _requests[index];
-	request._requestId = createRequestId(index);
 	_response[index] = (*policy) (request, _diagnostics);
       }
 	return true;

@@ -8,5 +8,5 @@
 
 std::string_view NoSortInputPolicy::operator() (const Request& request,
 						bool diagnostics) {
-  return Transaction::processRequestNoSort(request._input, diagnostics);
+  return Transaction::processRequestNoSort(request, diagnostics);
 }

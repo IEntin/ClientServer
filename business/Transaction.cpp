@@ -38,12 +38,14 @@ thread_local std::string Transaction::_output;
 
 using ioutility::operator<<;
 
-Transaction::Transaction(std::string_view input) : _sizeKey(createSizeKey(input)) {
-  init(input);
+Transaction::Transaction(const Request& request) :
+  _sizeKey(createSizeKey(request._input)) {
+  init(request._input);
 }
 
-Transaction::Transaction(const SIZETUPLE& sizeKey, std::string_view input) : _sizeKey(sizeKey)  {
-  init(input);
+Transaction::Transaction(const SIZETUPLE& sizeKey, const Request& request) :
+  _sizeKey(sizeKey)  {
+  init(request._input);
 }
 
 void Transaction::init(std::string_view input) {
@@ -64,10 +66,10 @@ void Transaction::init(std::string_view input) {
 }
 
 std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
-						 std::string_view request,
+						 const Request& request,
 						 bool diagnostics) noexcept {
   Transaction transaction(sizeKey, request);
-  if (request.empty()) {
+  if (request._input.empty()) {
     LogError << "request is empty." << '\n';
     transaction._invalid = true;
     return _output << "[unknown]" << INVALID_REQUEST;
@@ -91,10 +93,10 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
   return _output;
 }
 
-std::string_view Transaction::processRequestNoSort(std::string_view request,
+std::string_view Transaction::processRequestNoSort(const Request& request,
 						   bool diagnostics) noexcept {
   Transaction transaction(request);
-  if (request.empty()) {
+  if (request._input.empty()) {
     LogError << "request is empty." << '\n';
     transaction._invalid = true;
     return _output << "[unknown]" << INVALID_REQUEST;

@@ -10,6 +10,8 @@
 
 #include <boost/core/noncopyable.hpp>
 
+#include "Task.h"
+
 struct AdBid;
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 using AdPtr = std::shared_ptr<class Ad>;
@@ -19,16 +21,16 @@ constexpr SIZETUPLE ZERO_SIZE;
 class Transaction : private boost::noncopyable {
 public:
   static std::string_view processRequestSort(const SIZETUPLE& sizeKey,
-					     std::string_view request,
+					     const Request& request,
 					     bool diagnostics) noexcept;
 
-  static std::string_view processRequestNoSort(std::string_view request,
+  static std::string_view processRequestNoSort(const Request& request,
 					       bool diagnostics) noexcept;
   ~Transaction() = default;
   static SIZETUPLE createSizeKey(std::string_view request);
 private:
-  explicit Transaction(std::string_view input);
-  Transaction(const SIZETUPLE& sizeKey, std::string_view input);
+  explicit Transaction(const Request& request);
+  Transaction(const SIZETUPLE& sizeKey, const Request& request);
   void init(std::string_view input);
   static SIZETUPLE createSizeKeyRegExpr(std::string_view request);
   void breakKeywords(std::string_view kwStr);

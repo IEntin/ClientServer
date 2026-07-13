@@ -38,7 +38,6 @@ struct Request {
 };
 
 class Task : private boost::noncopyable {
-  boost::static_string<ioutility::CONV_BUFFER_SIZE> createRequestId(std::size_t index);
   std::vector<Request> _requests;
   unsigned _size = 0;
   std::vector<unsigned> _sortedIndices;
