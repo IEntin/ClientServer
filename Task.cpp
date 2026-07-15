@@ -39,9 +39,8 @@ bool Task::preprocessNext() {
   if (index < _size) {
     Request& request = _requests[index];
     request._sizeKey = _preprocessRequest(request._input);
-    return true;
   }
-  return false;
+  return _index < _size;
 }
 
 bool Task::processNext() {
@@ -54,18 +53,20 @@ bool Task::processNext() {
       case POLICYENUM::SORTINPUT: {
 	unsigned orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
+	request._requestId = ioutility::getRequestId(orgIndex);
 	_response[orgIndex] = (*policy) (request, _diagnostics);
+	break;
       }
-	return true;
       default: {
 	Request& request = _requests[index];
+	request._requestId = ioutility::getRequestId(index);
 	_response[index] = (*policy) (request, _diagnostics);
+	break;
       }
-	return true;
       }
     }
   }
-  return false;
+  return _index < _size;
 }
 
 void Task::finish() {

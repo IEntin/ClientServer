@@ -40,11 +40,13 @@ using ioutility::operator<<;
 
 Transaction::Transaction(const Request& request) :
   _sizeKey(createSizeKey(request._input)) {
+  _id = request._requestId;
   init(request._input);
 }
 
 Transaction::Transaction(const SIZETUPLE& sizeKey, const Request& request) :
   _sizeKey(sizeKey)  {
+  _id = request._requestId;
   init(request._input);
 }
 
@@ -58,8 +60,8 @@ void Transaction::init(std::string_view input) {
   auto pos = input.find(']');
   if (pos != std::string_view::npos && input[0] == '[') {
     _id = { input.data(), pos + 1 };
+    input.remove_prefix(_id.size());
     _request = input;
-    _request.remove_prefix(_id.size());
     if (!parseKeywords(START_KEYWORDS1))
       parseKeywords(START_KEYWORDS2);
   }

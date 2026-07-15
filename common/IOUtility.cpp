@@ -4,6 +4,7 @@
 
 #include "IOUtility.h"
 
+#include <mutex>
 #include <system_error>
 
 namespace ioutility {
@@ -63,11 +64,14 @@ bool processMessage(std::string_view payload,
 }
 
 const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(unsigned index) {
+  static std::mutex mutex;
+  std::unique_lock lock(mutex);
   static std::vector<boost::static_string<CONV_BUFFER_SIZE>> vector(10000);
   static bool initialized;
   if (!initialized) {
     for (unsigned i = 0; i < vector.size(); ++i) {
-      vector[i].append(1, '[').append(toCharsBoost(i)).append(1, ']');
+      vector[i] = { '[' };
+      vector[i].append(toCharsBoost(i)).append(1, ']');
     }
     initialized = true;
   }
