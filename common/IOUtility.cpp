@@ -67,7 +67,7 @@ const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(unsigned index) {
   static std::mutex mutex;
   std::unique_lock lock(mutex);
   static std::vector<boost::static_string<CONV_BUFFER_SIZE>> vector(10000);
-  static bool initialized;
+  static bool initialized = false;
   if (!initialized) {
     for (unsigned i = 0; i < vector.size(); ++i) {
       vector[i] = { '[' };

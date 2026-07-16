@@ -40,13 +40,11 @@ using ioutility::operator<<;
 
 Transaction::Transaction(const Request& request) :
   _sizeKey(createSizeKey(request._input)) {
-  _id = request._requestId;
   init(request._input);
 }
 
 Transaction::Transaction(const SIZETUPLE& sizeKey, const Request& request) :
   _sizeKey(sizeKey)  {
-  _id = request._requestId;
   init(request._input);
 }
 

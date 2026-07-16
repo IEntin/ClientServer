@@ -34,7 +34,6 @@ struct Request {
 
   SIZETUPLE _sizeKey;
   std::string_view _input;
-  boost::static_string<ioutility::CONV_BUFFER_SIZE> _requestId;
 };
 
 class Task : private boost::noncopyable {
