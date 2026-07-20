@@ -12,15 +12,15 @@ This code was built and tested on
 gcc 15.2.0\
 clang 20.1.8\
 8GB RAM\
-8 cores
+4 cores
 
 and
 
-2. Ubuntu 25.10\
+2. Linux Mint 22.3\
 gcc 15.2.0\
 clang 20.1.8\
-4GB RAM\
-4 cores
+8GB RAM\
+8 cores
 
 Note:
 google snappy must be installed:\
