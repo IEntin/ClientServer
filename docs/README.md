@@ -8,9 +8,9 @@ Copyright (C) 2021 Ilya Entin.
 
 This code was built and tested on
 
-1. Ubuntu 25.10\
-gcc 15.2.0\
-clang 20.1.8\
+1. Linux Mint 22.3\
+gcc 13.3.0\
+clang 18.1.3\
 8GB RAM\
 4 cores
 
