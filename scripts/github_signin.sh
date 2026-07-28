@@ -43,3 +43,5 @@ else
 fi
 echo "=========================================="
 
+# gh auth login
+# git credential-manager clear
