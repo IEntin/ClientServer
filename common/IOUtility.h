@@ -15,7 +15,9 @@
 
 namespace ioutility {
 
-constexpr int CONV_BUFFER_SIZE = 10;
+constexpr std::size_t CONV_BUFFER_SIZE = 32;
+
+  constexpr std::size_t DEFAULT_NUMSTRING_SIZE = 10;
 
 inline auto removeNonDigits = [] (std::string_view& view) mutable {
   int shift = 0;
@@ -70,7 +72,7 @@ toCharsBoost(I value, bool fixedSize = false) {
   if (result.ec != std::errc())
     throw std::runtime_error("conversion failed");
   std::size_t size = result.ptr - buffer;
-  return { buffer, fixedSize? CONV_BUFFER_SIZE : size };
+  return { buffer, fixedSize? DEFAULT_NUMSTRING_SIZE : size };
 }
 
 template <Integral I>
