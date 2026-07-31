@@ -17,7 +17,7 @@ namespace ioutility {
 
 constexpr std::size_t CONV_BUFFER_SIZE = 32;
 
-  constexpr std::size_t DEFAULT_NUMSTRING_SIZE = 10;
+constexpr std::size_t DEFAULT_NUMSTRING_SIZE = 10;
 
 inline auto removeNonDigits = [] (std::string_view& view) mutable {
   int shift = 0;
@@ -116,6 +116,6 @@ bool processMessage(std::string_view payload,
 		    HEADER &header,
 		    std::span<std::reference_wrapper<std::string>> array);
 
-const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(unsigned index);
+  const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(std::size_t index);
 
 } // end of namespace ioutility

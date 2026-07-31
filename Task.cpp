@@ -22,7 +22,7 @@ void Task::update(const HEADER& header, std::string_view request) {
   _size = utility::splitReuseVector(request, _requests);
   if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
     _sortedIndices.resize(_size);
-    for (unsigned i = 0; i < _size; ++i)
+    for (std::size_t i = 0; i < _size; ++i)
       _sortedIndices[i] = i;
   }
   _response.resize(_size);
@@ -35,29 +35,32 @@ void Task::sortIndices() {
 }
 
 bool Task::preprocessNext() {
-  unsigned index = _index.fetch_add(1);
+  std::size_t index = _index.fetch_add(1);
   if (index < _size) {
     Request& request = _requests[index];
     request._sizeKey = _preprocessRequest(request._input);
+    request._index = index;
   }
   return _index < _size;
 }
 
 bool Task::processNext() {
-  unsigned index = _index.fetch_add(1);
+  std::size_t index = _index.fetch_add(1);
   if (index < _size) {
     if (auto server = _server.lock()) {
       auto& policy = server->getPolicy();
       assert(policy);
       switch (ServerOptions::_policyEnum) {
       case POLICYENUM::SORTINPUT: {
-	unsigned orgIndex = _sortedIndices[index];
+	std::size_t orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
+	request._index = orgIndex;
 	_response[orgIndex] = (*policy) (request, _diagnostics);
 	break;
       }
       default: {
 	Request& request = _requests[index];
+	request._index = index;
 	_response[index] = (*policy) (request, _diagnostics);
 	break;
       }

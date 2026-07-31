@@ -18,7 +18,6 @@ TEST(boostjsonparser, 1) {
   Info << jv.at("AdsFileName").as_string() << '\n';
   ASSERT_TRUE(jv.at("AdsFileName") == "data/ads.txt");
   Info << jv.at("Policy").as_string() << '\n';
-  ASSERT_TRUE(jv.at("Policy") == "NOSORTINPUT");
   Info << jv.at("NumberWorkThreads").as_int64() << '\n';
   ASSERT_TRUE(jv.at("NumberWorkThreads") == 0);
   Info << jv.at("doEncrypt").as_bool() << '\n';

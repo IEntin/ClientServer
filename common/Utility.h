@@ -65,7 +65,7 @@ template <typename CONTAINER>
 
 template <typename INPUT, typename CONTAINER>
 std::size_t splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  unsigned index = 0;
+  std::size_t index = 0;
   std::size_t start = 0;
   while (start < input.size()) {
     std::size_t next = input.find(delim, start);

@@ -33,16 +33,17 @@ struct Request {
   }
 
   SIZETUPLE _sizeKey;
+  std::size_t _index;
   std::string_view _input;
 };
 
 class Task : private boost::noncopyable {
   std::vector<Request> _requests;
-  unsigned _size = 0;
-  std::vector<unsigned> _sortedIndices;
+  std::size_t _size = 0;
+  std::vector<std::size_t> _sortedIndices;
   Response _response;
   std::promise<void> _promise;
-  std::atomic<unsigned> _index = 0;
+  std::atomic<std::size_t> _index = 0;
   bool _diagnostics;
   ServerWeakPtr _server;
 
