@@ -11,3 +11,6 @@ sudo apt-get install libsnappy-dev
 sudo apt install libzstd-dev
 sudo apt update
 sudo apt install xterm
+
+Notice for the systems with multiple USB: if your system is complicated,
+remove downloaded *.iso files in all volumes, if it still stops in the grub menu when loading, call 'exit'.
