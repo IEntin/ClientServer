@@ -8,7 +8,7 @@ Copyright (C) 2021 Ilya Entin.
 
 This code was built and tested on
 
-1. Linux Mint 22.3\
+1. Linux Mint 22.3 Zena\
 gcc 13.3.0\
 clang 18.1.3\
 8GB RAM\
@@ -16,7 +16,7 @@ clang 18.1.3\
 
 and
 
-2. Linux Mint 22.3\
+2. Linux Mint 22.3 Zena\
 gcc 15.2.0\
 clang 20.1.8\
 8GB RAM\
