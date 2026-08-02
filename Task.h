@@ -33,7 +33,6 @@ struct Request {
   }
 
   SIZETUPLE _sizeKey;
-  std::size_t _index;
   std::string_view _input;
 };
 

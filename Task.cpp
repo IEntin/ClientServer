@@ -39,7 +39,6 @@ bool Task::preprocessNext() {
   if (index < _size) {
     Request& request = _requests[index];
     request._sizeKey = _preprocessRequest(request._input);
-    request._index = index;
   }
   return _index < _size;
 }
@@ -54,13 +53,11 @@ bool Task::processNext() {
       case POLICYENUM::SORTINPUT: {
 	std::size_t orgIndex = _sortedIndices[index];
 	Request& request = _requests[orgIndex];
-	request._index = orgIndex;
 	_response[orgIndex] = (*policy) (request, _diagnostics);
 	break;
       }
       default: {
 	Request& request = _requests[index];
-	request._index = index;
 	_response[index] = (*policy) (request, _diagnostics);
 	break;
       }
