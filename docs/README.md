@@ -216,9 +216,15 @@ Some tests in EchoTests.cpp and LogicTests.cpp verify this possibility.\
 Headers are encrypted as well as other data. Mixing compression algorithms makes breaking encryption \
 more challenging.
 
-Server allows multi phase request processing. The preprocessor phase in the current code\
-is generation of the specific key and sorting requests by this key. This can be useful if\
-processing requires data from another source and sorting by the key reduces the number of queries.
+Server has two phases of request processing: PRFPROCESSTASK and PROCESSTASK.\
+PROCESSTASK phase requeres the data containing prices and other details.\
+These data are contained in the database table with the keys and values calculated from the subtasks content.\
+Multiple entries can be contained under the same key.\
+PRFPROCESSTASK phase calculates the key for every subtask and then sorts the table by these keys.\
+With this data transformation processing the next subtask quite often requires the same data as a previous request.\
+Caching of that data critically decreases the number of the table searches.\
+See business/Transaction.cpp.\
+Running the PREPROCESSTASK phase is optional and can be found in ServerOptions::_policyEnum;.
 
 Business logic, compression, task multithreading, and communication layers are decoupled.
 
