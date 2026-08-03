@@ -219,9 +219,10 @@ more challenging.
 Server has two phases of request processing: PRFPROCESSTASK and PROCESSTASK.\
 PROCESSTASK phase requeres the data containing prices and other details.\
 These data are contained in the database table with the keys and values calculated from the subtasks content.\
-Multiple entries can be contained under the same key.\
+The key is selected so it is the same for multiple items.\
+Multiple entries will be contained under the same key.\
 PRFPROCESSTASK phase calculates the key for every subtask and then sorts the table by these keys.\
-With this data transformation processing the next subtask quite often requires the same data as a previous request.\
+With this data transformation processing the next subtask quite often requires the same set of values as a previous request.\
 Caching of that data critically decreases the number of the table searches.\
 See business/Transaction.cpp.\
 Running the PREPROCESSTASK phase is optional and can be found in ServerOptions::_policyEnum;.
