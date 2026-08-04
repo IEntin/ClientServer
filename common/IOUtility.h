@@ -15,6 +15,8 @@
 
 namespace ioutility {
 
+constexpr std::size_t TASK_MAX_SIZE = 10000;
+
 constexpr std::size_t CONV_BUFFER_SIZE = 32;
 
 constexpr std::size_t DEFAULT_NUMSTRING_SIZE = 10;

@@ -66,16 +66,16 @@ bool processMessage(std::string_view payload,
   const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(std::size_t index) {
   static std::mutex mutex;
   std::unique_lock lock(mutex);
-  static std::vector<boost::static_string<CONV_BUFFER_SIZE>> vector(10000);
+  static std::array<boost::static_string<CONV_BUFFER_SIZE>, TASK_MAX_SIZE> array;
   static bool initialized = false;
   if (!initialized) {
-    for (std::size_t i = 0; i < vector.size(); ++i) {
-      vector[i] = { '[' };
-      vector[i].append(toCharsBoost(i)).append(1, ']');
+    for (std::size_t i = 0; i < array.size(); ++i) {
+      array[i] = { '[' };
+      array[i].append(toCharsBoost(i)).append(1, ']');
     }
     initialized = true;
   }
-  return vector[index];
+  return array[index];
 }
 
 } // end of namespace ioutility
