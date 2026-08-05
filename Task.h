@@ -67,6 +67,4 @@ class Task : private boost::noncopyable {
 
   void finish();
 
-  static PreprocessRequest _preprocessRequest;
-
 };

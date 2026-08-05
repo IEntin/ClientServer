@@ -34,10 +34,8 @@ void TaskController::onTaskCompletion() noexcept {
 void TaskController::onCompletion() {
   switch (_phase) {
   case PREPROCESSTASK:
-    if (Task::_preprocessRequest) {
-      _task->sortIndices();
-      _task->resetIndex();
-    }
+    _task->sortIndices();
+    _task->resetIndex();
     _phase = PROCESSTASK;
     break;
   case PROCESSTASK:
@@ -121,8 +119,7 @@ void TaskController::Worker::run() noexcept {
 	barrier.arrive_and_wait();
       }
       else if (_phase == PREPROCESSTASK) {
-	if (Task::_preprocessRequest)
-	  while (task->preprocessNext());
+	while (task->preprocessNext());
 	barrier.arrive_and_wait();
       }
     }

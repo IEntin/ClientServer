@@ -11,9 +11,6 @@
 #include "Transaction.h"
 #include "Utility.h"
 
-PreprocessRequest Task::_preprocessRequest =
-  ServerOptions::_policyEnum == POLICYENUM::SORTINPUT ? Transaction::createSizeKey : nullptr;
-
 Task::Task (ServerWeakPtr server) : _server(server) {}
 
 void Task::update(const HEADER& header, std::string_view request) {
@@ -38,7 +35,7 @@ bool Task::preprocessNext() {
   std::size_t index = _index.fetch_add(1);
   if (index < _size) {
     Request& request = _requests[index];
-    request._sizeKey = _preprocessRequest(request._input);
+    request._sizeKey = Transaction::createSizeKey(request._input);
   }
   return _index < _size;
 }
