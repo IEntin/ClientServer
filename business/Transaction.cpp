@@ -27,6 +27,14 @@ constexpr const char* START_KEYWORDS2{ "keywords=" };
 constexpr auto SIZE_START_REG{ "size=" };
 constexpr auto SIZE_START_ALT{ "ad_width=" };
 constexpr auto DELIMITER(", ");
+constexpr auto MATCHES{ " #matches=" };
+constexpr auto REQUESTKEYWORDS{ "\nrequest keywords:\n" };
+constexpr auto TRANSACTIONSIZE{ "Transaction size=" };
+constexpr auto SUMMARY{ "summary:" };
+constexpr auto STARS{ "*****" };
+constexpr auto MATCHINGADS{ "matching ads:\n" };
+constexpr auto MATCH{ " match:" };
+constexpr auto ENDING{ "\n*****\n" };
 
 } // end of anonymous namespace
 
@@ -65,6 +73,8 @@ void Transaction::init(std::string_view input) {
   }
 }
 
+const std::vector<AdPtr> emptyAdVector;
+
 std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 						 const Request& request,
 						 bool diagnostics) noexcept {
@@ -74,7 +84,6 @@ std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
     transaction._invalid = true;
     return _output << "[unknown]" << INVALID_REQUEST;
   }
-  static const std::vector<AdPtr> emptyAdVector;
   static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = emptyAdVector;
   static thread_local SIZETUPLE prevKey;
   if (sizeKey != prevKey) {
@@ -101,7 +110,12 @@ std::string_view Transaction::processRequestNoSort(const Request& request,
     transaction._invalid = true;
     return _output << "[unknown]" << INVALID_REQUEST;
   }
-  const std::vector<AdPtr>& adVector = Ad::getAdsBySize(transaction._sizeKey);
+  static thread_local std::reference_wrapper<const std::vector<AdPtr>> adVector = emptyAdVector;
+  static thread_local SIZETUPLE prevKey;
+  if (request._sizeKey != prevKey) {
+    prevKey = request._sizeKey;
+    adVector = Ad::getAdsBySize(request._sizeKey);
+  }
   transaction.matchAds(adVector);
   if (diagnostics)
     transaction.printDiagnostics();
@@ -226,9 +240,7 @@ bool Transaction::parseKeywords(std::string_view start) {
 void Transaction::printDiagnostics() const {
   printRequestData();
   printMatchingAds();
-  static constexpr auto SUMMARY{ "summary:" };
   _output << SUMMARY;
-  static constexpr auto STARS{ "*****" };
   if (_noMatch) {
     _output << EMPTY_REPLY << STARS << '\n';
   }
@@ -246,12 +258,10 @@ void Transaction::printSummary() const {
 }
 
 void Transaction::printMatchingAds() const {
-  static constexpr auto MATCHINGADS{ "matching ads:\n" };
   _output << MATCHINGADS;
   for (const AdBid& adBid : _bids) {
     if (auto ad = adBid._ad.lock())
       ad->print(_output);
-    static constexpr auto MATCH{ " match:" };
     _output << MATCH << adBid._keyword << ' ' << adBid._money << '\n';
   }
 }
@@ -261,16 +271,12 @@ void Transaction::printWinningAd() const {
     _output << ad->getId() << DELIMITER
 	    << _winningBid->_keyword << DELIMITER;
   double money = _winningBid->_money / Ad::_scaler;
-  static constexpr auto ENDING{ "\n*****\n" };
   _output << money << ENDING;
 }
 
 void Transaction::printRequestData() const {
   _output << _id << ' ';
-  static constexpr auto TRANSACTIONSIZE{ "Transaction size=" };
   _output << TRANSACTIONSIZE << _sizeKey;
-  static constexpr auto MATCHES{ " #matches=" };
-  static constexpr auto REQUESTKEYWORDS{ "\nrequest keywords:\n" };
   _output << MATCHES << _bids.size() << '\n' << _request << REQUESTKEYWORDS;
   for (std::string_view keyword : _keywords)
     _output << ' ' << keyword << '\n';
