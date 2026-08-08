@@ -24,6 +24,7 @@ struct ServerOptions : Options {
   static bool _timing;
   static bool _printHeader;
   static boost::static_string<100> _logThresholdName;
+  static bool _printByteBlock;
 private:
   ServerOptions() = delete;
   ~ServerOptions() = delete;

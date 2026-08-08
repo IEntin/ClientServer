@@ -6,6 +6,7 @@
 
 #include <charconv>
 #include <concepts>
+#include <mutex>
 #include <stdexcept>
 
 #include <boost/assert/source_location.hpp>
@@ -114,10 +115,19 @@ std::string& operator << (std::string& str, F value) {
 using SIZETUPLE = std::tuple<unsigned, unsigned>;
 std::string& operator << (std::string&, const SIZETUPLE&);
 
+inline void  printByteBlock(const std::span<unsigned char>& block) {
+  static std::mutex mutex;
+  std::unique_lock lock(mutex);
+  for (std::size_t i = 0; i < block.size(); ++i) {
+    std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)block[i] << ' ';
+  }
+  std::cout << std::endl;
+}
+
 bool processMessage(std::string_view payload,
 		    HEADER &header,
 		    std::span<std::reference_wrapper<std::string>> array);
 
-  const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(std::size_t index);
+const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(std::size_t index);
 
 } // end of namespace ioutility

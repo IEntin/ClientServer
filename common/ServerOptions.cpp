@@ -25,6 +25,7 @@ std::size_t ServerOptions::_bufferSize(100000);
 bool ServerOptions::_timing(false);
 bool ServerOptions::_printHeader(false);
 boost::static_string<100> ServerOptions::_logThresholdName("ERROR");
+bool ServerOptions::_printByteBlock(false);;
 
 void ServerOptions::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
@@ -46,6 +47,7 @@ void ServerOptions::parse(std::string_view jsonName) {
     _timing = Options::_jv.at("Timing").as_bool();
     _printHeader = Options::_jv.at("PrintHeader").as_bool();
     _logThresholdName = Options::_jv.at("LogThreshold").as_string();
+    _printByteBlock = Options::_jv.at("PrintByteBlock").as_bool();
   }
   else {
     _policyEnum = fromString("NOSORTINPUT");
