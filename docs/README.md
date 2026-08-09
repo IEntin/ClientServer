@@ -76,6 +76,9 @@ DoubleEncryptionTest.cpp is using simplified implementation with local (in a sin
 authentication and key exchanges. \
 The realistic test with implementation of authentication and Diffie-Hellman protocols remotely \
 for each encryption layer is in XdoubleEncryptionTest.cpp.\
+There is a test displaying initialization vector (nonce) passing in double encryption. \
+nonce handling seems to be one of the the most frequently mentioned concerns in discussions \
+of multilayered encryption. \
 To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
 which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\
