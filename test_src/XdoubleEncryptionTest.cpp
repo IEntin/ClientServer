@@ -67,3 +67,19 @@ TEST_F(LogicTest2, FIFO_SNAPPY_ZSTD_10000_2ENCRYPT_2ENCRYPT_D) {
   testLogic2(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::SNAPPY, COMPRESSORS::ZSTD, 10000, DIAGNOSTICS::ENABLED);
 }
 
+TEST(DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING,1) {
+  ServerOptions::_printByteBlock = true;
+  Options::_doubleEncryption = true;
+  // start server
+  ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
+  ServerPtr server = std::make_shared<Server>();
+  ASSERT_TRUE(server->start());
+  // start client
+  // one subtask
+  ClientOptions::_bufferSize = 0;
+  ClientOptions::_maxNumberTasks = 0;
+  tcp::TcpClient client;
+  client.run();
+  server->stop();
+  TestEnvironment::reset();
+}
