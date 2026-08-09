@@ -78,7 +78,22 @@ The realistic test with implementation of authentication and Diffie-Hellman prot
 for each encryption layer is in XdoubleEncryptionTest.cpp.\
 There is a test displaying initialization vector (nonce) passing in double encryption. \
 nonce handling seems to be one of the the most frequently mentioned concerns in discussions \
-of multilayered encryption. \
+of multilayered encryption.
+
+Example of test  output for two encrypt - decrypt  cycles :\
+----------] 1 test from DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING \
+[ RUN      ] DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING.1 \
+CryptoSodium::encrypt nonce:8a 4f 8c db 50 1f 21 18 27 a6 e5 d1 \
+CryptoPlPl::encrypt iv:05 6d 3d 3a d8 de 70 cb 50 5f 68 6b 7e 9b 09 53 \
+CryptoPlPl::decrypt iv:05 6d 3d 3a d8 de 70 cb 50 5f 68 6b 7e 9b 09 53 \
+CryptoSodium::decrypt recoveredNonce:8a 4f 8c db 50 1f 21 18 27 a6 e5 d1 \
+CryptoSodium::encrypt nonce:56 7b c1 18 2f 8b 12 a7 4e 1d 8d d2 \
+CryptoPlPl::encrypt iv:8c 5b 42 db db e9 f2 2e c1 c2 9d 81 12 59 d8 4b \
+CryptoPlPl::decrypt iv:8c 5b 42 db db e9 f2 2e c1 c2 9d 81 12 59 d8 4b \
+CryptoSodium::decrypt recoveredNonce:56 7b c1 18 2f 8b 12 a7 4e 1d 8d d2 \
+[       OK ] DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING.1 (171 ms) \
+[----------] 1 test from DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING (171 ms total)
+
 To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
 which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\
