@@ -93,7 +93,8 @@ CryptoPlPl::decrypt iv:8c 5b 42 db db e9 f2 2e c1 c2 9d 81 12 59 d8 4b \
 CryptoSodium::decrypt recoveredNonce:56 7b c1 18 2f 8b 12 a7 4e 1d 8d d2 \
 [       OK ] DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING.1 (171 ms) \
 [----------] 1 test from DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING (171 ms total)
-
+The table shows correct transfer of unique init vectors from encrypt \
+to decrypt methods in every encryption  layer.\
 To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
 which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\
