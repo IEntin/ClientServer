@@ -71,13 +71,16 @@ TEST(DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING,1) {
   ServerOptions::_printByteBlock = true;
   Options::_doubleEncryption = true;
   // start server
+  ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
   ServerPtr server = std::make_shared<Server>();
   ASSERT_TRUE(server->start());
   // start client
+  ClientOptions::_runLoop = false;
   ClientOptions::_bufferSize = 0;
   ClientOptions::_maxNumberTasks = 0;
    tcp::TcpClient client;
   client.run();
   server->stop();
+  ServerOptions::_printByteBlock = false;
   TestEnvironment::reset();
 }

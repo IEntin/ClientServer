@@ -25,7 +25,7 @@ std::size_t ServerOptions::_bufferSize(100000);
 bool ServerOptions::_timing(false);
 bool ServerOptions::_printHeader(false);
 boost::static_string<100> ServerOptions::_logThresholdName("ERROR");
-bool ServerOptions::_printByteBlock(false);;
+bool ServerOptions::_printByteBlock(false);
 
 void ServerOptions::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
