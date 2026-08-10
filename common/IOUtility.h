@@ -118,6 +118,7 @@ std::string& operator << (std::string&, const SIZETUPLE&);
 inline void  printByteBlock(const std::span<unsigned char>& block) {
   static std::mutex mutex;
   std::unique_lock lock(mutex);
+  std::cout << "0x";
   for (std::size_t i = 0; i < block.size(); ++i) {
     std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)block[i] << ' ';
   }

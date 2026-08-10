@@ -83,14 +83,16 @@ of multilayered encryption.
 Example of test  output for two encrypt - decrypt  cycles :\
 ----------] 1 test from DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING \
 [ RUN      ] DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING.1 \
-CryptoSodium::encrypt nonce:8a 4f 8c db 50 1f 21 18 27 a6 e5 d1 \
-CryptoPlPl::encrypt iv:05 6d 3d 3a d8 de 70 cb 50 5f 68 6b 7e 9b 09 53 \
-CryptoPlPl::decrypt iv:05 6d 3d 3a d8 de 70 cb 50 5f 68 6b 7e 9b 09 53 \
-CryptoSodium::decrypt recoveredNonce:8a 4f 8c db 50 1f 21 18 27 a6 e5 d1 \
-CryptoSodium::encrypt nonce:56 7b c1 18 2f 8b 12 a7 4e 1d 8d d2 \
-CryptoPlPl::encrypt iv:8c 5b 42 db db e9 f2 2e c1 c2 9d 81 12 59 d8 4b \
-CryptoPlPl::decrypt iv:8c 5b 42 db db e9 f2 2e c1 c2 9d 81 12 59 d8 4b \
-CryptoSodium::decrypt recoveredNonce:56 7b c1 18 2f 8b 12 a7 4e 1d 8d d2 \
+
+CryptoSodium::encrypt nonce:		0xa5 fd 57 cd 6b 68 90 26 c8 8a 4f a8 \
+CryptoPlPl::encrypt iv:			0x28 2a 7d 3e f2 82 71 4c cb ed d6 36 1f 7d bb fc \
+CryptoPlPl::decrypt iv:			0x28 2a 7d 3e f2 82 71 4c cb ed d6 36 1f 7d bb fc \
+CryptoSodium::decrypt recoveredNonce:	0xa5 fd 57 cd 6b 68 90 26 c8 8a 4f a8 \
+CryptoSodium::encrypt nonce:		0x58 aa 2c 6f 25 57 83 b0 44 fa c0 7c \
+CryptoPlPl::encrypt iv:			0x71 ab 6b f7 54 83 81 c3 8f 06 9e 68 02 06 fb 27 \
+CryptoPlPl::decrypt iv:			0x71 ab 6b f7 54 83 81 c3 8f 06 9e 68 02 06 fb 27 \
+CryptoSodium::decrypt recoveredNonce:	0x58 aa 2c 6f 25 57 83 b0 44 fa c0 7c \
+
 [       OK ] DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING.1 (171 ms) \
 [----------] 1 test from DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING (171 ms total)
 The table shows correct transfer of unique init vectors from encrypt \
