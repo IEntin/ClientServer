@@ -8,7 +8,8 @@
 #include <stdexcept>
 
 #include "DebugLog.h"
-#include "ServerOptions.h"
+#include "IOUtility.h"
+#include "Options.h"
 #include "Utility.h"
 
 HandleKey::HandleKey() :
@@ -121,8 +122,8 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   unsigned long long ciphertext_len;
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
   randombytes_buf(nonce, std::ssize(nonce));
-  if (ServerOptions::_printByteBlock) {
-    std::cout << "CryptoSodium::encrypt nonce:";
+  if (Options::_printInitVector) {
+    std::cout << "CryptoSodium::encrypt nonce:\t";
     ioutility::printByteBlock(nonce);
   }
   std::size_t message_len = std::ssize(input);
@@ -152,8 +153,8 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned long long ciphertext_len = data.size() - crypto_aead_aes256gcm_NPUBBYTES;
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
     std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);
-    if (ServerOptions::_printByteBlock) {
-    std::cout << "CryptoSodium::decrypt recoveredNonce:";
+    if (Options::_printInitVector) {
+    std::cout << "CryptoSodium::decrypt recoveredNonce:\t";
     ioutility::printByteBlock(recoveredNonce);
   }
     data.resize(ciphertext_len);

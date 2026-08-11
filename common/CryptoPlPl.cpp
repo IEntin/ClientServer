@@ -12,8 +12,8 @@
 
 #include "DebugLog.h"
 #include "IOUtility.h"
+#include "Options.h"
 #include "Utility.h"
-#include "ServerOptions.h"
 
 const CryptoPP::OID CryptoPlPl::_curve = CryptoPP::ASN1::secp256r1();
 
@@ -113,8 +113,8 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   buffer.clear();
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
-  if (ServerOptions::_printByteBlock) {
-    std::cout << "CryptoPlPl::encrypt iv:";
+  if (Options::_printInitVector) {
+    std::cout << "CryptoPlPl::encrypt iv:\t";
     ioutility::printByteBlock(iv);
   }
   CryptoPP::AES::Encryption aesEncryption;
@@ -138,8 +138,8 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
     CryptoPP::SecByteBlock
     iv(reinterpret_cast<CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
        CryptoPP::AES::BLOCKSIZE);
-    if (ServerOptions::_printByteBlock) {
-      std::cout << "CryptoPlPl::decrypt iv:";
+    if (Options::_printInitVector) {
+      std::cout << "CryptoPlPl::decrypt iv:\t";
       ioutility::printByteBlock(iv);
     }
     CryptoPP::AES::Decryption aesDecryption;

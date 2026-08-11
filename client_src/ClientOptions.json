@@ -34,5 +34,7 @@
     "PipeSize" : 1000000,
     "_comment": "one of TRACE, DEBUG, INFO, WARN, EXPECTED, ERROR, ALWAYS",
     "LogThreshold" : "INFO",
-    "PrintHeader" : false
+    "PrintHeader" : false,
+    "_comment": "used for debugging, must match server settings",
+    "PrintInitVector" : false
 }

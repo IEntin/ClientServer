@@ -11,7 +11,6 @@
 
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest2.TCP_LZ4_ZSTD_3600000_2ENCRYPT_2ENCRYPT_D;done
 // for i in {1..10}; do ./testbin --gtest_filter=LogicTest2.FIFO_SNAPPY_ZSTD_10000_2ENCRYPT_2ENCRYPT_D;done
-
 struct LogicTest2 : testing::Test {
   void SetUp() override {
     Options::_doubleEncryption = true;
@@ -68,19 +67,15 @@ TEST_F(LogicTest2, FIFO_SNAPPY_ZSTD_10000_2ENCRYPT_2ENCRYPT_D) {
 }
 
 TEST(DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING,1) {
-  ServerOptions::_printByteBlock = true;
   Options::_doubleEncryption = true;
+  Options::_printInitVector = true;
   // start server
-  ServerOptions::_policyEnum = POLICYENUM::NOSORTINPUT;
   ServerPtr server = std::make_shared<Server>();
   ASSERT_TRUE(server->start());
   // start client
-  ClientOptions::_runLoop = false;
-  ClientOptions::_bufferSize = 0;
-  ClientOptions::_maxNumberTasks = 0;
-   tcp::TcpClient client;
+  tcp::TcpClient client;
   client.run();
   server->stop();
-  ServerOptions::_printByteBlock = false;
+  Options::_printInitVector = false;
   TestEnvironment::reset();
 }

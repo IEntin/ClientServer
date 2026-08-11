@@ -28,6 +28,7 @@ public:
   static std::size_t _pipeSize;
   static boost::static_string<100> _serverAddress;
   static unsigned short _tcpPort;
+  static bool _printInitVector;
   static boost::json::value _jv;
 private:
   Options() = delete;

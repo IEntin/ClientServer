@@ -18,6 +18,7 @@ bool Options::_setPipeSize(true);
 std::size_t Options::_pipeSize(1000000);
 boost::static_string<100> Options::_serverAddress("127.0.0.1");
 unsigned short Options::_tcpPort(49151);
+bool Options::_printInitVector(false);
 boost::json::value Options::_jv;
 
 void Options::parse(std::string_view jsonName) {
@@ -33,5 +34,6 @@ void Options::parse(std::string_view jsonName) {
     _pipeSize = _jv.at("PipeSize").as_int64();
     _serverAddress = _jv.at("ServerAddress").as_string();
     _tcpPort = _jv.at("TcpPort").as_int64();
+    _printInitVector = _jv.at("PrintInitVector").as_bool();
   }
 }

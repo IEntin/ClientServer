@@ -34,6 +34,6 @@
     "_comment": "any of TRACE, DEBUG, INFO, WARN, EXPECTED, ERROR, ALWAYS",
     "LogThreshold" : "INFO",
     "PrintHeader" : false,
-    "_comment": "used for debugging",
-    "PrintByteBlock" : false
+    "_comment": "used for debugging, must match client settings",
+    "PrintInitVector" : false
 }
