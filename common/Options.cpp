@@ -11,14 +11,15 @@
 CRYPTO Options::_singleEncryptor;
 bool Options::_doubleEncryption;
 boost::static_string<100> Options::_fifoDirectoryName(std::filesystem::current_path().string());
-boost::static_string<100> Options::_acceptorBaseName("acceptor");
+boost::static_string<100> Options::_acceptorBaseName;
 boost::static_string<100> Options::_acceptorName(_fifoDirectoryName + '/' + _acceptorBaseName);
-int Options::_numberRepeatENXIO(200);
-bool Options::_setPipeSize(true);
-std::size_t Options::_pipeSize(1000000);
-boost::static_string<100> Options::_serverAddress("127.0.0.1");
-unsigned short Options::_tcpPort(49151);
-bool Options::_printInitVector(false);
+int Options::_numberRepeatENXIO;
+bool Options::_setPipeSize;
+std::size_t Options::_pipeSize;
+boost::static_string<100> Options::_serverAddress;
+unsigned short Options::_tcpPort;
+bool Options::_printInitVector;
+std::size_t Options::_maxNumberIVprinting;
 boost::json::value Options::_jv;
 
 void Options::parse(std::string_view jsonName) {
@@ -35,5 +36,6 @@ void Options::parse(std::string_view jsonName) {
     _serverAddress = _jv.at("ServerAddress").as_string();
     _tcpPort = _jv.at("TcpPort").as_int64();
     _printInitVector = _jv.at("PrintInitVector").as_bool();
+    _maxNumberIVprinting = _jv.at("MaxNumberIVPrinting").as_int64();
   }
 }

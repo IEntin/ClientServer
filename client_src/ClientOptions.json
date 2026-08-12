@@ -35,6 +35,7 @@
     "_comment": "one of TRACE, DEBUG, INFO, WARN, EXPECTED, ERROR, ALWAYS",
     "LogThreshold" : "INFO",
     "PrintHeader" : false,
-    "_comment": "used for debugging, must match server settings",
-    "PrintInitVector" : false
+    "_comment": "next 2 used for debugging, must match server settings",
+    "PrintInitVector" : false,
+   "MaxNumberIVPrinting" : 16
 }

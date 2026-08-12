@@ -18,7 +18,7 @@ thread_local std::string TestEnvironment::_buffer;
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
-  ServerOptions::parse("");
+  ServerOptions::parse("ServerOptions.json");
   ClientOptions::parse("", &_oss);
   utility::readFile(ClientOptions::_sourceName, _source);
   utility::readFile("data/outputD.txt", _outputD);
@@ -34,7 +34,7 @@ void TestEnvironment::TearDown() {
 
 void TestEnvironment::reset() {
   _oss.str("");
-  ServerOptions::parse("");
+  ServerOptions::parse("ServerOptions.json");
   ClientOptions::parse("", &_oss);
 }
 

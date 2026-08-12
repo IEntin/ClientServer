@@ -76,6 +76,6 @@ TEST(DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING,1) {
   tcp::TcpClient client;
   client.run();
   server->stop();
-  Options::_printInitVector = false;
   TestEnvironment::reset();
+  ASSERT_TRUE(Options::_printInitVector == false);
 }

@@ -10,21 +10,21 @@
 #include "BoostJsonParser.h"
 #include "Logger.h"
 
-boost::static_string<100> ServerOptions::_adsFileName("data/ads.txt");
-COMPRESSORS ServerOptions::_compressor(translateCompressorString("LZ4"));
-int ServerOptions::_compressionLevel(3);
-bool ServerOptions::_doEncrypt(true);
-int ServerOptions::_numberWorkThreads(std::thread::hardware_concurrency());
-int ServerOptions::_maxTcpSessions(2);
-int ServerOptions::_maxFifoSessions(2);
-int ServerOptions::_maxTotalSessions(2);
-int ServerOptions::_tcpTimeout(3000);
-bool ServerOptions::_useRegex(true);
+boost::static_string<100> ServerOptions::_adsFileName;
+COMPRESSORS ServerOptions::_compressor;
+int ServerOptions::_compressionLevel;
+bool ServerOptions::_doEncrypt;
+int ServerOptions::_numberWorkThreads;
+int ServerOptions::_maxTcpSessions;
+int ServerOptions::_maxFifoSessions;
+int ServerOptions::_maxTotalSessions;
+int ServerOptions::_tcpTimeout;
+bool ServerOptions::_useRegex;
 POLICYENUM ServerOptions::_policyEnum;
-std::size_t ServerOptions::_bufferSize(100000);
-bool ServerOptions::_timing(false);
-bool ServerOptions::_printHeader(false);
-boost::static_string<100> ServerOptions::_logThresholdName("ERROR");
+std::size_t ServerOptions::_bufferSize;
+bool ServerOptions::_timing;
+bool ServerOptions::_printHeader;
+boost::static_string<100> ServerOptions::_logThresholdName;
 
 void ServerOptions::parse(std::string_view jsonName) {
   if (!jsonName.empty()) {
