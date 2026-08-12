@@ -19,7 +19,6 @@ std::size_t Options::_pipeSize;
 boost::static_string<100> Options::_serverAddress;
 unsigned short Options::_tcpPort;
 bool Options::_printInitVector;
-std::size_t Options::_maxNumberIVprinting;
 boost::json::value Options::_jv;
 
 void Options::parse(std::string_view jsonName) {
@@ -36,6 +35,5 @@ void Options::parse(std::string_view jsonName) {
     _serverAddress = _jv.at("ServerAddress").as_string();
     _tcpPort = _jv.at("TcpPort").as_int64();
     _printInitVector = _jv.at("PrintInitVector").as_bool();
-    _maxNumberIVprinting = _jv.at("MaxNumberIVPrinting").as_int64();
   }
 }

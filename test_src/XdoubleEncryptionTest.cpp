@@ -70,9 +70,11 @@ TEST(DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING,1) {
   Options::_doubleEncryption = true;
   Options::_printInitVector = true;
   // start server
+  ServerOptions::_bufferSize = 3000000;
   ServerPtr server = std::make_shared<Server>();
   ASSERT_TRUE(server->start());
   // start client
+  ClientOptions::_bufferSize = 3000000;
   tcp::TcpClient client;
   client.run();
   server->stop();

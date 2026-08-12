@@ -36,6 +36,5 @@
     "LogThreshold" : "INFO",
     "PrintHeader" : false,
     "_comment": "next 2 used for debugging, must match server settings",
-    "PrintInitVector" : false,
-   "MaxNumberIVPrinting" : 16
+    "PrintInitVector" : false
 }
