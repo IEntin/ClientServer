@@ -114,7 +114,7 @@ std::string_view CryptoPlPl::encrypt(std::string& buffer,
   CryptoPP::SecByteBlock iv(CryptoPP::AES::BLOCKSIZE);
   _rng.GenerateBlock(iv, iv.size());
   if (Options::_printInitVector) {
-    std::cout << "CryptoPlPl::encrypt iv:\t";
+    std::clog << "CryptoPlPl::encrypt iv:\t";
     ioutility::printByteBlock(iv);
   }
   CryptoPP::AES::Encryption aesEncryption;
@@ -139,7 +139,7 @@ void CryptoPlPl::decrypt(std::string& buffer, std::string& data) {
     iv(reinterpret_cast<CryptoPP::byte*>(data.data() + data.size() - CryptoPP::AES::BLOCKSIZE),
        CryptoPP::AES::BLOCKSIZE);
     if (Options::_printInitVector) {
-      std::cout << "CryptoPlPl::decrypt iv:\t";
+      std::clog << "CryptoPlPl::decrypt iv:\t";
       ioutility::printByteBlock(iv);
     }
     CryptoPP::AES::Decryption aesDecryption;

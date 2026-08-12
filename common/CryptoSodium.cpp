@@ -123,7 +123,7 @@ std::string_view CryptoSodium::encrypt(std::string& buffer,
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
   randombytes_buf(nonce, std::ssize(nonce));
   if (Options::_printInitVector) {
-    std::cout << "CryptoSodium::encrypt nonce:\t";
+    std::clog << "CryptoSodium::encrypt nonce:\t";
     ioutility::printByteBlock(nonce);
   }
   std::size_t message_len = std::ssize(input);
@@ -154,7 +154,7 @@ void CryptoSodium::decrypt(std::string& buffer, std::string& data) {
     unsigned char recoveredNonce[crypto_aead_aes256gcm_NPUBBYTES] = {};
     std::copy(data.end() - crypto_aead_aes256gcm_NPUBBYTES, data.end(), recoveredNonce);
     if (Options::_printInitVector) {
-    std::cout << "CryptoSodium::decrypt recoveredNonce:\t";
+    std::clog << "CryptoSodium::decrypt recoveredNonce:\t";
     ioutility::printByteBlock(recoveredNonce);
   }
     data.resize(ciphertext_len);
