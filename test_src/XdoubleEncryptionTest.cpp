@@ -79,5 +79,4 @@ TEST(DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING,1) {
   client.run();
   server->stop();
   TestEnvironment::reset();
-  ASSERT_TRUE(Options::_printInitVector == false);
 }

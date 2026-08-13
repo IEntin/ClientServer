@@ -19,21 +19,17 @@ std::size_t Options::_pipeSize;
 boost::static_string<100> Options::_serverAddress;
 unsigned short Options::_tcpPort;
 bool Options::_printInitVector;
-boost::json::value Options::_jv;
 
-void Options::parse(std::string_view jsonName) {
-  if (!jsonName.empty()) {
-    parseJson(jsonName, _jv);
-    _singleEncryptor = translateCryptoString(_jv.at("SingleEncryptor").as_string());
-    _doubleEncryption = _jv.at("DoubleEncryption").as_bool();
-    _fifoDirectoryName = _jv.at("FifoDirectoryName").as_string();
-    _acceptorBaseName = _jv.at("AcceptorBaseName").as_string();
-    _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;
-    _numberRepeatENXIO = _jv.at("NumberRepeatENXIO").as_int64();
-    _setPipeSize = _jv.at("SetPipeSize").as_bool();
-    _pipeSize = _jv.at("PipeSize").as_int64();
-    _serverAddress = _jv.at("ServerAddress").as_string();
-    _tcpPort = _jv.at("TcpPort").as_int64();
-    _printInitVector = _jv.at("PrintInitVector").as_bool();
-  }
+void Options::extractMatching(const boost::json::value& jv) {
+  _singleEncryptor = translateCryptoString(jv.at("SingleEncryptor").as_string());
+  _doubleEncryption = jv.at("DoubleEncryption").as_bool();
+  _fifoDirectoryName = jv.at("FifoDirectoryName").as_string();
+  _acceptorBaseName = jv.at("AcceptorBaseName").as_string();
+  _acceptorName = _fifoDirectoryName + '/' + _acceptorBaseName;
+  _numberRepeatENXIO = jv.at("NumberRepeatENXIO").as_int64();
+  _setPipeSize = jv.at("SetPipeSize").as_bool();
+  _pipeSize = jv.at("PipeSize").as_int64();
+  _serverAddress = jv.at("ServerAddress").as_string();
+  _tcpPort = jv.at("TcpPort").as_int64();
+  _printInitVector = jv.at("PrintInitVector").as_bool();
 }

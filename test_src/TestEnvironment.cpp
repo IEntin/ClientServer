@@ -34,7 +34,7 @@ void TestEnvironment::TearDown() {
 
 void TestEnvironment::reset() {
   _oss.str("");
-  ServerOptions::parse("ServerOptions.json");
+  ServerOptions::parse("");
   ClientOptions::parse("", &_oss);
 }
 

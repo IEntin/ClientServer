@@ -30,6 +30,7 @@ struct ClientOptions : Options {
   static bool _timing;
   static bool _printHeader;
   static boost::static_string<100> _logThresholdName;
+  static boost::json::value _jvC;
 private:
   ClientOptions() = delete;
   ~ClientOptions() = delete;

@@ -25,30 +25,35 @@ std::size_t ServerOptions::_bufferSize;
 bool ServerOptions::_timing;
 bool ServerOptions::_printHeader;
 boost::static_string<100> ServerOptions::_logThresholdName;
+boost::json::value ServerOptions::_jvS;
 
 void ServerOptions::parse(std::string_view jsonName) {
-  if (!jsonName.empty()) {
-    Options::parse(jsonName);
-    parseJson(jsonName, Options::_jv);
-    _adsFileName = Options::_jv.at("AdsFileName").as_string();
-    _compressor = translateCompressorString(Options::_jv.at("Compression").as_string());
-    _compressionLevel = Options::_jv.at("CompressionLevel").as_int64();
-    _doEncrypt = Options::_jv.at("doEncrypt").as_bool();
-    int numberWorkThreadsCfg = Options::_jv.at("NumberWorkThreads").as_int64();
+  try {
+  if (_jvS.is_null() && !jsonName.empty())
+    parseJson(jsonName, _jvS);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "Parse error: " << e.what() << '\n';
+    std::exit(3);
+  }
+  if (!_jvS.is_null()) {
+    extractMatching(_jvS);
+    _adsFileName = _jvS.at("AdsFileName").as_string();
+    _compressor = translateCompressorString(_jvS.at("Compression").as_string());
+    _compressionLevel = _jvS.at("CompressionLevel").as_int64();
+    _doEncrypt = _jvS.at("doEncrypt").as_bool();
+    int numberWorkThreadsCfg = _jvS.at("NumberWorkThreads").as_int64();
     _numberWorkThreads = numberWorkThreadsCfg ? numberWorkThreadsCfg : std::thread::hardware_concurrency();
-    _maxTcpSessions = Options::_jv.at("MaxTcpSessions").as_int64();
-    _maxFifoSessions = Options::_jv.at("MaxFifoSessions").as_int64();
-    _maxTotalSessions = Options::_jv.at("MaxTotalSessions").as_int64();
-    _tcpTimeout = Options::_jv.at("TcpTimeout").as_int64();
-    _useRegex = Options::_jv.at("UseRegex").as_bool();
-    _policyEnum = fromString(Options::_jv.at("Policy").as_string());
-    _bufferSize = Options::_jv.at("BufferSize").as_int64();
-    _timing = Options::_jv.at("Timing").as_bool();
-    _printHeader = Options::_jv.at("PrintHeader").as_bool();
-    _logThresholdName = Options::_jv.at("LogThreshold").as_string();
+    _maxTcpSessions = _jvS.at("MaxTcpSessions").as_int64();
+    _maxFifoSessions = _jvS.at("MaxFifoSessions").as_int64();
+    _maxTotalSessions = _jvS.at("MaxTotalSessions").as_int64();
+    _tcpTimeout = _jvS.at("TcpTimeout").as_int64();
+    _useRegex = _jvS.at("UseRegex").as_bool();
+    _policyEnum = fromString(_jvS.at("Policy").as_string());
+    _bufferSize = _jvS.at("BufferSize").as_int64();
+    _timing = _jvS.at("Timing").as_bool();
+    _printHeader = _jvS.at("PrintHeader").as_bool();
+    _logThresholdName = _jvS.at("LogThreshold").as_string();
+    Logger::translateLogThreshold(_logThresholdName);
   }
-  else {
-    _policyEnum = fromString("NOSORTINPUT");
-  }
-  Logger::translateLogThreshold(_logThresholdName);
 }

@@ -14,7 +14,7 @@
 
 struct Options {
 public:
-  static void parse(std::string_view jsonName);
+ static void extractMatching(const boost::json::value& jv);
   static constexpr bool _debug = false;
   static constexpr CRYPTO _primaryEncryptor = CRYPTO::CRYPTOSODIUM;
   static constexpr CRYPTO _secondaryEncryptor = CRYPTO::CRYPTOPP;
@@ -29,7 +29,6 @@ public:
   static boost::static_string<100> _serverAddress;
   static unsigned short _tcpPort;
   static bool _printInitVector;
-  static boost::json::value _jv;
 private:
   Options() = delete;
   ~Options() = delete;

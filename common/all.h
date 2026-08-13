@@ -68,6 +68,7 @@
 #include <boost/beast/core/file.hpp>
 #include <boost/charconv.hpp>
 #include <boost/container/deque.hpp>
+#include <boost/container/hub.hpp>
 #include <boost/container/static_vector.hpp>
 #include <boost/core/demangle.hpp>
 #include <boost/core/noncopyable.hpp>
