@@ -7,6 +7,15 @@
 #include "IOUtility.h"
 #include "ServerOptions.h"
 
+CLIENT_TYPE translateClientType(std::string_view clientypeStr) {
+  if (clientypeStr == "TCP")
+    return CLIENT_TYPE::TCPCLIENT;
+  else if (clientypeStr == "FIFO")
+    return CLIENT_TYPE::FIFOCLIENT;
+  else
+    return CLIENT_TYPE::ERROR;
+}
+
 CRYPTO translateCryptoString(std::string_view cryptoStr) {
   if (cryptoStr == "CRYPTOSODIUM")
     return CRYPTO::CRYPTOSODIUM;

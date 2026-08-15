@@ -103,7 +103,8 @@ enum class HEADER_INDEX : int {
 
 enum class CLIENT_TYPE : int {
   TCPCLIENT,
-  FIFOCLIENT
+  FIFOCLIENT,
+  ERROR
 };
 
 using HEADER =
@@ -145,6 +146,8 @@ bool deserializeEnumeration(ENUM& element, char code) {
   element = ENUM{ code };
   return true;
 }
+
+CLIENT_TYPE translateClientType(std::string_view clientypeStr);
 
 CRYPTO translateCryptoString(std::string_view cryptoStr);
 

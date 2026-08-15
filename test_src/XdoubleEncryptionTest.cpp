@@ -43,6 +43,8 @@ struct LogicTest2 : testing::Test {
 	fifoClient.run();
       }
       break;
+    default:
+      return;
     }
     std::string_view calibratedOutput = diagnostics == DIAGNOSTICS::ENABLED ?
       TestEnvironment::_outputD : TestEnvironment::_outputND;

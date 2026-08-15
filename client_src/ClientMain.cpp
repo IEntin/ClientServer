@@ -37,13 +37,19 @@ int main() {
   ClientOptions::parse("ClientOptions.json");
   CryptoBase::displayCryptoLibName();
   try {
-    if (ClientOptions::_fifoClient) {
+    switch (ClientOptions::_clientType) {
+    case CLIENT_TYPE::FIFOCLIENT: {
       fifo::FifoClient client;
       client.run();
+      break;
     }
-    else if (ClientOptions::_tcpClient) {
+    case CLIENT_TYPE::TCPCLIENT: {
       tcp::TcpClient client;
       client.run();
+      break;
+    }
+    default:
+      break;
     }
   }
   catch (const std::exception& e) {

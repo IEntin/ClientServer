@@ -11,8 +11,8 @@
 #include "Logger.h"
 #include "Options.h"
 
-bool ClientOptions::_fifoClient;
-bool ClientOptions::_tcpClient;
+CLIENT_TYPE ClientOptions::_clientType;
+CLIENT_TYPE _clientType;
 COMPRESSORS ClientOptions::_compressor;
 int ClientOptions::_compressionLevel;
 bool ClientOptions::_doEncrypt(false);
@@ -40,9 +40,7 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
   }
   if (!_jvC.is_null()) {
     extractMatching(_jvC);
-    auto clientType = _jvC.at("ClientType").as_string();
-    _fifoClient = clientType == "FIFO";
-    _tcpClient = clientType == "TCP";
+    _clientType = translateClientType(_jvC.at("ClientType").as_string());
     _compressor = translateCompressorString(_jvC.at("Compression").as_string());
     _compressionLevel = _jvC.at("CompressionLevel").as_int64();
     _doEncrypt = _jvC.at("doEncrypt").as_bool();

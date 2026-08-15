@@ -53,6 +53,8 @@ struct EchoTest : testing::Test {
 	fifoClient.run();
       }
       break;
+    default:
+      return;
     }
     ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
     server->stop();
