@@ -25,7 +25,6 @@ std::size_t ServerOptions::_bufferSize;
 bool ServerOptions::_timing;
 bool ServerOptions::_printHeader;
 boost::static_string<100> ServerOptions::_logThresholdName;
-boost::json::value ServerOptions::_jvS;
 
 void ServerOptions::parse(std::string_view jsonName) {
   try {

@@ -16,22 +16,20 @@ bool ClientOptions::_tcpClient;
 COMPRESSORS ClientOptions::_compressor;
 int ClientOptions::_compressionLevel;
 bool ClientOptions::_doEncrypt(false);
-boost::static_string<100> ClientOptions::_sourceName;
 std::ostream* ClientOptions::_dataStream = nullptr;
 std::ostream* ClientOptions::_instrStream(nullptr);
 int ClientOptions::_maxNumberTasks(0);
 int ClientOptions::_heartbeatPeriod(15000);
 int ClientOptions::_heartbeatTimeout(3000);
 bool ClientOptions::_heartbeatEnabled(true);
-DIAGNOSTICS ClientOptions::_diagnostics(translateDiagnosticsString("Disabled"));
+DIAGNOSTICS ClientOptions::_diagnostics(DIAGNOSTICS::NONE);
 bool ClientOptions::_runLoop(false);
 std::size_t ClientOptions::_bufferSize(100000);
 bool ClientOptions::_timing(false);
 bool ClientOptions::_printHeader(false);
-boost::static_string<100> ClientOptions::_logThresholdName("ERROR");
-boost::json::value ClientOptions::_jvC;
 
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
+  _dataStream = externalDataStream? externalDataStream : nullptr;
   try {
   if (_jvC.is_null() && !jsonName.empty())
     parseJson(jsonName, _jvC);
@@ -49,14 +47,6 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     _compressionLevel = _jvC.at("CompressionLevel").as_int64();
     _doEncrypt = _jvC.at("doEncrypt").as_bool();
     _sourceName = _jvC.at("SourceName").as_string();
-    if (externalDataStream)
-      _dataStream = externalDataStream;
-    else {
-      const auto filename = _jvC.at("OutputFileName").as_string();
-      static std::ofstream fileStream(filename.data(), std::ofstream::binary);
-      if (!filename.empty())
-	_dataStream = &fileStream;
-    }
     const auto filename = _jvC.at("InstrumentationFn").as_string();
     _maxNumberTasks = _jvC.at("MaxNumberTasks").as_int64();
     _heartbeatPeriod = _jvC.at("HeartbeatPeriod").as_int64();
@@ -69,14 +59,6 @@ void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataS
     _printHeader = _jvC.at("PrintHeader").as_bool();
     _logThresholdName = _jvC.at("LogThreshold").as_string();
   }
-  else {
-    _sourceName = "data/requests.log";
-    if (externalDataStream)
-      _dataStream = externalDataStream;
-    else {
-      _dataStream = nullptr;
-    }
-  }
-
+  _sourceName = "data/requests.log";
   Logger::translateLogThreshold(_logThresholdName);
 }

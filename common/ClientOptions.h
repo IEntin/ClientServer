@@ -15,7 +15,7 @@ struct ClientOptions : Options {
   static COMPRESSORS _compressor;
   static int _compressionLevel;
   static bool _doEncrypt;
-  static boost::static_string<100> _sourceName;
+  inline static std::string _sourceName = "data/requests.log";
   static std::ostream* _dataStream;
   static std::ostream* _instrStream;
   // max number iterations when _runLoop is true,
@@ -29,8 +29,8 @@ struct ClientOptions : Options {
   static std::size_t _bufferSize;
   static bool _timing;
   static bool _printHeader;
-  static boost::static_string<100> _logThresholdName;
-  static boost::json::value _jvC;
+  inline static std::string _logThresholdName = "ERROR";
+  inline static boost::json::value _jvC;
 private:
   ClientOptions() = delete;
   ~ClientOptions() = delete;

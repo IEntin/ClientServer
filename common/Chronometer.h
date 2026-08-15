@@ -11,7 +11,7 @@
 #include "Logger.h"
 
 struct Chronometer : private boost::noncopyable {
-  explicit Chronometer(bool enable = true,
+  explicit Chronometer(bool enable,
 		       std::ostream* pstream = nullptr,
 		       const boost::source_location& location = BOOST_CURRENT_LOCATION) :
     _enabled(enable), _file(location.file_name()), _line(location.line()), _function(location.function_name()),

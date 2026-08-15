@@ -24,7 +24,7 @@ struct ServerOptions : Options {
   static bool _timing;
   static bool _printHeader;
   static boost::static_string<100> _logThresholdName;
-  static boost::json::value _jvS;
+  inline static boost::json::value _jvS;
 private:
   ServerOptions() = delete;
   ~ServerOptions() = delete;
