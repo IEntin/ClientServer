@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include "BoostJsonParser.h"
+#include "Client.h"
 #include "Logger.h"
 #include "Options.h"
 
@@ -31,32 +32,31 @@ bool ClientOptions::_printHeader(false);
 void ClientOptions::parse(std::string_view jsonName, std::ostream* externalDataStream) {
   _dataStream = externalDataStream? externalDataStream : nullptr;
   try {
-  if (_jvC.is_null() && !jsonName.empty())
-    parseJson(jsonName, _jvC);
+  if (Client::Client::_jvC.is_null() && !jsonName.empty())
+    parseJson(jsonName, Client::Client::_jvC);
   }
   catch (const std::exception& e) {
     std::cerr << "Parse error: " << e.what() << '\n';
     std::exit(3);
   }
-  if (!_jvC.is_null()) {
-    extractMatching(_jvC);
-    _clientType = translateClientType(_jvC.at("ClientType").as_string());
-    _compressor = translateCompressorString(_jvC.at("Compression").as_string());
-    _compressionLevel = _jvC.at("CompressionLevel").as_int64();
-    _doEncrypt = _jvC.at("doEncrypt").as_bool();
-    _sourceName = _jvC.at("SourceName").as_string();
-    const auto filename = _jvC.at("InstrumentationFn").as_string();
-    _maxNumberTasks = _jvC.at("MaxNumberTasks").as_int64();
-    _heartbeatPeriod = _jvC.at("HeartbeatPeriod").as_int64();
-    _heartbeatTimeout = _jvC.at("HeartbeatTimeout").as_int64();
-    _heartbeatEnabled = _jvC.at("HeartbeatEnabled").as_bool();
-    _diagnostics = translateDiagnosticsString(_jvC.at("Diagnostics").as_string());
-    _runLoop = _jvC.at("RunLoop").as_bool();
-    _bufferSize = _jvC.at("BufferSize").as_int64();
-    _timing = _jvC.at("Timing").as_bool();
-    _printHeader = _jvC.at("PrintHeader").as_bool();
-    _logThresholdName = _jvC.at("LogThreshold").as_string();
+  if (!Client::Client::_jvC.is_null()) {
+    extractMatching(Client::Client::_jvC);
+    _clientType = translateClientType(Client::_jvC.at("ClientType").as_string());
+    _compressor = translateCompressorString(Client::_jvC.at("Compression").as_string());
+    _compressionLevel = Client::_jvC.at("CompressionLevel").as_int64();
+    _doEncrypt = Client::_jvC.at("doEncrypt").as_bool();
+    _sourceName = Client::_jvC.at("SourceName").as_string();
+    const auto filename = Client::_jvC.at("InstrumentationFn").as_string();
+    _maxNumberTasks = Client::_jvC.at("MaxNumberTasks").as_int64();
+    _heartbeatPeriod = Client::_jvC.at("HeartbeatPeriod").as_int64();
+    _heartbeatTimeout = Client::_jvC.at("HeartbeatTimeout").as_int64();
+    _heartbeatEnabled = Client::_jvC.at("HeartbeatEnabled").as_bool();
+    _diagnostics = translateDiagnosticsString(Client::_jvC.at("Diagnostics").as_string());
+    _runLoop = Client::_jvC.at("RunLoop").as_bool();
+    _bufferSize = Client::_jvC.at("BufferSize").as_int64();
+    _timing = Client::_jvC.at("Timing").as_bool();
+    _printHeader = Client::_jvC.at("PrintHeader").as_bool();
+    _logThresholdName = Client::_jvC.at("LogThreshold").as_string();
   }
-  _sourceName = "data/requests.log";
   Logger::translateLogThreshold(_logThresholdName);
 }

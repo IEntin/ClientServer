@@ -247,6 +247,7 @@ struct LogicTestAltFormat : testing::Test {
   }
 
   void TearDown() {
+    ClientOptions::_sourceName = "data/requests.log";
     TestEnvironment::reset();
   }
 };

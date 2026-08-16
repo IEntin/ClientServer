@@ -81,4 +81,5 @@ public:
 
   void startHeartbeat();
   static void onSignal();
+  inline static boost::json::value _jvC;
 };

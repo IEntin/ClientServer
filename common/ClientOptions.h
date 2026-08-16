@@ -29,7 +29,6 @@ struct ClientOptions : Options {
   static bool _timing;
   static bool _printHeader;
   inline static std::string _logThresholdName = "ERROR";
-  inline static boost::json::value _jvC;
 private:
   ClientOptions() = delete;
   ~ClientOptions() = delete;
