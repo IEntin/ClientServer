@@ -26,6 +26,8 @@ TESTSRCDIR := test_src
 # sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 # libsodium-dev must be installed
 # sudo apt install libsodium-dev
+# MonoCypher must be installed
+# sudo scripts/installMonoCypher.sh
 
 DATADIR := data
 

@@ -52,6 +52,9 @@ libcrypto++-dev must be installed:\
 libsodium-dev must be installed:\
 'sudo apt install libsodium-dev'
 
+MonoCypher must be installed
+sudo scripts/installMonoCipher.sh
+
 ### Build and Testing
 
 This is the Linux only project. No reasons to use CMAKE.\
