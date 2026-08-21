@@ -38,9 +38,7 @@ trap EXIT SIGHUP SIGINT SIGTERM
 
 mkdir -p $UP_DIR/Fifos
 
-NUMBER_CORES=$(nproc)
-
-make -j$NUMBER_CORES $1 $2 $3 $4
+make -j$(nproc)
 
 date
 

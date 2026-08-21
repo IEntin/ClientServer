@@ -399,3 +399,5 @@ especially of the client, which can in turn reduce hardware requirements.
 
 Business logic is an example of financial calculations. It can be replaced with any other\
 batch processing in a different field, not necessarily financial.
+
+curl -O https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.2.0-amd64-netinst.iso

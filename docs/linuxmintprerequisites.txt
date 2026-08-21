@@ -12,5 +12,15 @@ sudo apt install libzstd-dev
 sudo apt update
 sudo apt install xterm
 
-Notice for the systems with multiple USB: if your system is complicated,
-remove downloaded *.iso files in all volumes, if it still stops in the grub menu when loading, call 'exit'.
+MonoCypher must be installed
+sudo scripts/installMonoCipher.sh
+
+How to Fix Broken Sudo
+One can use live USB to restore admin rights:
+Boot broken computer into the live USB environment.
+Open a terminal inside the live session (One automatically have root power here).
+Find main system drive partition by running lsblk.
+Look for main hard drive partition (e.g., /dev/sda2 or /dev/nvme0n1p2).
+Mount broken system to a temporary folder:
+bash
+sudo mount /dev/sda2 /mnt
