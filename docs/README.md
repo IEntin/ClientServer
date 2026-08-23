@@ -8,10 +8,10 @@ Copyright (C) 2021 Ilya Entin.
 
 This code was built and tested on
 
-1. Linux Mint 22.3 Zena\
-gcc 13.3.0\
-clang 18.1.3\
-8GB RAM\
+1. Debian GNU Linux 13\
+gcc 14.2.0\
+clang 19.1.7\
+7.7.Gi RAM\
 4 cores
 
 and

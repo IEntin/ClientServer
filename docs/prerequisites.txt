@@ -1,3 +1,20 @@
+Debian:
+sudo apt update
+sudo apt install build-essential clang
+sudo apt update
+sudo apt install liblz4-dev
+sudo apt-get install libsnappy-dev
+sudo apt install libzstd-dev
+sudo apt update
+sudo apt-get install libcrypto++-dev
+sudo apt update
+sudo apt install libsodium23 libsodium-dev
+sudo apt update
+sudo apt install googletest libgtest-dev
+
+
+
+Linux Mint
 necessary commands to resolve problems with build-essential install on Linux Mint 22.3 Zena
 
 sudo apt-get install gcc-15 g++-15
