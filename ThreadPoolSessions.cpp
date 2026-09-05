@@ -43,14 +43,12 @@ RunnablePtr ThreadPoolSessions::get() {
   std::unique_lock lock(_queueMutex);
   _queueCondition.wait(lock, [this] { return !_queue.empty() || _stopped; });
   if (_stopped)
-    return RunnablePtr();
-  for (auto it = _queue.begin(); it != _queue.end(); ++it) {
-    RunnablePtr runnable = *it;
-    if (runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType &&
-	!runnable->_stopped) {
-      _queue.erase(it);
-      return runnable;
-    }
+    return nullptr;
+  RunnablePtr runnable = _queue.front();
+  if (runnable->getNumberRunningByType() < runnable->_maxNumberRunningByType &&
+      !runnable->_stopped) {
+    _queue.pop_front();
+    return runnable;
   }
-  return RunnablePtr();
+  return nullptr;
 }

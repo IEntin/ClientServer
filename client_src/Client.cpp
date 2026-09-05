@@ -136,7 +136,7 @@ bool Client::printReply() {
     displayStatus(STATUS::ERROR);
     return false;
   }
-  stream.write(&*_response.cbegin(), _response.size());
+  stream.write(_response.data(), _response.size());
   return true;
 }
 
