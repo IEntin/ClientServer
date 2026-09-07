@@ -7,7 +7,7 @@ Copyright (C) 2021 Ilya Entin.
 ### Prerequisites:
 
 This code was built and tested on
-
+1
 1. Debian GNU Linux 13\
 gcc 14.2.0\
 clang 19.1.7\
@@ -76,7 +76,8 @@ for multilayered encryption when two or more layers use different encryption lib
 and different secret AES keys to encrypt data more than once and then \
 decrypt data in reverse order at the receiving end with a potential to enhance secrecy.\
 DoubleEncryptionTest.cpp is using simplified implementation with local (in a single process) \
-authentication and key exchanges. \
+authentication and key exchanges.
+
 The realistic test with implementation of authentication and Diffie-Hellman protocols remotely \
 for each encryption layer is in XdoubleEncryptionTest.cpp.\
 There is a test displaying initialization vector (nonce) passing in double encryption. \
@@ -100,12 +101,15 @@ CryptoSodium::decrypt recoveredNonce:	0x58 aa 2c 6f 25 57 83 b0 44 fa c0 7c \
 [----------] 1 test from DISPLAY_DOUBLE_ENCRYPT_NONCE_PASSING (171 ms total)
 The table shows correct transfer of unique init vectors from encrypt \
 to decrypt methods in every encryption  layer.\
-To enable double encryption Options::_doubleEncryption should be set to true, again no rebuild is\
+To enable double encryption Options::_doubleEncryption should be set to true, no rebuild is\
 necessary. The order of libraries for double encryption is selected by Options::_primaryEncryptor\
 which is always CRYPTOSODIUM and Options::_secondaryEncryptor which can be CRYPTOSODIUM as well or\
 CRYPTOPP. Changing these two requires rebuild. Latency increase due to double encryption is\
 about 7 to 10%. Double Encryption enabled by default;\
-can be disabled in ClientOptiona.json and ServerOptions.json without rebuild.
+It can be disabled in ClientOptiona.json and ServerOptions.json without rebuild.
+
+Both primary and secondary encryptors pass authentication and server and client-side key exchanges\
+independently using standard protocols. After setup the input of one layer is the output of the previous one.
 
 For debugging purposes DebugLog facility allows to print any binary data \
 including sensitive information like cryptographic keys.\
@@ -113,12 +117,12 @@ To use it set Options::_debug to true, by defult it is false, \
 insert lines similar to this where needed:\
 DebugLog::logBinaryData(BOOST_CURRENT_LOCATION, "_key", _key);\
 and rebuild the software.\
-Obviously, any sensitive infomation must be removed in the secure release build.\
+Any sensitive infomation must be removed in the secure release build.\
 Remove these lines and/or disable debug mode by setting Options::_debug\
 to the default false and rebuild the software.
 
 Renamed binaries server -> serverX and client -> clientX to\
-avoid collision in scripts.
+avoid mame collision in scripts.
 
 ...
 
