@@ -104,21 +104,19 @@ std::string_view compressSingleEncrypt(const CryptoTuple& tuple,
 				       std::string& data,
 				       bool doEncrypt,
 				       int compressionLevel) {
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::compress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::compress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::compress(buffer, data, compressionLevel);
-      break;
-    default:
-      break;
-    }
+  COMPRESSORS compressor = extractCompressor(header);
+  switch (compressor) {
+  case COMPRESSORS::LZ4:
+    compressionLZ4::compress(buffer, data);
+    break;
+  case COMPRESSORS::SNAPPY:
+    compressionSnappy::compress(buffer, data);
+    break;
+  case COMPRESSORS::ZSTD:
+    compressionZSTD::compress(buffer, data, compressionLevel);
+    break;
+  default:
+    break;
   }
   if (doEncrypt)
     return singleEncrypt(tuple, crypto, buffer, header, data);
@@ -132,21 +130,19 @@ void singleDecryptDecompress(const CryptoTuple& tuple,
 			     HEADER& header,
 			     std::string& data) {
   singleDecrypt(tuple, crypto, buffer, header, data);
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::uncompress(buffer, data);
-      break;
-    default:
-      break;
-    }
+  COMPRESSORS compressor = extractCompressor(header);
+  switch (compressor) {
+  case COMPRESSORS::LZ4:
+    compressionLZ4::uncompress(buffer, data);
+    break;
+  case COMPRESSORS::SNAPPY:
+    compressionSnappy::uncompress(buffer, data);
+    break;
+  case COMPRESSORS::ZSTD:
+    compressionZSTD::uncompress(buffer, data);
+    break;
+  default:
+    break;
   }
 }
 
@@ -156,21 +152,19 @@ std::string compressDoubleEncrypt(const CryptoTuple& tuple,
 				  std::string& data,
 				  bool doEncrypt,
 				  int compressionLevel) {
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::compress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::compress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::compress(buffer, data, compressionLevel);
-      break;
-    default:
-      break;
-    }
+  COMPRESSORS compressor = extractCompressor(header);
+  switch (compressor) {
+  case COMPRESSORS::LZ4:
+    compressionLZ4::compress(buffer, data);
+    break;
+  case COMPRESSORS::SNAPPY:
+    compressionSnappy::compress(buffer, data);
+    break;
+  case COMPRESSORS::ZSTD:
+    compressionZSTD::compress(buffer, data, compressionLevel);
+    break;
+  default:
+    break;
   }
   if (doEncrypt)
     return doubleEncrypt(tuple, buffer, header, data);
@@ -184,21 +178,19 @@ void doubleDecryptDecompress(const CryptoTuple& tuple,
 			     std::string& data) {
   doubleDecrypt(tuple, buffer, header, data);
   data.erase(0, HEADER_SIZE);
-  if (isCompressed(header)) {
-    COMPRESSORS compressor = extractCompressor(header);
-    switch (compressor) {
-    case COMPRESSORS::LZ4:
-      compressionLZ4::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::SNAPPY:
-      compressionSnappy::uncompress(buffer, data);
-      break;
-    case COMPRESSORS::ZSTD:
-      compressionZSTD::uncompress(buffer, data);
-      break;
-    default:
-      break;
-    }
+  COMPRESSORS compressor = extractCompressor(header);
+  switch (compressor) {
+  case COMPRESSORS::LZ4:
+    compressionLZ4::uncompress(buffer, data);
+    break;
+  case COMPRESSORS::SNAPPY:
+    compressionSnappy::uncompress(buffer, data);
+    break;
+  case COMPRESSORS::ZSTD:
+    compressionZSTD::uncompress(buffer, data);
+    break;
+  default:
+    break;
   }
 }
 

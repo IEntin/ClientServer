@@ -40,7 +40,6 @@ void doubleDecrypt(const CryptoTuple& tuple,
 		   std::string& buffer,
 		   HEADER& header,
 		   std::string& data);
-  
 
 std::string_view compressSingleEncrypt(const CryptoTuple& tuple,
 				       CRYPTO crypto,
