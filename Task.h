@@ -53,7 +53,7 @@ class Task : private boost::noncopyable {
 
   const Response& getResponse() const { return _response; }
 
-  void update(const HEADER& header, std::string_view request);
+  void update(const HEADER& header, std::string_view batch);
 
   void sortIndices();
 

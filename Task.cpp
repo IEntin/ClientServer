@@ -13,10 +13,10 @@
 
 Task::Task (ServerWeakPtr server) : _server(server) {}
 
-void Task::update(const HEADER& header, std::string_view request) {
+void Task::update(const HEADER& header, std::string_view batch) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
-  _size = utility::splitReuseVector(request, _requests);
+  _size = utility::splitReuseVector(batch, _requests);
   if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
     _sortedIndices.resize(_size);
     for (std::size_t i = 0; i < _size; ++i)
