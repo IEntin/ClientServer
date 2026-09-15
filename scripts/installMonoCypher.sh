@@ -10,7 +10,7 @@ then
     exit 0
 fi
 
-cp data/monocypher-4.0.3.tar.gz /usr/local
+cp test_src/monocypher-4.0.3.tar.gz /usr/local
 cd /usr/local
 tar -xzvf monocypher-4.0.3.tar.gz
 TRUE_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
