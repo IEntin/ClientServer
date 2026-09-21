@@ -75,7 +75,7 @@ Session::buildReply(std::atomic<STATUS>& status) {
   static thread_local std::string encrypted;
   encrypted.clear();
   encrypted = Options::_doubleEncryption ?
-      compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
+    compressDoubleEncrypt(_encryptors, _buffer, header, _responseData, ServerOptions::_doEncrypt, ServerOptions::_compressionLevel) :
     compressSingleEncrypt(_encryptors,
 			  Options::_singleEncryptor,
 			  _buffer,

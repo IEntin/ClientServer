@@ -25,11 +25,13 @@ Ad::Ad(std::string_view line) : _input(line) {
 
 bool Ad::parseAttributes() {
   static std::vector<std::string_view> parts;
+  parts.reserve(INPUTNUMBERPARTS);
   parts.clear();
   utility::split(_input, parts, "[]");
   if (parts.size() != INPUTNUMBERPARTS)
     return false;
   static std::vector<std::string_view> adStrVect;
+  adStrVect.reserve(ADNUMBERFIELDS);
   adStrVect.clear();
   utility::split(parts[ADPART], adStrVect, ", ");
   if (adStrVect.size() != ADNUMBERFIELDS)
@@ -53,6 +55,7 @@ void Ad::clear() {
 
 bool Ad::parseArray() {
   static std::vector<std::string_view> bidVect;
+  bidVect.reserve(100);
   bidVect.clear();
   utility::split(_array, bidVect, "\", ");
   for (unsigned i = 0; i + 1 < bidVect.size(); i += 2) {

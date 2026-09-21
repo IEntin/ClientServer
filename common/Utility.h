@@ -33,6 +33,7 @@ consteval std::string_view getAuthenticationMessage() {
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+  rows.reserve(10);
   std::size_t start = 0;
   while (start < input.size()) {
     std::size_t next = input.find(delim, start);

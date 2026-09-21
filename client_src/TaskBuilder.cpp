@@ -12,6 +12,7 @@ TaskBuilder::TaskBuilder(const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr
   _encryptors(encryptors),
   _subtaskIndex(0) {
   _batch.reserve(ClientOptions::_bufferSize);
+  _subtasks.reserve(30);
 }
 
 void TaskBuilder::run() {

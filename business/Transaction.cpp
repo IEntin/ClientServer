@@ -57,6 +57,8 @@ Transaction::Transaction(const SIZETUPLE& sizeKey, const Request& request) :
 }
 
 void Transaction::init(std::string_view input) {
+  _bids.reserve(2);
+  _keywords.reserve(5);
   clear();
   if (_sizeKey == ZERO_SIZE) {
     _invalid = true;

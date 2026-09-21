@@ -60,6 +60,7 @@
 #include <zstd.h>
 
 #include <boost/algorithm/hex.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/any/basic_any.hpp>
 #include <boost/assert/source_location.hpp>
 #include <boost/asio.hpp>
