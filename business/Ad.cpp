@@ -27,13 +27,14 @@ bool Ad::parseAttributes() {
   static std::vector<std::string_view> parts;
   parts.reserve(INPUTNUMBERPARTS);
   parts.clear();
-  utility::split(_input, parts, "[]");
+  using namespace std::string_view_literals;
+  utility::split(_input, parts, "[]"sv);
   if (parts.size() != INPUTNUMBERPARTS)
     return false;
   static std::vector<std::string_view> adStrVect;
   adStrVect.reserve(ADNUMBERFIELDS);
   adStrVect.clear();
-  utility::split(parts[ADPART], adStrVect, ", ");
+  utility::split(parts[ADPART], adStrVect, ", "sv);
   if (adStrVect.size() != ADNUMBERFIELDS)
     return false;
   _id = adStrVect[ID];
@@ -57,7 +58,8 @@ bool Ad::parseArray() {
   static std::vector<std::string_view> bidVect;
   bidVect.reserve(100);
   bidVect.clear();
-  utility::split(_array, bidVect, "\", ");
+  using namespace std::string_view_literals;
+  utility::split(_array, bidVect, "\", "sv);
   for (unsigned i = 0; i + 1 < bidVect.size(); i += 2) {
     double dblMoney = 0;
     ioutility::fromChars(bidVect[i + 1], dblMoney);

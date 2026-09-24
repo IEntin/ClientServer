@@ -84,7 +84,7 @@ std::size_t splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '
 }
 
 template <typename INPUT, typename CONTAINER>
-void split(const INPUT& input, CONTAINER& rows, const char* separators) {
+void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
   std::size_t beg = input.find_first_not_of(separators);
   while (beg != INPUT::npos) {
     std::size_t pos = input.find_first_of(separators, beg + 1);
