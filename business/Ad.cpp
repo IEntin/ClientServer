@@ -56,7 +56,7 @@ void Ad::clear() {
 
 bool Ad::parseArray() {
   static std::vector<std::string_view> bidVect;
-  bidVect.reserve(100);
+  bidVect.reserve(10);
   bidVect.clear();
   using namespace std::string_view_literals;
   utility::split(_array, bidVect, "\", "sv);

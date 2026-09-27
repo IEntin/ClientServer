@@ -57,7 +57,6 @@ Transaction::Transaction(const SIZETUPLE& sizeKey, const Request& request) :
 }
 
 void Transaction::init(std::string_view input) {
-  _bids.reserve(2);
   _keywords.reserve(5);
   clear();
   if (_sizeKey == ZERO_SIZE) {
@@ -203,6 +202,7 @@ struct Comparator {
 void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
   for (const AdPtr& ad : adVector) {
     const auto& inputBids = ad->getBids();
+    _bids.reserve(std::min(inputBids.size(), _keywords.size()));
     std::set_intersection(inputBids.cbegin(), inputBids.cend(),
 			  _keywords.cbegin(), _keywords.cend(),
 			  std::back_inserter(_bids),
