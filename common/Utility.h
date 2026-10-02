@@ -109,9 +109,7 @@ bool writeToFd(int fd, SOURCE& source) {
   try {
     boost::asio::io_context io_context;
     boost::asio::posix::stream_descriptor sd(io_context, fd);
-    std::vector<boost::asio::const_buffer> buffers;
-    buffers.push_back(boost::asio::buffer(source));
-    boost::asio::write(sd, buffers);
+    boost::asio::write(sd, boost::asio::buffer(source));
     return true;
   }
   catch (const boost::system::system_error& e) {

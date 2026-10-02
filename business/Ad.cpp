@@ -60,6 +60,7 @@ bool Ad::parseArray() {
   bidVect.clear();
   using namespace std::string_view_literals;
   utility::split(_array, bidVect, "\", "sv);
+  _bids.reserve(bidVect.size());
   for (unsigned i = 0; i + 1 < bidVect.size(); i += 2) {
     double dblMoney = 0;
     ioutility::fromChars(bidVect[i + 1], dblMoney);
