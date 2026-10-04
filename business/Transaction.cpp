@@ -47,12 +47,12 @@ thread_local std::string Transaction::_output;
 using ioutility::operator<<;
 
 Transaction::Transaction(const Request& request) :
-  _sizeKey(createSizeKey(request._input)) {
+  _id(request._id), _sizeKey(createSizeKey(request._input)) {
   init(request._input);
 }
 
 Transaction::Transaction(const SIZETUPLE& sizeKey, const Request& request) :
-  _sizeKey(sizeKey)  {
+  _id(request._id), _sizeKey(sizeKey) {
   init(request._input);
 }
 
@@ -64,17 +64,12 @@ void Transaction::init(std::string_view input) {
     LogError << "invalid request, ZERO_SIZE sizeKey, input:" << input << '\n';
     return;
   }
-  auto pos = input.find(']');
-  if (pos != std::string_view::npos && input[0] == '[') {
-    _id = { input.data(), pos + 1 };
-    input.remove_prefix(_id.size());
-    _request = input;
-    if (!parseKeywords(START_KEYWORDS1))
-      parseKeywords(START_KEYWORDS2);
-  }
+  _request = input;
+  if (!parseKeywords(START_KEYWORDS1))
+    parseKeywords(START_KEYWORDS2);
 }
 
-const std::vector<AdPtr> emptyAdVector;
+constexpr std::vector<AdPtr> emptyAdVector;
 
 std::string_view Transaction::processRequestSort(const SIZETUPLE& sizeKey,
 						 const Request& request,

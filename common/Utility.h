@@ -13,6 +13,8 @@
 #include <boost/asio.hpp>
 #include <boost/asio/posix/stream_descriptor.hpp>
 
+#include "Task.h"
+
 // common constants
 
 constexpr std::string_view ENDOFMESSAGE("f65438b3bf504ace8483e6642a84d2fd");
@@ -71,10 +73,12 @@ std::size_t splitReuseVector(const INPUT& input, CONTAINER& rows, char delim = '
   while (start < input.size()) {
     std::size_t next = input.find(delim, start);
     bool endOfInput = next == INPUT::npos;
+    std::string_view parameter(input.cbegin() + start,
+			       endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
     if (index >= rows.size())
-      rows.emplace_back();
-    rows[index] = { input.cbegin() + start,
-		    endOfInput ? input.cend() : input.cbegin() + next + keepDelim };
+      rows.emplace_back(parameter);
+    else
+      rows[index] = Request(parameter);
     if (endOfInput)
       break;
     ++index;

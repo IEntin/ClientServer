@@ -11,6 +11,14 @@
 #include "Transaction.h"
 #include "Utility.h"
 
+Request::Request(std::string_view input) : _input(input) {
+  auto pos = _input.find(']');
+  if (pos != std::string_view::npos && _input[0] == '[') {
+    _id = { _input.data(), pos + 1 };
+    _input.remove_prefix(_id.size());
+  }
+}
+
 Task::Task (ServerWeakPtr server) : _server(server) {}
 
 void Task::update(const HEADER& header, std::string_view batch) {

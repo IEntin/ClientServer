@@ -25,13 +25,10 @@ using ServerWeakPtr = std::weak_ptr<class Server>;
 struct Request {
 
   Request() = default;
+  explicit Request(std::string_view input);
   ~Request() = default;
 
-  Request& operator=(std::string_view input) {
-    _input = input;
-    return *this;
-  }
-
+  std::string_view _id;
   SIZETUPLE _sizeKey;
   std::string_view _input;
 };
