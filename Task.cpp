@@ -9,7 +9,6 @@
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Transaction.h"
-#include "Utility.h"
 
 Request::Request(std::string_view input) : _input(input) {
   auto pos = _input.find(']');
@@ -21,10 +20,32 @@ Request::Request(std::string_view input) : _input(input) {
 
 Task::Task (ServerWeakPtr server) : _server(server) {}
 
+std::size_t Task::createRequests(std::string_view input,
+				 char delim,
+				 int keepDelim) {
+  std::size_t index = 0;
+  std::size_t start = 0;
+  _requests.clear();
+  while (start < input.size()) {
+    std::size_t next = input.find(delim, start);
+    bool endOfInput = next == std::string_view::npos;
+    std::string_view line(input.cbegin() + start,
+			  endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
+    if (!line.empty())
+      _requests.emplace_back(line);
+    if (endOfInput)
+      break;
+    else
+      ++index;
+    start = next + 1;
+  }
+  return index;
+}
+
 void Task::update(const HEADER& header, std::string_view batch) {
   _promise = std::promise<void>();
   _diagnostics = isDiagnosticsEnabled(header);
-  _size = utility::splitReuseVector(batch, _requests);
+  _size = createRequests(batch);
   if (ServerOptions::_policyEnum == POLICYENUM::SORTINPUT) {
     _sortedIndices.resize(_size);
     for (std::size_t i = 0; i < _size; ++i)

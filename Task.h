@@ -48,6 +48,10 @@ class Task : private boost::noncopyable {
 
   ~Task() = default;
 
+  std::size_t createRequests(std::string_view input,
+			     char delim = '\n',
+			     int keepDelim = 0);
+
   const Response& getResponse() const { return _response; }
 
   void update(const HEADER& header, std::string_view batch);
@@ -63,5 +67,4 @@ class Task : private boost::noncopyable {
   bool processNext();
 
   void finish();
-
 };

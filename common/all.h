@@ -15,6 +15,7 @@
 #include <concepts>
 #include <condition_variable>
 #include <csignal>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <cctype>
