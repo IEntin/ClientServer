@@ -23,6 +23,9 @@ clang 20.1.8\
 8 cores
 
 Note:
+New code requires c++-23 for ranges support\
+clang++ supports it but not g++\
+build the code with clang++!\
 google snappy must be installed:\
 current version 1.2.2\
 'sudo apt-get install libsnappy-dev'
