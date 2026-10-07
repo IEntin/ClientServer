@@ -9,6 +9,7 @@
 #include "Server.h"
 #include "ServerOptions.h"
 #include "Transaction.h"
+#include "Utility.h"
 
 Request::Request(std::string_view input) : _input(input) {
   auto pos = _input.find(']');
@@ -21,25 +22,24 @@ Request::Request(std::string_view input) : _input(input) {
 Task::Task (ServerWeakPtr server) : _server(server) {}
 
 std::size_t Task::createRequests(std::string_view input,
-				 char delim,
-				 int keepDelim) {
-  std::size_t index = 0;
-  std::size_t start = 0;
+				 [[maybe_unused]] char delim,
+				 [[maybe_unused]] int keepDelim) {
   _requests.clear();
-  while (start < input.size()) {
-    std::size_t next = input.find(delim, start);
-    bool endOfInput = next == std::string_view::npos;
-    std::string_view line(input.cbegin() + start,
-			  endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
-    if (!line.empty())
-      _requests.emplace_back(line);
-    if (endOfInput)
-      break;
-    else
-      ++index;
-    start = next + 1;
-  }
-  return index;
+  std::size_t index = 0;
+  std::vector<std::string_view> lines;
+  utility::splitRanges(input, lines);
+ for (auto& line : lines) {
+   if (!line.empty())
+    _requests.emplace_back(line);
+   bool endOfInput = input.data() + input.size() - line.size() == line.data();
+   if (endOfInput) {
+     assert(line.empty());
+     break;
+   }
+   else
+     ++index;
+ }
+ return index;
 }
 
 void Task::update(const HEADER& header, std::string_view batch) {

@@ -49,8 +49,8 @@ class Task : private boost::noncopyable {
   ~Task() = default;
 
   std::size_t createRequests(std::string_view input,
-			     char delim = '\n',
-			     int keepDelim = 0);
+			     [[maybe_unused]] char delim = '\n',
+			     [[maybe_unused]] int keepDelim = 0);
 
   const Response& getResponse() const { return _response; }
 
