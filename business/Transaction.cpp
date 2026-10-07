@@ -212,7 +212,7 @@ void Transaction::matchAds(const std::vector<AdPtr>& adVector) {
 }
 
 void Transaction::breakKeywords(std::string_view kwStr) {
-  utility::split(kwStr, _keywords, KEYWORD_SEP);
+  utility::splitRanges(kwStr, _keywords, KEYWORD_SEP);
   std::sort(_keywords.begin(), _keywords.end());
 }
 
