@@ -129,6 +129,23 @@ TEST(SplitTest, MultiDelims) {
   ASSERT_EQ(chars.size(), source.size());
 }
 
+TEST(SplitRanges, 1) {
+  std::vector<std::string_view> tokens;
+  std::string input("AB\nCD\nEF\nGI\n\n");
+  utility::splitRanges(input, tokens, '\n', 1);
+  for (std::size_t i : {1, 2, 3, 4})
+    ASSERT_TRUE(tokens[i].ends_with('\n'));
+  ASSERT_TRUE(tokens.back().empty());
+  std::string restored;
+  for (auto token : tokens)
+    restored.append(token);
+  ASSERT_TRUE(restored == input);
+  utility::splitRanges(input, tokens, '\n');
+  for (std::size_t i = 0; i < tokens.size(); ++i)
+    ASSERT_FALSE(tokens[i].ends_with('\n'));
+  ASSERT_TRUE(tokens.back().empty());
+}
+
 TEST(ToCharsTest, Integral) {
   int value = 7;
   auto converted(ioutility::toCharsBoost(value));

@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <ranges>
 #include <string_view>
 
 #include <boost/asio.hpp>
@@ -73,6 +74,25 @@ void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
     rows.emplace_back(input.cbegin() + beg, input.cbegin() + end);
     beg = input.find_first_not_of(separators, end + 1);
   }
+}
+
+template <typename INPUT, typename CONTAINER>
+std::size_t splitRanges(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+  rows = input
+    | std::views::split(delim)
+    | std::views::transform([&](auto&& rng) {
+      const char* start = &*rng.begin();
+      size_t size = std::ranges::distance(rng);
+      if (keepDelim == 1) {
+	if (start + size + 1 <= input.data() + input.size()) {
+	  size += 1;
+	}
+      }
+      return std::string_view(start, size);
+    })
+    | std::ranges::to<std::vector<std::string_view>>();
+
+  return rows.size();
 }
 
 template <typename BUFFER>
