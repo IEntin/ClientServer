@@ -95,8 +95,8 @@ TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
 
 TEST(SplitTest, NoKeepDelim) {
   std::vector<std::string_view> lines;
-  utility::split(TestEnvironment::_source, lines);
-  ASSERT_EQ(lines.size(), 10000);
+  utility::splitRanges(TestEnvironment::_source, lines);
+  ASSERT_EQ(lines.size(), 10001);
   for (const auto& line : lines)
     ASSERT_FALSE(line.ends_with('\n'));
 }
@@ -105,8 +105,8 @@ TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
   std::string contents;
   utility::readFile(ClientOptions::_sourceName, contents);
-  utility::split(contents, lines, '\n', 1);
-  ASSERT_EQ(lines.size(), 10000);
+  utility::splitRanges(contents, lines, '\n', 1);
+  ASSERT_EQ(lines.size(), 10001);
   ASSERT_TRUE(contents.starts_with(lines[0]));
   ASSERT_TRUE(contents.ends_with(lines[9999]));
   ASSERT_FALSE(contents.find(lines[5432]) == std::string::npos);
@@ -115,7 +115,7 @@ TEST(SplitTest, KeepDelim) {
 TEST(SplitTest, Chars) {
   std::vector<std::string_view> chars;
   std::string source("A|B|C|D|E");
-  utility::split(source, chars, '|', 1);
+  utility::splitRanges(source, chars, '|', 1);
   std::erase(source, '|');
   ASSERT_EQ(chars.size(), source.size());
 }

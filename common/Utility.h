@@ -32,21 +32,6 @@ consteval std::string_view getAuthenticationMessage() {
 // string_view, vector<char> or vector of objects of any
 // class with constructor over the range [first, last)
 
-template <typename INPUT, typename CONTAINER>
-void split(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  rows.reserve(10);
-  std::size_t start = 0;
-  while (start < input.size()) {
-    std::size_t next = input.find(delim, start);
-    bool endOfInput = next == INPUT::npos;
-    rows.emplace_back(input.cbegin() + start,
-      endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
-    if (endOfInput)
-      break;
-    start = next + 1;
-  }
-}
-
 // reversed container order to erase from the end of the input
 template <typename CONTAINER>
 [[maybe_unused]] static void splitReversedOrder(std::string_view input,
