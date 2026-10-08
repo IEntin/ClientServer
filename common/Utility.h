@@ -32,12 +32,31 @@ consteval std::string_view getAuthenticationMessage() {
 // string_view, vector<char> or vector of objects of any
 // class with constructor over the range [first, last)
 
+template <typename INPUT, typename CONTAINER>
+std::size_t splitRanges(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+  rows = input
+    | std::views::split(delim)
+    | std::views::transform([&](auto&& rng) {
+      const char* start = &*rng.begin();
+      size_t size = std::ranges::distance(rng);
+      if (keepDelim == 1) {
+	if (start + size + 1 <= input.data() + input.size()) {
+	  size += 1;
+	}
+      }
+      return std::string_view(start, size);
+    })
+    | std::ranges::to<std::vector<std::string_view>>();
+
+  return rows.size();
+}
+
 // reversed container order to erase from the end of the input
 template <typename CONTAINER>
-[[maybe_unused]] static void splitReversedOrder(std::string_view input,
-						CONTAINER& rows,
-						char delim = '\n',
-						int keepDelim = 0) {
+void splitReversedOrder(std::string_view input,
+			CONTAINER& rows,
+			char delim = '\n',
+			int keepDelim = 0) {
   std::size_t start = 0;
   while (start < input.size()) {
     std::size_t next = input.find(delim, start);
@@ -61,24 +80,6 @@ void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
   }
 }
 
-template <typename INPUT, typename CONTAINER>
-std::size_t splitRanges(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
-  rows = input
-    | std::views::split(delim)
-    | std::views::transform([&](auto&& rng) {
-      const char* start = &*rng.begin();
-      size_t size = std::ranges::distance(rng);
-      if (keepDelim == 1) {
-	if (start + size + 1 <= input.data() + input.size()) {
-	  size += 1;
-	}
-      }
-      return std::string_view(start, size);
-    })
-    | std::ranges::to<std::vector<std::string_view>>();
-
-  return rows.size();
-}
 
 template <typename BUFFER>
 void readFile(std::string_view fileName, BUFFER& buffer) {
