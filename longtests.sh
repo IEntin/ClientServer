@@ -16,6 +16,7 @@ fi
 
 set -e
 
-$SCRIPT_DIR/scripts/checkcompile.sh
+$SCRIPT_DIR/scripts/checkcompileGCC.sh
+$SCRIPT_DIR/scripts/checkcompileCLANG.sh
 $SCRIPT_DIR/scripts/runtests.sh 5
 $SCRIPT_DIR/scripts/checkmulticlients.sh 20 thread

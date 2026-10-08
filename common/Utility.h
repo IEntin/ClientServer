@@ -57,16 +57,10 @@ void splitReversedOrder(std::string_view input,
 			CONTAINER& rows,
 			char delim = '\n',
 			int keepDelim = 0) {
-  std::size_t start = 0;
-  while (start < input.size()) {
-    std::size_t next = input.find(delim, start);
-    bool endOfInput = next == std::string_view::npos;
-    rows.emplace_front(input.cbegin() + start,
-      endOfInput ? input.cend() : input.cbegin() + next + keepDelim);
-    if (endOfInput)
-      break;
-    start = next + 1;
-  }
+  static std::vector<std::string_view> vect;
+  vect.clear();
+  [[maybe_unused]] std::size_t result = splitRanges(input, vect, delim, keepDelim);
+  rows.assign(vect.rbegin(), vect.rend());
 }
 
 template <typename INPUT, typename CONTAINER>
@@ -79,7 +73,6 @@ void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
     beg = input.find_first_not_of(separators, end + 1);
   }
 }
-
 
 template <typename BUFFER>
 void readFile(std::string_view fileName, BUFFER& buffer) {
