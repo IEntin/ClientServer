@@ -25,6 +25,12 @@ clang 20.1.8\
 Note:
 New code requires c++-23 for Range support\
 Upgrade clang and/or gcc versions\
+The problem is usually with gcc. Its version must be at least 14.\
+In this project gcc/g++ is used only to build tests.\
+clang/clang++ is updated earlier.\
+If upgrade is not possible edit script longtests.sh:\
+comment out the line '$SCRIPT_DIR/scripts/checkcompileGCC.sh'.
+
 google snappy must be installed:\
 current version 1.2.2\
 'sudo apt-get install libsnappy-dev'
