@@ -4,7 +4,7 @@
 
 #include "Lines2.h"
 
-thread_local std::deque<std::string_view> Lines2::_lines;
+thread_local std::vector<std::string_view> Lines2::_lines;
 
 Lines2::Lines2(char delimiter, bool keepDelimiter) :
   _delimiter(delimiter), _keepDelimiter(keepDelimiter) {}

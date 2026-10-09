@@ -52,8 +52,8 @@ std::size_t splitRanges(const INPUT& input, CONTAINER& rows, char delim = '\n', 
 }
 
 // reversed container order to erase from the end of the input
-template <typename CONTAINER>
-void splitReversedOrder(std::string_view input,
+template <typename INPUT,typename CONTAINER>
+void splitReversedOrder(const INPUT& input,
 			CONTAINER& rows,
 			char delim = '\n',
 			int keepDelim = 0) {

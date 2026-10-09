@@ -25,7 +25,6 @@ bool FileLines2::getLine(std::string_view& line) {
   }
   line = std::move(_lines.back());
   _lines.pop_back();
-  _lines.shrink_to_fit();
   ++_index;
   return true;
 }
