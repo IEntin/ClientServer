@@ -17,7 +17,7 @@ StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDel
   }
 }
 
-bool StringLines2::getLine(std::string& line) {
+bool StringLines2::getLine(std::string_view& line) {
   if (_lines.empty()) {
     return false;
   }

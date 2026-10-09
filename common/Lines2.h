@@ -11,15 +11,11 @@
 
 class Lines2 : private boost::noncopyable {
  public:
-  // The line can be a string_view or a string depending on
-  // the usage. If the line is used up by the app before the
-  // next line is created use a string_view, it is
-  // backed up by the buffer. Otherwise use a string.
   long _index = -1;
-  static thread_local std::deque<std::string> _lines;
+  static thread_local std::deque<std::string_view> _lines;
   explicit Lines2(char delimiter = '\n', bool keepDelimiter = false);
   virtual ~Lines2() = default;
-  virtual bool getLine(std::string&) = 0;
+  virtual bool getLine(std::string_view&) = 0;
  protected:
   const char _delimiter;
   const bool _keepDelimiter;

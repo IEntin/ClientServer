@@ -19,7 +19,7 @@ FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelim
   }
 }
 
-bool FileLines2::getLine(std::string& line) {
+bool FileLines2::getLine(std::string_view& line) {
   if (_lines.empty()) {
     return false;
   }

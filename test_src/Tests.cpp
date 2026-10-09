@@ -199,37 +199,37 @@ TEST(HeaderTest, 1) {
 
 TEST(GetFileLineTest, 1) {
   std::string sourceCopy;
-  FileLines linesDelim(ClientOptions::_sourceName, '\n', true);
+  FileLines lines(ClientOptions::_sourceName, '\n', true);
   std::string line;
-  while (linesDelim.getLine(line))
+  while (lines.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
 TEST(GetFileLine2Test, 1) {
   std::string sourceCopy;
-  FileLines2 linesDelim(ClientOptions::_sourceName, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
-    sourceCopy += line;
+  FileLines2 lines(ClientOptions::_sourceName, '\n', true);
+  std::string_view line;
+  while (lines.getLine(line))
+    sourceCopy.append(line);
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
 TEST(GetStringLineTest, 1) {
   std::string sourceCopy;
-  StringLines linesDelim(TestEnvironment::_source, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
+  StringLines lines(TestEnvironment::_source, '\n', true);
+  std::string_view line;
+  while (lines.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
 TEST(GetStringLine2Test, 1) {
   std::string sourceCopy;
-  StringLines2 linesDelim(TestEnvironment::_source, '\n', true);
-  std::string line;
-  while (linesDelim.getLine(line))
-    sourceCopy += line;
+  StringLines2 lines(TestEnvironment::_source, '\n', true);
+  std::string_view line;
+  while (lines.getLine(line))
+    sourceCopy.append(line);
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
