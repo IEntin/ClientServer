@@ -16,4 +16,5 @@ class StringLinesRange {
   static thread_local std::vector<std::string_view> _lines;
   bool getLine(std::string_view&);
   std::size_t _index = 0;
+  bool _last = false;
 };

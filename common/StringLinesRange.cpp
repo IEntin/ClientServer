@@ -12,7 +12,8 @@ thread_local std::vector<std::string_view> StringLinesRange::_lines;
 StringLinesRange::StringLinesRange(const std::string& source,
 				   char delimiter,
 				   int keepDelimiter) : _source(source),
-							_index(0) {
+							_index(0),
+							_last(false ){
   try {
     utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
   }
@@ -24,8 +25,8 @@ StringLinesRange::StringLinesRange(const std::string& source,
 bool StringLinesRange::getLine(std::string_view& line) {
   if (_index >= _lines.size())
     return false;
-  else {
-    line = std::move(_lines[_index++]);
-    return true;
-  }
+  else if (_index == _lines.size() - 1)
+    _last = true;
+  line = std::move(_lines[_index++]);
+  return true;
 }

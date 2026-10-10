@@ -12,7 +12,8 @@ thread_local std::vector<std::string_view> FileLinesRange::_lines;
 
 FileLinesRange::FileLinesRange(std::string_view fileName,
 			       char delimiter,
-			       int keepDelimiter) : _index(0) {
+			       int keepDelimiter) : _index(0),
+						    _last(false) {
   try {
     utility::readFile(fileName, _source);
     utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
@@ -25,8 +26,8 @@ FileLinesRange::FileLinesRange(std::string_view fileName,
 bool FileLinesRange::getLine(std::string_view& line) {
   if (_index >= _lines.size())
     return false;
-  else {
-    line = std::move(_lines[_index++]);
-    return true;
-  }
+  else if (_index == _lines.size() - 1)
+    _last = true;
+  line = std::move(_lines[_index++]);
+  return true;
 }

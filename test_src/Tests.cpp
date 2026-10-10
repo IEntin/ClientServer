@@ -15,11 +15,11 @@
 #include "StringLinesRange.h"
 #include "TestEnvironment.h"
 
-// ./testbin --gtest_filter=GetFileLineTest*
-// gdb --args testbin --gtest_filter=GetFileLineTest*
-// gdb --args testbin --gtest_filter=GetStringLineTest*
+// ./testbin --gtest_filter=FileLineTest*
+// gdb --args testbin --gtest_filter=FileLineTest*
+// gdb --args testbin --gtest_filter=StringLineTest*
 // for i in {1..10}; do ./testbin --gtest_filter=regex*;done
-// for i in {1..100}; do ./testbin --gtest_filter=GetFileLine2Test*;done
+// for i in {1..100}; do ./testbin --gtest_filter=FileLine2Test*;done
 
 struct CompressionTestLZ4 : testing::Test {
   void testCompressionDecompression(std::string& input) {
@@ -197,7 +197,7 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(GetFileLinesTest, 1) {
+TEST(FileLinesTest, 1) {
   std::string sourceCopy;
   FileLines lines(ClientOptions::_sourceName, '\n', 1);
   std::string line;
@@ -212,10 +212,11 @@ TEST(FileLinesRangeTest, 1) {
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);
+  ASSERT_TRUE(lines._last);
   ASSERT_EQ(sourceCopy, lines._source);
 }
 
-TEST(GetStringLineTest, 1) {
+TEST(StringLineTest, 1) {
   std::string sourceCopy;
   StringLines lines(TestEnvironment::_source, '\n', 1);
   std::string_view line;
@@ -224,13 +225,14 @@ TEST(GetStringLineTest, 1) {
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
-TEST(GetStringLineRangeTest, 1) {
+TEST(StringLineRangeTest, 1) {
   std::string sourceCopy;
   StringLinesRange lines(TestEnvironment::_source, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+  ASSERT_TRUE(lines._last);
+  ASSERT_EQ(sourceCopy, lines._source);
 }
 
 TEST(ClearPreservesCapacity, 1) {
