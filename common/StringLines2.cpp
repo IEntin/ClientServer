@@ -10,7 +10,7 @@
 StringLines2::StringLines2(std::string_view source, char delimiter, bool keepDelimiter) :
   Lines2(delimiter, keepDelimiter) {
   try {
-    utility::splitReversedOrder(source, _lines, _delimiter, _keepDelimiter);
+    utility::splitRanges(source, _lines, delimiter, keepDelimiter, true);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

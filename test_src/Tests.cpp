@@ -9,10 +9,10 @@
 #include "CompressionSnappy.h"
 #include "CompressionZSTD.h"
 #include "FileLines.h"
-#include "FileLines2.h"
+#include "FileLinesRange.h"
 #include "IOUtility.h"
 #include "StringLines.h"
-#include "StringLines2.h"
+#include "StringLinesRange.h"
 #include "TestEnvironment.h"
 
 // ./testbin --gtest_filter=GetFileLineTest*
@@ -197,36 +197,36 @@ TEST(HeaderTest, 1) {
   ASSERT_EQ(compressorResult, COMPRESSORS::NONE);
 }
 
-TEST(GetFileLineTest, 1) {
+TEST(GetFileLinesTest, 1) {
   std::string sourceCopy;
-  FileLines lines(ClientOptions::_sourceName, '\n', true);
+  FileLines lines(ClientOptions::_sourceName, '\n', 1);
   std::string line;
   while (lines.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
-TEST(GetFileLine2Test, 1) {
+TEST(FileLinesRangeTest, 1) {
   std::string sourceCopy;
-  FileLines2 lines(ClientOptions::_sourceName, '\n', true);
+  FileLinesRange lines(ClientOptions::_sourceName, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+  ASSERT_EQ(sourceCopy, lines._source);
 }
 
 TEST(GetStringLineTest, 1) {
   std::string sourceCopy;
-  StringLines lines(TestEnvironment::_source, '\n', true);
+  StringLines lines(TestEnvironment::_source, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy += line;
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
-TEST(GetStringLine2Test, 1) {
+TEST(GetStringLineRangeTest, 1) {
   std::string sourceCopy;
-  StringLines2 lines(TestEnvironment::_source, '\n', true);
+  StringLinesRange lines(TestEnvironment::_source, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);

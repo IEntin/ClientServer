@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <deque>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -33,7 +33,11 @@ consteval std::string_view getAuthenticationMessage() {
 // class with constructor over the range [first, last)
 
 template <typename INPUT, typename CONTAINER>
-std::size_t splitRanges(const INPUT& input, CONTAINER& rows, char delim = '\n', int keepDelim = 0) {
+std::size_t splitRanges(const INPUT& input,
+			CONTAINER& rows,
+			char delim = '\n',
+			int keepDelim = 0,
+			bool reverse = false) {
   rows = input
     | std::views::split(delim)
     | std::views::transform([&](auto&& rng) {
@@ -47,20 +51,9 @@ std::size_t splitRanges(const INPUT& input, CONTAINER& rows, char delim = '\n', 
       return std::string_view(start, size);
     })
     | std::ranges::to<std::vector<std::string_view>>();
-
+  if (reverse)
+    std::reverse(rows.begin(), rows.end());
   return rows.size();
-}
-
-// reversed container order to erase from the end of the input
-template <typename INPUT,typename CONTAINER>
-void splitReversedOrder(const INPUT& input,
-			CONTAINER& rows,
-			char delim = '\n',
-			int keepDelim = 0) {
-  static std::vector<std::string_view> vect;
-  vect.clear();
-  [[maybe_unused]] std::size_t result = splitRanges(input, vect, delim, keepDelim);
-  rows.assign(vect.rbegin(), vect.rend());
 }
 
 template <typename INPUT, typename CONTAINER>
