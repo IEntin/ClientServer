@@ -17,4 +17,6 @@ class StringLinesRange {
   bool getLine(std::string_view&);
   std::size_t _index = 0;
   bool _last = false;
+  std::size_t _inputSize = 0;
+  std::size_t _inputPosition = 0;
 };

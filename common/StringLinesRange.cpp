@@ -13,7 +13,9 @@ StringLinesRange::StringLinesRange(const std::string& source,
 				   char delimiter,
 				   int keepDelimiter) : _source(source),
 							_index(0),
-							_last(false ){
+							_last(false ),
+							_inputSize(source.size()) {
+  _lines.clear();
   try {
     utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
   }
@@ -23,10 +25,15 @@ StringLinesRange::StringLinesRange(const std::string& source,
 }
 
 bool StringLinesRange::getLine(std::string_view& line) {
-  if (_index >= _lines.size())
+  if (_last)
     return false;
-  else if (_index == _lines.size() - 1)
-    _last = true;
-  line = std::move(_lines[_index++]);
+  line = _lines[_index++];
+  _inputPosition += line.size();
+  _last = _inputPosition == _inputSize;
   return true;
 }
+/*
+std::size_t StringLinesRange::getInputPosition() {
+  return _inputPosition;
+}
+*/

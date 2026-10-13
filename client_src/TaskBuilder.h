@@ -8,6 +8,8 @@
 #include <mutex>
 
 #include "CryptoOperations.h"
+#include "FileLines.h"
+#include "FileLinesRange.h"
 #include "Runnable.h"
 #include "Subtask.h"
 
@@ -17,6 +19,7 @@ class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
   void copyRequestWithId(std::string_view line, long index);
+  std::size_t copyRequestsWithId(FileLinesRange& linesR);
   const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr> _encryptors;
   std::string _batch;
   Subtasks _subtasks;

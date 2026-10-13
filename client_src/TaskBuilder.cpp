@@ -5,7 +5,6 @@
 #include "TaskBuilder.h"
 
 #include "ClientOptions.h"
-#include "FileLines.h"
 #include "IOUtility.h"
 
 TaskBuilder::TaskBuilder(const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>& encryptors) :
@@ -21,6 +20,8 @@ void TaskBuilder::run() {
     try {
       // can be a new or the same source for tests.
       FileLines lines(ClientOptions::_sourceName, '\n', true);
+      //FileLinesRange linesR(ClientOptions::_sourceName, '\n', 1);
+      //copyRequestsWithId(linesR);
       while (createSubtask(lines) == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
       _conditionResume.wait(lock, [this] { return _resume || _stopped; });
@@ -51,6 +52,19 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 
 void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
   _batch.append(ioutility::getRequestId(index)).append(line);
+}
+
+std::size_t TaskBuilder::copyRequestsWithId(FileLinesRange& linesR) {
+  std::size_t index = 0;
+  std::size_t size = 0;
+  for (auto& line : linesR._lines) {
+    std::string newLine;
+    newLine.append(ioutility::getRequestId(index++)).append(std::move(line));
+    auto newElement(static_cast<std::string_view>(std::move(newLine)));
+    line.swap(newElement);
+    size+= sizeof(line);
+  }
+  return size;
 }
 
 // Read requests from the source, generate id for each.
