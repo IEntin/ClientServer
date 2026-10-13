@@ -63,7 +63,7 @@ bool processMessage(std::string_view payload,
   return true;
 }
 
-  const boost::static_string<CONV_BUFFER_SIZE>& getRequestId(std::size_t index) {
+  std::string_view getRequestId(std::size_t index) {
   static std::mutex mutex;
   std::unique_lock lock(mutex);
   static std::array<boost::static_string<CONV_BUFFER_SIZE>, TASK_MAX_SIZE> array;
