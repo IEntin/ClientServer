@@ -129,6 +129,6 @@ bool processMessage(std::string_view payload,
 		    HEADER &header,
 		    std::span<std::reference_wrapper<std::string>> array);
 
-  std::string_view getRequestId(std::size_t index);
+  void updateStringWithId(std::string& target, std::size_t index, std::string_view line);
 
 } // end of namespace ioutility

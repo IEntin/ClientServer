@@ -50,19 +50,13 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
   return { _subtaskIndex + 1, _status };
 }
 
-void TaskBuilder::copyRequestWithId(std::string_view line, long index) {
-  _batch.append(ioutility::getRequestId(index)).append(line);
-}
-
 std::size_t TaskBuilder::copyRequestsWithId(FileLinesRange& linesR) {
   std::size_t index = 0;
   std::size_t size = 0;
   for (auto& line : linesR._lines) {
     std::string newLine;
-    newLine.append(ioutility::getRequestId(index++)).append(std::move(line));
-    auto newElement(static_cast<std::string_view>(std::move(newLine)));
-    line.swap(newElement);
-    size+= sizeof(line);
+    ioutility::updateStringWithId(_batch, index++, line);
+    size = _batch.size();
   }
   return size;
 }
@@ -80,7 +74,7 @@ STATUS TaskBuilder::createSubtask(Lines& lines) {
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
   std::string_view line;
   while (lines.getLine(line)) {
-    copyRequestWithId(line, lines._index);
+    ioutility::updateStringWithId(_batch, lines._index, line);
     bool alldone = lines._last;
     if (_batch.size() >= maxSubtaskSize || alldone)
       return compressEncryptSubtask(alldone);

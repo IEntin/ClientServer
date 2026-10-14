@@ -63,19 +63,8 @@ bool processMessage(std::string_view payload,
   return true;
 }
 
-  std::string_view getRequestId(std::size_t index) {
-  static std::mutex mutex;
-  std::unique_lock lock(mutex);
-  static std::array<boost::static_string<CONV_BUFFER_SIZE>, TASK_MAX_SIZE> array;
-  static bool initialized;
-  if (!initialized) {
-    for (std::size_t i = 0; i < array.size(); ++i) {
-      array[i] = { '[' };
-      array[i].append(toCharsBoost(i)).append(1, ']');
-    }
-    initialized = true;
+  void updateStringWithId(std::string& target, std::size_t index, std::string_view line) {
+   target.append(1, '[').append(toCharsBoost(index)).append(1, ']').append(line);
   }
-  return array[index];
-}
 
 } // end of namespace ioutility

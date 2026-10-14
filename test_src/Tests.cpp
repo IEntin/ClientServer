@@ -19,7 +19,8 @@
 // gdb --args testbin --gtest_filter=FileLineTest*
 // gdb --args testbin --gtest_filter=StringLineTest*
 // for i in {1..10}; do ./testbin --gtest_filter=regex*;done
-// for i in {1..100}; do ./testbin --gtest_filter=FileLine2Test*;done
+// for i in {1..10}; do ./testbin --gtest_filter=StringLinesRangeTest*;done
+// for i in {1..10}; do ./testbin --gtest_filter=FileLinesRangeTest*;done
 
 struct CompressionTestLZ4 : testing::Test {
   void testCompressionDecompression(std::string& input) {
@@ -225,7 +226,7 @@ TEST(StringLineTest, 1) {
   ASSERT_EQ(sourceCopy, TestEnvironment::_source);
 }
 
-TEST(StringLineRangeTest, 1) {
+TEST(StringLinesRangeTest, 1) {
   std::string sourceCopy;
   StringLinesRange lines(TestEnvironment::_source, '\n', 1);
   std::string_view line;

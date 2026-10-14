@@ -18,7 +18,6 @@ using namespace cryptooperations;
 class TaskBuilder final : public Runnable {
 
   STATUS compressEncryptSubtask(bool alldone);
-  void copyRequestWithId(std::string_view line, long index);
   std::size_t copyRequestsWithId(FileLinesRange& linesR);
   const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr> _encryptors;
   std::string _batch;
