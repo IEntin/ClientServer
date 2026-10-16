@@ -32,7 +32,10 @@ void CryptoBase::displayCryptoLibName() {
     encryptorLib = "Error";
     break;
   }
-  Info << "\n\nprimary encryptor: " << encryptorLib << " library.\n\n";
+
+  Logger shortInfo(LOG_LEVEL::INFO, std::clog, false);
+
+  shortInfo << "\nprimary encryptor: " << encryptorLib << " library.\n";
   switch(Options::_singleEncryptor) {
   case CRYPTO::CRYPTOSODIUM:
     encryptorLib = "Sodium";
@@ -44,5 +47,5 @@ void CryptoBase::displayCryptoLibName() {
     encryptorLib = "Error";
     break;
   }
-  Info << "\n\nsingle encryptor: " << encryptorLib << " library.\n\n";
+  shortInfo << "\nsingle encryptor: " << encryptorLib << " library.\n";
 }

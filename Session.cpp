@@ -108,10 +108,11 @@ void Session::displayCapacityCheck(std::string_view type,
 				   unsigned numberRunningByType,
 				   unsigned maxNumberRunningByType,
 				   STATUS status) {
-  Info << "Number " << type << " sessions=" << numberObjects
-       << ", Number running " << type << " sessions=" << numberRunningByType
-       << ", max number " << type << " running=" << maxNumberRunningByType
-       << '\n';
+  Logger shortInfo(LOG_LEVEL::INFO, std::clog, false);
+  shortInfo << "Number " << type << " sessions=" << numberObjects
+	    << ", Number running " << type << " sessions=" << numberRunningByType
+	    << ", max number " << type << " running=" << maxNumberRunningByType
+	    << '\n';
   switch (status) {
   case STATUS::MAX_OBJECTS_OF_TYPE:
     Warn << "\nThe number of " << type << " sessions="

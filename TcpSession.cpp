@@ -42,7 +42,8 @@ bool TcpSession::start() {
     LogError << ec.what() << '\n';
     return false;
   }
-  Info << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
+  Logger shortInfo(LOG_LEVEL::INFO, std::clog, false);
+  shortInfo << _socket.local_endpoint() << ' ' << _socket.remote_endpoint() << '\n';
   boost::asio::post(_ioContext, [this] { readRequest(); });
   return true;
 }
