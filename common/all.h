@@ -40,6 +40,7 @@
 #include <ranges>
 #include <regex>
 #include <snappy.h>
+#include <source_location>
 #include <span>
 #include <sstream>
 #include <stacktrace>

@@ -17,8 +17,8 @@ clang 19.1.7\
 and
 
 2. Linux Mint 22.3 Zena\
-gcc 15.2.0\
-clang 20.1.8\
+gcc 13.3.0\
+clang 18.1.3\
 8GB RAM\
 8 cores
 
