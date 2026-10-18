@@ -4,11 +4,9 @@
 
 #include "FileLinesRange.h"
 
+#include "IOUtility.h"
 #include "Logger.h"
 #include "Utility.h"
-
-std::string FileLinesRange::_source;
-thread_local std::vector<std::string_view> FileLinesRange::_lines;
 
 FileLinesRange::FileLinesRange(std::string_view fileName,
 			       char delimiter,
@@ -31,5 +29,15 @@ bool FileLinesRange::getLine(std::string_view& line) {
   line = _lines[_index++];
   _inputPosition += line.size();
   _last = _inputPosition == _inputSize;
+  return true;
+}
+
+bool FileLinesRange::getLine(std::string& lineWithId, std::size_t index) {
+  if (_last)
+    return false;
+  std::string_view line = _lines[index++];
+  _inputPosition += line.size();
+  _last = _inputPosition == _inputSize;
+  ioutility::updateStringWithId(lineWithId, index, line);
   return true;
 }
