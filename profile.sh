@@ -87,7 +87,7 @@ echo "SECOND_CLIENT_PROFILE is $SECOND_CLIENT_PROFILE"
 
 NUMBER_CORES=$(nproc)
 
-make -j$NUMBER_CORES PROFILE=1
+make -f makefile_profile -j$NUMBER_CORES PROFILE=1
 
 # Start the server.
 
