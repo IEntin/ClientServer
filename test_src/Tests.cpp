@@ -236,6 +236,15 @@ TEST(StringLinesRangeTest, 1) {
   ASSERT_EQ(sourceCopy, lines._source);
 }
 
+TEST(FileLinesRangeTest, 2) {
+FileLinesRange linesR(ClientOptions::_sourceName, '\n', 1);
+ ASSERT_EQ(linesR._lines.size(), 10001);
+ ASSERT_TRUE(linesR._lines[10000].empty());
+ std::string testEntry9999;
+ linesR.getLine(testEntry9999, 9999);
+ ASSERT_TRUE(testEntry9999.starts_with("[9999]"));
+}
+
 TEST(ClearPreservesCapacity, 1) {
   std::string copy = TestEnvironment::_source;
   std::size_t orgCapacity = copy.capacity();
