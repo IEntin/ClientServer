@@ -65,5 +65,6 @@ sleep 2
 
 echo
 echo "***** thread sanitizer *****"
+make cleanall
 make -j$NUMBER_CORES SANITIZE=thread
 copyClient
