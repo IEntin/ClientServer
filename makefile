@@ -65,11 +65,6 @@ else ifeq ($(SANITIZE), thread)
   SANBLD := -fsanitize=thread
 endif
 
-ifeq ($(PROFILE), 1)
-  PROFBLD := -pg
-  GDWARF := -gdwarf-4
-endif
-
 WARNINGS := -Wall -Wextra -pedantic-errors
 
 BOOST_INCLUDES := /usr/local/boost_1_92_0
