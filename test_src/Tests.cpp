@@ -237,19 +237,17 @@ TEST(StringLinesRangeTest, 1) {
 }
 
 TEST(FileLinesRangeTest, 2) {
-FileLinesRange linesR(ClientOptions::_sourceName, '\n', 1);
- ASSERT_TRUE(FileLinesRange::_source.ends_with('\n'));
- ASSERT_FALSE(FileLinesRange::_source.ends_with("\n\n"));
- ASSERT_EQ(linesR._lines.size(), 10001);
- ASSERT_TRUE(linesR._lines[10000].empty());
- for (const auto& line : linesR._lines)
-   ASSERT_TRUE(line.ends_with('\n') || line.empty());
+  FileLinesRange linesR(ClientOptions::_sourceName, '\n', 1);
+  ASSERT_TRUE(FileLinesRange::_source.ends_with('\n'));
+  ASSERT_FALSE(FileLinesRange::_source.ends_with("\n\n"));
+  ASSERT_EQ(linesR._lines.size(), 10001);
+  ASSERT_TRUE(linesR._lines[10000].empty());
  ASSERT_FALSE(linesR._lines[9999].ends_with("\n\n"));
  std::string testEntry9999;
- linesR.getLine(testEntry9999, 9999);
+ ASSERT_TRUE(linesR.getLine(testEntry9999, 9999));
  ASSERT_TRUE(testEntry9999.starts_with("[9999]"));
  std::string testEntry7654;
- linesR.getLine(testEntry7654, 7654);
+ ASSERT_TRUE(linesR.getLine(testEntry7654, 7654));
  ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
 }
 

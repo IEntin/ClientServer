@@ -26,9 +26,10 @@ FileLinesRange::FileLinesRange(std::string_view fileName,
 bool FileLinesRange::getLine(std::string_view& line) {
   if (_last)
     return false;
-  line = _lines[_index++];
+  line = _lines[_index];
   _inputPosition += line.size();
   _last = _inputPosition == _inputSize;
+  ++_index;
   return true;
 }
 
@@ -36,8 +37,10 @@ bool FileLinesRange::getLine(std::string& lineWithId, std::size_t index) {
   if (_last)
     return false;
   std::string_view line = _lines[index];
-  _inputPosition += line.size();
-  _last = _inputPosition == _inputSize;
+  _last = line == "\n";
   ioutility::updateStringWithId(lineWithId, index, line);
+  ++_index;
+  if (_last)
+    _index = 0;
   return true;
 }
