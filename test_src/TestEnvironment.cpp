@@ -15,7 +15,6 @@ void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   ServerOptions::parse("ServerOptions.json");
   ClientOptions::parse("", &_oss);
-  utility::readFile(ClientOptions::_sourceName, _source);
   utility::readFile("data/outputD.txt", _outputD);
   utility::readFile("data/outputND.txt", _outputND);
   utility::readFile("data/outputAltFormatD.txt", _outputAltFormatD);

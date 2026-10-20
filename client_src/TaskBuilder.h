@@ -36,4 +36,5 @@ class TaskBuilder final : public Runnable {
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
   STATUS createSubtask(class Lines& lines);
   void resume();
+  static std::string& getSource()  { return _linesR._source; }
 };

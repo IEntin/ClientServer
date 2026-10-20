@@ -11,6 +11,7 @@
 #include "CryptoTuple.h"
 #include "CryptoOperations.h"
 #include "ServerOptions.h"
+#include "TaskBuilder.h"
 #include "Utility.h"
 
 using namespace cryptooperations;
@@ -29,7 +30,7 @@ public:
   static void reset();
 
   static std::ostringstream _oss;
-  static inline std::string _source;
+  static inline std::string& _source = TaskBuilder::getSource();
   static inline std::string _outputD;
   static inline std::string _outputND;
   static inline std::string _outputAltFormatD;
@@ -41,8 +42,7 @@ public:
     static void testCompressEncrypt(COMPRESSORS compressor,
 				    bool doEncrypt,
 				    CRYPTO crypto) {
-      // must be a copy
-      std::string data = TestEnvironment::_source;
+      std::string& data = TestEnvironment::_source;
       HEADER header{ HEADERTYPE::SESSION,
 		     0,
 		     data.size(),

@@ -8,7 +8,7 @@
 
 class FileLinesRange {
  public:
-  explicit FileLinesRange(std::string_view fileName, char delimiter = '\n', int keepDelimiter = false);
+  explicit FileLinesRange(std::string_view fileName, char delimiter = '\n', int keepDelimiter = 0);
   ~FileLinesRange()  = default;
   static inline std::string _source;
   static inline thread_local std::vector<std::string_view> _lines;
