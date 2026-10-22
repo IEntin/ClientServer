@@ -17,6 +17,17 @@ FileLinesRange::FileLinesRange(std::string_view fileName,
   try {
     utility::readFile(fileName, _source);
     utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
+    for (std::size_t id = 0; id < _lines.size(); ++id) {
+      std::string lineWithId;
+      getLine(lineWithId, id);
+      _sourceWithIds.append(lineWithId);
+      _inputPositionWithIds += lineWithId.size();
+    }
+    _inputSizeWithIds = _sourceWithIds.size();
+    
+    _index = 0;
+    utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
+    _index = 0;
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
