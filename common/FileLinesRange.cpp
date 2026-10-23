@@ -8,16 +8,22 @@
 #include "Logger.h"
 #include "Utility.h"
 
+std::string FileLinesRange::_source;
+std::size_t FileLinesRange::_inputSize;
+std::string FileLinesRange::_sourceWithIds;
+std::vector<std::string_view> FileLinesRange::_lines;
+std::vector<std::string_view> FileLinesRange::_linesWithId;
+
 FileLinesRange::FileLinesRange(std::string_view fileName,
 			       char delimiter,
 			       int keepDelimiter) : _index(0),
-						    _last(false),
-						    _inputSize(std::filesystem::file_size(fileName)) {
+						    _last(false) {
   _lines.clear();
   try {
     utility::readFile(fileName, _source);
-    utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
-    for (std::size_t id = 0; id < _lines.size(); ++id) {
+    _inputSize = _source.size();
+    std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
+    for (std::size_t id = 0; id < numberRows; ++id) {
       std::string lineWithId;
       getLine(lineWithId, id);
       _sourceWithIds.append(lineWithId);
@@ -26,8 +32,7 @@ FileLinesRange::FileLinesRange(std::string_view fileName,
     _inputSizeWithIds = _sourceWithIds.size();
     
     _index = 0;
-    utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
-    _index = 0;
+    [[maybe_unused]] std::size_t numberRowsWithId = utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
