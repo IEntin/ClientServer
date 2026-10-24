@@ -4,7 +4,7 @@
 
 #include "StringLinesRange.h"
 
-thread_local std::vector<std::string_view> StringLinesRange::_lines;
+std::vector<std::string_view> StringLinesRange::_lines;
 
 bool StringLinesRange::getLine(std::string_view& line) {
   if (_last)

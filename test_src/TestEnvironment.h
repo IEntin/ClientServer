@@ -34,7 +34,7 @@ public:
   static inline std::string _outputD;
   static inline std::string _outputND;
   static inline std::string _outputAltFormatD;
-  static inline thread_local std::string _buffer;
+  static thread_local std::string _buffer;
 
   };
 

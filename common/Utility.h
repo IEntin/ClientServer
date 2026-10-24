@@ -67,15 +67,7 @@ void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
   }
 }
 
-template <typename BUFFER>
-void readFile(std::string_view fileName, BUFFER& buffer) {
-  std::ifstream stream;
-  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  stream.open(fileName.data(), std::ios::binary);
-  std::uintmax_t size = std::filesystem::file_size(fileName);
-  buffer.resize(size);
-  stream.read(buffer.data(), size);
-}
+std::string_view readFile(std::string_view fileName);
 
 template <typename SOURCE>
 bool writeToFd(int fd, SOURCE& source) {

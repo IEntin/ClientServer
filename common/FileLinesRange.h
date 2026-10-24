@@ -8,7 +8,7 @@
 
 class FileLinesRange {
  public:
-  explicit FileLinesRange(std::string_view fileName, char delimiter = '\n', int keepDelimiter = 0);
+  explicit FileLinesRange(char delimiter = '\n', int keepDelimiter = 0);
   ~FileLinesRange()  = default;
   static std::string _source;
   static std::string _sourceWithIds;

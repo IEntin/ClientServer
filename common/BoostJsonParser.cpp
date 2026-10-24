@@ -9,8 +9,7 @@
 #include "Utility.h"
 
 bool parseJson(std::string_view fileName, boost::json::value& jv) {
-  std::string json_string;
-  utility::readFile(fileName, json_string);
+  std::string json_string(utility::readFile(fileName));
   boost::system::error_code ec;
   jv = boost::json::parse(json_string, ec);
   if (ec) {

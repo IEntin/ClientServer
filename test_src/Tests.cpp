@@ -104,8 +104,7 @@ TEST(SplitTest, NoKeepDelim) {
 
 TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
-  std::string contents;
-  utility::readFile(ClientOptions::_sourceName, contents);
+  std::string contents(utility::readFile(ClientOptions::_sourceName));
   utility::splitRanges(contents, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10001);
   ASSERT_TRUE(contents.starts_with(lines[0]));
@@ -209,7 +208,7 @@ TEST(FileLinesTest, 1) {
 
 TEST(FileLinesRangeTest, 1) {
   std::string sourceCopy;
-  FileLinesRange lines(ClientOptions::_sourceName, '\n', 1);
+  FileLinesRange lines('\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);
@@ -237,7 +236,7 @@ TEST(StringLinesRangeTest, 1) {
 }
 
 TEST(FileLinesRangeTest, 2) {
-  FileLinesRange linesR(ClientOptions::_sourceName, '\n', 1);
+  FileLinesRange linesR('\n', 1);
   ASSERT_TRUE(FileLinesRange::_source.ends_with('\n'));
   ASSERT_FALSE(FileLinesRange::_source.ends_with("\n\n"));
   ASSERT_EQ(linesR._lines.size(), 10001);

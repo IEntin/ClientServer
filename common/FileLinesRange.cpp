@@ -4,25 +4,23 @@
 
 #include "FileLinesRange.h"
 
+#include "ClientOptions.h"
 #include "IOUtility.h"
 #include "Logger.h"
 #include "Utility.h"
 
-std::string FileLinesRange::_source;
-std::size_t FileLinesRange::_inputSize;
+std::string FileLinesRange::_source(utility::readFile(ClientOptions::_sourceName));
+std::size_t FileLinesRange::_inputSize(_source.size());
 std::string FileLinesRange::_sourceWithIds;
 std::vector<std::string_view> FileLinesRange::_lines;
 std::vector<std::string_view> FileLinesRange::_linesWithId;
 
-FileLinesRange::FileLinesRange(std::string_view fileName,
-			       char delimiter,
+FileLinesRange::FileLinesRange(char delimiter,
 			       int keepDelimiter) : _index(0),
 						    _last(false) {
   _lines.clear();
   try {
-    utility::readFile(fileName, _source);
-    _inputSize = _source.size();
-    std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
+   std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
     for (std::size_t id = 0; id < numberRows; ++id) {
       std::string lineWithId;
       getLine(lineWithId, id);

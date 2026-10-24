@@ -7,7 +7,7 @@
 #include "IOUtility.h"
 #include "TaskBuilder.h"
 
-FileLinesRange TaskBuilder::_linesR(ClientOptions::_sourceName, '\n', 1);
+FileLinesRange TaskBuilder::_linesR( '\n', 1);
 
 TaskBuilder::TaskBuilder(const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr>& encryptors) :
   _encryptors(encryptors),
