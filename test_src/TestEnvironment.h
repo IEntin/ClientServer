@@ -30,7 +30,7 @@ public:
   static void reset();
 
   static std::ostringstream _oss;
-  static inline std::string& _source = TaskBuilder::getSource();
+  static std::string _source;
   static inline std::string _outputD;
   static inline std::string _outputND;
   static inline std::string _outputAltFormatD;

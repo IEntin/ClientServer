@@ -26,7 +26,7 @@ class TaskBuilder final : public Runnable {
   std::condition_variable _conditionResume;
   bool _resume = false;
   std::string _buffer;
-  static FileLinesRange _linesR;
+  FileLinesRange _linesR;
   void run() override;
   bool start() override { return true; }
  public:
@@ -36,5 +36,4 @@ class TaskBuilder final : public Runnable {
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
   STATUS createSubtask(class Lines& lines);
   void resume();
-  static std::string& getSource()  { return _linesR._source; }
 };

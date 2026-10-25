@@ -14,6 +14,7 @@ std::size_t FileLinesRange::_inputSize(_source.size());
 std::string FileLinesRange::_sourceWithIds;
 std::vector<std::string_view> FileLinesRange::_lines;
 std::vector<std::string_view> FileLinesRange::_linesWithId;
+std::vector<std::string_view> FileLinesRange::_linesWithIdReversed;
 
 FileLinesRange::FileLinesRange(char delimiter,
 			       int keepDelimiter) : _index(0),
@@ -26,9 +27,11 @@ FileLinesRange::FileLinesRange(char delimiter,
       getLine(lineWithId, id);
       _sourceWithIds.append(lineWithId);
       _inputPositionWithIds += lineWithId.size();
-    }
-    _inputSizeWithIds = _sourceWithIds.size();
-    
+      _inputSizeWithIds = _sourceWithIds.size();
+     }
+    _linesWithIdReversed = _linesWithId;
+    std::reverse(_linesWithIdReversed.begin(), _linesWithIdReversed.end());
+   
     _index = 0;
     [[maybe_unused]] std::size_t numberRowsWithId = utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
@@ -57,4 +60,17 @@ bool FileLinesRange::getLine(std::string& lineWithId, std::size_t index) {
   if (_last)
     _index = 0;
   return true;
+}
+
+bool FileLinesRange::getLineWithId(std::vector<std::string_view> linesWithIdReversed,
+				   std::string_view lineWithId) {
+  if (!linesWithIdReversed.empty()) {
+    lineWithId = linesWithIdReversed.back();
+    linesWithIdReversed.pop_back();
+    return true;
+  }
+  else {
+    _last = true;
+    return false;
+  }
 }

@@ -9,6 +9,8 @@
 #include "Metrics.h"
 #include "ServerOptions.h"
 
+std::string TestEnvironment::_source(utility::readFile(ClientOptions::_sourceName));
+
 std::ostringstream TestEnvironment::_oss;
 thread_local std::string TestEnvironment::_buffer;
 

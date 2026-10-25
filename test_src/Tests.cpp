@@ -250,6 +250,24 @@ TEST(FileLinesRangeTest, 2) {
  ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
 }
 
+TEST(FileLinesRangeTest, 3) {
+  FileLinesRange linesR('\n', 1);
+  std::vector<std::string_view> reversedLinesWithId;
+  std::vector<std::string_view> reversed(linesR._linesWithId);
+  std::string batch;
+  std::reverse(reversed.begin(), reversed.end());
+  ASSERT_EQ(linesR._linesWithId.size(), reversed.size());
+  ASSERT_EQ(linesR._linesWithId.front(), reversed.back());
+  for (std::size_t index = 0; index < reversed.size(); ++index)
+    ASSERT_EQ(linesR._linesWithId[index], reversed[reversed.size()- 1 - index]);
+  while (!reversed.empty()) {
+    batch.append(reversed.back());
+    reversed.pop_back();
+  }
+  ASSERT_TRUE(reversed.empty());
+  ASSERT_EQ(batch, linesR._sourceWithIds);
+}
+
 TEST(ClearPreservesCapacity, 1) {
   std::string copy = TestEnvironment::_source;
   std::size_t orgCapacity = copy.capacity();
