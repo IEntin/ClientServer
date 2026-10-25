@@ -10,6 +10,9 @@
 #include "ServerOptions.h"
 
 std::string TestEnvironment::_source(utility::readFile(ClientOptions::_sourceName));
+std::string TestEnvironment::_outputD(utility::readFile("data/outputD.txt"));
+std::string TestEnvironment::_outputND(utility::readFile("data/outputND.txt"));
+std::string TestEnvironment::_outputAltFormatD(utility::readFile("data/outputAltFormatD.txt"));
 
 std::ostringstream TestEnvironment::_oss;
 thread_local std::string TestEnvironment::_buffer;
@@ -18,9 +21,6 @@ void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
   ServerOptions::parse("ServerOptions.json");
   ClientOptions::parse("", &_oss);
-  _outputD = utility::readFile("data/outputD.txt");
-  _outputND = utility::readFile("data/outputND.txt");
-  _outputAltFormatD = utility::readFile("data/outputAltFormatD.txt");
   DebugLog::setDebugLog(APPTYPE::TESTS);
 }
 
