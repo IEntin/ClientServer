@@ -40,11 +40,10 @@ FileLinesRange::FileLinesRange(char delimiter,
 }
 
 bool FileLinesRange::getLine(std::string_view& line) {
+  _last = _index >= _lines.size();
   if (_last)
     return false;
   line = _lines[_index];
-  _inputPosition += line.size();
-  _last = _inputPosition == _inputSize;
   ++_index;
   return true;
 }
