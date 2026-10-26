@@ -59,16 +59,4 @@ void removeAccess() {
   std::string().swap(clientTerminal);
 }
 
-std::string_view readFile(std::string_view fileName) {
-  static std::string buffer;
-  buffer.clear();
-  std::ifstream stream;
-  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  stream.open(fileName.data(), std::ios::binary);
-  std::uintmax_t size = std::filesystem::file_size(fileName);
-  buffer.resize(size);
-  stream.read(buffer.data(), size);
-  return buffer;
-}
-
 } // end of namespace utility

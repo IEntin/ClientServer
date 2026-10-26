@@ -9,7 +9,7 @@
 #include "Logger.h"
 #include "Utility.h"
 
-std::string FileLinesRange::_source(utility::readFile(ClientOptions::_sourceName));
+std::string FileLinesRange::_source(readFile(ClientOptions::_sourceName));
 std::size_t FileLinesRange::_inputSize(_source.size());
 std::string FileLinesRange::_sourceWithIds;
 std::vector<std::string_view> FileLinesRange::_lines;

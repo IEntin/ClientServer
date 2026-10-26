@@ -14,11 +14,27 @@
 #include <boost/asio.hpp>
 #include <boost/asio/posix/stream_descriptor.hpp>
 
+#include "ClientOptions.h"
+
 // common constants
 
 constexpr std::string_view ENDOFMESSAGE("f65438b3bf504ace8483e6642a84d2fd");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
+
+inline std::string_view readFile(std::string_view fileName) {
+  static std::string buffer;
+  buffer.clear();
+  std::ifstream stream;
+  stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  stream.open(fileName.data(), std::ios::binary);
+  std::uintmax_t size = std::filesystem::file_size(fileName);
+  buffer.resize(size);
+  stream.read(buffer.data(), size);
+  return buffer;
+}
+
+inline std::string _source(readFile(ClientOptions::_sourceName));
 
 namespace utility {
 
@@ -66,8 +82,6 @@ void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
     beg = input.find_first_not_of(separators, end + 1);
   }
 }
-
-std::string_view readFile(std::string_view fileName);
 
 template <typename SOURCE>
 bool writeToFd(int fd, SOURCE& source) {

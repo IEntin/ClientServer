@@ -10,7 +10,7 @@
 FileLines2::FileLines2(std::string_view fileName, char delimiter, bool keepDelimiter) :
   Lines2(delimiter, keepDelimiter) {
   try {
-    static thread_local std::string source(utility::readFile(fileName));
+    static thread_local std::string source(readFile(fileName));
     utility::splitRanges(source, _lines, _delimiter, _keepDelimiter, true);
   }
   catch (const std::exception& e) {

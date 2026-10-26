@@ -9,10 +9,9 @@
 #include "Metrics.h"
 #include "ServerOptions.h"
 
-std::string TestEnvironment::_source(utility::readFile(ClientOptions::_sourceName));
-std::string TestEnvironment::_outputD(utility::readFile("data/outputD.txt"));
-std::string TestEnvironment::_outputND(utility::readFile("data/outputND.txt"));
-std::string TestEnvironment::_outputAltFormatD(utility::readFile("data/outputAltFormatD.txt"));
+std::string TestEnvironment::_outputD(readFile("data/outputD.txt"));
+std::string TestEnvironment::_outputND(readFile("data/outputND.txt"));
+std::string TestEnvironment::_outputAltFormatD(readFile("data/outputAltFormatD.txt"));
 
 std::ostringstream TestEnvironment::_oss;
 thread_local std::string TestEnvironment::_buffer;

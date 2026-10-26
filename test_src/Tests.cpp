@@ -37,7 +37,7 @@ struct CompressionTestLZ4 : testing::Test {
 };
 
 TEST_F(CompressionTestLZ4, 1_SOURCE) {
-  std::string input = TestEnvironment::_source;
+  std::string input = _source;
   testCompressionDecompression(input);
 }
 
@@ -61,7 +61,7 @@ struct CompressionTestSnappy : testing::Test {
 };
 
 TEST_F(CompressionTestSnappy, 1_SOURCE) {
-  std::string input = TestEnvironment::_source;
+  std::string input = _source;
   testCompressionDecompression(input);
 }
 
@@ -85,7 +85,7 @@ struct CompressionTestZSTD : testing::Test {
 };
 
 TEST_F(CompressionTestZSTD, 1_SOURCE) {
-  std::string input = TestEnvironment::_source;
+  std::string input = _source;
   testCompressionDecompression(input);
 }
 
@@ -96,7 +96,7 @@ TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
 
 TEST(SplitTest, NoKeepDelim) {
   std::vector<std::string_view> lines;
-  utility::splitRanges(TestEnvironment::_source, lines);
+  utility::splitRanges(_source, lines);
   ASSERT_EQ(lines.size(), 10001);
   for (const auto& line : lines)
     ASSERT_FALSE(line.ends_with('\n'));
@@ -104,7 +104,7 @@ TEST(SplitTest, NoKeepDelim) {
 
 TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
-  std::string contents(utility::readFile(ClientOptions::_sourceName));
+  std::string contents(readFile(ClientOptions::_sourceName));
   utility::splitRanges(contents, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10001);
   ASSERT_TRUE(contents.starts_with(lines[0]));
@@ -203,7 +203,7 @@ TEST(FileLinesTest, 1) {
   std::string line;
   while (lines.getLine(line))
     sourceCopy += line;
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+  ASSERT_EQ(sourceCopy, _source);
 }
 
 TEST(FileLinesRangeTest, 1) {
@@ -218,16 +218,16 @@ TEST(FileLinesRangeTest, 1) {
 
 TEST(StringLineTest, 1) {
   std::string sourceCopy;
-  StringLines lines(TestEnvironment::_source, '\n', 1);
+  StringLines lines(_source, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy += line;
-  ASSERT_EQ(sourceCopy, TestEnvironment::_source);
+  ASSERT_EQ(sourceCopy, _source);
 }
 
 TEST(StringLinesRangeTest, 1) {
   std::string sourceCopy;
-  StringLinesRange lines(TestEnvironment::_source, '\n', 1);
+  StringLinesRange lines(_source, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);
@@ -269,7 +269,7 @@ TEST(FileLinesRangeTest, 3) {
 }
 
 TEST(ClearPreservesCapacity, 1) {
-  std::string copy = TestEnvironment::_source;
+  std::string copy = _source;
   std::size_t orgCapacity = copy.capacity();
   copy.clear();
   std::size_t finalCapacity = copy.capacity();

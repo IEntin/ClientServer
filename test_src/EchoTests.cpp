@@ -56,7 +56,7 @@ struct EchoTest : testing::Test {
     default:
       return;
     }
-    ASSERT_EQ(TestEnvironment::_oss.str(), TestEnvironment::_source);
+    ASSERT_EQ(TestEnvironment::_oss.str(), _source);
     server->stop();
   }
 
@@ -193,14 +193,14 @@ struct FifoBlockingTest : testing::Test {
 TEST_F(FifoBlockingTest, FifoBlockingTestD) {
   for (int i = 0; i < 10; ++i) {
     testBlockingFifo(_smallPayload);
-    testBlockingFifo(TestEnvironment::_source);
+    testBlockingFifo(_source);
   }
 }
 
 TEST_F(FifoBlockingTest, FifoBlockingTestReverse) {
   for (int i = 0; i < 10; ++i) {
     testBlockingFifoReverse(_smallPayload);
-    testBlockingFifoReverse(TestEnvironment::_source);
+    testBlockingFifoReverse(_source);
   }
 }
 
@@ -279,6 +279,6 @@ struct FifoNBDuplex : testing::Test {
 TEST_F(FifoNBDuplex, FifoNBDuplex) {
   for (int i = 0; i < 10; ++i) {
     testFifoNBDuplex(_smallPayload);
-    testFifoNBDuplex(TestEnvironment::_source);
+    testFifoNBDuplex(_source);
   }
 }

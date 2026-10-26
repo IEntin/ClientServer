@@ -30,7 +30,6 @@ public:
   static void reset();
 
   static std::ostringstream _oss;
-  static std::string _source;
   static std::string _outputD;
   static std::string _outputND;
   static std::string _outputAltFormatD;
@@ -42,7 +41,7 @@ public:
     static void testCompressEncrypt(COMPRESSORS compressor,
 				    bool doEncrypt,
 				    CRYPTO crypto) {
-      std::string& data = TestEnvironment::_source;
+      std::string& data = _source;
       HEADER header{ HEADERTYPE::SESSION,
 		     0,
 		     data.size(),
@@ -62,7 +61,7 @@ public:
       const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
       singleDecryptDecompress(serverTuple, crypto, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
-      ASSERT_EQ(data, TestEnvironment::_source);
+      ASSERT_EQ(data, _source);
     }
     void TearDown() {
       TestEnvironment::reset();

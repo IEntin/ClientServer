@@ -37,11 +37,11 @@ TEST(LibSodiumTest, DHkeyExchange) {
     CryptoSodiumPtr cryptoS = createServerEncryptor(cryptoC);
     cryptoC->clientKeyExchange(cryptoS->_encodedPubKeyAes);
     // test encrypt - decrypt
-    HEADER header{ HEADERTYPE::SESSION, 0, TestEnvironment::_source.size(),
+    HEADER header{ HEADERTYPE::SESSION, 0, _source.size(),
 		   COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
     std::string_view encrypted = cryptoC->encrypt(TestEnvironment::_buffer,
 						  &header,
-						  TestEnvironment::_source);
+						  _source);
     ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
     std::string data(encrypted);
     cryptoS->decrypt(TestEnvironment::_buffer, data);
@@ -50,7 +50,7 @@ TEST(LibSodiumTest, DHkeyExchange) {
     deserialize(recoveredHeader, data.data());
     ASSERT_EQ(header, recoveredHeader);
     std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
-    ASSERT_EQ(payload, TestEnvironment::_source);
+    ASSERT_EQ(payload, _source);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';

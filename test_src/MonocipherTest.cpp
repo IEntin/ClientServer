@@ -14,8 +14,8 @@
 #include "TestEnvironment.h"
 
 TEST(Monocipher_EncryptDecrypt, 1) {
-  std::string message = TestEnvironment::_source;
-  const size_t msgSize = TestEnvironment::_source.size();
+  std::string message = _source;
+  const size_t msgSize = _source.size();
 
     uint8_t key[32]; 
     if (getrandom(&key[0], sizeof(key), 0) == -1)
@@ -49,7 +49,7 @@ TEST(Monocipher_EncryptDecrypt, 1) {
 
     if (status == 0) {
         std::string decrypted_str(decrypted.begin(), decrypted.end());
-	ASSERT_EQ(decrypted_str, TestEnvironment::_source);
+	ASSERT_EQ(decrypted_str, _source);
     }
     crypto_wipe(key, sizeof(key));
 }
