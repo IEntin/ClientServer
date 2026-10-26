@@ -55,7 +55,7 @@ struct LogicTest : testing::Test {
       return;
     }
     std::string_view calibratedOutput = diagnostics == DIAGNOSTICS::ENABLED ?
-      TestEnvironment::_outputD : TestEnvironment::_outputND;
+      _outputD : _outputND;
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     server->stop();
   }
@@ -240,7 +240,7 @@ struct LogicTestAltFormat : testing::Test {
     {
       tcp::TcpClient client;
       client.run();
-      std::string_view calibratedOutput = TestEnvironment::_outputAltFormatD;
+      std::string_view calibratedOutput = _outputAltFormatD;
       ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     }
     server->stop();
@@ -276,7 +276,7 @@ struct LogicTestSortInput : testing::Test {
     ClientOptions::_diagnostics = DIAGNOSTICS::ENABLED;
     tcp::TcpClient client;
     client.run();
-    std::string_view calibratedOutput = TestEnvironment::_outputD;
+    std::string_view calibratedOutput = _outputD;
     ASSERT_EQ(TestEnvironment::_oss.str(), calibratedOutput);
     server->stop();
   }

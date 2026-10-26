@@ -10,7 +10,6 @@ class FileLinesRange {
  public:
   explicit FileLinesRange(char delimiter = '\n', int keepDelimiter = 0);
   ~FileLinesRange()  = default;
-  static std::string _source;
   static std::string _sourceWithIds;
   static std::vector<std::string_view> _lines;
   static  std::vector<std::string_view> _linesWithId;

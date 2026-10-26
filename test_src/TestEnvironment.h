@@ -30,9 +30,6 @@ public:
   static void reset();
 
   static std::ostringstream _oss;
-  static std::string _outputD;
-  static std::string _outputND;
-  static std::string _outputAltFormatD;
   static thread_local std::string _buffer;
 
   };

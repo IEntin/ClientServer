@@ -42,8 +42,8 @@ TEST_F(CompressionTestLZ4, 1_SOURCE) {
 }
 
 TEST_F(CompressionTestLZ4, 1_OUTPUTD) {
-  std::string input = TestEnvironment::_outputD;
-  testCompressionDecompression(TestEnvironment::_outputD);
+  std::string input = _outputD;
+  testCompressionDecompression(_outputD);
 }
 
 struct CompressionTestSnappy : testing::Test {
@@ -66,8 +66,8 @@ TEST_F(CompressionTestSnappy, 1_SOURCE) {
 }
 
 TEST_F(CompressionTestSnappy, 1_OUTPUTD) {
-  std::string input = TestEnvironment::_outputD;
-  testCompressionDecompression(TestEnvironment::_outputD);
+  std::string input = _outputD;
+  testCompressionDecompression(_outputD);
 }
 
 struct CompressionTestZSTD : testing::Test {
@@ -90,8 +90,8 @@ TEST_F(CompressionTestZSTD, 1_SOURCE) {
 }
 
 TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
-  std::string input = TestEnvironment::_outputD;
-  testCompressionDecompression(TestEnvironment::_outputD);
+  std::string input = _outputD;
+  testCompressionDecompression(_outputD);
 }
 
 TEST(SplitTest, NoKeepDelim) {
@@ -104,12 +104,11 @@ TEST(SplitTest, NoKeepDelim) {
 
 TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
-  std::string contents(readFile(ClientOptions::_sourceName));
-  utility::splitRanges(contents, lines, '\n', 1);
+  utility::splitRanges(_source, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10001);
-  ASSERT_TRUE(contents.starts_with(lines[0]));
-  ASSERT_TRUE(contents.ends_with(lines[9999]));
-  ASSERT_FALSE(contents.find(lines[5432]) == std::string::npos);
+  ASSERT_TRUE(_source.starts_with(lines[0]));
+  ASSERT_TRUE(_source.ends_with(lines[9999]));
+  ASSERT_FALSE(_source.find(lines[5432]) == std::string::npos);
 }
 
 TEST(SplitTest, Chars) {
@@ -213,7 +212,7 @@ TEST(FileLinesRangeTest, 1) {
   while (lines.getLine(line))
     sourceCopy.append(line);
   ASSERT_TRUE(lines._last);
-  ASSERT_EQ(sourceCopy, lines._source);
+  ASSERT_EQ(sourceCopy, _source);
 }
 
 TEST(StringLineTest, 1) {
@@ -232,22 +231,22 @@ TEST(StringLinesRangeTest, 1) {
   while (lines.getLine(line))
     sourceCopy.append(line);
   ASSERT_TRUE(lines._last);
-  ASSERT_EQ(sourceCopy, lines._source);
+  ASSERT_EQ(sourceCopy, _source);
 }
 
 TEST(FileLinesRangeTest, 2) {
   FileLinesRange linesR('\n', 1);
-  ASSERT_TRUE(FileLinesRange::_source.ends_with('\n'));
-  ASSERT_FALSE(FileLinesRange::_source.ends_with("\n\n"));
+  ASSERT_TRUE(_source.ends_with('\n'));
+  ASSERT_FALSE(_source.ends_with("\n\n"));
   ASSERT_EQ(linesR._lines.size(), 10001);
   ASSERT_TRUE(linesR._lines[10000].empty());
- ASSERT_FALSE(linesR._lines[9999].ends_with("\n\n"));
- std::string testEntry9999;
- ASSERT_TRUE(linesR.getLine(testEntry9999, 9999));
- ASSERT_TRUE(testEntry9999.starts_with("[9999]"));
- std::string testEntry7654;
- ASSERT_TRUE(linesR.getLine(testEntry7654, 7654));
- ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
+  ASSERT_FALSE(linesR._lines[9999].ends_with("\n\n"));
+  std::string testEntry9999;
+  ASSERT_TRUE(linesR.getLine(testEntry9999, 9999));
+  ASSERT_TRUE(testEntry9999.starts_with("[9999]"));
+  std::string testEntry7654;
+  ASSERT_TRUE(linesR.getLine(testEntry7654, 7654));
+  ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
 }
 
 TEST(FileLinesRangeTest, 3) {
