@@ -19,20 +19,23 @@ FileLinesRange::FileLinesRange(char delimiter,
 			       int keepDelimiter) : _index(0),
 						    _last(false) {
   _lines.clear();
+  _linesWithId.clear();
+  _linesWithIdReversed.clear();
+  _sourceWithIds.clear();
+  _inputPositionWithIds = 0;
   try {
-   std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
+    std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
     for (std::size_t id = 0; id < numberRows; ++id) {
       std::string lineWithId;
-      getLine(lineWithId, id);
+      getLine(lineWithId, _index);
       _sourceWithIds.append(lineWithId);
       _inputPositionWithIds += lineWithId.size();
-      _inputSizeWithIds = _sourceWithIds.size();
-     }
+    }
     _linesWithIdReversed = _linesWithId;
     std::reverse(_linesWithIdReversed.begin(), _linesWithIdReversed.end());
-   
+    
     _index = 0;
-    [[maybe_unused]] std::size_t numberRowsWithId = utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
+    utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
