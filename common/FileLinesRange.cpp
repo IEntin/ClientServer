@@ -9,7 +9,6 @@
 #include "Logger.h"
 #include "Utility.h"
 
-std::size_t FileLinesRange::_inputSize(_source.size());
 std::string FileLinesRange::_sourceWithIds;
 std::vector<std::string_view> FileLinesRange::_lines;
 std::vector<std::string_view> FileLinesRange::_linesWithId;
@@ -22,24 +21,24 @@ FileLinesRange::FileLinesRange(char delimiter,
   _linesWithId.clear();
   _linesWithIdReversed.clear();
   _sourceWithIds.clear();
-  _inputPositionWithIds = 0;
   try {
-    std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
+    const std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
+    assert(_lines.size() == 10001);
     for (std::size_t id = 0; id < numberRows; ++id) {
       std::string lineWithId;
-      getLine(lineWithId, _index);
-      _sourceWithIds.append(lineWithId);
-      _inputPositionWithIds += lineWithId.size();
+      getLine(lineWithId, id);
+      _sourceWithIds += lineWithId;
     }
+    _index = 0;
     _linesWithIdReversed = _linesWithId;
     std::reverse(_linesWithIdReversed.begin(), _linesWithIdReversed.end());
     
-    _index = 0;
     utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
   }
+  assert(_lines.size() == _linesWithId.size());
 }
 
 bool FileLinesRange::getLine(std::string_view& line) {

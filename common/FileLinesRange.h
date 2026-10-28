@@ -20,8 +20,4 @@ class FileLinesRange {
 		     std::string_view lineWithId);
   std::size_t _index = 0;
   bool _last = false;
-  static std::size_t _inputSize;
-  std::size_t _inputPosition = 0;
-  std::size_t _inputSizeWithIds = 0;
-  std::size_t _inputPositionWithIds = 0;
 };
