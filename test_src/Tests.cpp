@@ -37,7 +37,7 @@ struct CompressionTestLZ4 : testing::Test {
 };
 
 TEST_F(CompressionTestLZ4, 1_SOURCE) {
-  std::string input = _source;
+  std::string input = _dataRequests;
   testCompressionDecompression(input);
 }
 
@@ -61,7 +61,7 @@ struct CompressionTestSnappy : testing::Test {
 };
 
 TEST_F(CompressionTestSnappy, 1_SOURCE) {
-  std::string input = _source;
+  std::string input = _dataRequests;
   testCompressionDecompression(input);
 }
 
@@ -85,7 +85,7 @@ struct CompressionTestZSTD : testing::Test {
 };
 
 TEST_F(CompressionTestZSTD, 1_SOURCE) {
-  std::string input = _source;
+  std::string input = _dataRequests;
   testCompressionDecompression(input);
 }
 
@@ -96,7 +96,7 @@ TEST_F(CompressionTestZSTD, 1_OUTPUTD) {
 
 TEST(SplitTest, NoKeepDelim) {
   std::vector<std::string_view> lines;
-  utility::splitRanges(_source, lines);
+  utility::splitRanges(_dataRequests, lines);
   ASSERT_EQ(lines.size(), 10001);
   for (const auto& line : lines)
     ASSERT_FALSE(line.ends_with('\n'));
@@ -104,11 +104,11 @@ TEST(SplitTest, NoKeepDelim) {
 
 TEST(SplitTest, KeepDelim) {
   std::vector<std::string_view> lines;
-  utility::splitRanges(_source, lines, '\n', 1);
+  utility::splitRanges(_dataRequests, lines, '\n', 1);
   ASSERT_EQ(lines.size(), 10001);
-  ASSERT_TRUE(_source.starts_with(lines[0]));
-  ASSERT_TRUE(_source.ends_with(lines[9999]));
-  ASSERT_FALSE(_source.find(lines[5432]) == std::string::npos);
+  ASSERT_TRUE(_dataRequests.starts_with(lines[0]));
+  ASSERT_TRUE(_dataRequests.ends_with(lines[9999]));
+  ASSERT_FALSE(_dataRequests.find(lines[5432]) == std::string::npos);
 }
 
 TEST(SplitTest, Chars) {
@@ -202,42 +202,41 @@ TEST(FileLinesTest, 1) {
   std::string line;
   while (lines.getLine(line))
     sourceCopy += line;
-  ASSERT_EQ(sourceCopy, _source);
+  ASSERT_EQ(sourceCopy, _dataRequests);
 }
 
 TEST(FileLinesRangeTest, 1) {
   std::string sourceCopy;
-  FileLinesRange lines('\n', 1);
-  std::string_view line;
-  while (lines.getLine(line))
-    sourceCopy.append(line);
-  ASSERT_TRUE(lines._last);
-  ASSERT_EQ(sourceCopy, _source);
+  FileLinesRange linesR(_dataRequests, '\n', 1);
+  for (std::size_t id = 0; id < linesR._lines.size(); ++id)
+    sourceCopy.append(linesR._lines[id]);
+  ASSERT_EQ(linesR._lines.size(), 10001);
+  ASSERT_EQ(sourceCopy, _dataRequests);
 }
 
 TEST(StringLineTest, 1) {
   std::string sourceCopy;
-  StringLines lines(_source, '\n', 1);
+  StringLines lines(_dataRequests, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy += line;
-  ASSERT_EQ(sourceCopy, _source);
+  ASSERT_EQ(sourceCopy, _dataRequests);
 }
 
 TEST(StringLinesRangeTest, 1) {
   std::string sourceCopy;
-  StringLinesRange lines(_source, '\n', 1);
+  StringLinesRange lines(_dataRequests, '\n', 1);
   std::string_view line;
   while (lines.getLine(line))
     sourceCopy.append(line);
   ASSERT_TRUE(lines._last);
-  ASSERT_EQ(sourceCopy, _source);
+  ASSERT_EQ(sourceCopy, _dataRequests);
 }
 
 TEST(FileLinesRangeTest, 2) {
-  FileLinesRange linesR('\n', 1);
-  ASSERT_TRUE(_source.ends_with('\n'));
-  ASSERT_FALSE(_source.ends_with("\n\n"));
+  FileLinesRange linesR;
+  ASSERT_TRUE(_dataRequests.ends_with('\n'));
+  ASSERT_FALSE(_dataRequests.ends_with("\n\n"));
   ASSERT_EQ(linesR._lines.size(), 10001);
   ASSERT_TRUE(linesR._lines[10000].empty());
   ASSERT_FALSE(linesR._lines[9999].ends_with("\n\n"));
@@ -247,10 +246,11 @@ TEST(FileLinesRangeTest, 2) {
   std::string testEntry7654;
   ASSERT_TRUE(linesR.getLine(testEntry7654, 7654));
   ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
+  ASSERT_EQ(linesR._lines.size(), 10001);
 }
 
 TEST(FileLinesRangeTest, 3) {
-  FileLinesRange linesR('\n', 1);
+  FileLinesRange linesR(_dataRequests, '\n', 1);
   std::vector<std::string_view> reversedLinesWithId;
   std::vector<std::string_view> reversed(linesR._linesWithId);
   std::string batch;
@@ -268,7 +268,7 @@ TEST(FileLinesRangeTest, 3) {
 }
 
 TEST(ClearPreservesCapacity, 1) {
-  std::string copy = _source;
+  std::string copy = _dataRequests;
   std::size_t orgCapacity = copy.capacity();
   copy.clear();
   std::size_t finalCapacity = copy.capacity();

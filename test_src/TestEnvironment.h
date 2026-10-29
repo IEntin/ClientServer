@@ -38,7 +38,7 @@ public:
     static void testCompressEncrypt(COMPRESSORS compressor,
 				    bool doEncrypt,
 				    CRYPTO crypto) {
-      std::string& data = _source;
+      std::string& data = _dataRequests;
       HEADER header{ HEADERTYPE::SESSION,
 		     0,
 		     data.size(),
@@ -58,7 +58,7 @@ public:
       const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
       singleDecryptDecompress(serverTuple, crypto, TestEnvironment::_buffer, restoredHeader, data);
       ASSERT_EQ(header, restoredHeader);
-      ASSERT_EQ(data, _source);
+      ASSERT_EQ(data, _dataRequests);
     }
     void TearDown() {
       TestEnvironment::reset();

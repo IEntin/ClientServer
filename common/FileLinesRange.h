@@ -4,12 +4,18 @@
 #include <string>
 #include <vector>
 
+#include "ClientOptions.h"
+#include "Utility.h"
+
 #pragma once
 
 class FileLinesRange {
  public:
-  explicit FileLinesRange(char delimiter = '\n', int keepDelimiter = 0);
+  explicit FileLinesRange(const std::string& globalSource = _dataRequests,
+			  char delimiter = '\n',
+			  int keepDelimiter = 1);
   ~FileLinesRange()  = default;
+  const std::string& _source;
   static std::string _sourceWithIds;
   static std::vector<std::string_view> _lines;
   static  std::vector<std::string_view> _linesWithId;

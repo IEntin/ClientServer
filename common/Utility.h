@@ -37,7 +37,7 @@ inline std::string_view readFile(std::string_view fileName) {
   return buffer;
 }
 
-inline std::string _source(readFile(ClientOptions::_sourceName));
+inline std::string _dataRequests(readFile(ClientOptions::_sourceName));
 inline std::string _outputAltFormatD(readFile("data/outputAltFormatD.txt"));
 inline std::string _outputD(readFile("data/outputD.txt"));
 inline std::string _outputND(readFile("data/outputND.txt"));

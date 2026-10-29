@@ -14,12 +14,12 @@ TEST(DoubleEncryptDecrypt, 0) {
   
   const CryptoTuple& clientTuple = cryptotuple::getClientEncryptorTuple();
 
-  HEADER header{ HEADERTYPE::SESSION, 0, _source.size(),
+  HEADER header{ HEADERTYPE::SESSION, 0, _dataRequests.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
   std::string encrypted = doubleEncrypt(clientTuple,
 					TestEnvironment:: _buffer,
 					header,
-					_source);
+					_dataRequests);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   const CryptoTuple& serverTuple = cryptotuple::getServerEncryptorTuple();
 
@@ -33,13 +33,13 @@ TEST(DoubleEncryptDecrypt, 0) {
   deserialize(recoveredHeader, decrypted.data());
   ASSERT_EQ(header, recoveredHeader);
   decrypted.erase(0, HEADER_SIZE);
-  ASSERT_EQ(_source, decrypted);
+  ASSERT_EQ(_dataRequests, decrypted);
 }
 
 struct TestCompressDoubleEncrypt : testing::Test {
   static void testCompressDoubleEncrypt(COMPRESSORS compressor,
 					bool doEncrypt) {
-    std::string data = _source;
+    std::string data = _dataRequests;
     HEADER header{ HEADERTYPE::SESSION,
 		   0,
 		   data.size(),
@@ -63,7 +63,7 @@ struct TestCompressDoubleEncrypt : testing::Test {
 			    recoveredHeader,
 			    encrypted);
     ASSERT_EQ(header, recoveredHeader);
-    ASSERT_EQ(encrypted, _source);
+    ASSERT_EQ(encrypted, _dataRequests);
   }
   void TearDown() {
     TestEnvironment::reset();

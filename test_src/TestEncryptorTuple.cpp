@@ -22,14 +22,14 @@ TEST(RuntimeTupleAccess, 0) {
 TEST(EncryptDecrypt, 0) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  HEADER header{ HEADERTYPE::SESSION, 0, _source.size(),
+  HEADER header{ HEADERTYPE::SESSION, 0, _dataRequests.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
   std::string_view encrypted;
   CryptoWeakSodiumPtr weakSodiumClient = std::get<CryptoWeakSodiumPtr>(clientTuple);
   if (CryptoSodiumPtr encryptorSodiumClient = weakSodiumClient.lock())
     encrypted = encryptorSodiumClient->encrypt(TestEnvironment::_buffer,
 					       &header,
-					       _source);
+					       _dataRequests);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
   CryptoWeakSodiumPtr weakSodiumServer = std::get<CryptoWeakSodiumPtr>(serverTuple);
@@ -40,20 +40,20 @@ TEST(EncryptDecrypt, 0) {
   deserialize(recoveredHeader, data.data());
   ASSERT_EQ(header, recoveredHeader);
   std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
-  ASSERT_EQ(payload, _source);
+  ASSERT_EQ(payload, _dataRequests);
 }
 
 TEST(EncryptDecrypt, 1) {
   CryptoTuple clientTuple = cryptotuple::getClientEncryptorTuple();
   CryptoTuple serverTuple = cryptotuple::getServerEncryptorTuple();
-  HEADER header{ HEADERTYPE::SESSION, 0, _source.size(),
+  HEADER header{ HEADERTYPE::SESSION, 0, _dataRequests.size(),
 		 COMPRESSORS::NONE, DIAGNOSTICS::NONE, STATUS::NONE, 0, 0 };
   std::string_view encrypted;
   CryptoWeakPlPlPtr weakCryptoPPClient = std::get<CryptoWeakPlPlPtr>(clientTuple);
   if (CryptoPlPlPtr encryptorCryptoPPClient = weakCryptoPPClient.lock())
       encrypted = encryptorCryptoPPClient->encrypt(TestEnvironment::_buffer,
 						   &header,
-						   _source);
+						   _dataRequests);
   ASSERT_TRUE(CryptoBase::isEncrypted(encrypted));
   std::string data(encrypted);
   CryptoWeakPlPlPtr weakCryptoPPServer = std::get<CryptoWeakPlPlPtr>(serverTuple);
@@ -64,5 +64,5 @@ TEST(EncryptDecrypt, 1) {
   deserialize(recoveredHeader, data.data());
   ASSERT_EQ(header, recoveredHeader);
   std::string_view payload(data.cbegin() + HEADER_SIZE, data.cend());
-  ASSERT_EQ(payload, _source);
+  ASSERT_EQ(payload, _dataRequests);
 }
