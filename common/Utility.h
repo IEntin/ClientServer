@@ -25,12 +25,15 @@ constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 inline std::string_view readFile(std::string_view fileName) {
   static std::string buffer;
   buffer.clear();
-  std::ifstream stream;
+  static std::ifstream stream;
+  if (stream.is_open())
+    stream.close();
   stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   stream.open(fileName.data(), std::ios::binary);
   std::uintmax_t size = std::filesystem::file_size(fileName);
   buffer.resize(size);
   stream.read(buffer.data(), size);
+  stream.close();
   return buffer;
 }
 
@@ -38,7 +41,7 @@ inline std::string _source(readFile(ClientOptions::_sourceName));
 inline std::string _outputAltFormatD(readFile("data/outputAltFormatD.txt"));
 inline std::string _outputD(readFile("data/outputD.txt"));
 inline std::string _outputND(readFile("data/outputND.txt"));
-
+//inline std::string _adsSource(readFile("ClientServer/data/ads,txt"));
 namespace utility {
 
 consteval std::string_view getAuthenticationMessage() {
