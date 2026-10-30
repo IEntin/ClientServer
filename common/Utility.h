@@ -41,7 +41,6 @@ inline std::string _dataRequests(readFile(ClientOptions::_sourceName));
 inline std::string _outputAltFormatD(readFile("data/outputAltFormatD.txt"));
 inline std::string _outputD(readFile("data/outputD.txt"));
 inline std::string _outputND(readFile("data/outputND.txt"));
-//inline std::string _adsSource(readFile("ClientServer/data/ads,txt"));
 namespace utility {
 
 consteval std::string_view getAuthenticationMessage() {

@@ -9,6 +9,7 @@
 
 #include "AdBid.h"
 #include "FileLines.h"
+#include "FileLinesRange.h"
 #include "IOUtility.h"
 #include "Logger.h"
 #include "Utility.h"
@@ -85,11 +86,22 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
     return it->second;
 }
 
-void Ad::readAds(std::string_view filename) {
+void Ad::readAds() {
   assert(_mapBySize.empty() && "must be called once");
-  FileLines lines(filename);
+  //FileLines lines(filename);
+  std::string _adsSource(readFile("data/ads.txt"));
+  FileLinesRange linesR(_adsSource, '\n', 0);
+  assert(linesR._lines.size() == 1002);
+  assert(linesR._lines[0].starts_with("1000"));
+  assert(linesR._lines[1].starts_with("1000"));
+  assert(linesR._lines[500].starts_with("1499"));
+  assert(linesR._lines[600].starts_with("1599"));
+  assert(linesR._lines[700].starts_with("1699"));
+  assert(linesR._lines[800].starts_with("1799"));
+  assert(linesR._lines[900].starts_with("1899"));
+  assert(linesR._lines[1000].starts_with("1999"));
   std::string_view line;
-  while (lines.getLine(line)) {
+  while (linesR.getLine(line)) {
     std::vector<AdPtr> empty;
     try {
       AdPtr adPtr = std::make_shared<Ad>(line);

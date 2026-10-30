@@ -34,7 +34,7 @@ class Ad : public std::enable_shared_from_this<Ad> {
   std::string_view getId() const { return _id; }
   const std::vector<AdBid>& getBids() const { return _bids; }
   std::vector<AdBid>& getBids() { return _bids; }
-  static void readAds(std::string_view filename);
+  static void readAds();
   static void clear();
   static const std::vector<AdPtr>& getAdsBySize(const SIZETUPLE& key);
   static constexpr double _scaler = 100.;

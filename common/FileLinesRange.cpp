@@ -26,7 +26,6 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
   _sourceWithIds.clear();
   try {
     const std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
-    assert(_lines.size() == 10001);
     for (std::size_t id = 0; id < numberRows; ++id) {
       std::string lineWithId;
       getLine(lineWithId, id);
@@ -39,16 +38,18 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
   catch (const std::exception& e) {
     LogError << e.what() << '\n';
   }
-  assert(_lines.size() == _linesWithId.size());
 }
 
 bool FileLinesRange::getLine(std::string_view& line) {
-  _last = _index >= _lines.size();
-  if (_last)
+  static std::size_t index = 0;
+  if (index < _lines.size()) {
+    line = _lines[index++];
+      return true;
+  }
+  else {
+    index = 0;
     return false;
-  line = _lines[_index];
-  ++_index;
-  return true;
+  }
 }
 
 bool FileLinesRange::getLine(std::string& lineWithId, std::size_t index) {

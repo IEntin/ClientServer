@@ -49,11 +49,11 @@ Server::~Server() {
 void Server::setPolicy() {
   switch (ServerOptions::_policyEnum) {
   case POLICYENUM::NOSORTINPUT:
-    Ad::readAds(ServerOptions::_adsFileName);
+    Ad::readAds();
     _policy = std::make_unique<NoSortInputPolicy>();
     break;
   case POLICYENUM::SORTINPUT:
-    Ad::readAds(ServerOptions::_adsFileName);
+    Ad::readAds();
     _policy = std::make_unique<SortInputPolicy>();
     break;
   case POLICYENUM::ECHOPOLICY:
