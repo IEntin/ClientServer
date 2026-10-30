@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "AdBid.h"
-#include "FileLines.h"
 #include "FileLinesRange.h"
 #include "IOUtility.h"
 #include "Logger.h"
@@ -88,17 +87,10 @@ const std::vector<AdPtr>& Ad::getAdsBySize(const SIZETUPLE& key) {
 
 void Ad::readAds() {
   assert(_mapBySize.empty() && "must be called once");
-  //FileLines lines(filename);
   std::string _adsSource(readFile("data/ads.txt"));
   FileLinesRange linesR(_adsSource, '\n', 0);
   assert(linesR._lines.size() == 1002);
   assert(linesR._lines[0].starts_with("1000"));
-  assert(linesR._lines[1].starts_with("1000"));
-  assert(linesR._lines[500].starts_with("1499"));
-  assert(linesR._lines[600].starts_with("1599"));
-  assert(linesR._lines[700].starts_with("1699"));
-  assert(linesR._lines[800].starts_with("1799"));
-  assert(linesR._lines[900].starts_with("1899"));
   assert(linesR._lines[1000].starts_with("1999"));
   std::string_view line;
   while (linesR.getLine(line)) {
