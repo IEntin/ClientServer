@@ -252,18 +252,17 @@ TEST(FileLinesRangeTest, 2) {
 TEST(FileLinesRangeTest, 3) {
   FileLinesRange linesR(_dataRequests, '\n', 1);
   std::vector<std::string_view> reversedLinesWithId;
-  std::vector<std::string_view> reversed(linesR._linesWithId);
   std::string batch;
-  std::reverse(reversed.begin(), reversed.end());
-  ASSERT_EQ(linesR._linesWithId.size(), reversed.size());
-  ASSERT_EQ(linesR._linesWithId.front(), reversed.back());
-  for (std::size_t index = 0; index < reversed.size(); ++index)
-    ASSERT_EQ(linesR._linesWithId[index], reversed[reversed.size()- 1 - index]);
-  while (!reversed.empty()) {
-    batch.append(reversed.back());
-    reversed.pop_back();
+  std::ranges::reverse_copy(linesR._linesWithId, std::back_inserter(reversedLinesWithId));
+  ASSERT_EQ(linesR._linesWithId.size(), reversedLinesWithId.size());
+  ASSERT_EQ(linesR._linesWithId.front(), reversedLinesWithId.back());
+  for (std::size_t index = 0; index < reversedLinesWithId.size(); ++index)
+    ASSERT_EQ(linesR._linesWithId[index], reversedLinesWithId[reversedLinesWithId.size()- 1 - index]);
+  while (!reversedLinesWithId.empty()) {
+    batch.append(reversedLinesWithId.back());
+    reversedLinesWithId.pop_back();
   }
-  ASSERT_TRUE(reversed.empty());
+  ASSERT_TRUE(reversedLinesWithId.empty());
   ASSERT_EQ(batch, linesR._sourceWithIds);
 }
 

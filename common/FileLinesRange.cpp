@@ -30,8 +30,8 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
       getLineWithId(lineWithId, id);
       _sourceWithIds += lineWithId;
     }
-    _linesWithIdReversed = _linesWithId;
-    std::reverse(_linesWithIdReversed.begin(), _linesWithIdReversed.end());
+    _linesWithIdReversed.reserve(_linesWithId.size());
+    std::ranges::reverse_copy(_linesWithId, std::back_inserter(_linesWithIdReversed));
     utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
   catch (const std::exception& e) {
