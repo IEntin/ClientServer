@@ -241,10 +241,10 @@ TEST(FileLinesRangeTest, 2) {
   ASSERT_TRUE(linesR._lines[10000].empty());
   ASSERT_FALSE(linesR._lines[9999].ends_with("\n\n"));
   std::string testEntry9999;
-  ASSERT_TRUE(linesR.getLine(testEntry9999, 9999));
+  ASSERT_TRUE(linesR.getLineWithId(testEntry9999, 9999));
   ASSERT_TRUE(testEntry9999.starts_with("[9999]"));
   std::string testEntry7654;
-  ASSERT_TRUE(linesR.getLine(testEntry7654, 7654));
+  ASSERT_TRUE(linesR.getLineWithId(testEntry7654, 7654));
   ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
   ASSERT_EQ(linesR._lines.size(), 10001);
 }
