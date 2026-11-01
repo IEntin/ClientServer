@@ -27,8 +27,9 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
     const std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
     for (std::size_t id = 0; id < numberRows; ++id) {
       std::string lineWithId;
-      getLineWithId(lineWithId, id);
+      createLineWithId(lineWithId, id);
       _sourceWithIds += lineWithId;
+      _linesWithId.push_back(lineWithId);
     }
     _linesWithIdReversed.reserve(_linesWithId.size());
     std::ranges::reverse_copy(_linesWithId, std::back_inserter(_linesWithIdReversed));
@@ -51,7 +52,7 @@ bool FileLinesRange::getLine(std::string_view& line) {
   }
 }
 
-bool FileLinesRange::getLineWithId(std::string& lineWithId, std::size_t index) {
+bool FileLinesRange::createLineWithId(std::string& lineWithId, std::size_t index) {
   if (index < _lines.size()) {
     std::string_view line = _lines[index];
     ioutility::updateStringWithId(lineWithId, index, line);

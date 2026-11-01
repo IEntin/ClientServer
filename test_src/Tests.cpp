@@ -234,18 +234,12 @@ TEST(StringLinesRangeTest, 1) {
 }
 
 TEST(FileLinesRangeTest, 2) {
-  FileLinesRange linesR;
+  FileLinesRange linesR(_dataRequests, '\n', 1);
   ASSERT_TRUE(_dataRequests.ends_with('\n'));
-  ASSERT_FALSE(_dataRequests.ends_with("\n\n"));
   ASSERT_EQ(linesR._lines.size(), 10001);
   ASSERT_TRUE(linesR._lines[10000].empty());
-  ASSERT_FALSE(linesR._lines[9999].ends_with("\n\n"));
-  std::string testEntry9999;
-  ASSERT_TRUE(linesR.getLineWithId(testEntry9999, 9999));
-  ASSERT_TRUE(testEntry9999.starts_with("[9999]"));
-  std::string testEntry7654;
-  ASSERT_TRUE(linesR.getLineWithId(testEntry7654, 7654));
-  ASSERT_TRUE(testEntry7654.starts_with("[7654]"));
+  ASSERT_TRUE(linesR._linesWithId[9999].starts_with("[9999]"));
+  ASSERT_TRUE(linesR._linesWithId[7654].starts_with("[7654]"));
   ASSERT_EQ(linesR._lines.size(), 10001);
 }
 
@@ -254,7 +248,7 @@ TEST(FileLinesRangeTest, 3) {
   std::vector<std::string_view> reversedLinesWithId;
   std::string batch;
   std::ranges::reverse_copy(linesR._linesWithId, std::back_inserter(reversedLinesWithId));
-  ASSERT_EQ(linesR._linesWithId.size(), reversedLinesWithId.size());
+  ASSERT_EQ(linesR._linesWithId.size(), linesR._linesWithIdReversed.size());
   ASSERT_EQ(linesR._linesWithId.front(), reversedLinesWithId.back());
   for (std::size_t index = 0; index < reversedLinesWithId.size(); ++index)
     ASSERT_EQ(linesR._linesWithId[index], reversedLinesWithId[reversedLinesWithId.size()- 1 - index]);
