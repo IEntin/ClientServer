@@ -19,7 +19,6 @@ class FileLinesRange {
   static std::string _sourceWithIds;
   static std::vector<std::string_view> _lines;
   static  std::vector<std::string_view> _linesWithId;
-  static std::vector<std::string_view> _linesWithIdReversed;
   bool getLine(std::string_view& line);
   bool createLineWithId(std::string& lineWithId, std::size_t index);
   bool getLineWithId(std::vector<std::string_view> linesWithIdReversed,

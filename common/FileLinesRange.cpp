@@ -12,7 +12,6 @@
 std::string FileLinesRange::_sourceWithIds;
 std::vector<std::string_view> FileLinesRange::_lines;
 std::vector<std::string_view> FileLinesRange::_linesWithId;
-std::vector<std::string_view> FileLinesRange::_linesWithIdReversed;
 
 FileLinesRange::FileLinesRange(const std::string& globalSource,
 			       char delimiter,
@@ -21,7 +20,7 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
 			       _index(0) {
   _lines.clear();
   _linesWithId.clear();
-  _linesWithIdReversed.clear();
+  //_linesWithIdReversed.clear();
   _sourceWithIds.clear();
   try {
     const std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
@@ -31,8 +30,6 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
       _sourceWithIds += lineWithId;
       _linesWithId.push_back(lineWithId);
     }
-    _linesWithIdReversed.reserve(_linesWithId.size());
-    std::ranges::reverse_copy(_linesWithId, std::back_inserter(_linesWithIdReversed));
     utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
   catch (const std::exception& e) {

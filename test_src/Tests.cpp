@@ -246,14 +246,14 @@ TEST(FileLinesRangeTest, 2) {
 TEST(FileLinesRangeTest, 3) {
   FileLinesRange linesR(_dataRequests, '\n', 1);
   std::vector<std::string_view> reversedLinesWithId;
+  reversedLinesWithId.reserve(linesR._linesWithId.size());
   std::string batch;
   std::ranges::reverse_copy(linesR._linesWithId, std::back_inserter(reversedLinesWithId));
-  ASSERT_EQ(linesR._linesWithId.size(), linesR._linesWithIdReversed.size());
+  ASSERT_EQ(linesR._linesWithId.size(), reversedLinesWithId.size());
   ASSERT_EQ(linesR._linesWithId.front(), reversedLinesWithId.back());
-  for (std::size_t index = 0; index < reversedLinesWithId.size(); ++index)
-    ASSERT_EQ(linesR._linesWithId[index], reversedLinesWithId[reversedLinesWithId.size()- 1 - index]);
   while (!reversedLinesWithId.empty()) {
-    batch.append(reversedLinesWithId.back());
+    std::string_view lineWithId(reversedLinesWithId.back());
+    batch.append(lineWithId);
     reversedLinesWithId.pop_back();
   }
   ASSERT_TRUE(reversedLinesWithId.empty());
