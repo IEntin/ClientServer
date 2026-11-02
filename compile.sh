@@ -38,7 +38,7 @@ trap EXIT SIGHUP SIGINT SIGTERM
 
 mkdir -p $UP_DIR/Fifos
 
-make -j$(nproc)
+make -j$(nproc) "$@"
 
 date
 
