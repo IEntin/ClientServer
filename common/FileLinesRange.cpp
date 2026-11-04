@@ -15,12 +15,11 @@ std::vector<std::string_view> FileLinesRange::_linesWithId;
 
 FileLinesRange::FileLinesRange(const std::string& globalSource,
 			       char delimiter,
-			       int keepDelimiter) :
-                               _source(globalSource),
-			       _index(0) {
+			       int keepDelimiter) : _source(globalSource),
+						    _linesIndex(0),
+						    _linesWithIdIndex(0) {
   _lines.clear();
   _linesWithId.clear();
-  //_linesWithIdReversed.clear();
   _sourceWithIds.clear();
   try {
     const std::size_t numberRows = utility::splitRanges(_source, _lines, delimiter, keepDelimiter);
@@ -38,14 +37,22 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
 }
 
 bool FileLinesRange::getLine(std::string_view& line) {
-  static std::size_t index = 0;
-  if (index < _lines.size()) {
-    line = _lines[index++];
-      return true;
+  if (_linesIndex < _lines.size()) {
+    line = _lines[_linesIndex++];
+    return true;
   }
   else {
-    index = 0;
     return false;
+  }
+}
+
+bool FileLinesRange::getLineWithId(std::string_view& lineWithId) {
+  if (_linesWithIdIndex < _linesWithId.size()) {
+    lineWithId = _linesWithId[_linesWithIdIndex++];
+    return true;
+  }
+  else {
+     return false;
   }
 }
 
@@ -53,20 +60,13 @@ bool FileLinesRange::createLineWithId(std::string& lineWithId, std::size_t index
   if (index < _lines.size()) {
     std::string_view line = _lines[index];
     ioutility::updateStringWithId(lineWithId, index, line);
-    ++_index;
     return true;
   }
   else
     return false;
 }
 
-bool FileLinesRange::getLineWithId(std::vector<std::string_view> linesWithIdReversed,
-				   std::string_view lineWithId) {
-  if (!linesWithIdReversed.empty()) {
-    lineWithId = linesWithIdReversed.back();
-    linesWithIdReversed.pop_back();
-    return true;
-  }
-  else
-    return false;
+void FileLinesRange::resetIndices() {
+  _linesIndex = 0;
+  _linesWithIdIndex = 0;
 }

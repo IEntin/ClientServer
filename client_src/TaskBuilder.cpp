@@ -3,7 +3,6 @@
  */
 
 #include "ClientOptions.h"
-#include "FileLines.h"
 #include "IOUtility.h"
 #include "TaskBuilder.h"
 
@@ -20,8 +19,8 @@ void TaskBuilder::run() {
     _resume = false;
     try {
       // can be a new or the same source for tests.
-      FileLines lines(ClientOptions::_sourceName, '\n', true);
-      while (createSubtask(lines) == STATUS::SUBTASK_DONE);
+      _linesR.resetIndices();
+      while (createSubtask() == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
       _conditionResume.wait(lock, [this] { return _resume || _stopped; });
     }
@@ -55,16 +54,16 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 // reduce the number of system calls. The size of the
 // aggregate depends on the buffer size.
 
-STATUS TaskBuilder::createSubtask(Lines& lines) {
+STATUS TaskBuilder::createSubtask() {
   _batch.clear();
   // lower bound estimate considering added id
   std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
-  std::string_view line;
-  while (lines.getLine(line)) {
-    ioutility::updateStringWithId(_batch, lines._index, line);
-    bool alldone = lines._last;
-    if (_batch.size() >= maxSubtaskSize || alldone)
-      return compressEncryptSubtask(alldone);
+  std::string_view lineWithId;
+  while (_linesR.getLineWithId(lineWithId)) {
+    _batch.append(lineWithId);
+    bool allDone = _linesR._linesWithIdIndex == _linesR._linesWithId.size() - 1;
+    if (_batch.size() >= maxSubtaskSize || allDone)
+      return compressEncryptSubtask(allDone);
   }
   return STATUS::NONE;
 }
