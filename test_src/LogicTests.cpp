@@ -224,7 +224,7 @@ TEST_F(LogicTest, FIFO_NONE_ZSTD_3600000_NOTENCRYPT_NOTENCRYPT_ND) {
   ClientOptions::_doEncrypt = false;
   testLogic(CLIENT_TYPE::FIFOCLIENT, COMPRESSORS::NONE, COMPRESSORS::ZSTD, 3600000, DIAGNOSTICS::NONE);
 }
-/*
+
 struct LogicTestAltFormat : testing::Test {
   void testLogicAltFormat() {
     ServerOptions::_compressor = COMPRESSORS::ZSTD;
@@ -254,7 +254,6 @@ struct LogicTestAltFormat : testing::Test {
 TEST_F(LogicTestAltFormat, Diagnostics) {
   testLogicAltFormat();
 }
-*/
 
 struct LogicTestSortInput : testing::Test {
   void testLogicSortInput(bool sort) {

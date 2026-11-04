@@ -38,9 +38,11 @@ inline std::string_view readFile(std::string_view fileName) {
 }
 
 inline std::string _dataRequests(readFile(ClientOptions::_sourceName));
+inline std::string _requestsAltFormatData(readFile("data/requestsDiffFormat.log"));
 inline std::string _outputAltFormatD(readFile("data/outputAltFormatD.txt"));
 inline std::string _outputD(readFile("data/outputD.txt"));
 inline std::string _outputND(readFile("data/outputND.txt"));
+
 namespace utility {
 
 consteval std::string_view getAuthenticationMessage() {
@@ -59,13 +61,14 @@ std::size_t splitRanges(const INPUT& input,
 			char delim = '\n',
 			int keepDelim = 0,
 			bool reverse = false) {
+  const std::size_t inputSize = input.size();
   rows = input
     | std::views::split(delim)
     | std::views::transform([&](auto&& rng) {
       const char* start = &*rng.begin();
       size_t size = std::ranges::distance(rng);
       if (keepDelim == 1) {
-	if (start + size + 1 <= input.data() + input.size()) {
+	if (start + size + 1 <= input.data() + inputSize) {
 	  size += 1;
 	}
       }
@@ -79,10 +82,11 @@ std::size_t splitRanges(const INPUT& input,
 
 template <typename INPUT, typename CONTAINER>
 void split(const INPUT& input, CONTAINER& rows, std::string_view separators) {
+  const std::size_t inputSize = input.size();
   std::size_t beg = input.find_first_not_of(separators);
   while (beg != INPUT::npos) {
     std::size_t pos = input.find_first_of(separators, beg + 1);
-    std::size_t end = pos == INPUT::npos ? input.size() : pos;
+    std::size_t end = pos == INPUT::npos ? inputSize : pos;
     rows.emplace_back(input.cbegin() + beg, input.cbegin() + end);
     beg = input.find_first_not_of(separators, end + 1);
   }

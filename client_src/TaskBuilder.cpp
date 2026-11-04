@@ -57,11 +57,12 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 STATUS TaskBuilder::createSubtask() {
   _batch.clear();
   // lower bound estimate considering added id
-  std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
+  const std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
+  const std::size_t vectorSize = _linesR._linesWithId.size();
   std::string_view lineWithId;
   while (_linesR.getLineWithId(lineWithId)) {
     _batch.append(lineWithId);
-    bool allDone = _linesR._linesWithIdIndex == _linesR._linesWithId.size() - 1;
+    bool allDone = _linesR._linesWithIdIndex == vectorSize - 1;
     if (_batch.size() >= maxSubtaskSize || allDone)
       return compressEncryptSubtask(allDone);
   }

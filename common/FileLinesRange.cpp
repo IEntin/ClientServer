@@ -37,7 +37,8 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
 }
 
 bool FileLinesRange::getLine(std::string_view& line) {
-  if (_linesIndex < _lines.size()) {
+  const std::size_t size = _lines.size();
+  if (_linesIndex < size) {
     line = _lines[_linesIndex++];
     return true;
   }
@@ -47,7 +48,8 @@ bool FileLinesRange::getLine(std::string_view& line) {
 }
 
 bool FileLinesRange::getLineWithId(std::string_view& lineWithId) {
-  if (_linesWithIdIndex < _linesWithId.size()) {
+  const std::size_t size = _linesWithId.size();
+  if (_linesWithIdIndex < size) {
     lineWithId = _linesWithId[_linesWithIdIndex++];
     return true;
   }
@@ -57,7 +59,8 @@ bool FileLinesRange::getLineWithId(std::string_view& lineWithId) {
 }
 
 bool FileLinesRange::createLineWithId(std::string& lineWithId, std::size_t index) {
-  if (index < _lines.size()) {
+  const std::size_t size = _lines.size();
+  if (index < size) {
     std::string_view line = _lines[index];
     ioutility::updateStringWithId(lineWithId, index, line);
     return true;
