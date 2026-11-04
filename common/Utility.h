@@ -38,7 +38,7 @@ inline std::string_view readFile(std::string_view fileName) {
 }
 
 inline std::string _dataRequests(readFile(ClientOptions::_sourceName));
-inline std::string _requestsAltFormatData(readFile("data/requestsDiffFormat.log"));
+inline std::string _dataAltrequests(readFile("data/requestsDiffFormat.log"));
 inline std::string _outputAltFormatD(readFile("data/outputAltFormatD.txt"));
 inline std::string _outputD(readFile("data/outputD.txt"));
 inline std::string _outputND(readFile("data/outputND.txt"));

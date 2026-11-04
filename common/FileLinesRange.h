@@ -12,7 +12,7 @@
 class FileLinesRange {
  public:
   explicit FileLinesRange(const std::string& globalSource = (ClientOptions::_sourceName == "data/requests.log") ?_dataRequests :
-			  _requestsAltFormatData,
+			  _dataAltrequests,
 			  char delimiter = '\n',
 			  int keepDelimiter = 1);
   ~FileLinesRange()  = default;
