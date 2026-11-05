@@ -27,7 +27,6 @@ FileLinesRange::FileLinesRange(const std::string& globalSource,
       std::string lineWithId;
       createLineWithId(lineWithId, id);
       _sourceWithIds += lineWithId;
-      _linesWithId.push_back(lineWithId);
     }
     utility::splitRanges(_sourceWithIds, _linesWithId, delimiter, keepDelimiter);
   }
