@@ -49,7 +49,9 @@ class CryptoPlPl : public CryptoBase, public std::enable_shared_from_this<Crypto
 		       CryptoPP::SecByteBlock& pub);
   template <typename INSTANCE>
   void setAESmodule(INSTANCE& instance) {
-    std::lock_guard lock(_mutex);
+    std::unique_lock lock(_mutex, std::defer_lock);
+    if (Options::_debug)
+      lock.lock(); 
     _keyHandler.recoverKey(_key);
     instance = INSTANCE(_key);
     _keyHandler.hideKey(_key);
