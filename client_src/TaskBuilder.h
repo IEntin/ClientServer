@@ -34,6 +34,8 @@ class TaskBuilder final : public Runnable {
   ~TaskBuilder() override = default;
   void stop() override;
   std::pair<std::size_t, STATUS> getTask(Subtasks& task);
-  STATUS createSubtask();
+  STATUS processSubtask(std::size_t batchIndex);
   void resume();
+  std::vector<std::string> _batches;
+  bool createBatches();
 };

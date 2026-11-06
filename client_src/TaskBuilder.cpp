@@ -12,15 +12,18 @@ TaskBuilder::TaskBuilder(const std::tuple<CryptoWeakSodiumPtr, CryptoWeakPlPlPtr
   _linesR() {
   _batch.reserve(ClientOptions::_bufferSize);
   _subtasks.reserve(30);
+  createBatches();
 }
 
 void TaskBuilder::run() {
+  const std::size_t batchesSize = _batches.size();
+  std::size_t batchIndex = 0;
   while (!_stopped) {
     _resume = false;
     try {
       // can be a new or the same source for tests.
       _linesR.resetIndices();
-      while (createSubtask() == STATUS::SUBTASK_DONE);
+      while (batchIndex < batchesSize && processSubtask(batchIndex) == STATUS::SUBTASK_DONE);
       std::unique_lock lock(_mutex);
       _conditionResume.wait(lock, [this] { return _resume || _stopped; });
     }
@@ -54,19 +57,11 @@ std::pair<std::size_t, STATUS> TaskBuilder::getTask(Subtasks& task) {
 // reduce the number of system calls. The size of the
 // aggregate depends on the buffer size.
 
-STATUS TaskBuilder::createSubtask() {
-  _batch.clear();
-  // lower bound estimate considering added id
-  const std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
-  const std::size_t vectorSize = _linesR._linesWithId.size();
-  std::string_view lineWithId;
-  while (_linesR.getLineWithId(lineWithId)) {
-    _batch.append(lineWithId);
-    bool allDone = _linesR._linesWithIdIndex == vectorSize - 1;
-    if (_batch.size() >= maxSubtaskSize || allDone)
-      return compressEncryptSubtask(allDone);
-  }
-  return STATUS::NONE;
+STATUS TaskBuilder::processSubtask(std::size_t batchIndex) {
+  const std::size_t batchesSize = _batches.size();
+  bool alldone = batchIndex == batchesSize - 1;
+  _batch = _batches[batchIndex];
+  return compressEncryptSubtask(alldone);
 }
 
 // Compress and encypt requests if options require.
@@ -126,4 +121,25 @@ void TaskBuilder::resume() {
   _status = STATUS::NONE;
   _resume = true;
   _conditionResume.notify_one();
+}
+
+bool TaskBuilder::createBatches() {
+  _linesR.resetIndices();
+  const std::size_t maxSubtaskSize = ClientOptions::_bufferSize - HEADER_SIZE;
+  const std::size_t vectorSize = _linesR._linesWithId.size();
+  _batches.reserve(5);
+  std::string batch;
+  bool allDone = false;
+  std::string_view lineWithId;
+  while (_linesR.getLineWithId(lineWithId)) {
+    batch.append(lineWithId);
+    allDone = _linesR._linesWithIdIndex == vectorSize - 1;
+    if (_batch.size() >= maxSubtaskSize || allDone) {
+     _batches.push_back(batch);
+      batch.clear();
+    }
+    if (!allDone)
+      continue;
+  }
+  return true;
 }
