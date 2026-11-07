@@ -38,7 +38,8 @@ TcpSession::TcpSession(ServerWeakPtr server,
 bool TcpSession::start() {
   boost::system::error_code ec;
   _socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
-  if (ec) {
+  boost::asio::ip::tcp::no_delay(true);
+ if (ec) {
     LogError << ec.what() << '\n';
     return false;
   }

@@ -22,8 +22,10 @@ bool TcpAcceptor::start() {
   boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), Options::_tcpPort);
   boost::system::error_code ec;
   _acceptor.open(boost::asio::ip::tcp::v4(), ec);
-  if (!ec)
+  if (!ec) {
+    boost::asio::ip::tcp::no_delay(true);
     _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), ec);
+  }
   if (!ec)
     _acceptor.bind(endpoint, ec);
   if (!ec)

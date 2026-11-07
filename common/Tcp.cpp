@@ -42,6 +42,7 @@ bool Tcp::setSocket(boost::asio::ip::tcp::socket& socket) {
     return false;
   }
   socket.set_option(boost::asio::socket_base::reuse_address(true), ec);
+  boost::asio::ip::tcp::no_delay(true);
   if (ec) {
     if (ec.value() == boost::asio::error::connection_reset)
       Info << ec.what() << '\n';
