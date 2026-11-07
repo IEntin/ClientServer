@@ -18,7 +18,7 @@
 
 // common constants
 
-constexpr std::string_view ENDOFMESSAGE("f65438b3bf504ace8483e6642a84d2fd");
+constexpr std::string_view ENDOFMESSAGE("00d9f4e8312747d4873dcd9c993f1ff7");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
 
