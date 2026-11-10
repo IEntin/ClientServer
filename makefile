@@ -76,6 +76,8 @@ CPPFLAGS := -g $(INCLUDE_PRECOMPILED) $(GDWARF) -std=c++2b -fstack-protector-str
  -pipe -MMD -MP $(WARNINGS) \
 $(OPTIMIZATION) $(SANBLD) $(PROFBLD)
 
+LDFLAGS := -fuse-ld=mold
+
 BUILDDIR := build
 
 vpath %.cpp $(BUSINESSDIR) $(POLICYDIR) $(COMMONDIR) $(CLIENTSRCDIR) $(TESTSRCDIR)
@@ -103,21 +105,21 @@ SERVERFILTEREDOBJ := $(filter-out $(BUILDDIR)/ServerMain.o, $(SERVEROBJ))
 
 serverX : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVEROBJ)
 	$(CXX) -o $(SERVERBIN) $(SERVEROBJ) $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) \
-$(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+$(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd $(LDFLAGS)
 
 CLIENTSRC := $(wildcard $(CLIENTSRCDIR)/*.cpp)
 CLIENTOBJ := $(patsubst $(CLIENTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CLIENTSRC))
 CLIENTFILTEREDOBJ := $(filter-out $(BUILDDIR)/ClientMain.o, $(CLIENTOBJ))
 
 $(CLIENTBIN) : $(COMMONOBJ) $(CLIENTOBJ)
-	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ)  $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+	$(CXX) -o $@ $(CLIENTOBJ) $(COMMONOBJ)  $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd  $(LDFLAGS)
 
 TESTSRC := $(wildcard $(TESTSRCDIR)/*.cpp)
 TESTOBJ := $(patsubst $(TESTSRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TESTSRC))
 
 $(TESTBIN) : $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) $(CLIENTFILTEREDOBJ) $(TESTOBJ)
 	$(CXX) -o $@ $(TESTOBJ) -lgtest $(COMMONOBJ) $(BUSINESSOBJ) $(POLICYOBJ) $(SERVERFILTEREDOBJ) \
-$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd
+$(CLIENTFILTEREDOBJ) $(CPPFLAGS) -pthread -lcryptopp -lsodium -llz4 -lsnappy -lzstd  $(LDFLAGS)
 
 RUNTESTSPSEUDOTARGET := runtests
 

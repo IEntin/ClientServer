@@ -14,7 +14,7 @@
 
 struct Options {
 public:
- static void extractMatching(const boost::json::value& jv);
+  static void extractMatching(const boost::json::value& jv);
   static constexpr bool _debug = false;
   static constexpr CRYPTO _primaryEncryptor = CRYPTO::CRYPTOSODIUM;
   static constexpr CRYPTO _secondaryEncryptor = CRYPTO::CRYPTOPP;

@@ -38,6 +38,9 @@ current version 1.2.2\
 zstd must be installed:\
 'sudo apt install -y libzstd-dev'
 
+modern linker mold must be installed:\
+sudo apt-get install mold
+
 Note: current gcc versions have documented problems with thread sanitizer.\
 For this reason all TSAN builds are made by clang++.\
 This limitation will be removed as soon as new versions of gcc/g++ are available.

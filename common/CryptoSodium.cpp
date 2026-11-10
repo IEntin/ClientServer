@@ -196,7 +196,7 @@ bool CryptoSodium::clientKeyExchange(std::string_view encodedPeerPubKeyAes) {
 }
 
 std::string CryptoSodium::base64_encode(std::span<unsigned char> input) {
-  size_t encoded_length = sodium_base64_ENCODED_LEN(std::ssize(input), sodium_base64_VARIANT_ORIGINAL);
+  std::size_t encoded_length = sodium_base64_ENCODED_LEN(std::ssize(input), sodium_base64_VARIANT_ORIGINAL);
   std::string encoded_string(encoded_length, '\0');
   if (sodium_bin2base64(encoded_string.data(), encoded_length, input.data(), std::ssize(input),
 			sodium_base64_VARIANT_ORIGINAL) == nullptr)
