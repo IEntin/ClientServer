@@ -16,9 +16,9 @@ clang 19.1.7\
 
 and
 
-2. Linux Mint 22.3 Zena\
-gcc 13.3.0\
-clang 18.1.3\
+2. Debian GNU/Linux 13 (trixie) \
+gcc (Debian 14.2.0-19) 14.2.0
+clang Debian clang version 19.1.7 (3+b1)
 8GB RAM\
 8 cores
 
