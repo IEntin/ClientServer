@@ -60,6 +60,7 @@ void Tcp::shutdownSocket(boost::asio::ip::tcp::socket& socket) {
 
 bool Tcp::readMessage(boost::asio::ip::tcp::socket& socket,
 		      std::string& payload) {
+  payload.reserve(65536); 
   boost::system::error_code ec;
   [[maybe_unused]] std::size_t transferred = boost::asio::read_until(socket,
     boost::asio::dynamic_buffer(payload), ENDOFMESSAGE, ec);

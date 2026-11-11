@@ -94,6 +94,7 @@ bool TcpSession::sendReply() {
 
 void TcpSession::readRequest() {
   asyncWait();
+  _request.reserve(65536); 
   boost::asio::async_read_until(_socket,
     boost::asio::dynamic_buffer(_request),
     ENDOFMESSAGE,
