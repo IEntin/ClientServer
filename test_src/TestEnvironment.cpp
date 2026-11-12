@@ -14,6 +14,7 @@ thread_local std::string TestEnvironment::_buffer;
 
 void TestEnvironment::SetUp() {
   signal(SIGPIPE, SIG_IGN);
+  _buffer.reserve(BUFFER_CAPACITY);
   ServerOptions::parse("ServerOptions.json");
   ClientOptions::parse("", &_oss);
   DebugLog::setDebugLog(APPTYPE::TESTS);
