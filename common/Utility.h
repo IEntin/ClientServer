@@ -21,6 +21,7 @@
 constexpr std::string_view ENDOFMESSAGE("00d9f4e8312747d4873dcd9c993f1ff7");
 constexpr std::size_t ENDOFMESSAGESZ = ENDOFMESSAGE.size();
 constexpr const char* FIFO_NAMED_MUTEX("FIFO_NAMED_MUTEX");
+constexpr std::size_t BUFFER_CAPACITY(65536);
 
 inline std::string_view readFile(std::string_view fileName) {
   static std::string buffer;

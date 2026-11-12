@@ -158,6 +158,7 @@ bool Fifo::readStringNonBlock(std::string_view name, std::string& payload) {
 }
 
 bool Fifo::readMessage(std::string_view name, bool block, std::string& payload) {
+  payload.reserve(BUFFER_CAPACITY); 
   if (block) {
     if (!readStringBlock(name, payload))
       return false;

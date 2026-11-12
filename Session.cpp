@@ -19,6 +19,7 @@ try :
   _task(std::make_shared<Task>(server)),
     _server(server) {
     _clientId = utility::getUniqueId();
+    _buffer.reserve(BUFFER_CAPACITY);
     switch(Options::_primaryEncryptor) {
     case CRYPTO::CRYPTOSODIUM:
       {
@@ -43,6 +44,7 @@ try :
     default:
       break;
     }
+    _buffer.reserve(BUFFER_CAPACITY);
     if (!_primarySodiumEncryptor) {
       _primarySodiumEncryptor = std::make_shared<CryptoSodium>(primaryPubKeyAes,
 							       primarySignatureWithKey);

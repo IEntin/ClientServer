@@ -61,7 +61,7 @@ Client::Client() : _chronometer(ClientOptions::_timing) {
     _authenticationHeader = { HEADERTYPE::AUTHENTICATE, _primarySignatureWithKey.size(),
 			      _primaryPubKeyAes.size(), COMPRESSORS::NONE, DIAGNOSTICS::NONE,
 			      STATUS::NONE, _secondarySignatureWithKey.size(), _secondaryPubKeyAes.size() };
-    _buffer.reserve(ClientOptions::_bufferSize);
+    _buffer.reserve(BUFFER_CAPACITY);
 }
 
 Client::~Client() {
