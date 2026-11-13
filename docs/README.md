@@ -22,6 +22,9 @@ clang Debian clang version 19.1.7 (3+b1)
 8GB RAM\
 8 cores
 
+The second has SSD and twice as many cores.\
+Shows better results and profiles.
+
 Note:
 New code requires c++-23 for Range support\
 Upgrade clang and/or gcc versions\
